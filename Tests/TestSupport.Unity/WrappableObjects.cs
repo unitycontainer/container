@@ -1,0 +1,98 @@
+﻿//===============================================================================
+// Microsoft patterns & practices
+// Unity Application Block
+//===============================================================================
+// Copyright © Microsoft Corporation.  All rights reserved.
+// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY
+// OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+// FITNESS FOR A PARTICULAR PURPOSE.
+//===============================================================================
+
+using System;
+
+namespace Microsoft.Practices.Unity.TestSupport
+{
+    public class WrappableThroughInterface : Interface, InterfaceA
+    {
+        public void Method() { }
+
+        public void Method3() { }
+
+        public void MethodA() { }
+    }
+
+    public class WrappableThroughInterfaceWithAttributes : Interface
+    {
+        [GlobalCountCallHandler(HandlerName = "WrappableThroughInterfaceWithAttributes-Method")]
+        public void Method() { }
+
+        [GlobalCountCallHandler(HandlerName = "WrappableThroughInterfaceWithAttributes-Method3")]
+        public void Method3() { }
+    }
+
+    public interface Interface : InterfaceBase
+    {
+        void Method();
+    }
+
+    public interface InterfaceA
+    {
+        void MethodA();
+    }
+
+    public interface InterfaceBase
+    {
+        void Method3();
+    }
+
+    public class DerivedWrappable : Wrappable
+    {
+        public void Method4() { }
+    }
+
+    public partial class Wrappable : Interface, InterfaceA
+    {
+        public virtual void Method() { }
+
+        public virtual void Method2() { }
+
+        public virtual void Method3() { }
+
+        public virtual void MethodA() { }
+
+        public virtual void MethodRef(ref object parameter)
+        {
+            parameter = "parameter";
+        }
+
+        public virtual void MethodRefValue(ref int parameter)
+        {
+            parameter = 42;
+        }
+
+        public virtual void MethodOut(out object parameter)
+        {
+            parameter = "parameter";
+        }
+
+        public virtual void MethodOutValue(out int parameter)
+        {
+            parameter = 42;
+        }
+    }
+
+    public partial class WrappableWithProperty
+    {
+        public virtual void Method() { }
+
+        private Wrappable wrappable;
+
+        public virtual Wrappable Wrappable
+        {
+            get { return wrappable; }
+            set { wrappable = value; }
+        }
+
+    }
+}
