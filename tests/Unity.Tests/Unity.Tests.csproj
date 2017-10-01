@@ -43,7 +43,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <Prefer32Bit>false</Prefer32Bit>
-    <CodeAnalysisRuleSet>..\..\..\Tests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -73,15 +72,12 @@
     <None Include="..\..\..\Common\GlobalAssemblyInfo.2010.cs">
       <Link>GlobalAssemblyInfo.2010.cs</Link>
     </None>
-    <Compile Include="AssemblyScanningFixture.cs" />
-    <Compile Include="AssemblyScanningFixture.Desktop.cs" />
     <Compile Include="BuildPlanAndChildContainerFixture.cs" />
     <Compile Include="CodeGenBugFixture.cs" />
     <Compile Include="CodeplexIssuesFixture.cs" />
     <Compile Include="ConstructorWithOutParametersFixture.cs" />
     <Compile Include="ContainerControlledLifetimeThreadingFixture.cs" />
     <Compile Include="ContainerRegistrationsFixture.cs" />
-    <Compile Include="RegistrationByConventionFixture.cs" />
     <Compile Include="LazyResolveFixture.cs" />
     <Compile Include="OptionalGenericParameterFixture.cs" />
     <Compile Include="DeferredResolveFixture.cs" />
@@ -98,7 +94,6 @@
     <Compile Include="DisposableExtensionFixture.cs" />
     <Compile Include="InjectingArraysFixture.cs" />
     <Compile Include="MethodInjectionFixture.cs" />
-    <Compile Include="RegistrationByConventionHelpersFixture.cs" />
     <Compile Include="TestDoubles\MockContainerExtensionWithNonDefaultConstructor.cs" />
     <Compile Include="OptionalDependencyAPIConfigurationFixture.cs" />
     <Compile Include="OptionalDependencyAttributeFixture.cs" />
@@ -128,10 +123,6 @@
     <Compile Include="UnityHierarchyFixture.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Src\RegistrationByConvention\Unity.RegistrationByConvention.csproj">
-      <Project>{10cff71b-a9d4-44d2-b5cb-b363e5e15976}</Project>
-      <Name>Unity.RegistrationByConvention</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Src\Unity.csproj">
       <Project>{EE1F752C-1FAB-41AD-AD63-857D0E62AB6B}</Project>
       <Name>Unity</Name>
@@ -194,7 +185,6 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
-  <Import Project="..\..\..\..\build\stylecop.targets" />
   <PropertyGroup>
     <PostBuildEvent>if exist "$(OutDir)MissingAssembly.dll" del "$(OutDir)MissingAssembly.dll"</PostBuildEvent>
   </PropertyGroup>
