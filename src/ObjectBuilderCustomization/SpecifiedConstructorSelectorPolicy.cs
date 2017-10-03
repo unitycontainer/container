@@ -28,7 +28,6 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// <param name="ctor">The constructor to call.</param>
         /// <param name="parameterValues">Set of <see cref="InjectionParameterValue"/> objects
         /// that describes how to obtain the values for the constructor parameters.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "ctor", Justification = "Parameter name is meaningful enough in context (ctor is in common use)")]
         public SpecifiedConstructorSelectorPolicy(ConstructorInfo ctor, InjectionParameterValue[] parameterValues)
         {
             this.ctor = ctor;
@@ -43,8 +42,6 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
         /// generated resolver objects into.</param>
         /// <returns>The chosen constructor.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
-             Justification = "Validation done by Guard class")]
         public SelectedConstructor SelectConstructor(IBuilderContext context, IPolicyList resolverPolicyDestination)
         {
             Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(context, "context");

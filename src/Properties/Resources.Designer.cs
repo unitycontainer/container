@@ -10,6 +10,7 @@
 
 namespace Microsoft.Practices.Unity.Properties {
     using System;
+    using System.Reflection;
     
     
     /// <summary>
@@ -39,7 +40,7 @@ namespace Microsoft.Practices.Unity.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Practices.Unity.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Practices.Unity.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -187,7 +188,7 @@ namespace Microsoft.Practices.Unity.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} is an open generic type. An open generic type cannot be resolved..
+        ///   Looks up a localized string similar to The type {0} is an open generic type. An open generic type cannot be resolved. .
         /// </summary>
         internal static string CannotResolveOpenGenericType {
             get {

@@ -44,7 +44,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         /// <typeparam name="T">Type to build.</typeparam>
         /// <returns>A new <see cref="NamedTypeBuildKey"/> instance.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "As designed")]
         public static NamedTypeBuildKey Make<T>()
         {
             return new NamedTypeBuildKey(typeof(T));
@@ -57,7 +56,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <typeparam name="T">Type to build</typeparam>
         /// <param name="name">Key to use to look up type mappings and singletons.</param>
         /// <returns>A new <see cref="NamedTypeBuildKey"/> instance initialized with the given type and name.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "As designed")]
         public static NamedTypeBuildKey Make<T>(string name)
         {
             return new NamedTypeBuildKey(typeof(T), name);
@@ -67,7 +65,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// Return the <see cref="Type"/> stored in this build key.
         /// </summary>
         /// <value>The type to build.</value>
-        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods", Justification = "This is the type part of the key.")]
         public Type Type
         {
             get { return type; }
@@ -119,7 +116,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="left">First of the two keys to compare.</param>
         /// <param name="right">Second of the two keys to compare.</param>
         /// <returns>True if the values of the keys are the same, else false.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Null is accounted for")]
         public static bool operator ==(NamedTypeBuildKey left, NamedTypeBuildKey right)
         {
             var leftIsNull = ReferenceEquals(left, null);

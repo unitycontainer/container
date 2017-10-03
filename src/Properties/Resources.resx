@@ -160,7 +160,7 @@
     <value>The method {0}.{1}({2}) is static. Static methods cannot be injected.</value>
   </data>
   <data name="CannotResolveOpenGenericType" xml:space="preserve">
-    <value>The type {0} is an open generic type. An open generic type cannot be resolved.</value>
+    <value>The type {0} is an open generic type. An open generic type cannot be resolved. </value>
   </data>
   <data name="ConstructorArgumentResolveOperation" xml:space="preserve">
     <value>Resolving parameter "{0}" of constructor {1}</value>

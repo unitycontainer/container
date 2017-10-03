@@ -58,8 +58,6 @@ namespace Microsoft.Practices.Unity
         /// <param name="targetMethod">MethodInfo for the method you're checking.</param>
         /// <param name="nameToMatch">Name of the method you're looking for.</param>
         /// <returns>True if a match, false if not.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
-            Justification = "Validation done by Guard class")]
         protected virtual bool MethodNameMatches(MemberInfo targetMethod, string nameToMatch)
         {
             Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(targetMethod, "targetMethod");

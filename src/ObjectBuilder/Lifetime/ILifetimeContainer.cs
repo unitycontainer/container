@@ -15,7 +15,6 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// container which implement IDisposable are also disposed.
     /// </remarks>
     // FxCop: No
-    [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Using Container suffix instead of Collection. Aligns with existing Unity nomenclature.")]
     public interface ILifetimeContainer : IEnumerable<object>, IDisposable
     {
         /// <summary>

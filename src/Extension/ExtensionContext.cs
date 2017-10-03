@@ -55,7 +55,6 @@ namespace Microsoft.Practices.Unity
         /// </para></remarks>
         /// <param name="t"><see cref="Type"/> to register.</param>
         /// <param name="name">Name associated with that type.</param>
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "t", Justification = "Parameter name is meaningful enough in context")]
         public abstract void RegisterNamedType(Type t, string name);
 
         /// <summary>

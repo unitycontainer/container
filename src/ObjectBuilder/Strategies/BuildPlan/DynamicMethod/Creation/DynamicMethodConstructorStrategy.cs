@@ -49,7 +49,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
         /// <param name="context">The context for the operation.</param>
         // FxCop suppression: Validation is done by Guard class
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation is done by Guard class")]
         public override void PreBuildUp(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -183,7 +182,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// if the current object is such.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void SetPerBuildSingleton(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -202,8 +200,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         /// <param name="constructor"></param>
         /// <returns></returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class")]
-        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Strategy should only ever expect constructor method")]
         public static string CreateSignatureString(ConstructorInfo constructor)
         {
             Guard.ArgumentNotNull(constructor, "constructor");
@@ -246,7 +242,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <summary>
         /// A helper method used by the generated IL to store the current operation in the build context.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void SetCurrentOperationToResolvingParameter(string parameterName, string constructorSignature, IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -258,7 +253,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <summary>
         /// A helper method used by the generated IL to store the current operation in the build context.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void SetCurrentOperationToInvokingConstructor(string constructorSignature, IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -274,7 +268,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         /// <param name="context">The <see cref="IBuilderContext"/> currently being
         /// used for the build of this object.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void ThrowForAttemptingToConstructInterface(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -292,7 +285,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         /// <param name="context">The <see cref="IBuilderContext"/> currently being
         /// used for the build of this object.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void ThrowForAttemptingToConstructAbstractClass(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -310,7 +302,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         /// <param name="context">The <see cref="IBuilderContext"/> currently being
         /// used for the build of this object.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void ThrowForAttemptingToConstructDelegate(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -327,8 +318,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         /// <param name="context">The <see cref="IBuilderContext"/> currently being
         /// used for the build of this object.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
-            Justification = "Validation done by Guard class")]
         public static void ThrowForNullExistingObject(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -345,8 +334,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">The <see cref="IBuilderContext"/> currently being
         /// used for the build of this object.</param>
         /// <param name="signature">The signature of the invalid constructor.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
-            Justification = "Validation done by Guard class")]
         public static void ThrowForNullExistingObjectWithInvalidConstructor(IBuilderContext context, string signature)
         {
             Guard.ArgumentNotNull(context, "context");

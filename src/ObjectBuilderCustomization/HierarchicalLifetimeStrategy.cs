@@ -16,10 +16,6 @@ namespace Microsoft.Practices.Unity
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope",
-            Justification = "Lifetime manager aligns with lifetime of container and is disposed when container is disposed.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods",
-            Justification = "Validation done by Guard class")]
         public override void PreBuildUp(IBuilderContext context)
         {
             Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(context, "context");

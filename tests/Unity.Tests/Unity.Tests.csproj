@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TestSupport.Unity\Unity.TestSupport.csproj" />
-    <ProjectReference Include="..\Unity.ServiceLocation.Tests\Unity.ServiceLocation.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' == 'net45' ">

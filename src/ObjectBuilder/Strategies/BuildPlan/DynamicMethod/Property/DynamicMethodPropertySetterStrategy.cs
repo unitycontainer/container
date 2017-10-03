@@ -90,7 +90,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <summary>
         /// A helper method used by the generated IL to store the current operation in the build context.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void SetCurrentOperationToResolvingPropertyValue(string propertyName, IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -101,7 +100,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <summary>
         /// A helper method used by the generated IL to store the current operation in the build context.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1062:ValidateArgumentsOfPublicMethods", Justification = "Validation done by Guard class.")]
         public static void SetCurrentOperationToSettingProperty(string propertyName, IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
