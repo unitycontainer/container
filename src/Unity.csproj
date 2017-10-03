@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>Unity</PackageId>
     <Description>Unity Core</Description>
     <Version>5.0.0-beta</Version>
@@ -20,7 +20,11 @@
     <RootNamespace>Microsoft.Practices.Unity</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
+  <PropertyGroup>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+
+   <ItemGroup>
     <PackageReference Include="CommonServiceLocator" Version="1.3.0" />
   </ItemGroup>
 

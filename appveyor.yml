@@ -15,8 +15,11 @@ before_test:
 - choco install codecov
   
 test_script:
-- OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test" -filter:"+[*]* -[*]*Tests -[*]*Resources"
+- OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test"
 
 after_test:
 - codecov -f "results.xml" 
 
+artifacts:
+- path: '**\Unity.*.nupkg'
+  name: 'Unity'

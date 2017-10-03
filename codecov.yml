@@ -1,0 +1,6 @@
+ignore:
+  - "tests/*"       # Ignore tests
+  - "**/*.Designer.cs"
+  
+#fixes:
+#  - "src/::"   

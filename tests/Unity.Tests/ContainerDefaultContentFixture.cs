@@ -8,7 +8,6 @@ namespace Unity.Tests
     public class ContainerDefaultContentFixture
     {
         [TestMethod]
-        [Ignore]
         public void WhenResolvingAnIUnityContainerItResolvesItself()
         {
             IUnityContainer container = new UnityContainer();
@@ -19,7 +18,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void WhenResolveingAnIUnityContainerForAChildContainerItResolvesTheChildContainer()
         {
             IUnityContainer container = new UnityContainer();
@@ -31,7 +29,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void AClassThatHasADependencyOnTheContainerGetsItInjected()
         {
             IUnityContainer container = new UnityContainer();

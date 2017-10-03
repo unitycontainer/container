@@ -20,7 +20,7 @@
     <PackageReference Include="Unity" Version="4.0.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' == 'net47' ">
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'net45' ">
     <ProjectReference Include="..\..\src\Unity.csproj" />
   </ItemGroup>
 
