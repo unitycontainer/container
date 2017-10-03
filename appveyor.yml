@@ -15,7 +15,7 @@ before_test:
 - choco install codecov
   
 test_script:
-- OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test" -filter:"+[Unity*]* -[*]*Resources"
+- OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test" -filter:"+[*]* -[*]*Tests -[*]*Resources"
 
 after_test:
 - codecov -f "results.xml" 
