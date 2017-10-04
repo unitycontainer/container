@@ -10,7 +10,6 @@ namespace GitHub
     public class Issues
     {
         [TestMethod]
-        [Ignore]
         // https://github.com/unitycontainer/unity/issues/54
         public void StackOverflowException_54()
         {
@@ -30,10 +29,11 @@ namespace GitHub
                 try
                 {
                     var instance = container.Resolve<ITestClass>(); //2
-                    Assert.IsNotNull(instance);
+                    Assert.IsNull(instance, "Should threw an exception");
                 }
-                catch (ResolutionFailedException)
+                catch (ResolutionFailedException e)
                 {
+                    Assert.IsInstanceOfType(e, typeof(ResolutionFailedException));
                 }
 
             }

@@ -15,8 +15,8 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
     /// </summary>
     public class SpecifiedPropertiesSelectorPolicy : IPropertySelectorPolicy
     {
-        private readonly List<Pair<PropertyInfo, InjectionParameterValue>> propertiesAndValues =
-            new List<Pair<PropertyInfo, InjectionParameterValue>>();
+        private readonly List<Tuple<PropertyInfo, InjectionParameterValue>> propertiesAndValues =
+            new List<Tuple<PropertyInfo, InjectionParameterValue>>();
 
         /// <summary>
         /// Add a property that will be par of the set returned when the 
@@ -27,7 +27,7 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// how to create the value to inject.</param>
         public void AddPropertyAndValue(PropertyInfo property, InjectionParameterValue value)
         {
-            propertiesAndValues.Add(Pair.Make(property, value));
+            propertiesAndValues.Add(new Tuple<PropertyInfo, InjectionParameterValue>(property, value));
         }
 
         /// <summary>
@@ -43,18 +43,18 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         {
             Type typeToBuild = context.BuildKey.Type;
             var currentTypeReflector = new ReflectionHelper(context.BuildKey.Type);
-            foreach (Pair<PropertyInfo, InjectionParameterValue> pair in propertiesAndValues)
+            foreach (Tuple<PropertyInfo, InjectionParameterValue> pair in propertiesAndValues)
             {
-                PropertyInfo currentProperty = pair.First;
+                PropertyInfo currentProperty = pair.Item1;
 
                 // Is this the property info on the open generic? If so, get the one
                 // for the current closed generic.
-                if (new ReflectionHelper(pair.First.DeclaringType).IsOpenGeneric)
+                if (new ReflectionHelper(pair.Item1.DeclaringType).IsOpenGeneric)
                 {
                     currentProperty = currentTypeReflector.Type.GetTypeInfo().GetDeclaredProperty(currentProperty.Name);
                 }
 
-                yield return new SelectedProperty(currentProperty, pair.Second.GetResolverPolicy(typeToBuild));
+                yield return new SelectedProperty(currentProperty, pair.Item2.GetResolverPolicy(typeToBuild));
             }
         }
     }

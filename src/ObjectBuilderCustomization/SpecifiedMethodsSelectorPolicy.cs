@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
 
 namespace Microsoft.Practices.Unity.ObjectBuilder
@@ -15,8 +14,8 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
     /// </summary>
     public class SpecifiedMethodsSelectorPolicy : IMethodSelectorPolicy
     {
-        private readonly List<Pair<MethodInfo, IEnumerable<InjectionParameterValue>>> methods =
-            new List<Pair<MethodInfo, IEnumerable<InjectionParameterValue>>>();
+        private readonly List<Tuple<MethodInfo, IEnumerable<InjectionParameterValue>>> methods =
+            new List<Tuple<MethodInfo, IEnumerable<InjectionParameterValue>>>();
 
         /// <summary>
         /// Add the given method and parameter collection to the list of methods
@@ -28,7 +27,7 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// that describe how to create the method parameter values.</param>
         public void AddMethodAndParameters(MethodInfo method, IEnumerable<InjectionParameterValue> parameters)
         {
-            methods.Add(Pair.Make(method, parameters));
+            methods.Add(new Tuple<MethodInfo, IEnumerable<InjectionParameterValue>>(method, parameters));
         }
 
         /// <summary>
@@ -40,28 +39,28 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// <returns>Sequence of methods to call.</returns>
         public IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context, IPolicyList resolverPolicyDestination)
         {
-            foreach (Pair<MethodInfo, IEnumerable<InjectionParameterValue>> method in methods)
+            foreach (Tuple<MethodInfo, IEnumerable<InjectionParameterValue>> method in methods)
             {
                 Type typeToBuild = context.BuildKey.Type;
                 SelectedMethod selectedMethod;
-                ReflectionHelper typeReflector = new ReflectionHelper(method.First.DeclaringType);
-                MethodReflectionHelper methodReflector = new MethodReflectionHelper(method.First);
+                ReflectionHelper typeReflector = new ReflectionHelper(method.Item1.DeclaringType);
+                MethodReflectionHelper methodReflector = new MethodReflectionHelper(method.Item1);
                 if (!methodReflector.MethodHasOpenGenericParameters && !typeReflector.IsOpenGeneric)
                 {
-                    selectedMethod = new SelectedMethod(method.First);
+                    selectedMethod = new SelectedMethod(method.Item1);
                 }
                 else
                 {
                     Type[] closedMethodParameterTypes =
                         methodReflector.GetClosedParameterTypes(typeToBuild.GetTypeInfo().GenericTypeArguments);
                     selectedMethod = new SelectedMethod(
-                        typeToBuild.GetMethodHierarchical(method.First.Name, closedMethodParameterTypes));
+                        typeToBuild.GetMethodHierarchical(method.Item1.Name, closedMethodParameterTypes));
                 }
 
                 SpecifiedMemberSelectorHelper.AddParameterResolvers(
                         typeToBuild,
                         resolverPolicyDestination,
-                        method.Second,
+                        method.Item2,
                         selectedMethod);
                 yield return selectedMethod;
             }

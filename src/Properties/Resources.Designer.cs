@@ -481,6 +481,15 @@ namespace Microsoft.Practices.Unity.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The constructor {1} selected for type {0} has reference to itself. Such references create infinite loop during resolving..
+        /// </summary>
+        internal static string SelectedConstructorHasRefItself {
+            get {
+                return ResourceManager.GetString("SelectedConstructorHasRefItself", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The constructor {1} selected for type {0} has ref or out parameters. Such parameters are not supported for constructor injection..
         /// </summary>
         internal static string SelectedConstructorHasRefParameters {

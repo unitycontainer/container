@@ -26,6 +26,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod;
         private static readonly MethodInfo SetCurrentOperationToInvokingConstructorMethod;
         private static readonly MethodInfo SetPerBuildSingletonMethod;
+        private static readonly MethodInfo ThrowForReferenceItselfConstructorMethod;
 
         static DynamicMethodConstructorStrategy()
         {
@@ -39,15 +40,17 @@ namespace Microsoft.Practices.ObjectBuilder2
             SetCurrentOperationToResolvingParameterMethod = info.GetDeclaredMethod(nameof(SetCurrentOperationToResolvingParameter));
             SetCurrentOperationToInvokingConstructorMethod = info.GetDeclaredMethod(nameof(SetCurrentOperationToInvokingConstructor));
             SetPerBuildSingletonMethod = info.GetDeclaredMethod(nameof(SetPerBuildSingleton));
-        }
+            ThrowForReferenceItselfConstructorMethod = info.GetDeclaredMethod(nameof(ThrowForReferenceItselfConstructor));
 
-        /// <summary>
-        /// Called during the chain of responsibility for a build operation.
-        /// </summary>
-        /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
-        /// <param name="context">The context for the operation.</param>
-        // FxCop suppression: Validation is done by Guard class
-        public override void PreBuildUp(IBuilderContext context)
+    }
+
+    /// <summary>
+    /// Called during the chain of responsibility for a build operation.
+    /// </summary>
+    /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
+    /// <param name="context">The context for the operation.</param>
+    // FxCop suppression: Validation is done by Guard class
+    public override void PreBuildUp(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
 
@@ -97,27 +100,33 @@ namespace Microsoft.Practices.ObjectBuilder2
                 return CreateThrowWithContext(buildContext, ThrowForNullExistingObjectMethod);
             }
 
-            string signature = DynamicMethodConstructorStrategy.CreateSignatureString(selectedConstructor.Constructor);
+            string signature = CreateSignatureString(selectedConstructor.Constructor);
 
-            if (IsInvalidConstructor(selectedConstructor))
+            if (selectedConstructor.Constructor.GetParameters().Any(pi => pi.ParameterType.IsByRef))
             {
                 return CreateThrowForNullExistingObjectWithInvalidConstructor(buildContext, signature);
             }
 
-            // psuedo-code:
-            // throw if attempting interface
-            // if (context.Existing == null) {
-            //   collect parameters
-            //   set operation to invoking constructor
-            //   context.Existing = new {objectType}({constructorparameter}...)
-            //   clear current operation
-            // }
-            return Expression.Block(this.CreateNewBuildupSequence(buildContext, selectedConstructor, signature));
+            if (IsInvalidConstructor(targetTypeInfo, context, selectedConstructor))
+            {
+                return CreateThrowForReferenceItselfMethodConstructor(buildContext, signature);
+            }
+
+            return Expression.Block(CreateNewBuildupSequence(buildContext, selectedConstructor, signature));
         }
 
-        private static bool IsInvalidConstructor(SelectedConstructor selectedConstructor)
+
+        private static bool IsInvalidConstructor(TypeInfo target, IBuilderContext context, SelectedConstructor selectedConstructor)
         {
-            return selectedConstructor.Constructor.GetParameters().Any(pi => pi.ParameterType.IsByRef);
+            if (selectedConstructor.Constructor.GetParameters().Any(p => p.ParameterType.GetTypeInfo() == target))
+            {
+                IPolicyList containingPolicyList;
+                var policy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out containingPolicyList);
+                if (null == policy?.GetValue())
+                    return true;
+            }
+
+            return false;
         }
 
         private static Expression CreateThrowWithContext(DynamicBuildPlanGenerationContext buildContext, MethodInfo throwMethod)
@@ -133,6 +142,15 @@ namespace Microsoft.Practices.ObjectBuilder2
             return Expression.Call(
                                 null,
                                 ThrowForNullExistingObjectWithInvalidConstructorMethod,
+                                buildContext.ContextParameter,
+                                Expression.Constant(signature, typeof(string)));
+        }
+
+        private static Expression CreateThrowForReferenceItselfMethodConstructor(DynamicBuildPlanGenerationContext buildContext, string signature)
+        {
+            return Expression.Call(
+                                null,
+                                ThrowForReferenceItselfConstructorMethod,
                                 buildContext.ContextParameter,
                                 Expression.Constant(signature, typeof(string)));
         }
@@ -338,6 +356,25 @@ namespace Microsoft.Practices.ObjectBuilder2
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                               Resources.SelectedConstructorHasRefParameters,
+                              context.BuildKey.Type.GetTypeInfo().Name,
+                              signature));
+        }
+
+
+        /// <summary>
+        /// A helper method used by the generated IL to throw an exception if
+        /// a dependency cannot be resolved because of an invalid constructor.
+        /// </summary>
+        /// <param name="context">The <see cref="IBuilderContext"/> currently being
+        /// used for the build of this object.</param>
+        /// <param name="signature">The signature of the invalid constructor.</param>
+        public static void ThrowForReferenceItselfConstructor(IBuilderContext context, string signature)
+        {
+            Guard.ArgumentNotNull(context, "context");
+
+            throw new InvalidOperationException(
+                string.Format(CultureInfo.CurrentCulture,
+                              Resources.SelectedConstructorHasRefItself,
                               context.BuildKey.Type.GetTypeInfo().Name,
                               signature));
         }
