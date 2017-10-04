@@ -18,29 +18,28 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class DynamicMethodConstructorStrategy : BuilderStrategy
     {
-        private static readonly MethodInfo ThrowForNullExistingObjectMethod =
-          StaticReflection.GetMethodInfo(() => ThrowForNullExistingObject(null));
+        private static readonly MethodInfo ThrowForNullExistingObjectMethod;
+        private static readonly MethodInfo ThrowForNullExistingObjectWithInvalidConstructorMethod;
+        private static readonly MethodInfo ThrowForAttemptingToConstructInterfaceMethod;
+        private static readonly MethodInfo ThrowForAttemptingToConstructAbstractClassMethod;
+        private static readonly MethodInfo ThrowForAttemptingToConstructDelegateMethod;
+        private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod;
+        private static readonly MethodInfo SetCurrentOperationToInvokingConstructorMethod;
+        private static readonly MethodInfo SetPerBuildSingletonMethod;
 
-        private static readonly MethodInfo ThrowForNullExistingObjectWithInvalidConstructorMethod =
-            StaticReflection.GetMethodInfo(() => ThrowForNullExistingObjectWithInvalidConstructor(null, null));
+        static DynamicMethodConstructorStrategy()
+        {
+            var info = typeof(DynamicMethodConstructorStrategy).GetTypeInfo();
 
-        private static readonly MethodInfo ThrowForAttemptingToConstructInterfaceMethod =
-           StaticReflection.GetMethodInfo(() => ThrowForAttemptingToConstructInterface(null));
-
-        private static readonly MethodInfo ThrowForAttemptingToConstructAbstractClassMethod =
-           StaticReflection.GetMethodInfo(() => ThrowForAttemptingToConstructAbstractClass(null));
-
-        private static readonly MethodInfo ThrowForAttemptingToConstructDelegateMethod =
-           StaticReflection.GetMethodInfo(() => ThrowForAttemptingToConstructDelegate(null));
-
-        private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod =
-            StaticReflection.GetMethodInfo(() => SetCurrentOperationToResolvingParameter(null, null, null));
-
-        private static readonly MethodInfo SetCurrentOperationToInvokingConstructorMethod =
-            StaticReflection.GetMethodInfo(() => SetCurrentOperationToInvokingConstructor(null, null));
-
-        private static readonly MethodInfo SetPerBuildSingletonMethod =
-            StaticReflection.GetMethodInfo(() => SetPerBuildSingleton(null));
+            ThrowForNullExistingObjectMethod = info.GetDeclaredMethod(nameof(ThrowForNullExistingObject));
+            ThrowForNullExistingObjectWithInvalidConstructorMethod = info.GetDeclaredMethod(nameof(ThrowForNullExistingObjectWithInvalidConstructor));
+            ThrowForAttemptingToConstructInterfaceMethod = info.GetDeclaredMethod(nameof(ThrowForAttemptingToConstructInterface));
+            ThrowForAttemptingToConstructAbstractClassMethod = info.GetDeclaredMethod(nameof(ThrowForAttemptingToConstructAbstractClass));
+            ThrowForAttemptingToConstructDelegateMethod = info.GetDeclaredMethod(nameof(ThrowForAttemptingToConstructDelegate));
+            SetCurrentOperationToResolvingParameterMethod = info.GetDeclaredMethod(nameof(SetCurrentOperationToResolvingParameter));
+            SetCurrentOperationToInvokingConstructorMethod = info.GetDeclaredMethod(nameof(SetCurrentOperationToInvokingConstructor));
+            SetPerBuildSingletonMethod = info.GetDeclaredMethod(nameof(SetPerBuildSingleton));
+        }
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation.
