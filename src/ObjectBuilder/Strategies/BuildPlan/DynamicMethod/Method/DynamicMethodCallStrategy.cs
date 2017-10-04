@@ -17,11 +17,19 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class DynamicMethodCallStrategy : BuilderStrategy
     {
-        private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod =
-            StaticReflection.GetMethodInfo(() => SetCurrentOperationToResolvingParameter(null, null, null));
+        private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod;
+        private static readonly MethodInfo SetCurrentOperationToInvokingMethodInfo;
 
-        private static readonly MethodInfo SetCurrentOperationToInvokingMethodInfo =
-            StaticReflection.GetMethodInfo(() => SetCurrentOperationToInvokingMethod(null, null));
+        static DynamicMethodCallStrategy()
+        {
+            var info = typeof(DynamicMethodCallStrategy).GetTypeInfo();
+
+            SetCurrentOperationToResolvingParameterMethod =
+                info.GetDeclaredMethod(nameof(SetCurrentOperationToResolvingParameter));
+
+            SetCurrentOperationToInvokingMethodInfo =
+                info.GetDeclaredMethod(nameof(SetCurrentOperationToInvokingMethod));
+        }
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
