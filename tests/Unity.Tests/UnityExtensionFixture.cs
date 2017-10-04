@@ -101,9 +101,7 @@ namespace Microsoft.Practices.Unity.Tests
         public void CanReinstallDefaultBehavior()
         {
             IUnityContainer container = new UnityContainer()
-                .RemoveAllExtensions()
-                .AddExtension(new UnityDefaultBehaviorExtension())
-                .AddExtension(new UnityDefaultStrategiesExtension());
+                .RemoveAllExtensions();
 
             object result = container.Resolve<object>();
             Assert.IsNotNull(result);

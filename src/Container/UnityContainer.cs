@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -13,26 +12,13 @@ using Guard = Microsoft.Practices.Unity.Utility.Guard;
 
 namespace Microsoft.Practices.Unity
 {
+    /// <inheritdoc />
     /// <summary>
     /// A simple, extensible dependency injection container.
     /// </summary>
-    public class UnityContainer : IUnityContainer
+    public partial class UnityContainer : IUnityContainer
     {
-        private readonly UnityContainer parent;
-
-        private LifetimeContainer lifetimeContainer;
-        private StagedStrategyChain<UnityBuildStage> strategies;
-        private StagedStrategyChain<UnityBuildStage> buildPlanStrategies;
-        private PolicyList policies;
-        private NamedTypesRegistry registeredNames;
-        private List<UnityContainerExtension> extensions;
-
-        private IStrategyChain cachedStrategies;
-        private object cachedStrategiesLock;
-
-        private event EventHandler<RegisterEventArgs> Registering;
-        private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
-        private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+        #region Public Constructor
 
         /// <summary>
         /// Create a default <see cref="UnityContainer"/>.
@@ -40,40 +26,12 @@ namespace Microsoft.Practices.Unity
         public UnityContainer()
             : this(null)
         {
-            // Only a root container (one without a parent) gets the default strategies.
-            this.AddExtension(new UnityDefaultStrategiesExtension());
         }
 
-        /// <summary>
-        /// Create a <see cref="UnityContainer"/> with the given parent container.
-        /// </summary>
-        /// <param name="parent">The parent <see cref="UnityContainer"/>. The current object
-        /// will apply its own settings first, and then check the parent for additional ones.</param>
-        private UnityContainer(UnityContainer parent)
-        {
-            this.parent = parent;
+        #endregion
 
-            if (parent != null)
-            {
-                parent.lifetimeContainer.Add(this);
-            }
 
-            InitializeBuilderState();
-            // Put a noop at the beginning of each of our events so we don't have to worry
-            // about nulls
-            Registering += delegate { };
-            RegisteringInstance += delegate { };
-            ChildContainerCreated += delegate { };
-
-            // Every container gets the default behavior
-            this.AddExtension(new UnityDefaultBehaviorExtension());
-
-#pragma warning disable 618
-            this.AddExtension(new InjectedMembers());
-#pragma warning restore 618
-        }
-
-        #region Type Mapping
+        #region Type Registration
 
         /// <summary>
         /// RegisterType a type mapping with the container, where the created instances will use
@@ -89,7 +47,6 @@ namespace Microsoft.Practices.Unity
         public IUnityContainer RegisterType(Type from, Type to, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             Guard.ArgumentNotNull(to, "to");
-            Guard.ArgumentNotNull(injectionMembers, "injectionMembers");
 
             if (string.IsNullOrEmpty(name))
             {
@@ -101,20 +58,43 @@ namespace Microsoft.Practices.Unity
                 Guard.TypeIsAssignable(from, to, "from");
             }
 
-            Registering(this, new RegisterEventArgs(from, to, name, lifetimeManager));
+            _registeredNames.RegisterType(from ?? to, name);
 
-            if (injectionMembers.Length > 0)
+            if (from != null)
+            {
+                if (from.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
+                {
+                    _policies.Set<IBuildKeyMappingPolicy>(
+                        new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                        new NamedTypeBuildKey(from, name));
+                }
+                else
+                {
+                    _policies.Set<IBuildKeyMappingPolicy>(
+                        new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                        new NamedTypeBuildKey(from, name));
+                }
+            }
+            if (lifetimeManager != null)
+            {
+                this.SetLifetimeManager(to, name, lifetimeManager);
+            }
+
+            Registering?.Invoke(this, new RegisterEventArgs(from, to, name, lifetimeManager));
+
+            if (null != injectionMembers && injectionMembers.Length > 0)
             {
                 ClearExistingBuildPlan(to, name);
                 foreach (var member in injectionMembers)
                 {
-                    member.AddPolicies(from, to, name, policies);
+                    member.AddPolicies(from, to, name, _policies);
                 }
             }
             return this;
         }
 
         #endregion
+
 
         #region Instance Registration
 
@@ -143,8 +123,14 @@ namespace Microsoft.Practices.Unity
             Guard.ArgumentNotNull(instance, "instance");
             Guard.ArgumentNotNull(lifetime, "lifetime");
             Guard.InstanceIsAssignable(t, instance, "instance");
-            RegisteringInstance(this,
-                                new RegisterInstanceEventArgs(t,
+
+            _registeredNames.RegisterType(t, name);
+            SetLifetimeManager(t, name, lifetime);
+            NamedTypeBuildKey identityKey = new NamedTypeBuildKey(t, name);
+            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
+            lifetime.SetValue(instance);
+
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(t,
                                                               instance,
                                                               name,
                                                               lifetime));
@@ -152,6 +138,7 @@ namespace Microsoft.Practices.Unity
         }
 
         #endregion
+
 
         #region Getting objects
 
@@ -191,6 +178,7 @@ namespace Microsoft.Practices.Unity
 
         #endregion
 
+
         #region BuildUp existing object
 
         /// <summary>
@@ -229,7 +217,7 @@ namespace Microsoft.Practices.Unity
                 Guard.ArgumentNotNull(o, "o");
 
                 context =
-                    new BuilderContext(GetStrategies().Reverse(), lifetimeContainer, policies, null, o);
+                    new BuilderContext(GetStrategies().Reverse(), _lifetimeContainer, _policies, null, o);
                 context.Strategies.ExecuteTearDown(context);
             }
             catch (Exception ex)
@@ -240,77 +228,8 @@ namespace Microsoft.Practices.Unity
 
         #endregion
 
+
         #region Extension Management
-
-        /// <summary>
-        /// Implementation of the ExtensionContext that is actually used
-        /// by the UnityContainer implementation.
-        /// </summary>
-        /// <remarks>
-        /// This is a nested class so that it can access state in the
-        /// container that would otherwise be inaccessible.
-        /// </remarks>
-        private class ExtensionContextImpl : ExtensionContext
-        {
-            private readonly UnityContainer container;
-
-            public ExtensionContextImpl(UnityContainer container)
-            {
-                this.container = container;
-            }
-
-            public override IUnityContainer Container
-            {
-                get { return this.container; }
-            }
-
-            public override StagedStrategyChain<UnityBuildStage> Strategies
-            {
-                get { return this.container.strategies; }
-            }
-
-            public override StagedStrategyChain<UnityBuildStage> BuildPlanStrategies
-            {
-                get { return this.container.buildPlanStrategies; }
-            }
-
-            public override IPolicyList Policies
-            {
-                get { return this.container.policies; }
-            }
-
-            public override ILifetimeContainer Lifetime
-            {
-                get { return this.container.lifetimeContainer; }
-            }
-
-            public override void RegisterNamedType(Type t, string name)
-            {
-                this.container.registeredNames.RegisterType(t, name);
-            }
-
-            public override event EventHandler<RegisterEventArgs> Registering
-            {
-                add { this.container.Registering += value; }
-                remove { this.container.Registering -= value; }
-            }
-
-            /// <summary>
-            /// This event is raised when the <see cref="UnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
-            /// or one of its overloads, is called.
-            /// </summary>
-            public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
-            {
-                add { this.container.RegisteringInstance += value; }
-                remove { this.container.RegisteringInstance -= value; }
-            }
-
-            public override event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
-            {
-                add { this.container.ChildContainerCreated += value; }
-                remove { this.container.ChildContainerCreated -= value; }
-            }
-        }
 
         /// <summary>
         /// Add an extension object to the container.
@@ -319,13 +238,13 @@ namespace Microsoft.Practices.Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer AddExtension(UnityContainerExtension extension)
         {
-            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(extensions, "extensions");
+            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(_extensions, "extensions");
 
-            extensions.Add(extension);
+            _extensions.Add(extension);
             extension.InitializeExtension(new ExtensionContextImpl(this));
-            lock (cachedStrategiesLock)
+            lock (_cachedStrategiesLock)
             {
-                cachedStrategies = null;
+                _cachedStrategies = null;
             }
             return this;
         }
@@ -341,7 +260,7 @@ namespace Microsoft.Practices.Unity
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
         public object Configure(Type configurationInterface)
         {
-            return extensions.Where(ex => configurationInterface.GetTypeInfo().IsAssignableFrom(ex.GetType().GetTypeInfo())).FirstOrDefault();
+            return _extensions.Where(ex => configurationInterface.GetTypeInfo().IsAssignableFrom(ex.GetType().GetTypeInfo())).FirstOrDefault();
         }
 
         /// <summary>
@@ -362,29 +281,29 @@ namespace Microsoft.Practices.Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer RemoveAllExtensions()
         {
-            var toRemove = new List<UnityContainerExtension>(extensions);
+            var toRemove = new List<UnityContainerExtension>(_extensions);
             toRemove.Reverse();
             foreach (UnityContainerExtension extension in toRemove)
             {
                 extension.Remove();
-                var disposable = extension as IDisposable;
-                if (disposable != null)
-                {
-                    disposable.Dispose();
-                }
+                (extension as IDisposable)?.Dispose();
             }
 
-            extensions.Clear();
+            _extensions.Clear();
 
             // Reset our policies, strategies, and registered names to reset to "zero"
-            strategies.Clear();
-            policies.ClearAll();
-            registeredNames.Clear();
+            _strategies.Clear();
+            _policies.ClearAll();
+            _registeredNames.Clear();
+
+            if (null == _parent)
+                InitializeStrategies();
 
             return this;
         }
 
         #endregion
+
 
         #region Child container management
 
@@ -399,7 +318,7 @@ namespace Microsoft.Practices.Unity
         {
             var child = new UnityContainer(this);
             var childContext = new ExtensionContextImpl(child);
-            ChildContainerCreated(this, new ChildContainerCreatedEventArgs(childContext));
+            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(childContext));
             return child;
         }
 
@@ -407,12 +326,10 @@ namespace Microsoft.Practices.Unity
         /// The parent of this container.
         /// </summary>
         /// <value>The parent container, or null if this container doesn't have one.</value>
-        public IUnityContainer Parent
-        {
-            get { return parent; }
-        }
+        public IUnityContainer Parent => _parent;
 
         #endregion
+
 
         #region IDisposable Implementation
 
@@ -441,120 +358,20 @@ namespace Microsoft.Practices.Unity
         {
             if (disposing)
             {
-                if (lifetimeContainer != null)
+                if (_lifetimeContainer != null)
                 {
-                    lifetimeContainer.Dispose();
-                    lifetimeContainer = null;
+                    _lifetimeContainer.Dispose();
+                    _lifetimeContainer = null;
 
-                    if (parent != null && parent.lifetimeContainer != null)
+                    if (_parent != null && _parent._lifetimeContainer != null)
                     {
-                        parent.lifetimeContainer.Remove(this);
+                        _parent._lifetimeContainer.Remove(this);
                     }
                 }
 
-                extensions.OfType<IDisposable>().ForEach(ex => ex.Dispose());
-                extensions.Clear();
+                _extensions.OfType<IDisposable>().ForEach(ex => ex.Dispose());
+                _extensions.Clear();
             }
-        }
-
-        #endregion
-
-        #region Running ObjectBuilder
-
-        private object DoBuildUp(Type t, string name, IEnumerable<ResolverOverride> resolverOverrides)
-        {
-            return DoBuildUp(t, null, name, resolverOverrides);
-        }
-
-        private object DoBuildUp(Type t, object existing, string name, IEnumerable<ResolverOverride> resolverOverrides)
-        {
-            IBuilderContext context = null;
-
-            try
-            {
-                context =
-                    new BuilderContext(
-                        GetStrategies(),
-                        lifetimeContainer,
-                        policies,
-                        new NamedTypeBuildKey(t, name),
-                        existing);
-                context.AddResolverOverrides(resolverOverrides);
-
-                if (t.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    throw new ArgumentException(
-                        string.Format(CultureInfo.CurrentCulture,
-                        Resources.CannotResolveOpenGenericType,
-                        t.FullName), "t");
-                }
-
-                return context.Strategies.ExecuteBuildUp(context);
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(t, name, ex, context);
-            }
-        }
-
-        private IStrategyChain GetStrategies()
-        {
-            IStrategyChain buildStrategies = cachedStrategies;
-            if (buildStrategies == null)
-            {
-                lock (cachedStrategiesLock)
-                {
-                    if (cachedStrategies == null)
-                    {
-                        buildStrategies = strategies.MakeStrategyChain();
-                        cachedStrategies = buildStrategies;
-                    }
-                    else
-                    {
-                        buildStrategies = cachedStrategies;
-                    }
-                }
-            }
-            return buildStrategies;
-        }
-
-        #endregion
-
-        #region ObjectBuilder initialization
-
-        private void InitializeBuilderState()
-        {
-            registeredNames = new NamedTypesRegistry(ParentNameRegistry);
-            extensions = new List<UnityContainerExtension>();
-
-            lifetimeContainer = new LifetimeContainer();
-            strategies = new StagedStrategyChain<UnityBuildStage>(ParentStrategies);
-            buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(ParentBuildPlanStrategies);
-            policies = new PolicyList(ParentPolicies);
-            policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(registeredNames), null);
-
-            cachedStrategies = null;
-            cachedStrategiesLock = new object();
-        }
-
-        private StagedStrategyChain<UnityBuildStage> ParentStrategies
-        {
-            get { return parent == null ? null : parent.strategies; }
-        }
-
-        private StagedStrategyChain<UnityBuildStage> ParentBuildPlanStrategies
-        {
-            get { return parent == null ? null : parent.buildPlanStrategies; }
-        }
-
-        private PolicyList ParentPolicies
-        {
-            get { return parent == null ? null : parent.policies; }
-        }
-
-        private NamedTypesRegistry ParentNameRegistry
-        {
-            get { return parent == null ? null : parent.registeredNames; }
         }
 
         #endregion
@@ -573,7 +390,7 @@ namespace Microsoft.Practices.Unity
                 return
                     from type in allRegisteredNames.Keys
                     from name in allRegisteredNames[type]
-                    select new ContainerRegistration(type, name, policies);
+                    select new ContainerRegistration(type, name, _policies);
             }
         }
 
@@ -587,18 +404,18 @@ namespace Microsoft.Practices.Unity
         private void ClearExistingBuildPlan(Type typeToInject, string name)
         {
             var buildKey = new NamedTypeBuildKey(typeToInject, name);
-            DependencyResolverTrackerPolicy.RemoveResolvers(policies, buildKey);
-            policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
+            DependencyResolverTrackerPolicy.RemoveResolvers(_policies, buildKey);
+            _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
         }
 
         private void FillTypeRegistrationDictionary(IDictionary<Type, List<string>> typeRegistrations)
         {
-            if (parent != null)
+            if (_parent != null)
             {
-                parent.FillTypeRegistrationDictionary(typeRegistrations);
+                _parent.FillTypeRegistrationDictionary(typeRegistrations);
             }
 
-            foreach (Type t in registeredNames.RegisteredTypes)
+            foreach (Type t in _registeredNames.RegisteredTypes)
             {
                 if (!typeRegistrations.ContainsKey(t))
                 {
@@ -606,7 +423,7 @@ namespace Microsoft.Practices.Unity
                 }
 
                 typeRegistrations[t] =
-                    (typeRegistrations[t].Concat(registeredNames.GetKeys(t))).Distinct().ToList();
+                    (typeRegistrations[t].Concat(_registeredNames.GetKeys(t))).Distinct().ToList();
             }
         }
     }
