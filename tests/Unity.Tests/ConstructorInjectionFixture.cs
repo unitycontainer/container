@@ -14,7 +14,6 @@ namespace Unity.Tests
     public class ConstructorInjectionFixture
     {
         [TestMethod]
-        [Ignore]
         public void ConstPropInjectionSameClassTwice()
         {
             IUnityContainer uc = new UnityContainer();
@@ -29,7 +28,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]// log Bug 
-        [Ignore]
         public void TestMethodwithParamaterAsInterface()
         {
             IUnityContainer uc = new UnityContainer();

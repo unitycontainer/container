@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
-
+using Microsoft.Practices.Unity.TestSupport;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #elif WINDOWS_PHONE
@@ -432,27 +432,13 @@ namespace Unity.Tests.Lifetime
         }
 
         [TestMethod]
-        [Ignore]
         public void RegisterInstanceLifetimeManagerNullTest()
         {
-            //ATTest obj1 = new ATTest();
-            //obj1.Strtest = "obj1";
+            ATTest obj1 = new ATTest();
+            obj1.Strtest = "obj1";
 
-            //UnityContainer uc = new UnityContainer();
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => uc.RegisterInstance("obj2", obj1, null));
-        }
-
-        [TestMethod]
-        [Ignore]
-        public void Test_TaskID_16777()
-        {
-            //UnityContainer uc = new UnityContainer();
-
-            //uc.RemoveAllExtensions();
-            //uc.AddExtension(new MyExtension());
-            //uc.RegisterType<UnityTestClass>(new ContainerControlledLifetimeManager());
-
-            //UnityTestClass mytestparent = uc.Resolve<UnityTestClass>();
+            UnityContainer uc = new UnityContainer();
+            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.RegisterInstance("obj2", obj1, null));
         }
     }
 }

@@ -135,7 +135,6 @@ namespace Unity.Tests.Extension
         /// Remove all extensions from the container
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void RemoveAllExtensions()
         {
             IUnityContainer container = new UnityContainer()
@@ -147,26 +146,11 @@ namespace Unity.Tests.Extension
             Assert.IsNotNull(result);
         }
 
-        /// <summary>
-        /// Remove all extensions. then add the default extension to the container.
-        /// </summary>
-        [TestMethod]
-        [Ignore]
-        public void AddDefaultExtensions()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RemoveAllExtensions();
-
-            object result = container.Resolve<object>();
-
-            Assert.IsNotNull(result);
-        }
 
         /// <summary>
         /// Remove all extensions. Add default extension and the new extension.
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void AddDefaultAndCustomExtensions()
         {
             IUnityContainer container = new UnityContainer()

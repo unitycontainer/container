@@ -20,7 +20,6 @@ namespace Unity.Tests
     public class OptionalDependencyFixture
     {
         [TestMethod]
-        [Ignore]
         public void OptionalParametersSetToNullIfNotRegistered()
         {
             IUnityContainer container = new UnityContainer();
@@ -31,7 +30,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersResolvedIfInstanceRegistered()
         {
             IUnityContainer container = new UnityContainer();
@@ -45,7 +43,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersResolvedIfInstanceRegisteredWithName()
         {
             IUnityContainer container = new UnityContainer();
@@ -59,7 +56,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersResolvedIfInstanceRegisteredInParent()
         {
             IUnityContainer parent = new UnityContainer();
@@ -74,7 +70,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersResolvedIfInstanceRegisteredInParentWithName()
         {
             IUnityContainer parent = new UnityContainer();
@@ -89,7 +84,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersNotResolvedIfMoreSpecificTypeRegistered()
         {
             IUnityContainer container = new UnityContainer();
@@ -103,7 +97,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersNotResolvedIfMoreSpecificTypeRegisteredWithName()
         {
             IUnityContainer container = new UnityContainer();
@@ -117,7 +110,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersResolvedIfTypeRegistered()
         {
             IUnityContainer container = new UnityContainer();
@@ -130,7 +122,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersResolvedIfTypeRegisteredInParent()
         {
             IUnityContainer parent = new UnityContainer();
@@ -144,7 +135,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void OptionalParametersNullIfTypeRegisteredThrowsAtResolve()
         {
             IUnityContainer container = new UnityContainer();
@@ -157,7 +147,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void CanConfigureInjectionConstWithOptionalParameters()
         {
             IUnityContainer container = new UnityContainer();
@@ -173,7 +162,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void CanConfigureInjectionPropertyWithOptionalParameters()
         {
             IUnityContainer container = new UnityContainer();

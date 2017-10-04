@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
 using Microsoft.Practices.Unity;
-
+using Microsoft.Practices.Unity.TestSupport;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #elif WINDOWS_PHONE
@@ -18,54 +18,47 @@ namespace Unity.Tests
         #region BuildUp method with null input or empty string
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject1()
         {
-            //try
-            //{
-            //    UnityContainer uc = new UnityContainer();
-            //    object myNullObject = null;
-            //    uc.BuildUp(myNullObject);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Assert.IsInstanceOfType(ex, typeof(ArgumentNullException))
-            //    AssertHelper.ThrowsException<>(() => , "Null object is not allowed");
-            //}
+            try
+            {
+                UnityContainer uc = new UnityContainer();
+                uc.BuildUp((object) null);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(ArgumentNullException));
+            }
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject2()
         {
-            //UnityContainer uc = new UnityContainer();
-            //object myNullObject = null;
+            UnityContainer uc = new UnityContainer();
+            object myNullObject = null;
 
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(myNullObject, "myNullObject"), "Null object is not allowed");
+            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(myNullObject, "myNullObject"), "Null object is not allowed");
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject3()
         {
-            //UnityContainer uc = new UnityContainer();
-            //object myNullObject = null;
+            UnityContainer uc = new UnityContainer();
+            object myNullObject = null;
 
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(typeof(object), myNullObject), "Null object is not allowed");
+            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(typeof(object), myNullObject), "Null object is not allowed");
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject4()
         {
-            //UnityContainer uc = new UnityContainer();
-            //object myNullObject = null;
+            UnityContainer uc = new UnityContainer();
+            object myNullObject = null;
 
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(typeof(object), myNullObject, "myNullObject"), "Null object is not allowed");
+            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(typeof(object), myNullObject, "myNullObject"), "Null object is not allowed");
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject5()
         {
             UnityContainer uc = new UnityContainer();
@@ -76,7 +69,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject6()
         {
             UnityContainer uc = new UnityContainer();
@@ -87,7 +79,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject7()
         {
             UnityContainer uc = new UnityContainer();
@@ -100,7 +91,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject8()
         {
             UnityContainer uc = new UnityContainer();
@@ -113,7 +103,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject9()
         {
             UnityContainer uc = new UnityContainer();
@@ -126,18 +115,16 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildUpPrimitiveAndDotNetClassTest()
         {
             IUnityContainer uc = new UnityContainer();
             int i = 0;
             uc.BuildUp(i, "a");
 
-//          AssertHelper.ThrowsException<ResolutionFailedException>(() => uc.Resolve(typeof(int), "a"));
+          AssertHelper.ThrowsException<ResolutionFailedException>(() => uc.Resolve(typeof(int), "a"));
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject10()
         {
             UnityContainer uc = new UnityContainer();
@@ -150,7 +137,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject11()
         {
             UnityContainer uc = new UnityContainer();
@@ -178,7 +164,6 @@ namespace Unity.Tests
         #region BuildUp Method with mismatched type and object
 
         [TestMethod]
-        [Ignore]
         public void BuildUnmatchedObject1()
         {
             UnityContainer uc = new UnityContainer();
@@ -202,7 +187,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildUnmatchedObject2()
         {
             UnityContainer uc = new UnityContainer();
@@ -213,7 +197,7 @@ namespace Unity.Tests
             Assert.IsNull(obj2.MyFirstObj);
             Assert.IsNull(obj2.MySecondObj);
 
-//            AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(BuildUnmatchedObject2_PropertyDependencyClassStub1), obj2), "type of the object should match");
+            AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(BuildUnmatchedObject2_PropertyDependencyClassStub1), obj2), "type of the object should match");
         }
 
         public class BuildUnmatchedObject2_PropertyDependencyClassStub1
@@ -253,7 +237,6 @@ namespace Unity.Tests
         #region BuildUp method with Base and Child
 
         [TestMethod]
-        [Ignore]
         public void BuildBaseAndChildObject1()
         {
             UnityContainer uc = new UnityContainer();
@@ -280,7 +263,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildBaseAndChildObject2()
         {
             UnityContainer uc = new UnityContainer();
@@ -297,7 +279,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildBaseAndChildObject3()
         {
             UnityContainer uc = new UnityContainer();
@@ -309,11 +290,10 @@ namespace Unity.Tests
             uc.BuildUp(typeof(BaseStub1), objBase);
             Assert.IsNotNull(objBase.BaseProp);
 
-//            AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(ChildStub1), objBase), "type of the object should match");
+            AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(ChildStub1), objBase), "type of the object should match");
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildBaseAndChildObject4()
         {
             UnityContainer uc = new UnityContainer();
@@ -371,7 +351,6 @@ namespace Unity.Tests
         #region BuildUp method with Abstract Base
 
         [TestMethod]
-        [Ignore]
         public void BuildAbstractBaseAndChildObject1()
         {
             UnityContainer uc = new UnityContainer();
@@ -388,7 +367,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildAbstractBaseAndChildObject2()
         {
             UnityContainer uc = new UnityContainer();
@@ -433,7 +411,6 @@ namespace Unity.Tests
         #region BuildUp method with Interface
 
         [TestMethod]
-        [Ignore]
         public void BuildInterfacePropertyInjectTest1()
         {
             UnityContainer uc = new UnityContainer();
@@ -445,7 +422,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildInterfacePropertyInjectTest2()
         {
             UnityContainer uc = new UnityContainer();
@@ -506,7 +482,6 @@ namespace Unity.Tests
         #region BuildUp method with Contained Object
 
         [TestMethod]
-        [Ignore]
         public void BuildContainedObject1()
         {
             UnityContainer uc = new UnityContainer();
@@ -570,7 +545,6 @@ namespace Unity.Tests
         #region Get method
 
         [TestMethod]
-        [Ignore]
         public void GetObject1()
         {
             UnityContainer uc = new UnityContainer();
@@ -580,7 +554,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void GetObject2()
         {
             UnityContainer uc = new UnityContainer();
@@ -590,7 +563,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void GetObject3()
         {
             UnityContainer uc = new UnityContainer();
@@ -600,7 +572,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void GetObject4()
         {
             UnityContainer uc = new UnityContainer();
@@ -610,7 +581,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void GetObject5()
         {
             UnityContainer uc = new UnityContainer();
@@ -620,7 +590,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void GetObject6()
         {
             UnityContainer uc = new UnityContainer();

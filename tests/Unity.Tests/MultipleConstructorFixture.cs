@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+
+using Microsoft.Practices.Unity.TestSupport;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #elif WINDOWS_PHONE
@@ -21,13 +23,12 @@ namespace Unity.Container.Register.Tests
         /// Test with multiple constructors.
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void MultipleConstructorTestMethod()
         {
-            //IUnityContainer container = new UnityContainer();
- 
-            //container.RegisterType<ClassWithMultipleConstructor>();
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => container.Resolve<ClassWithMultipleConstructor>());
+            IUnityContainer container = new UnityContainer();
+
+            container.RegisterType<ClassWithMultipleConstructor>();
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => container.Resolve<ClassWithMultipleConstructor>());
         }
 
         internal class ClassWithMultipleConstructor

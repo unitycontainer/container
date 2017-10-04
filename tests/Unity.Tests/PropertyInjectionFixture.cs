@@ -120,7 +120,6 @@ namespace Unity.Tests
     public class TestInjection
     {
         [TestMethod]
-        [Ignore]
         public void PropertyInjectionUseNew_Test()
         {
             InjectTestClass objTest = new InjectTestClass();
@@ -133,7 +132,6 @@ namespace Unity.Tests
         /// Check property injection
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void HappyPropertyInjection_Test()
         {
             UnityContainer container = new UnityContainer();
@@ -149,7 +147,6 @@ namespace Unity.Tests
         /// Bug ID : 16459
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void ConstPropInjectionSameClass()
         {
             IUnityContainer uc = new UnityContainer();

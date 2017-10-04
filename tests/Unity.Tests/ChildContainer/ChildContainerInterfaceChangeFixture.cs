@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.TestSupport;
 
 namespace Unity.Tests.ChildContainer
 {
@@ -224,13 +225,12 @@ namespace Unity.Tests.ChildContainer
         /// Null not allowed for Lifetime in registerinstance. 
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void CheckNullHandledInRegisterInstance()
         {
-            //UnityContainer parent = new UnityContainer();
-            //TestContainer obj = new TestContainer();
+            UnityContainer parent = new UnityContainer();
+            TestContainer obj = new TestContainer();
 
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => parent.RegisterInstance<TestContainer>(obj, null));
+            AssertHelper.ThrowsException<ArgumentNullException>(() => parent.RegisterInstance<TestContainer>(obj, null));
         }
     }
 }

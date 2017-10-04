@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Practices.ObjectBuilder2;
 
 namespace Microsoft.Practices.Unity

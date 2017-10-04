@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.TestSupport;
+using Microsoft.Practices.Unity.Utility;
 
 namespace Unity.Tests.ChildContainer
 {
@@ -167,22 +169,21 @@ namespace Unity.Tests.ChildContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void VerifyArgumentNullException()
         {
-            //string[] numbers = { "first", "second", "third" };
+            string[] numbers = { "first", "second", "third" };
 
-            //UnityContainer parent = new UnityContainer();
-            //parent.RegisterInstance("1", numbers[0])
-            //    .RegisterInstance("2", numbers[1]);
-            //IUnityContainer child = parent.CreateChildContainer()
-            //    .RegisterInstance("3", numbers[2]);
+            UnityContainer parent = new UnityContainer();
+            parent.RegisterInstance("1", numbers[0])
+                .RegisterInstance("2", numbers[1]);
+            IUnityContainer child = parent.CreateChildContainer()
+                .RegisterInstance("3", numbers[2]);
 
-            //List<string> nums = new List<string>(child.ResolveAll<string>());
+            List<string> nums = new List<string>(child.ResolveAll<string>());
 
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => Guard.ArgumentNotNull(null, String.Empty));
+            AssertHelper.ThrowsException<ArgumentNullException>(() => Guard.ArgumentNotNull(null, String.Empty));
 
-            //CollectionAssert.AreEquivalent(numbers, nums);
+            CollectionAssert.AreEquivalent(numbers, nums);
         }
 
         [TestMethod]
@@ -251,70 +252,66 @@ namespace Unity.Tests.ChildContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void GetObjectAfterDispose()
         {
-            //UnityContainer parent = new UnityContainer();
-            //parent.RegisterType<Temp>("First", new ContainerControlledLifetimeManager());
+            UnityContainer parent = new UnityContainer();
+            parent.RegisterType<Temp>("First", new ContainerControlledLifetimeManager());
 
-            //IUnityContainer child = parent.CreateChildContainer();
-            //child.RegisterType<ITemporary>("First", new ContainerControlledLifetimeManager());
-            //parent.Dispose();
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => child.Resolve<ITemporary>("First"));
+            IUnityContainer child = parent.CreateChildContainer();
+            child.RegisterType<ITemporary>("First", new ContainerControlledLifetimeManager());
+            parent.Dispose();
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => child.Resolve<ITemporary>("First"));
         }
 
         [TestMethod]
-        [Ignore]
         public void VerifyArgumentNotNullOrEmpty()
         {
-            //string[] numbers = { "first", "second", "third" };
+            string[] numbers = { "first", "second", "third" };
 
-            //UnityContainer parent = new UnityContainer();
-            //parent.RegisterInstance("1", numbers[0])
-            //    .RegisterInstance("2", numbers[1]);
-            //IUnityContainer child = parent.CreateChildContainer()
-            //    .RegisterInstance("3", numbers[2]);
-            //List<string> nums = new List<string>(child.ResolveAll<string>());
+            UnityContainer parent = new UnityContainer();
+            parent.RegisterInstance("1", numbers[0])
+                .RegisterInstance("2", numbers[1]);
+            IUnityContainer child = parent.CreateChildContainer()
+                .RegisterInstance("3", numbers[2]);
+            List<string> nums = new List<string>(child.ResolveAll<string>());
 
-            //AssertHelper.ThrowsException<ArgumentException>(() => Guard.ArgumentNotNullOrEmpty(String.Empty, String.Empty));
-            
-            //CollectionAssert.AreEquivalent(numbers, nums);
+            AssertHelper.ThrowsException<ArgumentException>(() => Guard.ArgumentNotNullOrEmpty(String.Empty, String.Empty));
+
+            CollectionAssert.AreEquivalent(numbers, nums);
         }
 
         [TestMethod]
-        [Ignore]
         public void VerifyArgumentNotNullOrEmpty1()
         {
-            //string[] numbers = { "first", "second", "third" };
+            string[] numbers = { "first", "second", "third" };
 
-            //UnityContainer parent = new UnityContainer();
-            //parent.RegisterInstance("1", numbers[0])
-            //    .RegisterInstance("2", numbers[1]);
-            //IUnityContainer child = parent.CreateChildContainer()
-            //    .RegisterInstance("3", numbers[2]);
-            //List<string> nums = new List<string>(child.ResolveAll<string>());
+            UnityContainer parent = new UnityContainer();
+            parent.RegisterInstance("1", numbers[0])
+                .RegisterInstance("2", numbers[1]);
+            IUnityContainer child = parent.CreateChildContainer()
+                .RegisterInstance("3", numbers[2]);
+            List<string> nums = new List<string>(child.ResolveAll<string>());
 
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => Guard.ArgumentNotNullOrEmpty(null, null));
+            AssertHelper.ThrowsException<ArgumentNullException>(() => Guard.ArgumentNotNullOrEmpty(null, null));
 
-            //CollectionAssert.AreEquivalent(numbers, nums);
+            CollectionAssert.AreEquivalent(numbers, nums);
         }
 
         [TestMethod]
-        [Ignore]
         public void VerifyArgumentNotNullOrEmpty2()
         {
-            //string[] numbers = { "first", "second", "third" };
+            string[] numbers = { "first", "second", "third" };
 
-            //UnityContainer parent = new UnityContainer();
-            //parent.RegisterInstance("1", numbers[0])
-            //    .RegisterInstance("2", numbers[1]);
-            //IUnityContainer child = parent.CreateChildContainer()
-            //    .RegisterInstance("3", numbers[2]);
-            //List<string> nums = new List<string>(child.ResolveAll<string>());
+            UnityContainer parent = new UnityContainer();
+            parent.RegisterInstance("1", numbers[0])
+                .RegisterInstance("2", numbers[1]);
+            IUnityContainer child = parent.CreateChildContainer()
+                .RegisterInstance("3", numbers[2]);
+            List<string> nums = new List<string>(child.ResolveAll<string>());
 
-            //Guard.ArgumentNotNullOrEmpty("first", "numbers");
-            
-            //CollectionAssert.AreEquivalent(numbers, nums);
+            Guard.ArgumentNotNullOrEmpty("first", "numbers");
+
+            CollectionAssert.AreEquivalent(numbers, nums);
         }
 
         //bug # 3978 http://unity.codeplex.com/WorkItem/View.aspx?WorkItemId=6053

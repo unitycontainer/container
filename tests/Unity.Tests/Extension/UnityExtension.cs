@@ -93,7 +93,6 @@ namespace Unity.Tests.Extension
         }
 
         [TestMethod]
-        [Ignore]
         public void Ext_CanReinstallDefaultBehavior()
         {
             IUnityContainer container = new UnityContainer()

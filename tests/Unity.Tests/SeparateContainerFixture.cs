@@ -25,7 +25,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void RecursiveDependencies()
         {
             IUnityContainer uc = new UnityContainer();
@@ -36,7 +35,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void CheckPropertyInjectionWorks()
         {
             IUnityContainer uc = new UnityContainer();
@@ -48,7 +46,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void CheckPropertyDependencyInjectionWorks()
         {
             IUnityContainer uc = new UnityContainer();
@@ -60,7 +57,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void Check2PropertyDependencyInjectionWorks()
         {
             IUnityContainer uc = new UnityContainer();
@@ -73,7 +69,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void Check2PropertyDependencyBuildUpWorks()
         {
             UnityContainer uc = new UnityContainer();
@@ -90,7 +85,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void CheckMultipleDependencyNonDependencyInjectionWorks()
         {
             UnityContainer uc = new UnityContainer();
@@ -103,7 +97,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void TwoInstancesAreNotSame()
         {
             UnityContainer uc = new UnityContainer();
@@ -114,7 +107,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void SingletonsAreSame()
         {
             IUnityContainer uc = new UnityContainer()
@@ -127,7 +119,6 @@ namespace Unity.Tests.SeparateContainer
         }
 
         [TestMethod]
-        [Ignore]
         public void NamedUnnamedSingletonareNotSame()
         {
             IUnityContainer uc = new UnityContainer()

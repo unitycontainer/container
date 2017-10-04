@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
-
+using Microsoft.Practices.Unity.TestSupport;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #elif WINDOWS_PHONE
@@ -17,7 +17,6 @@ namespace Unity.Tests
     public class ContainerBasicFixture
     {
         [TestMethod]
-        [Ignore]
         public void ResolveAllOnlyReturnsInterfaceRegistrations()
         {
             ITest iTest;
@@ -47,7 +46,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void NamedMappedInterfaceInstanceRegistrationCanBeResolved()
         {
             ITest iTest;
@@ -63,7 +61,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void UnnamedMappingThrowsResolutionFailedException()
         {
             //The inner exception says {"The type ITest does not have an accessible constructor."} where as it should
@@ -71,16 +68,15 @@ namespace Unity.Tests
 
             //There is an unnamed mapping 
 
-            //ATest objA = null;
+            ATest objA = null;
 
-            //UnityContainer uc1 = new UnityContainer();
+            UnityContainer uc1 = new UnityContainer();
 
-            //uc1.RegisterType<ITest, ATest>();
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => objA = (ATest)uc1.Resolve<ITest>("ATest"));
+            uc1.RegisterType<ITest, ATest>();
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => objA = (ATest)uc1.Resolve<ITest>("ATest"));
         }
 
         [TestMethod]
-        [Ignore]
         public void WhenInstanceIsRegisteredAsSingletonEnsureItIsNotGarbageCollected()
         {
             ITest iTest;
@@ -110,7 +106,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void ResovleCollection()
         {
             UnityContainer uc1 = new UnityContainer();
@@ -120,39 +115,35 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void CollectionWhenConstructorParameterNotRegisteredThrowsResolutionFailedException()
         {
-            //UnityContainer uc1 = new UnityContainer();
+            UnityContainer uc1 = new UnityContainer();
 
-            //uc1.RegisterType<ITestColl, CTestColl>("CTest");
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<CTestColl>());
+            uc1.RegisterType<ITestColl, CTestColl>("CTest");
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<CTestColl>());
         }
 
         [TestMethod]
-        [Ignore]
         public void WhenResolvePrimitiveThrowsResolutionFailedException()
         {
-            //Primitive type not supported
-            //UnityContainer uc1 = new UnityContainer();
+            // Primitive type not supported
+            UnityContainer uc1 = new UnityContainer();
 
-            //uc1.RegisterType<int>("i");
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<int>("i"));
+            uc1.RegisterType<int>("i");
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<int>("i"));
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolveListAtest()
         {
             ////List of class  type not supported
-            //UnityContainer uc1 = new UnityContainer();
+            UnityContainer uc1 = new UnityContainer();
 
-            //uc1.RegisterType<List<ATest>>("List");
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<List<ATest>>("List"));
+            uc1.RegisterType<List<ATest>>("List");
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<List<ATest>>("List"));
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolveArrayOfAtest()
         {
             UnityContainer uc1 = new UnityContainer();
@@ -164,18 +155,16 @@ namespace Unity.Tests
         #region Basic Parameterized Constructor
 
         [TestMethod]
-        [Ignore]
         public void ResolveListAtestAsParameterToConstructor()
         {
             ////Constructor of List of class as parameter not supported
-            //UnityContainer uc1 = new UnityContainer();
+            UnityContainer uc1 = new UnityContainer();
 
-            //uc1.RegisterType<ListOfClassParameter>("List");
-            //AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<ListOfClassParameter>("List"));
+            uc1.RegisterType<ListOfClassParameter>("List");
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<ListOfClassParameter>("List"));
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolveArrayOfAtestAsParameterToConstructor()
         {
             UnityContainer uc1 = new UnityContainer();
@@ -185,7 +174,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolveDotNetClassAsParameterToConstructor()
         {
             //Constructor Int32 as parameter not supported

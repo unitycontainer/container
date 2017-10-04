@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
-
+using Microsoft.Practices.Unity.TestSupport;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #elif WINDOWS_PHONE
@@ -146,10 +146,9 @@ namespace Unity.Tests.Override
         }
 
         [TestMethod]
-        [Ignore]
         public void TypeBasedOverrideNullCheckForResolverOverride()
         {
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => new TypeBasedOverride(typeof(TypeToInject2ForTypeOverride), null));
+            AssertHelper.ThrowsException<ArgumentNullException>(() => new TypeBasedOverride(typeof(TypeToInject2ForTypeOverride), null));
         }
 
         [TestMethod]
@@ -202,12 +201,11 @@ namespace Unity.Tests.Override
         }
 
         [TestMethod]
-        [Ignore]
         public void TypeBasedOverrideConstructorWithNullOverride()
         {
-            //TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
-            //TypeToInject2ForTypeOverride overrideValue = null;
-            //AssertHelper.ThrowsException<ArgumentNullException>(() => new ParameterOverride("injectedObject", overrideValue));
+            TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
+            TypeToInject2ForTypeOverride overrideValue = null;
+            AssertHelper.ThrowsException<ArgumentNullException>(() => new ParameterOverride("injectedObject", overrideValue));
         }
     }
 }
