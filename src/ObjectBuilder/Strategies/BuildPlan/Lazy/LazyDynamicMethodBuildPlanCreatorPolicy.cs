@@ -14,8 +14,19 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class LazyDynamicMethodBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
-        private static readonly MethodInfo BuildResolveLazyMethod = StaticReflection.GetMethodInfo(() => LazyDynamicMethodBuildPlanCreatorPolicy.BuildResolveLazy<object>(null)).GetGenericMethodDefinition();
-        private static readonly MethodInfo BuildResolveAllLazyMethod = StaticReflection.GetMethodInfo(() => LazyDynamicMethodBuildPlanCreatorPolicy.BuildResolveAllLazy<object>(null)).GetGenericMethodDefinition();
+        private static readonly MethodInfo BuildResolveLazyMethod;
+        private static readonly MethodInfo BuildResolveAllLazyMethod;
+
+        static LazyDynamicMethodBuildPlanCreatorPolicy()
+        {
+            var info = typeof(LazyDynamicMethodBuildPlanCreatorPolicy).GetTypeInfo();
+
+            BuildResolveLazyMethod =
+                info.GetDeclaredMethod(nameof(BuildResolveLazy));
+
+            BuildResolveAllLazyMethod =
+                info.GetDeclaredMethod(nameof(BuildResolveAllLazy));
+        }
 
         /// <summary>
         /// Creates a build plan using the given context and build key.
