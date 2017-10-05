@@ -173,7 +173,11 @@ namespace Microsoft.Practices.Unity
         {
             Guard.ArgumentNotNull(t, "t");
 
-            return (IEnumerable<object>)this.Resolve(t.MakeArrayType(), resolverOverrides);
+            var result = this.Resolve(t.MakeArrayType(), resolverOverrides);
+
+            return result is IEnumerable<object>
+                ? (IEnumerable<object>)result
+                : ((Array)result).Cast<object>();
         }
 
         #endregion
