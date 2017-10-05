@@ -1919,7 +1919,7 @@ namespace System.Collections.Concurrent
         {
             Assert(key != null);
 
-            return null;// TODO: Environment.GetResourceString(key);
+            return key;// TODO: Environment.GetResourceString(key);
         }
 
         /// <summary>
