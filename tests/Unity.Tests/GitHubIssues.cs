@@ -8,8 +8,8 @@ namespace GitHub
     [TestClass]
     public class Issues
     {
-        [TestMethod]    // https://github.com/unitycontainer/unity/issues/88
-        public void InvalidCastExceptionWhenResolvingValueTypes_88()
+        [TestMethod]    
+        public void GitHub_Issue_88()   // https://github.com/unitycontainer/unity/issues/88
         {
             using (var unityContainer = new UnityContainer())
             {
@@ -22,8 +22,8 @@ namespace GitHub
             }
         }
 
-        [TestMethod]    // https://github.com/unitycontainer/unity/issues/54
-        public void StackOverflowException_54()
+        [TestMethod]    
+        public void GitHub_Issue_54()   // https://github.com/unitycontainer/unity/issues/54
         {
             using (IUnityContainer container = new UnityContainer())
             {
