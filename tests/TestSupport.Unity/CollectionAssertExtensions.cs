@@ -1,19 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#elif __IOS__
-using NUnit.Framework;
-using AssertFailedException = NUnit.Framework.AssertionException;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Microsoft.Practices.Unity.TestSupport
 {
