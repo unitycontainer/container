@@ -28,6 +28,7 @@
 
   <PropertyGroup>
     <DebugType>Full</DebugType>
+    <AssemblyName>Unity</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">

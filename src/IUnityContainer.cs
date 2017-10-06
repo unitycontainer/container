@@ -144,9 +144,9 @@ namespace Microsoft.Practices.Unity
         IUnityContainer CreateChildContainer();
 
         /// <summary>
-        /// Get a sequence of <see cref="ContainerRegistration"/> that describe the current state
+        /// Get a sequence of <see cref="Registration"/> that describe the current state
         /// of the container.
         /// </summary>
-        IEnumerable<ContainerRegistration> Registrations { get; }
+        IEnumerable<Registration> Registrations { get; }
     }
 }

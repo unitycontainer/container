@@ -383,10 +383,10 @@ namespace Microsoft.Practices.Unity
         #endregion
 
         /// <summary>
-        /// Get a sequence of <see cref="ContainerRegistration"/> that describe the current state
+        /// Get a sequence of <see cref="Registration"/> that describe the current state
         /// of the container.
         /// </summary>
-        public IEnumerable<ContainerRegistration> Registrations
+        public IEnumerable<Registration> Registrations
         {
             get
             {
@@ -396,7 +396,7 @@ namespace Microsoft.Practices.Unity
                 return
                     from type in allRegisteredNames.Keys
                     from name in allRegisteredNames[type]
-                    select new ContainerRegistration(type, name, _policies);
+                    select new Registration(type, name, _policies);
             }
         }
 
