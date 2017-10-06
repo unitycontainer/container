@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.Unity.TestSupport;
 #if NETFX_CORE
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #elif __IOS__
@@ -9,6 +8,7 @@ using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
 using TestInitializeAttribute = NUnit.Framework.SetUpAttribute;
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 #else
+using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
