@@ -167,7 +167,7 @@ namespace Microsoft.Practices.Unity.Utility
             }
             if (index != -1)
             {
-                result = Type.GenericTypeArguments[index];
+                result = Type.GetTypeInfo().GenericTypeArguments[index];
             }
             return result;
         }

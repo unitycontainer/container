@@ -43,9 +43,6 @@ namespace System.Collections.Concurrent
         }
 
         private volatile Tables _tables; // Internal tables of the dictionary       
-        // NOTE: this is only used for compat reasons to serialize the comparer.
-        // This should not be accessed from anywhere else outside of the serialization methods.
-        internal IEqualityComparer<TKey> _comparer;
 
         private readonly bool _growLockArray; // Whether to dynamically increase the size of the striped lock
 
@@ -750,11 +747,6 @@ namespace System.Collections.Concurrent
 
                 bool resizeDesired = false;
                 bool lockTaken = false;
-#if FEATURE_RANDOMIZED_STRING_HASHING
-#if !FEATURE_CORECLR                
-                bool resizeDueToCollisions = false;
-#endif // !FEATURE_CORECLR
-#endif
 
                 try
                 {
@@ -767,12 +759,6 @@ namespace System.Collections.Concurrent
                     {
                         continue;
                     }
-
-#if FEATURE_RANDOMIZED_STRING_HASHING
-#if !FEATURE_CORECLR
-                    int collisionCount = 0;
-#endif // !FEATURE_CORECLR
-#endif
 
                     // Try to find this key in the bucket
                     Node prev = null;
@@ -812,22 +798,7 @@ namespace System.Collections.Concurrent
                         }
                         prev = node;
 
-#if FEATURE_RANDOMIZED_STRING_HASHING
-#if !FEATURE_CORECLR
-                        collisionCount++;
-#endif // !FEATURE_CORECLR
-#endif
                     }
-
-#if FEATURE_RANDOMIZED_STRING_HASHING
-#if !FEATURE_CORECLR
-                    if(collisionCount > HashHelpers.HashCollisionThreshold && HashHelpers.IsWellKnownEqualityComparer(comparer)) 
-                    {
-                        resizeDesired = true;
-                        resizeDueToCollisions = true;
-                    }
-#endif // !FEATURE_CORECLR
-#endif
 
                     // The key was not found in the bucket. Insert the key-value pair.
                     Volatile.Write<Node>(ref tables._buckets[bucketNo], new Node(key, value, hashcode, tables._buckets[bucketNo]));
@@ -862,20 +833,7 @@ namespace System.Collections.Concurrent
                 //
                 if (resizeDesired)
                 {
-#if FEATURE_RANDOMIZED_STRING_HASHING
-#if !FEATURE_CORECLR
-                    if (resizeDueToCollisions)
-                    {
-                        GrowTable(tables, (IEqualityComparer<TKey>)HashHelpers.GetRandomizedEqualityComparer(comparer), true, m_keyRehashCount);
-                    }
-                    else
-#endif // !FEATURE_CORECLR
-                    {
-                        GrowTable(tables, tables.m_comparer, false, m_keyRehashCount);
-                    }
-#else
                     GrowTable(tables, tables._comparer, false, _keyRehashCount);
-#endif
                 }
 
                 resultingValue = value;

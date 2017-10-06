@@ -56,7 +56,7 @@ namespace Microsoft.Practices.Unity
             Type typeToResolve = parameterReflector.Type;
             if (parameterReflector.IsOpenGeneric)
             {
-                typeToResolve = parameterReflector.GetClosedParameterType(typeToBuild.GenericTypeArguments);
+                typeToResolve = parameterReflector.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
             }
 
             return new OptionalDependencyResolverPolicy(typeToResolve, this.name);

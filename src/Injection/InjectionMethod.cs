@@ -136,8 +136,8 @@ namespace Microsoft.Practices.Unity
                 string.Format(CultureInfo.CurrentCulture,
                     message,
                     typeToCreate.GetTypeInfo().Name,
-                    this.methodName,
-                    this.methodParameters.JoinStrings(", ", mp => mp.ParameterTypeName)));
+                    methodName,
+                    string.Join(", ", methodParameters.Select(mp => mp.ParameterTypeName))));
         }
 
         private static SpecifiedMethodsSelectorPolicy GetSelectorPolicy(IPolicyList policies, Type typeToCreate, string name)

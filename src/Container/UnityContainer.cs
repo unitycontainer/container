@@ -373,7 +373,9 @@ namespace Microsoft.Practices.Unity
                     }
                 }
 
-                _extensions.OfType<IDisposable>().ForEach(ex => ex.Dispose());
+                foreach (IDisposable disposable in _extensions.OfType<IDisposable>())
+                    disposable.Dispose();
+
                 _extensions.Clear();
             }
         }
