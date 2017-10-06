@@ -19,6 +19,12 @@
     <Company>Microsoft.Practices.Unity</Company>
     <RootNamespace>Microsoft.Practices.Unity</RootNamespace>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="Exists('..\..\package.snk')">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\package.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
 
   <PropertyGroup>
     <DebugType>Full</DebugType>
