@@ -6,7 +6,7 @@ before_build:
 - cmd: dotnet restore
 
 build:
-  project: src\Unity.Container.csproj
+  project: "src\Unity.Container.csproj"
   parallel: true
   verbosity: minimal
 
