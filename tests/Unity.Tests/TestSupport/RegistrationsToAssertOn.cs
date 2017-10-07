@@ -8,9 +8,9 @@ namespace Microsoft.Practices.Unity.TestSupport
 {
     public class RegistrationsToAssertOn
     {
-        public readonly IEnumerable<Registration> Registrations;
+        public readonly IEnumerable<ContainerRegistration> Registrations;
 
-        public RegistrationsToAssertOn(IEnumerable<Registration> registrations)
+        public RegistrationsToAssertOn(IEnumerable<ContainerRegistration> registrations)
         {
             this.Registrations = registrations;
         }

@@ -9,11 +9,11 @@ namespace Microsoft.Practices.Unity
     /// <summary>
     /// Class that returns information about the types registered in a container.
     /// </summary>
-    public class Registration
+    public class ContainerRegistration
     {
         private readonly NamedTypeBuildKey buildKey;
 
-        internal Registration(Type registeredType, string name, IPolicyList policies)
+        internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
         {
             this.buildKey = new NamedTypeBuildKey(registeredType, name);
             MappedToType = GetMappedType(policies);
