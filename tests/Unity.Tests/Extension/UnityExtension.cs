@@ -2,17 +2,11 @@
 
 //===============================================================================
 
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#elif WINDOWS_PHONE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.Tests.TestDoubles;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Unity.Tests.Extension
 {

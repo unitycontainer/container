@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Microsoft.Practices.Unity.Properties;
+using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 
 namespace Microsoft.Practices.Unity

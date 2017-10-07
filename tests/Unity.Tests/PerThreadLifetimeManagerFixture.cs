@@ -1,36 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-// Duplicate using statements to avoid ordering using warning SA1210. 
-// ifdefs seem to be confusing stylecop
-#if NETFX_CORE
-#if !WINDOWS_PHONE
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Windows.System.Threading;
-#else
-using System.Linq;
-using System.Threading;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#endif
-#elif __IOS__
-using System.Linq;
-using System.Threading;
-using Microsoft.Practices.ObjectBuilder2;
-using NUnit.Framework;
-using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
-using TestInitializeAttribute = NUnit.Framework.SetUpAttribute;
-using TestMethodAttribute = NUnit.Framework.TestAttribute;
-#else
 using System.Linq;
 using System.Threading;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -207,23 +180,6 @@ namespace Microsoft.Practices.Unity.Tests
             Assert.AreSame(registered, result);
         }
 
-#if NETFX_CORE && !WINDOWS_PHONE
-        // Helper method to run a bunch of delegates, each on a separate thread.
-        // It runs them and then waits for them all to complete.
-        private static void RunInParallel(params System.Action[] actions)
-        {
-            var barrier = new Barrier(actions.Length);
-            var tasks = actions.Select(a =>
-                    ThreadPool.RunAsync(
-                        _ =>
-                        {
-                            barrier.SignalAndWait();
-                            a();
-                        }).AsTask()).ToArray();
-
-            Task.WaitAll(tasks);
-        }
-#else
         // Helper method to run a bunch of delegates, each on a separate thread.
         // It runs them and then waits for them all to complete.
         private static void RunInParallel(params ThreadStart[] actions)
@@ -241,6 +197,5 @@ namespace Microsoft.Practices.Unity.Tests
             // And wait for them all to finish
             threads.ForEach(t => t.Join());
         }
-#endif
     }
 }

@@ -3,7 +3,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Microsoft.Practices.Unity.Properties;
+using Unity.Container.Properties;
 
 namespace Microsoft.Practices.Unity.Utility
 {

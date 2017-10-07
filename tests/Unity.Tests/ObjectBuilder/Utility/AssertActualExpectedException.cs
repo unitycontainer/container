@@ -3,14 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#elif __IOS__
-using NUnit.Framework;
-using AssertFailedException = NUnit.Framework.AssertionException;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

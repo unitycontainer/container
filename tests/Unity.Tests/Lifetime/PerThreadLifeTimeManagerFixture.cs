@@ -3,14 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Practices.Unity;
 using Unity.Tests.Generics;
-
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#elif WINDOWS_PHONE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Unity.Tests.Lifetime
 {

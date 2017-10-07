@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Microsoft.Practices.Unity.Properties;
+using Unity.Container.Properties;
 using Guard = Microsoft.Practices.Unity.Utility.Guard;
 
 namespace Microsoft.Practices.Unity

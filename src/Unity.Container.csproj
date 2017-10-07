@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFramework>net47</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>Unity</PackageId>
     <Description>Unity Core</Description>
@@ -17,7 +17,7 @@
     <PackageReleaseNotes>This package is distributed as .NET Standard 1.0 package.</PackageReleaseNotes>
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
-    <RootNamespace>Microsoft.Practices.Unity</RootNamespace>
+    <RootNamespace>Unity.Container</RootNamespace>
   </PropertyGroup>
   
   <PropertyGroup Condition="Exists('..\..\package.snk')">

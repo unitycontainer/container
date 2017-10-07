@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Microsoft.Practices.Unity.Properties;
+using Unity.Container.Properties;
 
 namespace Microsoft.Practices.Unity
 {
