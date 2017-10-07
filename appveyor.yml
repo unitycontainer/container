@@ -2,11 +2,15 @@ image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
 
+install:
+- ps: $env:build_version = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version 
+- ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
+
 before_build:
 - cmd: dotnet restore
 
 build:
-  project: package.sln
+  project: container.sln
   parallel: true
   verbosity: minimal
 
