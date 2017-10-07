@@ -16,4 +16,4 @@ The Unity Container (Unity) is a lightweight, extensible dependency injection co
 * Instance and type interception
 * Registration by convention
 
-# This is work in progress
+# This is work in progress (5.0.0)
