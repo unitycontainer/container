@@ -10,7 +10,7 @@ before_build:
 - cmd: dotnet restore
 
 build:
-  project: container.sln
+  project: package.sln
   parallel: true
   verbosity: minimal
 
