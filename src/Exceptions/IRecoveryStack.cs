@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 
-namespace Unity
+namespace Unity.Exceptions
 {
     /// <summary>
     /// Data structure that stores the set of <see cref="IRequiresRecovery"/>

@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Builder;
+using Unity.Policy;
 
-namespace Unity
+namespace Unity.Resolve
 {
     /// <summary>
     /// An implementation of <see cref="ResolverOverride"/> that

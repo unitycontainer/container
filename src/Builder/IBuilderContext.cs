@@ -2,8 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using Unity.Exceptions;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Resolve;
+using Unity.Strategy;
 
-namespace Unity
+namespace Unity.Builder
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.

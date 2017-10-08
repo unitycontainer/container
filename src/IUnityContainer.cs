@@ -3,6 +3,9 @@
 using System;
 using System.Collections.Generic;
 using Unity.Extension;
+using Unity.Lifetime;
+using Unity.Registration;
+using Unity.Resolve;
 
 namespace Unity
 {

@@ -3,8 +3,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Builder;
 
-namespace Unity
+namespace Unity.Strategy
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.

@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Builder;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// A builder policy used to create lifetime policy instances.

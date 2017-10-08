@@ -2,6 +2,10 @@
 
 using System;
 using Unity.Events;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Registration;
+using Unity.Strategy;
 
 namespace Unity.Extension
 {

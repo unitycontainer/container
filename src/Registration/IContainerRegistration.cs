@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Lifetime;
 
-namespace Unity
+namespace Unity.Registration
 {
     /// <summary>
     /// Class that returns information about the types registered in a container.

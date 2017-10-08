@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// Represents a lifetime container.

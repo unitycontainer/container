@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Policy;
 
-namespace Unity
+namespace Unity.Registration
 {
     /// <summary>
     /// Base class for objects that can be used to configure what
@@ -18,7 +19,7 @@ namespace Unity
         /// <param name="policies">Policy list to add policies to.</param>
         public void AddPolicies(Type typeToCreate, IPolicyList policies)
         {
-            this.AddPolicies(null, typeToCreate, null, policies);
+            AddPolicies(null, typeToCreate, null, policies);
         }
 
         /// <summary>

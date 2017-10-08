@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// Base class for Lifetime managers - classes that control how
