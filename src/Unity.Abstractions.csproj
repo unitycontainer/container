@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
+    <TargetFramework>netstandard1.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>Unity.Abstractions</PackageId>
     <Description>Unity Public Abstractions</Description>
