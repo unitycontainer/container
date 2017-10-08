@@ -4,11 +4,11 @@ using System.Globalization;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity.Container.Properties;
+using Unity.Exceptions;
 using Microsoft.Practices.Unity;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Events;
-using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -92,7 +92,7 @@ namespace Unity
         {
             if (lifetimeManager.InUse)
             {
-                throw new InvalidOperationException(Resources.LifetimeManagerInUse);
+                throw new InvalidOperationException(Errors.LifetimeManagerInUse);
             }
 
             if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
@@ -182,8 +182,8 @@ namespace Unity
                 {
                     throw new ArgumentException(
                         string.Format(CultureInfo.CurrentCulture,
-                        Resources.CannotResolveOpenGenericType,
-                        t.FullName), nameof(t));
+                            Errors.CannotResolveOpenGenericType,
+                            t.FullName), nameof(t));
                 }
 
                 return context.Strategies.ExecuteBuildUp(context);

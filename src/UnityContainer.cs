@@ -7,11 +7,11 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
-using Unity.Container.Properties;
+using Unity.Exceptions;
 using Microsoft.Practices.Unity.Utility;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Events;
-using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -65,7 +65,7 @@ namespace Unity
             {
                 if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
                 {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.TypesAreNotAssignable,
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Errors.TypesAreNotAssignable,
                                                                                           typeFrom,
                                                                                           to), nameof(typeFrom));
                 }

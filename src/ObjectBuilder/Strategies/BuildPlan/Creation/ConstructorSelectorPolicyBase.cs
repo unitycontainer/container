@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
@@ -80,7 +79,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                     throw new InvalidOperationException(
                         string.Format(
                             CultureInfo.CurrentCulture,
-                            Resources.MultipleInjectionConstructors,
+                            Errors.MultipleInjectionConstructors,
                             typeToConstruct.GetTypeInfo().Name));
             }
         }
@@ -107,7 +106,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                         throw new InvalidOperationException(
                             string.Format(
                                 CultureInfo.CurrentCulture,
-                                Resources.AmbiguousInjectionConstructor,
+                                Errors.AmbiguousInjectionConstructor,
                                 typeToConstruct.GetTypeInfo().Name,
                                 paramLength));
                     }

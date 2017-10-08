@@ -6,9 +6,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Container;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -105,7 +105,7 @@ namespace Microsoft.Practices.Unity
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Resources.NoSuchProperty,
+                        Errors.NoSuchProperty,
                         typeToCreate.GetTypeInfo().Name,
                         propertyName));
             }
@@ -116,7 +116,7 @@ namespace Microsoft.Practices.Unity
             if (!propInfo.CanWrite)
             {
                 throw new InvalidOperationException(
-                    ExceptionMessage(Resources.PropertyNotSettable,
+                    ExceptionMessage(Errors.PropertyNotSettable,
                         propInfo.Name, propInfo.DeclaringType));
             }
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Practices.Unity
             if (property.GetIndexParameters().Length > 0)
             {
                 throw new InvalidOperationException(
-                    ExceptionMessage(Resources.CannotInjectIndexer,
+                    ExceptionMessage(Errors.CannotInjectIndexer,
                         property.Name, property.DeclaringType));
             }
         }
@@ -136,7 +136,7 @@ namespace Microsoft.Practices.Unity
             if (!value.MatchesType(property.PropertyType))
             {
                 throw new InvalidOperationException(
-                    ExceptionMessage(Resources.PropertyTypeMismatch,
+                    ExceptionMessage(Errors.PropertyTypeMismatch,
                                      property.Name,
                                      property.DeclaringType,
                                      property.PropertyType,

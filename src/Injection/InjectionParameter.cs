@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity;
-using Unity.Container.Properties;
+using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
@@ -33,7 +31,7 @@ namespace Microsoft.Practices.Unity
         {
             if (parameterValue == null)
             {
-                throw new ArgumentNullException("parameterValue", Resources.ExceptionNullParameterValue);
+                throw new ArgumentNullException("parameterValue", Errors.ExceptionNullParameterValue);
             }
             return parameterValue.GetType();
         }

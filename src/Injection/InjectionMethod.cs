@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Container;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -97,7 +97,7 @@ namespace Microsoft.Practices.Unity
         {
             if (info == null)
             {
-                this.ThrowIllegalInjectionMethod(Resources.NoSuchMethod, typeToCreate);
+                this.ThrowIllegalInjectionMethod(Errors.NoSuchMethod, typeToCreate);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Microsoft.Practices.Unity
         {
             if (info.IsStatic)
             {
-                this.ThrowIllegalInjectionMethod(Resources.CannotInjectStaticMethod, typeToCreate);
+                this.ThrowIllegalInjectionMethod(Errors.CannotInjectStaticMethod, typeToCreate);
             }
         }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Practices.Unity
         {
             if (info.IsGenericMethodDefinition)
             {
-                this.ThrowIllegalInjectionMethod(Resources.CannotInjectGenericMethod, typeToCreate);
+                this.ThrowIllegalInjectionMethod(Errors.CannotInjectGenericMethod, typeToCreate);
             }
         }
 
@@ -121,7 +121,7 @@ namespace Microsoft.Practices.Unity
         {
             if (info.GetParameters().Any(param => param.IsOut))
             {
-                this.ThrowIllegalInjectionMethod(Resources.CannotInjectMethodWithOutParams, typeToCreate);
+                this.ThrowIllegalInjectionMethod(Errors.CannotInjectMethodWithOutParams, typeToCreate);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Practices.Unity
         {
             if (info.GetParameters().Any(param => param.ParameterType.IsByRef))
             {
-                this.ThrowIllegalInjectionMethod(Resources.CannotInjectMethodWithRefParams, typeToCreate);
+                this.ThrowIllegalInjectionMethod(Errors.CannotInjectMethodWithRefParams, typeToCreate);
             }
         }
 

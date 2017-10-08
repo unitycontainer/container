@@ -160,7 +160,7 @@
     <value>The method {0}.{1}({2}) is static. Static methods cannot be injected.</value>
   </data>
   <data name="CannotResolveOpenGenericType" xml:space="preserve">
-    <value>The type {0} is an open generic type. An open generic type cannot be resolved. </value>
+    <value>The type {0} is an open generic type. An open generic type cannot be resolved.</value>
   </data>
   <data name="ConstructorArgumentResolveOperation" xml:space="preserve">
     <value>Resolving parameter "{0}" of constructor {1}</value>
@@ -194,7 +194,6 @@
   </data>
   <data name="MissingDependency" xml:space="preserve">
     <value>Could not resolve dependency for build key {0}.</value>
-    <comment>Not used</comment>
   </data>
   <data name="MultipleInjectionConstructors" xml:space="preserve">
     <value>The type {0} has multiple constructors marked with the InjectionConstructor attribute. Unable to disambiguate.</value>
@@ -251,11 +250,9 @@ Exception is: {3} - {4}
 -----------------------------------------------
 At the time of the exception, the container was:
 </value>
-    <comment>not used</comment>
   </data>
   <data name="ResolutionTraceDetail" xml:space="preserve">
     <value>Resolving {0},{1}</value>
-    <comment>not used</comment>
   </data>
   <data name="ResolutionWithMappingTraceDetail" xml:space="preserve">
     <value>Resolving {0},{1} (mapped from {2}, {3})</value>

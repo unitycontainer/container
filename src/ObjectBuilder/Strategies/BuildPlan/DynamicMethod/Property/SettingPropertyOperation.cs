@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using Unity.Container.Properties;
+using Unity.Container;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -29,7 +29,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The format string.</returns>
         protected override string GetDescriptionFormat()
         {
-            return Resources.SettingPropertyOperation;
+            return Errors.SettingPropertyOperation;
         }
     }
 }

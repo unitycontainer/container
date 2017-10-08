@@ -3,7 +3,7 @@
 using System;
 using System.Globalization;
 using Unity;
-using Unity.Container.Properties;
+using Unity.Container;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -40,7 +40,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentCulture,
-                Resources.InvokingConstructorOperation,
+                Errors.InvokingConstructorOperation,
                 this.constructorSignature);
         }
     }

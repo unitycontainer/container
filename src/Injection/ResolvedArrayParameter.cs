@@ -3,11 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
-using Unity;
+using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
@@ -57,7 +54,7 @@ namespace Microsoft.Practices.Unity
                     throw new InvalidOperationException(
                         string.Format(
                             CultureInfo.CurrentCulture,
-                            Resources.TypesAreNotAssignable,
+                            Errors.TypesAreNotAssignable,
                             elementType,
                             pv.ParameterTypeName));
                 }

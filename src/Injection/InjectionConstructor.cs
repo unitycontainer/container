@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Container;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -68,7 +68,7 @@ namespace Microsoft.Practices.Unity
 
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Resources.NoSuchConstructor,
+                    Errors.NoSuchConstructor,
                     typeToCreate.FullName,
                     signature));
         }

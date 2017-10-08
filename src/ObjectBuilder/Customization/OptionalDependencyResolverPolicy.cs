@@ -3,11 +3,10 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
@@ -34,8 +33,8 @@ namespace Microsoft.Practices.Unity
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture,
-                                  Resources.OptionalDependenciesMustBeReferenceTypes,
-                                  type.GetTypeInfo().Name));
+                        Errors.OptionalDependenciesMustBeReferenceTypes,
+                        type.GetTypeInfo().Name));
             }
 
             this.type = type;

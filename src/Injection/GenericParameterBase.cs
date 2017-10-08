@@ -3,10 +3,8 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
-using Unity;
+using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
@@ -113,7 +111,7 @@ namespace Microsoft.Practices.Unity
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Resources.NotAGenericType,
+                        Errors.NotAGenericType,
                         typeToBuild.GetTypeInfo().Name,
                         this.genericParameterName));
             }
@@ -132,7 +130,7 @@ namespace Microsoft.Practices.Unity
             throw new InvalidOperationException(
                 string.Format(
                     CultureInfo.CurrentCulture,
-                    Resources.NoMatchingGenericArgument,
+                    Errors.NoMatchingGenericArgument,
                     typeToBuild.GetTypeInfo().Name,
                     this.genericParameterName));
         }

@@ -7,10 +7,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Practices.Unity;
-using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -46,14 +45,14 @@ namespace Microsoft.Practices.ObjectBuilder2
             SetPerBuildSingletonMethod = info.GetDeclaredMethod(nameof(SetPerBuildSingleton));
             ThrowForReferenceItselfConstructorMethod = info.GetDeclaredMethod(nameof(ThrowForReferenceItselfConstructor));
 
-    }
+        }
 
-    /// <summary>
-    /// Called during the chain of responsibility for a build operation.
-    /// </summary>
-    /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
-    /// <param name="context">The context for the operation.</param>
-    public override void PreBuildUp(IBuilderContext context)
+        /// <summary>
+        /// Called during the chain of responsibility for a build operation.
+        /// </summary>
+        /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
+        /// <param name="context">The context for the operation.</param>
+        public override void PreBuildUp(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
 
@@ -252,7 +251,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                     throw new InvalidOperationException(
                         string.Format(
                             CultureInfo.CurrentCulture,
-                            Resources.TypeIsNotConstructable,
+                            Errors.TypeIsNotConstructable,
                             typeToBuild.GetTypeInfo().Name));
                 }
             }
@@ -292,7 +291,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Resources.CannotConstructInterface,
+                    Errors.CannotConstructInterface,
                     context.BuildKey.Type,
                     context.BuildKey));
         }
@@ -309,7 +308,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Resources.CannotConstructAbstractClass,
+                    Errors.CannotConstructAbstractClass,
                     context.BuildKey.Type,
                     context.BuildKey));
         }
@@ -326,7 +325,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Resources.CannotConstructDelegate,
+                    Errors.CannotConstructDelegate,
                     context.BuildKey.Type,
                     context.BuildKey));
         }
@@ -342,7 +341,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                              Resources.NoConstructorFound,
+                    Errors.NoConstructorFound,
                               context.BuildKey.Type.GetTypeInfo().Name));
         }
 
@@ -358,9 +357,9 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                              Resources.SelectedConstructorHasRefParameters,
-                              context.BuildKey.Type.GetTypeInfo().Name,
-                              signature));
+                    Errors.SelectedConstructorHasRefParameters,
+                    context.BuildKey.Type.GetTypeInfo().Name,
+                    signature));
         }
 
 
@@ -377,9 +376,9 @@ namespace Microsoft.Practices.ObjectBuilder2
 
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                              Resources.SelectedConstructorHasRefItself,
-                              context.BuildKey.Type.GetTypeInfo().Name,
-                              signature));
+                    Errors.SelectedConstructorHasRefItself,
+                    context.BuildKey.Type.GetTypeInfo().Name,
+                    signature));
         }
     }
 }

@@ -17,7 +17,7 @@
     <PackageReleaseNotes>This package is distributed as .NET Standard 1.0 package.</PackageReleaseNotes>
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
-    <RootNamespace>Unity.Container</RootNamespace>
+    <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
   
   <PropertyGroup Condition="Exists('..\..\package.snk')">
@@ -55,17 +55,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
+    <Compile Update="Container\Errors.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
+      <DependentUpon>Errors.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
+    <EmbeddedResource Update="Container\Errors.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <LastGenOutput>Errors.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 
