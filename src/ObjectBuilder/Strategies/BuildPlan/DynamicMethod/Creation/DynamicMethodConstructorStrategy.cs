@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.Practices.Unity;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -49,7 +50,6 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
     /// <param name="context">The context for the operation.</param>
-    // FxCop suppression: Validation is done by Guard class
     public override void PreBuildUp(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");

@@ -3,6 +3,8 @@ using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.ObjectBuilder;
+using Unity.Events;
+using Unity.Extension;
 
 namespace Unity.Tests.TestDoubles
 {

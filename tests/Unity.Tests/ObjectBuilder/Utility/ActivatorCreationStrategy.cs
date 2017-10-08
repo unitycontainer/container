@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests.Utility
 {

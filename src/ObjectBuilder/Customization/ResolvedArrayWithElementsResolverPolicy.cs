@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.Unity
 {
@@ -44,7 +45,6 @@ namespace Microsoft.Practices.Unity
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>An array populated with the results of resolving the resolver policies.</returns>
-        // FxCop suppression: Validation is done by Guard class
         public object Resolve(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");

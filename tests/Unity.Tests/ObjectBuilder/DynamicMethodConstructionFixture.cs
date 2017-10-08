@@ -6,6 +6,7 @@ using Microsoft.Practices.ObjectBuilder2.Tests.TestObjects;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 using InjectionConstructorAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionConstructorAttribute;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

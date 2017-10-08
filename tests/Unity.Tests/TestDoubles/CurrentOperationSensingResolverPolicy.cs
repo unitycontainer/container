@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using Unity;
+
 namespace Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles
 {
     public class CurrentOperationSensingResolverPolicy<T> : IDependencyResolverPolicy

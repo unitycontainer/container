@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using Unity.Extension;
+
 namespace Microsoft.Practices.Unity.TestSupport
 {
     public class MockContainerExtension : UnityContainerExtension, IMockConfiguration

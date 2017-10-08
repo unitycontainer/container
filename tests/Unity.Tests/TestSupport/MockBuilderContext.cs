@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
+using Unity;
 
 namespace Microsoft.Practices.Unity.TestSupport
 {
@@ -77,6 +78,8 @@ namespace Microsoft.Practices.Unity.TestSupport
         public object CurrentOperation { get; set; }
 
         public IBuilderContext ChildContext { get; set; }
+
+        public IUnityContainer Container { get; set; }
 
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {

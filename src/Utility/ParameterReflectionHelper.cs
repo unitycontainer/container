@@ -21,7 +21,6 @@ namespace Microsoft.Practices.Unity.Utility
         {
         }
 
-        // Helper method to validate parameter so FxCop will shut up.
         private static Type TypeFromParameterInfo(ParameterInfo parameter)
         {
             Guard.ArgumentNotNull(parameter, "parameter");

@@ -2,6 +2,7 @@
 
 
 using Microsoft.Practices.Unity;
+using Unity.Extension;
 
 namespace Unity.Tests.Extension
 {

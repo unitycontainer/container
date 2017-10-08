@@ -8,6 +8,8 @@ using Microsoft.Practices.ObjectBuilder2.Tests.TestObjects;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
+using Unity.Exceptions;
 using DependencyAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.DependencyAttribute;
 using InjectionConstructorAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionConstructorAttribute;
 using InjectionMethodAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionMethodAttribute;

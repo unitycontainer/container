@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.Practices.Unity;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

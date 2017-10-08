@@ -3,6 +3,7 @@
 using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -186,6 +187,8 @@ namespace Microsoft.Practices.Unity.Tests
             {
                 get { throw new NotImplementedException(); }
             }
+
+            public IUnityContainer Container { get; set; }
 
             public void AddResolverOverrides(System.Collections.Generic.IEnumerable<ResolverOverride> newOverrides)
             {

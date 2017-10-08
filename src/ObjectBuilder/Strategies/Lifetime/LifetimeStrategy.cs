@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -23,7 +24,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        // FxCop suppression: Validation is done by Guard class
         public override void PreBuildUp(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");
@@ -52,7 +52,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        // FxCop suppression: Validation is done by Guard class
         public override void PostBuildUp(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -36,12 +37,13 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="policies">The <see cref="IPolicyList"/> to use for this context.</param>
         /// <param name="originalBuildKey">Build key to start building.</param>
         /// <param name="existing">The existing object to build up.</param>
-        public BuilderContext(IStrategyChain chain,
+        public BuilderContext(IUnityContainer container, IStrategyChain chain,
             ILifetimeContainer lifetime,
             IPolicyList policies,
             NamedTypeBuildKey originalBuildKey,
             object existing)
         {
+            Container = container;
             this.chain = chain;
             this.lifetime = lifetime;
             this.originalBuildKey = originalBuildKey;
@@ -102,6 +104,10 @@ namespace Microsoft.Practices.ObjectBuilder2
             this.resolverOverrides = resolverOverrides;
             this.ownsOverrides = false;
         }
+
+        #region IBuilderContext
+
+        public IUnityContainer Container { get; }
 
         /// <summary>
         /// Gets the head of the strategy chain.
@@ -273,5 +279,7 @@ namespace Microsoft.Practices.ObjectBuilder2
 
             return result;
         }
+
+        #endregion
     }
 }

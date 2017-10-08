@@ -5,6 +5,7 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 
 namespace Microsoft.Practices.Unity.Tests
 {

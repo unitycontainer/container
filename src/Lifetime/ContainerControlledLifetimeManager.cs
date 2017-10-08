@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity;
 
 namespace Microsoft.Practices.Unity
 {
@@ -36,7 +37,7 @@ namespace Microsoft.Practices.Unity
         /// </summary>
         public override void RemoveValue()
         {
-            this.Dispose();
+            Dispose();
         }
 
         /// <summary>
@@ -44,12 +45,12 @@ namespace Microsoft.Practices.Unity
         /// </summary>
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this); // shut FxCop up
+            Dispose(true);
+            GC.SuppressFinalize(this); 
         }
 
         /// <summary>
-        /// Standard Dispose pattern implementation. Not needed, but it keeps FxCop happy.
+        /// Standard Dispose pattern implementation.
         /// </summary>
         /// <param name="disposing">Always true, since we don't have a finalizer.</param>
         protected virtual void Dispose(bool disposing)

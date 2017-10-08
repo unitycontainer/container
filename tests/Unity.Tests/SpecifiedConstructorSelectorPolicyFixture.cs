@@ -8,6 +8,7 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -170,6 +171,8 @@ namespace Microsoft.Practices.Unity.Tests
                 get { throw new NotImplementedException(); }
                 set { throw new NotImplementedException(); }
             }
+
+            public IUnityContainer Container { get; set; }
 
             public object NewBuildUp(NamedTypeBuildKey newBuildKey)
             {

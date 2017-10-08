@@ -3,6 +3,7 @@
 using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.Unity.ObjectBuilder
 {
@@ -33,7 +34,6 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        // FxCop suppression: Validation is done by Guard class
         public object Resolve(IBuilderContext context)
         {
             Guard.ArgumentNotNull(context, "context");

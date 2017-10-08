@@ -2,6 +2,8 @@
 
 using System;
 using Microsoft.Practices.ObjectBuilder2;
+using Unity;
+using Unity.Extension;
 
 namespace Microsoft.Practices.Unity
 {

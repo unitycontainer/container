@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Reflection;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -21,7 +22,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// that will map generic types.
         /// </summary>
         /// <param name="destinationKey">Build key to map to. This must be or contain an open generic type.</param>
-        // FxCop suppression: Validation is done by Guard class
         public GenericTypeBuildKeyMappingPolicy(NamedTypeBuildKey destinationKey)
         {
             Guard.ArgumentNotNull(destinationKey, "destinationKey");

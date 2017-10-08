@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Unity;
 
 namespace Microsoft.Practices.Unity
 {

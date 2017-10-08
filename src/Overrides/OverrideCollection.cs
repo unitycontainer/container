@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
+using Unity;
 
 namespace Microsoft.Practices.Unity
 {

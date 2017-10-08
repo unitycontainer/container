@@ -2,6 +2,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Practices.Unity;
 using System.Linq;
 using System;
+using Unity;
+using Unity.Exceptions;
+using UnityContainer = Unity.UnityContainer;
 
 namespace GitHub
 {

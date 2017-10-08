@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.Practices.Unity.Utility;
+using Unity.Exceptions;
 
 namespace Unity.Tests.ChildContainer
 {

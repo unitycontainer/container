@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -71,7 +72,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this); // Doesn't matter, but shuts up FxCop
+            GC.SuppressFinalize(this); 
         }
 
         /// <summary>

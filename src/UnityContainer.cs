@@ -6,11 +6,14 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
+using Microsoft.Practices.Unity;
 using Unity.Container.Properties;
-using Guard = Microsoft.Practices.Unity.Utility.Guard;
+using Microsoft.Practices.Unity.Utility;
+using Unity.Events;
+using Unity.Exceptions;
+using Unity.Extension;
 
-namespace Microsoft.Practices.Unity
+namespace Unity
 {
     /// <inheritdoc />
     /// <summary>
@@ -37,57 +40,60 @@ namespace Microsoft.Practices.Unity
         /// RegisterType a type mapping with the container, where the created instances will use
         /// the given <see cref="LifetimeManager"/>.
         /// </summary>
-        /// <param name="from"><see cref="Type"/> that will be requested.</param>
-        /// <param name="to"><see cref="Type"/> that will actually be returned.</param>
+        /// <param name="typeFrom"><see cref="Type"/> that will be requested.</param>
+        /// <param name="typeTo"><see cref="Type"/> that will actually be returned.</param>
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterType(Type from, Type to, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
-            Guard.ArgumentNotNull(to, "to");
+            var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
 
             if (string.IsNullOrEmpty(name))
             {
                 name = null;
             }
 
-            if (from != null && !from.GetTypeInfo().IsGenericType && !to.GetTypeInfo().IsGenericType)
+            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !to.GetTypeInfo().IsGenericType)
             {
-                Guard.TypeIsAssignable(from, to, "from");
+                if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.TypesAreNotAssignable,
+                                                                                          typeFrom,
+                                                                                          to), nameof(typeFrom));
+                }
             }
 
-            _registeredNames.RegisterType(from ?? to, name);
+            _registeredNames.RegisterType(typeFrom ?? to, name);
 
-            if (from != null)
+            if (typeFrom != null)
             {
-                if (from.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
+                if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
                 {
-                    _policies.Set<IBuildKeyMappingPolicy>(
-                        new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
-                        new NamedTypeBuildKey(from, name));
+                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                        new NamedTypeBuildKey(typeFrom, name));
                 }
                 else
                 {
-                    _policies.Set<IBuildKeyMappingPolicy>(
-                        new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
-                        new NamedTypeBuildKey(from, name));
+                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                        new NamedTypeBuildKey(typeFrom, name));
                 }
             }
             if (lifetimeManager != null)
             {
-                this.SetLifetimeManager(to, name, lifetimeManager);
+                SetLifetimeManager(to, name, lifetimeManager);
             }
 
-            Registering?.Invoke(this, new RegisterEventArgs(from, to, name, lifetimeManager));
+            Registering?.Invoke(this, new RegisterEventArgs(typeFrom, to, name, lifetimeManager));
 
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
                 ClearExistingBuildPlan(to, name);
                 foreach (var member in injectionMembers)
                 {
-                    member.AddPolicies(from, to, name, _policies);
+                    member.AddPolicies(typeFrom, to, name, _policies);
                 }
             }
             return this;
@@ -108,7 +114,7 @@ namespace Microsoft.Practices.Unity
         /// creates the instance ahead of type and adds that instance to the container.
         /// </para>
         /// </remarks>
-        /// <param name="t">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
         /// <param name="name">Name for registration.</param>
         /// <param name="lifetime">
@@ -116,21 +122,19 @@ namespace Microsoft.Practices.Unity
         /// calling Dispose on it (if it's <see cref="IDisposable"/>) when the container is Disposed.</para>
         /// <para>
         ///  If false, container will not maintain a strong reference to <paramref name="instance"/>. User is responsible
-        /// for disposing instance, and for keeping the instance from being garbage collected.</para></param>
+        /// for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterInstance(Type t, string name, object instance, LifetimeManager lifetime)
+        public IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetime)
         {
-            Guard.ArgumentNotNull(instance, "instance");
-            Guard.ArgumentNotNull(lifetime, "lifetime");
-            Guard.InstanceIsAssignable(t, instance, "instance");
+            Guard.InstanceIsAssignable(type, instance, "instance");
 
-            _registeredNames.RegisterType(t, name);
-            SetLifetimeManager(t, name, lifetime);
-            NamedTypeBuildKey identityKey = new NamedTypeBuildKey(t, name);
-            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
-            lifetime.SetValue(instance);
+            _registeredNames.RegisterType(type, name);
+            SetLifetimeManager(type, name, lifetime ?? throw new ArgumentNullException(nameof(lifetime)));
+            NamedTypeBuildKey identityKey = new NamedTypeBuildKey(type, name);
+            PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(identityKey), identityKey);
+            lifetime.SetValue(instance ?? throw new ArgumentNullException(nameof(instance)));
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(t,
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type,
                                                               instance,
                                                               name,
                                                               lifetime));
@@ -143,15 +147,15 @@ namespace Microsoft.Practices.Unity
         #region Getting objects
 
         /// <summary>
-        /// Get an instance of the requested type with the given name from the container.
+        /// Get an instance of the requested type with the given name typeFrom the container.
         /// </summary>
-        /// <param name="t"><see cref="Type"/> of object to get from the container.</param>
+        /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="resolverOverrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        public object Resolve(Type t, string name, params ResolverOverride[] resolverOverrides)
+        public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            return DoBuildUp(t, name, resolverOverrides);
+            return DoBuildUp(type, name, resolverOverrides);
         }
 
         /// <summary>
@@ -166,14 +170,13 @@ namespace Microsoft.Practices.Unity
         /// Be aware that this method does NOT return an instance for the default (unnamed) registration.
         /// </para>
         /// </remarks>
-        /// <param name="t">The type requested.</param>
+        /// <param name="type">The type requested.</param>
         /// <param name="resolverOverrides">Any overrides for the resolve calls.</param>
-        /// <returns>Set of objects of type <paramref name="t"/>.</returns>
-        public IEnumerable<object> ResolveAll(Type t, params ResolverOverride[] resolverOverrides)
+        /// <returns>Set of objects of type <paramref name="type"/>.</returns>
+        public IEnumerable<object> ResolveAll(Type type, params ResolverOverride[] resolverOverrides)
         {
-            Guard.ArgumentNotNull(t, "t");
-
-            var result = this.Resolve(t.MakeArrayType(), resolverOverrides);
+            var result = this.Resolve((type ?? throw new ArgumentNullException(nameof(type)))
+                .MakeArrayType(), resolverOverrides);
 
             return result is IEnumerable<object>
                 ? (IEnumerable<object>)result
@@ -190,22 +193,23 @@ namespace Microsoft.Practices.Unity
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is useful when you don't control the construction of an
+        /// This method is useful when you don'type control the construction of an
         /// instance (ASP.NET pages or objects created via XAML, for instance)
         /// but you still want properties and other injection performed.
         /// </para></remarks>
-        /// <param name="t"><see cref="Type"/> of object to perform injection on.</param>
+        /// <param name="type"><see cref="Type"/> of object to perform injection on.</param>
         /// <param name="existing">Instance to build up.</param>
         /// <param name="name">name to use when looking up the typemappings and other configurations.</param>
         /// <param name="resolverOverrides">Any overrides for the buildup.</param>
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would
-        /// cause this to return a different object (but still type compatible with <paramref name="t"/>).</returns>
-        public object BuildUp(Type t, object existing, string name, params ResolverOverride[] resolverOverrides)
+        /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
+        public object BuildUp(Type type, object existing, string name, params ResolverOverride[] resolverOverrides)
         {
-            Guard.ArgumentNotNull(existing, "existing");
-            Guard.InstanceIsAssignable(t, existing, "existing");
-            return DoBuildUp(t, existing, name, resolverOverrides);
+            Guard.InstanceIsAssignable(type, existing, "existing");
+
+            return DoBuildUp(type, existing ?? throw new ArgumentNullException(nameof(existing)), 
+                             name, resolverOverrides);
         }
 
         /// <summary>
@@ -218,10 +222,7 @@ namespace Microsoft.Practices.Unity
 
             try
             {
-                Guard.ArgumentNotNull(o, "o");
-
-                context =
-                    new BuilderContext(GetStrategies().Reverse(), _lifetimeContainer, _policies, null, o);
+                context = new BuilderContext(this, GetStrategies().Reverse(), _lifetimeContainer, _policies, null, o ?? throw new ArgumentNullException(nameof(o)));
                 context.Strategies.ExecuteTearDown(context);
             }
             catch (Exception ex)
@@ -242,9 +243,7 @@ namespace Microsoft.Practices.Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer AddExtension(UnityContainerExtension extension)
         {
-            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(_extensions, "extensions");
-
-            _extensions.Add(extension);
+            _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
             extension.InitializeExtension(new ExtensionContextImpl(this));
             lock (_cachedStrategiesLock)
             {
@@ -264,15 +263,16 @@ namespace Microsoft.Practices.Unity
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
         public object Configure(Type configurationInterface)
         {
-            return _extensions.Where(ex => configurationInterface.GetTypeInfo().IsAssignableFrom(ex.GetType().GetTypeInfo())).FirstOrDefault();
+            return _extensions.FirstOrDefault(ex => configurationInterface.GetTypeInfo()
+                              .IsAssignableFrom(ex.GetType().GetTypeInfo()));
         }
 
         /// <summary>
-        /// Remove all installed extensions from this container.
+        /// Remove all installed extensions typeFrom this container.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method removes all extensions from the container, including the default ones
+        /// This method removes all extensions typeFrom the container, including the default ones
         /// that implement the out-of-the-box behavior. After this method, if you want to use
         /// the container again you will need to either read the default extensions or replace
         /// them with your own.
@@ -329,7 +329,7 @@ namespace Microsoft.Practices.Unity
         /// <summary>
         /// The parent of this container.
         /// </summary>
-        /// <value>The parent container, or null if this container doesn't have one.</value>
+        /// <value>The parent container, or null if this container doesn'type have one.</value>
         public IUnityContainer Parent => _parent;
 
         #endregion
@@ -348,16 +348,16 @@ namespace Microsoft.Practices.Unity
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this); // Shut FxCop up
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Dispose this container instance.
         /// </summary>
         /// <remarks>
-        /// This class doesn't have a finalizer, so <paramref name="disposing"/> will always be true.</remarks>
-        /// <param name="disposing">True if being called from the IDisposable.Dispose
-        /// method, false if being called from a finalizer.</param>
+        /// This class doesn'type have a finalizer, so <paramref name="disposing"/> will always be true.</remarks>
+        /// <param name="disposing">True if being called typeFrom the IDisposable.Dispose
+        /// method, false if being called typeFrom a finalizer.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -373,7 +373,7 @@ namespace Microsoft.Practices.Unity
                     }
                 }
 
-                foreach (IDisposable disposable in _extensions.OfType<IDisposable>())
+                foreach (IDisposable disposable in Enumerable.OfType<IDisposable>(_extensions))
                     disposable.Dispose();
 
                 _extensions.Clear();
@@ -411,7 +411,7 @@ namespace Microsoft.Practices.Unity
         {
             var buildKey = new NamedTypeBuildKey(typeToInject, name);
             DependencyResolverTrackerPolicy.RemoveResolvers(_policies, buildKey);
-            _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
+            PolicyListExtensions.Set<IBuildPlanPolicy>(_policies, new OverriddenBuildPlanMarkerPolicy(), buildKey);
         }
 
         private void FillTypeRegistrationDictionary(IDictionary<Type, List<string>> typeRegistrations)

@@ -7,6 +7,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
+using Unity.Exceptions;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

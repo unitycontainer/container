@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
+using Unity.Exceptions;
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -298,7 +300,7 @@ namespace Microsoft.Practices.Unity.Tests
         {
         }
 
-        public class ClassWithDoubleConstructor : IBasicInterface
+        public class ClassWithDoubleConstructor : CodeplexIssuesFixture.IBasicInterface
         {
             private string myString = String.Empty;
 

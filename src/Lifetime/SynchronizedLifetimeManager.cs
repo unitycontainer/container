@@ -2,6 +2,7 @@
 
 using System.Threading;
 using Microsoft.Practices.ObjectBuilder2;
+using Unity;
 
 namespace Microsoft.Practices.Unity
 {

@@ -2,6 +2,7 @@
 
 using System;
 using System.Globalization;
+using Unity;
 using Unity.Container.Properties;
 
 namespace Microsoft.Practices.ObjectBuilder2

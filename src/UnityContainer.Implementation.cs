@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using System.Text;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Container.Properties;
+using Microsoft.Practices.Unity;
+using Unity.Events;
+using Unity.Exceptions;
+using Unity.Extension;
 
-namespace Microsoft.Practices.Unity
+namespace Unity
 {
     public partial class UnityContainer
     {
@@ -35,9 +38,9 @@ namespace Microsoft.Practices.Unity
         #region Constructors
 
         /// <summary>
-        /// Create a <see cref="UnityContainer"/> with the given parent container.
+        /// Create a <see cref="Unity.UnityContainer"/> with the given parent container.
         /// </summary>
-        /// <param name="parent">The parent <see cref="UnityContainer"/>. The current object
+        /// <param name="parent">The parent <see cref="Unity.UnityContainer"/>. The current object
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
@@ -162,13 +165,12 @@ namespace Microsoft.Practices.Unity
 
             try
             {
-                context =
-                    new BuilderContext(
-                        GetStrategies(),
-                        _lifetimeContainer,
-                        _policies,
-                        new NamedTypeBuildKey(t, name),
-                        existing);
+                context = new BuilderContext(this,
+                                             GetStrategies(),
+                                             _lifetimeContainer,
+                                             _policies,
+                                             new NamedTypeBuildKey(t, name),
+                                             existing);
                 context.AddResolverOverrides(resolverOverrides);
 
                 if (t.GetTypeInfo().IsGenericTypeDefinition)
@@ -176,7 +178,7 @@ namespace Microsoft.Practices.Unity
                     throw new ArgumentException(
                         string.Format(CultureInfo.CurrentCulture,
                         Resources.CannotResolveOpenGenericType,
-                        t.FullName), "t");
+                        t.FullName), nameof(t));
                 }
 
                 return context.Strategies.ExecuteBuildUp(context);
@@ -267,7 +269,7 @@ namespace Microsoft.Practices.Unity
             }
 
             /// <summary>
-            /// This event is raised when the <see cref="UnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
+            /// This event is raised when the <see cref="Unity.UnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
             /// or one of its overloads, is called.
             /// </summary>
             public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
