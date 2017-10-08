@@ -56,7 +56,7 @@ namespace Unity.Exceptions
 
             builder.AppendFormat(
                 CultureInfo.CurrentCulture,
-                Resources.ResolutionFailed,
+                Messages.ResolutionFailed,
                 typeRequested ?? throw new ArgumentNullException(nameof(typeRequested)),
                 FormatName(nameRequested),
                 ExceptionReason(context ?? throw  new ArgumentNullException(nameof(context))),
@@ -83,14 +83,14 @@ namespace Unity.Exceptions
                 {
                     builder.AppendFormat(
                         CultureInfo.CurrentCulture,
-                        Resources.ResolutionTraceDetail,
+                        Messages.ResolutionTraceDetail,
                         key.Type, FormatName(key.Name));
                 }
                 else
                 {
                     builder.AppendFormat(
                         CultureInfo.CurrentCulture,
-                        Resources.ResolutionWithMappingTraceDetail,
+                        Messages.ResolutionWithMappingTraceDetail,
                         key.Type, FormatName(key.Name),
                         originalKey.Type, FormatName(originalKey.Name));
                 }
@@ -127,7 +127,7 @@ namespace Unity.Exceptions
             {
                 return deepestContext.CurrentOperation.ToString();
             }
-            return Resources.NoOperationExceptionReason;
+            return Messages.NoOperationExceptionReason;
         }
     }
 }
