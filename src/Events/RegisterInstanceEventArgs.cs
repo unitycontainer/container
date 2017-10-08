@@ -1,18 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Extension;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Events
 {
     /// <summary>
     /// Event argument class for the <see cref="ExtensionContext.RegisteringInstance"/> event.
     /// </summary>
     public class RegisterInstanceEventArgs : NamedEventArgs
     {
-        private Type registeredType;
-        private object instance;
-        private LifetimeManager lifetimeManager;
-
         /// <summary>
         /// Create a default <see cref="RegisterInstanceEventArgs"/> instance.
         /// </summary>
@@ -31,9 +28,9 @@ namespace Microsoft.Practices.Unity
         public RegisterInstanceEventArgs(Type registeredType, object instance, string name, LifetimeManager lifetimeManager)
             : base(name)
         {
-            this.registeredType = registeredType;
-            this.instance = instance;
-            this.lifetimeManager = lifetimeManager;
+            RegisteredType = registeredType;
+            Instance = instance;
+            LifetimeManager = lifetimeManager;
         }
 
         /// <summary>
@@ -42,30 +39,18 @@ namespace Microsoft.Practices.Unity
         /// <value>
         /// Type of instance being registered.
         /// </value>
-        public Type RegisteredType
-        {
-            get { return this.registeredType; }
-            set { this.registeredType = value; }
-        }
+        public Type RegisteredType { get; }
 
         /// <summary>
         /// Instance object being registered.
         /// </summary>
         /// <value>Instance object being registered</value>
-        public object Instance
-        {
-            get { return this.instance; }
-            set { this.instance = value; }
-        }
+        public object Instance { get; }
 
         /// <summary>
         /// <see cref="Unity.LifetimeManager"/> that controls ownership of
         /// this instance.
         /// </summary>
-        public LifetimeManager LifetimeManager
-        {
-            get { return this.lifetimeManager; }
-            set { this.lifetimeManager = value; }
-        }
+        public LifetimeManager LifetimeManager { get; }
     }
 }

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.

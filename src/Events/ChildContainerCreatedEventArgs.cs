@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Extension;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Events
 {
     /// <summary>
     /// Event argument class for the <see cref="ExtensionContext.ChildContainerCreated"/> event.
@@ -17,17 +18,17 @@ namespace Microsoft.Practices.Unity
         /// container.</param>
         public ChildContainerCreatedEventArgs(ExtensionContext childContext)
         {
-            this.ChildContext = childContext;
+            ChildContext = childContext;
         }
 
         /// <summary>
         /// The newly created child container.
         /// </summary>
-        public IUnityContainer ChildContainer { get { return this.ChildContext.Container; } }
+        public IUnityContainer ChildContainer => ChildContext.Container;
 
         /// <summary>
         /// An extension context for the created child container.
         /// </summary>
-        public ExtensionContext ChildContext { get; private set; }
+        public ExtensionContext ChildContext { get; }
     }
 }

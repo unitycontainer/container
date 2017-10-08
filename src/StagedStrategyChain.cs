@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies partitioned by stages.

@@ -2,14 +2,14 @@
 
 using System;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Events
 {
     /// <summary>
     /// An EventArgs class that holds a string Name.
     /// </summary>
     public abstract class NamedEventArgs : EventArgs
     {
-        private string name;
+        private string _name;
 
         /// <summary>
         /// Create a new <see cref="NamedEventArgs"/> with a null name.
@@ -24,7 +24,7 @@ namespace Microsoft.Practices.Unity
         /// <param name="name">Name to store.</param>
         protected NamedEventArgs(string name)
         {
-            this.name = name;
+            _name = name;
         }
 
         /// <summary>
@@ -33,8 +33,8 @@ namespace Microsoft.Practices.Unity
         /// <value>Name used for this EventArg object.</value>
         public virtual string Name
         {
-            get { return this.name; }
-            set { this.name = value; }
+            get => _name;
+            set => _name = value;
         }
     }
 }

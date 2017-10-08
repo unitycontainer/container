@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Base class for the current operation stored in the build context.
@@ -21,6 +21,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <summary>
         /// The type that's currently being built.
         /// </summary>
-        public Type TypeBeingConstructed { get; private set; }
+        public Type TypeBeingConstructed { get; }
     }
 }

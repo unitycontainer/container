@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Represents a lifetime container.
@@ -13,7 +13,6 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// IDisposable. When the container is disposed, any objects in the
     /// container which implement IDisposable are also disposed.
     /// </remarks>
-    // FxCop: No
     public interface ILifetimeContainer : IEnumerable<object>, IDisposable
     {
         /// <summary>

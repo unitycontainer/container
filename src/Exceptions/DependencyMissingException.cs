@@ -2,14 +2,16 @@
 
 using System;
 using System.Globalization;
-using Unity.Exceptions;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.Exceptions
 {
     /// <summary>
     /// Represents that a dependency could not be resolved.
     /// </summary>
-    public partial class DependencyMissingException : Exception
+#if !NETSTANDARD1_0
+    [Serializable] 
+#endif
+    public class DependencyMissingException : Exception
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyMissingException"/> class with no extra information.

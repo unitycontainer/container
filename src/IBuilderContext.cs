@@ -2,15 +2,22 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     public interface IBuilderContext
     {
+        /// <summary>
+        /// Gets Reference to container.
+        /// </summary>
+        /// <returns>
+        /// Interface for the hosting container
+        /// </returns>
+        IUnityContainer Container { get; }
+
         /// <summary>
         /// Gets the head of the strategy chain.
         /// </summary>

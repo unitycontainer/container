@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Data structure that stores the set of <see cref="IRequiresRecovery"/>
     /// objects and executes them when requested.
     /// </summary>
-    // FxCop suppression: The name ends in stack becuase the semantics are a stack,
-    // and we want that to be obvious to users.
     public interface IRecoveryStack
     {
         /// <summary>

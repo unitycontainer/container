@@ -3,7 +3,7 @@
 using System;
 using System.Globalization;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Build key used to combine a type object with a string name. Used by

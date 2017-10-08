@@ -4,18 +4,18 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity.Exceptions;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Exceptions
 {
+
+    #if !NETSTANDARD1_0
+    [Serializable] 
+    #endif
+
     /// <summary>
     /// The exception thrown by the Unity container when
     /// an attempt to resolve a dependency fails.
     /// </summary>
-    // FxCop suppression: The standard constructors don't make sense for this exception,
-    // as calling them will leave out the information that makes the exception useful
-    // in the first place.
     public partial class ResolutionFailedException : Exception
     {
         /// <summary>
@@ -73,8 +73,8 @@ namespace Microsoft.Practices.Unity
             if (context != null)
             {
                 var indentation = new string(' ', depth * 2);
-                var key = (NamedTypeBuildKey)context.BuildKey;
-                var originalKey = (NamedTypeBuildKey)context.OriginalBuildKey;
+                var key = context.BuildKey;
+                var originalKey = context.OriginalBuildKey;
 
                 builder.Append(indentation);
 

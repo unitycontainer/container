@@ -2,15 +2,15 @@
 
 using System;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Extension
 {
     /// <summary>
-    /// Base class for all <see cref="UnityContainer"/> extension objects.
+    /// Base class for all <see cref="IUnityContainer"/> extension objects.
     /// </summary>
     public abstract class UnityContainerExtension : IUnityContainerExtensionConfigurator
     {
-        private IUnityContainer container;
-        private ExtensionContext context;
+        private IUnityContainer _container;
+        private ExtensionContext _context;
 
         /// <summary>
         /// The container calls this method when the extension is added.
@@ -21,11 +21,11 @@ namespace Microsoft.Practices.Unity
         {
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
-            this.container = context.Container;
-            this.context = context;
+            _container = context.Container;
+            _context = context;
             Initialize();
         }
 
@@ -33,19 +33,13 @@ namespace Microsoft.Practices.Unity
         /// The container this extension has been added to.
         /// </summary>
         /// <value>The <see cref="UnityContainer"/> that this extension has been added to.</value>
-        public IUnityContainer Container
-        {
-            get { return this.container; }
-        }
+        public IUnityContainer Container => _container;
 
         /// <summary>
         /// The <see cref="ExtensionContext"/> object used to manipulate
         /// the inner state of the container.
         /// </summary>
-        protected ExtensionContext Context
-        {
-            get { return context; }
-        }
+        protected ExtensionContext Context => _context;
 
         /// <summary>
         /// Initial the container with this extension's functionality.

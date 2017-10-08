@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.
@@ -40,7 +40,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// Adds strategies to the chain.
         /// </summary>
         /// <param name="strategyEnumerable">The strategies to add to the chain.</param>
-        // FxCop suppression: validation is done by Guard class.
         public void AddRange(IEnumerable strategyEnumerable)
         {
             foreach (IBuilderStrategy strategy in strategyEnumerable 

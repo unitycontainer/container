@@ -1,15 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.
-    /// Strategies are required to support both BuildUp and TearDown. Although you
-    /// can implement this interface directly, you may also choose to use
-    /// <see cref="BuilderStrategy"/> as the base class for your strategies, as
-    /// this class provides useful helper methods and makes support BuildUp and TearDown
-    /// optional.
+    /// Strategies are required to support both BuildUp and TearDown.
     /// </summary>
     public interface IBuilderStrategy
     {

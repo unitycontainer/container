@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity
 {
     /// <summary>
     /// A custom collection over <see cref="IBuilderPolicy"/> objects.
