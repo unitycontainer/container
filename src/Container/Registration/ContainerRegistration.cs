@@ -9,7 +9,7 @@ namespace Microsoft.Practices.Unity
     /// <summary>
     /// Class that returns information about the types registered in a container.
     /// </summary>
-    public class ContainerRegistration
+    public class ContainerRegistration : IContainerRegistration
     {
         private readonly NamedTypeBuildKey buildKey;
 

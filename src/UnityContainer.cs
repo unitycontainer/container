@@ -386,7 +386,7 @@ namespace Microsoft.Practices.Unity
         /// Get a sequence of <see cref="ContainerRegistration"/> that describe the current state
         /// of the container.
         /// </summary>
-        public IEnumerable<ContainerRegistration> Registrations
+        public IEnumerable<IContainerRegistration> Registrations
         {
             get
             {
