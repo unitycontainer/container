@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Unity;
+using Unity.Builder;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests.Utility
 {

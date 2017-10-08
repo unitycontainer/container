@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
 {

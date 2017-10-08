@@ -6,6 +6,8 @@ using System.Reflection;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Builder;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

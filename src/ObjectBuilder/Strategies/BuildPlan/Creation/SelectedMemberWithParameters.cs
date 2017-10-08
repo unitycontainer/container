@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

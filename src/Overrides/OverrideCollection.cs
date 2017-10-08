@@ -5,6 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
+using Unity.Builder;
+using Unity.Policy;
+using Unity.Resolve;
 
 namespace Microsoft.Practices.Unity
 {

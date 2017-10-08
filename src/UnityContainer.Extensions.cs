@@ -6,6 +6,9 @@ using System.Linq;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Extension;
+using Unity.Lifetime;
+using Unity.Registration;
+using Unity.Resolve;
 
 namespace Microsoft.Practices.Unity
 {

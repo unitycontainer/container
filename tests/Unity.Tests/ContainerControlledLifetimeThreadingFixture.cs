@@ -7,7 +7,9 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.Tests.TestDoubles;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Lifetime;
 
 namespace Microsoft.Practices.Unity.Tests
 {

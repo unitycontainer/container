@@ -4,6 +4,12 @@ using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Resolve;
+using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests
 {

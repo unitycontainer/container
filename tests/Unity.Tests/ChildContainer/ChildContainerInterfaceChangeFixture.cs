@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
+using Unity.Lifetime;
 
 namespace Unity.Tests.ChildContainer
 {

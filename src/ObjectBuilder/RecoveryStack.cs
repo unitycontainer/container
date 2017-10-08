@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Exceptions;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

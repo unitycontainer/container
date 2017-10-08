@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.Practices.Unity;
 using Unity.Tests.Generics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Lifetime;
 
 namespace Unity.Tests.Lifetime
 {

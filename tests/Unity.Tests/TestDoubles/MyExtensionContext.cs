@@ -5,6 +5,9 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Strategy;
 
 namespace Unity.Tests.TestDoubles
 {

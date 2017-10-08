@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

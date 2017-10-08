@@ -8,8 +8,10 @@ using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extension;
+using Unity.Lifetime;
 
 namespace Microsoft.Practices.Unity.Tests
 {

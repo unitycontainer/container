@@ -10,6 +10,9 @@ using Microsoft.Practices.Unity;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Builder;
+using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -205,7 +208,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             var lifetime = context.Policies.Get<ILifetimePolicy>(context.BuildKey);
             if (lifetime is PerResolveLifetimeManager)
             {
-                var perBuildLifetime = new PerResolveLifetimeManager(context.Existing);
+                var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
                 context.Policies.Set<ILifetimePolicy>(perBuildLifetime, context.BuildKey);
             }
         }

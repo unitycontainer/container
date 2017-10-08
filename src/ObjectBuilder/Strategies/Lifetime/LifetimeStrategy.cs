@@ -5,6 +5,10 @@ using System.Reflection;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

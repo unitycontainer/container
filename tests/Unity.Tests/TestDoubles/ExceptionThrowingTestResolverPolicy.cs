@@ -2,6 +2,8 @@
 
 using System;
 using Unity;
+using Unity.Builder;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles
 {

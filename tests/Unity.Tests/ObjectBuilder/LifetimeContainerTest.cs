@@ -3,6 +3,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Lifetime;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

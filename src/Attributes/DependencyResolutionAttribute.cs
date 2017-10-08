@@ -3,6 +3,7 @@
 using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
 {

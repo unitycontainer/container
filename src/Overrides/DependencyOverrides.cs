@@ -2,6 +2,7 @@
 
 using System;
 using Unity;
+using Unity.Resolve;
 
 namespace Microsoft.Practices.Unity
 {

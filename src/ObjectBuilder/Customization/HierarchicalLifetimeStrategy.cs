@@ -2,6 +2,9 @@
 
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
+using Unity.Builder;
+using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
 {

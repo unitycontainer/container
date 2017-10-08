@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Lifetime;
 
 
 namespace Unity.Tests.CollectionSupport

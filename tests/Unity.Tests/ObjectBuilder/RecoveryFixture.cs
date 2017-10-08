@@ -4,6 +4,8 @@ using System;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
+using Unity.Exceptions;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

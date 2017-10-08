@@ -2,6 +2,8 @@
 
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Builder;
+using Unity.Strategy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

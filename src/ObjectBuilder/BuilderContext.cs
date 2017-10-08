@@ -5,6 +5,12 @@ using System.Collections.Generic;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Resolve;
+using Unity.Strategy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

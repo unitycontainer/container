@@ -9,9 +9,14 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
+using Unity.Builder;
 using Unity.Events;
 using Unity.Exceptions;
 using Unity.Extension;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Registration;
+using Unity.Resolve;
 
 namespace Unity
 {

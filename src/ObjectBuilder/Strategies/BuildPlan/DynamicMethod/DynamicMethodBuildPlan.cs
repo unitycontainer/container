@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity;
+using Unity.Builder;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

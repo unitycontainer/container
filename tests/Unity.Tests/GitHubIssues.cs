@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using Unity;
 using Unity.Exceptions;
+using Unity.Lifetime;
 using UnityContainer = Unity.UnityContainer;
 
 namespace GitHub

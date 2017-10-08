@@ -4,6 +4,9 @@ using System;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Registration;
 
 namespace Microsoft.Practices.Unity
 {

@@ -6,7 +6,10 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
 using Unity.Extension;
+using Unity.Policy;
+using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests
 {

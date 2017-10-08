@@ -5,6 +5,7 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity;
 using Unity.Container.Properties;
+using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
 {

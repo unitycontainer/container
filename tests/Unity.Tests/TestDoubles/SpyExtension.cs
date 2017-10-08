@@ -4,6 +4,7 @@ using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity;
+using Unity.Builder;
 using Unity.Extension;
 
 namespace Microsoft.Practices.Unity.Tests.TestDoubles

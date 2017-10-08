@@ -6,9 +6,14 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity;
+using Unity.Builder;
 using Unity.Events;
 using Unity.Exceptions;
 using Unity.Extension;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Resolve;
+using Unity.Strategy;
 
 namespace Unity
 {

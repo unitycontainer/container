@@ -5,6 +5,7 @@ using System.Threading;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Lifetime;
 
 namespace Microsoft.Practices.Unity.Tests
 {

@@ -8,6 +8,7 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Container.Properties;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.Unity
 {

@@ -8,6 +8,7 @@ using Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

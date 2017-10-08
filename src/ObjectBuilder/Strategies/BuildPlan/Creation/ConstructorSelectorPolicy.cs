@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

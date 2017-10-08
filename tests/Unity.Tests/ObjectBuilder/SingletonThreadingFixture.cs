@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Strategy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

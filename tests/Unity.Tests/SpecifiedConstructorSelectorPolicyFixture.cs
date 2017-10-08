@@ -9,6 +9,12 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Resolve;
+using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests
 {
