@@ -3,7 +3,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Unity.Container;
+using Unity;
 
 namespace Microsoft.Practices.Unity.Utility
 {
@@ -44,7 +44,7 @@ namespace Microsoft.Practices.Unity.Utility
 
             if (argumentValue.Length == 0)
             {
-                throw new ArgumentException(Errors.ArgumentMustNotBeEmpty, argumentName);
+                throw new ArgumentException(Constants.ArgumentMustNotBeEmpty, argumentName);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Practices.Unity.Utility
             {
                 throw new ArgumentException(string.Format(
                     CultureInfo.CurrentCulture,
-                    Errors.TypesAreNotAssignable,
+                    Constants.TypesAreNotAssignable,
                     assignmentTargetType,
                     assignmentValueType),
                     argumentName);
@@ -103,7 +103,7 @@ namespace Microsoft.Practices.Unity.Utility
                 throw new ArgumentException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Errors.TypesAreNotAssignable,
+                        Constants.TypesAreNotAssignable,
                         assignmentTargetType,
                         GetTypeName(assignmentInstance)),
                     argumentName);
@@ -119,7 +119,7 @@ namespace Microsoft.Practices.Unity.Utility
             }
             catch (Exception)
             {
-                assignmentInstanceType = Errors.UnknownType;
+                assignmentInstanceType = Constants.UnknownType;
             }
             return assignmentInstanceType;
         }

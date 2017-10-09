@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Practices.Unity.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
+using Unity.Injection;
 
 namespace Microsoft.Practices.Unity.Tests
 {

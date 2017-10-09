@@ -55,18 +55,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Container\Errors.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Errors.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Container\Errors.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Errors.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Folder Include="Injection\" />
+    <Folder Include="ObjectBuilder\Strategies\BuildPlan\Factory\" />
   </ItemGroup>
 
 </Project>

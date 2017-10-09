@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Unity;
+using Microsoft.Practices.ObjectBuilder2;
+using Unity.Builder;
+using Unity.Builder.Selection;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Method
 {
     /// <summary>
     /// Objects of this type are the return value from <see cref="IMethodSelectorPolicy.SelectMethods"/>.
@@ -27,9 +29,6 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <summary>
         /// The constructor this object wraps.
         /// </summary>
-        public MethodInfo Method
-        {
-            get { return this.MemberInfo; }
-        }
+        public MethodInfo Method => MemberInfo;
     }
 }

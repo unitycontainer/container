@@ -6,7 +6,10 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder.Operation;
+using Unity.Injection;
 using Unity.Resolution;
+using Unity.ResolverPolicy;
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -96,7 +99,7 @@ namespace Microsoft.Practices.Unity.Tests
         {
             var context = new MockBuilderContext
             {
-                CurrentOperation = new ConstructorArgumentResolveOperation(typeof(SimpleTestObject), "int x", "x")
+                CurrentOperation = new ConstructorParameterResolveOperation(typeof(SimpleTestObject), "int x", "x")
             };
 
             var overrider = new ParameterOverride("x", 42);

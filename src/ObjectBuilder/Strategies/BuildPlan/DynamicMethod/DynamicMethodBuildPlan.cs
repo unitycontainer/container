@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity;
 using Unity.Builder;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

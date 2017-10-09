@@ -7,7 +7,9 @@ using System.Reflection;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Builder;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Method;
 using Unity.Policy;
+using SelectedMethod = Unity.Builder.Selection.SelectedMethod;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {

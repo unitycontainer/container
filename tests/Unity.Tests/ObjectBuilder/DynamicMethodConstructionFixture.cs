@@ -8,6 +8,8 @@ using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
+using Unity.Builder.Operation;
+using Unity.Builder.Selection;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Strategy;
@@ -135,7 +137,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             {
                 Assert.AreSame(exception, e);
 
-                var operation = (ConstructorArgumentResolveOperation)context.CurrentOperation;
+                var operation = (ConstructorParameterResolveOperation)context.CurrentOperation;
                 Assert.IsNotNull(operation);
 
                 Assert.AreSame(typeof(ConstructorInjectionTestClass), operation.TypeBeingConstructed);

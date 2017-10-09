@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Reflection;
 using Unity;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
@@ -250,9 +249,9 @@ namespace Microsoft.Practices.ObjectBuilder2
             throw new ArgumentException(
                 string.Format(
                     CultureInfo.CurrentCulture,
-                    Errors.CannotExtractTypeFromBuildKey,
+                    Constants.CannotExtractTypeFromBuildKey,
                     buildKey),
-                "buildKey");
+                    nameof(buildKey));
         }
 
         private class NullPolicyList : IPolicyList

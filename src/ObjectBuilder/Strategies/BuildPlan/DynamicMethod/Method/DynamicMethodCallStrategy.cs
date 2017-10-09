@@ -7,9 +7,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Exceptions;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 using Unity.Builder;
-using Unity.Container;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Method;
 using Unity.Policy;
+using SelectedMethod = Unity.Builder.Selection.SelectedMethod;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -102,7 +104,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             if (method.IsGenericMethodDefinition)
             {
-                ThrowIllegalInjectionMethod(Errors.CannotInjectOpenGenericMethod, method);
+                ThrowIllegalInjectionMethod(Constants.CannotInjectOpenGenericMethod, method);
             }
         }
 
@@ -110,7 +112,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             if (method.GetParameters().Any(param => param.IsOut))
             {
-                ThrowIllegalInjectionMethod(Errors.CannotInjectMethodWithOutParam, method);
+                ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithOutParam, method);
             }
         }
 
@@ -118,7 +120,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             if (method.GetParameters().Any(param => param.ParameterType.IsByRef))
             {
-                ThrowIllegalInjectionMethod(Errors.CannotInjectMethodWithOutParam, method);
+                ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithOutParam, method);
             }
         }
 

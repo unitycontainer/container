@@ -4,7 +4,9 @@ using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity.Tests.Override
 {

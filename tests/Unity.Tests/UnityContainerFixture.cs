@@ -12,6 +12,7 @@ using Unity.Attributes;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Lifetime;
 
 namespace Microsoft.Practices.Unity.Tests

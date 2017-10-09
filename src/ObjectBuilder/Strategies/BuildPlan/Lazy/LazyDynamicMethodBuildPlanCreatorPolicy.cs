@@ -7,6 +7,7 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Builder;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -74,7 +75,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             }
 
             // match the behavior of DynamicMethodConstructorStrategy
-            DynamicMethodConstructorStrategy.SetPerBuildSingleton(context);
+            context.SetPerBuildSingleton();
         }
 
         private static void BuildResolveAllLazy<T>(IBuilderContext context)
@@ -86,7 +87,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             }
 
             // match the behavior of DynamicMethodConstructorStrategy
-            DynamicMethodConstructorStrategy.SetPerBuildSingleton(context);
+            context.SetPerBuildSingleton();
         }
     }
 }

@@ -4,7 +4,8 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Unity;
-using Unity.Container;
+using Unity.Builder;
+using Unity.Builder.Operation;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -19,7 +20,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         private readonly string parameterName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConstructorArgumentResolveOperation"/> class.
+        /// Initializes a new instance of the <see cref="ConstructorParameterResolveOperation"/> class.
         /// </summary>
         /// <param name="typeBeingConstructed">The type that is being constructed.</param>
         /// <param name="methodSignature">A string representing the method being called.</param>
@@ -38,7 +39,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentCulture,
-                Errors.MethodArgumentResolveOperation,
+                Constants.MethodArgumentResolveOperation,
                 this.parameterName, TypeBeingConstructed.GetTypeInfo().Name, this.methodSignature);
         }
 

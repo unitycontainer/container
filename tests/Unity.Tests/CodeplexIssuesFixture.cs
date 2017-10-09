@@ -10,7 +10,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Attributes;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Microsoft.Practices.Unity.Tests
 {

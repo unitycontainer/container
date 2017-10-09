@@ -7,7 +7,7 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Exceptions;
 using Microsoft.Practices.Unity;
 using Unity.Builder;
-using Unity.Container;
+using Unity;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -93,7 +93,7 @@ namespace Unity
         {
             if (lifetimeManager.InUse)
             {
-                throw new InvalidOperationException(Errors.LifetimeManagerInUse);
+                throw new InvalidOperationException(Constants.LifetimeManagerInUse);
             }
 
             if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
@@ -183,7 +183,7 @@ namespace Unity
                 {
                     throw new ArgumentException(
                         string.Format(CultureInfo.CurrentCulture,
-                            Errors.CannotResolveOpenGenericType,
+                            Constants.CannotResolveOpenGenericType,
                             t.FullName), nameof(t));
                 }
 

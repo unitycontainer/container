@@ -3,6 +3,7 @@
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Builder;
+using Unity.Policy;
 using Unity.Strategy;
 
 namespace Microsoft.Practices.ObjectBuilder2

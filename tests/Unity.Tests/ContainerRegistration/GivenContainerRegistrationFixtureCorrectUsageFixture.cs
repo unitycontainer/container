@@ -3,6 +3,7 @@
 using System.Linq;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Injection;
 using Unity.Lifetime;
 
 namespace Unity.Tests.ContainerRegistration

@@ -5,8 +5,9 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 using Unity.Builder;
-using Unity.Container;
+using Unity.Builder.Operation;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
@@ -89,7 +90,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             {
                 throw new InvalidOperationException(
                     string.Format(CultureInfo.CurrentCulture,
-                        Errors.PropertyNotSettable,
+                        Constants.PropertyNotSettable,
                         property.Name, property.DeclaringType.FullName));
             }
             return setter;

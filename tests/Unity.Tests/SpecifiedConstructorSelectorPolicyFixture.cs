@@ -10,10 +10,14 @@ using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
+using Unity.Builder.Policy;
+using Unity.Builder.Selection;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
+using Unity.ResolverPolicy;
 using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests

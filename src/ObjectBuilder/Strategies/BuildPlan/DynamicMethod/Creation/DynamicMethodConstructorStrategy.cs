@@ -8,8 +8,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 using Unity.Builder;
-using Unity.Container;
+using Unity.Builder.Operation;
+using Unity.Builder.Selection;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -251,7 +253,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                     throw new InvalidOperationException(
                         string.Format(
                             CultureInfo.CurrentCulture,
-                            Errors.TypeIsNotConstructable,
+                            Constants.TypeIsNotConstructable,
                             typeToBuild.GetTypeInfo().Name));
                 }
             }
@@ -264,7 +266,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             Guard.ArgumentNotNull(context, "context");
 
-            context.CurrentOperation = new ConstructorArgumentResolveOperation(
+            context.CurrentOperation = new ConstructorParameterResolveOperation(
                 context.BuildKey.Type, constructorSignature, parameterName);
         }
 
@@ -291,7 +293,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Errors.CannotConstructInterface,
+                    Constants.CannotConstructInterface,
                     context.BuildKey.Type,
                     context.BuildKey));
         }
@@ -308,7 +310,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Errors.CannotConstructAbstractClass,
+                    Constants.CannotConstructAbstractClass,
                     context.BuildKey.Type,
                     context.BuildKey));
         }
@@ -325,7 +327,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Errors.CannotConstructDelegate,
+                    Constants.CannotConstructDelegate,
                     context.BuildKey.Type,
                     context.BuildKey));
         }
@@ -341,7 +343,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Errors.NoConstructorFound,
+                    Constants.NoConstructorFound,
                               context.BuildKey.Type.GetTypeInfo().Name));
         }
 
@@ -357,7 +359,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Errors.SelectedConstructorHasRefParameters,
+                    Constants.SelectedConstructorHasRefParameters,
                     context.BuildKey.Type.GetTypeInfo().Name,
                     signature));
         }
@@ -376,7 +378,7 @@ namespace Microsoft.Practices.ObjectBuilder2
 
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Errors.SelectedConstructorHasRefItself,
+                    Constants.SelectedConstructorHasRefItself,
                     context.BuildKey.Type.GetTypeInfo().Name,
                     signature));
         }

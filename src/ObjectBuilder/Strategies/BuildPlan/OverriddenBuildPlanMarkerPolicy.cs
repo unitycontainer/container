@@ -2,7 +2,8 @@
 
 using System;
 using Unity.Builder;
-using Unity.Container;
+using Unity;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
 {
@@ -15,7 +16,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Context used to build up the object.</param>
         public void BuildUp(IBuilderContext context)
         {
-            throw new InvalidOperationException(Errors.MarkerBuildPlanInvoked);
+            throw new InvalidOperationException(Constants.MarkerBuildPlanInvoked);
         }
     }
 }

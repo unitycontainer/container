@@ -2,6 +2,7 @@
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity;
 using Unity.Extension;
+using Unity.Policy;
 
 
 namespace Unity.Tests.Extension

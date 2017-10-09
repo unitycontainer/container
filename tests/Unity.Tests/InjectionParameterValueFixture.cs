@@ -8,6 +8,7 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 

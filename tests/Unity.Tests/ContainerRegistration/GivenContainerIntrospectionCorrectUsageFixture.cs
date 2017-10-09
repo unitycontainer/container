@@ -2,6 +2,7 @@
 
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Injection;
 
 namespace Unity.Tests.ContainerRegistration
 {

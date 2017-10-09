@@ -3,6 +3,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Exceptions;
+using Unity.Injection;
 
 namespace Microsoft.Practices.Unity.Tests
 {

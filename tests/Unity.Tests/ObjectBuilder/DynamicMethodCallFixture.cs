@@ -12,11 +12,13 @@ using Unity;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Method;
 using Unity.Policy;
 using Unity.Strategy;
 using DependencyAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.DependencyAttribute;
 using InjectionConstructorAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionConstructorAttribute;
 using InjectionMethodAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionMethodAttribute;
+using SelectedMethod = Unity.Builder.Selection.SelectedMethod;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

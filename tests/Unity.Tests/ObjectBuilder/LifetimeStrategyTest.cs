@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Exceptions;
 using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

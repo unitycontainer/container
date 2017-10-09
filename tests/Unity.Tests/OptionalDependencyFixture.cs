@@ -4,6 +4,7 @@ using Microsoft.Practices.Unity;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
+using Unity.Injection;
 
 
 namespace Unity.Tests

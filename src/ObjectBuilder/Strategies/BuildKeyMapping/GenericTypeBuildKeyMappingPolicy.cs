@@ -6,7 +6,6 @@ using System.Reflection;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2
@@ -31,7 +30,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture,
-                        Errors.MustHaveOpenGenericType,
+                        Constants.MustHaveOpenGenericType,
                                   destinationKey.Type.GetTypeInfo().Name));
             }
             this.destinationKey = destinationKey;
@@ -67,7 +66,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture,
-                        Errors.MustHaveSameNumberOfGenericArguments,
+                        Constants.MustHaveSameNumberOfGenericArguments,
                                   sourceTypeInfo.Name, this.DestinationType.Name),
                     "sourceTypeInfo");
             }
