@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Unity\Unity.csproj" />
+    <ProjectReference Include="..\..\src\Unity.csproj" />
   </ItemGroup>
 
 </Project>
