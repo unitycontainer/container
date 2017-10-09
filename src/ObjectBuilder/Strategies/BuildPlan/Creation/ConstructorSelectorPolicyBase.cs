@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 using Unity.Builder;
 using Unity.Container;
 using Unity.Policy;

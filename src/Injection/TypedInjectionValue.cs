@@ -2,7 +2,7 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
+using Unity;
 
 namespace Microsoft.Practices.Unity
 {
@@ -49,8 +49,7 @@ namespace Microsoft.Practices.Unity
         /// false if not.</returns>
         public override bool MatchesType(Type t)
         {
-            Guard.ArgumentNotNull(t, "t");
-            ReflectionHelper candidateReflector = new ReflectionHelper(t);
+            ReflectionHelper candidateReflector = new ReflectionHelper(t ?? throw new ArgumentNullException(nameof(t)));
             if (candidateReflector.IsOpenGeneric && this.parameterReflector.IsOpenGeneric)
             {
                 return candidateReflector.Type.GetGenericTypeDefinition() ==

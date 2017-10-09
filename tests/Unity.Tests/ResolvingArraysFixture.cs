@@ -9,6 +9,7 @@ using Unity;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests

@@ -7,6 +7,7 @@ using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Attributes;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 
 namespace Microsoft.Practices.Unity.ObjectBuilder
 {

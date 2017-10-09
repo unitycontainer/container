@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.Practices.Unity.Utility;
+using Unity;
 using Unity.Container;
 using Unity.Policy;
 

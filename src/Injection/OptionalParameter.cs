@@ -9,6 +9,7 @@ using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 
 namespace Microsoft.Practices.Unity
 {
