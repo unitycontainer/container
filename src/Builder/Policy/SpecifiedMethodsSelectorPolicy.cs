@@ -58,13 +58,24 @@ namespace Unity.Builder.Policy
                         typeToBuild.GetMethodHierarchical(method.Item1.Name, closedMethodParameterTypes));
                 }
 
-                SpecifiedMemberSelectorHelper.AddParameterResolvers(
-                        typeToBuild,
-                        resolverPolicyDestination,
-                        method.Item2,
-                        selectedMethod);
+                AddParameterResolvers(typeToBuild, resolverPolicyDestination,
+                                      method.Item2, selectedMethod);
+
                 yield return selectedMethod;
             }
         }
+
+        private static void AddParameterResolvers(Type typeToBuild,
+            IPolicyList policies,
+            IEnumerable<InjectionParameterValue> parameterValues,
+            SelectedMemberWithParameters result)
+        {
+            foreach (InjectionParameterValue parameterValue in parameterValues)
+            {
+                var resolver = parameterValue.GetResolverPolicy(typeToBuild);
+                result.AddParameterResolver(resolver);
+            }
+        }
+
     }
 }
