@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Resolve;
+using Unity.Resolution;
 using Unity.Strategy;
 
 namespace Unity.Builder

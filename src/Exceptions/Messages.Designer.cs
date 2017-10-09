@@ -80,6 +80,15 @@ namespace Unity.Exceptions {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Optional dependencies must be reference types. The type {0} is a value type..
+        /// </summary>
+        internal static string OptionalDependenciesMustBeReferenceTypes {
+            get {
+                return ResourceManager.GetString("OptionalDependenciesMustBeReferenceTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resolution of the dependency failed, type = &quot;{0}&quot;, name = &quot;{1}&quot;.
         ///Exception occurred while: {2}.
         ///Exception is: {3} - {4}

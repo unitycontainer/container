@@ -119,11 +119,12 @@
   </resheader>
   <data name="MissingDependency" xml:space="preserve">
     <value>Could not resolve dependency for build key {0}.</value>
-    <comment>x</comment>
   </data>
   <data name="NoOperationExceptionReason" xml:space="preserve">
     <value>while resolving</value>
-    <comment>x</comment>
+  </data>
+  <data name="OptionalDependenciesMustBeReferenceTypes" xml:space="preserve">
+    <value>Optional dependencies must be reference types. The type {0} is a value type.</value>
   </data>
   <data name="ResolutionFailed" xml:space="preserve">
     <value>Resolution of the dependency failed, type = "{0}", name = "{1}".
@@ -132,14 +133,11 @@ Exception is: {3} - {4}
 -----------------------------------------------
 At the time of the exception, the container was:
 </value>
-    <comment>x</comment>
   </data>
   <data name="ResolutionTraceDetail" xml:space="preserve">
     <value>Resolving {0},{1}</value>
-    <comment>x</comment>
   </data>
   <data name="ResolutionWithMappingTraceDetail" xml:space="preserve">
     <value>Resolving {0},{1} (mapped from {2}, {3})</value>
-    <comment>x</comment>
   </data>
 </root>

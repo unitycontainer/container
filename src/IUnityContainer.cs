@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Registration;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Unity
 {

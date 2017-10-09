@@ -17,15 +17,15 @@ namespace Unity.Lifetime
     public class PerThreadLifetimeManager : LifetimeManager
     {
         [ThreadStatic]
-        private static Dictionary<Guid, object> values;
-        private readonly Guid key;
+        private static Dictionary<Guid, object> _values;
+        private readonly Guid _key;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerThreadLifetimeManager"/> class.
         /// </summary>
         public PerThreadLifetimeManager()
         {
-            this.key = Guid.NewGuid();
+            _key = Guid.NewGuid();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Unity.Lifetime
             EnsureValues();
 
             object result;
-            values.TryGetValue(this.key, out result);
+            _values.TryGetValue(_key, out result);
             return result;
         }
 
@@ -52,7 +52,7 @@ namespace Unity.Lifetime
         {
             EnsureValues();
 
-            values[this.key] = newValue;
+            _values[_key] = newValue;
         }
 
         /// <summary>
@@ -66,9 +66,9 @@ namespace Unity.Lifetime
         private static void EnsureValues()
         {
             // no need for locking, values is TLS
-            if (values == null)
+            if (_values == null)
             {
-                values = new Dictionary<Guid, object>();
+                _values = new Dictionary<Guid, object>();
             }
         }
     }

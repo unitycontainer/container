@@ -40,5 +40,9 @@
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Injection\" />
+  </ItemGroup>
 
 </Project>

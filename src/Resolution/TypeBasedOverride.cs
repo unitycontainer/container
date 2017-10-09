@@ -4,7 +4,7 @@ using System;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Unity.Resolve
+namespace Unity.Resolution
 {
     /// <summary>
     /// An implementation of <see cref="ResolverOverride"/> that
