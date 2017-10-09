@@ -1,5 +1,6 @@
 ﻿using Microsoft.Practices.Unity;
 using System.Collections.Generic;
+using Unity.Attributes;
 
 namespace Unity.Tests.CollectionSupport
 {

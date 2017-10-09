@@ -2,6 +2,7 @@
 
 
 using Microsoft.Practices.Unity;
+using Unity.Attributes;
 
 namespace Unity.Tests.CollectionSupport
 {

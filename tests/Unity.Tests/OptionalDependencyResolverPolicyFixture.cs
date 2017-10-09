@@ -8,7 +8,7 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Resolve;
+using Unity.Resolution;
 using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests

@@ -11,8 +11,9 @@ using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
+using Unity.ObjectBuilder.Customization;
 using Unity.Policy;
-using Unity.Resolve;
+using Unity.Resolution;
 using Unity.Strategy;
 
 namespace Unity

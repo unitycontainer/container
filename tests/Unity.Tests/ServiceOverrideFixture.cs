@@ -6,7 +6,7 @@ using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Microsoft.Practices.Unity.Tests
 {

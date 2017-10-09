@@ -5,7 +5,7 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Unity.Tests.Override
 {

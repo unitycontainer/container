@@ -8,6 +8,7 @@ using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Attributes;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extension;

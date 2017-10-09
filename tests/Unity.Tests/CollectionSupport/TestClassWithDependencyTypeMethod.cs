@@ -3,6 +3,7 @@ using Microsoft.Practices.Unity;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity.Attributes;
 
 namespace Unity.Tests.CollectionSupport
 {

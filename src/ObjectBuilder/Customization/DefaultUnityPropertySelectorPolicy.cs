@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
+using Unity.Attributes;
 using Unity.Policy;
 
 namespace Microsoft.Practices.Unity.ObjectBuilder

@@ -3,6 +3,7 @@ using Microsoft.Practices.Unity;
 using System.Linq;
 using System;
 using Unity;
+using Unity.Attributes;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using UnityContainer = Unity.UnityContainer;

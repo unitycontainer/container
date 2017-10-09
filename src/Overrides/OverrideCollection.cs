@@ -7,7 +7,7 @@ using Microsoft.Practices.ObjectBuilder2;
 using Unity;
 using Unity.Builder;
 using Unity.Policy;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Microsoft.Practices.Unity
 {

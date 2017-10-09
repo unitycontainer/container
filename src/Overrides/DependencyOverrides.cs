@@ -2,7 +2,7 @@
 
 using System;
 using Unity;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Microsoft.Practices.Unity
 {

@@ -16,7 +16,7 @@ using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Unity
 {

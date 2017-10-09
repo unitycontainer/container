@@ -6,7 +6,7 @@ using Microsoft.Practices.Unity.Utility;
 using Unity;
 using Unity.Builder;
 using Unity.Policy;
-using Unity.Resolve;
+using Unity.Resolution;
 
 namespace Microsoft.Practices.Unity
 {

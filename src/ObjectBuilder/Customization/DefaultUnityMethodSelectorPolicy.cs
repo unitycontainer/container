@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
-using Unity;
+using Microsoft.Practices.Unity;
+using Unity.Attributes;
 using Unity.Policy;
 
-namespace Microsoft.Practices.Unity.ObjectBuilder
+namespace Unity.ObjectBuilder.Customization
 {
     /// <summary>
     /// An implementation of <see cref="IMethodSelectorPolicy"/> that is aware

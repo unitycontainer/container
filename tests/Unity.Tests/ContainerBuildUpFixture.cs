@@ -3,6 +3,7 @@ using System;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Attributes;
 using Unity.Exceptions;
 
 namespace Unity.Tests
