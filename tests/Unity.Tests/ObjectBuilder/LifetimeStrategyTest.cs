@@ -6,6 +6,7 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
