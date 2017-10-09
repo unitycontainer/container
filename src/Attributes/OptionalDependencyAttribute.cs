@@ -2,6 +2,7 @@
 
 using System;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 
 namespace Unity.Attributes
 {

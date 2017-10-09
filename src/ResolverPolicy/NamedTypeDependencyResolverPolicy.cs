@@ -2,8 +2,9 @@
 
 using System;
 using Unity.Builder;
+using Unity.Policy;
 
-namespace Unity.Policy
+namespace Unity.ResolverPolicy
 {
     /// <summary>
     /// An implementation of <see cref="IDependencyResolverPolicy"/> that stores a

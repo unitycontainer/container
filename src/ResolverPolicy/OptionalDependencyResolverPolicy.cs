@@ -5,8 +5,9 @@ using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Policy;
 
-namespace Unity.Policy
+namespace Unity.ResolverPolicy
 {
     /// <summary>
     /// A <see cref="IDependencyResolverPolicy"/> that will attempt to
