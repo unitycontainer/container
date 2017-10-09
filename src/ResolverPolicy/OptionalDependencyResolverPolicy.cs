@@ -4,7 +4,6 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Policy;
 
 namespace Unity.ResolverPolicy
@@ -27,7 +26,7 @@ namespace Unity.ResolverPolicy
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture,
-                        Messages.OptionalDependenciesMustBeReferenceTypes,
+                        Constants.OptionalDependenciesMustBeReferenceTypes,
                         type.GetTypeInfo().Name));
             }
 

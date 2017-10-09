@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Unity
+namespace Unity.Builder
 {
     /// <summary>
     /// Base class for the current operation stored in the build context.
