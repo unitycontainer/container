@@ -11,12 +11,6 @@ namespace Unity.Strategy
     public interface IStrategyChain : IEnumerable<IBuilderStrategy>
     {
         /// <summary>
-        /// Reverse the order of the strategy chain.
-        /// </summary>
-        /// <returns>The reversed strategy chain.</returns>
-        IStrategyChain Reverse();
-
-        /// <summary>
         /// Execute this strategy chain against the given context,
         /// calling the Buildup methods on the strategies.
         /// </summary>
