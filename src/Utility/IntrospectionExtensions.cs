@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace System.Reflection
 {
+#if NET40
     internal class TypeInfo 
     {
         private const BindingFlags DeclaredOnlyLookup = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
@@ -46,7 +46,7 @@ namespace System.Reflection
 
         public bool ContainsGenericParameters => _type.ContainsGenericParameters;
 
-        #region moved over from Type
+    #region moved over from Type
 
         //// Fields
 
@@ -161,7 +161,7 @@ namespace System.Reflection
         }
 
 
-        #endregion
+    #endregion
 
         public override int GetHashCode()
         {
@@ -184,18 +184,41 @@ namespace System.Reflection
         }
 
     }
+#endif
 
 
     internal static class IntrospectionExtensions
     {
+#if NET40
         public static TypeInfo GetTypeInfo(this Type type)
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return new TypeInfo(type);
         }
+
+        public static Delegate CreateDelegate(this MethodInfo method, Type delegateType)
+        {
+            return Delegate.CreateDelegate(delegateType, method);
+        }
+
+        public static Delegate CreateDelegate(this MethodInfo method, Type delegateType, object target)
+        {
+            return Delegate.CreateDelegate(delegateType, target, method);
+        }
+#else
+        public static MethodInfo GetGetMethod(this PropertyInfo info, bool _)
+        {
+            return info.GetMethod;
+        }
+
+        public static MethodInfo GetSetMethod(this PropertyInfo info, bool _)
+        {
+            return info.SetMethod;
+        }
+#endif
     }
 }

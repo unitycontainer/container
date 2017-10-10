@@ -81,7 +81,7 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Property
         private static MethodInfo GetValidatedPropertySetter(PropertyInfo property)
         {
             //todo: Added a check for private to meet original expectations; we could consider opening this up for private property injection.
-            var setter = property.SetMethod;
+            var setter = property.GetSetMethod(true);
             if (setter == null || setter.IsPrivate)
             {
                 throw new InvalidOperationException(
