@@ -4,6 +4,7 @@ platform: Any CPU
 
 before_build:
 - cmd: dotnet restore
+- cmd: dir
 
 build:
   project: src\Unity.Abstractions.csproj
