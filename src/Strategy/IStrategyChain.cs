@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 
 namespace Unity.Strategy
 {

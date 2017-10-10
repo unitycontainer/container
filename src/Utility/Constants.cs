@@ -53,7 +53,7 @@ namespace Unity
         public const string SettingPropertyOperation = "Setting value for property {0}.{1}";
         public const string TypeIsNotConstructable = "The type {0} cannot be constructed. You must configure the container to supply this value.";
         public const string TypesAreNotAssignable = "The type {1} cannot be assigned to variables of type {0}.";
-        public const string UnknownType = "&lt;unknown&gt;";
+        public const string UnknownType = "<unknown>";
     }
 }
 
