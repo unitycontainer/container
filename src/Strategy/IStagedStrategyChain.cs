@@ -9,7 +9,7 @@ namespace Unity.Strategy
     {
 
         /// <summary>
-        /// Convert this <see cref="StagedStrategyChain{TStageEnum}"/> into
+        /// Convert this <see cref="IStagedStrategyChain{TStageEnum}"/> into
         /// a flat <see cref="IStrategyChain"/>.
         /// </summary>
         /// <returns>The flattened <see cref="IStrategyChain"/>.</returns>
@@ -41,7 +41,6 @@ namespace Unity.Strategy
         /// Add a new strategy for the <paramref name="stage"/>.
         /// </summary>
         /// <typeparam name="TStrategy">The <see cref="Type"/> of <see cref="IBuilderStrategy"/></typeparam>
-        /// <typeparam name="TStageEnum"></typeparam>
         /// <param name="chain"></param>
         /// <param name="stage">The stage to add the strategy.</param>
         public static void AddNew<TStrategy>(this IStagedStrategyChain<UnityBuildStage> chain, UnityBuildStage stage)

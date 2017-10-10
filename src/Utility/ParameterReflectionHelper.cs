@@ -9,7 +9,7 @@ namespace Unity
     /// Another reflection helper class that has extra methods
     /// for dealing with ParameterInfo.
     /// </summary>
-    public class ParameterReflectionHelper : ReflectionHelper
+    internal class ParameterReflectionHelper : ReflectionHelper
     {
         /// <summary>
         /// Create a new instance of <see cref="ParameterReflectionHelper"/> that

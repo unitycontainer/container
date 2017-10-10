@@ -58,7 +58,7 @@ namespace Unity.Injection
             var propInfo =
                 (implementationType ?? throw new ArgumentNullException(nameof(implementationType))).GetPropertiesHierarchical()
                         .FirstOrDefault(p => p.Name == _propertyName &&
-                                              !p.SetMethod.IsStatic);
+                                              !p.GetSetMethod().IsStatic);
 
             GuardPropertyExists(propInfo, implementationType, _propertyName);
             GuardPropertyIsSettable(propInfo);

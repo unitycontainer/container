@@ -94,9 +94,10 @@ namespace Unity.Lifetime
 
         private void TryExit()
         {
+#if !NET40
             // Prevent first chance exception when abandoning a lock that has not been entered
             if (!Monitor.IsEntered(_lockObj)) return;
-
+#endif
             try
             {
                 Monitor.Exit(_lockObj);

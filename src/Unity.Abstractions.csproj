@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>2.0.0-alpha</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
     <PackageId>Unity.Abstractions</PackageId>
     <Description>Unity Public Abstractions</Description>
-    <Version>1.0.0-beta</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
     <Copyright>Copyright © Microsoft.Practices.Unity 2017</Copyright>
     <PackageProjectUrl>https://github.com/unitycontainer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unitycontainer/abstractions</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/unitycontainer/abstractions/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/12849707</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>This package is distributed as .NET Standard 1.0 package.</PackageReleaseNotes>
+    <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, .NET 4.0, 4.5, 4.7 package.</PackageReleaseNotes>
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
     <RootNamespace>Unity</RootNamespace>
@@ -25,5 +25,9 @@
     <AssemblyOriginatorKeyFile>..\..\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'net40' ">
+    <Compile Remove="Utility\IntrospectionExtensions.cs" />
+  </ItemGroup>
 
 </Project>

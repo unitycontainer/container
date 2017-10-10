@@ -11,7 +11,7 @@ namespace Unity
     /// A small helper class to encapsulate details of the
     /// reflection API, particularly around generics.
     /// </summary>
-    public class ReflectionHelper
+    internal class ReflectionHelper
     {
         /// <summary>
         /// Create a new <see cref="ReflectionHelper"/> instance that
