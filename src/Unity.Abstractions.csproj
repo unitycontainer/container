@@ -26,8 +26,4 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'net40' ">
-    <Compile Remove="Utility\IntrospectionExtensions.cs" />
-  </ItemGroup>
-
 </Project>
