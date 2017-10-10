@@ -3,11 +3,10 @@ configuration: Release
 platform: Any CPU
 
 before_build:
-- cmd: dir /s
 - cmd: dotnet restore
 
 build:
-  project: src\Unity.Abstractions.csproj
+  project: package.sln
   parallel: true
   verbosity: minimal
 
