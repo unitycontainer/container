@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.Practices.Unity.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 

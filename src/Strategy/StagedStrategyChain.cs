@@ -79,7 +79,7 @@ namespace Unity.Strategy
         {
             lock (_lockObject)
             {
-                // TODO: Requires optimisation
+                // TODO: Requires optimization
 
                 var result = new List<IBuilderStrategy>();
 
