@@ -16,12 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
+  </ItemGroup>
 
 </Project>

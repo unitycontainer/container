@@ -40,9 +40,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PackageReference Include="Unity.Abstractions">
-      <Version>2.0.0-beta1</Version>
-    </PackageReference>
+    <PackageReference Include="Unity.Abstractions" Version="2.0.0-beta1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
