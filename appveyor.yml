@@ -3,7 +3,6 @@ configuration: Release
 platform: Any CPU
 
 before_build:
-- cmd: dir /s  
 - cmd: dotnet restore
 
 build:
