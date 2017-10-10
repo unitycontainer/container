@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.0.0-alpha</Version>
+    <Version>2.0.0-beta1</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <PackageId>Unity.Abstractions</PackageId>
-    <Description>Unity Public Abstractions</Description>
+    <Description>Unity Container Public Abstractions</Description>
     <Copyright>Copyright © Microsoft.Practices.Unity 2017</Copyright>
     <PackageProjectUrl>https://github.com/unitycontainer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unitycontainer/abstractions</RepositoryUrl>
@@ -34,5 +34,9 @@
     <AssemblyOriginatorKeyFile>..\..\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' == 'netstandard1.0' ">
+    <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+  </ItemGroup>
 
 </Project>

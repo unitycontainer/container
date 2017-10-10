@@ -5,7 +5,6 @@ using Unity.Builder;
 using Unity.Events;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Strategy;
 
 namespace Unity.Extension
@@ -25,13 +24,13 @@ namespace Unity.Extension
         /// <summary>
         /// The strategies this container uses.
         /// </summary>
-        /// <value>The <see cref="StagedStrategyChain{TStageEnum}"/> that the container uses to build objects.</value>
+        /// <value>The <see cref="IStagedStrategyChain{TStageEnum}"/> that the container uses to build objects.</value>
         public abstract IStagedStrategyChain<UnityBuildStage> Strategies { get; }
 
         /// <summary>
         /// The strategies this container uses to construct build plans.
         /// </summary>
-        /// <value>The <see cref="StagedStrategyChain{TStageEnum}"/> that this container uses when creating
+        /// <value>The <see cref="IStagedStrategyChain{TStageEnum}"/> that this container uses when creating
         /// build plans.</value>
         public abstract IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies { get; }
 
@@ -48,20 +47,7 @@ namespace Unity.Extension
         public abstract ILifetimeContainer Lifetime { get; }
 
         /// <summary>
-        /// Store a type/name pair for later resolution.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// When users register type mappings (or other things) with a named key, this method
-        /// allows you to register that name with the container so that when the <see cref="IUnityContainer.ResolveAll"/>
-        /// method is called, that name is included in the list that is returned.
-        /// </para></remarks>
-        /// <param name="t"><see cref="Type"/> to register.</param>
-        /// <param name="name">Name associated with that type.</param>
-        public abstract void RegisterNamedType(Type t, string name);
-
-        /// <summary>
-        /// This event is raised when the <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, InjectionMember[])"/> method,
+        /// This event is raised when the <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, Unity.Registration.InjectionMember[])"/> method,
         /// or one of its overloads, is called.
         /// </summary>
         public abstract event EventHandler<RegisterEventArgs> Registering;

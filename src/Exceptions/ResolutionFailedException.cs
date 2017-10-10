@@ -8,11 +8,6 @@ using Unity.Builder;
 
 namespace Unity.Exceptions
 {
-
-    #if !NETSTANDARD1_0
-    [Serializable] 
-    #endif
-
     /// <summary>
     /// The exception thrown by the Unity container when
     /// an attempt to resolve a dependency fails.
@@ -41,12 +36,12 @@ namespace Unity.Exceptions
         /// <summary>
         /// The type that was being requested from the container at the time of failure.
         /// </summary>
-        public string TypeRequested { get; }
+        public string TypeRequested { get; private set; }
 
         /// <summary>
         /// The name that was being requested from the container at the time of failure.
         /// </summary>
-        public string NameRequested { get; }
+        public string NameRequested { get; private set; }
 
         partial void RegisterSerializationHandler();
 
@@ -60,8 +55,8 @@ namespace Unity.Exceptions
                 typeRequested ?? throw new ArgumentNullException(nameof(typeRequested)),
                 FormatName(nameRequested),
                 ExceptionReason(context ?? throw  new ArgumentNullException(nameof(context))),
-                innerException != null ? innerException.GetType().GetTypeInfo().Name : "ResolutionFailedException",
-                innerException != null ? innerException.Message : null);
+                innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException",
+                innerException?.Message);
             builder.AppendLine();
 
             AddContextDetails(builder, context, 1);

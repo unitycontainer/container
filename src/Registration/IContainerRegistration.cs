@@ -28,11 +28,6 @@ namespace Unity.Registration
         string Name { get; }
 
         /// <summary>
-        /// The registered lifetime manager instance.
-        /// </summary>
-        Type LifetimeManagerType { get;}
-
-        /// <summary>
         /// The lifetime manager for this registration.
         /// </summary>
         /// <remarks>
