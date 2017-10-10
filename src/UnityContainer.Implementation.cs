@@ -2,15 +2,27 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Builder;
+using Unity.Container;
+using Unity.Container.Lifetime;
+using Unity.Container.Registration;
 using Unity.Events;
 using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Customization;
+using Unity.ObjectBuilder;
+using Unity.ObjectBuilder.Policies;
+using Unity.ObjectBuilder.Strategies;
+using Unity.ObjectBuilder.Strategies.BuildKeyMapping;
+using Unity.ObjectBuilder.Strategies.BuildPlan;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Creation;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Property;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Factory;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Lazy;
+using Unity.ObjectBuilder.Strategies.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Strategy;
@@ -181,7 +193,7 @@ namespace Unity
                 if (t.GetTypeInfo().IsGenericTypeDefinition)
                 {
                     throw new ArgumentException(
-                        string.Format(CultureInfo.CurrentCulture,
+                        String.Format(CultureInfo.CurrentCulture,
                             Constants.CannotResolveOpenGenericType,
                             t.FullName), nameof(t));
                 }
@@ -213,6 +225,48 @@ namespace Unity
                 }
             }
             return buildStrategies;
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        /// <summary>
+        /// Verifies that an argument instance is assignable from the provided type (meaning
+        /// interfaces are implemented, or classes exist in the base class hierarchy, or instance can be 
+        /// assigned through a runtime wrapper, as is the case for COM Objects).
+        /// </summary>
+        /// <param name="assignmentTargetType">The argument type that will be assigned to.</param>
+        /// <param name="assignmentInstance">The instance that will be assigned.</param>
+        /// <param name="argumentName">Argument name.</param>
+        private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
+        {
+            if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))
+                .GetTypeInfo().IsAssignableFrom((assignmentInstance ?? throw new ArgumentNullException(nameof(assignmentInstance))).GetType().GetTypeInfo()))
+            {
+                throw new ArgumentException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Constants.TypesAreNotAssignable,
+                        assignmentTargetType, GetTypeName(assignmentInstance)),
+                    argumentName);
+            }
+        }
+
+        private static string GetTypeName(object assignmentInstance)
+        {
+            string assignmentInstanceType;
+            try
+            {
+                assignmentInstanceType = assignmentInstance.GetType().FullName;
+            }
+            catch (Exception)
+            {
+                assignmentInstanceType = Constants.UnknownType;
+            }
+
+            return assignmentInstanceType;
         }
 
         #endregion
@@ -297,6 +351,5 @@ namespace Unity
         }
 
         #endregion
-
     }
 }

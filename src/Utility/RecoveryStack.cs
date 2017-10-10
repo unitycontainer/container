@@ -1,19 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Exceptions;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.Utility
 {
     /// <summary>
     /// An implementation of <see cref="IRecoveryStack"/>.
     /// </summary>
     public class RecoveryStack : IRecoveryStack
     {
-        private Stack<IRequiresRecovery> recoveries = new Stack<IRequiresRecovery>();
-        private object lockObj = new object();
+        private readonly Stack<IRequiresRecovery> _recoveries = new Stack<IRequiresRecovery>();
+        private readonly object _lockObj = new object();
 
         /// <summary>
         /// Add a new <see cref="IRequiresRecovery"/> object to this
@@ -22,10 +21,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="recovery">Object to add.</param>
         public void Add(IRequiresRecovery recovery)
         {
-            Guard.ArgumentNotNull(recovery, "recovery");
-            lock (lockObj)
+            lock (_lockObj)
             {
-                recoveries.Push(recovery);
+                _recoveries.Push(recovery ?? throw new ArgumentNullException(nameof(recovery)));
             }
         }
 
@@ -36,9 +34,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             get
             {
-                lock (lockObj)
+                lock (_lockObj)
                 {
-                    return recoveries.Count;
+                    return _recoveries.Count;
                 }
             }
         }
@@ -50,9 +48,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public void ExecuteRecovery()
         {
-            while (recoveries.Count > 0)
+            while (_recoveries.Count > 0)
             {
-                recoveries.Pop().Recover();
+                _recoveries.Pop().Recover();
             }
         }
     }

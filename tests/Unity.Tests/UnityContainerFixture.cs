@@ -3,13 +3,13 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Attributes;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Injection;

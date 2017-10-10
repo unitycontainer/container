@@ -3,10 +3,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity;
 using Unity.Lifetime;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.Container.Lifetime
 {
     /// <summary>
     /// Represents a lifetime container.
@@ -18,7 +17,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </remarks>
     public class LifetimeContainer : ILifetimeContainer
     {
-        private readonly List<object> items = new List<object>();
+        private readonly List<object> _items = new List<object>();
 
         /// <summary>
         /// Gets the number of references in the lifetime container
@@ -30,9 +29,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             get
             {
-                lock (items)
+                lock (_items)
                 {
-                    return items.Count;
+                    return _items.Count;
                 }
             }
         }
@@ -43,9 +42,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="item">The item to be added to the lifetime container.</param>
         public void Add(object item)
         {
-            lock (items)
+            lock (_items)
             {
-                items.Add(item);
+                _items.Add(item);
             }
         }
 
@@ -61,9 +60,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </returns>
         public bool Contains(object item)
         {
-            lock (items)
+            lock (_items)
             {
-                return items.Contains(item);
+                return _items.Contains(item);
             }
         }
 
@@ -86,22 +85,20 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             if (disposing)
             {
-                lock (items)
+                lock (_items)
                 {
-                    var itemsCopy = new List<object>(items);
+                    var itemsCopy = new List<object>(_items);
                     itemsCopy.Reverse();
 
                     foreach (object o in itemsCopy)
                     {
-                        var d = o as IDisposable;
-
-                        if (d != null)
+                        if (o is IDisposable d)
                         {
                             d.Dispose();
                         }
                     }
 
-                    items.Clear();
+                    _items.Clear();
                 }
             }
         }
@@ -114,7 +111,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </returns>
         public IEnumerator<object> GetEnumerator()
         {
-            return items.GetEnumerator();
+            return _items?.GetEnumerator() ?? throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -135,14 +132,14 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="item">The item to be removed.</param>
         public void Remove(object item)
         {
-            lock (items)
+            lock (_items)
             {
-                if (!items.Contains(item))
+                if (!_items.Contains(item))
                 {
                     return;
                 }
 
-                items.Remove(item);
+                _items.Remove(item);
             }
         }
     }

@@ -3,13 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Lazy
 {
     /// <summary>
     /// An <see cref="IBuildPlanCreatorPolicy"/> implementation
@@ -41,10 +39,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </returns>
         public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
         {
-            Guard.ArgumentNotNull(context, "context");
-            Guard.ArgumentNotNull(buildKey, "buildKey");
-
-            return new DynamicMethodBuildPlan(CreateBuildPlanMethod(buildKey.Type));
+            return new DynamicMethodBuildPlan(CreateBuildPlanMethod((buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type));
         }
 
         private static DynamicBuildPlanMethod CreateBuildPlanMethod(Type lazyType)

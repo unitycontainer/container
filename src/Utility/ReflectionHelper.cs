@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Unity
+namespace Unity.Utility
 {
     /// <summary>
     /// A small helper class to encapsulate details of the

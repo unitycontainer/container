@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
 using Unity.Builder;
+using Unity.Container;
+using Unity.Container.Lifetime;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Strategy;
+using Unity.Utility;
 
 namespace Microsoft.Practices.Unity.TestSupport
 {

@@ -6,16 +6,15 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Operation;
 using Unity.Builder.Selection;
+using Unity.Builder.Strategy;
+using Unity.Container.Lifetime;
 using Unity.Lifetime;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that emits IL to call constructors
@@ -56,10 +55,8 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
             DynamicBuildPlanGenerationContext buildContext =
-                (DynamicBuildPlanGenerationContext)context.Existing;
+                (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
             GuardTypeIsNonPrimitive(context);
 
@@ -68,7 +65,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                         Expression.Equal(
                             buildContext.GetExistingObjectExpression(),
                             Expression.Constant(null)),
-                            this.CreateInstanceBuildupExpression(buildContext, context)));
+                            CreateInstanceBuildupExpression(buildContext, context)));
 
             buildContext.AddToBuildPlan(
                 Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
@@ -93,9 +90,8 @@ namespace Microsoft.Practices.ObjectBuilder2
                 return CreateThrowWithContext(buildContext, ThrowForAttemptingToConstructDelegateMethod);
             }
 
-            IPolicyList resolverPolicyDestination;
             IConstructorSelectorPolicy selector =
-                context.Policies.Get<IConstructorSelectorPolicy>(context.BuildKey, out resolverPolicyDestination);
+                context.Policies.Get<IConstructorSelectorPolicy>(context.BuildKey, out var resolverPolicyDestination);
 
             SelectedConstructor selectedConstructor = selector.SelectConstructor(context, resolverPolicyDestination);
 
@@ -124,8 +120,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             if (selectedConstructor.Constructor.GetParameters().Any(p => p.ParameterType.GetTypeInfo() == target))
             {
-                IPolicyList containingPolicyList;
-                var policy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out containingPolicyList);
+                var policy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out var _);
                 if (null == policy?.GetValue())
                     return true;
             }
@@ -161,7 +156,7 @@ namespace Microsoft.Practices.ObjectBuilder2
 
         private IEnumerable<Expression> CreateNewBuildupSequence(DynamicBuildPlanGenerationContext buildContext, SelectedConstructor selectedConstructor, string signature)
         {
-            var parameterExpressions = this.BuildConstructionParameterExpressions(buildContext, selectedConstructor, signature);
+            var parameterExpressions = BuildConstructionParameterExpressions(buildContext, selectedConstructor, signature);
             var newItemExpression = Expression.Variable(selectedConstructor.Constructor.DeclaringType, "newItem");
 
             yield return Expression.Call(null,
@@ -204,9 +199,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Current build context.</param>
         public static void SetPerBuildSingleton(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            var lifetime = context.Policies.Get<ILifetimePolicy>(context.BuildKey);
+            var lifetime = (context ?? throw  new ArgumentNullException(nameof(context))).Policies.Get<ILifetimePolicy>(context.BuildKey);
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
@@ -222,9 +215,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns></returns>
         public static string CreateSignatureString(ConstructorInfo constructor)
         {
-            Guard.ArgumentNotNull(constructor, "constructor");
-
-            string typeName = constructor.DeclaringType.FullName;
+            string typeName = (constructor ?? throw new ArgumentNullException(nameof(constructor))).DeclaringType.FullName;
             ParameterInfo[] parameters = constructor.GetParameters();
             string[] parameterDescriptions = new string[parameters.Length];
             for (int i = 0; i < parameters.Length; ++i)
@@ -264,9 +255,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public static void SetCurrentOperationToResolvingParameter(string parameterName, string constructorSignature, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            context.CurrentOperation = new ConstructorParameterResolveOperation(
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new ConstructorParameterResolveOperation(
                 context.BuildKey.Type, constructorSignature, parameterName);
         }
 
@@ -275,9 +264,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public static void SetCurrentOperationToInvokingConstructor(string constructorSignature, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            context.CurrentOperation = new InvokingConstructorOperation(
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new InvokingConstructorOperation(
                 context.BuildKey.Type, constructorSignature);
         }
 
@@ -290,11 +277,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// used for the build of this object.</param>
         public static void ThrowForAttemptingToConstructInterface(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.CannotConstructInterface,
-                    context.BuildKey.Type,
+                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type,
                     context.BuildKey));
         }
 
@@ -307,11 +293,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// used for the build of this object.</param>
         public static void ThrowForAttemptingToConstructAbstractClass(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.CannotConstructAbstractClass,
-                    context.BuildKey.Type,
+                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type,
                     context.BuildKey));
         }
 
@@ -324,11 +309,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// used for the build of this object.</param>
         public static void ThrowForAttemptingToConstructDelegate(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.CannotConstructDelegate,
-                    context.BuildKey.Type,
+                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type,
                     context.BuildKey));
         }
 
@@ -340,11 +324,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// used for the build of this object.</param>
         public static void ThrowForNullExistingObject(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.NoConstructorFound,
-                              context.BuildKey.Type.GetTypeInfo().Name));
+                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type.GetTypeInfo().Name));
         }
 
         /// <summary>
@@ -356,11 +339,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="signature">The signature of the invalid constructor.</param>
         public static void ThrowForNullExistingObjectWithInvalidConstructor(IBuilderContext context, string signature)
         {
-            Guard.ArgumentNotNull(context, "context");
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.SelectedConstructorHasRefParameters,
-                    context.BuildKey.Type.GetTypeInfo().Name,
+                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type.GetTypeInfo().Name,
                     signature));
         }
 
@@ -374,12 +356,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="signature">The signature of the invalid constructor.</param>
         public static void ThrowForReferenceItselfConstructor(IBuilderContext context, string signature)
         {
-            Guard.ArgumentNotNull(context, "context");
-
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.SelectedConstructorHasRefItself,
-                    context.BuildKey.Type.GetTypeInfo().Name,
+                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type.GetTypeInfo().Name,
                     signature));
         }
     }

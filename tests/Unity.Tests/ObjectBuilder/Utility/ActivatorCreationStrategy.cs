@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Unity;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests.Utility
 {

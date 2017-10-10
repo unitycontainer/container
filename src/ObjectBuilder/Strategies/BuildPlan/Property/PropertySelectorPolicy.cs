@@ -2,11 +2,11 @@
 
 using System;
 using System.Reflection;
-using Unity;
 using Unity.Builder.Selection;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Resolution;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Property
 {
     /// <summary>
     /// An implementation of <see cref="IPropertySelectorPolicy"/> that looks
@@ -25,9 +25,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The resolver object.</returns>
         protected override IDependencyResolverPolicy CreateResolver(PropertyInfo property)
         {
-            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(property, "property");
-
-            return new FixedTypeResolverPolicy(property.PropertyType);
+            return new FixedTypeResolverPolicy((property ?? throw new ArgumentNullException(nameof(property))).PropertyType);
         }
     }
 }

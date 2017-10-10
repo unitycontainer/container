@@ -2,14 +2,12 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Container.Registration
 {
     /// <summary>
     /// Class that returns information about the types registered in a container.

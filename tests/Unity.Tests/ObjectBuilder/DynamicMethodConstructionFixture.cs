@@ -3,16 +3,18 @@
 using System;
 using Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles;
 using Microsoft.Practices.ObjectBuilder2.Tests.TestObjects;
-using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Operation;
 using Unity.Builder.Selection;
+using Unity.Container;
 using Unity.Lifetime;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Creation;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation;
+using Unity.ObjectBuilder.Strategies.Lifetime;
 using Unity.Policy;
-using Unity.Strategy;
 using InjectionConstructorAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionConstructorAttribute;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

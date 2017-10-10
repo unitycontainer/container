@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Unity;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildKeyMapping
 {
     /// <summary>
     /// Represents a builder policy for mapping build keys.
     /// </summary>
     public class BuildKeyMappingPolicy : IBuildKeyMappingPolicy
     {
-        private readonly NamedTypeBuildKey newBuildKey;
+        private readonly NamedTypeBuildKey _newBuildKey;
 
         /// <summary>
         /// Initialize a new instance of the <see cref="BuildKeyMappingPolicy"/> with the new build key.
@@ -19,7 +18,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="newBuildKey">The new build key.</param>
         public BuildKeyMappingPolicy(NamedTypeBuildKey newBuildKey)
         {
-            this.newBuildKey = newBuildKey;
+            _newBuildKey = newBuildKey;
         }
 
         /// <summary>
@@ -31,7 +30,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The new build key.</returns>
         public NamedTypeBuildKey Map(NamedTypeBuildKey buildKey, IBuilderContext context)
         {
-            return newBuildKey;
+            return _newBuildKey;
         }
     }
 }

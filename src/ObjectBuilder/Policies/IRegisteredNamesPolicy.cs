@@ -2,11 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
 using Unity.Builder;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.ObjectBuilder.Policies
 {
     /// <summary>
     /// Provides access to the names registered for a container.

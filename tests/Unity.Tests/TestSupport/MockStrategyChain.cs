@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.TestSupport

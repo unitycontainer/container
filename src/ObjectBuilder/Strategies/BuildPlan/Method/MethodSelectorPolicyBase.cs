@@ -4,14 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
-using Unity.ObjectBuilder.Strategies.BuildPlan.Method;
 using Unity.Policy;
-using SelectedMethod = Unity.Builder.Selection.SelectedMethod;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Method
 {
     /// <summary>
     /// Base class that provides an implementation of <see cref="IMethodSelectorPolicy"/>
@@ -29,7 +25,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
         /// generated resolver objects into.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public virtual IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context, IPolicyList resolverPolicyDestination)
+        public virtual IEnumerable<Builder.Selection.SelectedMethod> SelectMethods(IBuilderContext context, IPolicyList resolverPolicyDestination)
         {
             Type t = context.BuildKey.Type;
             var candidateMethods = t.GetMethodsHierarchical()
@@ -44,9 +40,9 @@ namespace Microsoft.Practices.ObjectBuilder2
             }
         }
 
-        private SelectedMethod CreateSelectedMethod(MethodInfo method)
+        private Builder.Selection.SelectedMethod CreateSelectedMethod(MethodInfo method)
         {
-            var result = new SelectedMethod(method);
+            var result = new Builder.Selection.SelectedMethod(method);
             foreach (ParameterInfo parameter in method.GetParameters())
             {
                 result.AddParameterResolver(this.CreateResolver(parameter));

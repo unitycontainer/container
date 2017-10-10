@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.Unity.Utility;
-using Unity;
+using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that will look for a build plan
@@ -20,26 +20,18 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            IPolicyList buildPlanLocation;
-
-            var plan = context.Policies.Get<IBuildPlanPolicy>(context.BuildKey, out buildPlanLocation);
+            var plan = (context ?? throw new ArgumentNullException(nameof(context))).Policies.Get<IBuildPlanPolicy>(context.BuildKey, out var buildPlanLocation);
             if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
             {
-                IPolicyList creatorLocation;
-
-                var planCreator = context.Policies.Get<IBuildPlanCreatorPolicy>(context.BuildKey, out creatorLocation);
+                var planCreator = context.Policies.Get<IBuildPlanCreatorPolicy>(context.BuildKey, out var creatorLocation);
                 if (planCreator != null)
                 {
                     plan = planCreator.CreatePlan(context, context.BuildKey);
                     (buildPlanLocation ?? creatorLocation).Set(plan, context.BuildKey);
                 }
             }
-            if (plan != null)
-            {
-                plan.BuildUp(context);
-            }
+
+            plan?.BuildUp(context);
         }
     }
 }

@@ -3,13 +3,12 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
 using Unity.Builder;
+using Unity.Builder.Strategy;
+using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
-using Guard = Microsoft.Practices.Unity.Utility.Guard;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.ObjectBuilder.Strategies
 {
     /// <summary>
     /// This strategy implements the logic that will call container.ResolveAll
@@ -28,8 +27,7 @@ namespace Microsoft.Practices.Unity
         /// <param name="context">Current build context.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            Type typeToBuild = context.BuildKey.Type;
+            Type typeToBuild = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type;
             if (typeToBuild.IsArray && typeToBuild.GetArrayRank() == 1)
             {
                 Type elementType = typeToBuild.GetElementType();
@@ -55,7 +53,7 @@ namespace Microsoft.Practices.Unity
                 }
                 registeredNames = registeredNames.Distinct();
 
-                return registeredNames.Select(n => context.NewBuildUp<T>(n)).ToArray();
+                return registeredNames.Select(context.NewBuildUp<T>).ToArray();
             }
 
             return new T[0];

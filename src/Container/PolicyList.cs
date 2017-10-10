@@ -4,22 +4,19 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using Unity;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.Container
 {
     /// <summary>
     /// A custom collection wrapper over <see cref="IBuilderPolicy"/> objects.
     /// </summary>
     public class PolicyList : IPolicyList
     {
-        private readonly IPolicyList innerPolicyList;
-        private readonly object lockObject = new object();
-        // Does not need to be volatile. It is fine if a slightly out of date version of the current snapshot is read
-        // as long as replacing a snapshot when adding or removing policies is thread safe
-        private Dictionary<PolicyKey, IBuilderPolicy> policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+        private readonly object _lockObject = new object();
+        private readonly IPolicyList _innerPolicyList;
+        private Dictionary<PolicyKey, IBuilderPolicy> _policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
 
         /// <summary>
         /// Initialize a new instance of a <see cref="PolicyList"/> class.
@@ -33,7 +30,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="innerPolicyList">An inner policy list to search.</param>
         public PolicyList(IPolicyList innerPolicyList)
         {
-            this.innerPolicyList = innerPolicyList ?? new NullPolicyList();
+            this._innerPolicyList = innerPolicyList ?? new NullPolicyList();
         }
 
         /// <summary>
@@ -42,27 +39,20 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <value>
         /// The number of items in the locator.
         /// </value>
-        public int Count
-        {
-            get
-            {
-                return policies.Count;
-            }
-        }
+        public int Count => _policies.Count;
 
         /// <summary>
         /// Removes an individual policy type for a build key.
         /// </summary>
         /// <param name="policyInterface">The type of policy to remove.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        public void Clear(Type policyInterface,
-                          object buildKey)
+        public void Clear(Type policyInterface, object buildKey)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
                 Dictionary<PolicyKey, IBuilderPolicy> newPolicies = this.ClonePolicies();
                 newPolicies.Remove(new PolicyKey(policyInterface, buildKey));
-                this.policies = newPolicies;
+                this._policies = newPolicies;
             }
         }
 
@@ -71,9 +61,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public void ClearAll()
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
-                this.policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+                this._policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
             }
         }
 
@@ -167,7 +157,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             containingPolicyList = null;
 
             IBuilderPolicy policy;
-            if (policies.TryGetValue(new PolicyKey(policyInterface, buildKey), out policy))
+            if (_policies.TryGetValue(new PolicyKey(policyInterface, buildKey), out policy))
             {
                 containingPolicyList = this;
                 return policy;
@@ -178,7 +168,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                 return null;
             }
 
-            return innerPolicyList.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
+            return _innerPolicyList.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
         }
 
         /// <summary>
@@ -191,11 +181,11 @@ namespace Microsoft.Practices.ObjectBuilder2
                         IBuilderPolicy policy,
                         object buildKey)
         {
-            lock (lockObject)
+            lock (_lockObject)
             {
                 Dictionary<PolicyKey, IBuilderPolicy> newPolicies = this.ClonePolicies();
                 newPolicies[new PolicyKey(policyInterface, buildKey)] = policy;
-                this.policies = newPolicies;
+                this._policies = newPolicies;
             }
         }
 
@@ -213,7 +203,7 @@ namespace Microsoft.Practices.ObjectBuilder2
 
         private Dictionary<PolicyKey, IBuilderPolicy> ClonePolicies()
         {
-            return new Dictionary<PolicyKey, IBuilderPolicy>(policies, PolicyKeyEqualityComparer.Default);
+            return new Dictionary<PolicyKey, IBuilderPolicy>(_policies, PolicyKeyEqualityComparer.Default);
         }
 
         private static bool TryGetType(object buildKey, out Type type)

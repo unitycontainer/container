@@ -10,7 +10,7 @@ namespace Microsoft.Practices.Unity.Utility
     /// <summary>
     /// A static helper class that includes various parameter checking routines.
     /// </summary>
-    public static partial class Guard
+    internal static partial class Guard
     {
         /// <summary>
         /// Throws <see cref="ArgumentNullException"/> if the given argument is null.
@@ -44,7 +44,7 @@ namespace Microsoft.Practices.Unity.Utility
 
             if (argumentValue.Length == 0)
             {
-                throw new ArgumentException(Constants.ArgumentMustNotBeEmpty, argumentName);
+                throw new ArgumentException("The provided string argument must not be empty.", argumentName);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Practices.Unity.Utility
             {
                 throw new ArgumentException(string.Format(
                     CultureInfo.CurrentCulture,
-                    Constants.TypesAreNotAssignable,
+                    "The type {1} cannot be assigned to variables of type {0}.",
                     assignmentTargetType,
                     assignmentValueType),
                     argumentName);
@@ -103,7 +103,7 @@ namespace Microsoft.Practices.Unity.Utility
                 throw new ArgumentException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Constants.TypesAreNotAssignable,
+                        "The type {1} cannot be assigned to variables of type {0}.",
                         assignmentTargetType,
                         GetTypeName(assignmentInstance)),
                     argumentName);
@@ -119,7 +119,7 @@ namespace Microsoft.Practices.Unity.Utility
             }
             catch (Exception)
             {
-                assignmentInstanceType = Constants.UnknownType;
+                assignmentInstanceType = "<unknown>";
             }
             return assignmentInstanceType;
         }

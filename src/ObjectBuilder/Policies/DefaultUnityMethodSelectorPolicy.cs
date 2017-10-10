@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity;
 using Unity.Attributes;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Method;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 
-namespace Unity.ObjectBuilder.Customization
+namespace Unity.ObjectBuilder.Policies
 {
     /// <summary>
     /// An implementation of <see cref="IMethodSelectorPolicy"/> that is aware
@@ -24,9 +24,7 @@ namespace Unity.ObjectBuilder.Customization
         /// <returns>The resolver object.</returns>
         protected override IDependencyResolverPolicy CreateResolver(ParameterInfo parameter)
         {
-            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(parameter, "parameter");
-
-            var attributes = parameter.GetCustomAttributes(false)
+            var attributes = (parameter ?? throw new ArgumentNullException(nameof(parameter))).GetCustomAttributes(false)
                 .OfType<DependencyResolutionAttribute>()
                 .ToList();
 

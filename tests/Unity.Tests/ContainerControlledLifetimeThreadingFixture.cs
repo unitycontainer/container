@@ -3,11 +3,11 @@
 using System;
 using System.Threading;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.Tests.TestDoubles;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 

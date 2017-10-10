@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
 using Unity.Builder.Selection;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Property;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

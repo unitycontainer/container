@@ -3,12 +3,10 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildKeyMapping
 {
     /// <summary>
     /// An implementation of <see cref="IBuildKeyMappingPolicy"/> that can map
@@ -16,7 +14,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class GenericTypeBuildKeyMappingPolicy : IBuildKeyMappingPolicy
     {
-        private readonly NamedTypeBuildKey destinationKey;
+        private readonly NamedTypeBuildKey _destinationKey;
 
         /// <summary>
         /// Create a new <see cref="GenericTypeBuildKeyMappingPolicy"/> instance
@@ -25,15 +23,14 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="destinationKey">Build key to map to. This must be or contain an open generic type.</param>
         public GenericTypeBuildKeyMappingPolicy(NamedTypeBuildKey destinationKey)
         {
-            Guard.ArgumentNotNull(destinationKey, "destinationKey");
-            if (!destinationKey.Type.GetTypeInfo().IsGenericTypeDefinition)
+            if (!(destinationKey ?? throw new ArgumentNullException(nameof(destinationKey))).Type.GetTypeInfo().IsGenericTypeDefinition)
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture,
                         Constants.MustHaveOpenGenericType,
                                   destinationKey.Type.GetTypeInfo().Name));
             }
-            this.destinationKey = destinationKey;
+            _destinationKey = destinationKey;
         }
 
         /// <summary>
@@ -45,36 +42,31 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The new build key.</returns>
         public NamedTypeBuildKey Map(NamedTypeBuildKey buildKey, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(buildKey, "buildKey");
-
-            var originalTypeInfo = buildKey.Type.GetTypeInfo();
+            var originalTypeInfo = (buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type.GetTypeInfo();
             if (originalTypeInfo.IsGenericTypeDefinition)
             {
                 // No need to perform a mapping - the source type is an open generic
-                return this.destinationKey;
+                return _destinationKey;
             }
 
-            this.GuardSameNumberOfGenericArguments(originalTypeInfo);
+            GuardSameNumberOfGenericArguments(originalTypeInfo);
             Type[] genericArguments = originalTypeInfo.GenericTypeArguments;
-            Type resultType = this.destinationKey.Type.MakeGenericType(genericArguments);
-            return new NamedTypeBuildKey(resultType, this.destinationKey.Name);
+            Type resultType = _destinationKey.Type.MakeGenericType(genericArguments);
+            return new NamedTypeBuildKey(resultType, _destinationKey.Name);
         }
 
         private void GuardSameNumberOfGenericArguments(TypeInfo sourceTypeInfo)
         {
-            if (sourceTypeInfo.GenericTypeArguments.Length != this.DestinationType.GetTypeInfo().GenericTypeParameters.Length)
+            if (sourceTypeInfo.GenericTypeArguments.Length != DestinationType.GetTypeInfo().GenericTypeParameters.Length)
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture,
                         Constants.MustHaveSameNumberOfGenericArguments,
-                                  sourceTypeInfo.Name, this.DestinationType.Name),
-                    "sourceTypeInfo");
+                                  sourceTypeInfo.Name, DestinationType.Name),
+                    nameof(sourceTypeInfo));
             }
         }
 
-        private Type DestinationType
-        {
-            get { return destinationKey.Type; }
-        }
+        private Type DestinationType => _destinationKey.Type;
     }
 }

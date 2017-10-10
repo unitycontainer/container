@@ -2,17 +2,18 @@
 
 using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
 using Unity.Builder.Selection;
+using Unity.Builder.Strategy;
+using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.ObjectBuilder;
 using Unity.Policy;
 using Unity.ResolverPolicy;
-using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests
 {

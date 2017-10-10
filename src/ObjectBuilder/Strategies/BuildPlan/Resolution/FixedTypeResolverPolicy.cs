@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Resolution
 {
     /// <summary>
     /// An implementation of <see cref="IDependencyResolverPolicy"/> that
@@ -15,7 +13,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class FixedTypeResolverPolicy : IDependencyResolverPolicy
     {
-        private readonly NamedTypeBuildKey keyToBuild;
+        private readonly NamedTypeBuildKey _keyToBuild;
 
         /// <summary>
         /// Create a new instance storing the given type.
@@ -23,7 +21,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="typeToBuild">Type to resolve.</param>
         public FixedTypeResolverPolicy(Type typeToBuild)
         {
-            this.keyToBuild = new NamedTypeBuildKey(typeToBuild);
+            _keyToBuild = new NamedTypeBuildKey(typeToBuild);
         }
 
         #region IDependencyResolverPolicy Members
@@ -35,8 +33,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The value for the dependency.</returns>
         public object Resolve(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            return context.NewBuildUp(keyToBuild);
+            return (context ?? throw new ArgumentNullException(nameof(context))).NewBuildUp(_keyToBuild);
         }
 
         #endregion

@@ -2,7 +2,7 @@
 
 using Unity.Lifetime;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.Container.Lifetime
 {
     /// <summary>
     /// This is a custom lifetime manager that acts like <see cref="TransientLifetimeManager"/>,

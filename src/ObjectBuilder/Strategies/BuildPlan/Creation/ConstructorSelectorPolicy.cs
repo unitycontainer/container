@@ -2,11 +2,10 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Resolution;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Creation
 {
     /// <summary>
     /// An implementation of <see cref="IConstructorSelectorPolicy"/> that chooses
@@ -28,8 +27,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The resolver object.</returns>
         protected override IDependencyResolverPolicy CreateResolver(ParameterInfo parameter)
         {
-            Guard.ArgumentNotNull(parameter, "parameter");
-            return new FixedTypeResolverPolicy(parameter.ParameterType);
+            return new FixedTypeResolverPolicy((parameter ?? throw new ArgumentNullException(nameof(parameter))).ParameterType);
         }
     }
 }

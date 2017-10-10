@@ -1,19 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Exceptions;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
-using Unity.ObjectBuilder.Strategies.BuildPlan.Method;
+using Unity.Builder.Selection;
+using Unity.Builder.Strategy;
+using Unity.Exceptions;
 using Unity.Policy;
-using SelectedMethod = Unity.Builder.Selection.SelectedMethod;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that generates IL to call
@@ -44,12 +43,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
+            var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
-            var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context.Existing);
-
-            IPolicyList resolverPolicyDestination;
-            var selector = context.Policies.Get<IMethodSelectorPolicy>(context.BuildKey, out resolverPolicyDestination);
+            var selector = context.Policies.Get<IMethodSelectorPolicy>(context.BuildKey, out var resolverPolicyDestination);
 
             bool shouldClearOperation = false;
 
@@ -71,7 +67,7 @@ namespace Microsoft.Practices.ObjectBuilder2
                                 dynamicBuildContext.GetExistingObjectExpression(),
                                 dynamicBuildContext.TypeToBuild),
                             method.Method,
-                            this.BuildMethodParameterExpressions(dynamicBuildContext, method, signatureString))));
+                            BuildMethodParameterExpressions(dynamicBuildContext, method, signatureString))));
             }
 
             // Clear the current operation
@@ -138,8 +134,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public static void SetCurrentOperationToResolvingParameter(string parameterName, string methodSignature, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            context.CurrentOperation = new MethodArgumentResolveOperation(
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new MethodArgumentResolveOperation(
                 context.BuildKey.Type,
                 methodSignature, parameterName);
         }
@@ -149,8 +144,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public static void SetCurrentOperationToInvokingMethod(string methodSignature, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            context.CurrentOperation = new InvokingMethodOperation(context.BuildKey.Type, methodSignature);
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new InvokingMethodOperation(context.BuildKey.Type, methodSignature);
         }
 
         private static string GetMethodSignature(MethodBase method)

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.Unity.Utility;
-using Unity;
+using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildKeyMapping
 {
     /// <summary>
     /// Represents a strategy for mapping build keys in the build up operation.
@@ -19,9 +19,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            var policy = context.Policies.Get<IBuildKeyMappingPolicy>(context.BuildKey);
+            var policy = (context ?? throw new ArgumentNullException(nameof(context))).Policies.Get<IBuildKeyMappingPolicy>(context.BuildKey);
 
             if (policy != null)
             {

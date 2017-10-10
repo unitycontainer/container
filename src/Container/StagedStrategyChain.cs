@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
+using Unity.Builder.Strategy;
+using Unity.Strategy;
 
-namespace Unity.Strategy
+namespace Unity.Container
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies partitioned by stages.

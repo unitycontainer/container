@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
+using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Lifetime;
 using Unity.Policy;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.ObjectBuilder.Strategies
 {
     /// <summary>
     /// A strategy that handles Hierarchical lifetimes across a set of parent/child
@@ -22,12 +22,8 @@ namespace Microsoft.Practices.Unity
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(context, "context");
-
-            IPolicyList lifetimePolicySource;
-
-            var activeLifetime = context.PersistentPolicies.Get<ILifetimePolicy>(context.BuildKey, out lifetimePolicySource);
-            if (activeLifetime is HierarchicalLifetimeManager && !object.ReferenceEquals(lifetimePolicySource, context.PersistentPolicies))
+            var activeLifetime = (context ?? throw new ArgumentNullException(nameof(context))).PersistentPolicies.Get<ILifetimePolicy>(context.BuildKey, out var lifetimePolicySource);
+            if (activeLifetime is HierarchicalLifetimeManager && !ReferenceEquals(lifetimePolicySource, context.PersistentPolicies))
             {
                 // came from parent, add a new Hierarchical lifetime manager locally   
                 var newLifetime = new HierarchicalLifetimeManager { InUse = true };

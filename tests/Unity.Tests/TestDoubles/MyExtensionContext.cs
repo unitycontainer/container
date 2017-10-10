@@ -2,9 +2,11 @@
 using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
+using Unity.ObjectBuilder.Strategies.Lifetime;
 using Unity.Policy;
 using Unity.Strategy;
 

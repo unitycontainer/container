@@ -5,19 +5,20 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity;
 using Unity.Exceptions;
-using Microsoft.Practices.Unity.Utility;
 using Unity.Builder;
-using Unity;
+using Unity.Container;
+using Unity.Container.Registration;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
+using Unity.ObjectBuilder;
+using Unity.ObjectBuilder.Strategies.BuildKeyMapping;
+using Unity.ObjectBuilder.Strategies.BuildPlan;
+using Unity.ObjectBuilder.Strategies.BuildPlan.Resolution;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Strategy;
 
 namespace Unity
 {
@@ -57,7 +58,7 @@ namespace Unity
         {
             var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
 
-            if (string.IsNullOrEmpty(name))
+            if (String.IsNullOrEmpty(name))
             {
                 name = null;
             }
@@ -66,7 +67,7 @@ namespace Unity
             {
                 if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
                 {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
+                    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
                                                                                           typeFrom,
                                                                                           to), nameof(typeFrom));
                 }
@@ -132,7 +133,7 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetime)
         {
-            Guard.InstanceIsAssignable(type, instance, "instance");
+            InstanceIsAssignable(type, instance, nameof(instance));
 
             _registeredNames.RegisterType(type, name);
             SetLifetimeManager(type, name, lifetime ?? throw new ArgumentNullException(nameof(lifetime)));
@@ -212,7 +213,7 @@ namespace Unity
         /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
         public object BuildUp(Type type, object existing, string name, params ResolverOverride[] resolverOverrides)
         {
-            Guard.InstanceIsAssignable(type, existing, "existing");
+            InstanceIsAssignable(type, existing, nameof(existing));
 
             return DoBuildUp(type, existing ?? throw new ArgumentNullException(nameof(existing)), 
                              name, resolverOverrides);
@@ -221,16 +222,16 @@ namespace Unity
         /// <summary>
         /// Run an existing object through the container, and clean it up.
         /// </summary>
-        /// <param name="o">The object to tear down.</param>
-        public void Teardown(object o)
+        /// <param name="obj">The object to tear down.</param>
+        public void Teardown(object obj)
         {
             IBuilderContext context = null;
-
+            var o = obj ?? throw new ArgumentNullException(nameof(obj));
             try
             {
                 context = new BuilderContext(this, new StrategyChain(GetStrategies().Reverse()), 
                                              _lifetimeContainer, _policies, 
-                                             null, o ?? throw new ArgumentNullException(nameof(o)));
+                                             null, o);
 
                 context.Strategies.ExecuteTearDown(context);
             }

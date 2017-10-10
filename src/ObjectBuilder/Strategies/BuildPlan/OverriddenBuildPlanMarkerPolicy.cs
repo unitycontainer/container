@@ -2,10 +2,9 @@
 
 using System;
 using Unity.Builder;
-using Unity;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan
 {
     internal class OverriddenBuildPlanMarkerPolicy : IBuildPlanPolicy
     {

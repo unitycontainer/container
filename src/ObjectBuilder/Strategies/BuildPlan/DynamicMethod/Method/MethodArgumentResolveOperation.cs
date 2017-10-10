@@ -3,11 +3,9 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Unity;
 using Unity.Builder;
-using Unity.Builder.Operation;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method
 {
     /// <summary>
     /// This class records the information about which constructor argument is currently
@@ -16,11 +14,8 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class MethodArgumentResolveOperation : BuildOperation
     {
-        private readonly string methodSignature;
-        private readonly string parameterName;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConstructorParameterResolveOperation"/> class.
+        /// Initializes a new instance of the <see cref="Builder.Operation.ConstructorParameterResolveOperation"/> class.
         /// </summary>
         /// <param name="typeBeingConstructed">The type that is being constructed.</param>
         /// <param name="methodSignature">A string representing the method being called.</param>
@@ -28,8 +23,8 @@ namespace Microsoft.Practices.ObjectBuilder2
         public MethodArgumentResolveOperation(Type typeBeingConstructed, string methodSignature, string parameterName)
             : base(typeBeingConstructed)
         {
-            this.methodSignature = methodSignature;
-            this.parameterName = parameterName;
+            MethodSignature = methodSignature;
+            ParameterName = parameterName;
         }
 
         /// <summary>
@@ -40,23 +35,17 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             return string.Format(CultureInfo.CurrentCulture,
                 Constants.MethodArgumentResolveOperation,
-                this.parameterName, TypeBeingConstructed.GetTypeInfo().Name, this.methodSignature);
+                ParameterName, TypeBeingConstructed.GetTypeInfo().Name, MethodSignature);
         }
 
         /// <summary>
         /// String describing the method being set up.
         /// </summary>
-        public string MethodSignature
-        {
-            get { return this.methodSignature; }
-        }
+        public string MethodSignature { get; }
 
         /// <summary>
         /// Parameter that's being resolved.
         /// </summary>
-        public string ParameterName
-        {
-            get { return this.parameterName; }
-        }
+        public string ParameterName { get; }
     }
 }

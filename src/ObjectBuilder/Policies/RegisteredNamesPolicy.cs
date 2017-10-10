@@ -3,21 +3,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Container.Registration;
 
-namespace Microsoft.Practices.Unity
+namespace Unity.ObjectBuilder.Policies
 {
     internal class RegisteredNamesPolicy : IRegisteredNamesPolicy
     {
-        private NamedTypesRegistry registry;
+        private readonly NamedTypesRegistry _registry;
 
         public RegisteredNamesPolicy(NamedTypesRegistry registry)
         {
-            this.registry = registry;
+            _registry = registry;
         }
 
         public IEnumerable<string> GetRegisteredNames(Type type)
         {
-            return this.registry.GetKeys(type).Where(s => !string.IsNullOrEmpty(s));
+            return _registry.GetKeys(type).Where(s => !string.IsNullOrEmpty(s));
         }
     }
 }

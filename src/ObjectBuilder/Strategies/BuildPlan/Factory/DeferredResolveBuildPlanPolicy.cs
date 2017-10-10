@@ -3,12 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
+using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Factory
 {
     /// <summary>
     /// Build plan for <see cref="Func{TResult}"/> that will return a Func that will resolve the requested type
@@ -18,9 +17,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     {
         public void BuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            if (context.Existing == null)
+            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
             {
                 var currentContainer = context.NewBuildUp<IUnityContainer>();
 
@@ -80,33 +77,33 @@ namespace Microsoft.Practices.ObjectBuilder2
 
         private class ResolveTrampoline<TItem>
         {
-            private readonly IUnityContainer container;
-            private readonly string name;
+            private readonly IUnityContainer _container;
+            private readonly string _name;
 
             public ResolveTrampoline(IUnityContainer container, string name)
             {
-                this.container = container;
-                this.name = name;
+                _container = container;
+                _name = name;
             }
 
             public TItem Resolve()
             {
-                return container.Resolve<TItem>(name);
+                return _container.Resolve<TItem>(_name);
             }
         }
 
         private class ResolveAllTrampoline<TItem>
         {
-            private readonly IUnityContainer container;
+            private readonly IUnityContainer _container;
 
             public ResolveAllTrampoline(IUnityContainer container)
             {
-                this.container = container;
+                _container = container;
             }
 
             public IEnumerable<TItem> ResolveAll()
             {
-                return container.ResolveAll<TItem>();
+                return _container.ResolveAll<TItem>();
             }
         }
     }

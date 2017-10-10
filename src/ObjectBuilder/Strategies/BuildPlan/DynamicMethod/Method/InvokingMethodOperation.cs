@@ -3,10 +3,9 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Unity;
 using Unity.Builder;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method
 {
     /// <summary>
     /// A class that records that a constructor is about to be call, and is 
@@ -15,7 +14,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class InvokingMethodOperation : BuildOperation
     {
-        private readonly string methodSignature;
+        private readonly string _methodSignature;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InvokingMethodOperation"/> class.
@@ -23,16 +22,13 @@ namespace Microsoft.Practices.ObjectBuilder2
         public InvokingMethodOperation(Type typeBeingConstructed, string methodSignature)
             : base(typeBeingConstructed)
         {
-            this.methodSignature = methodSignature;
+            _methodSignature = methodSignature;
         }
 
         /// <summary>
         /// Method we're trying to call.
         /// </summary>
-        public string MethodSignature
-        {
-            get { return this.methodSignature; }
-        }
+        public string MethodSignature => _methodSignature;
 
         /// <summary>
         /// Generate the description string.
@@ -43,7 +39,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             return string.Format(CultureInfo.CurrentCulture,
                 Constants.InvokingMethodOperation,
                 TypeBeingConstructed.GetTypeInfo().Name,
-                this.methodSignature);
+                _methodSignature);
         }
     }
 }

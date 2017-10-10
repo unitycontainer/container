@@ -2,31 +2,30 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Strategy;
+using Unity.Utility;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     public class BuilderContext : IBuilderContext
     {
-        private readonly IStrategyChain chain;
-        private readonly ILifetimeContainer lifetime;
-        private readonly IRecoveryStack recoveryStack = new RecoveryStack();
-        private readonly NamedTypeBuildKey originalBuildKey;
-        private readonly IPolicyList persistentPolicies;
-        private readonly IPolicyList policies;
-        private CompositeResolverOverride resolverOverrides;
-        private bool ownsOverrides;
+        private readonly IStrategyChain _chain;
+        private readonly ILifetimeContainer _lifetime;
+        private readonly IRecoveryStack _recoveryStack = new RecoveryStack();
+        private readonly NamedTypeBuildKey _originalBuildKey;
+        private readonly IPolicyList _persistentPolicies;
+        private readonly IPolicyList _policies;
+        private CompositeResolverOverride _resolverOverrides;
+        private bool _ownsOverrides;
 
         /// <summary>
         /// Initialize a new instance of the <see cref="BuilderContext"/> class.
@@ -38,6 +37,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <see cref="ILifetimeContainer"/>, <see cref="IPolicyList"/> and the 
         /// build key used to start this build operation. 
         /// </summary>
+        /// <param name="container"></param>
         /// <param name="chain">The <see cref="IStrategyChain"/> to use for this context.</param>
         /// <param name="lifetime">The <see cref="ILifetimeContainer"/> to use for this context.</param>
         /// <param name="policies">The <see cref="IPolicyList"/> to use for this context.</param>
@@ -50,15 +50,15 @@ namespace Microsoft.Practices.ObjectBuilder2
             object existing)
         {
             Container = container;
-            this.chain = chain;
-            this.lifetime = lifetime;
-            this.originalBuildKey = originalBuildKey;
-            this.BuildKey = originalBuildKey;
-            this.persistentPolicies = policies;
-            this.policies = new PolicyList(persistentPolicies);
-            this.Existing = existing;
-            this.resolverOverrides = new CompositeResolverOverride();
-            this.ownsOverrides = true;
+            _chain = chain;
+            _lifetime = lifetime;
+            _originalBuildKey = originalBuildKey;
+            BuildKey = originalBuildKey;
+            _persistentPolicies = policies;
+            _policies = new PolicyList(_persistentPolicies);
+            Existing = existing;
+            _resolverOverrides = new CompositeResolverOverride();
+            _ownsOverrides = true;
         }
 
         /// <summary>
@@ -75,15 +75,15 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="existing">Existing object to build up.</param>
         public BuilderContext(IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, object existing)
         {
-            this.chain = chain;
-            this.lifetime = lifetime;
-            this.persistentPolicies = persistentPolicies;
-            this.policies = transientPolicies;
-            this.originalBuildKey = buildKey;
-            this.BuildKey = buildKey;
-            this.Existing = existing;
-            this.resolverOverrides = new CompositeResolverOverride();
-            this.ownsOverrides = true;
+            _chain = chain;
+            _lifetime = lifetime;
+            _persistentPolicies = persistentPolicies;
+            _policies = transientPolicies;
+            _originalBuildKey = buildKey;
+            BuildKey = buildKey;
+            Existing = existing;
+            _resolverOverrides = new CompositeResolverOverride();
+            _ownsOverrides = true;
         }
 
         /// <summary>
@@ -100,15 +100,15 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="resolverOverrides">The resolver overrides.</param>
         protected BuilderContext(IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, CompositeResolverOverride resolverOverrides)
         {
-            this.chain = chain;
-            this.lifetime = lifetime;
-            this.persistentPolicies = persistentPolicies;
-            this.policies = transientPolicies;
-            this.originalBuildKey = buildKey;
-            this.BuildKey = buildKey;
-            this.Existing = null;
-            this.resolverOverrides = resolverOverrides;
-            this.ownsOverrides = false;
+            _chain = chain;
+            _lifetime = lifetime;
+            _persistentPolicies = persistentPolicies;
+            _policies = transientPolicies;
+            _originalBuildKey = buildKey;
+            BuildKey = buildKey;
+            Existing = null;
+            _resolverOverrides = resolverOverrides;
+            _ownsOverrides = false;
         }
 
         #region IBuilderContext
@@ -124,7 +124,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </returns>
         public IStrategyChain Strategies
         {
-            get { return this.chain; }
+            get { return _chain; }
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </value>
         public ILifetimeContainer Lifetime
         {
-            get { return lifetime; }
+            get { return _lifetime; }
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </value>
         public NamedTypeBuildKey OriginalBuildKey
         {
-            get { return originalBuildKey; }
+            get { return _originalBuildKey; }
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <value>The persistent policies for the current context.</value>
         public IPolicyList PersistentPolicies
         {
-            get { return persistentPolicies; }
+            get { return _persistentPolicies; }
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </value>
         public IPolicyList Policies
         {
-            get { return policies; }
+            get { return _policies; }
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public IRecoveryStack RecoveryStack
         {
-            get { return recoveryStack; }
+            get { return _recoveryStack; }
         }
 
         /// <summary>
@@ -221,15 +221,15 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="newOverrides"><see cref="ResolverOverride"/> objects to add.</param>
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {
-            if (!this.ownsOverrides)
+            if (!_ownsOverrides)
             {
-                var sharedOverrides = this.resolverOverrides;
-                this.resolverOverrides = new CompositeResolverOverride();
-                this.resolverOverrides.AddRange(sharedOverrides);
-                this.ownsOverrides = true;
+                var sharedOverrides = _resolverOverrides;
+                _resolverOverrides = new CompositeResolverOverride();
+                _resolverOverrides.AddRange(sharedOverrides);
+                _ownsOverrides = true;
             }
 
-            resolverOverrides.AddRange(newOverrides);
+            _resolverOverrides.AddRange(newOverrides);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
         public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
-            return resolverOverrides.GetResolver(this, dependencyType);
+            return _resolverOverrides.GetResolver(this, dependencyType);
         }
 
         /// <summary>
@@ -250,12 +250,12 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>Created object.</returns>
         public object NewBuildUp(NamedTypeBuildKey newBuildKey)
         {
-            this.ChildContext =
-                new BuilderContext(this.chain, lifetime, persistentPolicies, policies, newBuildKey, this.resolverOverrides);
+            ChildContext =
+                new BuilderContext(_chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
 
-            object result = this.ChildContext.Strategies.ExecuteBuildUp(this.ChildContext);
+            object result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
 
-            this.ChildContext = null;
+            ChildContext = null;
 
             return result;
         }
@@ -272,16 +272,14 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>Created object.</returns>
         public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
         {
-            Guard.ArgumentNotNull(childCustomizationBlock, "childCustomizationBlock");
+            ChildContext =
+                new BuilderContext(_chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
 
-            this.ChildContext =
-                new BuilderContext(this.chain, lifetime, persistentPolicies, policies, newBuildKey, this.resolverOverrides);
+            (childCustomizationBlock ?? throw new ArgumentNullException(nameof(childCustomizationBlock)))(ChildContext);
 
-            childCustomizationBlock(this.ChildContext);
+            object result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
 
-            object result = this.ChildContext.Strategies.ExecuteBuildUp(this.ChildContext);
-
-            this.ChildContext = null;
+            ChildContext = null;
 
             return result;
         }

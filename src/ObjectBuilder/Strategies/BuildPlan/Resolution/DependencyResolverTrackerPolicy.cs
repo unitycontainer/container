@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Unity;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Resolution
 {
     /// <summary>
     /// Implementation of <see cref="IDependencyResolverTrackerPolicy"/>.
     /// </summary>
     public class DependencyResolverTrackerPolicy : IDependencyResolverTrackerPolicy
     {
-        private List<object> keys = new List<object>();
+        private readonly List<object> _keys = new List<object>();
 
         /// <summary>
         /// Add a new resolver to track by key.
@@ -19,9 +18,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="key">Key that was used to add the resolver to the policy set.</param>
         public void AddResolverKey(object key)
         {
-            lock (this.keys)
+            lock (_keys)
             {
-                keys.Add(key);
+                _keys.Add(key);
             }
         }
 
@@ -32,10 +31,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         public void RemoveResolvers(IPolicyList policies)
         {
             var allKeys = new List<object>();
-            lock (this.keys)
+            lock (_keys)
             {
-                allKeys.AddRange(this.keys);
-                keys.Clear();
+                allKeys.AddRange(_keys);
+                _keys.Clear();
             }
 
             foreach (object key in allKeys)
@@ -61,7 +60,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             if (tracker == null)
             {
                 tracker = new DependencyResolverTrackerPolicy();
-                policies.Set<IDependencyResolverTrackerPolicy>(tracker, buildKey);
+                policies.Set(tracker, buildKey);
             }
             return tracker;
         }
@@ -86,10 +85,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         public static void RemoveResolvers(IPolicyList policies, object buildKey)
         {
             IDependencyResolverTrackerPolicy tracker = policies.Get<IDependencyResolverTrackerPolicy>(buildKey);
-            if (tracker != null)
-            {
-                tracker.RemoveResolvers(policies);
-            }
+            tracker?.RemoveResolvers(policies);
         }
     }
 }

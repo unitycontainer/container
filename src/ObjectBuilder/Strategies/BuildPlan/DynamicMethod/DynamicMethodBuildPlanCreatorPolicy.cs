@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.Unity.Utility;
-using Unity;
+using System;
 using Unity.Builder;
 using Unity.Policy;
 using Unity.Strategy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod
 {
     /// <summary>
     /// An <see cref="IBuildPlanCreatorPolicy"/> implementation
@@ -14,7 +13,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class DynamicMethodBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
-        private IStagedStrategyChain strategies;
+        private readonly IStagedStrategyChain _strategies;
 
         /// <summary>
         /// Construct a <see cref="DynamicMethodBuildPlanCreatorPolicy"/> that
@@ -23,7 +22,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="strategies">The strategy chain.</param>
         public DynamicMethodBuildPlanCreatorPolicy(IStagedStrategyChain strategies)
         {
-            this.strategies = strategies;
+            _strategies = strategies;
         }
 
         /// <summary>
@@ -34,12 +33,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The created build plan.</returns>
         public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
         {
-            Guard.ArgumentNotNull(buildKey, "buildKey");
-
             DynamicBuildPlanGenerationContext generatorContext =
-                new DynamicBuildPlanGenerationContext(buildKey.Type);
+                new DynamicBuildPlanGenerationContext((buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type);
 
-            IBuilderContext planContext = GetContext(context, buildKey, generatorContext);
+            IBuilderContext planContext = GetContext((context ?? throw new ArgumentNullException(nameof(context))), buildKey, generatorContext);
 
             planContext.Strategies.ExecuteBuildUp(planContext);
 
@@ -49,7 +46,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         private IBuilderContext GetContext(IBuilderContext originalContext, NamedTypeBuildKey buildKey, DynamicBuildPlanGenerationContext generatorContext)
         {
             return new BuilderContext(
-                strategies.MakeStrategyChain(),
+                _strategies.MakeStrategyChain(),
                 originalContext.Lifetime,
                 originalContext.PersistentPolicies,
                 originalContext.Policies,

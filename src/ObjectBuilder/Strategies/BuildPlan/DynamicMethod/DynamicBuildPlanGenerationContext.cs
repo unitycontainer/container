@@ -5,21 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod
 {
     /// <summary>
     /// 
     /// </summary>
     public class DynamicBuildPlanGenerationContext
     {
-        private readonly Type typeToBuild;
-        private readonly ParameterExpression contextParameter;
-        private readonly Queue<Expression> buildPlanExpressions;
+        private readonly Queue<Expression> _buildPlanExpressions;
 
         private static readonly MethodInfo ResolveDependencyMethod =
             typeof(IDependencyResolverPolicy).GetTypeInfo()
@@ -38,26 +34,20 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="typeToBuild"></param>
         public DynamicBuildPlanGenerationContext(Type typeToBuild)
         {
-            this.typeToBuild = typeToBuild;
-            contextParameter = Expression.Parameter(typeof(IBuilderContext), "context");
-            buildPlanExpressions = new Queue<Expression>();
+            TypeToBuild = typeToBuild;
+            ContextParameter = Expression.Parameter(typeof(IBuilderContext), "context");
+            _buildPlanExpressions = new Queue<Expression>();
         }
 
         /// <summary>
         /// The type that is to be built with the dynamic build plan.
         /// </summary>
-        public Type TypeToBuild
-        {
-            get { return this.typeToBuild; }
-        }
+        public Type TypeToBuild { get; }
 
         /// <summary>
         /// The context parameter representing the <see cref="IBuilderContext"/> used when the build plan is executed.
         /// </summary>
-        public ParameterExpression ContextParameter
-        {
-            get { return this.contextParameter; }
-        }
+        public ParameterExpression ContextParameter { get; }
 
         /// <summary>
         /// 
@@ -65,7 +55,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="expression"></param>
         public void AddToBuildPlan(Expression expression)
         {
-            this.buildPlanExpressions.Enqueue(expression);
+            _buildPlanExpressions.Enqueue(expression);
         }
 
         /// <summary>
@@ -133,11 +123,11 @@ namespace Microsoft.Practices.ObjectBuilder2
             var planDelegate = (Func<IBuilderContext, object>)
                 Expression.Lambda(
                     Expression.Block(
-                        buildPlanExpressions.Concat(new[] { GetExistingObjectExpression() })),
+                        _buildPlanExpressions.Concat(new[] { GetExistingObjectExpression() })),
                         ContextParameter)
                 .Compile();
 
-            return (context) =>
+            return context =>
                 {
                     try
                     {
@@ -145,7 +135,8 @@ namespace Microsoft.Practices.ObjectBuilder2
                     }
                     catch (TargetInvocationException e)
                     {
-                        throw e.InnerException;
+                        if (e.InnerException != null) throw e.InnerException;
+                        throw;
                     }
                 };
         }
@@ -154,7 +145,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         {
             return Expression.Assign(
                 Expression.MakeMemberAccess(
-                    this.ContextParameter,
+                    ContextParameter,
                     typeof(IBuilderContext).GetTypeInfo().GetDeclaredProperty("CurrentOperation")),
                     savedOperationExpression);
         }
@@ -164,7 +155,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             return Expression.Assign(
                 saveExpression,
                 Expression.MakeMemberAccess(
-                    this.ContextParameter,
+                    ContextParameter,
                     typeof(IBuilderContext).GetTypeInfo().GetDeclaredProperty("CurrentOperation")));
         }
 
@@ -177,9 +168,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The found dependency resolver.</returns>
         public static IDependencyResolverPolicy GetResolver(IBuilderContext context, Type dependencyType, IDependencyResolverPolicy resolver)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            var overridden = context.GetOverriddenResolver(dependencyType);
+            var overridden = (context ?? throw new ArgumentNullException(nameof(context))).GetOverriddenResolver(dependencyType);
             return overridden ?? resolver;
         }
     }

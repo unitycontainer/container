@@ -1,15 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
 using Unity.Attributes;
 using Unity.Builder.Selection;
 using Unity.Policy;
 
-namespace Microsoft.Practices.Unity.ObjectBuilder
+namespace Unity.ObjectBuilder.Policies
 {
     /// <summary>
     /// An implementation of <see cref="IPropertySelectorPolicy"/> that is aware of
@@ -25,10 +24,8 @@ namespace Microsoft.Practices.Unity.ObjectBuilder
         /// <returns>The resolver object.</returns>
         protected override IDependencyResolverPolicy CreateResolver(PropertyInfo property)
         {
-            Microsoft.Practices.Unity.Utility.Guard.ArgumentNotNull(property, "property");
-
             var attributes =
-                property.GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
+                (property ?? throw new ArgumentNullException(nameof(property))).GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
                 .OfType<DependencyResolutionAttribute>()
                 .ToList();
 

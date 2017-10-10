@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.Unity.Utility;
-using Unity;
+using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuilderAware
 {
     /// <summary>
     /// Implementation of <see cref="IBuilderStrategy"/> which will notify an object about
@@ -26,13 +26,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            IBuilderAware awareObject = context.Existing as IBuilderAware;
+            IBuilderAware awareObject = (context ?? throw new ArgumentNullException(nameof(context))).Existing as IBuilderAware;
 
-            if (awareObject != null)
-            {
-                awareObject.OnBuiltUp(context.BuildKey);
-            }
+            awareObject?.OnBuiltUp(context.BuildKey);
         }
 
         /// <summary>
@@ -43,10 +39,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Context of the teardown operation.</param>
         public override void PreTearDown(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            IBuilderAware awareObject = context.Existing as IBuilderAware;
-
-            if (awareObject != null)
+            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing is IBuilderAware awareObject)
             {
                 awareObject.OnTearingDown();
             }

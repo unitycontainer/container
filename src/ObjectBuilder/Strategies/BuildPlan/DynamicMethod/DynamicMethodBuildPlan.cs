@@ -1,14 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unity;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod
 {
     /// <summary>
     /// 
@@ -21,7 +16,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class DynamicMethodBuildPlan : IBuildPlanPolicy
     {
-        private DynamicBuildPlanMethod buildMethod;
+        private readonly DynamicBuildPlanMethod _buildMethod;
 
         /// <summary>
         /// 
@@ -29,7 +24,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="buildMethod"></param>
         public DynamicMethodBuildPlan(DynamicBuildPlanMethod buildMethod)
         {
-            this.buildMethod = buildMethod;
+            _buildMethod = buildMethod;
         }
 
         /// <summary>
@@ -38,7 +33,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context"></param>
         public void BuildUp(IBuilderContext context)
         {
-            buildMethod(context);
+            _buildMethod(context);
         }
     }
 }

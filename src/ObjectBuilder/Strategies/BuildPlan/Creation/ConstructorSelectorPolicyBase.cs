@@ -5,13 +5,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
+using Unity.Utility;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.Creation
 {
     /// <summary>
     /// Base class that provides an implementation of <see cref="IConstructorSelectorPolicy"/>
@@ -29,8 +28,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <returns>The chosen constructor.</returns>
         public SelectedConstructor SelectConstructor(IBuilderContext context, IPolicyList resolverPolicyDestination)
         {
-            Guard.ArgumentNotNull(context, "context");
-            Type typeToConstruct = context.BuildKey.Type;
+            Type typeToConstruct = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type;
             ConstructorInfo ctor = FindInjectionConstructor(typeToConstruct) ?? FindLongestConstructor(typeToConstruct);
             if (ctor != null)
             {
@@ -45,7 +43,7 @@ namespace Microsoft.Practices.ObjectBuilder2
 
             foreach (ParameterInfo param in ctor.GetParameters())
             {
-                result.AddParameterResolver(this.CreateResolver(param));
+                result.AddParameterResolver(CreateResolver(param));
             }
 
             return result;
@@ -127,10 +125,7 @@ namespace Microsoft.Practices.ObjectBuilder2
             /// </returns>
             public int Compare(ConstructorInfo x, ConstructorInfo y)
             {
-                Guard.ArgumentNotNull(x, "x");
-                Guard.ArgumentNotNull(y, "y");
-
-                return y.GetParameters().Length - x.GetParameters().Length;
+                return (y ?? throw new ArgumentNullException(nameof(y))).GetParameters().Length - (x ?? throw new ArgumentNullException(nameof(x))).GetParameters().Length;
             }
         }
     }

@@ -44,8 +44,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' == 'net40' ">
-    <Compile Remove="Injection\InjectionProperty.cs" />
-    <Compile Remove="Lifetime\SynchronizedLifetimeManager.cs" />
     <Compile Remove="ObjectBuilder\Strategies\BuildPlan\DynamicMethod\Property\DynamicMethodPropertySetterStrategy.cs" />
     <Compile Remove="ObjectBuilder\Strategies\BuildPlan\Property\PropertySelectorBase.cs" />
   </ItemGroup>
@@ -55,7 +53,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Injection\" />
     <Folder Include="ObjectBuilder\Strategies\BuildPlan\Factory\" />
   </ItemGroup>
 

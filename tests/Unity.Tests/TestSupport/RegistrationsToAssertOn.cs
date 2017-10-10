@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
+using Unity.Container.Registration;
 using Unity.Lifetime;
+using Unity.Registration;
 
 namespace Microsoft.Practices.Unity.TestSupport
 {

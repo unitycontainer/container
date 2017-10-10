@@ -4,13 +4,12 @@ using System;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Operation;
+using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Property
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that generates IL to resolve properties
@@ -38,11 +37,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context.Existing);
+            var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
-            IPolicyList resolverPolicyDestination;
-            var selector = context.Policies.Get<IPropertySelectorPolicy>(context.BuildKey, out resolverPolicyDestination);
+            var selector = context.Policies.Get<IPropertySelectorPolicy>(context.BuildKey, out var resolverPolicyDestination);
 
             bool shouldClearOperation = false;
 
@@ -83,15 +80,14 @@ namespace Microsoft.Practices.ObjectBuilder2
 
         private static MethodInfo GetValidatedPropertySetter(PropertyInfo property)
         {
-            //todo: Added a check for private to meet original expectations; we could consider opening this up for 
-            //      private property injection.
+            //todo: Added a check for private to meet original expectations; we could consider opening this up for private property injection.
             var setter = property.SetMethod;
             if (setter == null || setter.IsPrivate)
             {
                 throw new InvalidOperationException(
                     string.Format(CultureInfo.CurrentCulture,
                         Constants.PropertyNotSettable,
-                        property.Name, property.DeclaringType.FullName));
+                        property.Name, property.DeclaringType?.FullName));
             }
             return setter;
         }
@@ -101,8 +97,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public static void SetCurrentOperationToResolvingPropertyValue(string propertyName, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-            context.CurrentOperation = new ResolvingPropertyValueOperation(
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new ResolvingPropertyValueOperation(
                 context.BuildKey.Type, propertyName);
         }
 
@@ -111,9 +106,7 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// </summary>
         public static void SetCurrentOperationToSettingProperty(string propertyName, IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            context.CurrentOperation = new SettingPropertyOperation(
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new SettingPropertyOperation(
                 context.BuildKey.Type, propertyName);
         }
     }

@@ -3,7 +3,6 @@
 //===============================================================================
 
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.ObjectBuilder;
 using Microsoft.Practices.Unity.Tests.TestDoubles;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

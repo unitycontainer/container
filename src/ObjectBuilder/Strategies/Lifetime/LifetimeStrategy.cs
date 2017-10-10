@@ -2,15 +2,13 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Utility;
-using Unity;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.ObjectBuilder.Strategies.Lifetime
 {
     /// <summary>
     /// An <see cref="IBuilderStrategy"/> implementation that uses
@@ -20,7 +18,7 @@ namespace Microsoft.Practices.ObjectBuilder2
     /// </summary>
     public class LifetimeStrategy : BuilderStrategy
     {
-        private readonly object genericLifetimeManagerLock = new object();
+        private readonly object _genericLifetimeManagerLock = new object();
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -30,13 +28,10 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
-
-            if (context.Existing == null)
+            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
             {
-                ILifetimePolicy lifetimePolicy = this.GetLifetimePolicy(context);
-                IRequiresRecovery recovery = lifetimePolicy as IRequiresRecovery;
-                if (recovery != null)
+                ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context);
+                if (lifetimePolicy is IRequiresRecovery recovery)
                 {
                     context.RecoveryStack.Add(recovery);
                 }
@@ -58,10 +53,9 @@ namespace Microsoft.Practices.ObjectBuilder2
         /// <param name="context">Context of the build operation.</param>
         public override void PostBuildUp(IBuilderContext context)
         {
-            Guard.ArgumentNotNull(context, "context");
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
-            ILifetimePolicy lifetimePolicy = this.GetLifetimePolicy(context);
+            ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context ?? throw new ArgumentNullException(nameof(context)));
             lifetimePolicy.SetValue(context.Existing);
         }
 
@@ -70,13 +64,13 @@ namespace Microsoft.Practices.ObjectBuilder2
             ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
             if (policy == null && context.BuildKey.Type.GetTypeInfo().IsGenericType)
             {
-                policy = this.GetLifetimePolicyForGenericType(context);
+                policy = GetLifetimePolicyForGenericType(context);
             }
 
             if (policy == null)
             {
                 policy = new TransientLifetimeManager();
-                context.PersistentPolicies.Set<ILifetimePolicy>(policy, context.BuildKey);
+                context.PersistentPolicies.Set(policy, context.BuildKey);
             }
 
             return policy;
@@ -100,13 +94,13 @@ namespace Microsoft.Practices.ObjectBuilder2
                 // multiple instances might be created, but only one instance will be used
                 ILifetimePolicy newLifetime = factoryPolicy.CreateLifetimePolicy();
 
-                lock (this.genericLifetimeManagerLock)
+                lock (_genericLifetimeManagerLock)
                 {
                     // check whether the policy for closed-generic has been added since first checked
                     ILifetimePolicy lifetime = factorySource.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
                     if (lifetime == null)
                     {
-                        factorySource.Set<ILifetimePolicy>(newLifetime, context.BuildKey);
+                        factorySource.Set(newLifetime, context.BuildKey);
                         lifetime = newLifetime;
                     }
 
