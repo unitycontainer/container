@@ -141,7 +141,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         private MockBuilderContext GetContext()
         {
             StagedStrategyChain<BuilderStage> chain = new StagedStrategyChain<BuilderStage>();
-            chain.AddNew<DynamicMethodPropertySetterStrategy>(BuilderStage.Initialization);
+            chain.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
 
             DynamicMethodBuildPlanCreatorPolicy policy =
                 new DynamicMethodBuildPlanCreatorPolicy(chain);

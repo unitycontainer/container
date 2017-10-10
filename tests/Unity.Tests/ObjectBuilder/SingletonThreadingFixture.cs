@@ -3,6 +3,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
@@ -18,7 +19,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void SingletonReturnsSameValueWhenCalledInMultipleThreads()
         {
-            StrategyChain strategies = GetStrategies();
+            var strategies = GetStrategies();
             IPolicyList policies = GetPolicies();
 
             BuilderOnThread threadResults1 = new BuilderOnThread(strategies, policies);
@@ -35,9 +36,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             Assert.AreSame(threadResults1.Result, threadResults2.Result);
         }
 
-        private StrategyChain GetStrategies()
+        private MockStrategyChain GetStrategies()
         {
-            StrategyChain chain = new StrategyChain();
+            MockStrategyChain chain = new MockStrategyChain();
             chain.Add(new LifetimeStrategy());
             chain.Add(new SleepingStrategy());
             chain.Add(new NewObjectStrategy());
@@ -56,10 +57,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
     internal class BuilderOnThread
     {
         public object Result;
-        private StrategyChain strategies;
+        private MockStrategyChain strategies;
         private IPolicyList policies;
 
-        public BuilderOnThread(StrategyChain strategies, IPolicyList policies)
+        public BuilderOnThread(MockStrategyChain strategies, IPolicyList policies)
         {
             this.strategies = strategies;
             this.policies = policies;

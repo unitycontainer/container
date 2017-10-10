@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.ObjectBuilder;
-using Unity.Exceptions;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Builder;
-using Unity;
 using Unity.Events;
+using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.Customization;
@@ -231,47 +230,32 @@ namespace Unity
         /// </remarks>
         private class ExtensionContextImpl : ExtensionContext
         {
-            private readonly UnityContainer container;
+            private readonly UnityContainer _container;
 
             public ExtensionContextImpl(UnityContainer container)
             {
-                this.container = container;
+                _container = container ?? throw new ArgumentNullException(nameof(container));
             }
 
-            public override IUnityContainer Container
-            {
-                get { return this.container; }
-            }
+            public override IUnityContainer Container => _container;
 
-            public override StagedStrategyChain<UnityBuildStage> Strategies
-            {
-                get { return this.container._strategies; }
-            }
+            public override IStagedStrategyChain<UnityBuildStage> Strategies => _container._strategies;
 
-            public override StagedStrategyChain<UnityBuildStage> BuildPlanStrategies
-            {
-                get { return this.container._buildPlanStrategies; }
-            }
+            public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies => _container._buildPlanStrategies;
 
-            public override IPolicyList Policies
-            {
-                get { return this.container._policies; }
-            }
+            public override IPolicyList Policies => _container._policies;
 
-            public override ILifetimeContainer Lifetime
-            {
-                get { return this.container._lifetimeContainer; }
-            }
+            public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
 
             public override void RegisterNamedType(Type t, string name)
             {
-                this.container._registeredNames.RegisterType(t, name);
+                _container._registeredNames.RegisterType(t, name);
             }
 
             public override event EventHandler<RegisterEventArgs> Registering
             {
-                add { this.container.Registering += value; }
-                remove { this.container.Registering -= value; }
+                add => _container.Registering += value;
+                remove => _container.Registering -= value;
             }
 
             /// <summary>
@@ -280,14 +264,14 @@ namespace Unity
             /// </summary>
             public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
             {
-                add { this.container.RegisteringInstance += value; }
-                remove { this.container.RegisteringInstance -= value; }
+                add => _container.RegisteringInstance += value;
+                remove => _container.RegisteringInstance -= value;
             }
 
             public override event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
             {
-                add { this.container.ChildContainerCreated += value; }
-                remove { this.container.ChildContainerCreated -= value; }
+                add => _container.ChildContainerCreated += value;
+                remove => _container.ChildContainerCreated -= value;
             }
         }
 
@@ -295,16 +279,16 @@ namespace Unity
         // Works like the ExternallyControlledLifetimeManager, but uses regular instead of weak references
         private class ContainerLifetimeManager : LifetimeManager
         {
-            private object value;
+            private object _value;
 
             public override object GetValue()
             {
-                return this.value;
+                return _value;
             }
 
             public override void SetValue(object newValue)
             {
-                this.value = newValue;
+                _value = newValue;
             }
 
             public override void RemoveValue()

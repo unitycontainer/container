@@ -177,7 +177,7 @@ namespace Microsoft.Practices.Unity.Tests
 
         private BuilderContext GetContext(IUnityContainer container, NamedTypeBuildKey buildKey)
         {
-            StrategyChain strategies = new StrategyChain();
+            var strategies = new MockStrategyChain();
             strategies.Add(new ReturnContainerStrategy(container));
             PolicyList persistentPolicies = new PolicyList();
             PolicyList transientPolicies = new PolicyList(persistentPolicies);

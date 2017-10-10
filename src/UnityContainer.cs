@@ -17,6 +17,7 @@ using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Strategy;
 
 namespace Unity
 {
@@ -227,7 +228,10 @@ namespace Unity
 
             try
             {
-                context = new BuilderContext(this, GetStrategies().Reverse(), _lifetimeContainer, _policies, null, o ?? throw new ArgumentNullException(nameof(o)));
+                context = new BuilderContext(this, new StrategyChain(GetStrategies().Reverse()), 
+                                             _lifetimeContainer, _policies, 
+                                             null, o ?? throw new ArgumentNullException(nameof(o)));
+
                 context.Strategies.ExecuteTearDown(context);
             }
             catch (Exception ex)

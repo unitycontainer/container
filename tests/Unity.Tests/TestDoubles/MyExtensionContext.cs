@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
 using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.ObjectBuilder;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
@@ -28,12 +26,12 @@ namespace Unity.Tests.TestDoubles
             get { return this.container; }
         }
 
-        public override StagedStrategyChain<UnityBuildStage> Strategies
+        public override IStagedStrategyChain<UnityBuildStage> Strategies
         {
             get { return new StagedStrategyChain<UnityBuildStage>(); }
         }
 
-        public override StagedStrategyChain<UnityBuildStage> BuildPlanStrategies
+        public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies
         {
             get { return new StagedStrategyChain<UnityBuildStage>(); }
         }

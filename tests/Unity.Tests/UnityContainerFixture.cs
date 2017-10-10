@@ -613,7 +613,7 @@ namespace Microsoft.Practices.Unity.Tests
         {
             protected override void Initialize()
             {
-                this.Context.Strategies.AddNew<GarbageCollectingStrategy>(UnityBuildStage.Setup);
+                this.Context.Strategies.Add(new GarbageCollectingStrategy(), UnityBuildStage.Setup);
             }
 
             public class GarbageCollectingStrategy : BuilderStrategy

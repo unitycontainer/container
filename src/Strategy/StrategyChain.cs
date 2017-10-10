@@ -1,0 +1,128 @@
+﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Builder;
+
+namespace Unity.Strategy
+{
+    /// <summary>
+    /// Represents a chain of responsibility for builder strategies.
+    /// </summary>
+    public class StrategyChain : IStrategyChain
+    {
+        private readonly IBuilderStrategy[] _strategies;
+
+        /// <summary>
+        /// Initialize a new instance of the <see cref="StrategyChain"/> class with a collection of strategies.
+        /// </summary>
+        /// <param name="strategies">A collection of strategies to initialize the chain.</param>
+        public StrategyChain(IEnumerable<IBuilderStrategy> strategies)
+        {
+            _strategies = strategies.ToArray();
+        }
+
+        /// <summary>
+        /// Execute this strategy chain against the given context to build up.
+        /// </summary>
+        /// <param name="builderContext">Context for the build processes.</param>
+        /// <returns>The build up object</returns>
+        public object ExecuteBuildUp(IBuilderContext builderContext)
+        {
+            var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
+            int i = 0;
+
+            try
+            {
+                for (; i < _strategies.Length; ++i)
+                {
+                    if (context.BuildComplete)
+                    {
+                        break;
+                    }
+                    _strategies[i].PreBuildUp(context);
+                }
+
+                if (context.BuildComplete)
+                {
+                    --i; // skip shortcutting strategy's post
+                }
+
+                for (--i; i >= 0; --i)
+                {
+                    _strategies[i].PostBuildUp(context);
+                }
+                return context.Existing;
+            }
+            catch (Exception)
+            {
+                context.RecoveryStack.ExecuteRecovery();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Execute this strategy chain against the given context,
+        /// calling the TearDown methods on the strategies.
+        /// </summary>
+        /// <param name="builderContext">Context for the teardown process.</param>
+        public void ExecuteTearDown(IBuilderContext builderContext)
+        {
+            var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
+            int i = 0;
+
+            try
+            {
+                for (; i < _strategies.Length; ++i)
+                {
+                    if (context.BuildComplete)
+                    {
+                        --i; // Skip current strategy's post
+                        break;
+                    }
+                    _strategies[i].PreTearDown(context);
+                }
+
+                for (--i; i >= 0; --i)
+                {
+                    _strategies[i].PostTearDown(context);
+                }
+            }
+            catch (Exception)
+            {
+                context.RecoveryStack.ExecuteRecovery();
+                throw;
+            }
+        }
+
+        #region IEnumerable Members
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        ///
+        /// <returns>
+        /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
+        /// </returns>
+        IEnumerator<IBuilderStrategy> IEnumerable<IBuilderStrategy>.GetEnumerator()
+        {
+            return _strategies.Cast<IBuilderStrategy>().GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        ///
+        /// <returns>
+        /// An <see cref="T:System.Collections.IEnumerator"></see> object that can be used to iterate through the collection.
+        /// </returns>
+        public IEnumerator GetEnumerator()
+        {
+            return _strategies.GetEnumerator();
+        }
+
+        #endregion
+    }
+}

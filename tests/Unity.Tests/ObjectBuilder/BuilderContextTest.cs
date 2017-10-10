@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
@@ -57,16 +58,16 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             }
         }
 
-        private StrategyChain GetNonThrowingStrategyChain()
+        private MockStrategyChain GetNonThrowingStrategyChain()
         {
             this.throwOnBuildUp = false;
-            return new StrategyChain(new[] { this });
+            return new MockStrategyChain(new[] { this });
         }
 
-        private StrategyChain GetThrowingStrategyChain()
+        private MockStrategyChain GetThrowingStrategyChain()
         {
             this.throwOnBuildUp = true;
-            return new StrategyChain(new[] { this });
+            return new MockStrategyChain(new[] { this });
         }
 
         public void PreBuildUp(IBuilderContext context)

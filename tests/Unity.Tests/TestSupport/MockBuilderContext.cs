@@ -19,7 +19,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         private NamedTypeBuildKey originalBuildKey = null;
         private IPolicyList persistentPolicies;
         private IPolicyList policies;
-        private StrategyChain strategies = new StrategyChain();
+        private MockStrategyChain strategies = new MockStrategyChain();
         private CompositeResolverOverride resolverOverrides = new CompositeResolverOverride();
 
         private NamedTypeBuildKey buildKey = null;
@@ -57,7 +57,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             get { return recoveryStack; }
         }
 
-        public StrategyChain Strategies
+        public MockStrategyChain Strategies
         {
             get { return strategies; }
         }
