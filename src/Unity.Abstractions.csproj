@@ -1,11 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>2.0.0-alpha</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
-    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
     <PackageId>Unity.Abstractions</PackageId>
     <Description>Unity Public Abstractions</Description>
     <Copyright>Copyright © Microsoft.Practices.Unity 2017</Copyright>
@@ -19,8 +17,19 @@
     <Company>Microsoft.Practices.Unity</Company>
     <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="Exists('..\..\package.snk')">
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>Full</DebugType>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <TargetFramework>netstandard1.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
