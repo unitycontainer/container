@@ -48,10 +48,6 @@ namespace Unity.Tests.TestDoubles
             get { return null; }
         }
 
-        public override void RegisterNamedType(Type t, string name)
-        {
-        }
-
         public override event EventHandler<RegisterEventArgs> Registering
         {
             add { this.i++; }

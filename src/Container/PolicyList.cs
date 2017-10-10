@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -14,9 +15,9 @@ namespace Unity.Container
     /// </summary>
     public class PolicyList : IPolicyList
     {
-        private readonly object _lockObject = new object();
         private readonly IPolicyList _innerPolicyList;
-        private Dictionary<PolicyKey, IBuilderPolicy> _policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+        private readonly IDictionary<PolicyKey, IBuilderPolicy> _policies = 
+            new ConcurrentDictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
 
         /// <summary>
         /// Initialize a new instance of a <see cref="PolicyList"/> class.
@@ -30,7 +31,7 @@ namespace Unity.Container
         /// <param name="innerPolicyList">An inner policy list to search.</param>
         public PolicyList(IPolicyList innerPolicyList)
         {
-            this._innerPolicyList = innerPolicyList ?? new NullPolicyList();
+            _innerPolicyList = innerPolicyList;
         }
 
         /// <summary>
@@ -48,12 +49,7 @@ namespace Unity.Container
         /// <param name="buildKey">The key the policy applies.</param>
         public void Clear(Type policyInterface, object buildKey)
         {
-            lock (_lockObject)
-            {
-                Dictionary<PolicyKey, IBuilderPolicy> newPolicies = this.ClonePolicies();
-                newPolicies.Remove(new PolicyKey(policyInterface, buildKey));
-                this._policies = newPolicies;
-            }
+            _policies.Remove(new PolicyKey(policyInterface, buildKey));
         }
 
         /// <summary>
@@ -61,10 +57,7 @@ namespace Unity.Container
         /// </summary>
         public void ClearAll()
         {
-            lock (_lockObject)
-            {
-                this._policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
-            }
+            _policies.Clear();
         }
 
         /// <summary>
@@ -73,7 +66,7 @@ namespace Unity.Container
         /// <param name="policyInterface">The type the policy was registered as.</param>
         public void ClearDefault(Type policyInterface)
         {
-            this.Clear(policyInterface, null);
+            Clear(policyInterface, null);
         }
 
         /// <summary>
@@ -87,8 +80,7 @@ namespace Unity.Container
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
         public IBuilderPolicy Get(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
         {
-            Type buildType;
-            TryGetType(buildKey, out buildType);
+            TryGetType(buildKey, out var buildType);
 
             return GetPolicyForKey(policyInterface, buildKey, localOnly, out containingPolicyList) ??
                 GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, localOnly, out containingPolicyList) ??
@@ -122,7 +114,7 @@ namespace Unity.Container
         {
             if (buildType != null)
             {
-                return this.GetNoDefault(policyInterface, buildType, localOnly, out containingPolicyList);
+                return GetNoDefault(policyInterface, buildType, localOnly, out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
@@ -168,7 +160,7 @@ namespace Unity.Container
                 return null;
             }
 
-            return _innerPolicyList.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
+            return _innerPolicyList?.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
         }
 
         /// <summary>
@@ -177,16 +169,9 @@ namespace Unity.Container
         /// <param name="policyInterface">The <see cref="Type"/> of the policy.</param>
         /// <param name="policy">The policy to be registered.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        public void Set(Type policyInterface,
-                        IBuilderPolicy policy,
-                        object buildKey)
+        public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey)
         {
-            lock (_lockObject)
-            {
-                Dictionary<PolicyKey, IBuilderPolicy> newPolicies = this.ClonePolicies();
-                newPolicies[new PolicyKey(policyInterface, buildKey)] = policy;
-                this._policies = newPolicies;
-            }
+            _policies[new PolicyKey(policyInterface, buildKey)] = policy;
         }
 
         /// <summary>
@@ -199,11 +184,6 @@ namespace Unity.Container
                                IBuilderPolicy policy)
         {
             Set(policyInterface, policy, null);
-        }
-
-        private Dictionary<PolicyKey, IBuilderPolicy> ClonePolicies()
-        {
-            return new Dictionary<PolicyKey, IBuilderPolicy>(_policies, PolicyKeyEqualityComparer.Default);
         }
 
         private static bool TryGetType(object buildKey, out Type type)
@@ -224,8 +204,7 @@ namespace Unity.Container
 
         private static object ReplaceType(object buildKey, Type newType)
         {
-            var typeKey = buildKey as Type;
-            if (typeKey != null)
+            if (buildKey is Type)
             {
                 return newType;
             }
@@ -244,50 +223,6 @@ namespace Unity.Container
                     nameof(buildKey));
         }
 
-        private class NullPolicyList : IPolicyList
-        {
-            public void Clear(Type policyInterface,
-                              object buildKey)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ClearAll()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ClearDefault(Type policyInterface)
-            {
-                throw new NotImplementedException();
-            }
-
-            public IBuilderPolicy Get(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
-            {
-                containingPolicyList = null;
-                return null;
-            }
-
-            public IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
-            {
-                containingPolicyList = null;
-                return null;
-            }
-
-            public void Set(Type policyInterface,
-                            IBuilderPolicy policy,
-                            object buildKey)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void SetDefault(Type policyInterface,
-                                   IBuilderPolicy policy)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         private struct PolicyKey
         {
 #pragma warning disable 219
@@ -299,12 +234,12 @@ namespace Unity.Container
                              object buildKey)
             {
                 PolicyType = policyType;
-                this.BuildKey = buildKey;
+                BuildKey = buildKey;
             }
 
             public override bool Equals(object obj)
             {
-                if (obj != null && obj.GetType() == typeof(PolicyKey))
+                if (obj != null && obj is PolicyKey)
                 {
                     return this == (PolicyKey)obj;
                 }
@@ -313,14 +248,14 @@ namespace Unity.Container
 
             public override int GetHashCode()
             {
-                return ((SafeGetHashCode(this.PolicyType)) * 37) +
-                         SafeGetHashCode(this.BuildKey);
+                return ((SafeGetHashCode(PolicyType)) * 37) +
+                         SafeGetHashCode(BuildKey);
             }
 
             public static bool operator ==(PolicyKey left, PolicyKey right)
             {
                 return left.PolicyType == right.PolicyType &&
-                    object.Equals(left.BuildKey, right.BuildKey);
+                    Equals(left.BuildKey, right.BuildKey);
             }
 
             public static bool operator !=(PolicyKey left, PolicyKey right)
@@ -341,7 +276,7 @@ namespace Unity.Container
             public bool Equals(PolicyKey x, PolicyKey y)
             {
                 return x.PolicyType == y.PolicyType &&
-                    object.Equals(x.BuildKey, y.BuildKey);
+                    Equals(x.BuildKey, y.BuildKey);
             }
 
             public int GetHashCode(PolicyKey obj)

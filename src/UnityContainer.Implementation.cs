@@ -301,11 +301,6 @@ namespace Unity
 
             public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
 
-            public override void RegisterNamedType(Type t, string name)
-            {
-                _container._registeredNames.RegisterType(t, name);
-            }
-
             public override event EventHandler<RegisterEventArgs> Registering
             {
                 add => _container.Registering += value;

@@ -95,7 +95,7 @@ namespace Unity.Tests.ContainerRegistration
 
             var registrations = container.Registrations;
 
-            var count = registrations.Where(c => c.LifetimeManagerType == typeof(PerResolveLifetimeManager)).Count();
+            var count = registrations.Where(c => c.LifetimeManager?.GetType() == typeof(PerResolveLifetimeManager)).Count();
 
             Assert.AreEqual(2, count);
         }
