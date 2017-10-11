@@ -10,7 +10,7 @@ build:
   parallel: true
   verbosity: minimal
 
-before_test:
+after_build:
 - choco install opencover.portable
 - choco install codecov
   
