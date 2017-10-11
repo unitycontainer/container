@@ -8,9 +8,6 @@ namespace Unity.Exceptions
     /// <summary>
     /// Represents that a dependency could not be resolved.
     /// </summary>
-#if !NETSTANDARD1_0
-    [Serializable] 
-#endif
     public class DependencyMissingException : Exception
     {
         /// <summary>
