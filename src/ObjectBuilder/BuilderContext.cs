@@ -28,11 +28,6 @@ namespace Unity.ObjectBuilder
         private bool _ownsOverrides;
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="BuilderContext"/> class.
-        /// </summary>
-        protected BuilderContext() { }
-
-        /// <summary>
         /// Initialize a new instance of the <see cref="BuilderContext"/> class with a <see cref="IStrategyChain"/>, 
         /// <see cref="ILifetimeContainer"/>, <see cref="IPolicyList"/> and the 
         /// build key used to start this build operation. 
