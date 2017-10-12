@@ -2,10 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Injection;
+using Unity.Utility;
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -18,37 +17,31 @@ namespace Microsoft.Practices.Unity.Tests
         [TestMethod]
         public void EmptyParameterListMatches()
         {
-            ParameterMatcher matcher = new ParameterMatcher(Parameters());
-
-            Assert.IsTrue(matcher.Matches(Types()));
+            Assert.IsTrue(Parameters().Matches(Types()));
         }
 
         [TestMethod]
         public void MismatchedParameterListsDontMatch()
         {
-            ParameterMatcher matcher = new ParameterMatcher(Parameters());
-            Assert.IsFalse(matcher.Matches(Types(typeof(int))));
+            Assert.IsFalse(Parameters().Matches(Types(typeof(int))));
         }
 
         [TestMethod]
         public void SameLengthDifferentTypesDontMatch()
         {
-            ParameterMatcher matcher = new ParameterMatcher(Parameters(typeof(int)));
-            Assert.IsFalse(matcher.Matches(Types(typeof(string))));
+            Assert.IsFalse(Parameters(typeof(int)).Matches(Types(typeof(string))));
         }
 
         [TestMethod]
         public void SameLengthSameTypesMatch()
         {
-            ParameterMatcher matcher = new ParameterMatcher(Parameters(typeof(int), typeof(string)));
-            Assert.IsTrue(matcher.Matches(Types(typeof(int), typeof(string))));
+            Assert.IsTrue(Parameters(typeof(int), typeof(string)).Matches(Types(typeof(int), typeof(string))));
         }
 
         [TestMethod]
         public void OpenGenericTypesMatch()
         {
-            ParameterMatcher matcher = new ParameterMatcher(Parameters(typeof(ICommand<>), typeof(ICommand<>)));
-            Assert.IsTrue(matcher.Matches(Types(typeof(ICommand<>), typeof(ICommand<>))));
+            Assert.IsTrue(Parameters(typeof(ICommand<>), typeof(ICommand<>)).Matches(Types(typeof(ICommand<>), typeof(ICommand<>))));
         }
 
         private static InjectionParameterValue[] Parameters(params Type[] types)

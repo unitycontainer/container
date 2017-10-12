@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
+using Unity.Utility;
 
 namespace Unity.ObjectBuilder.Strategies.BuildPlan.Method
 {

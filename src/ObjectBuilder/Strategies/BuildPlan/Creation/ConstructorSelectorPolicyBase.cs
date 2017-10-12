@@ -59,20 +59,19 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.Creation
 
         private static ConstructorInfo FindInjectionConstructor(Type typeToConstruct)
         {
-            ReflectionHelper typeToConstructReflector = new ReflectionHelper(typeToConstruct);
-
-            ConstructorInfo[] injectionConstructors = typeToConstructReflector.InstanceConstructors
-                                                        .Where(ctor => ctor.IsDefined(
-                                                                                typeof(TInjectionConstructorMarkerAttribute),
-                                                                                true))
-                                                        .ToArray();
-            switch (injectionConstructors.Length)
+            var constructors = typeToConstruct.GetTypeInfo()
+                                              .DeclaredConstructors
+                                              .Where(c => c.IsStatic == false && c.IsPublic &&
+                                                          c.IsDefined(typeof(TInjectionConstructorMarkerAttribute),
+                                                                      true))
+                                              .ToArray();
+            switch (constructors.Length)
             {
                 case 0:
                     return null;
 
                 case 1:
-                    return injectionConstructors[0];
+                    return constructors[0];
 
                 default:
                     throw new InvalidOperationException(
@@ -85,9 +84,10 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.Creation
 
         private static ConstructorInfo FindLongestConstructor(Type typeToConstruct)
         {
-            ReflectionHelper typeToConstructReflector = new ReflectionHelper(typeToConstruct);
-
-            ConstructorInfo[] constructors = typeToConstructReflector.InstanceConstructors.ToArray();
+            ConstructorInfo[] constructors = typeToConstruct.GetTypeInfo()
+                                                            .DeclaredConstructors
+                                                            .Where(c => c.IsStatic == false && c.IsPublic)
+                                                            .ToArray();
             Array.Sort(constructors, new ConstructorLengthComparer());
 
             switch (constructors.Length)
