@@ -10,17 +10,17 @@ namespace Unity.Builder.Operation
     /// being resolved, and is responsible for generating the error string required when
     /// an error has occurred.
     /// </summary>
-    public class ConstructorParameterResolveOperation : ParameterResolveOperation
+    public class ConstructorArgumentResolveOperation : ParameterResolveOperation
     {
         private readonly string _constructorSignature;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConstructorParameterResolveOperation"/> class.
+        /// Initializes a new instance of the <see cref="ConstructorArgumentResolveOperation"/> class.
         /// </summary>
         /// <param name="typeBeingConstructed">The type that is being constructed.</param>
         /// <param name="constructorSignature">A string representing the constructor being called.</param>
         /// <param name="parameterName">Parameter being resolved.</param>
-        public ConstructorParameterResolveOperation(Type typeBeingConstructed, string constructorSignature, string parameterName)
+        public ConstructorArgumentResolveOperation(Type typeBeingConstructed, string constructorSignature, string parameterName)
             : base(typeBeingConstructed, parameterName)
         {
             _constructorSignature = constructorSignature;
