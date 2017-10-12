@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder.Selection;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Utility;
 
 namespace Unity.Builder.Policy
 {
@@ -44,18 +46,22 @@ namespace Unity.Builder.Policy
             {
                 Type typeToBuild = context.BuildKey.Type;
                 SelectedMethod selectedMethod;
-                ReflectionHelper typeReflector = new ReflectionHelper(method.Item1.DeclaringType);
-                MethodReflectionHelper methodReflector = new MethodReflectionHelper(method.Item1);
-                if (!methodReflector.MethodHasOpenGenericParameters && !typeReflector.IsOpenGeneric)
+                var info = method.Item1.DeclaringType.GetTypeInfo();
+                var methodHasOpenGenericParameters = method.Item1.GetParameters()
+                                                           .Select(p => p.ParameterType.GetTypeInfo())
+                                                           .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+                if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
                 {
                     selectedMethod = new SelectedMethod(method.Item1);
                 }
                 else
                 {
-                    Type[] closedMethodParameterTypes =
-                        methodReflector.GetClosedParameterTypes(typeToBuild.GetTypeInfo().GenericTypeArguments);
-                    selectedMethod = new SelectedMethod(
-                        typeToBuild.GetMethodHierarchical(method.Item1.Name, closedMethodParameterTypes));
+                    var closedMethodParameterTypes = method.Item1
+                        .GetClosedParameterTypes(typeToBuild.GetTypeInfo().GenericTypeArguments);
+
+                    selectedMethod = new SelectedMethod(typeToBuild.GetMethodsHierarchical()
+                        .Single(m => m.Name.Equals(method.Item1.Name) && 
+                                     m.GetParameters().ParametersMatch(closedMethodParameterTypes))); 
                 }
 
                 AddParameterResolvers(typeToBuild, resolverPolicyDestination,

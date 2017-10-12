@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -42,43 +43,26 @@ namespace Unity.Injection
         /// Return a <see cref="IDependencyResolverPolicy"/> instance that will
         /// return this types value for the parameter.
         /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
+        /// <param name="type">Type that contains the member that needs this parameter. Used
         /// to resolve open generic parameters.</param>
         /// <returns>The <see cref="IDependencyResolverPolicy"/>.</returns>
-        public override IDependencyResolverPolicy GetResolverPolicy(Type typeToBuild)
+        public override IDependencyResolverPolicy GetResolverPolicy(Type type)
         {
-            var parameterReflector = new ReflectionHelper(ParameterType);
-
-            if (parameterReflector.IsGenericArray)
+            var typeToBuild = type ?? throw new ArgumentNullException(nameof(type));
+            if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter)
             {
-                return CreateGenericArrayResolverPolicy(typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild)), 
-                                                        parameterReflector);
+                Type arrayType = ParameterType.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
+                return new NamedTypeDependencyResolverPolicy(arrayType, _name);
             }
 
-            if (parameterReflector.IsOpenGeneric || parameterReflector.Type.IsGenericParameter)
+            var info = ParameterType.GetTypeInfo();
+            if (info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
             {
-                return CreateGenericResolverPolicy(typeToBuild, parameterReflector);
+                return new NamedTypeDependencyResolverPolicy(
+                    ParameterType.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments), _name);
             }
 
-            return CreateResolverPolicy(parameterReflector.Type);
-        }
-
-        private IDependencyResolverPolicy CreateResolverPolicy(Type typeToResolve)
-        {
-            return new NamedTypeDependencyResolverPolicy(typeToResolve, _name);
-        }
-
-        private IDependencyResolverPolicy CreateGenericResolverPolicy(Type typeToBuild, ReflectionHelper parameterReflector)
-        {
-            return new NamedTypeDependencyResolverPolicy(
-                parameterReflector.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments),
-                _name);
-        }
-
-        private IDependencyResolverPolicy CreateGenericArrayResolverPolicy(Type typeToBuild, ReflectionHelper parameterReflector)
-        {
-            Type arrayType = parameterReflector.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
-            return new NamedTypeDependencyResolverPolicy(arrayType, _name);
+            return new NamedTypeDependencyResolverPolicy(ParameterType, _name);
         }
     }
 

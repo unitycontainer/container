@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Unity.Policy;
+using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -84,7 +85,7 @@ namespace Unity.Injection
         {
             GuardTypeToBuildIsGeneric(typeToBuild);
             GuardTypeToBuildHasMatchingGenericParameter(typeToBuild);
-            Type typeToResolve = new ReflectionHelper(typeToBuild).GetNamedGenericParameter(_genericParameterName);
+            Type typeToResolve = typeToBuild.GetNamedGenericParameter(_genericParameterName);
             if (_isArray)
             {
                 typeToResolve = typeToResolve.MakeArrayType();

@@ -9,6 +9,7 @@ using Unity.Builder;
 using Unity.Builder.Policy;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -65,12 +66,11 @@ namespace Unity.Injection
 
         private MethodInfo FindMethod(Type typeToCreate)
         {
-            ParameterMatcher matcher = new ParameterMatcher(_methodParameters);
             foreach (MethodInfo method in typeToCreate.GetMethodsHierarchical())
             {
                 if (MethodNameMatches(method, _methodName))
                 {
-                    if (matcher.Matches(method.GetParameters()))
+                    if (_methodParameters.Matches(method.GetParameters().Select(p => p.ParameterType)))
                     {
                         return method;
                     }

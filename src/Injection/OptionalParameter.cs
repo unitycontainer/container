@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -47,13 +48,12 @@ namespace Unity.Injection
         /// <returns>The <see cref="IDependencyResolverPolicy"/>.</returns>
         public override IDependencyResolverPolicy GetResolverPolicy(Type typeToBuild)
         {
-            var parameterReflector = new ReflectionHelper(ParameterType);
-            var typeToResolve = parameterReflector.Type;
-            if (parameterReflector.IsOpenGeneric)
-            {
-                typeToResolve = parameterReflector.GetClosedParameterType(
-                    (typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild))).GetTypeInfo().GenericTypeArguments);
-            }
+            var info = ParameterType.GetTypeInfo();
+            var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)
+                ? ParameterType
+                : ParameterType.GetClosedParameterType(
+                    (typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild))).GetTypeInfo()
+                    .GenericTypeArguments);
 
             return new OptionalDependencyResolverPolicy(typeToResolve, _name);
         }

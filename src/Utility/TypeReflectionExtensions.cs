@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Injection;
 
-namespace Unity
+namespace Unity.Utility
 {
     /// <summary>
     /// Provides extension methods to the <see cref="Type"/> class due to the introduction 
@@ -13,18 +14,6 @@ namespace Unity
     /// </summary>
     public static class TypeReflectionExtensions
     {
-        /// <summary>
-        /// Returns the constructor in <paramref name="type"/> that matches the specified constructor parameter types.
-        /// </summary>
-        /// <param name="type">The type to inspect</param>
-        /// <param name="constructorParameters">The constructor parameter types.</param>
-        /// <returns>The constructor that matches the specified parameter types.</returns>
-        public static ConstructorInfo GetConstructor(this Type type, params Type[] constructorParameters)
-        {
-            return type.GetTypeInfo().DeclaredConstructors
-                .Single(c => !c.IsStatic && ParametersMatch(c.GetParameters(), constructorParameters));
-        }
-
         /// <summary>
         /// Returns the non-static declared methods of a type or its base types.
         /// </summary>
@@ -37,27 +26,13 @@ namespace Unity
                 return Enumerable.Empty<MethodInfo>();
             }
 
-            if (type.Equals(typeof(object)))
+            if (type == typeof(object))
             {
                 return type.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic);
             }
 
             return type.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic)
                     .Concat(GetMethodsHierarchical(type.GetTypeInfo().BaseType));
-        }
-
-        /// <summary>
-        /// Returns the non-static method of a type or its based type.
-        /// </summary>
-        /// <param name="type">The type to inspect</param>
-        /// <param name="methodName">The name of the method to seek.</param>
-        /// <param name="closedParameters">The (closed) parameter type signature of the method.</param>
-        /// <returns>The discovered <see cref="MethodInfo"/></returns>
-        public static MethodInfo GetMethodHierarchical(this Type type, string methodName, Type[] closedParameters)
-        {
-            return type.GetMethodsHierarchical().Single(
-                    m => m.Name.Equals(methodName) &&
-                        ParametersMatch(m.GetParameters(), closedParameters));
         }
 
         /// <summary>
@@ -72,7 +47,7 @@ namespace Unity
                 return Enumerable.Empty<PropertyInfo>();
             }
 
-            if (type.Equals(typeof(object)))
+            if (type == typeof(object))
             {
                 return type.GetTypeInfo().DeclaredProperties;
             }
@@ -87,7 +62,7 @@ namespace Unity
         /// <param name="parameters"></param>
         /// <param name="closedConstructorParameterTypes"></param>
         /// <returns></returns>
-        public static bool ParametersMatch(ParameterInfo[] parameters, Type[] closedConstructorParameterTypes)
+        public static bool ParametersMatch(this ParameterInfo[] parameters, Type[] closedConstructorParameterTypes)
         {
             if ((parameters ?? throw new ArgumentNullException(nameof(parameters))).Length != 
                 (closedConstructorParameterTypes ?? throw new ArgumentNullException(nameof(closedConstructorParameterTypes))).Length)
@@ -95,15 +70,125 @@ namespace Unity
                 return false;
             }
 
-            for (int i = 0; i < parameters.Length; i++)
+            return !parameters.Where((t, i) => !t.ParameterType.Equals(closedConstructorParameterTypes[i])).Any();
+        }
+
+
+
+        // TODO: Requires optimization
+        /// <summary>
+        /// If this type is an open generic, use the
+        /// given <paramref name="genericArguments"/> array to
+        /// determine what the required closed type is and return that.
+        /// </summary>
+        /// <remarks>If the parameter is not an open type, just
+        /// return this parameter's type.</remarks>
+        /// <param name="typeToReflect"></param>
+        /// <param name="genericArguments">Type arguments to substitute in for
+        /// the open type parameters.</param>
+        /// <returns>Corresponding closed type of this parameter.</returns>
+        public static Type GetClosedParameterType(this Type typeToReflect, Type[] genericArguments)
+        {
+            // Prior version of the framework returned both generic type arguments and parameters
+            // through one mechanism, now they are broken out.  May want to consider different reflection
+            // helpers instead of this case statement.
+
+            var info = typeToReflect.GetTypeInfo();
+            if (info.IsGenericType && info.ContainsGenericParameters)
             {
-                if (!parameters[i].ParameterType.Equals(closedConstructorParameterTypes[i]))
+                Type[] typeArgs = info.IsGenericTypeDefinition ? info.GenericTypeParameters : info.GenericTypeArguments;
+                for (int i = 0; i < typeArgs.Length; ++i)
                 {
-                    return false;
+                    typeArgs[i] = (genericArguments ?? throw new ArgumentNullException(nameof(genericArguments)))[typeArgs[i].GenericParameterPosition];
                 }
+                return typeToReflect.GetGenericTypeDefinition().MakeGenericType(typeArgs);
             }
 
-            return true;
+            if (info.IsGenericParameter)
+            {
+                return genericArguments[typeToReflect.GenericParameterPosition];
+            }
+
+            if (typeToReflect.IsArray && typeToReflect.GetElementType().GetTypeInfo().IsGenericParameter)
+            {
+                int rank;
+                if ((rank = typeToReflect.GetArrayRank()) == 1)
+                {
+                    // work around to the fact that Type.MakeArrayType() != Type.MakeArrayType(1)
+                    return genericArguments[typeToReflect.GetElementType().GenericParameterPosition]
+                        .MakeArrayType();
+                }
+
+                return genericArguments[typeToReflect.GetElementType().GenericParameterPosition]
+                    .MakeArrayType(rank);
+            }
+
+            return typeToReflect;
         }
+
+
+        /// <summary>
+        /// Given a generic argument name, return the corresponding type for this
+        /// closed type. For example, if the current type is SomeType&lt;User&gt;, and the
+        /// corresponding definition was SomeType&lt;TSomething&gt;, calling this method
+        /// and passing "TSomething" will return typeof(User).
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="parameterName">Name of the generic parameter.</param>
+        /// <returns>Type of the corresponding generic parameter, or null if there
+        /// is no matching name.</returns>
+        public static Type GetNamedGenericParameter(this Type type, string parameterName)
+        {
+            TypeInfo openType = type.GetGenericTypeDefinition().GetTypeInfo();
+            Type result = null;
+            int index = -1;
+
+            foreach (var genericArgumentType in openType.GenericTypeParameters)
+            {
+                if (genericArgumentType.GetTypeInfo().Name == parameterName)
+                {
+                    index = genericArgumentType.GenericParameterPosition;
+                    break;
+                }
+            }
+            if (index != -1)
+            {
+                result = type.GenericTypeArguments[index];
+            }
+            return result;
+        }
+
+
+        /// <summary>
+        /// Given our set of generic type arguments, 
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="genericTypeArguments">The generic type arguments.</param>
+        /// <returns>An array with closed parameter types. </returns>
+        public static Type[] GetClosedParameterTypes(this MethodBase method, Type[] genericTypeArguments)
+        {
+            return method.GetParameters()
+                         .Select(pi => pi.ParameterType.GetClosedParameterType(genericTypeArguments))
+                         .ToArray();
+        }
+
+
+        /// <summary>
+        /// Tests to see if the given set of types matches the ones
+        /// we're looking for.
+        /// </summary>
+        /// <param name="parametersToMatch"></param>
+        /// <param name="candidate">parameter list to look for.</param>
+        /// <returns>true if they match, false if they don't.</returns>
+        public static bool Matches(this IEnumerable<InjectionParameterValue> parametersToMatch, IEnumerable<Type> candidate)
+        {
+            var toMatch = parametersToMatch.ToArray();
+            var candidateTypes = candidate.ToArray();
+
+            if (toMatch.Length != candidateTypes.Length) return false;
+
+            return !toMatch.Where((t, i) => !t.MatchesType(candidateTypes[i])).Any();
+        }
+
     }
 }

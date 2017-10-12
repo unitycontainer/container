@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// </summary>
     public abstract class TypedInjectionValue : InjectionParameterValue
     {
-        private readonly ReflectionHelper _parameterReflector;
+        private readonly Type _type;
 
         /// <summary>
         /// Create a new <see cref="TypedInjectionValue"/> that exposes
@@ -20,19 +20,19 @@ namespace Unity.Injection
         /// <param name="parameterType">Type of the parameter.</param>
         protected TypedInjectionValue(Type parameterType)
         {
-            _parameterReflector = new ReflectionHelper(parameterType);
+            _type = parameterType;
         }
 
         /// <summary>
         /// The type of parameter this object represents.
         /// </summary>
-        public virtual Type ParameterType => _parameterReflector.Type;
+        public virtual Type ParameterType => _type;
 
         /// <summary>
         /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
         /// This may be an actual type name or a generic argument name.
         /// </summary>
-        public override string ParameterTypeName => _parameterReflector.Type.GetTypeInfo().Name;
+        public override string ParameterTypeName => _type.GetTypeInfo().Name;
 
         /// <summary>
         /// Test to see if this parameter value has a matching type for the given type.
@@ -42,14 +42,15 @@ namespace Unity.Injection
         /// false if not.</returns>
         public override bool MatchesType(Type t)
         {
-            var candidateReflector = new ReflectionHelper(t ?? throw new ArgumentNullException(nameof(t)));
-            if (candidateReflector.IsOpenGeneric && _parameterReflector.IsOpenGeneric)
+            var cInfo = (t ?? throw new ArgumentNullException(nameof(t))).GetTypeInfo();
+            var info = _type.GetTypeInfo();
+
+            if (cInfo.IsGenericType && cInfo.ContainsGenericParameters && info.IsGenericType && info.ContainsGenericParameters)
             {
-                return candidateReflector.Type.GetGenericTypeDefinition() ==
-                       _parameterReflector.Type.GetGenericTypeDefinition();
+                return t.GetGenericTypeDefinition() ==  _type.GetGenericTypeDefinition();
             }
 
-            return t.GetTypeInfo().IsAssignableFrom(_parameterReflector.Type.GetTypeInfo());
+            return cInfo.IsAssignableFrom(info);
         }
     }
 }

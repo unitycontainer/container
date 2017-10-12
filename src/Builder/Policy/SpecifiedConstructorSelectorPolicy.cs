@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder.Selection;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Utility;
 
 namespace Unity.Builder.Policy
 {
@@ -16,7 +18,6 @@ namespace Unity.Builder.Policy
     public class SpecifiedConstructorSelectorPolicy : IConstructorSelectorPolicy
     {
         private readonly ConstructorInfo _ctor;
-        private readonly MethodReflectionHelper _ctorReflector;
         private readonly InjectionParameterValue[] _parameterValues;
 
         /// <summary>
@@ -30,7 +31,6 @@ namespace Unity.Builder.Policy
         public SpecifiedConstructorSelectorPolicy(ConstructorInfo ctor, InjectionParameterValue[] parameterValues)
         {
             _ctor = ctor;
-            _ctorReflector = new MethodReflectionHelper(ctor);
             _parameterValues = parameterValues;
         }
 
@@ -44,24 +44,33 @@ namespace Unity.Builder.Policy
         public SelectedConstructor SelectConstructor(IBuilderContext context, IPolicyList resolverPolicyDestination)
         {
             SelectedConstructor result;
-            Type typeToBuild = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type;
 
-            ReflectionHelper typeReflector = new ReflectionHelper(_ctor.DeclaringType);
-            if (!_ctorReflector.MethodHasOpenGenericParameters && !typeReflector.IsOpenGeneric)
+            var typeInfo = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey
+                                                                                        .Type
+                                                                                        .GetTypeInfo();
+            var methodHasOpenGenericParameters = _ctor.GetParameters()
+                                                      .Select(p => p.ParameterType.GetTypeInfo())
+                                                      .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+
+            var ctorTypeInfo = _ctor.DeclaringType.GetTypeInfo();
+
+            if (!methodHasOpenGenericParameters && !(ctorTypeInfo.IsGenericType && ctorTypeInfo.ContainsGenericParameters))
             {
                 result = new SelectedConstructor(_ctor);
             }
             else
             {
-                Type[] closedCtorParameterTypes =
-                    _ctorReflector.GetClosedParameterTypes(typeToBuild.GetTypeInfo().GenericTypeArguments);
+                var closedCtorParameterTypes = _ctor.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
 
-                result = new SelectedConstructor(typeToBuild.GetConstructor(closedCtorParameterTypes));
+                var constructor = typeInfo.DeclaredConstructors
+                                          .Single(c => !c.IsStatic && c.GetParameters().ParametersMatch(closedCtorParameterTypes));
+
+                result = new SelectedConstructor(constructor);
             }
 
-            foreach (InjectionParameterValue parameterValue in _parameterValues)
+            foreach (var parameterValue in _parameterValues)
             {
-                var resolver = parameterValue.GetResolverPolicy(typeToBuild);
+                var resolver = parameterValue.GetResolverPolicy(context.BuildKey.Type);
                 result.AddParameterResolver(resolver);
             }
 

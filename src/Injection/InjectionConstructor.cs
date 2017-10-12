@@ -9,6 +9,7 @@ using Unity.Builder;
 using Unity.Builder.Policy;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -50,12 +51,11 @@ namespace Unity.Injection
 
         private ConstructorInfo FindConstructor(Type typeToCreate)
         {
-            var matcher = new ParameterMatcher(_parameterValues);
-            var typeToCreateReflector = new ReflectionHelper(typeToCreate);
-
-            foreach (ConstructorInfo ctor in typeToCreateReflector.InstanceConstructors)
+            foreach (var ctor in typeToCreate.GetTypeInfo()
+                                             .DeclaredConstructors
+                                             .Where(c => c.IsStatic == false && c.IsPublic))
             {
-                if (matcher.Matches(ctor.GetParameters()))
+                if (_parameterValues.Matches(ctor.GetParameters().Select(p => p.ParameterType)))
                 {
                     return ctor;
                 }

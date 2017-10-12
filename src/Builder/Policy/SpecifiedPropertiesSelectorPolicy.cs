@@ -42,16 +42,16 @@ namespace Unity.Builder.Policy
         public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination)
         {
             Type typeToBuild = context.BuildKey.Type;
-            var currentTypeReflector = new ReflectionHelper(context.BuildKey.Type);
             foreach (Tuple<PropertyInfo, InjectionParameterValue> pair in _propertiesAndValues)
             {
                 var currentProperty = pair.Item1;
+                var info = pair.Item1.DeclaringType.GetTypeInfo();
 
                 // Is this the property info on the open generic? If so, get the one
                 // for the current closed generic.
-                if (new ReflectionHelper(pair.Item1.DeclaringType).IsOpenGeneric)
+                if (info.IsGenericType && info.ContainsGenericParameters)
                 {
-                    currentProperty = currentTypeReflector.Type.GetTypeInfo().GetDeclaredProperty(currentProperty.Name);
+                    currentProperty = context.BuildKey.Type.GetTypeInfo().GetDeclaredProperty(currentProperty.Name);
                 }
 
                 yield return new SelectedProperty(currentProperty, pair.Item2.GetResolverPolicy(typeToBuild));
