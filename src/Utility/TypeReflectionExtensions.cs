@@ -153,7 +153,7 @@ namespace Unity.Utility
             }
             if (index != -1)
             {
-                result = type.GenericTypeArguments[index];
+                result = type.GetTypeInfo().GenericTypeArguments[index];
             }
             return result;
         }
