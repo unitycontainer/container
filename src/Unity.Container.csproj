@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>Unity</PackageId>
     <Description>Unity Core</Description>
-    <Version>5.0.0-beta2</Version>
+    <Version>5.0.0-RC1</Version>
     <AssemblyVersion>5.0.0.0</AssemblyVersion>
     <FileVersion>5.0.0.0</FileVersion>
     <Copyright>Copyright © Microsoft 2008</Copyright>
@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PackageReference Include="Unity.Abstractions" Version="2.0.0-beta2" />
+    <PackageReference Include="Unity.Abstractions" Version="2.0.0-RC1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
