@@ -139,7 +139,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             {
                 Assert.AreSame(exception, e);
 
-                var operation = (ConstructorParameterResolveOperation)context.CurrentOperation;
+                var operation = (ConstructorArgumentResolveOperation)context.CurrentOperation;
                 Assert.IsNotNull(operation);
 
                 Assert.AreSame(typeof(ConstructorInjectionTestClass), operation.TypeBeingConstructed);

@@ -255,7 +255,7 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation
         /// </summary>
         public static void SetCurrentOperationToResolvingParameter(string parameterName, string constructorSignature, IBuilderContext context)
         {
-            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new ConstructorParameterResolveOperation(
+            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new ConstructorArgumentResolveOperation(
                 context.BuildKey.Type, constructorSignature, parameterName);
         }
 

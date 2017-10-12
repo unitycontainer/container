@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Builder.Operation;
 
 namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method
 {
@@ -15,7 +16,7 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method
     public class MethodArgumentResolveOperation : BuildOperation
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Builder.Operation.ConstructorParameterResolveOperation"/> class.
+        /// Initializes a new instance of the <see cref="ConstructorArgumentResolveOperation"/> class.
         /// </summary>
         /// <param name="typeBeingConstructed">The type that is being constructed.</param>
         /// <param name="methodSignature">A string representing the method being called.</param>

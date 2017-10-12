@@ -98,7 +98,7 @@ namespace Microsoft.Practices.Unity.Tests
         {
             var context = new MockBuilderContext
             {
-                CurrentOperation = new ConstructorParameterResolveOperation(typeof(SimpleTestObject), "int x", "x")
+                CurrentOperation = new ConstructorArgumentResolveOperation(typeof(SimpleTestObject), "int x", "x")
             };
 
             var overrider = new ParameterOverride("x", 42);
