@@ -46,6 +46,7 @@ namespace Unity
         public const string PropertyValueResolutionFailed = "The value for the property '{0}' could not be resolved.";
         public const string ProvidedStringArgMustNotBeEmpty = "The provided string argument must not be empty.";
         public const string ResolutionFailed = "Resolution of the dependency failed, type = '{0}', name = '{1}'.\nException occurred while: {2}.\nException is: {3} - {4}\n-----------------------------------------------\nAt the time of the exception, the container was: ";
+        public const string FactoryResolutionFailed = "Resolution of the DelegateInjectionFactory method dependency failed, type = '{0}', name = '{1}'.";
         public const string ResolutionTraceDetail = "Resolving {0},{1}";
         public const string ResolutionWithMappingTraceDetail = "Resolving {0},{1} (mapped from {2}, {3})";
         public const string ResolvingPropertyValueOperation = "Resolving value for property {0}.{1}";

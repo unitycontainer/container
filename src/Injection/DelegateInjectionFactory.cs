@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Builder.Operation;
+using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Builder.Operation;
 
 namespace Unity.Injection
 {
@@ -60,8 +61,10 @@ namespace Unity.Injection
         {
             if (context.Existing == null)
             {
+                // Reserved type
                 context.AddResolverOverrides(new ParameterOverride("type", new InjectionParameter(context.BuildKey.Type)));
 
+                // Reserved name
                 if (!string.IsNullOrWhiteSpace(context.BuildKey.Name))
                     context.AddResolverOverrides(new ParameterOverride("name", new InjectionParameter(context.BuildKey.Name)));
 
@@ -82,27 +85,16 @@ namespace Unity.Injection
                 return null != policy ? policy.Resolve(context)
                                       : context.Container.Resolve(operation.TypeBeingConstructed);
             }
-            catch
+            catch(Exception e)
             {
-                // ignored
+                throw new ResolutionFailedException(operation.TypeBeingConstructed, 
+                                                   (operation as ParameterResolveOperation)?.ParameterName, 
+                                                   e, context, Constants.FactoryResolutionFailed);
             }
             finally
             {
                 context.CurrentOperation = null;
             }
-
-            return GetDefaultValue(operation.TypeBeingConstructed);
-        }
-
-        private static object GetDefaultValue(Type t)
-        {
-            if (t == null)
-                return null;
-
-            if (t.GetTypeInfo().IsValueType)
-                return Activator.CreateInstance(t);
-
-            return null;
         }
 
         #endregion

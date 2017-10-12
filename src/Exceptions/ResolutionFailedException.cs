@@ -22,8 +22,10 @@ namespace Unity.Exceptions
         /// <param name="nameRequested">Name requested from the container.</param>
         /// <param name="innerException">The actual exception that caused the failure of the build.</param>
         /// <param name="context">The build context representing the failed operation.</param>
-        public ResolutionFailedException(Type typeRequested, string nameRequested, Exception innerException, IBuilderContext context)
-            : base(CreateMessage(typeRequested, nameRequested, innerException, context), innerException)
+        /// <param name="format">Custom format message</param>
+        public ResolutionFailedException(Type typeRequested, string nameRequested, Exception innerException, 
+                                         IBuilderContext context, string format = Constants.ResolutionFailed)
+            : base(CreateMessage(typeRequested, nameRequested, innerException, context, format), innerException)
         {
             var type = typeRequested ?? throw new ArgumentNullException(nameof(typeRequested));
 
@@ -45,13 +47,13 @@ namespace Unity.Exceptions
 
         partial void RegisterSerializationHandler();
 
-        private static string CreateMessage(Type typeRequested, string nameRequested, Exception innerException, IBuilderContext context)
+        private static string CreateMessage(Type typeRequested, string nameRequested, Exception innerException, 
+                                            IBuilderContext context, string format)
         {
             var builder = new StringBuilder();
 
             builder.AppendFormat(
-                CultureInfo.CurrentCulture,
-                Constants.ResolutionFailed,
+                CultureInfo.CurrentCulture, format,
                 typeRequested ?? throw new ArgumentNullException(nameof(typeRequested)),
                 FormatName(nameRequested),
                 ExceptionReason(context ?? throw  new ArgumentNullException(nameof(context))),
