@@ -16,6 +16,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
     {
         private IBuilderContext parentContext, childContext, receivedContext;
         private bool throwOnBuildUp;
+        private IUnityContainer container = new UnityContainer();
 
         [TestInitialize]
         public void SetUp()
@@ -26,7 +27,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void NewBuildSetsChildContextWhileBuilding()
         {
-            this.parentContext = new BuilderContext(GetNonThrowingStrategyChain(), null, null, null, null, null);
+            this.parentContext = new BuilderContext(container, GetNonThrowingStrategyChain(), null, null, null, null, null);
 
             this.parentContext.NewBuildUp(null);
 
@@ -36,7 +37,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void NewBuildClearsTheChildContextOnSuccess()
         {
-            this.parentContext = new BuilderContext(GetNonThrowingStrategyChain(), null, null, null, null, null);
+            this.parentContext = new BuilderContext(container, GetNonThrowingStrategyChain(), null, null, null, null, null);
 
             this.parentContext.NewBuildUp(null);
 
@@ -46,7 +47,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void NewBuildDoesNotClearTheChildContextOnFailure()
         {
-            this.parentContext = new BuilderContext(GetThrowingStrategyChain(), null, null, null, null, null);
+            this.parentContext = new BuilderContext(container, GetThrowingStrategyChain(), null, null, null, null, null);
 
             try
             {

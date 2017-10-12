@@ -44,7 +44,7 @@ namespace Unity.ObjectBuilder
             NamedTypeBuildKey originalBuildKey,
             object existing)
         {
-            Container = container;
+            Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
             _lifetime = lifetime;
             _originalBuildKey = originalBuildKey;
@@ -60,6 +60,7 @@ namespace Unity.ObjectBuilder
         /// Create a new <see cref="BuilderContext"/> using the explicitly provided
         /// values.
         /// </summary>
+        /// <param name="container"></param>
         /// <param name="chain">The <see cref="IStrategyChain"/> to use for this context.</param>
         /// <param name="lifetime">The <see cref="ILifetimeContainer"/> to use for this context.</param>
         /// <param name="persistentPolicies">The set of persistent policies to use for this context.</param>
@@ -68,8 +69,9 @@ namespace Unity.ObjectBuilder
         /// combined.</param>
         /// <param name="buildKey">Build key for this context.</param>
         /// <param name="existing">Existing object to build up.</param>
-        public BuilderContext(IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, object existing)
+        public BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, object existing)
         {
+            Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
             _lifetime = lifetime;
             _persistentPolicies = persistentPolicies;
@@ -85,6 +87,7 @@ namespace Unity.ObjectBuilder
         /// Create a new <see cref="BuilderContext"/> using the explicitly provided
         /// values.
         /// </summary>
+        /// <param name="container"></param>
         /// <param name="chain">The <see cref="IStrategyChain"/> to use for this context.</param>
         /// <param name="lifetime">The <see cref="ILifetimeContainer"/> to use for this context.</param>
         /// <param name="persistentPolicies">The set of persistent policies to use for this context.</param>
@@ -93,8 +96,9 @@ namespace Unity.ObjectBuilder
         /// combined.</param>
         /// <param name="buildKey">Build key for this context.</param>
         /// <param name="resolverOverrides">The resolver overrides.</param>
-        protected BuilderContext(IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, CompositeResolverOverride resolverOverrides)
+        protected BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, CompositeResolverOverride resolverOverrides)
         {
+            Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
             _lifetime = lifetime;
             _persistentPolicies = persistentPolicies;
@@ -246,7 +250,7 @@ namespace Unity.ObjectBuilder
         public object NewBuildUp(NamedTypeBuildKey newBuildKey)
         {
             ChildContext =
-                new BuilderContext(_chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
+                new BuilderContext(Container, _chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
 
             object result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
 
@@ -268,7 +272,7 @@ namespace Unity.ObjectBuilder
         public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
         {
             ChildContext =
-                new BuilderContext(_chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
+                new BuilderContext(Container, _chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
 
             (childCustomizationBlock ?? throw new ArgumentNullException(nameof(childCustomizationBlock)))(ChildContext);
 

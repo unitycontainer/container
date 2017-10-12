@@ -88,7 +88,7 @@ namespace Microsoft.Practices.Unity.TestSupport
 
         public IBuilderContext ChildContext { get; set; }
 
-        public IUnityContainer Container { get; set; }
+        public IUnityContainer Container { get; set; } = new UnityContainer();
 
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {

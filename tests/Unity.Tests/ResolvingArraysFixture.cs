@@ -182,7 +182,7 @@ namespace Microsoft.Practices.Unity.Tests
             strategies.Add(new ReturnContainerStrategy(container));
             PolicyList persistentPolicies = new PolicyList();
             PolicyList transientPolicies = new PolicyList(persistentPolicies);
-            return new BuilderContext(strategies, null, persistentPolicies, transientPolicies, buildKey, null);
+            return new BuilderContext(new UnityContainer(), strategies, null, persistentPolicies, transientPolicies, buildKey, null);
         }
 
         private class InjectedObjectConfigurationExtension : UnityContainerExtension

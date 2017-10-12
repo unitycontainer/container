@@ -19,8 +19,6 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.Factory
         {
             if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
             {
-                var currentContainer = context.NewBuildUp<IUnityContainer>();
-
                 Type typeToBuild = GetTypeToBuild(context.BuildKey.Type);
                 string nameToBuild = context.BuildKey.Name;
 
@@ -28,11 +26,11 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.Factory
 
                 if (IsResolvingIEnumerable(typeToBuild))
                 {
-                    resolveMethod = CreateResolveAllResolver(currentContainer, typeToBuild);
+                    resolveMethod = CreateResolveAllResolver(context.Container, typeToBuild);
                 }
                 else
                 {
-                    resolveMethod = CreateResolver(currentContainer, typeToBuild, nameToBuild);
+                    resolveMethod = CreateResolver(context.Container, typeToBuild, nameToBuild);
                 }
 
                 context.Existing = resolveMethod;

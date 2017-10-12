@@ -45,7 +45,7 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod
 
         private IBuilderContext GetContext(IBuilderContext originalContext, NamedTypeBuildKey buildKey, DynamicBuildPlanGenerationContext generatorContext)
         {
-            return new BuilderContext(
+            return new BuilderContext(originalContext.Container,
                 _strategies.MakeStrategyChain(),
                 originalContext.Lifetime,
                 originalContext.PersistentPolicies,

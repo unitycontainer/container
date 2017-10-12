@@ -64,9 +64,7 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.Lazy
         {
             if (context.Existing == null)
             {
-                var name = context.BuildKey.Name;
-                var container = context.NewBuildUp<IUnityContainer>();
-                context.Existing = new Lazy<T>(() => container.Resolve<T>(name));
+                context.Existing = new Lazy<T>(() => context.Container.Resolve<T>(context.BuildKey.Name));
             }
 
             // match the behavior of DynamicMethodConstructorStrategy
@@ -77,8 +75,7 @@ namespace Unity.ObjectBuilder.Strategies.BuildPlan.Lazy
         {
             if (context.Existing == null)
             {
-                var container = context.NewBuildUp<IUnityContainer>();
-                context.Existing = new Lazy<IEnumerable<T>>(() => container.ResolveAll<T>());
+                context.Existing = new Lazy<IEnumerable<T>>(() => context.Container.ResolveAll<T>());
             }
 
             // match the behavior of DynamicMethodConstructorStrategy

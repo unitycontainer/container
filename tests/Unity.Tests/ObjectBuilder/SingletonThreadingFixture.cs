@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
@@ -70,7 +71,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         public void Build()
         {
             var transientPolicies = new PolicyList(policies);
-            var context = new BuilderContext(strategies, null, policies, transientPolicies, new NamedTypeBuildKey<object>(), null);
+            var context = new BuilderContext(new UnityContainer(), strategies, null, policies, transientPolicies, new NamedTypeBuildKey<object>(), null);
             Result = strategies.ExecuteBuildUp(context);
         }
     }
