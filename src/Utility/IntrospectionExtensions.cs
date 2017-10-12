@@ -209,6 +209,11 @@ namespace System.Reflection
         {
             return Delegate.CreateDelegate(delegateType, target, method);
         }
+        
+        public static MethodInfo GetMethodInfo(this Delegate method)
+        {
+            return method.Method;
+        }
 #else
         public static MethodInfo GetGetMethod(this PropertyInfo info, bool _)
         {
