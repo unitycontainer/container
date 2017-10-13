@@ -30,11 +30,10 @@ namespace Unity.ResolverPolicy
 
             var resolverMethodInfo
                 = typeof(ResolvedArrayWithElementsResolverPolicy)
-                    .GetTypeInfo().GetDeclaredMethod("DoResolve")
+                    .GetTypeInfo().GetDeclaredMethod(nameof(DoResolve))
                         .MakeGenericMethod(elementType ?? throw new ArgumentNullException(nameof(elementType)));
 
             _resolver = (Resolver)resolverMethodInfo.CreateDelegate(typeof(Resolver));
-
             _elementPolicies = elementPolicies;
         }
 
@@ -48,7 +47,6 @@ namespace Unity.ResolverPolicy
             return _resolver(context ?? throw new ArgumentNullException(nameof(context)), _elementPolicies);
         }
 
-        // TODO: Remove unused
         private static object DoResolve<T>(IBuilderContext context, IDependencyResolverPolicy[] elementPolicies)
         {
             T[] result = new T[elementPolicies.Length];
