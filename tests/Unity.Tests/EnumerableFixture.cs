@@ -560,9 +560,9 @@ namespace Unity.Tests.CollectionSupport
             {
                 // Arrange
                 provider.RegisterType<IService, EmailService>();
-                provider.RegisterType(typeof(IFoo<>), typeof(Foo<>), "1", new HierarchicalLifetimeManager());
-                provider.RegisterType(typeof(IFoo<>), typeof(Foo<>), "2", new HierarchicalLifetimeManager());
-                provider.RegisterType(typeof(IFoo<>), typeof(Foo<>), "3", new HierarchicalLifetimeManager());
+                provider.RegisterType(typeof(IFoo<>), typeof(Foo<>), "1", new ContainerControlledLifetimeManager());
+                provider.RegisterType(typeof(IFoo<>), typeof(Foo<>), "2", new ContainerControlledLifetimeManager());
+                provider.RegisterType(typeof(IFoo<>), typeof(Foo<>), "3", new ContainerControlledLifetimeManager());
 
                 using (var scope = provider.CreateChildContainer())
                 {

@@ -2,8 +2,8 @@
 
 using System;
 using System.Reflection;
-using Unity.ObjectBuilder.BuildPlan.Resolution;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 
 namespace Unity.ObjectBuilder.BuildPlan.Selection
 {

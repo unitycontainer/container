@@ -13,11 +13,11 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.ObjectBuilder;
-using Unity.ObjectBuilder.BuildPlan.Resolution;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.ResolverPolicy;
 
 namespace Unity
 {
