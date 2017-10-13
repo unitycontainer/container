@@ -11,18 +11,14 @@ using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.ObjectBuilder;
+using Unity.ObjectBuilder.BuildPlan;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
+using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
-using Unity.ObjectBuilder.Strategies.BuildKeyMapping;
-using Unity.ObjectBuilder.Strategies.BuildPlan;
-using Unity.ObjectBuilder.Strategies.BuildPlan.Creation;
-using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod;
-using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation;
-using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Method;
-using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Property;
-using Unity.ObjectBuilder.Strategies.BuildPlan.Factory;
-using Unity.ObjectBuilder.Strategies.BuildPlan.Lazy;
-using Unity.ObjectBuilder.Strategies.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Strategy;
@@ -96,7 +92,8 @@ namespace Unity
             _policies.SetDefault<IBuildPlanCreatorPolicy>(new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
             _policies.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
             _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
-            _policies.Set<IBuildPlanCreatorPolicy>( new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
+            _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
+            _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
         }
 
 

@@ -6,7 +6,7 @@ using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Strategies.Lifetime;
+using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 using Unity.Strategy;
 

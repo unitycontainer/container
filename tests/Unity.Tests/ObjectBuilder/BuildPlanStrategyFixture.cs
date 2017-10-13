@@ -2,9 +2,8 @@
 
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
-using Unity.ObjectBuilder.Strategies.BuildPlan;
+using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

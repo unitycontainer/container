@@ -6,10 +6,10 @@ using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Container;
-using Unity.ObjectBuilder.Strategies.BuildPlan.Creation;
-using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod;
-using Unity.ObjectBuilder.Strategies.BuildPlan.DynamicMethod.Creation;
-using Unity.ObjectBuilder.Strategies.Lifetime;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
+using Unity.ObjectBuilder.BuildPlan.Selection;
+using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

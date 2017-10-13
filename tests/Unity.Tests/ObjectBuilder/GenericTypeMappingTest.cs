@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
-using Unity.ObjectBuilder.Strategies.BuildKeyMapping;
+using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

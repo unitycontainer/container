@@ -9,7 +9,7 @@ using Unity;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Strategies.Lifetime;
+using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

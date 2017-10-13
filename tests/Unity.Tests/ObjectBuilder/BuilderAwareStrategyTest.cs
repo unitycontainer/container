@@ -4,7 +4,7 @@ using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.ObjectBuilder.Strategies.BuilderAware;
+using Unity.ObjectBuilder.Strategies;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

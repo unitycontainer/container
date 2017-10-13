@@ -3,7 +3,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
-using Unity.ObjectBuilder.Strategies.BuildKeyMapping;
+using Unity.ObjectBuilder.Policies;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

@@ -5,7 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.ObjectBuilder.Strategies.BuildKeyMapping;
+using Unity.ObjectBuilder.Policies;
+using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

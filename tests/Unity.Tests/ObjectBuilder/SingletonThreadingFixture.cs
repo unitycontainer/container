@@ -10,7 +10,7 @@ using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Lifetime;
 using Unity.ObjectBuilder;
-using Unity.ObjectBuilder.Strategies.Lifetime;
+using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
