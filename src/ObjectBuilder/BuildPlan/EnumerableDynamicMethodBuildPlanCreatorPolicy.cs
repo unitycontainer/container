@@ -17,8 +17,8 @@ namespace Unity.ObjectBuilder.BuildPlan
     public class EnumerableDynamicMethodBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
         private static readonly MethodInfo ResolveMethod = 
-            typeof(EnumerableDynamicMethodBuildPlanCreatorPolicy).GetTypeInfo().DeclaredMethods
-                .First(m => Equals(m.Name, nameof(BuildResolveEnumerable)));
+            typeof(EnumerableDynamicMethodBuildPlanCreatorPolicy).GetTypeInfo()
+                                                                 .GetDeclaredMethod(nameof(BuildResolveEnumerable));
 
         private static readonly MethodInfo CastMethod = typeof(System.Linq.Enumerable).GetTypeInfo()
                                                                           .DeclaredMethods
@@ -33,13 +33,13 @@ namespace Unity.ObjectBuilder.BuildPlan
             return new DynamicMethodBuildPlan((DynamicBuildPlanMethod)buildMethod);
         }
 
-        private static void BuildResolveEnumerable(IBuilderContext context)
+        private static void BuildResolveEnumerable<T>(IBuilderContext context)
         {
             if (null == context.Existing)
             {
-                var key = context.BuildKey;
-                var type = key.Type;
-                var itemType = type.GetTypeInfo().GenericTypeArguments[0];
+                var itemType = typeof(T).GetTypeInfo()
+                                        .GenericTypeArguments
+                                        .First();
                 var itemTypeInfo = itemType.GetTypeInfo();
                 var container = context.Container ?? context.NewBuildUp<IUnityContainer>();
 
@@ -60,8 +60,7 @@ namespace Unity.ObjectBuilder.BuildPlan
                 context.BuildComplete = true;
             }
 
-            // match the behavior of DynamicMethodConstructorStrategy
-            DynamicMethodConstructorStrategy.SetPerBuildSingleton(context);
+            context.SetPerBuildSingleton();
         }
     }
 }
