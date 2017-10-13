@@ -27,8 +27,13 @@ namespace Unity.ObjectBuilder.BuildPlan
 
         public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
         {
-            var enumerableMethod = ResolveMethod.MakeGenericMethod((context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type);
-            var buildMethod = enumerableMethod.CreateDelegate(typeof(DynamicBuildPlanMethod));
+            var itemType = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey
+                                                                                        .Type
+                                                                                        .GetTypeInfo()
+                                                                                        .GenericTypeArguments
+                                                                                        .First();
+            var buildMethod = ResolveMethod.MakeGenericMethod(itemType)
+                                           .CreateDelegate(typeof(DynamicBuildPlanMethod));
 
             return new DynamicMethodBuildPlan((DynamicBuildPlanMethod)buildMethod);
         }
@@ -37,9 +42,7 @@ namespace Unity.ObjectBuilder.BuildPlan
         {
             if (null == context.Existing)
             {
-                var itemType = typeof(T).GetTypeInfo()
-                                        .GenericTypeArguments
-                                        .First();
+                var itemType = typeof(T);
                 var itemTypeInfo = itemType.GetTypeInfo();
                 var container = context.Container ?? context.NewBuildUp<IUnityContainer>();
 
