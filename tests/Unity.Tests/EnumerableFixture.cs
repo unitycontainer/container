@@ -531,9 +531,9 @@ namespace Unity.Tests.CollectionSupport
             using (IUnityContainer provider = new UnityContainer())
             {
                 // Arrange
-                provider.RegisterType<IService, EmailService>("1", new HierarchicalLifetimeManager());
-                provider.RegisterType<IService, EmailService>("2", new HierarchicalLifetimeManager());
-                provider.RegisterType<IService, EmailService>("3", new HierarchicalLifetimeManager());
+                provider.RegisterType<IService, EmailService>("1", new ContainerControlledLifetimeManager());
+                provider.RegisterType<IService, EmailService>("2", new ContainerControlledLifetimeManager());
+                provider.RegisterType<IService, EmailService>("3", new ContainerControlledLifetimeManager());
 
                 using (var scope = provider.CreateChildContainer())
                 {
