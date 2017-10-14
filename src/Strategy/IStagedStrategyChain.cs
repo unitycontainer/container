@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 
@@ -19,7 +20,7 @@ namespace Unity.Strategy
 
 
     /// <summary>
-    /// This interface defines a standard method to convert any <see cref="StagedStrategyChain{TStageEnum}"/> regardless
+    /// This interface defines a standard method to convert any <see cref="IStagedStrategyChain{TStageEnum}"/> regardless
     /// of the stage enum into a regular, flat strategy chain.
     /// </summary>
     public interface IStagedStrategyChain<TStageEnum> : IStagedStrategyChain
@@ -31,6 +32,11 @@ namespace Unity.Strategy
         /// <param name="strategy">The strategy to add to the chain.</param>
         /// <param name="stage">The stage to add the strategy.</param>
         void Add(IBuilderStrategy strategy, TStageEnum stage);
+
+        /// <summary>
+        /// Signals that chain has been changed
+        /// </summary>
+        event EventHandler<EventArgs> Invalidated;
     }
 
 
