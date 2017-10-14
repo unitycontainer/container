@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Container.Registration;
 using Unity.Events;
 using Unity.Extension;
@@ -161,7 +160,7 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            return DoBuildUp(type, name, resolverOverrides);
+            return DoBuildUp(type, null, name, resolverOverrides);
         }
 
         /// <summary>
@@ -228,7 +227,7 @@ namespace Unity
             var o = obj ?? throw new ArgumentNullException(nameof(obj));
             try
             {
-                context = new BuilderContext(this, new StrategyChain(GetStrategies().Reverse()), 
+                context = new BuilderContext(this, _strategies.MakeStrategyChain(), 
                                              _lifetimeContainer, _policies, 
                                              null, o);
 
@@ -253,11 +252,8 @@ namespace Unity
         public IUnityContainer AddExtension(UnityContainerExtension extension)
         {
             _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
-            extension.InitializeExtension(new ExtensionContextImpl(this));
-            lock (_cachedStrategiesLock)
-            {
-                _cachedStrategies = null;
-            }
+            extension.InitializeExtension(new ContainerContext(this));
+
             return this;
         }
 
@@ -330,7 +326,7 @@ namespace Unity
         public IUnityContainer CreateChildContainer()
         {
             var child = new UnityContainer(this);
-            var childContext = new ExtensionContextImpl(child);
+            var childContext = new ContainerContext(child);
             ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(childContext));
             return child;
         }

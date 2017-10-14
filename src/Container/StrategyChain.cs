@@ -34,28 +34,20 @@ namespace Unity.Container
         public object ExecuteBuildUp(IBuilderContext builderContext)
         {
             var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
-            int i = 0;
+            var i = 0;
 
             try
             {
-                for (; i < _strategies.Length; ++i)
+                while (!context.BuildComplete && i < _strategies.Length)
                 {
-                    if (context.BuildComplete)
-                    {
-                        break;
-                    }
-                    _strategies[i].PreBuildUp(context);
+                    _strategies[i++].PreBuildUp(context);
                 }
 
-                if (context.BuildComplete)
-                {
-                    --i; // skip shortcutting strategy's post
-                }
-
-                for (--i; i >= 0; --i)
+                while (--i >= 0)
                 {
                     _strategies[i].PostBuildUp(context);
                 }
+
                 return context.Existing;
             }
             catch (Exception)
@@ -73,23 +65,18 @@ namespace Unity.Container
         public void ExecuteTearDown(IBuilderContext builderContext)
         {
             var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
-            int i = 0;
+            int i = _strategies.Length;
 
             try
             {
-                for (; i < _strategies.Length; ++i)
+                while (--i >= 0 && !context.BuildComplete)
                 {
-                    if (context.BuildComplete)
-                    {
-                        --i; // Skip current strategy's post
-                        break;
-                    }
                     _strategies[i].PreTearDown(context);
                 }
 
-                for (--i; i >= 0; --i)
+                while (i < _strategies.Length)
                 {
-                    _strategies[i].PostTearDown(context);
+                    _strategies[i++].PostTearDown(context);
                 }
             }
             catch (Exception)

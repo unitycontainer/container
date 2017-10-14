@@ -29,17 +29,13 @@ namespace Unity
     {
         #region Fields
 
+        private PolicyList _policies;
         private readonly UnityContainer _parent;
-
+        private NamedTypesRegistry _registeredNames;
         private LifetimeContainer _lifetimeContainer;
+        private List<UnityContainerExtension> _extensions;
         private StagedStrategyChain<UnityBuildStage> _strategies;
         private StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
-        private PolicyList _policies;
-        private NamedTypesRegistry _registeredNames;
-        private List<UnityContainerExtension> _extensions;
-
-        private IStrategyChain _cachedStrategies;
-        private object _cachedStrategiesLock;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -57,11 +53,20 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
+            _extensions = new List<UnityContainerExtension>();
+
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
-            InitializeBuilderState();
+            _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
+            _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
+            _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
+            _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
+            _policies = new PolicyList(_parent?._policies);
+            _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
+
             if (null == _parent) InitializeStrategies();
+
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
 
@@ -107,7 +112,7 @@ namespace Unity
             if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 LifetimeManagerFactory factory =
-                    new LifetimeManagerFactory(new ExtensionContextImpl(this), lifetimeManager.GetType());
+                    new LifetimeManagerFactory(new ContainerContext(this), lifetimeManager.GetType());
                 _policies.Set<ILifetimeFactoryPolicy>(factory,
                     new NamedTypeBuildKey(lifetimeType, name));
             }
@@ -126,52 +131,7 @@ namespace Unity
         #endregion
 
 
-        #region ObjectBuilder initialization
-
-        private void InitializeBuilderState()
-        {
-            _registeredNames = new NamedTypesRegistry(ParentNameRegistry);
-            _extensions = new List<UnityContainerExtension>();
-
-            _lifetimeContainer = new LifetimeContainer();
-            _strategies = new StagedStrategyChain<UnityBuildStage>(ParentStrategies);
-            _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(ParentBuildPlanStrategies);
-            _policies = new PolicyList(ParentPolicies);
-            _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
-
-            _cachedStrategies = null;
-            _cachedStrategiesLock = new object();
-        }
-
-        private StagedStrategyChain<UnityBuildStage> ParentStrategies
-        {
-            get { return _parent == null ? null : _parent._strategies; }
-        }
-
-        private StagedStrategyChain<UnityBuildStage> ParentBuildPlanStrategies
-        {
-            get { return _parent == null ? null : _parent._buildPlanStrategies; }
-        }
-
-        private PolicyList ParentPolicies
-        {
-            get { return _parent == null ? null : _parent._policies; }
-        }
-
-        private NamedTypesRegistry ParentNameRegistry
-        {
-            get { return _parent == null ? null : _parent._registeredNames; }
-        }
-
-        #endregion
-
-
         #region Running ObjectBuilder
-
-        private object DoBuildUp(Type t, string name, IEnumerable<ResolverOverride> resolverOverrides)
-        {
-            return DoBuildUp(t, null, name, resolverOverrides);
-        }
 
         private object DoBuildUp(Type t, object existing, string name, IEnumerable<ResolverOverride> resolverOverrides)
         {
@@ -180,7 +140,7 @@ namespace Unity
             try
             {
                 context = new BuilderContext(this,
-                                             GetStrategies(),
+                                             _strategies.MakeStrategyChain(),
                                              _lifetimeContainer,
                                              _policies,
                                              new NamedTypeBuildKey(t, name),
@@ -201,27 +161,6 @@ namespace Unity
             {
                 throw new ResolutionFailedException(t, name, ex, context);
             }
-        }
-
-        private IStrategyChain GetStrategies()
-        {
-            IStrategyChain buildStrategies = _cachedStrategies;
-            if (buildStrategies == null)
-            {
-                lock (_cachedStrategiesLock)
-                {
-                    if (_cachedStrategies == null)
-                    {
-                        buildStrategies = _strategies.MakeStrategyChain();
-                        _cachedStrategies = buildStrategies;
-                    }
-                    else
-                    {
-                        buildStrategies = _cachedStrategies;
-                    }
-                }
-            }
-            return buildStrategies;
         }
 
         #endregion
@@ -279,11 +218,11 @@ namespace Unity
         /// This is a nested class so that it can access state in the
         /// container that would otherwise be inaccessible.
         /// </remarks>
-        private class ExtensionContextImpl : ExtensionContext
+        private class ContainerContext : ExtensionContext
         {
             private readonly UnityContainer _container;
 
-            public ExtensionContextImpl(UnityContainer container)
+            public ContainerContext(UnityContainer container)
             {
                 _container = container ?? throw new ArgumentNullException(nameof(container));
             }

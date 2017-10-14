@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,23 +14,32 @@ namespace Unity.Container
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<TStageEnum>
+    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<TStageEnum>, 
+                                                   IEnumerable<IBuilderStrategy>,
+                                                   IDisposable
     {
-        private readonly StagedStrategyChain<TStageEnum> _innerChain;
+        #region Fields
+
         private readonly object _lockObject = new object();
-        private readonly List<IBuilderStrategy>[] _stages;
+        private readonly StagedStrategyChain<TStageEnum> _innerChain;
+        private readonly IList<IBuilderStrategy>[] _stages = 
+            new IList<IBuilderStrategy>[typeof(TStageEnum).GetTypeInfo()
+                                                          .DeclaredFields
+                                                          .Count(f => f.IsPublic && f.IsStatic)];
+
+        private IStrategyChain _cache;
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStageEnum}"/> class.
         /// </summary>
         public StagedStrategyChain()
+            : this(null)
         {
-            _stages = new List<IBuilderStrategy>[NumberOfEnumValues()];
-
-            for (int i = 0; i < _stages.Length; ++i)
-            {
-                _stages[i] = new List<IBuilderStrategy>();
-            }
         }
 
         /// <summary>
@@ -37,10 +47,47 @@ namespace Unity.Container
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
         public StagedStrategyChain(StagedStrategyChain<TStageEnum> innerChain)
-            : this()
         {
-            _innerChain = innerChain;
+            if (null != innerChain)
+            {
+                _innerChain = innerChain;
+                _innerChain.Invalidated += OnParentInvalidated;
+            }
+
+            for (var i = 0; i < _stages.Length; ++i)
+            {
+                _stages[i] = new List<IBuilderStrategy>();
+            }
         }
+
+        #endregion
+
+
+        #region Implementation
+
+        private void OnParentInvalidated(object sender, EventArgs e)
+        {
+            lock (_lockObject)
+            {
+                _cache = null;
+            }
+        }
+
+        private IEnumerable<IBuilderStrategy> Enumerate(int i)
+        {
+            return (_innerChain?.Enumerate(i) ?? Enumerable.Empty<IBuilderStrategy>()).Concat(_stages[i]);
+        }
+
+        #endregion
+
+
+        #region IStagedStrategyChain
+
+
+        /// <summary>
+        /// Signals that chain has been changed
+        /// </summary>
+        public event EventHandler<EventArgs> Invalidated;
 
         /// <summary>
         /// Adds a strategy to the chain at a particular stage.
@@ -52,6 +99,8 @@ namespace Unity.Container
             lock (_lockObject)
             {
                 _stages[Convert.ToInt32(stage)].Add(strategy);
+                _cache = null;
+                Invalidated?.Invoke(this, new EventArgs());
             }
         }
 
@@ -65,10 +114,12 @@ namespace Unity.Container
         {
             lock (_lockObject)
             {
-                foreach (List<IBuilderStrategy> stage in _stages)
+                foreach (var list in _stages)
                 {
-                    stage.Clear();
+                    ((List<IBuilderStrategy>)list).Clear();
                 }
+                _cache = null;
+                Invalidated?.Invoke(this, new EventArgs());
             }
         }
 
@@ -80,37 +131,46 @@ namespace Unity.Container
         {
             lock (_lockObject)
             {
-                // TODO: Requires optimization
-
-                var result = new List<IBuilderStrategy>();
-
-                for (int index = 0; index < _stages.Length; ++index)
+                if (null == _cache)
                 {
-                    FillStrategyChain(result, index);
+                    _cache = new StrategyChain(this);
                 }
 
-                return new StrategyChain(result);
+                return _cache;
             }
         }
 
-        private void FillStrategyChain(IList<IBuilderStrategy> chain, int index)
+
+        #endregion
+
+
+        #region IEnumerable
+
+        public IEnumerator<IBuilderStrategy> GetEnumerator()
         {
-            lock (_lockObject)
+            return Enumerable.Range(0, _stages.Length)
+                             .SelectMany(Enumerate)
+                             .GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (null != _innerChain)
             {
-                if (_innerChain != null)
-                {
-                    _innerChain.FillStrategyChain(chain, index);
-                }
-                foreach (var value in _stages[index])
-                {
-                    chain.Add(value);
-                }
+                _innerChain.Invalidated -= OnParentInvalidated;
             }
         }
 
-        private static int NumberOfEnumValues()
-        {
-            return typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
-        }
+        #endregion
     }
 }

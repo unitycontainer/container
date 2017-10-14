@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Strategy;
 
@@ -43,6 +42,8 @@ namespace Microsoft.Practices.Unity.TestSupport
             _innerChain = innerChain;
         }
 
+        public event EventHandler<EventArgs> Invalidated = delegate(object sender, EventArgs args) {  };
+
         /// <summary>
         /// Adds a strategy to the chain at a particular stage.
         /// </summary>
@@ -55,6 +56,7 @@ namespace Microsoft.Practices.Unity.TestSupport
                 _stages[Convert.ToInt32(stage)].Add(strategy);
             }
         }
+
 
         /// <summary>
         /// Clear the current strategy chain list.
@@ -107,6 +109,16 @@ namespace Microsoft.Practices.Unity.TestSupport
         private static int NumberOfEnumValues()
         {
             return typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
+        }
+
+        void IStagedStrategyChain<TStageEnum>.Add(IBuilderStrategy strategy, TStageEnum stage)
+        {
+            throw new NotImplementedException();
+        }
+
+        IStrategyChain IStagedStrategyChain.MakeStrategyChain()
+        {
+            throw new NotImplementedException();
         }
     }
 }
