@@ -27,6 +27,7 @@
   <PropertyGroup Condition="'$(Configuration)'=='Package'">
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
+    <OutputPath>$(SolutionDir)\lib\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
