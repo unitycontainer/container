@@ -5,17 +5,16 @@
     <TargetFramework>net47</TargetFramework>
   </PropertyGroup>
 
-
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PackageReference Include="Unity.Abstractions" Version="2.0.0-RC2" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+  <ItemGroup Condition=" '$(Configuration)' != 'Release' ">
     <ProjectReference Include="..\..\..\Abstractions\src\Unity.Abstractions.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackageReference Include="Unity.Abstractions" Version="2.0.0-RC3" />
   </ItemGroup>
 
 </Project>
