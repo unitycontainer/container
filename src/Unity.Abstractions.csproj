@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.0.0-RC2</Version>
+    <Version>2.0.0-RC3</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <PackageId>Unity.Abstractions</PackageId>
@@ -16,10 +16,16 @@
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
     <RootNamespace>Unity</RootNamespace>
+    <Configurations>Debug;Release;Package</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Package'">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
   </PropertyGroup>
 
