@@ -55,23 +55,6 @@ namespace Unity
         object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides);
 
         /// <summary>
-        /// Return instances of all registered types requested.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is useful if you've registered multiple types with the same
-        /// <see cref="Type"/> but different names.
-        /// </para>
-        /// <para>
-        /// Be aware that this method does NOT return an instance for the default (unnamed) registration.
-        /// </para>
-        /// </remarks>
-        /// <param name="type">The type requested.</param>
-        /// <param name="resolverOverrides">Any overrides for the resolve calls.</param>
-        /// <returns>Set of objects of type <paramref name="type"/>.</returns>
-        IEnumerable<object> ResolveAll(Type type, params ResolverOverride[] resolverOverrides);
-
-        /// <summary>
         /// Run an existing object through the container and perform injection on it.
         /// </summary>
         /// <remarks>
@@ -88,12 +71,6 @@ namespace Unity
         /// container extensions may add things like automatic proxy creation which would
         /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
         object BuildUp(Type type, object existing, string name, params ResolverOverride[] resolverOverrides);
-
-        /// <summary>
-        /// Run an existing object through the container, and clean it up.
-        /// </summary>
-        /// <param name="o">The object to tear down.</param>
-        void Teardown(object o);
 
         /// <summary>
         /// Add an extension object to the container.

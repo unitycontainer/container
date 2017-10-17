@@ -488,6 +488,29 @@ namespace Unity
             return (container ?? throw new ArgumentNullException(nameof(container))).Resolve(t, null, overrides);
         }
 
+
+        /// <summary>
+        /// Return instances of all registered types requested.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This method is useful if you've registered multiple types with the same
+        /// <see cref="Type"/> but different names.
+        /// </para>
+        /// <para>
+        /// Be aware that this method does NOT return an instance for the default (unnamed) registration.
+        /// </para>
+        /// </remarks>
+        /// <param name="container">Container to resolve from.</param>
+        /// <param name="type">The type requested.</param>
+        /// <param name="resolverOverrides">Any overrides for the resolve calls.</param>
+        /// <returns>Set of objects of type <paramref name="type"/>.</returns>
+        public static IEnumerable<object> ResolveAll(this IUnityContainer container, Type type, params ResolverOverride[] resolverOverrides)
+        {
+            var result = container.Resolve((type ?? throw new ArgumentNullException(nameof(type))).MakeArrayType(), resolverOverrides);
+            return result is IEnumerable<object> objects ? objects : ((Array)result).Cast<object>();
+        }
+
         #endregion
 
         #region ResolveAll overloads
