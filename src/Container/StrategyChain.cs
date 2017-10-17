@@ -74,9 +74,9 @@ namespace Unity.Container
                     _strategies[i].PreTearDown(context);
                 }
 
-                while (i < _strategies.Length)
+                while (++i < _strategies.Length)
                 {
-                    _strategies[i++].PostTearDown(context);
+                    _strategies[i].PostTearDown(context);
                 }
             }
             catch (Exception)
