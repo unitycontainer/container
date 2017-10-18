@@ -158,7 +158,7 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            return DoBuildUp(type, null, name, resolverOverrides);
+            return BuildUp(type, null, name, resolverOverrides);
         }
 
         #endregion
@@ -175,19 +175,43 @@ namespace Unity
         /// instance (ASP.NET pages or objects created via XAML, for instance)
         /// but you still want properties and other injection performed.
         /// </para></remarks>
-        /// <param name="type"><see cref="Type"/> of object to perform injection on.</param>
+        /// <param name="typeToBuild"><see cref="Type"/> of object to perform injection on.</param>
         /// <param name="existing">Instance to build up.</param>
         /// <param name="name">name to use when looking up the typemappings and other configurations.</param>
         /// <param name="resolverOverrides">Any overrides for the buildup.</param>
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would
         /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
-        public object BuildUp(Type type, object existing, string name, params ResolverOverride[] resolverOverrides)
+        public object BuildUp(Type typeToBuild, object existing, string name, params ResolverOverride[] resolverOverrides)
         {
-            InstanceIsAssignable(type, existing, nameof(existing));
+            var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
+            if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
 
-            return DoBuildUp(type, existing ?? throw new ArgumentNullException(nameof(existing)), 
-                             name, resolverOverrides);
+            IBuilderContext context = null;
+
+            try
+            {
+                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
+                                                   _lifetimeContainer,
+                                                   _policies,
+                                                   new NamedTypeBuildKey(type, name),
+                                                   existing);
+                context.AddResolverOverrides(resolverOverrides);
+
+                if (type.GetTypeInfo().IsGenericTypeDefinition)
+                {
+                    throw new ArgumentException(
+                        String.Format(CultureInfo.CurrentCulture,
+                            Constants.CannotResolveOpenGenericType,
+                            type.FullName), nameof(type));
+                }
+
+                return context.Strategies.ExecuteBuildUp(context);
+            }
+            catch (Exception ex)
+            {
+                throw new ResolutionFailedException(type, name, ex, context);
+            }
         }
 
         #endregion
