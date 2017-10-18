@@ -15,8 +15,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="policyInterface">The type of policy to remove.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        void Clear(Type policyInterface,
-                   object buildKey);
+        void Clear(Type policyInterface, object buildKey);
 
         /// <summary>
         /// Removes all policies from the list.
@@ -38,10 +37,7 @@ namespace Unity.Policy
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        IBuilderPolicy Get(Type policyInterface,
-            object buildKey,
-            bool localOnly,
-            out IPolicyList containingPolicyList);
+        IBuilderPolicy Get(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList);
 
         /// <summary>
         /// Get the non default policy.
@@ -52,8 +48,7 @@ namespace Unity.Policy
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly,
-            out IPolicyList containingPolicyList);
+        IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList);
 
         /// <summary>
         /// Sets an individual policy.
@@ -61,17 +56,6 @@ namespace Unity.Policy
         /// <param name="policyInterface">The <see cref="Type"/> of the policy.</param>
         /// <param name="policy">The policy to be registered.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        void Set(Type policyInterface,
-                 IBuilderPolicy policy,
-                 object buildKey);
-
-        /// <summary>
-        /// Sets a default policy. When checking for a policy, if no specific individual policy
-        /// is available, the default will be used.
-        /// </summary>
-        /// <param name="policyInterface">The interface to register the policy under.</param>
-        /// <param name="policy">The default policy to be registered.</param>
-        void SetDefault(Type policyInterface,
-                        IBuilderPolicy policy);
+        void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null);
     }
 }

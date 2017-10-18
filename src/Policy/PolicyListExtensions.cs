@@ -195,6 +195,19 @@ namespace Unity.Policy
             (policies ?? throw new ArgumentNullException(nameof(policies))).Set(typeof(TPolicyInterface), policy, buildKey);
         }
 
+
+        /// <summary>
+        /// Sets a default policy. When checking for a policy, if no specific individual policy
+        /// is available, the default will be used.
+        /// </summary>
+        /// <param name="policies"></param>
+        /// <param name="policyInterface">The interface to register the policy under.</param>
+        /// <param name="policy">The default policy to be registered.</param>
+        public static void SetDefault(this IPolicyList policies, Type policyInterface, IBuilderPolicy policy)
+        {
+            policies.Set(policyInterface, policy);
+        }
+
         /// <summary>
         /// Sets a default policy. When checking for a policy, if no specific individual policy
         /// is available, the default will be used.
@@ -205,7 +218,7 @@ namespace Unity.Policy
         public static void SetDefault<TPolicyInterface>(this IPolicyList policies, TPolicyInterface policy)
             where TPolicyInterface : IBuilderPolicy
         {
-            (policies ?? throw new ArgumentNullException(nameof(policies))).SetDefault(typeof(TPolicyInterface), policy);
+            (policies ?? throw new ArgumentNullException(nameof(policies))).Set(typeof(TPolicyInterface), policy);
         }
     }
 }
