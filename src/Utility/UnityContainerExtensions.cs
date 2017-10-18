@@ -303,7 +303,8 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(typeof(TInterface), null, instance, CreateDefaultInstanceLifetimeManager());
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .RegisterInstance(typeof(TInterface), null, instance, new ContainerControlledLifetimeManager());
         }
 
         /// <summary>
@@ -327,7 +328,8 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, LifetimeManager lifetimeManager)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(typeof(TInterface), null, instance, lifetimeManager);
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .RegisterInstance(typeof(TInterface), null, instance, lifetimeManager);
         }
 
         /// <summary>
@@ -349,7 +351,8 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(typeof(TInterface), name, instance, CreateDefaultInstanceLifetimeManager());
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .RegisterInstance(typeof(TInterface), name, instance, new ContainerControlledLifetimeManager());
         }
 
         /// <summary>
@@ -396,7 +399,8 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterInstance(this IUnityContainer container, Type t, object instance)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(t, null, instance, CreateDefaultInstanceLifetimeManager());
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .RegisterInstance(t, null, instance, new ContainerControlledLifetimeManager());
         }
 
         /// <summary>
@@ -420,7 +424,8 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterInstance(this IUnityContainer container, Type t, object instance, LifetimeManager lifetimeManager)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(t, null, instance, lifetimeManager);
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .RegisterInstance(t, null, instance, lifetimeManager);
         }
 
         /// <summary>
@@ -442,7 +447,8 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterInstance(this IUnityContainer container, Type t, string name, object instance)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(t, name, instance, CreateDefaultInstanceLifetimeManager());
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .RegisterInstance(t, name, instance, new ContainerControlledLifetimeManager());
         }
 
         #endregion
@@ -460,7 +466,7 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public static T Resolve<T>(this IUnityContainer container, params ResolverOverride[] overrides)
         {
-            return (T)container.Resolve(typeof(T), null, overrides);
+            return (T)(container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), null, overrides);
         }
 
         /// <summary>
@@ -473,7 +479,7 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public static T Resolve<T>(this IUnityContainer container, string name, params ResolverOverride[] overrides)
         {
-            return (T)container.Resolve(typeof(T), name, overrides);
+            return (T)(container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), name, overrides);
         }
 
         /// <summary>
@@ -507,7 +513,7 @@ namespace Unity
         /// <returns>Set of objects of type <paramref name="type"/>.</returns>
         public static IEnumerable<object> ResolveAll(this IUnityContainer container, Type type, params ResolverOverride[] resolverOverrides)
         {
-            var result = container.Resolve((type ?? throw new ArgumentNullException(nameof(type))).MakeArrayType(), resolverOverrides);
+            var result = (container ?? throw new ArgumentNullException(nameof(container))).Resolve((type ?? throw new ArgumentNullException(nameof(type))).MakeArrayType(), resolverOverrides);
             return result is IEnumerable<object> objects ? objects : ((Array)result).Cast<object>();
         }
 
@@ -562,7 +568,8 @@ namespace Unity
         /// cause this to return a different object (but still type compatible with <typeparamref name="T"/>).</returns>
         public static T BuildUp<T>(this IUnityContainer container, T existing, params ResolverOverride[] resolverOverrides)
         {
-            return (T)container.BuildUp(typeof(T), existing, null, resolverOverrides);
+            if (null == existing) throw new ArgumentNullException(nameof(existing));
+            return (T)(container ?? throw new ArgumentNullException(nameof(container))).BuildUp(typeof(T), existing, null, resolverOverrides);
         }
 
         /// <summary>
@@ -584,7 +591,8 @@ namespace Unity
         /// cause this to return a different object (but still type compatible with <typeparamref name="T"/>).</returns>
         public static T BuildUp<T>(this IUnityContainer container, T existing, string name, params ResolverOverride[] resolverOverrides)
         {
-            return (T)container.BuildUp(typeof(T), existing, name, resolverOverrides);
+            if (null == existing) throw new ArgumentNullException(nameof(existing));
+            return (T)(container ?? throw new ArgumentNullException(nameof(container))).BuildUp(typeof(T), existing, name, resolverOverrides);
         }
 
         /// <summary>
@@ -626,7 +634,7 @@ namespace Unity
         public static IUnityContainer AddNewExtension<TExtension>(this IUnityContainer container)
             where TExtension : UnityContainerExtension
         {
-            TExtension newExtension = container.Resolve<TExtension>();
+            TExtension newExtension = (container ?? throw new ArgumentNullException(nameof(container))).Resolve<TExtension>();
             return (container ?? throw new ArgumentNullException(nameof(container))).AddExtension(newExtension);
         }
 
@@ -643,7 +651,7 @@ namespace Unity
         public static TConfigurator Configure<TConfigurator>(this IUnityContainer container)
             where TConfigurator : IUnityContainerExtensionConfigurator
         {
-            return (TConfigurator)container.Configure(typeof(TConfigurator));
+            return (TConfigurator)(container ?? throw new ArgumentNullException(nameof(container))).Configure(typeof(TConfigurator));
         }
 
         #endregion
@@ -699,14 +707,6 @@ namespace Unity
         public static bool IsRegistered<T>(this IUnityContainer container, string nameToCheck)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).IsRegistered(typeof(T), nameToCheck);
-        }
-
-        #endregion
-
-        #region Helper methods
-        private static LifetimeManager CreateDefaultInstanceLifetimeManager()
-        {
-            return new ContainerControlledLifetimeManager();
         }
 
         #endregion
