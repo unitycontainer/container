@@ -131,41 +131,6 @@ namespace Unity
         #endregion
 
 
-        #region Running ObjectBuilder
-
-        private object DoBuildUp(Type t, object existing, string name, IEnumerable<ResolverOverride> resolverOverrides)
-        {
-            IBuilderContext context = null;
-
-            try
-            {
-                context = new BuilderContext(this,
-                                             _strategies.MakeStrategyChain(),
-                                             _lifetimeContainer,
-                                             _policies,
-                                             new NamedTypeBuildKey(t, name),
-                                             existing);
-                context.AddResolverOverrides(resolverOverrides);
-
-                if (t.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    throw new ArgumentException(
-                        String.Format(CultureInfo.CurrentCulture,
-                            Constants.CannotResolveOpenGenericType,
-                            t.FullName), nameof(t));
-                }
-
-                return context.Strategies.ExecuteBuildUp(context);
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(t, name, ex, context);
-            }
-        }
-
-        #endregion
-
-
         #region Implementation
 
         /// <summary>
