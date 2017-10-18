@@ -118,13 +118,6 @@ namespace Unity.Builder
         IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType);
 
         /// <summary>
-        /// A convenience method to do a new buildup operation on an existing context.
-        /// </summary>
-        /// <param name="newBuildKey">Key to use to build up.</param>
-        /// <returns>Created object.</returns>
-        object NewBuildUp(NamedTypeBuildKey newBuildKey);
-
-        /// <summary>
         /// A convenience method to do a new buildup operation on an existing context. This
         /// overload allows you to specify extra policies which will be in effect for the duration
         /// of the build.
@@ -134,7 +127,7 @@ namespace Unity.Builder
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock);
+        object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock = null);
     }
 
     /// <summary>
