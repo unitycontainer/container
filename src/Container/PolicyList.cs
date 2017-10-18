@@ -223,49 +223,45 @@ namespace Unity.Container
                     nameof(buildKey));
         }
 
-        private struct PolicyKey
+        private class PolicyKey
         {
-#pragma warning disable 219
-            public readonly object BuildKey;
-            public readonly Type PolicyType;
-#pragma warning restore 219
+            private readonly int _hash;
 
-            public PolicyKey(Type policyType,
-                             object buildKey)
+            public PolicyKey(Type policyType, object buildKey)
             {
                 PolicyType = policyType;
                 BuildKey = buildKey;
+                _hash = (PolicyType?.GetHashCode() ?? 0) * 37 + BuildKey?.GetHashCode() ?? 0;
             }
+
+            public object BuildKey { get; }
+
+            public Type PolicyType { get; }
+
 
             public override bool Equals(object obj)
             {
-                if (obj != null && obj is PolicyKey)
+                if (obj is PolicyKey key)
                 {
-                    return this == (PolicyKey)obj;
+                    return this == key;
                 }
+
                 return false;
             }
 
             public override int GetHashCode()
             {
-                return ((SafeGetHashCode(PolicyType)) * 37) +
-                         SafeGetHashCode(BuildKey);
+                return _hash;
             }
 
             public static bool operator ==(PolicyKey left, PolicyKey right)
             {
-                return left.PolicyType == right.PolicyType &&
-                    Equals(left.BuildKey, right.BuildKey);
+                return left?.PolicyType == right?.PolicyType && Equals(left?.BuildKey, right?.BuildKey);
             }
 
             public static bool operator !=(PolicyKey left, PolicyKey right)
             {
                 return !(left == right);
-            }
-
-            private static int SafeGetHashCode(object obj)
-            {
-                return obj != null ? obj.GetHashCode() : 0;
             }
         }
 
