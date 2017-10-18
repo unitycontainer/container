@@ -494,6 +494,9 @@ namespace Unity
             return (container ?? throw new ArgumentNullException(nameof(container))).Resolve(t, null, overrides);
         }
 
+        #endregion
+
+        #region ResolveAll overloads
 
         /// <summary>
         /// Return instances of all registered types requested.
@@ -516,10 +519,6 @@ namespace Unity
             var result = (container ?? throw new ArgumentNullException(nameof(container))).Resolve((type ?? throw new ArgumentNullException(nameof(type))).MakeArrayType(), resolverOverrides);
             return result is IEnumerable<object> objects ? objects : ((Array)result).Cast<object>();
         }
-
-        #endregion
-
-        #region ResolveAll overloads
 
         /// <summary>
         /// Return instances of all registered types requested.
