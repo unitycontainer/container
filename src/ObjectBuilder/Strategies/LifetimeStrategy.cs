@@ -19,6 +19,7 @@ namespace Unity.ObjectBuilder.Strategies
     public class LifetimeStrategy : BuilderStrategy
     {
         private readonly object _genericLifetimeManagerLock = new object();
+        private static readonly TransientLifetimeManager TransientManager = new TransientLifetimeManager();
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -30,13 +31,13 @@ namespace Unity.ObjectBuilder.Strategies
         {
             if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
             {
-                ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context);
+                var lifetimePolicy = GetLifetimePolicy(context);
                 if (lifetimePolicy is IRequiresRecovery recovery)
                 {
                     context.RecoveryStack.Add(recovery);
                 }
 
-                object existing = lifetimePolicy.GetValue();
+                var existing = lifetimePolicy.GetValue();
                 if (existing != null)
                 {
                     context.Existing = existing;
@@ -69,7 +70,7 @@ namespace Unity.ObjectBuilder.Strategies
 
             if (policy == null)
             {
-                policy = new TransientLifetimeManager();
+                policy = TransientManager;
                 context.PersistentPolicies.Set(policy, context.BuildKey);
             }
 
@@ -78,13 +79,12 @@ namespace Unity.ObjectBuilder.Strategies
 
         private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context)
         {
-            Type typeToBuild = context.BuildKey.Type;
+            var typeToBuild = context.BuildKey.Type;
             object openGenericBuildKey = new NamedTypeBuildKey(typeToBuild.GetGenericTypeDefinition(),
                                                                context.BuildKey.Name);
 
-            IPolicyList factorySource;
-            ILifetimeFactoryPolicy factoryPolicy =
-                context.Policies.Get<ILifetimeFactoryPolicy>(openGenericBuildKey, out factorySource);
+            var factoryPolicy = context.Policies
+                                       .Get<ILifetimeFactoryPolicy>(openGenericBuildKey, out var factorySource);
 
             if (factoryPolicy != null)
             {
@@ -97,7 +97,7 @@ namespace Unity.ObjectBuilder.Strategies
                 lock (_genericLifetimeManagerLock)
                 {
                     // check whether the policy for closed-generic has been added since first checked
-                    ILifetimePolicy lifetime = factorySource.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
+                    var lifetime = factorySource.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
                     if (lifetime == null)
                     {
                         factorySource.Set(newLifetime, context.BuildKey);
