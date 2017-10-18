@@ -15,9 +15,16 @@ namespace Unity.Container
     /// </summary>
     public class PolicyList : IPolicyList
     {
+        #region Fields
+
         private readonly IPolicyList _innerPolicyList;
         private readonly IDictionary<PolicyKey, IBuilderPolicy> _policies = 
             new ConcurrentDictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Initialize a new instance of a <see cref="PolicyList"/> class.
@@ -33,6 +40,11 @@ namespace Unity.Container
         {
             _innerPolicyList = innerPolicyList;
         }
+
+        #endregion
+
+
+        #region IPolicyList
 
         /// <summary>
         /// Gets the number of items in the locator.
@@ -80,7 +92,12 @@ namespace Unity.Container
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
         public IBuilderPolicy Get(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
         {
-            TryGetType(buildKey, out var buildType);
+            Type buildType;
+
+            if (buildKey is NamedTypeBuildKey basedBuildKey)
+                buildType = basedBuildKey.Type;
+            else
+                buildType = buildKey as Type;
 
             return GetPolicyForKey(policyInterface, buildKey, localOnly, out containingPolicyList) ??
                 GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, localOnly, out containingPolicyList) ??
@@ -88,6 +105,49 @@ namespace Unity.Container
                 GetPolicyForOpenGenericType(policyInterface, buildType, localOnly, out containingPolicyList) ??
                 GetDefaultForPolicy(policyInterface, localOnly, out containingPolicyList);
         }
+
+        /// <summary>
+        /// Get the non default policy.
+        /// </summary>
+        /// <param name="policyInterface">The interface the policy is registered under.</param>
+        /// <param name="buildKey">The key the policy applies to.</param>
+        /// <param name="localOnly">True if the search should be in the local policy list only; otherwise false to search up the parent chain.</param>
+        /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
+        /// not found.</param>
+        /// <returns>The policy in the list if present; returns null otherwise.</returns>
+        public IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
+        {
+            containingPolicyList = null;
+
+            if (_policies.TryGetValue(new PolicyKey(policyInterface, buildKey), out var policy))
+            {
+                containingPolicyList = this;
+                return policy;
+            }
+
+            if (localOnly)
+            {
+                return null;
+            }
+
+            return _innerPolicyList?.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
+        }
+
+        /// <summary>
+        /// Sets an individual policy.
+        /// </summary>
+        /// <param name="policyInterface">The <see cref="Type"/> of the policy.</param>
+        /// <param name="policy">The policy to be registered.</param>
+        /// <param name="buildKey">The key the policy applies.</param>
+        public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null)
+        {
+            _policies[new PolicyKey(policyInterface, buildKey)] = policy;
+        }
+
+        #endregion
+
+
+        #region Implementation
 
         private IBuilderPolicy GetPolicyForKey(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
         {
@@ -135,93 +195,23 @@ namespace Unity.Container
             return GetNoDefault(policyInterface, null, localOnly, out containingPolicyList);
         }
 
-        /// <summary>
-        /// Get the non default policy.
-        /// </summary>
-        /// <param name="policyInterface">The interface the policy is registered under.</param>
-        /// <param name="buildKey">The key the policy applies to.</param>
-        /// <param name="localOnly">True if the search should be in the local policy list only; otherwise false to search up the parent chain.</param>
-        /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
-        /// not found.</param>
-        /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        public IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
-        {
-            containingPolicyList = null;
-
-            IBuilderPolicy policy;
-            if (_policies.TryGetValue(new PolicyKey(policyInterface, buildKey), out policy))
-            {
-                containingPolicyList = this;
-                return policy;
-            }
-
-            if (localOnly)
-            {
-                return null;
-            }
-
-            return _innerPolicyList?.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
-        }
-
-        /// <summary>
-        /// Sets an individual policy.
-        /// </summary>
-        /// <param name="policyInterface">The <see cref="Type"/> of the policy.</param>
-        /// <param name="policy">The policy to be registered.</param>
-        /// <param name="buildKey">The key the policy applies.</param>
-        public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey)
-        {
-            _policies[new PolicyKey(policyInterface, buildKey)] = policy;
-        }
-
-        /// <summary>
-        /// Sets a default policy. When checking for a policy, if no specific individual policy
-        /// is available, the default will be used.
-        /// </summary>
-        /// <param name="policyInterface">The interface to register the policy under.</param>
-        /// <param name="policy">The default policy to be registered.</param>
-        public void SetDefault(Type policyInterface,
-                               IBuilderPolicy policy)
-        {
-            Set(policyInterface, policy, null);
-        }
-
-        private static bool TryGetType(object buildKey, out Type type)
-        {
-            type = buildKey as Type;
-
-            if (type == null)
-            {
-                var basedBuildKey = buildKey as NamedTypeBuildKey;
-                if (basedBuildKey != null)
-                {
-                    type = basedBuildKey.Type;
-                }
-            }
-
-            return type != null;
-        }
-
         private static object ReplaceType(object buildKey, Type newType)
         {
             if (buildKey is Type)
-            {
                 return newType;
-            }
 
-            var originalKey = buildKey as NamedTypeBuildKey;
-            if (originalKey != null)
-            {
+            if (buildKey is NamedTypeBuildKey originalKey)
                 return new NamedTypeBuildKey(newType, originalKey.Name);
-            }
 
-            throw new ArgumentException(
-                string.Format(
-                    CultureInfo.CurrentCulture,
-                    Constants.CannotExtractTypeFromBuildKey,
-                    buildKey),
-                    nameof(buildKey));
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                                                      Constants.CannotExtractTypeFromBuildKey,
+                                                      buildKey), nameof(buildKey));
         }
+
+        #endregion
+
+
+        #region Nested Types
 
         private class PolicyKey
         {
@@ -280,5 +270,7 @@ namespace Unity.Container
                 return obj.GetHashCode();
             }
         }
+
+        #endregion
     }
 }
