@@ -8,8 +8,10 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Registration;
 using Unity.Events;
+using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
+using Unity.ObjectBuilder;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Registration;
@@ -181,7 +183,7 @@ namespace Unity
         /// <param name="resolverOverrides">Any overrides for the buildup.</param>
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would
-        /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
+        /// cause this to return a different object (but still type compatible with <paramref name="typeToBuild"/>).</returns>
         public object BuildUp(Type typeToBuild, object existing, string name, params ResolverOverride[] resolverOverrides)
         {
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));

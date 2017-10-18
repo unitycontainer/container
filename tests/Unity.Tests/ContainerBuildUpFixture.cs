@@ -42,7 +42,7 @@ namespace Unity.Tests
             UnityContainer uc = new UnityContainer();
             object myNullObject = null;
 
-            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(typeof(object), myNullObject), "Null object is not allowed");
+            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(null, myNullObject), "Null object is not allowed");
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace Unity.Tests
             UnityContainer uc = new UnityContainer();
             object myNullObject = null;
 
-            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(typeof(object), myNullObject, "myNullObject"), "Null object is not allowed");
+            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(null, myNullObject, "myNullObject"), "Null object is not allowed");
         }
 
         [TestMethod]

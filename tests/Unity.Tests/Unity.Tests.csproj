@@ -11,10 +11,6 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' == 'net45' ">
-    <PackageReference Include="Unity" Version="4.0.1" />
-  </ItemGroup>
-
   <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
