@@ -102,40 +102,6 @@ namespace Microsoft.Practices.Unity.TestSupport
             }
         }
 
-        /// <summary>
-        /// Execute this strategy chain against the given context,
-        /// calling the TearDown methods on the strategies.
-        /// </summary>
-        /// <param name="context">Context for the teardown process.</param>
-        public void ExecuteTearDown(IBuilderContext builderContext)
-        {
-            var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
-            int i = 0;
-
-            try
-            {
-                for (; i < _strategies.Count; ++i)
-                {
-                    if (context.BuildComplete)
-                    {
-                        --i; // Skip current strategy's post
-                        break;
-                    }
-                    _strategies[i].PreTearDown(context);
-                }
-
-                for (--i; i >= 0; --i)
-                {
-                    _strategies[i].PostTearDown(context);
-                }
-            }
-            catch (Exception)
-            {
-                context.RecoveryStack.ExecuteRecovery();
-                throw;
-            }
-        }
-
         #region IEnumerable<IBuilderStrategy> Members
 
         /// <summary>

@@ -214,7 +214,7 @@ namespace Microsoft.Practices.Unity.Tests
 
             public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
             {
-                throw new NotImplementedException();
+                return NewBuildupCallback(newBuildKey);
             }
         }
 

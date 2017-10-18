@@ -118,17 +118,6 @@ namespace Microsoft.Practices.Unity.TestSupport
         }
 
         /// <summary>
-        /// A convenience method to do a new buildup operation on an existing context.
-        /// </summary>
-        /// <param name="newBuildKey">Key to use to build up.</param>
-        /// <returns>Created object.</returns>
-        public object NewBuildUp(NamedTypeBuildKey newBuildKey)
-        {
-            var clone = CloneForNewBuild(newBuildKey, null);
-            return clone.Strategies.ExecuteBuildUp(clone);
-        }
-
-        /// <summary>
         /// A convenience method to do a new buildup operation on an existing context. This
         /// overload allows you to specify extra policies which will be in effect for the duration
         /// of the build.
@@ -140,6 +129,12 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// <returns>Created object.</returns>
         public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
         {
+            if (null == childCustomizationBlock)
+            {
+                var clone = CloneForNewBuild(newBuildKey, null);
+                return clone.Strategies.ExecuteBuildUp(clone);
+            }
+
             var newContext = new MockBuilderContext
             {
                 strategies = strategies,
@@ -163,15 +158,6 @@ namespace Microsoft.Practices.Unity.TestSupport
             this.Existing = existing;
 
             return Strategies.ExecuteBuildUp(this);
-        }
-
-        public object ExecuteTearDown(object existing)
-        {
-            this.BuildKey = null;
-            this.Existing = existing;
-
-            Strategies.Reverse().ExecuteTearDown(this);
-            return existing;
         }
     }
 }

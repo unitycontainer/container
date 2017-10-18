@@ -87,15 +87,5 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         public void PostBuildUp(IBuilderContext context)
         {
         }
-
-        public void PreTearDown(IBuilderContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void PostTearDown(IBuilderContext context)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

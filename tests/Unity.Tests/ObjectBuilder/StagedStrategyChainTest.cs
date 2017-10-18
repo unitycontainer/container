@@ -92,16 +92,6 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
                 throw new NotImplementedException();
             }
 
-            public void PreTearDown(IBuilderContext context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void PostTearDown(IBuilderContext context)
-            {
-                throw new NotImplementedException();
-            }
-
             public string Name { get; set; }
         }
     }

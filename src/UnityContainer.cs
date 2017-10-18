@@ -5,13 +5,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Exceptions;
 using Unity.Builder;
 using Unity.Container.Registration;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Registration;
@@ -163,31 +161,6 @@ namespace Unity
             return DoBuildUp(type, null, name, resolverOverrides);
         }
 
-        /// <summary>
-        /// Return instances of all registered types requested.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is useful if you've registered multiple types with the same
-        /// <see cref="Type"/> but different names.
-        /// </para>
-        /// <para>
-        /// Be aware that this method does NOT return an instance for the default (unnamed) registration.
-        /// </para>
-        /// </remarks>
-        /// <param name="type">The type requested.</param>
-        /// <param name="resolverOverrides">Any overrides for the resolve calls.</param>
-        /// <returns>Set of objects of type <paramref name="type"/>.</returns>
-        public IEnumerable<object> ResolveAll(Type type, params ResolverOverride[] resolverOverrides)
-        {
-            var result = this.Resolve((type ?? throw new ArgumentNullException(nameof(type)))
-                .MakeArrayType(), resolverOverrides);
-
-            return result is IEnumerable<object>
-                ? (IEnumerable<object>)result
-                : ((Array)result).Cast<object>();
-        }
-
         #endregion
 
 
@@ -215,28 +188,6 @@ namespace Unity
 
             return DoBuildUp(type, existing ?? throw new ArgumentNullException(nameof(existing)), 
                              name, resolverOverrides);
-        }
-
-        /// <summary>
-        /// Run an existing object through the container, and clean it up.
-        /// </summary>
-        /// <param name="obj">The object to tear down.</param>
-        public void Teardown(object obj)
-        {
-            IBuilderContext context = null;
-            var o = obj ?? throw new ArgumentNullException(nameof(obj));
-            try
-            {
-                context = new BuilderContext(this, _strategies.MakeStrategyChain(), 
-                                             _lifetimeContainer, _policies, 
-                                             null, o);
-
-                context.Strategies.ExecuteTearDown(context);
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(o.GetType(), null, ex, context);
-            }
         }
 
         #endregion

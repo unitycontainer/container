@@ -30,19 +30,5 @@ namespace Unity.ObjectBuilder.Strategies
 
             awareObject?.OnBuiltUp(context.BuildKey);
         }
-
-        /// <summary>
-        /// Called during the chain of responsibility for a teardown operation. The
-        /// PreTearDown method is called when the chain is being executed in the
-        /// forward direction.
-        /// </summary>
-        /// <param name="context">Context of the teardown operation.</param>
-        public override void PreTearDown(IBuilderContext context)
-        {
-            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing is IBuilderAware awareObject)
-            {
-                awareObject.OnTearingDown();
-            }
-        }
     }
 }

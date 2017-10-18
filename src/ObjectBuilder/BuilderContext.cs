@@ -19,11 +19,6 @@ namespace Unity.ObjectBuilder
     public class BuilderContext : IBuilderContext
     {
         private readonly IStrategyChain _chain;
-        private readonly ILifetimeContainer _lifetime;
-        private readonly IRecoveryStack _recoveryStack = new RecoveryStack();
-        private readonly NamedTypeBuildKey _originalBuildKey;
-        private readonly IPolicyList _persistentPolicies;
-        private readonly IPolicyList _policies;
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
 
@@ -46,11 +41,11 @@ namespace Unity.ObjectBuilder
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
-            _lifetime = lifetime;
-            _originalBuildKey = originalBuildKey;
+            Lifetime = lifetime;
+            OriginalBuildKey = originalBuildKey;
             BuildKey = originalBuildKey;
-            _persistentPolicies = policies;
-            _policies = new PolicyList(_persistentPolicies);
+            PersistentPolicies = policies;
+            Policies = new PolicyList(PersistentPolicies);
             Existing = existing;
             _resolverOverrides = new CompositeResolverOverride();
             _ownsOverrides = true;
@@ -73,10 +68,10 @@ namespace Unity.ObjectBuilder
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
-            _lifetime = lifetime;
-            _persistentPolicies = persistentPolicies;
-            _policies = transientPolicies;
-            _originalBuildKey = buildKey;
+            Lifetime = lifetime;
+            PersistentPolicies = persistentPolicies;
+            Policies = transientPolicies;
+            OriginalBuildKey = buildKey;
             BuildKey = buildKey;
             Existing = existing;
             _resolverOverrides = new CompositeResolverOverride();
@@ -100,10 +95,10 @@ namespace Unity.ObjectBuilder
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
-            _lifetime = lifetime;
-            _persistentPolicies = persistentPolicies;
-            _policies = transientPolicies;
-            _originalBuildKey = buildKey;
+            Lifetime = lifetime;
+            PersistentPolicies = persistentPolicies;
+            Policies = transientPolicies;
+            OriginalBuildKey = buildKey;
             BuildKey = buildKey;
             Existing = null;
             _resolverOverrides = resolverOverrides;
@@ -121,10 +116,7 @@ namespace Unity.ObjectBuilder
         /// The strategy that's first in the chain; returns null if there are no
         /// strategies in the chain.
         /// </returns>
-        public IStrategyChain Strategies
-        {
-            get { return _chain; }
-        }
+        public IStrategyChain Strategies => _chain;
 
         /// <summary>
         /// Get the current build key for the current build operation.
@@ -145,10 +137,7 @@ namespace Unity.ObjectBuilder
         /// <value>
         /// The <see cref="ILifetimeContainer"/> associated with the build.
         /// </value>
-        public ILifetimeContainer Lifetime
-        {
-            get { return _lifetime; }
-        }
+        public ILifetimeContainer Lifetime { get; }
 
         /// <summary>
         /// Gets the original build key for the build operation.
@@ -156,10 +145,7 @@ namespace Unity.ObjectBuilder
         /// <value>
         /// The original build key for the build operation.
         /// </value>
-        public NamedTypeBuildKey OriginalBuildKey
-        {
-            get { return _originalBuildKey; }
-        }
+        public NamedTypeBuildKey OriginalBuildKey { get; }
 
         /// <summary>
         /// The set of policies that were passed into this context.
@@ -167,10 +153,7 @@ namespace Unity.ObjectBuilder
         /// <remarks>This returns the policies passed into the context.
         /// Policies added here will remain after buildup completes.</remarks>
         /// <value>The persistent policies for the current context.</value>
-        public IPolicyList PersistentPolicies
-        {
-            get { return _persistentPolicies; }
-        }
+        public IPolicyList PersistentPolicies { get; }
 
         /// <summary>
         /// Gets the policies for the current context. 
@@ -182,19 +165,13 @@ namespace Unity.ObjectBuilder
         /// <value>
         /// The policies for the current context.
         /// </value>
-        public IPolicyList Policies
-        {
-            get { return _policies; }
-        }
+        public IPolicyList Policies { get; }
 
         /// <summary>
         /// Gets the collection of <see cref="IRequiresRecovery"/> objects
         /// that need to execute in event of an exception.
         /// </summary>
-        public IRecoveryStack RecoveryStack
-        {
-            get { return _recoveryStack; }
-        }
+        public IRecoveryStack RecoveryStack { get; } = new RecoveryStack();
 
         /// <summary>
         /// Flag indicating if the build operation should continue.
@@ -243,23 +220,6 @@ namespace Unity.ObjectBuilder
         }
 
         /// <summary>
-        /// A convenience method to do a new buildup operation on an existing context.
-        /// </summary>
-        /// <param name="newBuildKey">Key to use to build up.</param>
-        /// <returns>Created object.</returns>
-        public object NewBuildUp(NamedTypeBuildKey newBuildKey)
-        {
-            ChildContext =
-                new BuilderContext(Container, _chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
-
-            object result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
-
-            ChildContext = null;
-
-            return result;
-        }
-
-        /// <summary>
         /// A convenience method to do a new buildup operation on an existing context. This
         /// overload allows you to specify extra policies which will be in effect for the duration
         /// of the build.
@@ -269,12 +229,12 @@ namespace Unity.ObjectBuilder
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+        public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
         {
             ChildContext =
-                new BuilderContext(Container, _chain, _lifetime, _persistentPolicies, _policies, newBuildKey, _resolverOverrides);
+                new BuilderContext(Container, _chain, Lifetime, PersistentPolicies, Policies, newBuildKey, _resolverOverrides);
 
-            (childCustomizationBlock ?? throw new ArgumentNullException(nameof(childCustomizationBlock)))(ChildContext);
+            childCustomizationBlock?.Invoke(ChildContext);
 
             object result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
 

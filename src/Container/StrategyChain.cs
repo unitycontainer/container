@@ -57,35 +57,6 @@ namespace Unity.Container
             }
         }
 
-        /// <summary>
-        /// Execute this strategy chain against the given context,
-        /// calling the TearDown methods on the strategies.
-        /// </summary>
-        /// <param name="builderContext">Context for the teardown process.</param>
-        public void ExecuteTearDown(IBuilderContext builderContext)
-        {
-            var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
-            int i = _strategies.Length;
-
-            try
-            {
-                while (--i >= 0 && !context.BuildComplete)
-                {
-                    _strategies[i].PreTearDown(context);
-                }
-
-                while (++i < _strategies.Length)
-                {
-                    _strategies[i].PostTearDown(context);
-                }
-            }
-            catch (Exception)
-            {
-                context.RecoveryStack.ExecuteRecovery();
-                throw;
-            }
-        }
-
         #region IEnumerable Members
 
         /// <summary>

@@ -57,36 +57,6 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             Assert.IsFalse(obj.OnTearingDownWasCalled);
         }
 
-        [TestMethod]
-        public void TearDownCallsClassWithInterface()
-        {
-            var strategy = new BuilderAwareStrategy();
-            var context = new MockBuilderContext();
-            var obj = new Aware();
-
-            context.Strategies.Add(strategy);
-
-            context.ExecuteTearDown(obj);
-
-            Assert.IsFalse(obj.OnBuiltUpWasCalled);
-            Assert.IsTrue(obj.OnTearingDownWasCalled);
-        }
-
-        [TestMethod]
-        public void TearDownIgnoresClassWithoutInterface()
-        {
-            var strategy = new BuilderAwareStrategy();
-            var context = new MockBuilderContext();
-            var obj = new Ignorant();
-
-            context.Strategies.Add(strategy);
-
-            context.ExecuteTearDown(obj);
-
-            Assert.IsFalse(obj.OnBuiltUpWasCalled);
-            Assert.IsFalse(obj.OnTearingDownWasCalled);
-        }
-
         private class Aware : Ignorant, IBuilderAware { }
 
         private class Ignorant
