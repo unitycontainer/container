@@ -3,6 +3,6 @@
   "name": "Unity.Container",
   "description": "The Unity Container is a lightweight, extensible dependency injection container.",
   "devDependencies": {
-    "Unity.Abstractions": "unitycontainer/abstractions"
+    "Abstractions": "unitycontainer/abstractions"
   }
 }
