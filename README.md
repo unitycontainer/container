@@ -15,5 +15,3 @@ The Unity Container (Unity) is a lightweight, extensible dependency injection co
 * Service location capability; this allows clients to store or cache the container
 * Instance and type interception
 * Registration by convention
-
-# This is work in progress (5.0.0)
