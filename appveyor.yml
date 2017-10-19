@@ -30,7 +30,7 @@ deploy:
   force_update: true
   description: $(build_description)
   tag: $(appveyor_repo_tag_name)
-  release: v$(appveyor_repo_tag_name)
+  release: $(appveyor_repo_tag_name)
   artifact: /.*\.nupkg/            # upload all NuGet packages to release assets
   draft: false
   prerelease: false
