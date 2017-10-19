@@ -211,7 +211,7 @@ namespace Unity.Builder
         /// <param name="value">Value to store.</param>
         public InternalPerResolveLifetimeManager(object value)
         {
-            _value = value;
+            base.value = value;
             InUse = true;
         }
     }
