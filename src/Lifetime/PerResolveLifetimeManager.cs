@@ -9,7 +9,7 @@ namespace Unity.Lifetime
     /// </summary>
     public class PerResolveLifetimeManager : LifetimeManager
     {
-        protected object _value;
+        protected object value;
 
         /// <summary>
         /// Construct a new <see cref="PerResolveLifetimeManager"/> object that does not
@@ -17,7 +17,7 @@ namespace Unity.Lifetime
         /// </summary>
         public PerResolveLifetimeManager()
         {
-            _value = null;
+            value = null;
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Unity.Lifetime
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         public override object GetValue()
         {
-            return _value;
+            return value;
         }
 
         /// <summary>
