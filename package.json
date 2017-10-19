@@ -2,7 +2,7 @@
   "version": "5.0.0",
   "name": "Unity.Container",
   "description": "The Unity Container is a lightweight, extensible dependency injection container.",
-  { "dependencies" : { 
+  "dependencies" : { 
     "Unity.Abstractions" : ">=2.0.0"
     }
   }
