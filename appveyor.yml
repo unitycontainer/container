@@ -4,6 +4,7 @@ platform: Any CPU
 
 install:
   - ps: $env:build_version = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version 
+  - ps: $env:build_description = (Get-Content -Raw -Path package.json | ConvertFrom-Json).description
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
 
 dotnet_csproj:
@@ -27,13 +28,14 @@ artifacts:
 deploy:
 - provider: GitHub
   force_update: true
+  description: $(build_description)
   tag: $(appveyor_repo_tag_name)
   release: v$(appveyor_repo_tag_name)
-  auth_token:
-    secure: 0RltkfAMN35pApf7xYqjwy1EgsVeniSYPv35Qb9ntHY1b4SC51QYLXVVfklvw09j
   artifact: /.*\.nupkg/            # upload all NuGet packages to release assets
   draft: false
   prerelease: false
+  auth_token:
+    secure: 0RltkfAMN35pApf7xYqjwy1EgsVeniSYPv35Qb9ntHY1b4SC51QYLXVVfklvw09j
   on:
     appveyor_repo_tag: true        # deploy on tag push only  
 - provider: NuGet
