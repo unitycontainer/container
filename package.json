@@ -1,0 +1,5 @@
+{
+  "version": "2.0.0",
+  "name": "Unity.Abstractions",
+  "description": "Public interfaces & base classes for Unity library."
+}
