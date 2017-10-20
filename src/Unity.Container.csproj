@@ -48,11 +48,15 @@
   </PropertyGroup>
   
 
-  <ItemGroup Condition="'$(Configuration)'!='Release'">
-    <ProjectReference Include="..\..\Abstractions\src\Unity.Abstractions.csproj" />
+  <PropertyGroup>
+    <UnityAbstractions>$(SolutionDir)\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(UnityAbstractions)')">
+    <ProjectReference Include="$(UnityAbstractions)" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+  <ItemGroup Condition="!Exists('$(UnityAbstractions)')">
     <PackageReference Include="Unity.Abstractions" Version="2.0.1" />
   </ItemGroup>
 
