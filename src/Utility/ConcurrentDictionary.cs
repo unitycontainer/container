@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 
 namespace System.Collections.Concurrent
 {
-
     /// <summary>
     /// Represents a thread-safe collection of keys and values.
     /// </summary>
