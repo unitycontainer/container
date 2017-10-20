@@ -19,23 +19,6 @@
     <Configurations>Debug;Release;Package</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Package'">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
-    <OutputPath>$(SolutionDir)\lib\</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>Full</DebugType>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <TargetFramework>netstandard1.0</TargetFramework>
-  </PropertyGroup>
-
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
@@ -45,5 +28,24 @@
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' == 'netstandard1.0' ">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
+
+
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Package'">
+    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <OutputPath>$(SolutionDir)\lib\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
 
 </Project>
