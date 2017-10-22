@@ -16,7 +16,7 @@
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
     <RootNamespace>Unity</RootNamespace>
-    <Configurations>Debug;Release;Package</Configurations>
+    <OutputPath>$(SolutionDir)\lib\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -33,12 +33,6 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)'=='Package'">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
-    <OutputPath>$(SolutionDir)\lib\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
