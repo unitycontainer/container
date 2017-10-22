@@ -30,7 +30,6 @@
   </ItemGroup>
 
 
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <TargetFrameworks>netstandard1.0;net47;net45;net40</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
