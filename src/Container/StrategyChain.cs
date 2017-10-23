@@ -31,7 +31,7 @@ namespace Unity.Container
         /// </summary>
         /// <param name="builderContext">Context for the build processes.</param>
         /// <returns>The build up object</returns>
-        public object ExecuteBuildUp(IBuilderContext builderContext)
+        public void BuildUp(IBuilderContext builderContext)
         {
             var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
             var i = 0;
@@ -47,8 +47,6 @@ namespace Unity.Container
                 {
                     _strategies[i].PostBuildUp(context);
                 }
-
-                return context.Existing;
             }
             catch (Exception)
             {
