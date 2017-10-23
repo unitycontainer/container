@@ -33,3 +33,24 @@ after_test:
 artifacts:
 - path: '**\Unity.*.nupkg'
   name: 'Unity'
+
+deploy:
+- provider: GitHub
+  force_update: true
+  description: $(build_description)
+  tag: $(appveyor_repo_tag_name)
+  release: $(appveyor_repo_tag_name)
+  artifact: /.*\.nupkg/            # upload all NuGet packages to release assets
+  draft: false
+  prerelease: false
+  auth_token:
+    secure: 0RltkfAMN35pApf7xYqjwy1EgsVeniSYPv35Qb9ntHY1b4SC51QYLXVVfklvw09j
+  on:
+    appveyor_repo_tag: true        # deploy on tag push only  
+- provider: NuGet
+  api_key:
+    secure: Q/HUObjarHxWF0NlnHBDY5uMQHM4ESyKfFCYdbRVfsNrWUFozADu6FMvh44gEmFk
+  skip_symbols: false
+  artifact: /.*\.nupkg/
+  on:
+    appveyor_repo_tag: true        # deploy on tag push only 
