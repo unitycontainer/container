@@ -68,7 +68,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// </summary>
         /// <param name="context">Context for the build processes.</param>
         /// <returns>The build up object</returns>
-        public object ExecuteBuildUp(IBuilderContext builderContext)
+        public void BuildUp(IBuilderContext builderContext)
         {
             var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
             int i = 0;
@@ -93,7 +93,6 @@ namespace Microsoft.Practices.Unity.TestSupport
                 {
                     _strategies[i].PostBuildUp(context);
                 }
-                return context.Existing;
             }
             catch (Exception)
             {

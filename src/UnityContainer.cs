@@ -17,6 +17,7 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.ResolverPolicy;
+using Unity.Strategy;
 
 namespace Unity
 {
@@ -160,6 +161,12 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
+            var context = new BuilderContext(this, type ?? throw new ArgumentNullException(nameof(type)), 
+                                             name, null, resolverOverrides);
+
+            var policy = _policies.Get<IBuildPlanPolicy>(context);
+
+
             return BuildUp(type, null, name, resolverOverrides);
         }
 
@@ -364,6 +371,9 @@ namespace Unity
 
         #endregion
 
+
+        #region Registrations
+
         /// <summary>
         /// Get a sequence of <see cref="ContainerRegistration"/> that describe the current state
         /// of the container.
@@ -414,5 +424,7 @@ namespace Unity
                     (typeRegistrations[t].Concat(_registeredNames.GetKeys(t))).Distinct().ToList();
             }
         }
+
+        #endregion
     }
 }
