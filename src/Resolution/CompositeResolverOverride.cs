@@ -17,7 +17,17 @@ namespace Unity.Resolution
     /// </summary>
     public class CompositeResolverOverride : ResolverOverride, IEnumerable<ResolverOverride>
     {
-        private readonly List<ResolverOverride> _overrides = new List<ResolverOverride>();
+        private readonly List<ResolverOverride> _overrides;
+
+        public CompositeResolverOverride()
+        {
+            _overrides = new List<ResolverOverride>();
+        }
+
+        public CompositeResolverOverride(params ResolverOverride[] resolverOverrides)
+        {
+            _overrides = new List<ResolverOverride>(resolverOverrides);
+        }
 
         /// <summary>
         /// Add a new <see cref="ResolverOverride"/> to the collection

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 
+using System;
 using Unity.Builder;
 
 namespace Unity.Policy
@@ -18,5 +19,22 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Context used to build up the object.</param>
         void BuildUp(IBuilderContext context);
+    }
+
+    public static class BuildPlanPolicyExtensions
+    {
+        /// <summary>
+        /// Execute this strategy chain against the given context,
+        /// calling the Buildup methods on the strategies.
+        /// </summary>
+        /// <param name="policy"></param>
+        /// <param name="context">Context for the build process.</param>
+        /// <returns>The build up object</returns>
+        public static object ExecuteBuildUp(this IBuildPlanPolicy policy, IBuilderContext context)
+        {
+            policy.BuildUp(context ?? throw new ArgumentNullException(nameof(context)));
+            return context.Existing;
+        }
+
     }
 }
