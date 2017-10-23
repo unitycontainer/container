@@ -43,7 +43,7 @@
   
 
   <PropertyGroup>
-    <UnityAbstractions>$(SolutionDir)Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+    <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
 
   <ItemGroup Condition="Exists('$(UnityAbstractions)')">
