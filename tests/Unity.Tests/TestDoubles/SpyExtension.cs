@@ -6,6 +6,7 @@ using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Extension;
+using Unity.Policy;
 
 namespace Microsoft.Practices.Unity.Tests.TestDoubles
 {
