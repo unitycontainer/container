@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
@@ -16,8 +15,15 @@ namespace Unity.Tests.Override
     [TestClass]
     public class TypeBasedOverrideFixture
     {
-        public TypeBasedOverrideFixture()
+        [TestMethod]
+        public void OverrideComparison()
         {
+            var name = "name";
+            var instance = this;
+
+            Assert.AreEqual(new ParameterOverride(name, instance), new ParameterOverride(name, instance));
+            Assert.AreEqual(new PropertyOverride(name, instance), new PropertyOverride(name, instance));
+            Assert.AreNotEqual(new ParameterOverride(name, instance), new PropertyOverride(name, instance));
         }
 
         [TestMethod]
