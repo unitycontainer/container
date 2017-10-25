@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Injection;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests
 {
     /// <summary>
     /// Tests for the hierarchical features of the UnityContainer.
@@ -46,11 +45,11 @@ namespace Microsoft.Practices.Unity.Tests
         {
             string[] databases = { "northwind", "adventureworks", "fabrikam" };
             UnityContainer parent = new UnityContainer();
-            parent.RegisterInstance<string>("nwnd", databases[0])
-                .RegisterInstance<string>("advwks", databases[1]);
+            parent.RegisterInstance("nwnd", databases[0])
+                .RegisterInstance("advwks", databases[1]);
 
             IUnityContainer child = parent.CreateChildContainer()
-                .RegisterInstance<string>("fbkm", databases[2]);
+                .RegisterInstance("fbkm", databases[2]);
 
             List<string> dbs = new List<string>(child.ResolveAll<string>());
             CollectionAssertExtensions.AreEquivalent(databases, dbs);
@@ -113,7 +112,7 @@ namespace Microsoft.Practices.Unity.Tests
             IUnityContainer child = parent.CreateChildContainer();
 
             DisposableObject spy = new DisposableObject();
-            child.RegisterInstance<DisposableObject>(spy);
+            child.RegisterInstance(spy);
 
             parent.Dispose();
             Assert.IsTrue(spy.WasDisposed);

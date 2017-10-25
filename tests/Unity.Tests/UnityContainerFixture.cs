@@ -2,11 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Attributes;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -15,7 +13,7 @@ using Unity.Extension;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests
 {
     [TestClass]
     public class UnityContainerFixture
@@ -532,8 +530,8 @@ namespace Microsoft.Practices.Unity.Tests
             string first = "first";
             string second = "second";
 
-            container.RegisterInstance<string>(first)
-                .RegisterInstance<string>(second);
+            container.RegisterInstance(first)
+                .RegisterInstance(second);
 
             string result = container.Resolve<string>();
 
@@ -613,7 +611,7 @@ namespace Microsoft.Practices.Unity.Tests
         {
             protected override void Initialize()
             {
-                this.Context.Strategies.Add(new GarbageCollectingStrategy(), UnityBuildStage.Setup);
+                Context.Strategies.Add(new GarbageCollectingStrategy(), UnityBuildStage.Setup);
             }
 
             public class GarbageCollectingStrategy : BuilderStrategy
@@ -651,7 +649,7 @@ namespace Microsoft.Practices.Unity.Tests
 
             AssertExtensions.AssertException<ResolutionFailedException>(
                 () => { container.Resolve(typeof(List<>)); },
-                (e) => { AssertExtensions.IsInstanceOfType(e.InnerException, typeof(ArgumentException)); });
+                e => { AssertExtensions.IsInstanceOfType(e.InnerException, typeof(ArgumentException)); });
         }
 
         [TestMethod]
@@ -661,7 +659,7 @@ namespace Microsoft.Practices.Unity.Tests
 
             AssertExtensions.AssertException<ResolutionFailedException>(
                 () => { container.Resolve<ObjectWithPrivateSetter>(); },
-                (e) => { AssertExtensions.IsInstanceOfType(e.InnerException, typeof(InvalidOperationException)); });
+                e => { AssertExtensions.IsInstanceOfType(e.InnerException, typeof(InvalidOperationException)); });
         }
 
         [TestMethod]
