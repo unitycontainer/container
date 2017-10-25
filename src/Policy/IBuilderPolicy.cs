@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 
-namespace Unity.Builder
+namespace Unity.Policy
 {
     /// <summary>
     /// Represents a builder policy interface. Since there are no fixed requirements

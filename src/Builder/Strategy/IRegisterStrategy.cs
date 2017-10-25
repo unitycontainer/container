@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Builder.Strategy
