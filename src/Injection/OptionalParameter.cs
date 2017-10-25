@@ -34,7 +34,7 @@ namespace Unity.Injection
         /// <param name="type">Type of the dependency.</param>
         /// <param name="name">Name for the dependency.</param>
         public OptionalParameter(Type type, string name)
-            : base(type)
+            : base(type, null)
         {
             _name = name;
         }

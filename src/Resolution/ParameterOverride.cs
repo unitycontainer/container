@@ -14,9 +14,6 @@ namespace Unity.Resolution
     /// </summary>
     public class ParameterOverride : ResolverOverride
     {
-        private readonly string _parameterName;
-        private readonly InjectionParameterValue _parameterValue;
-
         /// <summary>
         /// Construct a new <see cref="ParameterOverride"/> object that will
         /// override the given named constructor parameter, and pass the given
@@ -25,9 +22,8 @@ namespace Unity.Resolution
         /// <param name="parameterName">Name of the constructor parameter.</param>
         /// <param name="parameterValue">Value to pass for the constructor.</param>
         public ParameterOverride(string parameterName, object parameterValue)
+            : base(parameterName, parameterValue ?? throw new ArgumentNullException(nameof(parameterValue)))
         {
-            _parameterName = parameterName;
-            _parameterValue = InjectionParameterValue.ToParameter(parameterValue);
         }
 
         /// <summary>
@@ -40,9 +36,9 @@ namespace Unity.Resolution
         public override IDependencyResolverPolicy GetResolver(IBuilderContext context, Type dependencyType)
         {
             if ((context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation is ParameterResolveOperation currentOperation &&
-                currentOperation.ParameterName == _parameterName)
+                currentOperation.ParameterName == Name)
             {
-                return _parameterValue.GetResolverPolicy(dependencyType);
+                return Value.GetResolverPolicy(dependencyType);
             }
 
             return null;

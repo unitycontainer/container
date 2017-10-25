@@ -34,7 +34,7 @@ namespace Unity.Injection
         /// <param name="parameterType">Type of this parameter.</param>
         /// <param name="name">Name to use when resolving parameter.</param>
         public ResolvedParameter(Type parameterType, string name)
-            : base(parameterType)
+            : base(parameterType, null)
         {
             _name = name;
         }

@@ -13,8 +13,6 @@ namespace Unity.Injection
     /// </summary>
     public class InjectionParameter : TypedInjectionValue
     {
-        private readonly object _parameterValue;
-
         /// <summary>
         /// Create an instance of <see cref="InjectionParameter"/> that stores
         /// the given value, using the runtime type of that value as the
@@ -33,9 +31,8 @@ namespace Unity.Injection
         /// <param name="parameterType">Type of the parameter.</param>
         /// <param name="parameterValue">Value of the parameter</param>
         public InjectionParameter(Type parameterType, object parameterValue)
-            : base(parameterType)
+            : base(parameterType, parameterValue)
         {
-            _parameterValue = parameterValue;
         }
 
 
@@ -53,7 +50,7 @@ namespace Unity.Injection
         /// <returns>The <see cref="IDependencyResolverPolicy"/>.</returns>
         public override IDependencyResolverPolicy GetResolverPolicy(Type typeToBuild)
         {
-            return new LiteralValueDependencyResolverPolicy(this._parameterValue);
+            return new LiteralValueDependencyResolverPolicy(Value);
         }
     }
 

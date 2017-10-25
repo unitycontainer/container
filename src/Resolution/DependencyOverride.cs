@@ -14,7 +14,6 @@ namespace Unity.Resolution
     /// </summary>
     public class DependencyOverride : ResolverOverride
     {
-        private readonly InjectionParameterValue _dependencyValue;
         private readonly Type _typeToConstruct;
 
         /// <summary>
@@ -24,9 +23,9 @@ namespace Unity.Resolution
         /// <param name="typeToConstruct">Type of the dependency.</param>
         /// <param name="dependencyValue">Value to use.</param>
         public DependencyOverride(Type typeToConstruct, object dependencyValue)
+            : base(null, dependencyValue)
         {
             _typeToConstruct = typeToConstruct;
-            _dependencyValue = InjectionParameterValue.ToParameter(dependencyValue);
         }
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace Unity.Resolution
             IDependencyResolverPolicy result = null;
             if (dependencyType == _typeToConstruct)
             {
-                result = _dependencyValue.GetResolverPolicy(dependencyType);
+                result = Value.GetResolverPolicy(dependencyType);
             }
             return result;
         }

@@ -11,8 +11,6 @@ namespace Unity.Builder
     /// </summary>
     public class NamedTypeBuildKey
     {
-        private readonly Type _type;
-        private readonly string _name;
         private readonly int _hash;
 
         /// <summary>
@@ -23,9 +21,9 @@ namespace Unity.Builder
         /// <param name="name">Key to use to look up type mappings and singletons.</param>
         public NamedTypeBuildKey(Type type, string name)
         {
-            _type = type;
-            _name = !string.IsNullOrEmpty(name) ? name : null;
-            _hash = (_type?.GetHashCode() ?? 0 + 37) ^ (_name?.GetHashCode() ?? 0 + 17);
+            Type = type;
+            Name = !string.IsNullOrEmpty(name) ? name : null;
+            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
 
         /// <summary>
@@ -65,19 +63,13 @@ namespace Unity.Builder
         /// Return the <see cref="Type"/> stored in this build key.
         /// </summary>
         /// <value>The type to build.</value>
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type { get; }
 
         /// <summary>
         /// Returns the name stored in this build key.
         /// </summary>
         /// <remarks>The name to use when building.</remarks>
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name { get; }
 
         /// <summary>
         /// Compare two <see cref="NamedTypeBuildKey"/> instances.
@@ -112,7 +104,7 @@ namespace Unity.Builder
         public static bool operator ==(NamedTypeBuildKey left, NamedTypeBuildKey right)
         {
             return left?._hash == right?._hash &&
-                   left?._type == right?._type;
+                   left?.Type == right?.Type;
         }
 
         /// <summary>
@@ -135,7 +127,7 @@ namespace Unity.Builder
         /// <returns>A readable string representation of the build key.</returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "Build Key[{0}, {1}]", _type, _name ?? "null");
+            return string.Format(CultureInfo.InvariantCulture, "Build Key[{0}, {1}]", Type, Name ?? "null");
         }
     }
 

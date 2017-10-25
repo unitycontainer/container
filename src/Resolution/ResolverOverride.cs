@@ -2,6 +2,7 @@
 
 using System;
 using Unity.Builder;
+using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Resolution
@@ -12,6 +13,19 @@ namespace Unity.Resolution
     /// </summary>
     public abstract class ResolverOverride
     {
+        protected ResolverOverride() { }
+
+        protected ResolverOverride(string name, object value)
+        {
+            Name = name;
+            Value = null == value ? null : InjectionParameterValue.ToParameter(value);
+        }
+
+        public virtual string Name { get; }
+
+
+        public virtual InjectionParameterValue Value { get; }
+
         /// <summary>
         /// Return a <see cref="IDependencyResolverPolicy"/> that can be used to give a value
         /// for the given desired dependency.
@@ -42,5 +56,28 @@ namespace Unity.Resolution
         {
             return new TypeBasedOverride(typeToOverride, this);
         }
+
+
+        public override int GetHashCode()
+        {
+            return ((Value?.Value?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^  GetType().GetHashCode();
+
+        }
+
+        public override bool Equals(object obj)
+        {
+            return this == obj as ResolverOverride;
+        }
+
+        public static bool operator ==(ResolverOverride left, ResolverOverride right)
+        {
+            return left?.GetHashCode() == right?.GetHashCode();
+        }
+
+        public static bool operator !=(ResolverOverride left, ResolverOverride right)
+        {
+            return !(left == right);
+        }
+
     }
 }

@@ -14,18 +14,14 @@ namespace Unity.Resolution
     /// </summary>
     public class PropertyOverride : ResolverOverride
     {
-        private readonly string _propertyName;
-        private readonly InjectionParameterValue _propertyValue;
-
         /// <summary>
         /// Create an instance of <see cref="PropertyOverride"/>.
         /// </summary>
         /// <param name="propertyName">The property name.</param>
         /// <param name="propertyValue">Value to use for the property.</param>
         public PropertyOverride(string propertyName, object propertyValue)
+            : base(propertyName, propertyValue ?? throw new ArgumentNullException(nameof(propertyValue)))
         {
-            this._propertyName = propertyName;
-            this._propertyValue = InjectionParameterValue.ToParameter(propertyValue);
         }
 
         /// <summary>
@@ -38,9 +34,9 @@ namespace Unity.Resolution
         public override IDependencyResolverPolicy GetResolver(IBuilderContext context, Type dependencyType)
         {
             if ((context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation is ResolvingPropertyValueOperation currentOperation
-                && currentOperation.PropertyName == _propertyName)
+                && currentOperation.PropertyName == Name)
             {
-                return _propertyValue.GetResolverPolicy(dependencyType);
+                return Value.GetResolverPolicy(dependencyType);
             }
             return null;
         }

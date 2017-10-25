@@ -13,6 +13,14 @@ namespace Unity.Injection
     /// </summary>
     public abstract class InjectionParameterValue
     {
+        protected InjectionParameterValue(object value = null)
+        {
+            Value = value;
+        }
+
+        public object Value { get; }
+
+
         /// <summary>
         /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
         /// This may be an actual type name or a generic argument name.
@@ -65,16 +73,13 @@ namespace Unity.Injection
         /// <returns>The resulting <see cref="InjectionParameterValue"/>.</returns>
         public static InjectionParameterValue ToParameter(object value)
         {
-            InjectionParameterValue parameterValue = value as InjectionParameterValue;
-            if (parameterValue != null)
+            switch (value)
             {
-                return parameterValue;
-            }
+                case InjectionParameterValue parameterValue:
+                    return parameterValue;
 
-            Type typeValue = value as Type;
-            if (typeValue != null)
-            {
-                return new ResolvedParameter(typeValue);
+                case Type typeValue:
+                    return new ResolvedParameter(typeValue);
             }
 
             return new InjectionParameter(value);

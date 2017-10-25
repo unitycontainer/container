@@ -20,11 +20,13 @@ namespace Unity.Resolution
         private readonly List<ResolverOverride> _overrides;
 
         public CompositeResolverOverride()
+            : base(null, null)
         {
             _overrides = new List<ResolverOverride>();
         }
 
         public CompositeResolverOverride(params ResolverOverride[] resolverOverrides)
+            : base(null, null)
         {
             _overrides = new List<ResolverOverride>(resolverOverrides);
         }

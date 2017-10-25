@@ -39,7 +39,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         protected ResolvedArrayParameter(Type arrayParameterType, Type elementType, params object[] elementValues)
-            : base(arrayParameterType)
+            : base(arrayParameterType, null)
         {
             _elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             _elementValues.AddRange(ToParameters(elementValues ?? throw new ArgumentNullException(nameof(elementValues))));
