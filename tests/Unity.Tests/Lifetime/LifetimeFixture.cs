@@ -425,15 +425,5 @@ namespace Unity.Tests.Lifetime
             Assert.AreEqual(b, c);
             Assert.AreEqual(a, c);
         }
-
-        [TestMethod]
-        public void RegisterInstanceLifetimeManagerNullTest()
-        {
-            ATTest obj1 = new ATTest();
-            obj1.Strtest = "obj1";
-
-            UnityContainer uc = new UnityContainer();
-            AssertHelper.ThrowsException<ArgumentNullException>(() => uc.RegisterInstance("obj2", obj1, null));
-        }
     }
 }

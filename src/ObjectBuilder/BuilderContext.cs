@@ -19,13 +19,13 @@ namespace Unity.ObjectBuilder
     public class BuilderContext : IBuilderContext
     {
         private readonly IStrategyChain _chain;
-        private CompositeResolverOverride _resolverOverrides;
+        private CompositeResolverOverride _resolverOverrides;   // TODO: This does not need to be List
         private bool _ownsOverrides;
 
-        public BuilderContext(UnityContainer container, Type type, string name, object existing, params ResolverOverride[] resolverOverrides)
+        public BuilderContext(UnityContainer container, NamedTypeBuildKey key, object existing, params ResolverOverride[] resolverOverrides)
         {
             Container = container;
-            OriginalBuildKey = BuildKey = new NamedTypeBuildKey(type, name);
+            OriginalBuildKey = BuildKey = key;
             Existing = existing;
             _ownsOverrides = true;            
             _resolverOverrides = new CompositeResolverOverride(resolverOverrides);

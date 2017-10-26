@@ -17,7 +17,6 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.ResolverPolicy;
-using Unity.Strategy;
 
 namespace Unity
 {
@@ -120,7 +119,7 @@ namespace Unity
         /// creates the instance ahead of type and adds that instance to the container.
         /// </para>
         /// </remarks>
-        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="mapType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
         /// <param name="name">Name for registration.</param>
         /// <param name="lifetime">
@@ -130,20 +129,25 @@ namespace Unity
         ///  If false, container will not maintain a strong reference to <paramref name="instance"/>. User is responsible
         /// for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetime)
+        public IUnityContainer RegisterInstance(Type mapType, string name, object instance, LifetimeManager lifetime)
         {
-            InstanceIsAssignable(type, instance, nameof(instance));
+            if (null == instance) throw new ArgumentNullException(nameof(instance));
+            if (null != mapType) InstanceIsAssignable(mapType, instance, nameof(instance));
 
+            var type = mapType ?? instance.GetType();
+            var manager = lifetime ?? new ContainerControlledLifetimeManager();
+            var identityKey = new NamedTypeBuildKey(type, name);
+
+            // TODO: Optimize lifetime management
             _registeredNames.RegisterType(type, name);
-            SetLifetimeManager(type, name, lifetime ?? throw new ArgumentNullException(nameof(lifetime)));
-            NamedTypeBuildKey identityKey = new NamedTypeBuildKey(type, name);
-            PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(identityKey), identityKey);
-            lifetime.SetValue(instance ?? throw new ArgumentNullException(nameof(instance)));
+            SetLifetimeManager(type, name, manager);
+            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
+            manager.SetValue(instance);
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type,
-                                                              instance,
-                                                              name,
-                                                              lifetime));
+            if (manager is IResolverPolicy policy)
+                _policies.Set(policy, identityKey);
+
             return this;
         }
 
@@ -161,13 +165,12 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            var context = new BuilderContext(this, type ?? throw new ArgumentNullException(nameof(type)), 
-                                             name, null, resolverOverrides);
+            var key = new NamedTypeBuildKey(type ?? throw new ArgumentNullException(nameof(type)), name);
 
-            var policy = _policies.Get<IBuildPlanPolicy>(context);
+            var policy = _policies.Get<IResolverPolicy>(key);
 
-
-            return BuildUp(type, null, name, resolverOverrides);
+            return policy?.Resolve(new BuilderContext(this, key, null, resolverOverrides)) ?? 
+                   BuildUp(key, null, resolverOverrides);
         }
 
         #endregion
@@ -196,31 +199,7 @@ namespace Unity
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
 
-            IBuilderContext context = null;
-
-            try
-            {
-                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
-                                                   _lifetimeContainer,
-                                                   _policies,
-                                                   new NamedTypeBuildKey(type, name),
-                                                   existing);
-                context.AddResolverOverrides(resolverOverrides);
-
-                if (type.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    throw new ArgumentException(
-                        String.Format(CultureInfo.CurrentCulture,
-                            Constants.CannotResolveOpenGenericType,
-                            type.FullName), nameof(type));
-                }
-
-                return context.Strategies.ExecuteBuildUp(context);
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(type, name, ex, context);
-            }
+            return BuildUp(new NamedTypeBuildKey(type, name), existing, resolverOverrides);
         }
 
         #endregion

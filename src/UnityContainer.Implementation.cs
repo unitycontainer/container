@@ -95,6 +95,7 @@ namespace Unity
             _policies.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
             _policies.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
             _policies.SetDefault<IBuildPlanCreatorPolicy>(new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+
             _policies.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
             _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
@@ -131,16 +132,38 @@ namespace Unity
         #endregion
 
 
+
         #region Implementation
 
-        /// <summary>
-        /// Verifies that an argument instance is assignable from the provided type (meaning
-        /// interfaces are implemented, or classes exist in the base class hierarchy, or instance can be 
-        /// assigned through a runtime wrapper, as is the case for COM Objects).
-        /// </summary>
-        /// <param name="assignmentTargetType">The argument type that will be assigned to.</param>
-        /// <param name="assignmentInstance">The instance that will be assigned.</param>
-        /// <param name="argumentName">Argument name.</param>
+        private object BuildUp(NamedTypeBuildKey key, object existing, params ResolverOverride[] resolverOverrides)
+        {
+            IBuilderContext context = null;
+
+            try
+            {
+                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
+                                                   _lifetimeContainer,
+                                                   _policies,
+                                                   key,
+                                                   existing);
+                context.AddResolverOverrides(resolverOverrides);
+
+                if (key.Type.GetTypeInfo().IsGenericTypeDefinition)
+                {
+                    throw new ArgumentException(
+                        String.Format(CultureInfo.CurrentCulture,
+                            Constants.CannotResolveOpenGenericType,
+                            key.Type.FullName), nameof(key.Type));
+                }
+
+                return context.Strategies.ExecuteBuildUp(context);
+            }
+            catch (Exception ex)
+            {
+                throw new ResolutionFailedException(key.Type, key.Name, ex, context);
+            }
+        }
+
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
         {
             if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))
