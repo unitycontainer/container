@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Builder;
+using Unity.Policy;
 
 namespace Unity.Lifetime
 {
@@ -8,7 +10,8 @@ namespace Unity.Lifetime
     /// A <see cref="LifetimeManager"/> that holds a weak reference to
     /// it's managed instance.
     /// </summary>
-    public class ExternallyControlledLifetimeManager : LifetimeManager
+    public class ExternallyControlledLifetimeManager : LifetimeManager, 
+                                                       IResolverPolicy
     {
         private WeakReference _value = new WeakReference(null);
 
@@ -36,6 +39,11 @@ namespace Unity.Lifetime
         public override void RemoveValue()
         {
             // DO NOTHING - we don't own this instance.
+        }
+
+        object IResolverPolicy.Resolve(IBuilderContext context)
+        {
+            return _value.Target;
         }
     }
 }

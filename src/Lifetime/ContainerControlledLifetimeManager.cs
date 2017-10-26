@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Builder;
+using Unity.Policy;
 
 namespace Unity.Lifetime
 {
@@ -9,9 +11,18 @@ namespace Unity.Lifetime
     /// When the <see cref="ContainerControlledLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
     /// </summary>
-    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, IDisposable
+    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, 
+                                                      IResolverPolicy, 
+                                                      IDisposable
     {
+        #region Fields
+
         private object _value;
+
+        #endregion
+
+
+        #region SynchronizedLifetimeManager
 
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.
@@ -39,6 +50,21 @@ namespace Unity.Lifetime
             Dispose();
         }
 
+        #endregion
+
+
+        #region IResolverPolicy
+
+        object IResolverPolicy.Resolve(IBuilderContext _)
+        {
+            return _value;
+        }
+
+        #endregion
+
+
+        #region IDisposable
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -61,5 +87,7 @@ namespace Unity.Lifetime
             }
             _value = null;
         }
+
+        #endregion
     }
 }
