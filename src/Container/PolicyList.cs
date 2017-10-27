@@ -221,7 +221,7 @@ namespace Unity.Container
             {
                 PolicyType = policyType;
                 BuildKey = buildKey;
-                _hash = (PolicyType?.GetHashCode() ?? 0) * 37 + BuildKey?.GetHashCode() ?? 0;
+                _hash = ((PolicyType?.GetHashCode() ?? 0) * 37) + (BuildKey?.GetHashCode() ?? 0);
             }
 
             public object BuildKey { get; }
