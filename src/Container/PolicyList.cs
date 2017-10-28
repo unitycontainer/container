@@ -82,31 +82,6 @@ namespace Unity.Container
         }
 
         /// <summary>
-        /// Gets an individual policy.
-        /// </summary>
-        /// <param name="policyInterface">The interface the policy is registered under.</param>
-        /// <param name="buildKey">The key the policy applies.</param>
-        /// <param name="localOnly">true if the policy searches local only; otherwise false to search up the parent chain.</param>
-        /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
-        /// not found.</param>
-        /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public IBuilderPolicy GetOrDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
-        {
-            Type buildType;
-
-            if (buildKey is NamedTypeBuildKey basedBuildKey)
-                buildType = basedBuildKey.Type;
-            else
-                buildType = buildKey as Type;
-
-            return GetPolicyForKey(policyInterface, buildKey, out containingPolicyList) ??
-                GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, out containingPolicyList) ??
-                GetPolicyForType(policyInterface, buildType, out containingPolicyList) ??
-                GetPolicyForOpenGenericType(policyInterface, buildType, out containingPolicyList) ??
-                GetDefaultForPolicy(policyInterface, out containingPolicyList);
-        }
-
-        /// <summary>
         /// GetOrDefault the non default policy.
         /// </summary>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
@@ -137,69 +112,6 @@ namespace Unity.Container
         public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null)
         {
             _policies[new PolicyKey(policyInterface, buildKey)] = policy;
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private IBuilderPolicy GetPolicyForKey(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
-        {
-            if (buildKey != null)
-            {
-                return Get(policyInterface, buildKey, out containingPolicyList);
-            }
-            containingPolicyList = null;
-            return null;
-        }
-
-        private IBuilderPolicy GetPolicyForOpenGenericKey(Type policyInterface, object buildKey, Type buildType, out IPolicyList containingPolicyList)
-        {
-            if (buildType != null && buildType.GetTypeInfo().IsGenericType)
-            {
-                return Get(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()), out containingPolicyList);
-            }
-            containingPolicyList = null;
-            return null;
-        }
-
-        private IBuilderPolicy GetPolicyForType(Type policyInterface, Type buildType, out IPolicyList containingPolicyList)
-        {
-            if (buildType != null)
-            {
-                return Get(policyInterface, buildType, out containingPolicyList);
-            }
-            containingPolicyList = null;
-            return null;
-        }
-
-        private IBuilderPolicy GetPolicyForOpenGenericType(Type policyInterface, Type buildType, out IPolicyList containingPolicyList)
-        {
-            if (buildType != null && buildType.GetTypeInfo().IsGenericType)
-            {
-                return Get(policyInterface, buildType.GetGenericTypeDefinition(), out containingPolicyList);
-            }
-            containingPolicyList = null;
-            return null;
-        }
-
-        private IBuilderPolicy GetDefaultForPolicy(Type policyInterface, out IPolicyList containingPolicyList)
-        {
-            return Get(policyInterface, null, out containingPolicyList);
-        }
-
-        private static object ReplaceType(object buildKey, Type newType)
-        {
-            if (buildKey is Type)
-                return newType;
-
-            if (buildKey is NamedTypeBuildKey originalKey)
-                return new NamedTypeBuildKey(newType, originalKey.Name);
-
-            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                                                      Constants.CannotExtractTypeFromBuildKey,
-                                                      buildKey), nameof(buildKey));
         }
 
         #endregion
