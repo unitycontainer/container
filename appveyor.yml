@@ -5,15 +5,6 @@ platform: Any CPU
 install:
   - ps: $env:build_version = (Select-Xml -Path ".\src\Unity.Abstractions.csproj" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
-  - cmd: set
-
-dotnet_csproj:
-  patch: true
-  file: '**\*.csproj'
-  version: $(build_version)
-  package_version: $(build_version)
-  assembly_version: $(build_version)
-  file_version: $(AppveyorBuild)
 
 before_build:
 - cmd: dotnet restore

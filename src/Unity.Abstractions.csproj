@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <Version>2.0.3</Version>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
-    <FileVersion>2.0.3.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup>
+    <FileVersion>$(Version).0</FileVersion>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
     <PackageId>Unity.Abstractions</PackageId>
     <Description>Unity Container Public Abstractions</Description>
     <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, .NET 4.0, 4.5, 4.7 package.</PackageReleaseNotes>
