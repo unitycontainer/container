@@ -44,9 +44,13 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             list.Set<IBuilderPolicy>(new FakePolicy(), "1");
             list.Set<IBuilderPolicy>(new FakePolicy(), "2");
 
+            Assert.IsNotNull(list.Get<IBuilderPolicy>("1"));
+            Assert.IsNotNull(list.Get<IBuilderPolicy>("2"));
+
             list.ClearAll();
 
-            Assert.AreEqual(0, list.Count);
+            Assert.IsNull(list.Get<IBuilderPolicy>("1"));
+            Assert.IsNull(list.Get<IBuilderPolicy>("2"));
         }
 
         [TestMethod]

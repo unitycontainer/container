@@ -47,14 +47,6 @@ namespace Unity.Container
         #region IPolicyList
 
         /// <summary>
-        /// Gets the number of items in the locator.
-        /// </summary>
-        /// <value>
-        /// The number of items in the locator.
-        /// </value>
-        public int Count => _policies.Count;
-
-        /// <summary>
         /// Removes an individual policy type for a build key.
         /// </summary>
         /// <param name="policyInterface">The type of policy to remove.</param>
@@ -70,15 +62,6 @@ namespace Unity.Container
         public void ClearAll()
         {
             _policies.Clear();
-        }
-
-        /// <summary>
-        /// Removes a default policy.
-        /// </summary>
-        /// <param name="policyInterface">The type the policy was registered as.</param>
-        public void ClearDefault(Type policyInterface)
-        {
-            Clear(policyInterface, null);
         }
 
 
