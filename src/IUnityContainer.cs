@@ -124,7 +124,7 @@ namespace Unity
         IUnityContainer CreateChildContainer();
 
         /// <summary>
-        /// Get a sequence of <see cref="IContainerRegistration"/> that describe the current state
+        /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
         /// of the container.
         /// </summary>
         IEnumerable<IContainerRegistration> Registrations { get; }

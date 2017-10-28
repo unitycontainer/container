@@ -8,7 +8,7 @@ namespace Unity.Policy
     public interface IResolverPolicy : IBuilderPolicy
     {
         /// <summary>
-        /// Get the value
+        /// GetOrDefault the value
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>

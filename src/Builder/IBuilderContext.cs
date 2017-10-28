@@ -49,7 +49,7 @@ namespace Unity.Builder
         NamedTypeBuildKey OriginalBuildKey { get; }
 
         /// <summary>
-        /// Get the current build key for the current build operation.
+        /// GetOrDefault the current build key for the current build operation.
         /// </summary>
         NamedTypeBuildKey BuildKey { get; set; }
 
@@ -110,7 +110,7 @@ namespace Unity.Builder
         void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides);
 
         /// <summary>
-        /// Get a <see cref="IDependencyResolverPolicy"/> object for the given <paramref name="dependencyType"/>
+        /// GetOrDefault a <see cref="IDependencyResolverPolicy"/> object for the given <paramref name="dependencyType"/>
         /// or null if that dependency hasn't been overridden.
         /// </summary>
         /// <param name="dependencyType">Type of the dependency.</param>

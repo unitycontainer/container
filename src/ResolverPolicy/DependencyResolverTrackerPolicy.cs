@@ -46,7 +46,7 @@ namespace Unity.ResolverPolicy
         // Helper methods for adding and removing the tracker policy.
 
         /// <summary>
-        /// Get an instance that implements <see cref="IDependencyResolverTrackerPolicy"/>,
+        /// GetOrDefault an instance that implements <see cref="IDependencyResolverTrackerPolicy"/>,
         /// either the current one in the policy set or creating a new one if it doesn't
         /// exist.
         /// </summary>

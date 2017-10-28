@@ -57,7 +57,7 @@ namespace Unity.ResolverPolicy
         #region IDependencyResolverPolicy Members
 
         /// <summary>
-        /// Get the value for a dependency.
+        /// GetOrDefault the value for a dependency.
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>

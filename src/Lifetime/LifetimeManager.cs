@@ -8,7 +8,7 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract class LifetimeManager : ILifetimePolicy
     {
-        // Get or set the InUse flag. Internal because it should only be touched from
+        // GetOrDefault or set the InUse flag. Internal because it should only be touched from
         // the Register methods in the container.
         public bool InUse { get; set; }
 

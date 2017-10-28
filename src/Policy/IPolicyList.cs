@@ -23,12 +23,6 @@ namespace Unity.Policy
         void ClearAll();
 
         /// <summary>
-        /// Removes a default policy.
-        /// </summary>
-        /// <param name="policyInterface">The type the policy was registered as.</param>
-        void ClearDefault(Type policyInterface);
-
-        /// <summary>
         /// Gets an individual policy.
         /// </summary>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
@@ -36,10 +30,10 @@ namespace Unity.Policy
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
+        IBuilderPolicy GetOrDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
 
         /// <summary>
-        /// Get the non default policy.
+        /// GetOrDefault the non default policy.
         /// </summary>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
         /// <param name="buildKey">The key the policy applies to.</param>
@@ -47,7 +41,7 @@ namespace Unity.Policy
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
+        IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
 
         /// <summary>
         /// Sets an individual policy.

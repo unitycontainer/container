@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
+using System.Reflection;
+using Unity.Builder;
 
 namespace Unity.Policy
 {
@@ -33,6 +36,17 @@ namespace Unity.Policy
             (policies ?? throw new ArgumentNullException(nameof(policies))).ClearDefault(typeof(TPolicyInterface));
         }
 
+
+        /// <summary>
+        /// Removes a default policy.
+        /// </summary>
+        /// <param name="policies"></param>
+        /// <param name="policyInterface">The type the policy was registered as.</param>
+        public static void ClearDefault(this IPolicyList policies, Type policyInterface)
+        {
+            (policies ?? throw new ArgumentNullException(nameof(policies))).Clear(policyInterface, null);
+        }
+
         /// <summary>
         /// Gets an individual policy.
         /// </summary>
@@ -57,7 +71,7 @@ namespace Unity.Policy
         public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey, out IPolicyList containingPolicyList)
             where TPolicyInterface : IBuilderPolicy
         {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).Get(typeof(TPolicyInterface), buildKey, out containingPolicyList);
+            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).GetOrDefault(typeof(TPolicyInterface), buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -84,7 +98,7 @@ namespace Unity.Policy
         public static IBuilderPolicy Get(this IPolicyList policies, Type policyInterface,
             object buildKey, out IPolicyList containingPolicyList)
         {
-            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, out containingPolicyList);
+            return (policies ?? throw new ArgumentNullException(nameof(policies))).GetOrDefault(policyInterface, buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -100,11 +114,11 @@ namespace Unity.Policy
                                   bool localOnly)
         {
 
-            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, out IPolicyList _);
+            return (policies ?? throw new ArgumentNullException(nameof(policies))).GetOrDefault(policyInterface, buildKey, out IPolicyList _);
         }
 
         /// <summary>
-        /// Get the non default policy.
+        /// GetOrDefault the non default policy.
         /// </summary>
         /// <typeparam name="TPolicyInterface">The interface the policy is registered under.</typeparam>
         /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
@@ -117,7 +131,7 @@ namespace Unity.Policy
         }
 
         /// <summary>
-        /// Get the non default policy.
+        /// GetOrDefault the non default policy.
         /// </summary>
         /// <typeparam name="TPolicyInterface">The interface the policy is registered under.</typeparam>
         /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
@@ -129,11 +143,11 @@ namespace Unity.Policy
             bool localOnly, out IPolicyList containingPolicyList)
             where TPolicyInterface : IBuilderPolicy
         {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(typeof(TPolicyInterface), buildKey, out containingPolicyList);
+            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).Get(typeof(TPolicyInterface), buildKey, out containingPolicyList);
         }
 
         /// <summary>
-        /// Get the non default policy.
+        /// GetOrDefault the non default policy.
         /// </summary>
         /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
@@ -141,7 +155,7 @@ namespace Unity.Policy
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
         public static IBuilderPolicy GetNoDefault(this IPolicyList policies, Type policyInterface, object buildKey)
         {
-            return (policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(policyInterface, buildKey, out IPolicyList _);
+            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, out IPolicyList _);
         }
 
         /// <summary>
@@ -183,5 +197,91 @@ namespace Unity.Policy
         {
             (policies ?? throw new ArgumentNullException(nameof(policies))).Set(typeof(TPolicyInterface), policy);
         }
+
+
+        /// <summary>
+        /// Gets an individual policy.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="policyInterface">The interface the policy is registered under.</param>
+        /// <param name="buildKey">The key the policy applies.</param>
+        /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
+        /// not found.</param>
+        /// <returns>The policy in the list, if present; returns null otherwise.</returns>
+        public static IBuilderPolicy GetOrDefault(this IPolicyList list, Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        {
+            Type buildType;
+
+            if (buildKey is NamedTypeBuildKey basedBuildKey)
+                buildType = basedBuildKey.Type;
+            else
+                buildType = buildKey as Type;
+
+            return list.GetPolicyForKey(policyInterface, buildKey, out containingPolicyList) ??
+                   list.GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, out containingPolicyList) ??
+                   list.GetPolicyForType(policyInterface, buildType, out containingPolicyList) ??
+                   list.GetPolicyForOpenGenericType(policyInterface, buildType, out containingPolicyList) ??
+                   list.GetDefaultForPolicy(policyInterface, out containingPolicyList);
+        }
+
+
+        private static IBuilderPolicy GetPolicyForKey(this IPolicyList list, Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        {
+            if (buildKey != null)
+            {
+                return list.Get(policyInterface, buildKey, out containingPolicyList);
+            }
+            containingPolicyList = null;
+            return null;
+        }
+
+        private static IBuilderPolicy GetPolicyForOpenGenericKey(this IPolicyList list, Type policyInterface, object buildKey, Type buildType, out IPolicyList containingPolicyList)
+        {
+            if (buildType != null && buildType.GetTypeInfo().IsGenericType)
+            {
+                return list.Get(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()), out containingPolicyList);
+            }
+            containingPolicyList = null;
+            return null;
+        }
+
+        private static IBuilderPolicy GetPolicyForType(this IPolicyList list, Type policyInterface, Type buildType, out IPolicyList containingPolicyList)
+        {
+            if (buildType != null)
+            {
+                return list.Get(policyInterface, buildType, out containingPolicyList);
+            }
+            containingPolicyList = null;
+            return null;
+        }
+
+        private static IBuilderPolicy GetPolicyForOpenGenericType(this IPolicyList list, Type policyInterface, Type buildType, out IPolicyList containingPolicyList)
+        {
+            if (buildType != null && buildType.GetTypeInfo().IsGenericType)
+            {
+                return list.Get(policyInterface, buildType.GetGenericTypeDefinition(), out containingPolicyList);
+            }
+            containingPolicyList = null;
+            return null;
+        }
+
+        private static IBuilderPolicy GetDefaultForPolicy(this IPolicyList list, Type policyInterface, out IPolicyList containingPolicyList)
+        {
+            return list.Get(policyInterface, null, out containingPolicyList);
+        }
+
+        private static object ReplaceType(object buildKey, Type newType)
+        {
+            if (buildKey is Type)
+                return newType;
+
+            if (buildKey is NamedTypeBuildKey originalKey)
+                return new NamedTypeBuildKey(newType, originalKey.Name);
+
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                                                      Constants.CannotExtractTypeFromBuildKey,
+                                                      buildKey), nameof(buildKey));
+        }
+
     }
 }

@@ -38,7 +38,7 @@ namespace Unity.Builder.Operation
         }
 
         /// <summary>
-        /// Get a format string used to create the description. Called by
+        /// GetOrDefault a format string used to create the description. Called by
         /// the base <see cref='ToString'/> method.
         /// </summary>
         /// <returns>The format string.</returns>
