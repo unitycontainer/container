@@ -3,14 +3,11 @@ configuration: Release
 platform: Any CPU
 
 install:
-  - ps: $env:build_version = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version 
+  - ps: $env:build_version = (Select-Xml -Path ".\src\Unity.Container.csproj" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
 
 dotnet_csproj:
-  patch: true
-  file: '**\*.csproj'
-  version: $(build_version)
-  package_version: $(build_version)
+  patch: false
 
 before_build:
 - cmd: dotnet restore
@@ -25,7 +22,7 @@ after_build:
 - choco install codecov
   
 test_script:
-- OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test"
+- OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test --framework net47 --verbosity q"
 
 after_test:
 - codecov -f "results.xml" 
