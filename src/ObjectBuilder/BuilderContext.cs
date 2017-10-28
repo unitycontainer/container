@@ -241,12 +241,11 @@ namespace Unity.ObjectBuilder
         /// <returns>Created object.</returns>
         public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
         {
-            ChildContext =
-                new BuilderContext(Container, _chain, Lifetime, PersistentPolicies, Policies, newBuildKey, _resolverOverrides);
+            ChildContext = new BuilderContext(Container, _chain, Lifetime, PersistentPolicies, Policies, newBuildKey, _resolverOverrides);
 
             childCustomizationBlock?.Invoke(ChildContext);
-
-            object result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
+            var policy = Policies?.Get<IResolverPolicy>(newBuildKey);
+            var result = policy?.Resolve(ChildContext) ?? ChildContext.Strategies.ExecuteBuildUp(ChildContext);
 
             ChildContext = null;
 

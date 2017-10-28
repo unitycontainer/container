@@ -117,5 +117,39 @@ namespace Unity.Tests.Registration
         }
 
 
+        [TestMethod]
+        public void RegisterInstance_ChainRegistrations()
+        {
+            var instance = new EmailService();
+
+            IUnityContainer container = new UnityContainer();
+
+            container.RegisterInstance(instance);
+            container.RegisterType<IService, EmailService>();
+
+            Assert.AreEqual(container.Resolve<IService>(), instance);
+        }
+
+        [TestMethod]
+        public void RegisterInstance_RegisterWithParentAndChild()
+        {
+            //create unity container
+            var parent = new UnityContainer();
+            parent.RegisterInstance(null, null, Guid.NewGuid().ToString(), new ContainerControlledLifetimeManager());
+
+            var child = parent.CreateChildContainer();
+            child.RegisterInstance(null, null, Guid.NewGuid().ToString(), new ContainerControlledLifetimeManager());
+
+            Assert.AreSame(parent.Resolve<string>(), parent.Resolve<string>());
+            Assert.AreSame(child.Resolve<string>(), child.Resolve<string>());
+            Assert.AreNotSame(parent.Resolve<string>(), child.Resolve<string>());
+        }
+
+
+        [TestMethod]
+        public void RegisterInstance_HierarchicalLifetimeManager()
+        {
+//            Assert.ThrowsException<Exception>(() => new UnityContainer().RegisterInstance(null, null, Guid.NewGuid().ToString(), new HierarchicalLifetimeManager()));
+        }
     }
 }

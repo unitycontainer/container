@@ -90,7 +90,7 @@ namespace Unity.Container
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public IBuilderPolicy Get(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
+        public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
             Type buildType;
 
@@ -99,11 +99,11 @@ namespace Unity.Container
             else
                 buildType = buildKey as Type;
 
-            return GetPolicyForKey(policyInterface, buildKey, localOnly, out containingPolicyList) ??
-                GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, localOnly, out containingPolicyList) ??
-                GetPolicyForType(policyInterface, buildType, localOnly, out containingPolicyList) ??
-                GetPolicyForOpenGenericType(policyInterface, buildType, localOnly, out containingPolicyList) ??
-                GetDefaultForPolicy(policyInterface, localOnly, out containingPolicyList);
+            return GetPolicyForKey(policyInterface, buildKey, out containingPolicyList) ??
+                GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, out containingPolicyList) ??
+                GetPolicyForType(policyInterface, buildType, out containingPolicyList) ??
+                GetPolicyForOpenGenericType(policyInterface, buildType, out containingPolicyList) ??
+                GetDefaultForPolicy(policyInterface, out containingPolicyList);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Unity.Container
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        public IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
+        public IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
             containingPolicyList = null;
 
@@ -125,12 +125,7 @@ namespace Unity.Container
                 return policy;
             }
 
-            if (localOnly)
-            {
-                return null;
-            }
-
-            return _innerPolicyList?.GetNoDefault(policyInterface, buildKey, false, out containingPolicyList);
+            return _innerPolicyList?.GetNoDefault(policyInterface, buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -149,50 +144,49 @@ namespace Unity.Container
 
         #region Implementation
 
-        private IBuilderPolicy GetPolicyForKey(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList)
+        private IBuilderPolicy GetPolicyForKey(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
             if (buildKey != null)
             {
-                return GetNoDefault(policyInterface, buildKey, localOnly, out containingPolicyList);
+                return GetNoDefault(policyInterface, buildKey, out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
         }
 
-        private IBuilderPolicy GetPolicyForOpenGenericKey(Type policyInterface, object buildKey, Type buildType, bool localOnly, out IPolicyList containingPolicyList)
+        private IBuilderPolicy GetPolicyForOpenGenericKey(Type policyInterface, object buildKey, Type buildType, out IPolicyList containingPolicyList)
         {
             if (buildType != null && buildType.GetTypeInfo().IsGenericType)
             {
-                return GetNoDefault(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()),
-                    localOnly, out containingPolicyList);
+                return GetNoDefault(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()), out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
         }
 
-        private IBuilderPolicy GetPolicyForType(Type policyInterface, Type buildType, bool localOnly, out IPolicyList containingPolicyList)
+        private IBuilderPolicy GetPolicyForType(Type policyInterface, Type buildType, out IPolicyList containingPolicyList)
         {
             if (buildType != null)
             {
-                return GetNoDefault(policyInterface, buildType, localOnly, out containingPolicyList);
+                return GetNoDefault(policyInterface, buildType, out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
         }
 
-        private IBuilderPolicy GetPolicyForOpenGenericType(Type policyInterface, Type buildType, bool localOnly, out IPolicyList containingPolicyList)
+        private IBuilderPolicy GetPolicyForOpenGenericType(Type policyInterface, Type buildType, out IPolicyList containingPolicyList)
         {
             if (buildType != null && buildType.GetTypeInfo().IsGenericType)
             {
-                return GetNoDefault(policyInterface, buildType.GetGenericTypeDefinition(), localOnly, out containingPolicyList);
+                return GetNoDefault(policyInterface, buildType.GetGenericTypeDefinition(), out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
         }
 
-        private IBuilderPolicy GetDefaultForPolicy(Type policyInterface, bool localOnly, out IPolicyList containingPolicyList)
+        private IBuilderPolicy GetDefaultForPolicy(Type policyInterface, out IPolicyList containingPolicyList)
         {
-            return GetNoDefault(policyInterface, null, localOnly, out containingPolicyList);
+            return GetNoDefault(policyInterface, null, out containingPolicyList);
         }
 
         private static object ReplaceType(object buildKey, Type newType)

@@ -146,7 +146,9 @@ namespace Unity
                                                    _policies,
                                                    key,
                                                    existing);
-                context.AddResolverOverrides(resolverOverrides);
+
+                if (null != resolverOverrides && 0 != resolverOverrides.Length)
+                    context.AddResolverOverrides(resolverOverrides);
 
                 if (key.Type.GetTypeInfo().IsGenericTypeDefinition)
                 {
@@ -232,7 +234,7 @@ namespace Unity
             }
 
             /// <summary>
-            /// This event is raised when the <see cref="Unity.UnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
+            /// This event is raised when the <see cref="RegisterInstance(Type,string,object,LifetimeManager)"/> method,
             /// or one of its overloads, is called.
             /// </summary>
             public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
@@ -250,7 +252,7 @@ namespace Unity
 
 
         // Works like the ExternallyControlledLifetimeManager, but uses regular instead of weak references
-        private class ContainerLifetimeManager : LifetimeManager
+        private class ContainerLifetimeManager : LifetimeManager, IResolverPolicy
         {
             private object _value;
 
@@ -266,6 +268,11 @@ namespace Unity
 
             public override void RemoveValue()
             {
+            }
+
+            public object Resolve(IBuilderContext _)
+            {
+                return _value;
             }
         }
 

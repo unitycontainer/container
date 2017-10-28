@@ -29,9 +29,9 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
+            if (context.Existing == null)
             {
-                var lifetimePolicy = GetLifetimePolicy(context);
+                var lifetimePolicy = GetLifetimePolicy(context, out _);
                 if (lifetimePolicy is IRequiresRecovery recovery)
                 {
                     context.RecoveryStack.Add(recovery);
@@ -56,16 +56,25 @@ namespace Unity.ObjectBuilder.Strategies
         {
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
-            ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context ?? throw new ArgumentNullException(nameof(context)));
+            ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context, out IPolicyList source);
             lifetimePolicy.SetValue(context.Existing);
+
+            if (lifetimePolicy is IResolverPolicy policy)
+            {
+                var original = context.Policies.Get<IResolverPolicy>(context.OriginalBuildKey, out var list);
+                if (policy != original)
+                {
+                    (source ?? list ?? context.PersistentPolicies).Set(policy, context.OriginalBuildKey);
+                }
+            }
         }
 
-        private ILifetimePolicy GetLifetimePolicy(IBuilderContext context)
+        private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
         {
-            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
+            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey, false, out source);
             if (policy == null && context.BuildKey.Type.GetTypeInfo().IsGenericType)
             {
-                policy = GetLifetimePolicyForGenericType(context);
+                policy = GetLifetimePolicyForGenericType(context, out source);
             }
 
             if (policy == null)
@@ -77,14 +86,14 @@ namespace Unity.ObjectBuilder.Strategies
             return policy;
         }
 
-        private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context)
+        private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context, out IPolicyList factorySource)
         {
             var typeToBuild = context.BuildKey.Type;
             object openGenericBuildKey = new NamedTypeBuildKey(typeToBuild.GetGenericTypeDefinition(),
                                                                context.BuildKey.Name);
 
             var factoryPolicy = context.Policies
-                                       .Get<ILifetimeFactoryPolicy>(openGenericBuildKey, out var factorySource);
+                                       .Get<ILifetimeFactoryPolicy>(openGenericBuildKey, out factorySource);
 
             if (factoryPolicy != null)
             {

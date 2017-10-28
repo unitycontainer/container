@@ -133,6 +133,7 @@ namespace Unity
         {
             if (null == instance) throw new ArgumentNullException(nameof(instance));
             if (null != mapType) InstanceIsAssignable(mapType, instance, nameof(instance));
+            if (null != lifetime && !(lifetime is IResolverPolicy)) throw new ArgumentException("Instance LifetimeManager must implement IResolverPolicy");
 
             var type = mapType ?? instance.GetType();
             var manager = lifetime ?? new ContainerControlledLifetimeManager();
@@ -141,8 +142,8 @@ namespace Unity
             // TODO: Optimize lifetime management
             _registeredNames.RegisterType(type, name);
             SetLifetimeManager(type, name, manager);
-            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
             manager.SetValue(instance);
+
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
 
             if (manager is IResolverPolicy policy)
