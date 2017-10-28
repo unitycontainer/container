@@ -75,21 +75,6 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
-        public void CanGetLocalPolicy()
-        {
-            PolicyList innerList = new PolicyList();
-            PolicyList outerList = new PolicyList(innerList);
-            FakePolicy innerPolicy = new FakePolicy();
-            innerList.Set(innerPolicy, typeof(object));
-
-            IPolicyList containingPolicyList;
-            FakePolicy result = outerList.Get<FakePolicy>(typeof(object), true, out containingPolicyList);
-
-            Assert.IsNull(result);
-            Assert.IsNull(containingPolicyList);
-        }
-
-        [TestMethod]
         public void CanRegisterGenericPolicyAndRetrieveWithSpecificGenericInstance()
         {
             PolicyList list = new PolicyList();
