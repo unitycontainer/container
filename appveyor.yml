@@ -3,8 +3,7 @@ configuration: Release
 platform: Any CPU
 
 install:
-  - ps: $env:build_version = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version 
-  - ps: $env:build_description = (Get-Content -Raw -Path package.json | ConvertFrom-Json).description
+  - ps: $env:build_version = (Select-Xml -Path ".\src\Unity.Abstractions.csproj" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
 
 dotnet_csproj:
@@ -28,7 +27,6 @@ artifacts:
 deploy:
 - provider: GitHub
   force_update: true
-  description: $(build_description)
   tag: $(appveyor_repo_tag_name)
   release: $(appveyor_repo_tag_name)
   artifact: /.*\.nupkg/            # upload all NuGet packages to release assets
