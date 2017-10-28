@@ -62,7 +62,7 @@ namespace Unity.ObjectBuilder.Strategies
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context)
         {
-            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
+            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey);
             if (policy == null && context.BuildKey.Type.GetTypeInfo().IsGenericType)
             {
                 policy = GetLifetimePolicyForGenericType(context);
@@ -97,7 +97,7 @@ namespace Unity.ObjectBuilder.Strategies
                 lock (_genericLifetimeManagerLock)
                 {
                     // check whether the policy for closed-generic has been added since first checked
-                    var lifetime = factorySource.GetNoDefault<ILifetimePolicy>(context.BuildKey, false);
+                    var lifetime = factorySource.GetNoDefault<ILifetimePolicy>(context.BuildKey);
                     if (lifetime == null)
                     {
                         factorySource.Set(newLifetime, context.BuildKey);
