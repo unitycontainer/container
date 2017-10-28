@@ -3,7 +3,7 @@ configuration: Release
 platform: Any CPU
 
 install:
-  - ps: $env:build_version = (Select-Xml -Path ".\src\Unity.Abstractions.csproj" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
+  - ps: $env:build_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
 
 dotnet_csproj:
