@@ -11,36 +11,11 @@ namespace Unity.Lifetime
     /// When the <see cref="ContainerControlledLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
     /// </summary>
-    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, 
+    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager,
+                                                      ISingletonLifetimePolicy,
                                                       IResolverPolicy, 
                                                       IDisposable
     {
-        #region Fields
-
-        private object _value;
-
-        #endregion
-
-
-        #region SynchronizedLifetimeManager
-
-        /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy.
-        /// </summary>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        protected override object SynchronizedGetValue()
-        {
-            return _value;
-        }
-
-        /// <summary>
-        /// Stores the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="newValue">The object being stored.</param>
-        protected override void SynchronizedSetValue(object newValue)
-        {
-            _value = newValue;
-        }
 
         /// <summary>
         /// Remove the given object from backing store.
@@ -50,17 +25,10 @@ namespace Unity.Lifetime
             Dispose();
         }
 
-        #endregion
-
-
-        #region IResolverPolicy
-
         object IResolverPolicy.Resolve(IBuilderContext _)
         {
-            return _value;
+            return Value;
         }
-
-        #endregion
 
 
         #region IDisposable
@@ -80,12 +48,12 @@ namespace Unity.Lifetime
         /// <param name="disposing">Always true, since we don't have a finalizer.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (_value == null) return;
-            if (_value is IDisposable disposable)
+            if (Value == null) return;
+            if (Value is IDisposable disposable)
             {
                 disposable.Dispose();
             }
-            _value = null;
+            Value = null;
         }
 
         #endregion

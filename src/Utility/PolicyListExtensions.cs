@@ -57,7 +57,7 @@ namespace Unity.Policy
         public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey, out IPolicyList containingPolicyList)
             where TPolicyInterface : IBuilderPolicy
         {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).Get(typeof(TPolicyInterface), buildKey, false, out containingPolicyList);
+            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).Get(typeof(TPolicyInterface), buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -84,38 +84,7 @@ namespace Unity.Policy
         public static IBuilderPolicy Get(this IPolicyList policies, Type policyInterface,
             object buildKey, out IPolicyList containingPolicyList)
         {
-            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, false, out containingPolicyList);
-        }
-
-        /// <summary>
-        /// Gets an individual policy.
-        /// </summary>
-        /// <typeparam name="TPolicyInterface">The interface the policy is registered under.</typeparam>
-        /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
-        /// <param name="buildKey">The key the policy applies.</param>
-        /// <param name="localOnly">true if the policy searches local only; otherwise false to search up the parent chain.</param>
-        /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey,
-            bool localOnly)
-            where TPolicyInterface : IBuilderPolicy
-        {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).Get(typeof(TPolicyInterface), buildKey, localOnly);
-        }
-
-        /// <summary>
-        /// Gets an individual policy.
-        /// </summary>
-        /// <typeparam name="TPolicyInterface">The interface the policy is registered under.</typeparam>
-        /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
-        /// <param name="buildKey">The key the policy applies.</param>
-        /// <param name="localOnly">true if the policy searches local only; otherwise false to search up the parent chain.</param>
-        /// <param name="containingPolicyList">The policy list that actually contains the returned policy.</param>
-        /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public static TPolicyInterface Get<TPolicyInterface>(this IPolicyList policies, object buildKey,
-            bool localOnly, out IPolicyList containingPolicyList)
-            where TPolicyInterface : IBuilderPolicy
-        {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).Get(typeof(TPolicyInterface), buildKey, localOnly, out containingPolicyList);
+            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -131,7 +100,7 @@ namespace Unity.Policy
                                   bool localOnly)
         {
 
-            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, localOnly, out IPolicyList _);
+            return (policies ?? throw new ArgumentNullException(nameof(policies))).Get(policyInterface, buildKey, out IPolicyList _);
         }
 
         /// <summary>
@@ -162,7 +131,7 @@ namespace Unity.Policy
             bool localOnly, out IPolicyList containingPolicyList)
             where TPolicyInterface : IBuilderPolicy
         {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(typeof(TPolicyInterface), buildKey, localOnly, out containingPolicyList);
+            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(typeof(TPolicyInterface), buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -177,7 +146,7 @@ namespace Unity.Policy
                                            object buildKey,
                                            bool localOnly)
         {
-            return (policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(policyInterface, buildKey, localOnly, out IPolicyList _);
+            return (policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(policyInterface, buildKey, out IPolicyList _);
         }
 
         /// <summary>

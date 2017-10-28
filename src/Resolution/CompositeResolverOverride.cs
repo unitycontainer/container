@@ -28,7 +28,8 @@ namespace Unity.Resolution
         public CompositeResolverOverride(params ResolverOverride[] resolverOverrides)
             : base(null, null)
         {
-            _overrides = new List<ResolverOverride>(resolverOverrides);
+            _overrides = null == resolverOverrides || 0 == resolverOverrides.Length 
+                ? new List<ResolverOverride>() : new List<ResolverOverride>(resolverOverrides);
         }
 
         /// <summary>

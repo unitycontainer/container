@@ -23,7 +23,12 @@ namespace Unity.Lifetime
     /// <see cref="LifetimeManager"/>
     public abstract class SynchronizedLifetimeManager : LifetimeManager, IRequiresRecovery
     {
+        #region Fields
+
+        protected object Value;
         private readonly object _lockObj = new object();
+
+        #endregion
 
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.
@@ -49,7 +54,11 @@ namespace Unity.Lifetime
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
-        protected abstract object SynchronizedGetValue();
+        protected virtual object SynchronizedGetValue()
+        {
+            return Value;
+        }
+
 
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
@@ -69,7 +78,10 @@ namespace Unity.Lifetime
         /// <param name="newValue">The object being stored.</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected abstract void SynchronizedSetValue(object newValue);
+        protected virtual void SynchronizedSetValue(object newValue)
+        {
+            Value = newValue;
+        }
 
         /// <summary>
         /// Remove the given object from backing store.

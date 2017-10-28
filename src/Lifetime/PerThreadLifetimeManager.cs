@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using Unity.Builder;
+using Unity.Policy;
 
 namespace Unity.Lifetime
 {
@@ -14,7 +16,7 @@ namespace Unity.Lifetime
     /// This LifetimeManager does not dispose the instances it holds.
     /// </para>
     /// </remarks>
-    public class PerThreadLifetimeManager : LifetimeManager
+    public class PerThreadLifetimeManager : LifetimeManager, IResolverPolicy
     {
         [ThreadStatic]
         private static Dictionary<Guid, object> _values;
@@ -38,8 +40,8 @@ namespace Unity.Lifetime
         {
             EnsureValues();
 
-            object result;
-            _values.TryGetValue(_key, out result);
+            _values.TryGetValue(_key, out var result);
+
             return result;
         }
 
@@ -70,6 +72,11 @@ namespace Unity.Lifetime
             {
                 _values = new Dictionary<Guid, object>();
             }
+        }
+
+        object IResolverPolicy.Resolve(IBuilderContext _)
+        {
+            return GetValue();
         }
     }
 }

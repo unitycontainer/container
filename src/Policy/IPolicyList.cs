@@ -33,11 +33,10 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        /// <param name="localOnly">true if the policy searches local only; otherwise false to search up the parent chain.</param>
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        IBuilderPolicy Get(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList);
+        IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
 
         /// <summary>
         /// Get the non default policy.
@@ -48,7 +47,7 @@ namespace Unity.Policy
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, bool localOnly, out IPolicyList containingPolicyList);
+        IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
 
         /// <summary>
         /// Sets an individual policy.
