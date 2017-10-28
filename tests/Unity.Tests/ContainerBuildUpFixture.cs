@@ -538,7 +538,7 @@ namespace Unity.Tests
         }
         #endregion
 
-        #region Get method
+        #region GetOrDefault method
 
         [TestMethod]
         public void GetObject1()

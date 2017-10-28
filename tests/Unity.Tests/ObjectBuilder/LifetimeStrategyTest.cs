@@ -71,9 +71,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             context.ExecuteBuildUp(new NamedTypeBuildKey<YetAnotherDummyInterfaceImplementation<int>>(), null);
 
             ILifetimePolicy stringLifetime =
-                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<string>)), false);
+                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<string>)));
             ILifetimePolicy intLifetime =
-                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<int>)), false);
+                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<int>)));
 
             Assert.IsNotNull(stringLifetime);
             Assert.IsNotNull(intLifetime);
