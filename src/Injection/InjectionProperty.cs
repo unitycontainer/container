@@ -86,11 +86,11 @@ namespace Unity.Injection
         {
             NamedTypeBuildKey key = new NamedTypeBuildKey(typeToInject, name);
             IPropertySelectorPolicy selector =
-                policies.GetNoDefault<IPropertySelectorPolicy>(key, false);
-            if (selector == null || !(selector is SpecifiedPropertiesSelectorPolicy))
+                policies.GetNoDefault<IPropertySelectorPolicy>(key);
+            if (!(selector is SpecifiedPropertiesSelectorPolicy))
             {
                 selector = new SpecifiedPropertiesSelectorPolicy();
-                policies.Set<IPropertySelectorPolicy>(selector, key);
+                policies.Set(selector, key);
             }
             return (SpecifiedPropertiesSelectorPolicy)selector;
         }

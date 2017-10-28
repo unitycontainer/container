@@ -109,13 +109,11 @@ namespace Unity.Policy
         /// <typeparam name="TPolicyInterface">The interface the policy is registered under.</typeparam>
         /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        /// <param name="localOnly">true if the policy searches local only; otherwise false to search up the parent chain.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public static TPolicyInterface GetNoDefault<TPolicyInterface>(this IPolicyList policies, object buildKey,
-            bool localOnly)
+        public static TPolicyInterface GetNoDefault<TPolicyInterface>(this IPolicyList policies, object buildKey)
             where TPolicyInterface : IBuilderPolicy
         {
-            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(typeof(TPolicyInterface), buildKey, localOnly);
+            return (TPolicyInterface)(policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(typeof(TPolicyInterface), buildKey);
         }
 
         /// <summary>
@@ -140,11 +138,8 @@ namespace Unity.Policy
         /// <param name="policies"><see cref="IPolicyList"/> to search.</param>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
         /// <param name="buildKey">The key the policy applies.</param>
-        /// <param name="localOnly">true if the policy searches local only; otherwise false to search up the parent chain.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public static IBuilderPolicy GetNoDefault(this IPolicyList policies, Type policyInterface,
-                                           object buildKey,
-                                           bool localOnly)
+        public static IBuilderPolicy GetNoDefault(this IPolicyList policies, Type policyInterface, object buildKey)
         {
             return (policies ?? throw new ArgumentNullException(nameof(policies))).GetNoDefault(policyInterface, buildKey, out IPolicyList _);
         }
