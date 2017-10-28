@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>5.0.3</Version>
+    <Version>5.0.2</Version>
     <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, .NET 4.0, 4.5, 4.7 package.</PackageReleaseNotes>
   </PropertyGroup>
 
@@ -18,13 +18,10 @@
     <RepositoryType>git</RepositoryType>
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
-    <RootNamespace>Unity</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
+    <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
