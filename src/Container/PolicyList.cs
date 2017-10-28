@@ -90,7 +90,7 @@ namespace Unity.Container
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
-        public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        public IBuilderPolicy GetOrDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
             Type buildType;
 
@@ -107,7 +107,7 @@ namespace Unity.Container
         }
 
         /// <summary>
-        /// Get the non default policy.
+        /// GetOrDefault the non default policy.
         /// </summary>
         /// <param name="policyInterface">The interface the policy is registered under.</param>
         /// <param name="buildKey">The key the policy applies to.</param>
@@ -115,7 +115,7 @@ namespace Unity.Container
         /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
         /// not found.</param>
         /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        public IBuilderPolicy GetNoDefault(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
             containingPolicyList = null;
 
@@ -125,7 +125,7 @@ namespace Unity.Container
                 return policy;
             }
 
-            return _innerPolicyList?.GetNoDefault(policyInterface, buildKey, out containingPolicyList);
+            return _innerPolicyList?.Get(policyInterface, buildKey, out containingPolicyList);
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Unity.Container
         {
             if (buildKey != null)
             {
-                return GetNoDefault(policyInterface, buildKey, out containingPolicyList);
+                return Get(policyInterface, buildKey, out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
@@ -158,7 +158,7 @@ namespace Unity.Container
         {
             if (buildType != null && buildType.GetTypeInfo().IsGenericType)
             {
-                return GetNoDefault(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()), out containingPolicyList);
+                return Get(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()), out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
@@ -168,7 +168,7 @@ namespace Unity.Container
         {
             if (buildType != null)
             {
-                return GetNoDefault(policyInterface, buildType, out containingPolicyList);
+                return Get(policyInterface, buildType, out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
@@ -178,7 +178,7 @@ namespace Unity.Container
         {
             if (buildType != null && buildType.GetTypeInfo().IsGenericType)
             {
-                return GetNoDefault(policyInterface, buildType.GetGenericTypeDefinition(), out containingPolicyList);
+                return Get(policyInterface, buildType.GetGenericTypeDefinition(), out containingPolicyList);
             }
             containingPolicyList = null;
             return null;
@@ -186,7 +186,7 @@ namespace Unity.Container
 
         private IBuilderPolicy GetDefaultForPolicy(Type policyInterface, out IPolicyList containingPolicyList)
         {
-            return GetNoDefault(policyInterface, null, out containingPolicyList);
+            return Get(policyInterface, null, out containingPolicyList);
         }
 
         private static object ReplaceType(object buildKey, Type newType)

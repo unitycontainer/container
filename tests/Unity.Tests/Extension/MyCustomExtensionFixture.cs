@@ -80,7 +80,7 @@ namespace Unity.Tests.Extension
         }
 
         /// <summary>
-        /// Get access to the configuration interface given by the extension.
+        /// GetOrDefault access to the configuration interface given by the extension.
         /// </summary>
         [TestMethod]
         public void ConfigureToContainer()

@@ -152,7 +152,7 @@ namespace Unity
         #region Getting objects
 
         /// <summary>
-        /// Get an instance of the requested type with the given name typeFrom the container.
+        /// GetOrDefault an instance of the requested type with the given name typeFrom the container.
         /// </summary>
         /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
         /// <param name="name">Name of the object to retrieve.</param>
@@ -235,7 +235,7 @@ namespace Unity
         }
 
         /// <summary>
-        /// Get access to a configuration interface exposed by an extension.
+        /// GetOrDefault access to a configuration interface exposed by an extension.
         /// </summary>
         /// <remarks>Extensions can expose configuration interfaces as well as adding
         /// strategies and policies to the container. This method walks the list of
@@ -365,7 +365,7 @@ namespace Unity
         #endregion
 
         /// <summary>
-        /// Get a sequence of <see cref="ContainerRegistration"/> that describe the current state
+        /// GetOrDefault a sequence of <see cref="ContainerRegistration"/> that describe the current state
         /// of the container.
         /// </summary>
         public IEnumerable<IContainerRegistration> Registrations

@@ -82,7 +82,7 @@ namespace Unity.Tests.Lifetime
         }
 
         /// <summary>
-        /// SetLifetime class A. Then use Get method to get the instances, once without name, second with name.
+        /// SetLifetime class A. Then use GetOrDefault method to get the instances, once without name, second with name.
         /// </summary>
         [TestMethod]
         public void SetLifetimeGetTwice()
