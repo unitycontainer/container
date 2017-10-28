@@ -5,12 +5,17 @@ platform: Any CPU
 install:
   - ps: $env:build_version = (Select-Xml -Path ".\src\Unity.Abstractions.csproj" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
+  - cmd: echo $(build_version)
+  - cmd: echo $(AppveyorBuild)
+  - cmd: echo $(APPVEYOR_REPO_COMMIT)
 
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
   version: $(build_version)
   package_version: $(build_version)
+  assembly_version: '{version}'
+  file_version: '{version}'
 
 before_build:
 - cmd: dotnet restore
