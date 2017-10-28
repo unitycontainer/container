@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Version>2.1.0</Version>
-    <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, .NET 4.0, 4.5, 4.7 package.</PackageReleaseNotes>
-  </PropertyGroup>
+  <Import Project="..\package.props" />
 
   <PropertyGroup>
     <FileVersion>$(Version).0</FileVersion>
