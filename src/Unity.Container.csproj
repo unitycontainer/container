@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Version>6.0.0-alpha</Version>
-    <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, .NET 4.0, 4.5, 4.7 package.</PackageReleaseNotes>
-    <UnityAbstractionsVersion>2.1.0</UnityAbstractionsVersion>
-  </PropertyGroup>
+  <Import Project="..\package.props" />
 
   <PropertyGroup>
     <FileVersion>6.0.0.0</FileVersion>

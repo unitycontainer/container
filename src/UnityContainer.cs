@@ -110,27 +110,26 @@ namespace Unity
         #region Instance Registration
 
         /// <summary>
-        /// RegisterType an instance with the container.
+        /// Register an instance with the container.
         /// </summary>
-        /// <remarks>
-        /// <para>
+        /// <remarks> <para>
         /// Instance registration is much like setting a type as a singleton, except that instead
         /// of the container creating the instance the first time it is requested, the user
         /// creates the instance ahead of type and adds that instance to the container.
-        /// </para>
-        /// </remarks>
+        /// </para></remarks>
         /// <param name="mapType">Type of instance to register (may be an implemented interface instead of the full type).</param>
-        /// <param name="instance">Object to returned.</param>
+        /// <param name="instance">Object to be returned.</param>
         /// <param name="name">Name for registration.</param>
         /// <param name="lifetime">
-        /// <para>If true, the container will take over the lifetime of the instance,
+        /// <para>If null or <see cref="ContainerControlledLifetimeManager"/>, the container will take over the lifetime of the instance,
         /// calling Dispose on it (if it's <see cref="IDisposable"/>) when the container is Disposed.</para>
         /// <para>
-        ///  If false, container will not maintain a strong reference to <paramref name="instance"/>. User is responsible
-        /// for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
+        ///  If <see cref="ExternallyControlledLifetimeManager"/>, container will not maintain a strong reference to <paramref name="instance"/>. 
+        /// User is responsible for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer RegisterInstance(Type mapType, string name, object instance, LifetimeManager lifetime)
         {
+            // Validate input
             if (null == instance) throw new ArgumentNullException(nameof(instance));
             if (null != mapType) InstanceIsAssignable(mapType, instance, nameof(instance));
             if (null != lifetime && !(lifetime is IResolverPolicy)) throw new ArgumentException("Instance LifetimeManager must implement IResolverPolicy");
