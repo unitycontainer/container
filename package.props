@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Version>2.1.1</Version>
-    <PackageReleaseNotes>This package is distributed as .NET Standard 1.0 & 2.0, .Net Core 1.0 and .NET 4.0, 4.5, 4.7</PackageReleaseNotes>
+    <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, 2.0, .Net Core 1.0 and .NET 4.0, 4.5, 4.7</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
