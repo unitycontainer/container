@@ -21,7 +21,7 @@
     <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND ( $(TargetFramework.StartsWith('netcoreapp') OR $(TargetFramework.StartsWith('netstandard') )">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('netcoreapp') Or $(TargetFramework.StartsWith('netstandard') ">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
