@@ -21,11 +21,11 @@
     <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netcoreapp')">
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard')">
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netstandard'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
   
