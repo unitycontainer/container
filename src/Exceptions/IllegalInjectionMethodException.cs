@@ -8,10 +8,7 @@ namespace Unity.Exceptions
     /// The exception thrown when injection is attempted on a method
     /// that is an open generic or has out or ref params.
     /// </summary>
-#if !NETSTANDARD1_0
-    [Serializable] 
-#endif
-    public class IllegalInjectionMethodException : Exception
+    public partial class IllegalInjectionMethodException : Exception
     {
         /// <summary>
         /// Construct a new <see cref="IllegalInjectionMethodException"/> with no
