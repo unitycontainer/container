@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/unitycontainer/unity</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/unitycontainer/unity/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/12849707</PackageIconUrl>
+    <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Authors>Microsoft.Practices.Unity</Authors>
     <Company>Microsoft.Practices.Unity</Company>
