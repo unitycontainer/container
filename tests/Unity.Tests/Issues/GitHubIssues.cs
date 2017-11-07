@@ -1,20 +1,16 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Practices.Unity;
 using System.Linq;
-using System;
-using Unity;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
 using Unity.Exceptions;
 using Unity.Lifetime;
-using UnityContainer = Unity.UnityContainer;
 
-namespace GitHub
+namespace Unity.Tests.Issues
 {
     [TestClass]
-    public class Issues
+    public class GitHub
     {
         [TestMethod]    
-        public void GitHub_Issue_88()   // https://github.com/unitycontainer/unity/issues/88
+        public void Issue_88()   // https://github.com/unitycontainer/unity/issues/88
         {
             using (var unityContainer = new UnityContainer())
             {
@@ -28,7 +24,7 @@ namespace GitHub
         }
 
         [TestMethod]    
-        public void GitHub_Issue_54()   // https://github.com/unitycontainer/unity/issues/54
+        public void Issue_54()   // https://github.com/unitycontainer/unity/issues/54
         {
             using (IUnityContainer container = new UnityContainer())
             {

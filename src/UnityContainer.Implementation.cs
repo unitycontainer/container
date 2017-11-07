@@ -29,13 +29,14 @@ namespace Unity
     {
         #region Fields
 
-        private PolicyList _policies;
+        private readonly TypeRegistry _registry;
+        private readonly IPolicyList _policies;
         private readonly UnityContainer _parent;
-        private NamedTypesRegistry _registeredNames;
+        private readonly NamedTypesRegistry _registeredNames;
         private LifetimeContainer _lifetimeContainer;
-        private List<UnityContainerExtension> _extensions;
-        private StagedStrategyChain<UnityBuildStage> _strategies;
-        private StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
+        private readonly List<UnityContainerExtension> _extensions;
+        private readonly StagedStrategyChain<UnityBuildStage> _strategies;
+        private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -58,6 +59,7 @@ namespace Unity
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
+            _registry = new TypeRegistry(_parent?._registry);
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
@@ -130,7 +132,6 @@ namespace Unity
         }
 
         #endregion
-
 
 
         #region Implementation

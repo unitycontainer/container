@@ -4,18 +4,63 @@ using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Tests.TestObjects;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.Injection
 {
     [TestClass]
     public class InjectionConstructorFixture
     {
+        private IUnityContainer _container;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _container = new UnityContainer();
+        }
+
+        [TestMethod]
+        public void InjectionConstructorIncorrectType()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                _container.RegisterType<ObjectWithAmbiguousConstructors>(
+                    new InjectionConstructor(new Type[] {typeof(int)})));
+        }
+
+        [TestMethod]
+        public void InjectionConstructorIncorrectValue()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                _container.RegisterType<ObjectWithAmbiguousConstructors>(
+                    new InjectionConstructor(new object[] { 0 })));
+        }
+
+        [TestMethod]
+        public void InjectionConstructorDefault()
+        {
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor());
+            Assert.AreEqual(ObjectWithAmbiguousConstructors.One, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
+        }
+
+        [TestMethod]
+        public void InjectionConstructorTwoArg()
+        {
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(typeof(int), typeof(string), typeof(float)));
+            Assert.AreEqual(ObjectWithAmbiguousConstructors.Two, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
+        }
+
+        [TestMethod]
+        public void InjectionConstructorThreeArg()
+        {
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(typeof(string), typeof(string), typeof(int)));
+            Assert.AreEqual(ObjectWithAmbiguousConstructors.Three, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
+        }
+
         [TestMethod]
         public void InjectionConstructorInsertsChooserForDefaultConstructor()
         {

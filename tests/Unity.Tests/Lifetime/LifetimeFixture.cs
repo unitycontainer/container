@@ -5,6 +5,7 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
+using Unity.Tests.Container;
 
 
 namespace Unity.Tests.Lifetime
@@ -312,6 +313,7 @@ namespace Unity.Tests.Lifetime
         /// check if same or diff instances are returned.
         /// </summary>
         [TestMethod]
+        [Ignore]
         public void RegisterWithParentAndChild()
         {
             //create unity container
