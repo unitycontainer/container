@@ -20,7 +20,28 @@ namespace Unity.Injection
     /// </summary>
     public class InjectionConstructor : InjectionMember
     {
-        private readonly List<InjectionParameterValue> _parameterValues;
+        private readonly object[] _data;
+        private readonly Type[] _types;
+
+        /// <summary>
+        /// Create a new instance of <see cref="InjectionConstructor"/> that looks
+        /// for a default constructor.
+        /// </summary>
+        public InjectionConstructor()
+        {
+            _data = new object[0];
+            _types = new Type[0];
+        }
+
+        /// <summary>
+        /// Create a new instance of <see cref="InjectionConstructor"/> that looks
+        /// for a constructor with the given set of parameter types.
+        /// </summary>
+        /// <param name="types">The types of the parameters of the constructor.</param>
+        public InjectionConstructor(params Type[] types)
+        {
+            _types = types ?? throw new ArgumentNullException(nameof(types));
+        }
 
         /// <summary>
         /// Create a new instance of <see cref="InjectionConstructor"/> that looks
@@ -30,7 +51,8 @@ namespace Unity.Injection
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         public InjectionConstructor(params object[] parameterValues)
         {
-            _parameterValues = InjectionParameterValue.ToParameters(parameterValues).ToList();
+            _data = parameterValues ?? throw new ArgumentNullException(nameof(parameterValues));
+            _types = _data.Select(o => o.GetType()).ToArray();
         }
 
         /// <summary>
@@ -44,9 +66,10 @@ namespace Unity.Injection
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
         {
             ConstructorInfo ctor = FindConstructor(implementationType);
-            policies.Set<IConstructorSelectorPolicy>(
-                new SpecifiedConstructorSelectorPolicy(ctor, _parameterValues.ToArray()),
-                new NamedTypeBuildKey(implementationType, name));
+
+            var values = null == _data ? null : InjectionParameterValue.ToParameters(_data).ToArray();
+            policies.Set<IConstructorSelectorPolicy>(new SpecifiedConstructorSelectorPolicy(ctor, values),
+                                                     new NamedTypeBuildKey(implementationType, name));
         }
 
         private ConstructorInfo FindConstructor(Type typeToCreate)
@@ -55,19 +78,15 @@ namespace Unity.Injection
                                              .DeclaredConstructors
                                              .Where(c => c.IsStatic == false && c.IsPublic))
             {
-                if (_parameterValues.Matches(ctor.GetParameters().Select(p => p.ParameterType)))
-                {
+                if (ctor.GetParameters().ParametersMatch(_types))
                     return ctor;
-                }
             }
 
-            string signature = string.Join(", ", _parameterValues.Select(p => p.ParameterTypeName).ToArray());
+            var values = null != _data ? InjectionParameterValue.ToParameters(_data).Select(p => p.ParameterTypeName).ToArray() 
+                                       : _types.Select(t => t.Name) ;
 
             throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.NoSuchConstructor,
-                    typeToCreate.FullName,
-                    signature));
+                string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor, typeToCreate.FullName, string.Join(", ", values)));
         }
     }
 }
