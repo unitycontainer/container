@@ -1,14 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Builder;
-using Unity.Builder.Selection;
 using Unity.Injection;
-using Unity.Policy;
-using Unity.ResolverPolicy;
 using Unity.Tests.TestObjects;
 
 namespace Unity.Tests.Injection
@@ -25,148 +19,66 @@ namespace Unity.Tests.Injection
         }
 
         [TestMethod]
-        public void InjectionConstructorIncorrectType()
+        public void InjectionConstructor_IncorrectType()
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
                 _container.RegisterType<ObjectWithAmbiguousConstructors>(
-                    new InjectionConstructor(new Type[] {typeof(int)})));
+                    new InjectionConstructor(typeof(int))));
         }
 
         [TestMethod]
-        public void InjectionConstructorIncorrectValue()
+        public void InjectionConstructor_IncorrectValue()
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
                 _container.RegisterType<ObjectWithAmbiguousConstructors>(
-                    new InjectionConstructor(new object[] { 0 })));
+                    new InjectionConstructor(0)));
         }
 
         [TestMethod]
-        public void InjectionConstructorDefault()
+        public void InjectionConstructor_DefaultConstructor()
         {
             _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor());
             Assert.AreEqual(ObjectWithAmbiguousConstructors.One, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
         }
 
         [TestMethod]
-        public void InjectionConstructorTwoArg()
+        public void InjectionConstructor_SelectByValues()
         {
-            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(typeof(int), typeof(string), typeof(float)));
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(0, string.Empty, 0.0f));
             Assert.AreEqual(ObjectWithAmbiguousConstructors.Two, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
         }
 
         [TestMethod]
-        public void InjectionConstructorThreeArg()
+        public void InjectionConstructor_SelectByValueTypes()
         {
-            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(typeof(string), typeof(string), typeof(int)));
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(new InjectionParameter(typeof(string)), 
+                                                                                              new InjectionParameter(typeof(string)), 
+                                                                                              new InjectionParameter(typeof(int))));
             Assert.AreEqual(ObjectWithAmbiguousConstructors.Three, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
         }
 
-        [TestMethod]
-        public void InjectionConstructorInsertsChooserForDefaultConstructor()
-        {
-            var ctor = new InjectionConstructor();
-            var context = new MockBuilderContext
-                {
-                    BuildKey = new NamedTypeBuildKey(typeof(GuineaPig))
-                };
-            IPolicyList policies = context.PersistentPolicies;
-
-            ctor.AddPolicies(typeof(GuineaPig), policies);
-
-            var selector = policies.Get<IConstructorSelectorPolicy>(
-                new NamedTypeBuildKey(typeof(GuineaPig)));
-
-            SelectedConstructor selected = selector.SelectConstructor(context, policies);
-            Assert.AreEqual(typeof(GuineaPig).GetMatchingConstructor(new Type[0]), selected.Constructor);
-            Assert.AreEqual(0, selected.GetParameterResolvers().Length);
-        }
 
         [TestMethod]
-        public void InjectionConstructorInsertsChooserForConstructorWithParameters()
+        public void InjectionConstructor_SelectAndResolveByValue()
         {
-            string expectedString = "Hello";
-            int expectedInt = 12;
-
-            var ctor = new InjectionConstructor(expectedString, expectedInt);
-            var context = new MockBuilderContext
-                {
-                    BuildKey = new NamedTypeBuildKey(typeof(GuineaPig))
-                };
-            IPolicyList policies = context.PersistentPolicies;
-
-            ctor.AddPolicies(typeof(GuineaPig), policies);
-
-            var selector = policies.Get<IConstructorSelectorPolicy>(
-                new NamedTypeBuildKey(typeof(GuineaPig)));
-
-            SelectedConstructor selected = selector.SelectConstructor(context, policies);
-            var resolvers = selected.GetParameterResolvers();
-
-            Assert.AreEqual(typeof(GuineaPig).GetMatchingConstructor(Sequence.Collect(typeof(string), typeof(int))), selected.Constructor);
-            Assert.AreEqual(2, resolvers.Length);
-
-            Assert.AreEqual(expectedString, (string)resolvers[0].Resolve(null));
-            Assert.AreEqual(expectedInt, (int)resolvers[1].Resolve(null));
+            _container.RegisterInstance(ObjectWithAmbiguousConstructors.Four);
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(new ResolvedParameter(typeof(string)), 
+                                                                                              string.Empty, 
+                                                                                              string.Empty));
+            Assert.AreEqual(ObjectWithAmbiguousConstructors.Four, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
         }
+
 
         [TestMethod]
-        public void InjectionConstructorSetsResolverForInterfaceToLookupInContainer()
+        public void InjectionConstructor_ResolveNamedTypeArgument()
         {
-            var ctor = new InjectionConstructor("Logger", typeof(ILogger));
-            var context = new MockBuilderContext();
-            context.BuildKey = new NamedTypeBuildKey(typeof(GuineaPig));
-            IPolicyList policies = context.PersistentPolicies;
+            _container.RegisterInstance(ObjectWithAmbiguousConstructors.Four);
+            _container.RegisterInstance(ObjectWithAmbiguousConstructors.Five, ObjectWithAmbiguousConstructors.Five);
 
-            ctor.AddPolicies(typeof(GuineaPig), policies);
-
-            var selector = policies.Get<IConstructorSelectorPolicy>(
-                new NamedTypeBuildKey(typeof(GuineaPig)));
-
-            SelectedConstructor selected = selector.SelectConstructor(context, policies);
-            var resolvers = selected.GetParameterResolvers();
-
-            Assert.AreEqual(typeof(GuineaPig).GetMatchingConstructor(Sequence.Collect(typeof(string), typeof(ILogger))), selected.Constructor);
-            Assert.AreEqual(2, resolvers.Length);
-
-            var policy = resolvers[1];
-            Assert.IsTrue(policy is NamedTypeDependencyResolverPolicy);
-        }
-
-        [TestMethod]
-        public void InjectionConstructorThrowsIfNoMatchingConstructor()
-        {
-            InjectionConstructor ctor = new InjectionConstructor(typeof(double));
-            var context = new MockBuilderContext();
-
-            AssertExtensions.AssertException<InvalidOperationException>(
-                () => ctor.AddPolicies(typeof(GuineaPig), context.PersistentPolicies));
-        }
-
-        private class GuineaPig
-        {
-            public GuineaPig()
-            {
-            }
-
-            public GuineaPig(int i)
-            {
-            }
-
-            public GuineaPig(string s)
-            {
-            }
-
-            public GuineaPig(int i, string s)
-            {
-            }
-
-            public GuineaPig(string s, int i)
-            {
-            }
-
-            public GuineaPig(string s, ILogger logger)
-            {
-            }
+            _container.RegisterType<ObjectWithAmbiguousConstructors>(new InjectionConstructor(typeof(string), 
+                                                                                              typeof(string), 
+                                                                                              typeof(IUnityContainer)));
+            Assert.AreEqual(ObjectWithAmbiguousConstructors.Five, _container.Resolve<ObjectWithAmbiguousConstructors>().Signature);
         }
     }
 }

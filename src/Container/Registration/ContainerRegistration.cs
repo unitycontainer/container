@@ -23,7 +23,6 @@ namespace Unity.Container.Registration
         private LinkedNode _head;
         private readonly Type _type;
         private readonly string _name;
-        private readonly IPolicyList _parenList;
 
         #endregion
 
@@ -45,12 +44,11 @@ namespace Unity.Container.Registration
 
             _head = new LinkedNode
             {
-                Interface = typeof(ILifetimePolicy),
-                Policy = manager,
-                BuildKey = this,
+                HashCode = typeof(ILifetimePolicy).GetHashCode(),
+                Value = manager,
                 Next = RegisteredType == MappedToType ? null : new LinkedNode
                 {
-                    Policy = this
+                    Value = this
                 }
             };
         }
@@ -59,7 +57,12 @@ namespace Unity.Container.Registration
         {
             _type = typeFrom ?? typeTo;
             _name = name;
-            _parenList = parenList;
+
+            _head = new LinkedNode
+            {
+                HashCode = typeof(IPolicyList).GetHashCode(),
+                Value = parenList
+            };
 
             MappedToType = typeTo;
             LifetimeManager = lifetimeManager;
@@ -76,9 +79,8 @@ namespace Unity.Container.Registration
             {
                 _head = new LinkedNode
                 {
-                    Interface = typeof(IBuildKeyMappingPolicy),
-                    BuildKey = this,
-                    Policy = this,
+                    HashCode = typeof(IBuildKeyMappingPolicy).GetHashCode(),
+                    Value = this,
                     Next = _head
                 };
             }
@@ -87,9 +89,8 @@ namespace Unity.Container.Registration
             {
                 _head = new LinkedNode
                 {
-                    Interface = typeof(ILifetimePolicy),
-                    BuildKey = this,
-                    Policy = lifetimeManager,
+                    HashCode = typeof(ILifetimePolicy).GetHashCode(),
+                    Value = lifetimeManager,
                     Next = _head
                 };
             }
@@ -158,16 +159,35 @@ namespace Unity.Container.Registration
 
         IBuilderPolicy IPolicyList.Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
-            return _parenList.Get(policyInterface, buildKey, out containingPolicyList);
+            LinkedNode tail = null;
+            var hashCode = policyInterface.GetHashCode();
+
+            for (LinkedNode node = _head; null != node; node = node.Next)
+            {
+                tail = node;
+
+                if (node.HashCode != hashCode || !node.Value
+                                                      .GetType()
+                                                      .GetTypeInfo()
+                                                      .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                {
+                    continue;
+                }
+
+                containingPolicyList = this;
+                return node.Value as IBuilderPolicy;
+            }
+
+            containingPolicyList = null;
+            return (tail?.Value as IPolicyList)?.Get(policyInterface, buildKey, out containingPolicyList);
         }
 
         void IPolicyList.Set(Type policyInterface, IBuilderPolicy policy, object buildKey)
         {
             _head = new LinkedNode
             {
-                Interface = policyInterface,
-                BuildKey = buildKey,
-                Policy = policy,
+                HashCode = policyInterface.GetHashCode(),
+                Value = policy,
                 Next = _head
             };
         }
@@ -245,9 +265,8 @@ namespace Unity.Container.Registration
 
         public class LinkedNode
         {
-            public Type Interface;
-            public object BuildKey;
-            public IBuilderPolicy Policy;
+            public int HashCode;
+            public object Value;
             public LinkedNode Next;
         }
 

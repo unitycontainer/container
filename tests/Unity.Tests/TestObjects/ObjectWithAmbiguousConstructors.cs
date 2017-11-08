@@ -1,12 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+using Unity.Attributes;
+
 namespace Unity.Tests.TestObjects
 {
     public class ObjectWithAmbiguousConstructors
     {
-        public const string One = "ObjectWithAmbiguousConstructors()";
-        public const string Two = "ObjectWithAmbiguousConstructors(int,string,float)";
-        public const string Three = "ObjectWithAmbiguousConstructors(string,string,int)";
+        public const string One =   "1";
+        public const string Two =   "2";
+        public const string Three = "3";
+        public const string Four =  "4";
+        public const string Five =  "5";
 
         public string Signature { get; }
 
@@ -20,9 +25,19 @@ namespace Unity.Tests.TestObjects
             Signature = Two;
         }
 
-        public ObjectWithAmbiguousConstructors(string first, string second, int third)
+        public ObjectWithAmbiguousConstructors(Type first, Type second, Type third)
         {
             Signature = Three;
+        }
+
+        public ObjectWithAmbiguousConstructors(string first, string second, string third)
+        {
+            Signature = first;
+        }
+
+        public ObjectWithAmbiguousConstructors(string first, [Dependency(Five)]string second, IUnityContainer third)
+        {
+            Signature = second;
         }
     }
 }
