@@ -1,9 +1,12 @@
 using System;
+using Unity.Container.Registration;
+using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Container
 {
-    public class TypeRegistry
+    public class TypeRegistry : IPolicyList
     {
         #region Constants
 
@@ -43,11 +46,51 @@ namespace Unity.Container
 
         #region Public Members
 
-        public void Register(IContainerRegistration registration)
+        public void Register(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        {
+            Register(new TypeRegistration(this, typeFrom, typeTo, name, lifetimeManager, injectionMembers)); 
+        }
+
+        public void Register(Type mapType, string name, object instance, LifetimeManager lifetime)
+        {
+            Register(new TypeRegistration(this, typeFrom, typeTo, name, lifetimeManager, injectionMembers));
+        }
+
+        #endregion
+
+
+        #region IPolicyList
+
+        public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear(Type policyInterface, object buildKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ClearAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        private void Register(IContainerRegistration registration)
         {
             lock (_syncRoot)
             {
-                var key = (registration ?? throw new ArgumentNullException(nameof(registration))).RegisteredType;
+                var key = registration.RegisteredType;
                 var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
                 var targetBucket = hashCode % _registrations.Buckets.Length;
                 var collisions = 0;
@@ -69,14 +112,14 @@ namespace Unity.Container
                     }
 
                     _registrations.Entries[i].Value[registration.Name] = registration;
-                    
+
                     return;
                 }
 
                 if (_registrations.RequireToGrow || CutoverPoint < collisions)
                 {
                     _registrations = new HashMicroSet<Type, IMicroSet<string, IContainerRegistration>>(_registrations);
-                     targetBucket = hashCode % _registrations.Buckets.Length;
+                    targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;
@@ -87,11 +130,6 @@ namespace Unity.Container
                 _registrations.Count++;
             }
         }
-
-        #endregion
-
-
-        #region Implementation
 
         private IMicroSet<string, IContainerRegistration> Resize(IMicroSet<string, IContainerRegistration> dictionary)
         {

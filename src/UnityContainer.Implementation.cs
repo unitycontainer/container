@@ -79,6 +79,8 @@ namespace Unity
 
         protected void InitializeStrategies()
         {
+            var buildPlanCreatorPolicy = new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies);
+
             // Main strategy chain
             _strategies.AddNew<BuildKeyMappingStrategy>(UnityBuildStage.TypeMapping);
             _strategies.AddNew<HierarchicalLifetimeStrategy>(UnityBuildStage.Lifetime);
@@ -96,12 +98,15 @@ namespace Unity
             _policies.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
             _policies.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
             _policies.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
-            _policies.SetDefault<IBuildPlanCreatorPolicy>(new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+            _policies.SetDefault<IBuildPlanCreatorPolicy>(buildPlanCreatorPolicy);
 
             _policies.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
             _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
+
+            // Default Registrations
+            _registry.Register(typeof(IBuildPlanCreatorPolicy), null, buildPlanCreatorPolicy, new ContainerLifetimeManager());
         }
 
 

@@ -102,7 +102,7 @@ namespace Unity
                 }
             }
 
-            _registry.Register(new ContainerRegistration(_policies, typeFrom, typeTo, name, lifetimeManager, injectionMembers));
+            _registry.Register(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
 
             return this;
         }
@@ -150,8 +150,6 @@ namespace Unity
 
             if (manager is IResolverPolicy policy)
                 _policies.Set(policy, identityKey);
-
-            _registry.Register(new ContainerRegistration(mapType, name, instance, lifetime));
 
             return this;
         }
