@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using Unity.Policy;
 
 namespace Unity.Lifetime
 {
@@ -20,6 +21,11 @@ namespace Unity.Lifetime
         public override void RemoveValue()
         {
             Dispose();
+        }
+
+        public IBuilderPolicy CreateScope()
+        {
+            return new HierarchicalLifetimeManager();
         }
 
 
