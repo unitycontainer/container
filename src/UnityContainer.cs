@@ -85,12 +85,12 @@ namespace Unity
             {
                 if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
                 {
-                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    _policies.Set<IBuildKeyMappingPolicy>(new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
                 else
                 {
-                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
             }
@@ -154,7 +154,10 @@ namespace Unity
             _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
             manager.SetValue(instance);
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, lifetime));
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
+
+            //if (manager is IResolverPolicy policy)
+            //    _policies.Set(policy, identityKey);
 
             return this;
         }
