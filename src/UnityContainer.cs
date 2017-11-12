@@ -152,7 +152,7 @@ namespace Unity
             // TODO: Optimize lifetime management
             _registeredNames.RegisterType(type, name);
             SetLifetimeManager(type, name, manager);
-            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
+            //_policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
             manager.SetValue(instance);
 
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
