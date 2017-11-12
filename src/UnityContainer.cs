@@ -77,12 +77,12 @@ namespace Unity
             {
                 if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
                 {
-                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    _policies.Set<IBuildKeyMappingPolicy>(new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
                 else
                 {
-                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
             }
@@ -101,6 +101,9 @@ namespace Unity
                     member.AddPolicies(typeFrom, to, name, _policies);
                 }
             }
+
+            _registry.Register(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
+
             return this;
         }
 

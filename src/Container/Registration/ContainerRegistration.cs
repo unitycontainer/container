@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Lifetime;
@@ -12,55 +13,220 @@ namespace Unity.Container.Registration
     /// <summary>
     /// Class that returns information about the types registered in a container.
     /// </summary>
-    public class ContainerRegistration : IContainerRegistration
+    public class ContainerRegistration : IContainerRegistration, 
+                                         IBuildKeyMappingPolicy,
+                                         IPolicyList,
+                                         IBuildKey
     {
-        private readonly NamedTypeBuildKey buildKey;
+        #region Fields
 
-        internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
+        private LinkedNode _head;
+        private readonly Type _type;
+        private readonly string _name;
+
+        #endregion
+
+
+
+        #region Constructors
+
+        public ContainerRegistration(Type type, string name, object instance, LifetimeManager manager)
         {
-            this.buildKey = new NamedTypeBuildKey(registeredType, name);
-            MappedToType = GetMappedType(policies);
-            LifetimeManagerType = GetLifetimeManagerType(policies);
-            LifetimeManager = GetLifetimeManager(policies);
+            MappedToType = (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
+
+            _type = type ?? MappedToType;
+            _name = name;
+
+            // TODO: Enable when available
+            LifetimeManager = manager ?? new ContainerControlledLifetimeManager();
+            //LifetimeManager.InUse = true;
+            //LifetimeManager.SetValue(instance);
+
+            _head = new LinkedNode
+            {
+                HashCode = typeof(ILifetimePolicy).GetHashCode(),
+                Value = manager,
+                Next = RegisteredType == MappedToType ? null : new LinkedNode
+                {
+                    Value = this
+                }
+            };
         }
+
+        public ContainerRegistration(IPolicyList parenList, Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        {
+            _type = typeFrom ?? typeTo;
+            _name = name;
+
+            _head = new LinkedNode
+            {
+                HashCode = typeof(IPolicyList).GetHashCode(),
+                Value = parenList
+            };
+
+            MappedToType = typeTo;
+            LifetimeManager = lifetimeManager;
+
+            if (null != injectionMembers && 0 < injectionMembers.Length)
+            {
+                foreach (var member in injectionMembers)
+                {
+                    member.AddPolicies(typeFrom, typeTo, name, this);
+                }
+            }
+
+            if (MappedToType != RegisteredType)
+            {
+                _head = new LinkedNode
+                {
+                    HashCode = typeof(IBuildKeyMappingPolicy).GetHashCode(),
+                    Value = this,
+                    Next = _head
+                };
+            }
+
+            if (null != lifetimeManager)
+            {
+                _head = new LinkedNode
+                {
+                    HashCode = typeof(ILifetimePolicy).GetHashCode(),
+                    Value = lifetimeManager,
+                    Next = _head
+                };
+            }
+        }
+
+        #endregion
+
+
+        #region IBuildKey
+
+        /// <summary>
+        /// Return the <see cref="Type"/> stored in this build key.
+        /// </summary>
+        /// <value>The type to build.</value>
+        Type IBuildKey.Type => _type;
+
+        #endregion
+
+
+        #region IContainerRegistration
 
         /// <summary>
         /// The type that was passed to the <see cref="IUnityContainer.RegisterType"/> method
         /// as the "from" type, or the only type if type mapping wasn't done.
         /// </summary>
-        public Type RegisteredType { get { return this.buildKey.Type; } }
+        public Type RegisteredType => _type;
 
         /// <summary>
         /// The type that this registration is mapped to. If no type mapping was done, the
         /// <see cref="RegisteredType"/> property and this one will have the same value.
         /// </summary>
-        public Type MappedToType { get; private set; }
+        public Type MappedToType { get; }
 
         /// <summary>
         /// Name the type was registered under. Null for default registration.
         /// </summary>
-        public string Name { get { return this.buildKey.Name; } }
+        public string Name => _name;
 
         /// <summary>
         /// The registered lifetime manager instance.
         /// </summary>
-        public Type LifetimeManagerType { get; private set; }
+        public Type LifetimeManagerType { get; }
 
         /// <summary>
         /// The lifetime manager for this registration.
         /// </summary>
         /// <remarks>
         /// This property will be null if this registration is for an open generic.</remarks>
-        public LifetimeManager LifetimeManager { get; private set; }
+        public LifetimeManager LifetimeManager { get; }
+
+        #endregion
+
+
+        #region IBuildKeyMappingPolicy
+
+        NamedTypeBuildKey IBuildKeyMappingPolicy.Map(NamedTypeBuildKey buildKey, IBuilderContext context)
+        {
+            return new NamedTypeBuildKey(MappedToType, _name);
+        }
+
+        #endregion
+
+
+        #region IPolicyList
+
+
+        IBuilderPolicy IPolicyList.Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        {
+            LinkedNode tail = null;
+            var hashCode = policyInterface.GetHashCode();
+
+            for (LinkedNode node = _head; null != node; node = node.Next)
+            {
+                tail = node;
+
+                if (node.HashCode != hashCode || !node.Value
+                                                      .GetType()
+                                                      .GetTypeInfo()
+                                                      .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                {
+                    continue;
+                }
+
+                containingPolicyList = this;
+                return node.Value as IBuilderPolicy;
+            }
+
+            containingPolicyList = null;
+            return (tail?.Value as IPolicyList)?.Get(policyInterface, buildKey, out containingPolicyList);
+        }
+
+        void IPolicyList.Set(Type policyInterface, IBuilderPolicy policy, object buildKey)
+        {
+            _head = new LinkedNode
+            {
+                HashCode = policyInterface.GetHashCode(),
+                Value = policy,
+                Next = _head
+            };
+        }
+
+        void IPolicyList.Clear(Type policyInterface, object buildKey)
+        {
+        }
+
+        void IPolicyList.ClearAll()
+        {
+        }
+
+        #endregion
+
+
+        #region Legacy
+
+
+        internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
+        {
+            _type = registeredType;
+            _name = name;
+
+            MappedToType = GetMappedType(policies);
+            LifetimeManagerType = GetLifetimeManagerType(policies);
+            LifetimeManager = GetLifetimeManager(policies);
+        }
+
+
 
         private Type GetMappedType(IPolicyList policies)
         {
-            var mappingPolicy = policies.Get<IBuildKeyMappingPolicy>(this.buildKey);
+            var buildKey = new NamedTypeBuildKey(_type, _name);
+            var mappingPolicy = policies.Get<IBuildKeyMappingPolicy>(buildKey);
             if (mappingPolicy != null)
             {
-                return mappingPolicy.Map(this.buildKey, null).Type;
+                return mappingPolicy.Map(buildKey, null).Type;
             }
-            return this.buildKey.Type;
+            return buildKey.Type;
         }
 
         private Type GetLifetimeManagerType(IPolicyList policies)
@@ -91,5 +257,20 @@ namespace Unity.Container.Registration
             var key = new NamedTypeBuildKey(MappedToType, Name);
             return (LifetimeManager)policies.Get<ILifetimePolicy>(key);
         }
+
+        #endregion
+
+
+        #region Nested Types
+
+        public class LinkedNode
+        {
+            public int HashCode;
+            public object Value;
+            public LinkedNode Next;
+        }
+
+
+        #endregion
     }
 }

@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Practices.ObjectBuilder2;
+using Microsoft.Practices.Unity.Tests;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.Injection
 {
     // Tests for the DependencyValue class and its derivatives
     [TestClass]

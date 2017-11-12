@@ -4,11 +4,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Attributes;
 using Unity.Lifetime;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.Lazy
 {
     /// <summary>
     /// Summary description for DeferredResolveFixture

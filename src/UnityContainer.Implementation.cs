@@ -29,13 +29,14 @@ namespace Unity
     {
         #region Fields
 
-        private PolicyList _policies;
+        private readonly TypeRegistry _registry;
+        private readonly IPolicyList _policies;
         private readonly UnityContainer _parent;
-        private NamedTypesRegistry _registeredNames;
+        private readonly NamedTypesRegistry _registeredNames;
         private LifetimeContainer _lifetimeContainer;
-        private List<UnityContainerExtension> _extensions;
-        private StagedStrategyChain<UnityBuildStage> _strategies;
-        private StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
+        private readonly List<UnityContainerExtension> _extensions;
+        private readonly StagedStrategyChain<UnityBuildStage> _strategies;
+        private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -58,6 +59,7 @@ namespace Unity
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
+            _registry = new TypeRegistry(_parent?._registry);
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
@@ -77,6 +79,8 @@ namespace Unity
 
         protected void InitializeStrategies()
         {
+            var buildPlanCreatorPolicy = new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies);
+
             // Main strategy chain
             _strategies.AddNew<BuildKeyMappingStrategy>(UnityBuildStage.TypeMapping);
             _strategies.AddNew<HierarchicalLifetimeStrategy>(UnityBuildStage.Lifetime);
@@ -94,12 +98,15 @@ namespace Unity
             _policies.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
             _policies.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
             _policies.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
-            _policies.SetDefault<IBuildPlanCreatorPolicy>(new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+            _policies.SetDefault<IBuildPlanCreatorPolicy>(buildPlanCreatorPolicy);
 
             _policies.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
             _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
+
+            // Default Registrations
+            _registry.Register(typeof(IBuildPlanCreatorPolicy), null, buildPlanCreatorPolicy, new ContainerLifetimeManager());
         }
 
 
@@ -130,7 +137,6 @@ namespace Unity
         }
 
         #endregion
-
 
 
         #region Implementation

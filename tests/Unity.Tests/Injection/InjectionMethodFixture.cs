@@ -3,10 +3,9 @@
 using System;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Injection;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.Injection
 {
     [TestClass]
     public class InjectionMethodFixture
