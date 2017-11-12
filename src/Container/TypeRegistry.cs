@@ -1,4 +1,5 @@
 using System;
+using Unity.Builder;
 using Unity.Container.Registration;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -48,12 +49,12 @@ namespace Unity.Container
 
         public void Register(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
-            Register(new TypeRegistration(this, typeFrom, typeTo, name, lifetimeManager, injectionMembers)); 
+            Register(new TypeRegistration(typeFrom, typeTo, name, lifetimeManager, injectionMembers)); 
         }
 
         public void Register(Type mapType, string name, object instance, LifetimeManager lifetime)
         {
-            Register(new TypeRegistration(this, typeFrom, typeTo, name, lifetimeManager, injectionMembers));
+            Register(new InstanceRegistration(mapType, name, instance, lifetime));
         }
 
         #endregion
@@ -61,9 +62,41 @@ namespace Unity.Container
 
         #region IPolicyList
 
-        public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        public IBuilderPolicy Get(Type policyInterface, object requestKey, out IPolicyList containingPolicyList)
         {
-            throw new NotImplementedException();
+            Type key;
+            string name = null;
+            containingPolicyList = null;
+
+            switch (requestKey)
+            {
+                case IBuildKey buildKey:
+                    key = buildKey.Type;
+                    name = buildKey.Name;
+                    break;
+
+                case Type buildType:
+                    key = buildType;
+                    break;
+
+                default:
+                    throw new ArgumentException(nameof(requestKey));
+            }
+
+            var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            {
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != key)
+                {
+                    continue;
+                }
+
+                return ((IPolicyList)_registrations.Entries[i].Value[name])?.Get(policyInterface, requestKey, out containingPolicyList);
+            }
+
+            return null;
         }
 
         public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null)

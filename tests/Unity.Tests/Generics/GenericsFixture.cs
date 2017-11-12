@@ -50,9 +50,10 @@ namespace Unity.Tests.Generics
             myDict.Add("One", "two");
             myDict.Add("Two", "three");
 
-            IUnityContainer container = new UnityContainer()
-                .RegisterInstance(myDict)
-                .RegisterType(typeof(IDictionary<,>), typeof(Dictionary<,>), new ExternallyControlledLifetimeManager());
+            IUnityContainer container = new UnityContainer();
+            container.RegisterInstance(myDict);
+            container.RegisterType(typeof(IDictionary<,>), typeof(Dictionary<,>), new ExternallyControlledLifetimeManager(), 
+                                                                                  new InjectionConstructor());
 
             IDictionary<string, string> result = container.Resolve<IDictionary<string, string>>();
             Assert.AreSame(myDict, result);

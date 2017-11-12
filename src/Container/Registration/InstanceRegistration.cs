@@ -25,11 +25,10 @@ namespace Unity.Container.Registration
 
         public InstanceRegistration(Type mapType, string name, object instance, LifetimeManager lifetime)
         {
-            _type = mapType ?? instance?.GetType() ?? throw new ArgumentNullException(nameof(instance));
             _name = name;
-
-            MappedToType = _type;
-            LifetimeManager = lifetime ?? new TransientLifetimeManager();
+            _type = mapType ?? instance.GetType();
+            MappedToType = instance.GetType(); ;
+            LifetimeManager = lifetime;
         }
 
         #endregion
@@ -37,10 +36,6 @@ namespace Unity.Container.Registration
 
         #region IBuildKey
 
-        /// <summary>
-        /// Return the <see cref="Type"/> stored in this build key.
-        /// </summary>
-        /// <value>The type to build.</value>
         Type IBuildKey.Type => _type;
 
         #endregion
@@ -117,24 +112,6 @@ namespace Unity.Container.Registration
         {
             context.Existing = LifetimeManager.GetValue();
         }
-
-        #endregion
-
-
-        #region Implementation
-
-        #endregion
-
-
-        #region Nested Types
-
-        public class LinkedNode
-        {
-            public int HashCode;
-            public object Value;
-            public ContainerRegistration.LinkedNode Next;
-        }
-
 
         #endregion
     }

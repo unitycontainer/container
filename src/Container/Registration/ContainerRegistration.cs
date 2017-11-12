@@ -13,9 +13,8 @@ namespace Unity.Container.Registration
     /// <summary>
     /// Class that returns information about the types registered in a container.
     /// </summary>
-    public class ContainerRegistration : IContainerRegistration, 
-                                         IBuildKeyMappingPolicy,
-                                         IPolicyList,
+    public class ContainerRegistration : IContainerRegistration,
+                                         IIndexerOf<Type, IBuilderPolicy>,
                                          IBuildKey
     {
         #region Fields
@@ -30,70 +29,21 @@ namespace Unity.Container.Registration
 
         #region Constructors
 
-        public ContainerRegistration(Type type, string name, object instance, LifetimeManager manager)
+
+        internal ContainerRegistration(Type registeredType, string name)
         {
-            MappedToType = (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
-
-            _type = type ?? MappedToType;
+            _type = registeredType;
             _name = name;
-
-            // TODO: Enable when available
-            LifetimeManager = manager ?? new ContainerControlledLifetimeManager();
-            //LifetimeManager.InUse = true;
-            //LifetimeManager.SetValue(instance);
-
-            _head = new LinkedNode
-            {
-                HashCode = typeof(ILifetimePolicy).GetHashCode(),
-                Value = manager,
-                Next = RegisteredType == MappedToType ? null : new LinkedNode
-                {
-                    Value = this
-                }
-            };
         }
 
-        public ContainerRegistration(IPolicyList parenList, Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
         {
-            _type = typeFrom ?? typeTo;
+            _type = registeredType;
             _name = name;
 
-            _head = new LinkedNode
-            {
-                HashCode = typeof(IPolicyList).GetHashCode(),
-                Value = parenList
-            };
-
-            MappedToType = typeTo;
-            LifetimeManager = lifetimeManager;
-
-            if (null != injectionMembers && 0 < injectionMembers.Length)
-            {
-                foreach (var member in injectionMembers)
-                {
-                    member.AddPolicies(typeFrom, typeTo, name, this);
-                }
-            }
-
-            if (MappedToType != RegisteredType)
-            {
-                _head = new LinkedNode
-                {
-                    HashCode = typeof(IBuildKeyMappingPolicy).GetHashCode(),
-                    Value = this,
-                    Next = _head
-                };
-            }
-
-            if (null != lifetimeManager)
-            {
-                _head = new LinkedNode
-                {
-                    HashCode = typeof(ILifetimePolicy).GetHashCode(),
-                    Value = lifetimeManager,
-                    Next = _head
-                };
-            }
+            MappedToType = GetMappedType(policies);
+            LifetimeManagerType = GetLifetimeManagerType(policies);
+            LifetimeManager = GetLifetimeManager(policies);
         }
 
         #endregion
@@ -141,82 +91,79 @@ namespace Unity.Container.Registration
         /// This property will be null if this registration is for an open generic.</remarks>
         public LifetimeManager LifetimeManager { get; }
 
-        #endregion
-
-
-        #region IBuildKeyMappingPolicy
-
-        NamedTypeBuildKey IBuildKeyMappingPolicy.Map(NamedTypeBuildKey buildKey, IBuilderContext context)
-        {
-            return new NamedTypeBuildKey(MappedToType, _name);
-        }
 
         #endregion
 
 
-        #region IPolicyList
+        #region IIndexerOf
 
-
-        IBuilderPolicy IPolicyList.Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+        public virtual IBuilderPolicy this[Type policyInterface]
         {
-            LinkedNode tail = null;
-            var hashCode = policyInterface.GetHashCode();
-
-            for (LinkedNode node = _head; null != node; node = node.Next)
+            get
             {
-                tail = node;
-
-                if (node.HashCode != hashCode || !node.Value
-                                                      .GetType()
-                                                      .GetTypeInfo()
-                                                      .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                switch (policyInterface)
                 {
-                    continue;
-                }
+                    case ILifetimePolicy _:
+                        return LifetimeManager;
 
-                containingPolicyList = this;
-                return node.Value as IBuilderPolicy;
+                    case IBuildPlanPolicy _:
+                        return null;// TODO: GetBuildPolicy();
+
+                    default:
+                        var hashCode = policyInterface.GetHashCode();
+                        for (var node = _head; null != node; node = node.Next)
+                        {
+                            if (node.HashCode != hashCode || !node.Value
+                                                                  .GetType()
+                                                                  .GetTypeInfo()
+                                                                  .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                            {
+                                continue;
+                            }
+
+                            return node.Value;
+                        }
+
+                        return null;
+                }
             }
 
-            containingPolicyList = null;
-            return (tail?.Value as IPolicyList)?.Get(policyInterface, buildKey, out containingPolicyList);
-        }
-
-        void IPolicyList.Set(Type policyInterface, IBuilderPolicy policy, object buildKey)
-        {
-            _head = new LinkedNode
+            set
             {
-                HashCode = policyInterface.GetHashCode(),
-                Value = policy,
-                Next = _head
-            };
-        }
+                LinkedNode node;
+                var hash = policyInterface?.GetHashCode() ?? 0;
 
-        void IPolicyList.Clear(Type policyInterface, object buildKey)
-        {
-        }
+                for (node = _head; node != null; node = node.Next)
+                {
+                    if (node.HashCode == hash && 
+                        node.Value.GetType().GetTypeInfo()
+                            .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                    {
+                        break;
+                    }
+                }
 
-        void IPolicyList.ClearAll()
-        {
+                if (node != null)
+                {
+                    // Found it
+                    node.Value = value;
+                    return;
+                }
+
+                // Not found, so add a new one
+                _head = new LinkedNode
+                {
+                    HashCode = hash,
+                    Value = value,
+                    Next = _head
+                };
+            }
         }
 
         #endregion
 
 
         #region Legacy
-
-
-        internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
-        {
-            _type = registeredType;
-            _name = name;
-
-            MappedToType = GetMappedType(policies);
-            LifetimeManagerType = GetLifetimeManagerType(policies);
-            LifetimeManager = GetLifetimeManager(policies);
-        }
-
-
 
         private Type GetMappedType(IPolicyList policies)
         {
@@ -266,7 +213,7 @@ namespace Unity.Container.Registration
         public class LinkedNode
         {
             public int HashCode;
-            public object Value;
+            public IBuilderPolicy Value;
             public LinkedNode Next;
         }
 

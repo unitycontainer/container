@@ -29,20 +29,28 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            if (context.Existing == null)
-            {
-                var lifetimePolicy = GetLifetimePolicy(context, out _);
-                if (lifetimePolicy is IRequiresRecovery recovery)
-                {
-                    context.RecoveryStack.Add(recovery);
-                }
+            if (context.Existing != null) return;
 
-                var existing = lifetimePolicy.GetValue();
-                if (existing != null)
-                {
-                    context.Existing = existing;
-                    context.BuildComplete = true;
-                }
+            var lifetimePolicy = GetLifetimePolicy(context, out var policyList);
+
+            if (lifetimePolicy is IHierarchicalLifetimePolicy scope && 
+                !ReferenceEquals(policyList, context.PersistentPolicies))
+            {
+                lifetimePolicy = scope.CreateScope() as ILifetimePolicy;
+                context.PersistentPolicies.Set(lifetimePolicy, context.BuildKey);
+                context.Lifetime.Add(lifetimePolicy);
+            }
+
+            if (lifetimePolicy is IRequiresRecovery recovery)
+            {
+                context.RecoveryStack.Add(recovery);
+            }
+
+            var existing = lifetimePolicy?.GetValue();
+            if (existing != null)
+            {
+                context.Existing = existing;
+                context.BuildComplete = true;
             }
         }
 

@@ -26,6 +26,14 @@ namespace Unity
     /// </summary>
     public partial class UnityContainer : IUnityContainer
     {
+        #region Defaults
+
+        private const int ContainerInitialCapacity = 37;
+        private const int ListToHashCutoverPoint = 8;
+
+        #endregion
+
+
         #region Public Constructor
 
         /// <summary>
@@ -77,12 +85,12 @@ namespace Unity
             {
                 if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
                 {
-                    _policies.Set<IBuildKeyMappingPolicy>(new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
                 else
                 {
-                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
             }
@@ -102,7 +110,7 @@ namespace Unity
                 }
             }
 
-            _registry.Register(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
+            //Register(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
 
             return this;
         }
@@ -135,7 +143,6 @@ namespace Unity
             // Validate input
             if (null == instance) throw new ArgumentNullException(nameof(instance));
             if (null != mapType) InstanceIsAssignable(mapType, instance, nameof(instance));
-            if (null != lifetime && !(lifetime is IResolverPolicy)) throw new ArgumentException("Instance LifetimeManager must implement IResolverPolicy");
 
             var type = mapType ?? instance.GetType();
             var manager = lifetime ?? new ContainerControlledLifetimeManager();
@@ -144,12 +151,10 @@ namespace Unity
             // TODO: Optimize lifetime management
             _registeredNames.RegisterType(type, name);
             SetLifetimeManager(type, name, manager);
+            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
             manager.SetValue(instance);
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
-
-            if (manager is IResolverPolicy policy)
-                _policies.Set(policy, identityKey);
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, lifetime));
 
             return this;
         }
@@ -168,12 +173,7 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            var key = new NamedTypeBuildKey(type ?? throw new ArgumentNullException(nameof(type)), name);
-
-            var policy = _policies.Get<IResolverPolicy>(key);
-
-            return policy?.Resolve(new BuilderContext(this, key, null, resolverOverrides)) ?? 
-                   BuildUp(key, null, resolverOverrides);
+            return BuildUp(type, null, name, resolverOverrides);
         }
 
         #endregion
@@ -202,8 +202,36 @@ namespace Unity
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
 
-            return BuildUp(new NamedTypeBuildKey(type, name), existing, resolverOverrides);
+            var key = new NamedTypeBuildKey(type, name);
+            IBuilderContext context = null;
+
+            try
+            {
+                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
+                    _lifetimeContainer,
+                    _policies,
+                    key,
+                    existing);
+
+                if (null != resolverOverrides && 0 != resolverOverrides.Length)
+                    context.AddResolverOverrides(resolverOverrides);
+
+                if (key.Type.GetTypeInfo().IsGenericTypeDefinition)
+                {
+                    throw new ArgumentException(
+                        String.Format(CultureInfo.CurrentCulture,
+                            Constants.CannotResolveOpenGenericType,
+                            key.Type.FullName), nameof(key.Type));
+                }
+
+                return context.Strategies.ExecuteBuildUp(context);
+            }
+            catch (Exception ex)
+            {
+                throw new ResolutionFailedException(key.Type, key.Name, ex, context);
+            }
         }
+
 
         #endregion
 

@@ -8,29 +8,26 @@ using Unity.Registration;
 namespace Unity.Container.Registration
 {
     public class TypeRegistration : IContainerRegistration,
+                                    IIndexerOf<Type, IBuilderPolicy>,
                                     IBuildKeyMappingPolicy,
                                     IPolicyList,
                                     IBuildKey
     {
         #region Fields
 
-        private IBuildPlanPolicy _buildPlan;
         private readonly Type _type;
         private readonly string _name;
-        private readonly IPolicyList _parent;
         private ContainerRegistration.LinkedNode _head;
         private static readonly TransientLifetimeManager TransientLifetimeManager = new TransientLifetimeManager();
 
         #endregion
 
 
-
         #region Constructors
 
-        public TypeRegistration(IPolicyList parenList, Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        public TypeRegistration(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             _type = typeFrom ?? typeTo ?? throw new ArgumentNullException(nameof(typeTo));
-            _parent = parenList ?? throw new ArgumentNullException(nameof(parenList));
             _name = name;
 
             MappedToType = typeTo;
@@ -103,40 +100,10 @@ namespace Unity.Container.Registration
 
         IBuilderPolicy IPolicyList.Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
-            switch (policyInterface)
-            {
-                case IBuildKeyMappingPolicy _:
-                    containingPolicyList = this;
-                    return this;
-
-                case ILifetimePolicy _:
-                    containingPolicyList = this;
-                    return LifetimeManager;
-
-                case IBuildPlanPolicy _:
-                    containingPolicyList = this;
-                    return GetBuildPolicy();
-
-                default:
-                    var hashCode = policyInterface.GetHashCode();
-                    for (var node = _head; null != node; node = node.Next)
-                    {
-                        if (node.HashCode != hashCode || !node.Value
-                                                              .GetType()
-                                                              .GetTypeInfo()
-                                                              .IsAssignableFrom(policyInterface.GetTypeInfo()))
-                        {
-                            continue;
-                        }
-
-                        containingPolicyList = this;
-                        return node.Value as IBuilderPolicy;
-                    }
-                    break;
-            }
+            var data = this[policyInterface];
 
             containingPolicyList = null;
-            return _parent.Get(policyInterface, buildKey, out containingPolicyList);
+            return null;
         }
 
         void IPolicyList.Set(Type policyInterface, IBuilderPolicy policy, object buildKey)
@@ -160,27 +127,50 @@ namespace Unity.Container.Registration
         #endregion
 
 
+        public IBuilderPolicy this[Type policyInterface] {
+            get
+            {
+                switch (policyInterface)
+                {
+                    case IBuildKeyMappingPolicy _:
+                        return this;
+
+                    case ILifetimePolicy _:
+                        return LifetimeManager;
+
+                    case IBuildPlanPolicy _:
+                        return null;// TODO: GetBuildPolicy();
+
+                    default:
+                        var hashCode = policyInterface.GetHashCode();
+                        for (var node = _head; null != node; node = node.Next)
+                        {
+                            if (node.HashCode != hashCode || !node.Value
+                                    .GetType()
+                                    .GetTypeInfo()
+                                    .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                            {
+                                continue;
+                            }
+
+                            return node.Value as IBuilderPolicy;
+                        }
+
+                        return  null;
+                }
+
+            }
+            set => _head = new ContainerRegistration.LinkedNode
+            {
+                HashCode = policyInterface.GetHashCode(),
+                Value = value,
+                Next = _head
+            };
+        }
+
+
         #region Implementation
 
-        private IBuildPlanPolicy GetBuildPolicy()
-        {
-            if (null == _buildPlan)
-            {
-                lock (this)
-                {
-                    if (null == _buildPlan)
-                    {
-                        var planCreator = _parent.Get<IBuildPlanCreatorPolicy>(this, out var _);
-                        if (planCreator != null)
-                        {
-                            //_buildPlan = planCreator.CreatePlan(context, context.BuildKey);
-                        }
-                    }
-                }
-            }
-
-            return _buildPlan;
-        }
 
         #endregion
 

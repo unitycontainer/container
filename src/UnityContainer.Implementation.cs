@@ -29,7 +29,6 @@ namespace Unity
     {
         #region Fields
 
-        private readonly TypeRegistry _registry;
         private readonly IPolicyList _policies;
         private readonly UnityContainer _parent;
         private readonly NamedTypesRegistry _registeredNames;
@@ -59,13 +58,14 @@ namespace Unity
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
-            _registry = new TypeRegistry(_parent?._registry);
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
             _policies = new PolicyList(_parent?._policies);
+            //_policies = new ContainerPolicyList(this);
             _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
+
 
             if (null == _parent) InitializeStrategies();
 
@@ -83,9 +83,7 @@ namespace Unity
 
             // Main strategy chain
             _strategies.AddNew<BuildKeyMappingStrategy>(UnityBuildStage.TypeMapping);
-            _strategies.AddNew<HierarchicalLifetimeStrategy>(UnityBuildStage.Lifetime);
             _strategies.AddNew<LifetimeStrategy>(UnityBuildStage.Lifetime);
-
             _strategies.AddNew<ArrayResolutionStrategy>(UnityBuildStage.Creation);
             _strategies.AddNew<BuildPlanStrategy>(UnityBuildStage.Creation);
 
@@ -106,7 +104,7 @@ namespace Unity
             _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
 
             // Default Registrations
-            _registry.Register(typeof(IBuildPlanCreatorPolicy), null, buildPlanCreatorPolicy, new ContainerLifetimeManager());
+            //Register(typeof(IBuildPlanCreatorPolicy), null, buildPlanCreatorPolicy, new ContainerLifetimeManager());
         }
 
 
@@ -141,37 +139,6 @@ namespace Unity
 
         #region Implementation
 
-        private object BuildUp(NamedTypeBuildKey key, object existing, params ResolverOverride[] resolverOverrides)
-        {
-            IBuilderContext context = null;
-
-            try
-            {
-                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
-                                                   _lifetimeContainer,
-                                                   _policies,
-                                                   key,
-                                                   existing);
-
-                if (null != resolverOverrides && 0 != resolverOverrides.Length)
-                    context.AddResolverOverrides(resolverOverrides);
-
-                if (key.Type.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    throw new ArgumentException(
-                        String.Format(CultureInfo.CurrentCulture,
-                            Constants.CannotResolveOpenGenericType,
-                            key.Type.FullName), nameof(key.Type));
-                }
-
-                return context.Strategies.ExecuteBuildUp(context);
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(key.Type, key.Name, ex, context);
-            }
-        }
-
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
         {
             if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))
@@ -199,87 +166,6 @@ namespace Unity
             }
 
             return assignmentInstanceType;
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        /// <summary>
-        /// Implementation of the ExtensionContext that is actually used
-        /// by the UnityContainer implementation.
-        /// </summary>
-        /// <remarks>
-        /// This is a nested class so that it can access state in the
-        /// container that would otherwise be inaccessible.
-        /// </remarks>
-        private class ContainerContext : ExtensionContext
-        {
-            private readonly UnityContainer _container;
-
-            public ContainerContext(UnityContainer container)
-            {
-                _container = container ?? throw new ArgumentNullException(nameof(container));
-            }
-
-            public override IUnityContainer Container => _container;
-
-            public override IStagedStrategyChain<UnityBuildStage> Strategies => _container._strategies;
-
-            public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies => _container._buildPlanStrategies;
-
-            public override IPolicyList Policies => _container._policies;
-
-            public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
-
-            public override event EventHandler<RegisterEventArgs> Registering
-            {
-                add => _container.Registering += value;
-                remove => _container.Registering -= value;
-            }
-
-            /// <summary>
-            /// This event is raised when the <see cref="RegisterInstance(Type,string,object,LifetimeManager)"/> method,
-            /// or one of its overloads, is called.
-            /// </summary>
-            public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
-            {
-                add => _container.RegisteringInstance += value;
-                remove => _container.RegisteringInstance -= value;
-            }
-
-            public override event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
-            {
-                add => _container.ChildContainerCreated += value;
-                remove => _container.ChildContainerCreated -= value;
-            }
-        }
-
-
-        // Works like the ExternallyControlledLifetimeManager, but uses regular instead of weak references
-        private class ContainerLifetimeManager : LifetimeManager, IResolverPolicy
-        {
-            private object _value;
-
-            public override object GetValue()
-            {
-                return _value;
-            }
-
-            public override void SetValue(object newValue)
-            {
-                _value = newValue;
-            }
-
-            public override void RemoveValue()
-            {
-            }
-
-            public object Resolve(IBuilderContext _)
-            {
-                return _value;
-            }
         }
 
         #endregion

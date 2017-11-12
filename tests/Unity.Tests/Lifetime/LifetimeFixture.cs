@@ -313,7 +313,6 @@ namespace Unity.Tests.Lifetime
         /// check if same or diff instances are returned.
         /// </summary>
         [TestMethod]
-        [Ignore]
         public void RegisterWithParentAndChild()
         {
             //create unity container

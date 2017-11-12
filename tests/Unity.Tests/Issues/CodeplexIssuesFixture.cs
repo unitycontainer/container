@@ -70,11 +70,11 @@ namespace Microsoft.Practices.Unity.Tests
         [TestMethod]
         public void RegisteringInstanceInChildOverridesRegisterTypeInParent()
         {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType<IBasicInterface, ClassWithDoubleConstructor>(new ContainerControlledLifetimeManager());
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType<IBasicInterface, ClassWithDoubleConstructor>(new ContainerControlledLifetimeManager());
 
-            IUnityContainer child = container.CreateChildContainer()
-                .RegisterInstance<IBasicInterface>(new MockBasic());
+            IUnityContainer child = container.CreateChildContainer();
+            child.RegisterInstance<IBasicInterface>(new MockBasic());
 
             IBasicInterface result = child.Resolve<IBasicInterface>();
 
