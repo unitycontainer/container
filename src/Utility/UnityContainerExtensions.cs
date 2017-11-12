@@ -767,7 +767,7 @@ namespace Unity
             where TExtension : UnityContainerExtension
         {
             TExtension newExtension = (container ?? throw new ArgumentNullException(nameof(container))).Resolve<TExtension>();
-            return (container ?? throw new ArgumentNullException(nameof(container))).AddExtension(newExtension);
+            return container.AddExtension(newExtension);
         }
 
         /// <summary>
