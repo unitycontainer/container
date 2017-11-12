@@ -145,8 +145,8 @@ namespace Unity
 
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
 
-            if (manager is IResolverPolicy policy)
-                _policies.Set(policy, identityKey);
+            //if (manager is IResolverPolicy policy)
+            //    _policies.Set(policy, identityKey);
 
             return this;
         }
