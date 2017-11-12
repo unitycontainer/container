@@ -23,7 +23,7 @@ namespace Unity.Lifetime
             Dispose();
         }
 
-        public IBuilderPolicy CreateScope()
+        public virtual IBuilderPolicy CreateScope()
         {
             return new HierarchicalLifetimeManager();
         }
