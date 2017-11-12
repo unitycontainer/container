@@ -79,6 +79,8 @@ namespace Unity
                 }
             }
 
+            ClearExistingBuildPlan(typeFrom ?? to, name);
+
             _registeredNames.RegisterType(typeFrom ?? to, name);
 
             if (typeFrom != null)
@@ -103,7 +105,6 @@ namespace Unity
 
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
-                ClearExistingBuildPlan(to, name);
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies(typeFrom, to, name, _policies);

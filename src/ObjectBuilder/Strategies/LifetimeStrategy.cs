@@ -37,7 +37,7 @@ namespace Unity.ObjectBuilder.Strategies
                 !ReferenceEquals(policyList, context.PersistentPolicies))
             {
                 lifetimePolicy = scope.CreateScope() as ILifetimePolicy;
-                context.PersistentPolicies.Set(lifetimePolicy, context.BuildKey);
+                context.PersistentPolicies.Set(lifetimePolicy, context.OriginalBuildKey);
                 context.Lifetime.Add(lifetimePolicy);
             }
 
