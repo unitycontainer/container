@@ -79,7 +79,7 @@ namespace Unity.ObjectBuilder.Strategies
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
         {
-            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey, false, out source);
+            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.OriginalBuildKey, false, out source);
             if (policy == null && context.BuildKey.Type.GetTypeInfo().IsGenericType)
             {
                 policy = GetLifetimePolicyForGenericType(context, out source);
@@ -88,7 +88,7 @@ namespace Unity.ObjectBuilder.Strategies
             if (policy == null)
             {
                 policy = TransientManager;
-                context.PersistentPolicies.Set(policy, context.BuildKey);
+                context.PersistentPolicies.Set(policy, context.OriginalBuildKey);
             }
 
             return policy;

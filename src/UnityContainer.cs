@@ -96,7 +96,7 @@ namespace Unity
             }
             if (lifetimeManager != null)
             {
-                SetLifetimeManager(to, name, lifetimeManager);
+                SetLifetimeManager(typeFrom ?? to, name, lifetimeManager);
             }
 
             Registering?.Invoke(this, new RegisterEventArgs(typeFrom, to, name, lifetimeManager));
