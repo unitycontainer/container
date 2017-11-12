@@ -7,10 +7,8 @@ using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Container.Registration;
 using Unity.Events;
-using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder;
 using Unity.ObjectBuilder.BuildPlan;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
@@ -20,7 +18,6 @@ using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
-using Unity.Resolution;
 using Unity.Strategy;
 
 namespace Unity
@@ -79,7 +76,6 @@ namespace Unity
         {
             // Main strategy chain
             _strategies.AddNew<BuildKeyMappingStrategy>(UnityBuildStage.TypeMapping);
-            _strategies.AddNew<HierarchicalLifetimeStrategy>(UnityBuildStage.Lifetime);
             _strategies.AddNew<LifetimeStrategy>(UnityBuildStage.Lifetime);
 
             _strategies.AddNew<ArrayResolutionStrategy>(UnityBuildStage.Creation);
