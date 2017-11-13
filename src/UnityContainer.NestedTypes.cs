@@ -98,11 +98,11 @@ namespace Unity
 
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IContainerRegistration data;
+                    IIndexerOf<Type, IBuilderPolicy> data;
                     if (null == (data = registry[key, name])) continue;
 
                     containingPolicyList = registry._policies;
-                    return data.LifetimeManager;
+                    return data[policyInterface];
                 }
 
                 return null;

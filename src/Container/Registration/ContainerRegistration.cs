@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Lifetime;
@@ -15,6 +14,7 @@ namespace Unity.Container.Registration
     /// </summary>
     public class ContainerRegistration : IContainerRegistration,
                                          IIndexerOf<Type, IBuilderPolicy>,
+                                         IBuildKeyMappingPolicy,
                                          IBuildKey
     {
         #region Fields
@@ -83,8 +83,17 @@ namespace Unity.Container.Registration
         /// </summary>
         /// <remarks>
         /// This property will be null if this registration is for an open generic.</remarks>
-        public LifetimeManager LifetimeManager { get; } = Transient;
+        public LifetimeManager LifetimeManager { get; private set; } = Transient;
 
+        #endregion
+
+
+        #region IBuildKeyMappingPolicy
+
+        NamedTypeBuildKey IBuildKeyMappingPolicy.Map(NamedTypeBuildKey buildKey, IBuilderContext context)
+        {
+            return new NamedTypeBuildKey(MappedToType, _name);
+        }
 
         #endregion
 
@@ -95,31 +104,21 @@ namespace Unity.Container.Registration
         {
             get
             {
-                switch (policyInterface)
+                var hashCode = policyInterface.GetHashCode();
+                for (var node = _head; null != node; node = node.Next)
                 {
-                    case ILifetimePolicy _:
-                        return LifetimeManager;
+                    if (node.HashCode != hashCode || !node.Value
+                                                          .GetType()
+                                                          .GetTypeInfo()
+                                                          .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                    {
+                        continue;
+                    }
 
-                    case IBuildPlanPolicy _:
-                        return null;// TODO: GetBuildPolicy();
-
-                    default:
-                        var hashCode = policyInterface.GetHashCode();
-                        for (var node = _head; null != node; node = node.Next)
-                        {
-                            if (node.HashCode != hashCode || !node.Value
-                                                                  .GetType()
-                                                                  .GetTypeInfo()
-                                                                  .IsAssignableFrom(policyInterface.GetTypeInfo()))
-                            {
-                                continue;
-                            }
-
-                            return node.Value;
-                        }
-
-                        return null;
+                    return node.Value;
                 }
+
+                return null;
             }
 
             set
@@ -129,7 +128,7 @@ namespace Unity.Container.Registration
 
                 for (node = _head; node != null; node = node.Next)
                 {
-                    if (node.HashCode == hash && 
+                    if (node.HashCode == hash &&
                         node.Value.GetType().GetTypeInfo()
                             .IsAssignableFrom(policyInterface.GetTypeInfo()))
                     {

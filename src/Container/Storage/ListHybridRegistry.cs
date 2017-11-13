@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Container.Storage
@@ -7,12 +8,12 @@ namespace Unity.Container.Storage
     public class LinkedNode
     {
         public string Key;
-        public IContainerRegistration Value;
+        public IIndexerOf<Type, IBuilderPolicy> Value;
         public LinkedNode Next;
     }
 
 
-    public class ListHybridRegistry : IHybridRegistry<string, IContainerRegistration>
+    public class ListHybridRegistry : IHybridRegistry<string, IIndexerOf<Type, IBuilderPolicy>>
     {
         #region Fields
 
@@ -23,11 +24,11 @@ namespace Unity.Container.Storage
 
         #region Constructors
 
-        public ListHybridRegistry(IContainerRegistration value)
+        public ListHybridRegistry(IIndexerOf<Type, IBuilderPolicy> value)
         {
             Head = new LinkedNode
             {
-                Key = value?.Name,
+                Key = (value as IContainerRegistration)?.Name,
                 Value = value,
                 Next = null
             };
@@ -43,7 +44,7 @@ namespace Unity.Container.Storage
 
         #region IHybridRegistry
 
-        public IContainerRegistration this[string key]
+        public IIndexerOf<Type, IBuilderPolicy> this[string key]
         {
             get
             {

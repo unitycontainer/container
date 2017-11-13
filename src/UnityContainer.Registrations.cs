@@ -12,8 +12,8 @@ namespace Unity
         #region Fields
 
         private readonly object _syncRoot = new object();
-        private HashHybridRegistry<Type, IHybridRegistry<string, IContainerRegistration>> _registrations = 
-            new HashHybridRegistry<Type, IHybridRegistry<string, IContainerRegistration>>(ContainerInitialCapacity);
+        private HashHybridRegistry<Type, IHybridRegistry<string, IIndexerOf<Type, IBuilderPolicy>>> _registrations = 
+            new HashHybridRegistry<Type, IHybridRegistry<string, IIndexerOf<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
 
         #endregion
 
@@ -35,7 +35,7 @@ namespace Unity
         #endregion
 
 
-        private IContainerRegistration this[Type type, string name]
+        private IIndexerOf<Type, IBuilderPolicy> this[Type type, string name]
         {
             get
             {
@@ -77,7 +77,7 @@ namespace Unity
 
                     if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                     {
-                        _registrations = new HashHybridRegistry<Type, IHybridRegistry<string, IContainerRegistration>>(_registrations);
+                        _registrations = new HashHybridRegistry<Type, IHybridRegistry<string, IIndexerOf<Type, IBuilderPolicy>>>(_registrations);
                         targetBucket = hashCode % _registrations.Buckets.Length;
                     }
 
@@ -105,7 +105,7 @@ namespace Unity
                         continue;
                     }
 
-                    return (_registrations.Entries[i].Value[name] as IIndexerOf<Type, IBuilderPolicy>)?[interfaceType];
+                    return _registrations.Entries[i].Value[name]?[interfaceType];
                 }
 
                 return null;
@@ -114,7 +114,6 @@ namespace Unity
             {
                 var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
                 var targetBucket = hashCode % _registrations.Buckets.Length;
-                IContainerRegistration registration = null;
                 var collisions = 0;
                 lock (_syncRoot)
                 {
@@ -127,52 +126,27 @@ namespace Unity
                             continue;
                         }
 
-                        registration = _registrations.Entries[i].Value[name];
-                        break;
+                        _registrations.Entries[i].Value[name][interfaceType] = value;
+
+                        return;
                     }
 
-                    if (null == registration)
+                    if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                     {
-                        if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
-                        {
-                            _registrations = new HashHybridRegistry<Type, IHybridRegistry<string, IContainerRegistration>>(_registrations);
-                            targetBucket = hashCode % _registrations.Buckets.Length;
-                        }
-
-                        registration = new ContainerRegistration(type, name);
-                        _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                        _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                        _registrations.Entries[_registrations.Count].Key = type;
-                        _registrations.Entries[_registrations.Count].Value = new ListHybridRegistry(registration);
-                        _registrations.Buckets[targetBucket] = _registrations.Count;
-                        _registrations.Count++;
+                        _registrations = new HashHybridRegistry<Type, IHybridRegistry<string, IIndexerOf<Type, IBuilderPolicy>>>(_registrations);
+                        targetBucket = hashCode % _registrations.Buckets.Length;
                     }
-                }
 
-                lock (registration)
-                {
-                    ((IIndexerOf<Type, IBuilderPolicy>)registration)[interfaceType] = value;
+                    var registration = new HashHybridRegistry<Type, IBuilderPolicy>(7) {[interfaceType] = value};
+                    _registrations.Entries[_registrations.Count].HashCode = hashCode;
+                    _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
+                    _registrations.Entries[_registrations.Count].Key = type;
+                    _registrations.Entries[_registrations.Count].Value = new ListHybridRegistry(registration);
+                    _registrations.Buckets[targetBucket] = _registrations.Count;
+                    _registrations.Count++;
                 }
             }
         }
-
-        #region Implementation
-
-        private IHybridRegistry<string, IContainerRegistration> Resize(IHybridRegistry<string, IContainerRegistration> dictionary)
-        {
-            if (dictionary is ListHybridRegistry list)
-            {
-                var newDictionary = new HashHybridRegistry<string, IContainerRegistration>(11);
-                for (var node = list.Head; null != node; node = node.Next)
-                {
-                    newDictionary[node.Key] = node.Value;
-                }
-                return newDictionary;
-            }
-
-            return new HashHybridRegistry<string, IContainerRegistration>((HashHybridRegistry<string, IContainerRegistration>)dictionary);
-        }
-
-        #endregion
+                                                                                                                                    
     }
 }
