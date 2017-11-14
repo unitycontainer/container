@@ -79,7 +79,6 @@ namespace Unity
             _strategies.AddNew<BuildPlanStrategy>(UnityBuildStage.Creation);
 
             // Build plan strategy chain
-//            _buildPlanStrategies.AddNew<DynamicMethodTypeMappingStrategy>(UnityBuildStage.TypeMapping);
             _buildPlanStrategies.AddNew<DynamicMethodConstructorStrategy>(UnityBuildStage.Creation);
             _buildPlanStrategies.AddNew<DynamicMethodPropertySetterStrategy>(UnityBuildStage.Initialization);
             _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(UnityBuildStage.Initialization);
