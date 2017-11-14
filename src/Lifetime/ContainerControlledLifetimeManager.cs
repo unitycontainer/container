@@ -13,7 +13,7 @@ namespace Unity.Lifetime
     /// </summary>
     public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager,
                                                       ISingletonLifetimePolicy,
-                                                      IResolverPolicy, 
+                                                      IBuildPlanPolicy, 
                                                       IDisposable
     {
 
@@ -25,9 +25,10 @@ namespace Unity.Lifetime
             Dispose();
         }
 
-        object IResolverPolicy.Resolve(IBuilderContext _)
+
+        public void BuildUp(IBuilderContext context)
         {
-            return Value;
+            context.Existing = GetValue();
         }
 
 

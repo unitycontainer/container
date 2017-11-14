@@ -10,8 +10,8 @@ namespace Unity.Lifetime
     /// A <see cref="LifetimeManager"/> that holds a weak reference to
     /// it's managed instance.
     /// </summary>
-    public class ExternallyControlledLifetimeManager : LifetimeManager, 
-                                                       IResolverPolicy
+    public class ExternallyControlledLifetimeManager : LifetimeManager,
+                                                       IBuildPlanPolicy
     {
         private WeakReference _value = new WeakReference(null);
 
@@ -41,9 +41,9 @@ namespace Unity.Lifetime
             // DO NOTHING - we don't own this instance.
         }
 
-        object IResolverPolicy.Resolve(IBuilderContext context)
+        public void BuildUp(IBuilderContext context)
         {
-            return _value.Target;
+            context.Existing = _value.Target;
         }
     }
 }
