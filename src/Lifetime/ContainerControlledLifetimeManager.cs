@@ -13,7 +13,6 @@ namespace Unity.Lifetime
     /// </summary>
     public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager,
                                                       ISingletonLifetimePolicy,
-                                                      IBuildPlanPolicy, 
                                                       IDisposable
     {
 
@@ -42,21 +41,7 @@ namespace Unity.Lifetime
             Dispose(true);
             GC.SuppressFinalize(this); 
         }
-
-        /// <summary>
-        /// Standard Dispose pattern implementation.
-        /// </summary>
-        /// <param name="disposing">Always true, since we don't have a finalizer.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (Value == null) return;
-            if (Value is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-            Value = null;
-        }
-
+        
         #endregion
     }
 }
