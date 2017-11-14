@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan
@@ -35,7 +34,7 @@ namespace Unity.ObjectBuilder.BuildPlan
 
                 context.Existing = resolveMethod;
 
-                DynamicMethodConstructorStrategy.SetPerBuildSingleton(context);
+                context.SetPerBuildSingleton();
             }
         }
 

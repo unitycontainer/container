@@ -13,7 +13,7 @@ using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
+namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that generates IL to call

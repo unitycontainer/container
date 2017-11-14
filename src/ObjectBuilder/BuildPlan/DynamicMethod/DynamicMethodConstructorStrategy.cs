@@ -14,7 +14,7 @@ using Unity.Container.Lifetime;
 using Unity.Lifetime;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
+namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that emits IL to call constructors
@@ -197,13 +197,13 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         /// if the current object is such.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        public static void SetPerBuildSingleton(IBuilderContext context)
+        private static void SetPerBuildSingleton(IBuilderContext context)
         {
-            var lifetime = (context ?? throw  new ArgumentNullException(nameof(context))).Policies.Get<ILifetimePolicy>(context.BuildKey);
+            var lifetime = (context ?? throw  new ArgumentNullException(nameof(context))).Policies.Get<ILifetimePolicy>(context.OriginalBuildKey);
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-                context.Policies.Set<ILifetimePolicy>(perBuildLifetime, context.BuildKey);
+                context.Policies.Set<ILifetimePolicy>(perBuildLifetime, context.OriginalBuildKey);
             }
         }
 

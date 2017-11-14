@@ -11,9 +11,6 @@ using Unity.Extension;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
@@ -82,6 +79,7 @@ namespace Unity
             _strategies.AddNew<BuildPlanStrategy>(UnityBuildStage.Creation);
 
             // Build plan strategy chain
+//            _buildPlanStrategies.AddNew<DynamicMethodTypeMappingStrategy>(UnityBuildStage.TypeMapping);
             _buildPlanStrategies.AddNew<DynamicMethodConstructorStrategy>(UnityBuildStage.Creation);
             _buildPlanStrategies.AddNew<DynamicMethodPropertySetterStrategy>(UnityBuildStage.Initialization);
             _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(UnityBuildStage.Initialization);
@@ -223,7 +221,7 @@ namespace Unity
 
 
         // Works like the ExternallyControlledLifetimeManager, but uses regular instead of weak references
-        private class ContainerLifetimeManager : LifetimeManager
+        private class ContainerLifetimeManager : LifetimeManager, IBuildPlanPolicy
         {
             private object _value;
 
@@ -239,6 +237,11 @@ namespace Unity
 
             public override void RemoveValue()
             {
+            }
+
+            public void BuildUp(IBuilderContext context)
+            {
+                context.Existing = _value;
             }
         }
 

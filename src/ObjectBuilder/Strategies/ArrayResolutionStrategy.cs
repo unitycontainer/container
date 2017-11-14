@@ -27,7 +27,7 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">Current build context.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            Type typeToBuild = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type;
+            Type typeToBuild = context.BuildKey.Type;
             if (typeToBuild.IsArray && typeToBuild.GetArrayRank() == 1)
             {
                 Type elementType = typeToBuild.GetElementType();

@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Practices.Unity;
 using System.Linq;
-using System;
+using Microsoft.Practices.Unity.TestSupport;
 using Unity;
 using Unity.Attributes;
 using Unity.Exceptions;
@@ -55,7 +54,23 @@ namespace GitHub
 
             }
         }
-        
+
+        [TestMethod]
+        public void GitHub_Issue_35_ConflictTypeMapping()
+        {
+            IUnityContainer container = new UnityContainer();
+
+            container.RegisterType<ILogger, MockLogger>(new ContainerControlledLifetimeManager());
+            ILogger logger = container.Resolve<ILogger>();
+
+            Assert.IsNotNull(logger);
+            Assert.AreSame(container.Resolve<ILogger>(), logger);
+
+            container.RegisterType<MockLogger>(new TransientLifetimeManager());
+
+            Assert.AreSame(container.Resolve<ILogger>(), logger);
+        }
+
         // Test types 
         public interface ITestClass
         { }

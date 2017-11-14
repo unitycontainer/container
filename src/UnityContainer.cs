@@ -71,6 +71,8 @@ namespace Unity
                 }
             }
 
+            ClearExistingBuildPlan(typeFrom ?? to, name);
+
             _registeredNames.RegisterType(typeFrom ?? to, name);
 
             if (typeFrom != null)
@@ -88,14 +90,13 @@ namespace Unity
             }
             if (lifetimeManager != null)
             {
-                SetLifetimeManager(to, name, lifetimeManager);
+                SetLifetimeManager(typeFrom ?? to, name, lifetimeManager);
             }
 
             Registering?.Invoke(this, new RegisterEventArgs(typeFrom, to, name, lifetimeManager));
 
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
-                ClearExistingBuildPlan(to, name);
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies(typeFrom, to, name, _policies);
@@ -134,10 +135,12 @@ namespace Unity
             InstanceIsAssignable(type, instance, nameof(instance));
 
             _registeredNames.RegisterType(type, name);
+
             SetLifetimeManager(type, name, lifetime ?? throw new ArgumentNullException(nameof(lifetime)));
-            NamedTypeBuildKey identityKey = new NamedTypeBuildKey(type, name);
-            PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(identityKey), identityKey);
             lifetime.SetValue(instance ?? throw new ArgumentNullException(nameof(instance)));
+
+            if (lifetime is IBuildPlanPolicy buildPlanPolicy)
+                _policies.Set(buildPlanPolicy, new NamedTypeBuildKey(type, name));
 
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type,
                                                               instance,

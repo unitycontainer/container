@@ -73,7 +73,11 @@ namespace Microsoft.Practices.Unity.TestSupport
         public NamedTypeBuildKey BuildKey
         {
             get { return buildKey; }
-            set { buildKey = value; }
+            set
+            {
+                originalBuildKey = value;
+                buildKey = value;
+            }
         }
 
         public object Existing
@@ -108,7 +112,7 @@ namespace Microsoft.Practices.Unity.TestSupport
                                      persistentPolicies = persistentPolicies,
                                      policies = policies,
                                      lifetime = lifetime,
-                                     originalBuildKey = buildKey,
+                                     originalBuildKey = newBuildKey,
                                      buildKey = newBuildKey,
                                      existing = newExistingObject
                                  };

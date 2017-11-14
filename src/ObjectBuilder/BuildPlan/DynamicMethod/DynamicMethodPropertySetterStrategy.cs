@@ -9,7 +9,7 @@ using Unity.Builder.Operation;
 using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
+namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that generates IL to resolve properties

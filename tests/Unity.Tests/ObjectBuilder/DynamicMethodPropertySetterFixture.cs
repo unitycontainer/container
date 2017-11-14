@@ -13,14 +13,13 @@ using Unity.Builder.Selection;
 using Unity.Container;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 using DependencyAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.DependencyAttribute;
 using InjectionConstructorAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionConstructorAttribute;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class DynamicMethodPropertySetterFixture

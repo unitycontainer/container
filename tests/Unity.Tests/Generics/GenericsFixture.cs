@@ -130,7 +130,7 @@ namespace Unity.Tests.Generics
         {
             List<Foo> myList = new List<Foo>();
             IUnityContainer container = new UnityContainer()
-                .RegisterInstance<List<Foo>>(myList)
+                .RegisterInstance<IList<Foo>>(myList)
                 .RegisterType<IList<Foo>, List<Foo>>();
 
             IList<Foo> result = container.Resolve<IList<Foo>>();

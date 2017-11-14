@@ -37,7 +37,7 @@ namespace Unity.ObjectBuilder.Strategies
                 !ReferenceEquals(policyList, context.PersistentPolicies))
             {
                 lifetimePolicy = scope.CreateScope() as ILifetimePolicy;
-                context.PersistentPolicies.Set(lifetimePolicy, context.BuildKey);
+                context.PersistentPolicies.Set(lifetimePolicy, context.OriginalBuildKey);
                 context.Lifetime.Add(lifetimePolicy);
             }
 
@@ -70,8 +70,8 @@ namespace Unity.ObjectBuilder.Strategies
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
         {
-            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.BuildKey, false, out source);
-            if (policy == null && context.BuildKey.Type.GetTypeInfo().IsGenericType)
+            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.OriginalBuildKey, false, out source);
+            if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
             {
                 policy = GetLifetimePolicyForGenericType(context, out source);
             }
@@ -79,7 +79,7 @@ namespace Unity.ObjectBuilder.Strategies
             if (policy == null)
             {
                 policy = TransientManager;
-                context.PersistentPolicies.Set(policy, context.BuildKey);
+                context.PersistentPolicies.Set(policy, context.OriginalBuildKey);
             }
 
             return policy;
@@ -87,9 +87,9 @@ namespace Unity.ObjectBuilder.Strategies
 
         private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context, out IPolicyList factorySource)
         {
-            var typeToBuild = context.BuildKey.Type;
+            var typeToBuild = context.OriginalBuildKey.Type;
             object openGenericBuildKey = new NamedTypeBuildKey(typeToBuild.GetGenericTypeDefinition(),
-                                                               context.BuildKey.Name);
+                                                               context.OriginalBuildKey.Name);
 
             var factoryPolicy = context.Policies
                                        .Get<ILifetimeFactoryPolicy>(openGenericBuildKey, out factorySource);

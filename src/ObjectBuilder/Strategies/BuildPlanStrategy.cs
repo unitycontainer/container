@@ -21,14 +21,14 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            var plan = (context ?? throw new ArgumentNullException(nameof(context))).Policies.Get<IBuildPlanPolicy>(context.BuildKey, out var buildPlanLocation);
+            var plan = context.Policies.Get<IBuildPlanPolicy>(context.OriginalBuildKey, out var buildPlanLocation);
             if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
             {
                 var planCreator = context.Policies.Get<IBuildPlanCreatorPolicy>(context.BuildKey, out var creatorLocation);
                 if (planCreator != null)
                 {
                     plan = planCreator.CreatePlan(context, context.BuildKey);
-                    (buildPlanLocation ?? creatorLocation).Set(plan, context.BuildKey);
+                    (buildPlanLocation ?? creatorLocation).Set(plan, context.OriginalBuildKey);
                 }
             }
 

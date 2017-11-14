@@ -15,13 +15,13 @@ namespace Unity.Container.Registration
     public class ContainerRegistration : IContainerRegistration
     {
         private readonly NamedTypeBuildKey buildKey;
+        private static readonly TransientLifetimeManager Transient = new TransientLifetimeManager();
 
         internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
         {
             this.buildKey = new NamedTypeBuildKey(registeredType, name);
             MappedToType = GetMappedType(policies);
-            LifetimeManagerType = GetLifetimeManagerType(policies);
-            LifetimeManager = GetLifetimeManager(policies);
+            LifetimeManager = GetLifetimeManager(policies) ?? Transient;
         }
 
         /// <summary>
@@ -42,11 +42,6 @@ namespace Unity.Container.Registration
         public string Name { get { return this.buildKey.Name; } }
 
         /// <summary>
-        /// The registered lifetime manager instance.
-        /// </summary>
-        public Type LifetimeManagerType { get; private set; }
-
-        /// <summary>
         /// The lifetime manager for this registration.
         /// </summary>
         /// <remarks>
@@ -63,33 +58,9 @@ namespace Unity.Container.Registration
             return this.buildKey.Type;
         }
 
-        private Type GetLifetimeManagerType(IPolicyList policies)
-        {
-            var key = new NamedTypeBuildKey(MappedToType, Name);
-            var lifetime = policies.Get<ILifetimePolicy>(key);
-
-            if (lifetime != null)
-            {
-                return lifetime.GetType();
-            }
-
-            if (MappedToType.GetTypeInfo().IsGenericType)
-            {
-                var genericKey = new NamedTypeBuildKey(MappedToType.GetGenericTypeDefinition(), Name);
-                var lifetimeFactory = policies.Get<ILifetimeFactoryPolicy>(genericKey);
-                if (lifetimeFactory != null)
-                {
-                    return lifetimeFactory.LifetimeType;
-                }
-            }
-
-            return typeof(TransientLifetimeManager);
-        }
-
         private LifetimeManager GetLifetimeManager(IPolicyList policies)
         {
-            var key = new NamedTypeBuildKey(MappedToType, Name);
-            return (LifetimeManager)policies.Get<ILifetimePolicy>(key);
+            return (LifetimeManager)policies.Get<ILifetimePolicy>(buildKey);
         }
     }
 }
