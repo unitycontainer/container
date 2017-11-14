@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Lifetime;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.Strategies
@@ -24,6 +25,16 @@ namespace Unity.ObjectBuilder.Strategies
             if (policy != null)
             {
                 context.BuildKey = policy.Map(context.BuildKey, context);
+            }
+
+            if (context.BuildKey == context.OriginalBuildKey) return;
+
+            ILifetimePolicy lifetimePolicy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out _);
+            var existing = lifetimePolicy?.GetValue();
+            if (existing != null)
+            {
+                context.Existing = existing;
+                context.BuildComplete = true;
             }
         }
     }
