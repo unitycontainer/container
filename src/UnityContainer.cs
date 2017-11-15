@@ -56,7 +56,7 @@ namespace Unity
         {
             var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
 
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 name = null;
             }
@@ -65,13 +65,15 @@ namespace Unity
             {
                 if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
                 {
-                    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
                                                                                           typeFrom,
                                                                                           to), nameof(typeFrom));
                 }
             }
 
-            ClearExistingBuildPlan(typeFrom ?? to, name);
+            var buildKey = new NamedTypeBuildKey(typeFrom ?? to, name);
+            _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
+            _policies.Clear<ILifetimePolicy>(buildKey);
 
             _registeredNames.RegisterType(typeFrom ?? to, name);
 
@@ -79,12 +81,12 @@ namespace Unity
             {
                 if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
                 {
-                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    _policies.Set<IBuildKeyMappingPolicy>(new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
                 else
                 {
-                    PolicyListExtensions.Set<IBuildKeyMappingPolicy>(_policies, new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
+                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
                         new NamedTypeBuildKey(typeFrom, name));
                 }
             }
@@ -102,6 +104,7 @@ namespace Unity
                     member.AddPolicies(typeFrom, to, name, _policies);
                 }
             }
+
             return this;
         }
 
@@ -383,20 +386,6 @@ namespace Unity
                     from name in allRegisteredNames[type]
                     select new ContainerRegistration(type, name, _policies);
             }
-        }
-
-        /// <summary>
-        /// Remove policies associated with building this type. This removes the
-        /// compiled build plan so that it can be rebuilt with the new settings
-        /// the next time this type is resolved.
-        /// </summary>
-        /// <param name="typeToInject">Type of object to clear the plan for.</param>
-        /// <param name="name">Name the object is being registered with.</param>
-        private void ClearExistingBuildPlan(Type typeToInject, string name)
-        {
-            var buildKey = new NamedTypeBuildKey(typeToInject, name);
-            DependencyResolverTrackerPolicy.RemoveResolvers(_policies, buildKey);
-            PolicyListExtensions.Set<IBuildPlanPolicy>(_policies, new OverriddenBuildPlanMarkerPolicy(), buildKey);
         }
 
         private void FillTypeRegistrationDictionary(IDictionary<Type, List<string>> typeRegistrations)

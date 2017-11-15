@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container;
@@ -23,13 +24,13 @@ namespace Unity
     {
         #region Fields
 
-        private PolicyList _policies;
-        private readonly UnityContainer _parent;
-        private NamedTypesRegistry _registeredNames;
         private LifetimeContainer _lifetimeContainer;
-        private List<UnityContainerExtension> _extensions;
-        private StagedStrategyChain<UnityBuildStage> _strategies;
-        private StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
+        private readonly PolicyList _policies;
+        private readonly UnityContainer _parent;
+        private readonly NamedTypesRegistry _registeredNames;
+        private readonly List<UnityContainerExtension> _extensions;
+        private readonly StagedStrategyChain<UnityBuildStage> _strategies;
+        private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;

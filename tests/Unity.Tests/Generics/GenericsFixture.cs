@@ -85,10 +85,10 @@ namespace Unity.Tests.Generics
             List<int> myList = new List<int>();
             IUnityContainer container = new UnityContainer()
                 .RegisterInstance<List<int>>(myList)
-                .RegisterType<List<int>>();
+                .RegisterType<List<int>>(new InjectionConstructor());
 
             List<int> result = container.Resolve<List<int>>();
-            Assert.AreSame(myList, result);
+            Assert.AreNotSame(myList, result);
         }
 
         /// <summary>
@@ -115,10 +115,10 @@ namespace Unity.Tests.Generics
             List<string> myList = new List<string>();
             IUnityContainer container = new UnityContainer()
                 .RegisterInstance<List<string>>(myList)
-                .RegisterType<List<string>>();
+                .RegisterType<List<string>>(new InjectionConstructor());
 
             List<string> result = container.Resolve<List<string>>();
-            Assert.AreSame(myList, result);
+            Assert.AreNotSame(myList, result);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace Unity.Tests.Generics
             List<Foo> myList = new List<Foo>();
             IUnityContainer container = new UnityContainer()
                 .RegisterInstance<IList<Foo>>(myList)
-                .RegisterType<IList<Foo>, List<Foo>>();
+                .RegisterType<IList<Foo>, List<Foo>>(new InjectionConstructor());
 
             IList<Foo> result = container.Resolve<IList<Foo>>();
             Assert.IsInstanceOfType(result, typeof(List<Foo>));
