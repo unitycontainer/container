@@ -73,7 +73,11 @@ namespace Microsoft.Practices.Unity.TestSupport
         public NamedTypeBuildKey BuildKey
         {
             get { return buildKey; }
-            set { buildKey = value; }
+            set
+            {
+                originalBuildKey = value;
+                buildKey = value;
+            }
         }
 
         public object Existing
@@ -108,7 +112,7 @@ namespace Microsoft.Practices.Unity.TestSupport
                                      persistentPolicies = persistentPolicies,
                                      policies = policies,
                                      lifetime = lifetime,
-                                     originalBuildKey = buildKey,
+                                     originalBuildKey = newBuildKey,
                                      buildKey = newBuildKey,
                                      existing = newExistingObject
                                  };
@@ -155,6 +159,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         public object ExecuteBuildUp(NamedTypeBuildKey buildKey, object existing)
         {
             this.BuildKey = buildKey;
+            this.originalBuildKey = buildKey;
             this.Existing = existing;
 
             return Strategies.ExecuteBuildUp(this);

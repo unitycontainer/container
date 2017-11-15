@@ -62,8 +62,8 @@ namespace Unity
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
-            _policies = new PolicyList(_parent?._policies);
-            //_policies = new ContainerPolicyList(this);
+            //_policies = new PolicyList(_parent?._policies);
+            _policies = new ContainerPolicyList(this);
             _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
 
 
@@ -102,9 +102,6 @@ namespace Unity
             _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
             _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
-
-            // Default Registrations
-            //Register(typeof(IBuildPlanCreatorPolicy), null, buildPlanCreatorPolicy, new ContainerLifetimeManager());
         }
 
 

@@ -79,6 +79,8 @@ namespace Unity
                 }
             }
 
+            ClearExistingBuildPlan(typeFrom ?? to, name);
+
             _registeredNames.RegisterType(typeFrom ?? to, name);
 
             if (typeFrom != null)
@@ -96,14 +98,13 @@ namespace Unity
             }
             if (lifetimeManager != null)
             {
-                SetLifetimeManager(to, name, lifetimeManager);
+                SetLifetimeManager(typeFrom ?? to, name, lifetimeManager);
             }
 
             Registering?.Invoke(this, new RegisterEventArgs(typeFrom, to, name, lifetimeManager));
 
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
-                ClearExistingBuildPlan(to, name);
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies(typeFrom, to, name, _policies);
@@ -146,18 +147,15 @@ namespace Unity
 
             var type = mapType ?? instance.GetType();
             var manager = lifetime ?? new ContainerControlledLifetimeManager();
-            var identityKey = new NamedTypeBuildKey(type, name);
 
             // TODO: Optimize lifetime management
             _registeredNames.RegisterType(type, name);
             SetLifetimeManager(type, name, manager);
-            _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
             manager.SetValue(instance);
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
+            //_policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
 
-            //if (manager is IResolverPolicy policy)
-            //    _policies.Set(policy, identityKey);
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
 
             return this;
         }
@@ -222,12 +220,13 @@ namespace Unity
                 if (key.Type.GetTypeInfo().IsGenericTypeDefinition)
                 {
                     throw new ArgumentException(
-                        String.Format(CultureInfo.CurrentCulture,
+                        string.Format(CultureInfo.CurrentCulture,
                             Constants.CannotResolveOpenGenericType,
                             key.Type.FullName), nameof(key.Type));
                 }
 
-                return context.Strategies.ExecuteBuildUp(context);
+                context.Strategies.BuildUp(context);
+                return context.Existing;
             }
             catch (Exception ex)
             {

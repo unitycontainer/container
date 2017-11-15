@@ -8,6 +8,7 @@ using Unity.Registration;
 namespace Unity.Container.Registration
 {
     public class InstanceRegistration : IContainerRegistration,
+                                        IIndexerOf<Type, IBuilderPolicy>,
                                         IPolicyList,
                                         IBuildPlanPolicy,
                                         IBuildKey
@@ -111,6 +112,16 @@ namespace Unity.Container.Registration
         public void BuildUp(IBuilderContext context)
         {
             context.Existing = LifetimeManager.GetValue();
+        }
+
+        #endregion
+
+        #region IIndexerOf<Type, IBuilderPolicy>
+
+        public IBuilderPolicy this[Type index]
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         #endregion
