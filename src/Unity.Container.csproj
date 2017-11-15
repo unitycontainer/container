@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\package.props" />
 
@@ -19,6 +19,7 @@
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
+    <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
 
