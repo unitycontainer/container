@@ -18,7 +18,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         private readonly Queue<Expression> _buildPlanExpressions;
 
         private static readonly MethodInfo ResolveDependencyMethod =
-            typeof(IResolverPolicy).GetTypeInfo().GetDeclaredMethod(nameof(IResolverPolicy.Resolve));
+            typeof(IDependencyResolverPolicy).GetTypeInfo().GetDeclaredMethod(nameof(IDependencyResolverPolicy.Resolve));
 
         private static readonly MethodInfo GetResolverMethod =
             typeof(DynamicBuildPlanGenerationContext).GetTypeInfo()
