@@ -9,6 +9,22 @@ namespace Unity.Tests.Issues
     [TestClass]
     public class GitHub
     {
+[TestMethod]
+public void Issue_35()
+{
+    IUnityContainer container = new UnityContainer();
+
+    container.RegisterType<ILogger, MockLogger>(new ContainerControlledLifetimeManager());
+    ILogger logger = container.Resolve<ILogger>();
+
+    Assert.IsNotNull(logger);
+    Assert.AreSame(container.Resolve<ILogger>(), logger);
+
+    container.RegisterType<MockLogger>(new TransientLifetimeManager());
+
+    Assert.AreSame(container.Resolve<ILogger>(), logger);
+}        
+        
         [TestMethod]    
         public void Issue_88()   // https://github.com/unitycontainer/unity/issues/88
         {
