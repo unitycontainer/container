@@ -27,7 +27,8 @@ namespace Unity.ObjectBuilder.Strategies
                 context.BuildKey = policy.Map(context.BuildKey, context);
             }
 
-            if (context.BuildKey == context.OriginalBuildKey) return;
+            if (context.BuildKey == context.OriginalBuildKey ||
+                0 < ((PolicyList)context.Policies).Count) return;
 
             ILifetimePolicy lifetimePolicy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out _);
             var existing = lifetimePolicy?.GetValue();
@@ -36,6 +37,7 @@ namespace Unity.ObjectBuilder.Strategies
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
+
         }
     }
 }
