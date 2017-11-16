@@ -9,6 +9,21 @@ namespace Unity.Tests.Issues
     [TestClass]
     public class GitHub
     {
+
+        [TestMethod]
+        public void unity_154_5()
+        {
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType<OtherEmailService>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IService, OtherEmailService>();
+            container.RegisterType<IOtherService, OtherEmailService>(new InjectionConstructor(container));
+
+            container.Resolve<OtherEmailService>();
+            Assert.AreNotSame(container.Resolve<IService>(),
+                              container.Resolve<IOtherService>());
+        }
+
+        
         [TestMethod]
         public void unity_154()
         {
