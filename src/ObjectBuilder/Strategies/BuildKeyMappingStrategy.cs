@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Lifetime;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.Strategies
@@ -19,11 +20,21 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            var policy = (context ?? throw new ArgumentNullException(nameof(context))).Policies.Get<IBuildKeyMappingPolicy>(context.BuildKey);
+            var policy = context.Policies.Get<IBuildKeyMappingPolicy>(context.BuildKey);
 
             if (policy != null)
             {
                 context.BuildKey = policy.Map(context.BuildKey, context);
+            }
+
+            if (context.BuildKey == context.OriginalBuildKey) return;
+
+            ILifetimePolicy lifetimePolicy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out _);
+            var existing = lifetimePolicy?.GetValue();
+            if (existing != null)
+            {
+                context.Existing = existing;
+                context.BuildComplete = true;
             }
         }
     }

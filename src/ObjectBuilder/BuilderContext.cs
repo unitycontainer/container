@@ -244,9 +244,7 @@ namespace Unity.ObjectBuilder
             ChildContext = new BuilderContext(Container, _chain, Lifetime, PersistentPolicies, Policies, newBuildKey, _resolverOverrides);
 
             childCustomizationBlock?.Invoke(ChildContext);
-            var policy = Policies?.Get<IResolverPolicy>(newBuildKey);
-            var result = policy?.Resolve(ChildContext) ?? ChildContext.Strategies.ExecuteBuildUp(ChildContext);
-
+            var result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
             ChildContext = null;
 
             return result;

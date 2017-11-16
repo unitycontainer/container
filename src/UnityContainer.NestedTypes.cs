@@ -131,7 +131,6 @@ namespace Unity
 
             public void Clear(Type policyInterface, object buildKey)
             {
-                throw new NotImplementedException();
             }
 
             public void ClearAll()

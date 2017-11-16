@@ -64,7 +64,7 @@ namespace Unity
         {
             var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
 
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 name = null;
             }
@@ -73,13 +73,15 @@ namespace Unity
             {
                 if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
                 {
-                    throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
                                                                                           typeFrom,
                                                                                           to), nameof(typeFrom));
                 }
             }
 
-            ClearExistingBuildPlan(typeFrom ?? to, name);
+            var buildKey = new NamedTypeBuildKey(typeFrom ?? to, name);
+            _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
+            _policies.Clear<ILifetimePolicy>(buildKey);
 
             _registeredNames.RegisterType(typeFrom ?? to, name);
 
@@ -111,8 +113,6 @@ namespace Unity
                 }
             }
 
-            //Register(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
-
             return this;
         }
 
@@ -132,30 +132,28 @@ namespace Unity
         /// <param name="mapType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to be returned.</param>
         /// <param name="name">Name for registration.</param>
-        /// <param name="lifetime">
+        /// <param name="manager">
         /// <para>If null or <see cref="ContainerControlledLifetimeManager"/>, the container will take over the lifetime of the instance,
         /// calling Dispose on it (if it's <see cref="IDisposable"/>) when the container is Disposed.</para>
         /// <para>
         ///  If <see cref="ExternallyControlledLifetimeManager"/>, container will not maintain a strong reference to <paramref name="instance"/>. 
         /// User is responsible for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterInstance(Type mapType, string name, object instance, LifetimeManager lifetime)
+        public IUnityContainer RegisterInstance(Type mapType, string name, object instance, LifetimeManager manager)
         {
             // Validate input
             if (null == instance) throw new ArgumentNullException(nameof(instance));
             if (null != mapType) InstanceIsAssignable(mapType, instance, nameof(instance));
 
             var type = mapType ?? instance.GetType();
-            var manager = lifetime ?? new ContainerControlledLifetimeManager();
+            var lifetime = manager ?? new ContainerControlledLifetimeManager();
 
-            // TODO: Optimize lifetime management
             _registeredNames.RegisterType(type, name);
-            SetLifetimeManager(type, name, manager);
-            manager.SetValue(instance);
 
-            //_policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(identityKey), identityKey);
+            SetLifetimeManager(type, name, lifetime);
+            lifetime.SetValue(instance);
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, manager));
+            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, lifetime));
 
             return this;
         }
@@ -174,7 +172,10 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            return BuildUp(type, null, name, resolverOverrides);
+            //if (null != resolverOverrides && 0 < resolverOverrides.Length)
+                return BuildUp(type, null, name, resolverOverrides);
+
+            //return this[type, name][typeof(IResolverPolicy)]. . BuildUp(type, null, name, resolverOverrides);
         }
 
         #endregion
@@ -402,20 +403,6 @@ namespace Unity
                     from name in allRegisteredNames[type]
                     select new ContainerRegistration(type, name, _policies);
             }
-        }
-
-        /// <summary>
-        /// Remove policies associated with building this type. This removes the
-        /// compiled build plan so that it can be rebuilt with the new settings
-        /// the next time this type is resolved.
-        /// </summary>
-        /// <param name="typeToInject">Type of object to clear the plan for.</param>
-        /// <param name="name">Name the object is being registered with.</param>
-        private void ClearExistingBuildPlan(Type typeToInject, string name)
-        {
-            var buildKey = new NamedTypeBuildKey(typeToInject, name);
-            DependencyResolverTrackerPolicy.RemoveResolvers(_policies, buildKey);
-            PolicyListExtensions.Set<IBuildPlanPolicy>(_policies, new OverriddenBuildPlanMarkerPolicy(), buildKey);
         }
 
         private void FillTypeRegistrationDictionary(IDictionary<Type, List<string>> typeRegistrations)

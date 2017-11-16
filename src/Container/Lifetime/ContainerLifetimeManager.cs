@@ -15,7 +15,7 @@ namespace Unity.Container.Lifetime
     /// Works like the ExternallyControlledLifetimeManager, but uses 
     /// regular instead of weak references
     /// </remarks>
-    internal class ContainerLifetimeManager : LifetimeManager, IResolverPolicy
+    internal class ContainerLifetimeManager : LifetimeManager
     {
         private object _value;
 

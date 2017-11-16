@@ -118,7 +118,6 @@ namespace Unity.Tests.Registration
 
 
         [TestMethod]
-        [Ignore]
         public void RegisterInstance_ChainRegistrations()
         {
             var instance = new EmailService();

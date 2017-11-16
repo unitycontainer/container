@@ -62,8 +62,8 @@ namespace Unity
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
-            //_policies = new PolicyList(_parent?._policies);
-            _policies = new ContainerPolicyList(this);
+            _policies = new PolicyList(_parent?._policies);
+            //_policies = new ContainerPolicyList(this);
             _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
 
 
