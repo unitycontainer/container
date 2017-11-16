@@ -21,23 +21,18 @@ namespace Unity.ObjectBuilder.Strategies
         public override void PreBuildUp(IBuilderContext context)
         {
             var policy = context.Policies.Get<IBuildKeyMappingPolicy>(context.BuildKey);
+            if (null == policy) return;
 
-            if (policy != null)
-            {
-                context.BuildKey = policy.Map(context.BuildKey, context);
-            }
 
-            if (context.BuildKey == context.OriginalBuildKey ||
-                0 < ((PolicyList)context.Policies).Count) return;
-
-            ILifetimePolicy lifetimePolicy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out _);
-            var existing = lifetimePolicy?.GetValue();
+            var existing = (policy as IDependencyResolverPolicy)?.Resolve(context);
             if (existing != null)
             {
                 context.Existing = existing;
                 context.BuildComplete = true;
+                return;
             }
 
+            context.BuildKey = policy.Map(context.BuildKey, context);
         }
     }
 }
