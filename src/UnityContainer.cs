@@ -94,8 +94,12 @@ namespace Unity
                 }
                 else
                 {
-                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
-                        new NamedTypeBuildKey(typeFrom, name));
+                    var policy = (null != injectionMembers && injectionMembers.Length > 0)
+                        ? new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name))
+                        : new ResolveMappingPolicy(new NamedTypeBuildKey(to, name));
+
+                    _policies.Set<IBuildKeyMappingPolicy>(policy, new NamedTypeBuildKey(typeFrom, name));
+
                 }
             }
             if (lifetimeManager != null)
