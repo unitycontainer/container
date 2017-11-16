@@ -12,6 +12,35 @@ namespace GitHub
     [TestClass]
     public class Issues
     {
+        [TestMethod]
+        public void unity_154()
+        {
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType<OtherEmailService>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IService, OtherEmailService>();
+            container.RegisterType<IOtherService, OtherEmailService>();
+
+            Assert.AreSame(container.Resolve<IService>(), container.Resolve<IOtherService>());
+        }
+
+
+        [TestMethod]
+        public void unity_153()
+        {
+            IUnityContainer rootContainer = new UnityContainer();
+            rootContainer.RegisterType<ILogger, MockLogger>(new HierarchicalLifetimeManager());
+
+            using (IUnityContainer childContainer = rootContainer.CreateChildContainer())
+            {
+                var a = childContainer.Resolve<ILogger>();
+                var b = childContainer.Resolve<ILogger>();
+
+                Assert.AreSame(a, b);
+            }
+        }
+
+        
+        
 [TestMethod]
 public void Issue_35()
 {
