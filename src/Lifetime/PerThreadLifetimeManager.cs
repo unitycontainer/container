@@ -16,7 +16,7 @@ namespace Unity.Lifetime
     /// This LifetimeManager does not dispose the instances it holds.
     /// </para>
     /// </remarks>
-    public class PerThreadLifetimeManager : LifetimeManager, IResolverPolicy
+    public class PerThreadLifetimeManager : LifetimeManager
     {
         [ThreadStatic]
         private static Dictionary<Guid, object> _values;
@@ -72,11 +72,6 @@ namespace Unity.Lifetime
             {
                 _values = new Dictionary<Guid, object>();
             }
-        }
-
-        object IResolverPolicy.Resolve(IBuilderContext _)
-        {
-            return GetValue();
         }
     }
 }
