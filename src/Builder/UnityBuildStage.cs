@@ -14,15 +14,15 @@ namespace Unity.Builder
         Setup,
 
         /// <summary>
-        /// Second stage. Type mapping occurs here.
-        /// </summary>
-        TypeMapping,
-
-        /// <summary>
         /// Third stage. lifetime managers are checked here,
         /// and if they're available the rest of the pipeline is skipped.
         /// </summary>
         Lifetime,
+
+        /// <summary>
+        /// Second stage. Type mapping occurs here.
+        /// </summary>
+        TypeMapping,
 
         /// <summary>
         /// Fourth stage. Reflection over constructors, properties, etc. is
