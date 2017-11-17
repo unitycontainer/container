@@ -172,7 +172,7 @@ namespace Unity.Container.Registration
         private LifetimeManager GetLifetimeManager(IPolicyList policies)
         {
             var key = new NamedTypeBuildKey(_type, Name);
-            return (LifetimeManager)policies.Get<ILifetimePolicy>(key);
+            return (LifetimeManager)policies.Get<ILifetimePolicy>(key) ?? Transient;
         }
 
         #endregion

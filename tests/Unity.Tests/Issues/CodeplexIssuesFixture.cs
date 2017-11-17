@@ -51,19 +51,12 @@ namespace Microsoft.Practices.Unity.Tests
         public void CanOverrideGenericLifetimeManagerWithSpecificOne()
         {
             IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ISomeInterface<>),
-                    typeof(MyTypeImplementingSomeInterface<>),
-                    new ContainerControlledLifetimeManager())
+                .RegisterType(typeof(ISomeInterface<>), typeof(MyTypeImplementingSomeInterface<>), new ContainerControlledLifetimeManager())
                 .RegisterType(typeof(MyTypeImplementingSomeInterface<double>), new TransientLifetimeManager());
 
-            ISomeInterface<string> string1 = container.Resolve<ISomeInterface<string>>();
-            ISomeInterface<string> string2 = container.Resolve<ISomeInterface<string>>();
-
-            ISomeInterface<double> double1 = container.Resolve<ISomeInterface<double>>();
-            ISomeInterface<double> double2 = container.Resolve<ISomeInterface<double>>();
-
-            Assert.AreSame(string1, string2);
-            Assert.AreNotSame(double1, double2);
+            Assert.AreSame(container.Resolve<ISomeInterface<string>>(), container.Resolve<ISomeInterface<string>>());
+            Assert.AreSame(container.Resolve<ISomeInterface<double>>(), container.Resolve<ISomeInterface<double>>());
+            Assert.AreNotSame(container.Resolve<MyTypeImplementingSomeInterface<double>>(), container.Resolve<MyTypeImplementingSomeInterface<double>>());
         }
 
         // https://www.codeplex.com/Thread/View.aspx?ProjectName=unity&ThreadId=26318

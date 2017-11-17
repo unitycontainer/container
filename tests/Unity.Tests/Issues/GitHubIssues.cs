@@ -1,8 +1,11 @@
 using System.Linq;
+using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Tests.TestObjects;
 
 namespace Unity.Tests.Issues
 {
@@ -11,28 +14,31 @@ namespace Unity.Tests.Issues
     {
 
         [TestMethod]
-        public void unity_154_5()
+        public void unity_154_2()
         {
             IUnityContainer container = new UnityContainer();
             container.RegisterType<OtherEmailService>(new ContainerControlledLifetimeManager());
             container.RegisterType<IService, OtherEmailService>();
             container.RegisterType<IOtherService, OtherEmailService>(new InjectionConstructor(container));
 
-            container.Resolve<OtherEmailService>();
             Assert.AreNotSame(container.Resolve<IService>(),
                               container.Resolve<IOtherService>());
+
+            Assert.AreSame(container.Resolve<IService>(),
+                           container.Resolve<OtherEmailService>());
         }
 
-        
+
         [TestMethod]
-        public void unity_154()
+        public void unity_154_1()
         {
             IUnityContainer container = new UnityContainer();
             container.RegisterType<OtherEmailService>(new ContainerControlledLifetimeManager());
             container.RegisterType<IService, OtherEmailService>();
             container.RegisterType<IOtherService, OtherEmailService>();
 
-            Assert.AreSame(container.Resolve<IService>(), container.Resolve<IOtherService>());
+            Assert.AreSame(container.Resolve<IService>(), 
+                           container.Resolve<IOtherService>());
         }
 
 
@@ -51,24 +57,24 @@ namespace Unity.Tests.Issues
             }
         }
 
-        
-[TestMethod]
-public void Issue_35()
-{
-    IUnityContainer container = new UnityContainer();
 
-    container.RegisterType<ILogger, MockLogger>(new ContainerControlledLifetimeManager());
-    ILogger logger = container.Resolve<ILogger>();
+        [TestMethod]
+        public void Issue_35()
+        {
+            IUnityContainer container = new UnityContainer();
 
-    Assert.IsNotNull(logger);
-    Assert.AreSame(container.Resolve<ILogger>(), logger);
+            container.RegisterType<ILogger, MockLogger>(new ContainerControlledLifetimeManager());
+            ILogger logger = container.Resolve<ILogger>();
 
-    container.RegisterType<MockLogger>(new TransientLifetimeManager());
+            Assert.IsNotNull(logger);
+            Assert.AreSame(container.Resolve<ILogger>(), logger);
 
-    Assert.AreSame(container.Resolve<ILogger>(), logger);
-}        
-        
-        [TestMethod]    
+            container.RegisterType<MockLogger>(new TransientLifetimeManager());
+
+            Assert.AreSame(container.Resolve<ILogger>(), logger);
+        }
+
+        [TestMethod]
         public void Issue_88()   // https://github.com/unitycontainer/unity/issues/88
         {
             using (var unityContainer = new UnityContainer())
@@ -82,7 +88,7 @@ public void Issue_35()
             }
         }
 
-        [TestMethod]    
+        [TestMethod]
         public void Issue_54()   // https://github.com/unitycontainer/unity/issues/54
         {
             using (IUnityContainer container = new UnityContainer())
@@ -110,7 +116,7 @@ public void Issue_35()
 
             }
         }
-        
+
         // Test types 
         public interface ITestClass
         { }
