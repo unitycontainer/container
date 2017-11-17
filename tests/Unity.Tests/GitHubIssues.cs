@@ -4,7 +4,9 @@ using Microsoft.Practices.Unity.TestSupport;
 using Unity;
 using Unity.Attributes;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Tests.TestObjects;
 using UnityContainer = Unity.UnityContainer;
 
 namespace GitHub
@@ -12,6 +14,20 @@ namespace GitHub
     [TestClass]
     public class Issues
     {
+
+        [TestMethod]
+        public void unity_154_5()
+        {
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType<OtherEmailService>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IService, OtherEmailService>();
+            container.RegisterType<IOtherService, OtherEmailService>(new InjectionConstructor(container));
+
+            Assert.AreNotSame(container.Resolve<IService>(),
+                              container.Resolve<IOtherService>());
+        }
+
+
         [TestMethod]
         public void unity_154()
         {
@@ -20,7 +36,8 @@ namespace GitHub
             container.RegisterType<IService, OtherEmailService>();
             container.RegisterType<IOtherService, OtherEmailService>();
 
-            Assert.AreSame(container.Resolve<IService>(), container.Resolve<IOtherService>());
+            Assert.AreSame(container.Resolve<IService>(),
+                           container.Resolve<IOtherService>());
         }
 
 
@@ -39,23 +56,23 @@ namespace GitHub
             }
         }
 
-        
-        
-[TestMethod]
-public void Issue_35()
-{
-    IUnityContainer container = new UnityContainer();
 
-    container.RegisterType<ILogger, MockLogger>(new ContainerControlledLifetimeManager());
-    ILogger logger = container.Resolve<ILogger>();
+        [TestMethod]
+        public void Issue_35()
+        {
+            IUnityContainer container = new UnityContainer();
 
-    Assert.IsNotNull(logger);
-    Assert.AreSame(container.Resolve<ILogger>(), logger);
+            container.RegisterType<ILogger, MockLogger>(new ContainerControlledLifetimeManager());
+            ILogger logger = container.Resolve<ILogger>();
 
-    container.RegisterType<MockLogger>(new TransientLifetimeManager());
+            Assert.IsNotNull(logger);
+            Assert.AreSame(container.Resolve<ILogger>(), logger);
 
-    Assert.AreSame(container.Resolve<ILogger>(), logger);
-}        
+            container.RegisterType<MockLogger>(new TransientLifetimeManager());
+
+            Assert.AreSame(container.Resolve<ILogger>(), logger);
+        }
+
         [TestMethod]    
         public void GitHub_Issue_88()   // https://github.com/unitycontainer/unity/issues/88
         {
