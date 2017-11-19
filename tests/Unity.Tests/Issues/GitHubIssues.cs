@@ -14,6 +14,31 @@ namespace Unity.Tests.Issues
     {
 
         [TestMethod]
+        public void unity_156()
+        {
+            using (var container = new UnityContainer())
+            {
+                var td = new MockLogger();
+
+                container.RegisterType<MockLogger>(new ContainerControlledLifetimeManager(), new InjectionFactory(_ => td));
+                container.RegisterType<ILogger, MockLogger>();
+
+                Assert.AreSame(td, container.Resolve<ILogger>());
+                Assert.AreSame(td, container.Resolve<MockLogger>());
+            }
+            using (var container = new UnityContainer())
+            {
+                var td = new MockLogger();
+
+                container.RegisterType<MockLogger>(new ContainerControlledLifetimeManager(), new InjectionFactory(_ => td));
+                container.RegisterType<ILogger, MockLogger>();
+
+                Assert.AreSame(td, container.Resolve<MockLogger>());
+                Assert.AreSame(td, container.Resolve<ILogger>());
+            }
+        }
+
+        [TestMethod]
         public void unity_154_2()
         {
             IUnityContainer container = new UnityContainer();
