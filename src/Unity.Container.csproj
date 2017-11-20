@@ -21,6 +21,7 @@
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
     <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+    <Version>6.0.0-alpha</Version>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
