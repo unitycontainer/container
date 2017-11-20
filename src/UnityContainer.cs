@@ -125,24 +125,28 @@ namespace Unity
         /// creates the instance ahead of type and adds that instance to the container.
         /// </para>
         /// </remarks>
-        /// <param name="type">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="toType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
         /// <param name="name">Name for registration.</param>
-        /// <param name="lifetime">
+        /// <param name="manager">
         /// <para>If true, the container will take over the lifetime of the instance,
         /// calling Dispose on it (if it's <see cref="IDisposable"/>) when the container is Disposed.</para>
         /// <para>
         ///  If false, container will not maintain a strong reference to <paramref name="instance"/>. User is responsible
         /// for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetime)
+        public IUnityContainer RegisterInstance(Type toType, string name, object instance, LifetimeManager manager)
         {
-            InstanceIsAssignable(type, instance, nameof(instance));
+            if (null == instance) throw new ArgumentNullException(nameof(instance));
+            if (null != toType) InstanceIsAssignable(toType, instance, nameof(instance));
+
+            var type = toType ?? instance.GetType();
+            var lifetime = manager ?? new ContainerControlledLifetimeManager();
 
             _registeredNames.RegisterType(type, name);
 
-            SetLifetimeManager(type, name, lifetime ?? throw new ArgumentNullException(nameof(lifetime)));
-            lifetime.SetValue(instance ?? throw new ArgumentNullException(nameof(instance)));
+            SetLifetimeManager(type, name, lifetime);
+            lifetime.SetValue(instance);
 
             if (lifetime is IBuildPlanPolicy buildPlanPolicy)
                 _policies.Set(buildPlanPolicy, new NamedTypeBuildKey(type, name));

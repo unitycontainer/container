@@ -221,17 +221,5 @@ namespace Unity.Tests.ChildContainer
             //parent not getting disposed
             Assert.IsTrue(obj1.WasDisposed);
         }
-
-        /// <summary>
-        /// Null not allowed for Lifetime in registerinstance. 
-        /// </summary>
-        [TestMethod]
-        public void CheckNullHandledInRegisterInstance()
-        {
-            UnityContainer parent = new UnityContainer();
-            TestContainer obj = new TestContainer();
-
-            AssertHelper.ThrowsException<ArgumentNullException>(() => parent.RegisterInstance<TestContainer>(obj, null));
-        }
     }
 }
