@@ -8,6 +8,7 @@ using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Strategy;
+using Unity.Tests.TestSupport;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

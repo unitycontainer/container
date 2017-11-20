@@ -14,6 +14,7 @@ using Unity.Injection;
 using Unity.ObjectBuilder;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Tests.TestSupport;
 
 namespace Microsoft.Practices.Unity.Tests
 {

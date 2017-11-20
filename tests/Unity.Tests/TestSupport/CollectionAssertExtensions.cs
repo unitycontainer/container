@@ -5,29 +5,29 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Microsoft.Practices.Unity.TestSupport
+namespace Unity.Tests.TestSupport
 {
     public static class CollectionAssertExtensions
     {
         public static void AreEqual(ICollection expected, ICollection actual)
         {
-            CollectionAssertExtensions.AreEqual(expected, actual, new DefaultComparer());
+            AreEqual(expected, actual, new DefaultComparer());
         }
 
         public static void AreEqual(ICollection expected, ICollection actual, IComparer comparer)
         {
-            CollectionAssertExtensions.AreEqual(expected, actual, comparer, string.Empty);
+            AreEqual(expected, actual, comparer, string.Empty);
         }
 
         public static void AreEqual(ICollection expected, ICollection actual, string message)
         {
-            CollectionAssertExtensions.AreEqual(expected, actual, new DefaultComparer(), message);
+            AreEqual(expected, actual, new DefaultComparer(), message);
         }
 
         public static void AreEqual(ICollection expected, ICollection actual, IComparer comparer, string message)
         {
             string reason;
-            if (!CollectionAssertExtensions.AreCollectionsEqual(expected, actual, comparer, out reason))
+            if (!AreCollectionsEqual(expected, actual, comparer, out reason))
             {
                 throw new AssertFailedException(string.Format(CultureInfo.CurrentCulture, "{0}({1})", message, reason));
             }
@@ -55,12 +55,12 @@ namespace Microsoft.Practices.Unity.TestSupport
                 {
                     if (actualCount != kvp.Value)
                     {
-                        throw new AssertFailedException(string.Format(System.Globalization.CultureInfo.InvariantCulture, "collections have different count for element {0}", kvp.Key));
+                        throw new AssertFailedException(string.Format(CultureInfo.InvariantCulture, "collections have different count for element {0}", kvp.Key));
                     }
                 }
                 else
                 {
-                    throw new AssertFailedException(string.Format(System.Globalization.CultureInfo.InvariantCulture, "actual does not contain element {0}", kvp.Key));
+                    throw new AssertFailedException(string.Format(CultureInfo.InvariantCulture, "actual does not contain element {0}", kvp.Key));
                 }
             }
         }
