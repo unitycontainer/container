@@ -76,7 +76,7 @@ namespace Unity
 
             _registeredNames.RegisterType(typeFrom ?? to, name);
 
-            if (typeFrom != null)
+            if (typeFrom != null && typeFrom != typeTo)
             {
                 if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
                 {
