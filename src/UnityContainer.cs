@@ -62,7 +62,7 @@ namespace Unity
         public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
-
+// TODO: Check if assignable
             if (string.IsNullOrEmpty(name))
             {
                 name = null;
