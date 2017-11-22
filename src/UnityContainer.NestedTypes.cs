@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -13,14 +15,13 @@ namespace Unity
     {
 
         /// <summary>
-        /// Implementation of the ExtensionContext that is actually used
-        /// by the UnityContainer implementation.
+        /// Abstraction layer between container and extensions
         /// </summary>
         /// <remarks>
-        /// This is a nested class so that it can access state in the
+        /// Implemented as a nested class to gain access to  
         /// container that would otherwise be inaccessible.
         /// </remarks>
-        private class ContainerContext : ExtensionContext
+        private class ContainerContext : ExtensionContext, IContext
         {
             private readonly UnityContainer _container;
 
@@ -28,6 +29,8 @@ namespace Unity
             {
                 _container = container ?? throw new ArgumentNullException(nameof(container));
             }
+
+            #region ExtensionContext
 
             public override IUnityContainer Container => _container;
 
@@ -45,10 +48,6 @@ namespace Unity
                 remove => _container.Registering -= value;
             }
 
-            /// <summary>
-            /// This event is raised when the <see cref="RegisterInstance(Type,string,object,LifetimeManager)"/> method,
-            /// or one of its overloads, is called.
-            /// </summary>
             public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
             {
                 add => _container.RegisteringInstance += value;
@@ -60,6 +59,21 @@ namespace Unity
                 add => _container.ChildContainerCreated += value;
                 remove => _container.ChildContainerCreated -= value;
             }
+
+            #endregion
+
+
+            #region IContext
+
+            IContext IContext.Parent => _container._parent?._context;
+
+            IEnumerable<IContainerRegistration> IContext.this[Type type] => throw new NotImplementedException();
+
+            IContainerRegistration IContext.this[Type type, string name] => (IContainerRegistration)_container[type, name];
+
+            IBuilderPolicy IContext.this[Type type, string name, Type policy] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            #endregion
         }
 
         private class ContainerPolicyList : IPolicyList

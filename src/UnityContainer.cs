@@ -62,7 +62,8 @@ namespace Unity
         public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
-// TODO: Check if assignable
+            // TODO: Check if assignable
+
             if (string.IsNullOrEmpty(name))
             {
                 name = null;
@@ -175,11 +176,20 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            //if (null != resolverOverrides && 0 < resolverOverrides.Length)
-                return BuildUp(type, null, name, resolverOverrides);
+            //return Policy<IResolverPolicy>(type, name).Resolve(resolverOverrides);
 
-            //return this[type, name][typeof(IResolverPolicy)]. . BuildUp(type, null, name, resolverOverrides);
+            return BuildUp(type, null, name, resolverOverrides);
+
         }
+
+        private T Policy<T>(Type type, string name) where T : class
+        {
+            var registration = this[type, name];
+
+            return (T)registration[typeof(T)] ??
+                   default(T);
+        }
+
 
         #endregion
 
@@ -252,7 +262,7 @@ namespace Unity
         public IUnityContainer AddExtension(UnityContainerExtension extension)
         {
             _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
-            extension.InitializeExtension(new ContainerContext(this));
+            extension.InitializeExtension(_context);
 
             return this;
         }
@@ -326,8 +336,7 @@ namespace Unity
         public IUnityContainer CreateChildContainer()
         {
             var child = new UnityContainer(this);
-            var childContext = new ContainerContext(child);
-            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(childContext));
+            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
             return child;
         }
 

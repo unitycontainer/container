@@ -38,6 +38,8 @@ namespace Unity
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
+        private readonly ContainerContext _context;
+
         #endregion
 
 
@@ -50,11 +52,12 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
-            _extensions = new List<UnityContainerExtension>();
+            _context = new ContainerContext(this);
 
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
+            _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
@@ -112,7 +115,7 @@ namespace Unity
             if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 LifetimeManagerFactory factory =
-                    new LifetimeManagerFactory(new ContainerContext(this), lifetimeManager.GetType());
+                    new LifetimeManagerFactory(_context, lifetimeManager.GetType());
                 _policies.Set<ILifetimeFactoryPolicy>(factory,
                     new NamedTypeBuildKey(lifetimeType, name));
             }
