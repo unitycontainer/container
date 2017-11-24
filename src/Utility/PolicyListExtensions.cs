@@ -225,6 +225,22 @@ namespace Unity.Policy
         }
 
 
+        public static IBuilderPolicy GetPolicy(this IPolicyList list, Type policyInterface, object buildKey)
+        {
+            Type buildType;
+
+            if (buildKey is NamedTypeBuildKey basedBuildKey)
+                buildType = basedBuildKey.Type;
+            else
+                buildType = buildKey as Type;
+
+            return list.GetPolicyForKey(policyInterface, buildKey, out _) ??
+                   list.GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, out _) ??
+                   list.GetPolicyForOpenGenericType(policyInterface, buildType, out _) ??
+                   list.GetDefaultForPolicy(policyInterface, out _);
+        }
+
+
         private static IBuilderPolicy GetPolicyForKey(this IPolicyList list, Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
         {
             if (buildKey != null)
