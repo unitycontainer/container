@@ -31,22 +31,13 @@ namespace Unity.ObjectBuilder.Strategies
         {
             if (context.Existing != null) return;
 
-            var lifetimePolicy = GetLifetimePolicy(context, out var policyList);
-
-            if (lifetimePolicy is IHierarchicalLifetimePolicy scope && 
-                !ReferenceEquals(policyList, context.PersistentPolicies))
-            {
-                lifetimePolicy = scope.CreateScope() as ILifetimePolicy;
-                context.PersistentPolicies.Set(lifetimePolicy, context.OriginalBuildKey);
-                context.Lifetime.Add(lifetimePolicy);
-            }
-
+            var lifetimePolicy = GetLifetimePolicy(context, out var _);
             if (lifetimePolicy is IRequiresRecovery recovery)
             {
                 context.RecoveryStack.Add(recovery);
             }
 
-            var existing = lifetimePolicy?.GetValue();
+            var existing = lifetimePolicy?.GetValue(context.Lifetime);
             if (existing != null)
             {
                 context.Existing = existing;
@@ -64,8 +55,8 @@ namespace Unity.ObjectBuilder.Strategies
         {
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
-            ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context, out IPolicyList source);
-            lifetimePolicy.SetValue(context.Existing);
+            ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context, out IPolicyList _);
+            lifetimePolicy.SetValue(context.Existing, context.Lifetime);
         }
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)

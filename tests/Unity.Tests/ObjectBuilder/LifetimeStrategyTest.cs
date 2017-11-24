@@ -94,16 +94,16 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             public bool WasRecovered = false;
 
-            public object GetValue()
+            public object GetValue(ILifetimeContainer container = null)
             {
                 return null;
             }
 
-            public void SetValue(object newValue)
+            public void SetValue(object newValue, ILifetimeContainer container = null)
             {
             }
 
-            public void RemoveValue()
+            public void RemoveValue(ILifetimeContainer container = null)
             {
             }
 
