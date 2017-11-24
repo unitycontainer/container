@@ -53,6 +53,12 @@ namespace Unity.Container.Registration
             return keys;
         }
 
+        public IEnumerable<string> GetRegisteredNames(Type type)
+        {
+            return GetKeys(type).Where(s => !string.IsNullOrEmpty(s));
+        }
+
+
         public IEnumerable<Type> RegisteredTypes
         {
             get

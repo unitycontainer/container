@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Container;
+using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -83,6 +84,7 @@ namespace Unity
             public ContainerPolicyList(UnityContainer container)
             {
                 _container = container;
+                if (null != _container.Parent) _container[null, null] = ((UnityContainer)_container.Parent)[null, null];
             }
 
             public IBuilderPolicy Get(Type policyInterface, object requestKey, out IPolicyList containingPolicyList)
@@ -112,7 +114,7 @@ namespace Unity
 
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IIndexerOf<Type, IBuilderPolicy> data;
+                    IRegistry<Type, IBuilderPolicy> data;
                     if (null == (data = registry[key, name])) continue;
 
                     containingPolicyList = registry._policies;
@@ -149,7 +151,8 @@ namespace Unity
 
             public void ClearAll()
             {
-                throw new NotImplementedException();
+                _container._registrations =
+                    new HashRegistry<Type, IRegistry<string, IRegistry<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
             }
         }
     }

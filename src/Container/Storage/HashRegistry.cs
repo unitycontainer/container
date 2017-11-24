@@ -3,7 +3,7 @@ using Unity.Utility;
 
 namespace Unity.Container.Storage
 {
-    public class HashHybridRegistry<TKey, TValue> : IHybridRegistry<TKey, TValue>
+    internal class HashRegistry<TKey, TValue> : IRegistry<TKey, TValue>
     {
         #region Constants
 
@@ -23,7 +23,7 @@ namespace Unity.Container.Storage
 
         #region Constructors
 
-        public HashHybridRegistry(int capacity)
+        public HashRegistry(int capacity)
         {
             var size = Prime.GetPrime(capacity);
             Buckets = new int[size];
@@ -32,7 +32,7 @@ namespace Unity.Container.Storage
             for (var i = 0; i < Buckets.Length; i++) Buckets[i] = -1;
         }
 
-        public HashHybridRegistry(HashHybridRegistry<TKey, TValue> dictionary)
+        public HashRegistry(HashRegistry<TKey, TValue> dictionary)
         {
             var size = Prime.GetPrime(dictionary.Entries.Length * 2);
 
@@ -57,7 +57,7 @@ namespace Unity.Container.Storage
         #endregion
 
 
-        #region IHybridRegistry
+        #region IRegistry
 
         public TValue this[TKey key]
         {

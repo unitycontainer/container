@@ -176,20 +176,8 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            //return Policy<IResolverPolicy>(type, name).Resolve(resolverOverrides);
-
             return BuildUp(type, null, name, resolverOverrides);
-
         }
-
-        private T Policy<T>(Type type, string name) where T : class
-        {
-            var registration = this[type, name];
-
-            return (T)registration[typeof(T)] ??
-                   default(T);
-        }
-
 
         #endregion
 

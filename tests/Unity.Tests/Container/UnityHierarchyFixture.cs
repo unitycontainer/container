@@ -17,11 +17,11 @@ namespace Unity.Tests
         [TestMethod]
         public void ChildBuildsUsingParentsConfiguration()
         {
-            UnityContainer parent = new UnityContainer();
+            var parent = new UnityContainer();
             parent.RegisterType<ILogger, MockLogger>();
 
-            IUnityContainer child = parent.CreateChildContainer();
-            ILogger logger = child.Resolve<ILogger>();
+            var child = parent.CreateChildContainer();
+            var logger = child.Resolve<ILogger>();
 
             Assert.IsNotNull(logger);
             AssertExtensions.IsInstanceOfType(logger, typeof(MockLogger));

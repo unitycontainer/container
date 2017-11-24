@@ -65,7 +65,7 @@ namespace Unity.ObjectBuilder.Strategies
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
             ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context, out IPolicyList source);
-            lifetimePolicy.SetValue(context.Existing);
+            lifetimePolicy?.SetValue(context.Existing);
         }
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
@@ -74,12 +74,6 @@ namespace Unity.ObjectBuilder.Strategies
             if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
             {
                 policy = GetLifetimePolicyForGenericType(context, out source);
-            }
-
-            if (policy == null)
-            {
-                policy = TransientManager;
-                context.PersistentPolicies.Set(policy, context.OriginalBuildKey);
             }
 
             return policy;

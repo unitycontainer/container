@@ -3,6 +3,7 @@
 using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container.Storage;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
@@ -13,7 +14,7 @@ namespace Unity.Container.Registration
     /// Class that returns information about the types registered in a container.
     /// </summary>
     public class ContainerRegistration : IContainerRegistration,
-                                         IIndexerOf<Type, IBuilderPolicy>,
+                                         IRegistry<Type, IBuilderPolicy>,
                                          IBuildKeyMappingPolicy,
                                          IBuildKey
     {
@@ -104,13 +105,16 @@ namespace Unity.Container.Registration
         {
             get
             {
+                if (typeof(ILifetimePolicy) == policyInterface)
+                    return LifetimeManager;
+
                 var hashCode = policyInterface.GetHashCode();
                 for (var node = _head; null != node; node = node.Next)
                 {
-                    if (node.HashCode != hashCode || !node.Value
-                                                          .GetType()
-                                                          .GetTypeInfo()
-                                                          .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                    if (node.HashCode != hashCode || !policyInterface.GetTypeInfo()
+                                                                     .IsAssignableFrom(node.Value
+                                                                                           .GetType()
+                                                                                           .GetTypeInfo()))
                     {
                         continue;
                     }
@@ -123,14 +127,21 @@ namespace Unity.Container.Registration
 
             set
             {
+                if (typeof(ILifetimePolicy) == policyInterface)
+                {
+                    LifetimeManager = (LifetimeManager)value;
+                    return;
+                }
+
                 LinkedNode node;
                 var hash = policyInterface?.GetHashCode() ?? 0;
 
                 for (node = _head; node != null; node = node.Next)
                 {
-                    if (node.HashCode == hash &&
-                        node.Value.GetType().GetTypeInfo()
-                            .IsAssignableFrom(policyInterface.GetTypeInfo()))
+                    if (node.HashCode == hash && policyInterface.GetTypeInfo()
+                                                                .IsAssignableFrom(node.Value
+                                                                                      .GetType()
+                                                                                      .GetTypeInfo()))
                     {
                         break;
                     }

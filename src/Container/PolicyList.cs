@@ -1,11 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.Container
@@ -19,7 +15,7 @@ namespace Unity.Container
 
         private readonly IPolicyList _innerPolicyList;
         private readonly IDictionary<PolicyKey, IBuilderPolicy> _policies = 
-            new ConcurrentDictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+            new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
 
         #endregion
 

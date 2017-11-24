@@ -43,7 +43,7 @@ namespace Unity.ObjectBuilder.Strategies
 
         private static object ResolveArray<T>(IBuilderContext context)
         {
-            var registeredNamesPolicy = context.Policies.Get<IRegisteredNamesPolicy>(null);
+            var registeredNamesPolicy = context.Policies.Get<IRegisteredNamesPolicy>(typeof(UnityContainer));
             if (registeredNamesPolicy != null)
             {
                 var registeredNames = registeredNamesPolicy.GetRegisteredNames(typeof(T));

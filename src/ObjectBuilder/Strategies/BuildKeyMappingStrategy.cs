@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Lifetime;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.Strategies
@@ -20,7 +18,7 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            var policy = context.Policies.Get<IBuildKeyMappingPolicy>(context.BuildKey);
+            var policy = (IBuildKeyMappingPolicy)context.Policies.GetPolicy(typeof(IBuildKeyMappingPolicy), context.BuildKey);
             if (null == policy) return;
 
 

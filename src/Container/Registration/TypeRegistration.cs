@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container.Storage;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
@@ -8,7 +9,7 @@ using Unity.Registration;
 namespace Unity.Container.Registration
 {
     public class TypeRegistration : IContainerRegistration,
-                                    IIndexerOf<Type, IBuilderPolicy>,
+                                    IRegistry<Type, IBuilderPolicy>,
                                     IBuildKeyMappingPolicy,
                                     IPolicyList,
                                     IBuildKey

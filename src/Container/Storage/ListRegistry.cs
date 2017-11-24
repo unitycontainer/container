@@ -5,15 +5,15 @@ using Unity.Registration;
 namespace Unity.Container.Storage
 {
 
-    public class LinkedNode
+    internal class LinkedNode
     {
         public string Key;
-        public IIndexerOf<Type, IBuilderPolicy> Value;
+        public IRegistry<Type, IBuilderPolicy> Value;
         public LinkedNode Next;
     }
 
 
-    public class ListHybridRegistry : IHybridRegistry<string, IIndexerOf<Type, IBuilderPolicy>>
+    internal class ListRegistry : IRegistry<string, IRegistry<Type, IBuilderPolicy>>
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace Unity.Container.Storage
 
         #region Constructors
 
-        public ListHybridRegistry(IIndexerOf<Type, IBuilderPolicy> value)
+        public ListRegistry(IRegistry<Type, IBuilderPolicy> value)
         {
             Head = new LinkedNode
             {
@@ -42,9 +42,43 @@ namespace Unity.Container.Storage
         public LinkedNode Head;
 
 
-        #region IHybridRegistry
+        #region IRegistry
 
-        public IIndexerOf<Type, IBuilderPolicy> this[string key]
+        public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TValue> factory)
+        {
+            LinkedNode node;
+            LinkedNode last = null;
+
+            for (node = Head; node != null; node = node.Next)
+            {
+                string oldKey = node.Key;
+                if (Equals(oldKey, key))
+                {
+                    // Found it
+                    return (TValue)node.Value;
+                }
+                last = node;
+            }
+
+            // Not found, so add a new one
+            var newNode = new LinkedNode
+            {
+                Key = key as string,
+                Value = (IRegistry<Type, IBuilderPolicy>)factory()
+            };
+
+            if (last != null)
+                last.Next = newNode;
+            else
+                Head = newNode;
+
+            _count++;
+
+            return (TValue)newNode.Value;
+        }
+
+
+        public IRegistry<Type, IBuilderPolicy> this[string key]
         {
             get
             {
