@@ -29,7 +29,7 @@ namespace Unity.Injection
         /// Delegate could have any signature. All of the dependencies will be 
         /// resolved either from container of ParameterOverrides.
         /// The factory has two reserved argument names:
-        ///   name - Always Name of the registration. Example RegisterType<T>("Name", ...
+        ///   name - Always Name of the registration.
         ///   type - Always references type (T) of the registration.
         /// </summary>
         /// <param name="method"></param>
