@@ -26,17 +26,17 @@ namespace Microsoft.Practices.Unity.TestSupport
             get { return this.sessionKey; }
         }
 
-        public override object GetValue()
+        public override object GetValue(ILifetimeContainer container = null)
         {
             LastUsedSessionKey = this.sessionKey;
             return null;
         }
 
-        public override void SetValue(object newValue)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
         }
 
-        public override void RemoveValue()
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
         }
     }

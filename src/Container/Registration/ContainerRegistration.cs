@@ -15,7 +15,6 @@ namespace Unity.Container.Registration
     /// </summary>
     public class ContainerRegistration : IContainerRegistration,
                                          IRegistry<Type, IBuilderPolicy>,
-                                         IBuildKeyMappingPolicy,
                                          IBuildKey
     {
         #region Fields
@@ -91,7 +90,7 @@ namespace Unity.Container.Registration
 
         #region IBuildKeyMappingPolicy
 
-        NamedTypeBuildKey IBuildKeyMappingPolicy.Map(NamedTypeBuildKey buildKey, IBuilderContext context)
+        NamedTypeBuildKey Map(NamedTypeBuildKey buildKey, IBuilderContext context)
         {
             return new NamedTypeBuildKey(MappedToType, _name);
         }

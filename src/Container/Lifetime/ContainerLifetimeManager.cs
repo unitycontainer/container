@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Lifetime;
-using Unity.Policy;
 
 namespace Unity.Container.Lifetime
 {
@@ -19,17 +15,17 @@ namespace Unity.Container.Lifetime
     {
         private object _value;
 
-        public override object GetValue()
+        public override object GetValue(ILifetimeContainer container = null)
         {
             return _value;
         }
 
-        public override void SetValue(object newValue)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             _value = newValue;
         }
 
-        public override void RemoveValue()
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
         }
 

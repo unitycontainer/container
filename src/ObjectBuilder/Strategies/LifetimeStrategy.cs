@@ -29,24 +29,17 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            if (context.Existing != null) return;
+            if (null != context.Existing) return;
 
             var lifetimePolicy = GetLifetimePolicy(context, out var policyList);
-
-            if (lifetimePolicy is IHierarchicalLifetimePolicy scope && 
-                !ReferenceEquals(policyList, context.PersistentPolicies))
-            {
-                lifetimePolicy = scope.CreateScope() as ILifetimePolicy;
-                context.PersistentPolicies.Set(lifetimePolicy, context.OriginalBuildKey);
-                context.Lifetime.Add(lifetimePolicy);
-            }
+            if (null == lifetimePolicy) return;
 
             if (lifetimePolicy is IRequiresRecovery recovery)
             {
                 context.RecoveryStack.Add(recovery);
             }
 
-            var existing = lifetimePolicy?.GetValue();
+            var existing = lifetimePolicy.GetValue(context.Lifetime);
             if (existing != null)
             {
                 context.Existing = existing;
@@ -65,12 +58,12 @@ namespace Unity.ObjectBuilder.Strategies
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
             ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context, out IPolicyList source);
-            lifetimePolicy?.SetValue(context.Existing);
+            lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
         }
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
         {
-            ILifetimePolicy policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.OriginalBuildKey, false, out source);
+            var policy = context.Policies.GetNoDefault<ILifetimePolicy>(context.OriginalBuildKey, false, out source);
             if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
             {
                 policy = GetLifetimePolicyForGenericType(context, out source);
