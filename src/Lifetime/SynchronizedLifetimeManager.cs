@@ -36,7 +36,7 @@ namespace Unity.Lifetime
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>Calls to this method acquire a lock which is released only if a non-null value
         /// has been set for the lifetime manager.</remarks>
-        public override object GetValue()
+        public override object GetValue(ILifetimeContainer container = null)
         {
             Monitor.Enter(_lockObj);
             var result = SynchronizedGetValue();
@@ -64,9 +64,10 @@ namespace Unity.Lifetime
         /// Stores the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
+        /// <param name="container">The container this value belongs to.</param>
         /// <remarks>Setting a value will attempt to release the lock acquired by 
         /// <see cref="SynchronizedLifetimeManager.GetValue"/>.</remarks>
-        public override void SetValue(object newValue)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             SynchronizedSetValue(newValue);
             TryExit();
@@ -86,7 +87,7 @@ namespace Unity.Lifetime
         /// <summary>
         /// Remove the given object from backing store.
         /// </summary>
-        public override void RemoveValue()
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
         }
 

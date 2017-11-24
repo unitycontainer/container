@@ -34,9 +34,10 @@ namespace Unity.Lifetime
         /// Retrieve a value from the backing store associated with this Lifetime policy for the 
         /// current thread.
         /// </summary>
+        /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or <see langword="null"/> if no such object is currently 
         /// stored for the current thread.</returns>
-        public override object GetValue()
+        public override object GetValue(ILifetimeContainer container = null)
         {
             EnsureValues();
 
@@ -49,8 +50,9 @@ namespace Unity.Lifetime
         /// Stores the given value into backing store for retrieval later when requested
         /// in the current thread.
         /// </summary>
+        /// <param name="container">Instance of container which owns the value</param>
         /// <param name="newValue">The object being stored.</param>
-        public override void SetValue(object newValue)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             EnsureValues();
 
@@ -60,8 +62,9 @@ namespace Unity.Lifetime
         /// <summary>
         /// Remove the given object from backing store.
         /// </summary>
+        /// <param name="container">Instance of container</param>
         /// <remarks>Not implemented for this lifetime manager.</remarks>
-        public override void RemoveValue()
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
         }
 

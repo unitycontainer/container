@@ -17,8 +17,9 @@ namespace Unity.Lifetime
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.
         /// </summary>
+        /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public override object GetValue()
+        public override object GetValue(ILifetimeContainer container = null)
         {
             return _value.Target;
         }
@@ -26,8 +27,9 @@ namespace Unity.Lifetime
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
         /// </summary>
+        /// <param name="container">Instance of container which owns the value</param>
         /// <param name="newValue">The object being stored.</param>
-        public override void SetValue(object newValue)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             _value = new WeakReference(newValue);
         }
@@ -35,7 +37,8 @@ namespace Unity.Lifetime
         /// <summary>
         /// Remove the given object from backing store.
         /// </summary>
-        public override void RemoveValue()
+        /// <param name="container">Instance of container</param>
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
             // DO NOTHING - we don't own this instance.
         }

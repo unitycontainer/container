@@ -12,24 +12,17 @@ namespace Unity.Lifetime
     /// the instance is disposed with it.
     /// </summary>
     public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager,
-                                                      ISingletonLifetimePolicy,
+                                                      IContainerLifetimePolicy,
                                                       IDisposable
     {
-
         /// <summary>
         /// Remove the given object from backing store.
         /// </summary>
-        public override void RemoveValue()
+        /// <param name="container">Instance of container</param>
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
             Dispose();
         }
-
-
-        public void BuildUp(IBuilderContext context)
-        {
-            context.Existing = GetValue();
-        }
-
 
         #region IDisposable
 

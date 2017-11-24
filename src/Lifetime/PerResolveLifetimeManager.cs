@@ -25,8 +25,9 @@ namespace Unity.Lifetime
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.
         /// </summary>
+        /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public override object GetValue()
+        public override object GetValue(ILifetimeContainer container = null)
         {
             return value;
         }
@@ -35,15 +36,17 @@ namespace Unity.Lifetime
         /// Stores the given value into backing store for retrieval later. In this class,
         /// this is a noop, since it has special hooks down in the guts.
         /// </summary>
+        /// <param name="container">Instance of container which owns the value</param>
         /// <param name="newValue">The object being stored.</param>
-        public override void SetValue(object newValue)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
         }
 
         /// <summary>
         /// Remove the given object from backing store. Noop in this class.
         /// </summary>
-        public override void RemoveValue()
+        /// <param name="container">Instance of container</param>
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
         }
     }
