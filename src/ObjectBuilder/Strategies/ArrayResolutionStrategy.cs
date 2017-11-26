@@ -19,7 +19,7 @@ namespace Unity.ObjectBuilder.Strategies
         private delegate object ArrayResolver(IBuilderContext context);
 
         private static readonly MethodInfo GenericResolveArrayMethod = typeof(ArrayResolutionStrategy)
-                .GetTypeInfo().DeclaredMethods.First(m => m.Name == "ResolveArray" && m.IsPublic == false && m.IsStatic);
+                .GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)); 
 
         /// <summary>
         /// Do the PreBuildUp stage of construction. This is where the actual work is performed.
