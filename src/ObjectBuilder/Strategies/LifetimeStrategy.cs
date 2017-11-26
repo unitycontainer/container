@@ -31,7 +31,7 @@ namespace Unity.ObjectBuilder.Strategies
         {
             if (null != context.Existing) return;
 
-            var lifetimePolicy = GetLifetimePolicy(context, out var policyList);
+            var lifetimePolicy = GetLifetimePolicy(context, out _);
             if (null == lifetimePolicy) return;
 
             if (lifetimePolicy is IRequiresRecovery recovery)
@@ -57,7 +57,7 @@ namespace Unity.ObjectBuilder.Strategies
         {
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
-            ILifetimePolicy lifetimePolicy = GetLifetimePolicy(context, out IPolicyList source);
+            var lifetimePolicy = GetLifetimePolicy(context, out _);
             lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
         }
 
@@ -69,7 +69,7 @@ namespace Unity.ObjectBuilder.Strategies
                 policy = GetLifetimePolicyForGenericType(context, out source);
             }
 
-            return policy;
+            return policy ?? TransientManager;
         }
 
         private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context, out IPolicyList factorySource)
@@ -93,11 +93,12 @@ namespace Unity.ObjectBuilder.Strategies
                 {
                     // check whether the policy for closed-generic has been added since first checked
                     var lifetime = factorySource.GetNoDefault<ILifetimePolicy>(context.BuildKey);
-                    if (lifetime == null)
+                    if (lifetime == null && !(newLifetime is TransientLifetimeManager))
                     {
                         factorySource.Set(newLifetime, context.BuildKey);
-                        lifetime = newLifetime;
                     }
+
+                    lifetime = newLifetime;
 
                     return lifetime;
                 }
