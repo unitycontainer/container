@@ -33,9 +33,9 @@ namespace Unity.Lifetime
         /// <returns>The new instance.</returns>
         public ILifetimePolicy CreateLifetimePolicy()
         {
-            var lifetime = typeof(TransientLifetimeManager) == LifetimeType
-                ? new TransientLifetimeManager()
-                : (LifetimeManager)_containerContext.Container.Resolve(LifetimeType, null);
+            var lifetime = typeof(TransientLifetimeManager) == LifetimeType 
+                         ? new TransientLifetimeManager() 
+                         : (LifetimeManager)_containerContext.Container.Resolve(LifetimeType, null);
 
             if (lifetime is IDisposable)
             {
