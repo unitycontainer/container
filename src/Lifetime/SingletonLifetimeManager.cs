@@ -1,16 +1,14 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that holds onto the instance given to it.
-    /// When the <see cref="ContainerControlledLifetimeManager"/> is disposed,
+    /// A <see cref="LifetimeManager"/> that is unique for all the children containers.
+    /// When the <see cref="SingletonLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
     /// </summary>
-    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager,
-                                                      IContainerLifetimePolicy
+    public class SingletonLifetimeManager : SynchronizedLifetimeManager,
+                                            ISingletonLifetimePolicy
     {
         #region Fields
 
@@ -60,19 +58,14 @@ namespace Unity.Lifetime
         /// <param name="disposing">Always true, since we don't have a finalizer.</param>		
         protected override void Dispose(bool disposing)
         {
-            try
+            base.Dispose(disposing);
+
+            if (Value == null) return;
+            if (Value is IDisposable disposable)
             {
-                if (Value == null) return;
-                if (Value is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-                Value = null;
+                disposable.Dispose();
             }
-            finally 
-            {
-                base.Dispose(disposing);
-            }
+            Value = null;
         }
 
         #endregion
