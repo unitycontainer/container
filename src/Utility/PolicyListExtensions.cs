@@ -224,20 +224,11 @@ namespace Unity.Policy
                    list.GetDefaultForPolicy(policyInterface, out containingPolicyList);
         }
 
-
-        public static IBuilderPolicy GetPolicy(this IPolicyList list, Type policyInterface, object buildKey)
+        public static TPolicyInterface GetPolicy<TPolicyInterface>(this IPolicyList list, NamedTypeBuildKey buildKey, out IPolicyList containingPolicyList)
         {
-            Type buildType;
-
-            if (buildKey is NamedTypeBuildKey basedBuildKey)
-                buildType = basedBuildKey.Type;
-            else
-                buildType = buildKey as Type;
-
-            return list.GetPolicyForKey(policyInterface, buildKey, out _) ??
-                   list.GetPolicyForOpenGenericKey(policyInterface, buildKey, buildType, out _) ??
-                   list.GetPolicyForOpenGenericType(policyInterface, buildType, out _) ??
-                   list.GetDefaultForPolicy(policyInterface, out _);
+            return (TPolicyInterface) (list.GetPolicyForKey(typeof(TPolicyInterface), buildKey, out containingPolicyList) ??
+                                       list.GetPolicyForOpenGenericKey(typeof(TPolicyInterface), buildKey, buildKey.Type, out containingPolicyList) ??
+                                       list.GetDefaultForPolicy(typeof(TPolicyInterface), out containingPolicyList));
         }
 
 
