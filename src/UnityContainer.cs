@@ -145,8 +145,8 @@ namespace Unity
 
             _registeredNames.RegisterType(type, name);
 
-            SetLifetimeManager(type, name, lifetime);
             lifetime.SetValue(instance);
+            SetLifetimeManager(type, name, lifetime);
 
             if (lifetime is IBuildPlanPolicy buildPlanPolicy)
                 _policies.Set(buildPlanPolicy, new NamedTypeBuildKey(type, name));
