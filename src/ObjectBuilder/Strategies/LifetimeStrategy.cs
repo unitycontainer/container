@@ -69,7 +69,7 @@ namespace Unity.ObjectBuilder.Strategies
                 policy = GetLifetimePolicyForGenericType(context, out source);
             }
 
-            return policy ?? TransientManager;
+            return policy;
         }
 
         private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context, out IPolicyList factorySource)

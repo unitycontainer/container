@@ -133,29 +133,33 @@ namespace Unity
         /// of the container creating the instance the first time it is requested, the user
         /// creates the instance ahead of type and adds that instance to the container.
         /// </para></remarks>
-        /// <param name="mapType">Type of instance to register (may be an implemented interface instead of the full type).</param>
+        /// <param name="registrationType">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to be returned.</param>
-        /// <param name="name">Name for registration.</param>
-        /// <param name="manager">
+        /// <param name="registrationName">Name for registration.</param>
+        /// <param name="lifetimeManager">
         /// <para>If null or <see cref="ContainerControlledLifetimeManager"/>, the container will take over the lifetime of the instance,
         /// calling Dispose on it (if it's <see cref="IDisposable"/>) when the container is Disposed.</para>
         /// <para>
         ///  If <see cref="ExternallyControlledLifetimeManager"/>, container will not maintain a strong reference to <paramref name="instance"/>. 
         /// User is responsible for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterInstance(Type mapType, string name, object instance, LifetimeManager manager)
+        public IUnityContainer RegisterInstance(Type registrationType, string registrationName, object instance, LifetimeManager lifetimeManager)
         {
             // Validate input
             if (null == instance) throw new ArgumentNullException(nameof(instance));
-            if (null != mapType) InstanceIsAssignable(mapType, instance, nameof(instance));
+            if (null != registrationType) InstanceIsAssignable(registrationType, instance, nameof(instance));
 
-            var type = mapType ?? instance.GetType();
-            var lifetime = manager ?? new ContainerControlledLifetimeManager();
+            var type = registrationType ?? instance.GetType();
+            var name = string.IsNullOrEmpty(registrationName) ? null : registrationName;
+            var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
 
+            if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
+            if (lifetime is IDisposable) _lifetimeContainer.Add(lifetime);
+
+            this[type, name] = new InstanceRegistration(registrationType, registrationName, instance, lifetime);
+
+            // TODO: Obsolete
             _registeredNames.RegisterType(type, name);
-
-            SetLifetimeManager(type, name, lifetime);
-            lifetime.SetValue(instance);
 
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance, name, lifetime));
 

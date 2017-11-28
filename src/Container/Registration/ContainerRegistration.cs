@@ -29,14 +29,14 @@ namespace Unity.Container.Registration
 
         #region Constructors
 
-
-        internal ContainerRegistration(Type registeredType, string name)
+        public ContainerRegistration(Type registeredType, string name)
         {
-            _type = registeredType;
             _name = name;
+            _type = registeredType;
+            MappedToType = registeredType;
         }
 
-        internal ContainerRegistration(Type registeredType, string name, IPolicyList policies)
+        public ContainerRegistration(Type registeredType, string name, IPolicyList policies)
         {
             _type = registeredType;
             _name = name;
@@ -71,7 +71,7 @@ namespace Unity.Container.Registration
         /// The type that this registration is mapped to. If no type mapping was done, the
         /// <see cref="RegisteredType"/> property and this one will have the same value.
         /// </summary>
-        public Type MappedToType { get; }
+        public Type MappedToType { get; protected set; }
 
         /// <summary>
         /// Name the type was registered under. Null for default registration.
@@ -83,7 +83,7 @@ namespace Unity.Container.Registration
         /// </summary>
         /// <remarks>
         /// This property will be null if this registration is for an open generic.</remarks>
-        public LifetimeManager LifetimeManager { get; private set; } = Transient;
+        public LifetimeManager LifetimeManager { get; protected set; } = Transient;
 
         #endregion
 
