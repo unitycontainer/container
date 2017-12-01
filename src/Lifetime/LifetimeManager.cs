@@ -8,7 +8,7 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract class LifetimeManager : ILifetimePolicy
     {
-        public bool InUse { get; set; }
+        public virtual bool InUse { get; set; }
 
 
         #region ILifetimePolicy Members
