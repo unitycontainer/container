@@ -1,34 +1,32 @@
 ﻿using System;
+using Unity.Container.Registration;
 using Unity.Policy;
-using Unity.Registration;
 
 namespace Unity.Container.Storage
 {
 
-    internal class LinkedNode
-    {
-        public string Key;
-        public IRegistry<Type, IBuilderPolicy> Value;
-        public LinkedNode Next;
-    }
-
-
-    internal class ListRegistry : IRegistry<string, IRegistry<Type, IBuilderPolicy>>
+    internal class ListRegistry : IRegistry<string, IMap<Type, IBuilderPolicy>>
     {
         #region Fields
 
-        private int _count = 1;
+        private int _count;
 
         #endregion
 
 
         #region Constructors
 
-        public ListRegistry(IRegistry<Type, IBuilderPolicy> value)
+        public ListRegistry()
         {
-            Head = new LinkedNode
+            
+        }
+
+        public ListRegistry(string name, IMap<Type, IBuilderPolicy> value)
+        {
+            _count += 1;
+            Head = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
             {
-                Key = (value as IContainerRegistration)?.Name,
+                Key = name,
                 Value = value,
                 Next = null
             };
@@ -39,32 +37,31 @@ namespace Unity.Container.Storage
 
         public const int ListToHashCutoverPoint = 8;
 
-        public LinkedNode Head;
+        public LinkedNode<string, IMap<Type, IBuilderPolicy>> Head;
 
 
         #region IRegistry
 
-        public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TValue> factory)
+        public IMap<Type, IBuilderPolicy> GetOrAdd(string name, Func<IMap<Type, IBuilderPolicy>> factory)
         {
-            LinkedNode node;
-            LinkedNode last = null;
+            LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
+            LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
 
             for (node = Head; node != null; node = node.Next)
             {
-                string oldKey = node.Key;
-                if (Equals(oldKey, key))
+                if (Equals(node.Key, name))
                 {
                     // Found it
-                    return (TValue)node.Value;
+                    return node.Value;
                 }
                 last = node;
             }
 
             // Not found, so add a new one
-            var newNode = new LinkedNode
+            var newNode = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
             {
-                Key = key as string,
-                Value = (IRegistry<Type, IBuilderPolicy>)factory()
+                Key = name,
+                Value = new PolicyRegistry()
             };
 
             if (last != null)
@@ -74,11 +71,43 @@ namespace Unity.Container.Storage
 
             _count++;
 
-            return (TValue)newNode.Value;
+            return newNode.Value;
         }
 
+        public IMap<Type, IBuilderPolicy> SetOrReplace(string name, IMap<Type, IBuilderPolicy> value)
+        {
+            LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
+            LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
 
-        public IRegistry<Type, IBuilderPolicy> this[string key]
+            for (node = Head; node != null; node = node.Next)
+            {
+                if (Equals(node.Key, name))
+                {
+                    var old = node.Value;
+                    node.Value = value;
+                    return old;
+                }
+                last = node;
+            }
+
+            // Not found, so add a new one
+            var newNode = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
+            {
+                Key = name,
+                Value = value
+            };
+
+            if (last != null)
+                last.Next = newNode;
+            else
+                Head = newNode;
+
+            _count++;
+
+            return null;
+        }
+
+        public IMap<Type, IBuilderPolicy> this[string key]
         {
             get
             {
@@ -86,8 +115,7 @@ namespace Unity.Container.Storage
 
                 while (node != null)
                 {
-                    var oldKey = node.Key;
-                    if (Equals(oldKey, key))
+                    if (Equals(node.Key, key))
                     {
                         return node.Value;
                     }
@@ -98,13 +126,12 @@ namespace Unity.Container.Storage
             }
             set
             {
-                LinkedNode node;
-                LinkedNode last = null;
+                LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
+                LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
 
                 for (node = Head; node != null; node = node.Next)
                 {
-                    string oldKey = node.Key;
-                    if (Equals(oldKey, key))
+                    if (Equals(node.Key, key))
                     {
                         break;
                     }
@@ -119,7 +146,7 @@ namespace Unity.Container.Storage
                 }
 
                 // Not found, so add a new one
-                var newNode = new LinkedNode
+                var newNode = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
                 {
                     Key = key,
                     Value = value

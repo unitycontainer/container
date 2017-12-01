@@ -17,8 +17,8 @@ namespace Microsoft.Practices.Unity.Tests
         [TestMethod]
         public void CanSpecializeGenericTypes()
         {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>));
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>));
             ICommand<User> cmd = container.Resolve<ICommand<User>>();
             AssertExtensions.IsInstanceOfType(cmd, typeof(ConcreteCommand<User>));
         }
@@ -34,10 +34,9 @@ namespace Microsoft.Practices.Unity.Tests
         [TestMethod]
         public void CanChainGenericTypes()
         {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>),
-                    new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")))
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")));
+            container.RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
 
             ICommand<User> cmd = container.Resolve<ICommand<User>>();
             LoggingCommand<User> logCmd = (LoggingCommand<User>)cmd;

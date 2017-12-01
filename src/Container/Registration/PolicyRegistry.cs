@@ -4,7 +4,7 @@ using Unity.Policy;
 
 namespace Unity.Container.Registration
 {
-    public class PolicyRegistry : IRegistry<Type, IBuilderPolicy>
+    public class PolicyRegistry : IMap<Type, IBuilderPolicy>
     {
         #region Fields
 
@@ -13,13 +13,15 @@ namespace Unity.Container.Registration
         #endregion
 
 
+        #region IMap
+
         public virtual IBuilderPolicy this[Type policy]
         {
             get
             {
                 for (var node = _head; node != null; node = node.Next)
                 {
-                    if (Equals(node.Key, policy))
+                    if (node.Key == policy)
                         return node.Value;
                 }
 
@@ -29,7 +31,7 @@ namespace Unity.Container.Registration
             {
                 for (var node = _head; node != null; node = node.Next)
                 {
-                    if (Equals(node.Key, policy))
+                    if (node.Key == policy)
                     {
                         // Found it
                         node.Value = value;
@@ -45,5 +47,7 @@ namespace Unity.Container.Registration
                 };
             }
         }
+
+        #endregion
     }
 }

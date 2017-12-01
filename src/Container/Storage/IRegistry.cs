@@ -1,10 +1,14 @@
-﻿using Unity.Registration;
+﻿using System;
 
 namespace Unity.Container.Storage
 {
 
-    public interface IRegistry<TKey, TValue> 
+    public interface IRegistry<in TKey, TValue> : IMap<TKey, TValue>
     {
-        TValue this[TKey index] { get; set; }
+        bool RequireToGrow { get; }
+
+        TValue GetOrAdd(TKey key, Func<TValue> factory);
+
+        TValue SetOrReplace(TKey key, TValue value);
     }
 }

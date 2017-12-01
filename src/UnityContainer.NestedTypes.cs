@@ -99,7 +99,7 @@ namespace Unity
                         key = null;
                         break;
 
-                    case IBuildKey buildKey:
+                    case NamedTypeBuildKey buildKey:
                         key = buildKey.Type;
                         name = buildKey.Name;
                         break;
@@ -114,7 +114,7 @@ namespace Unity
 
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IRegistry<Type, IBuilderPolicy> data;
+                    IMap<Type, IBuilderPolicy> data;
                     if (null == (data = registry[key, name])) continue;
 
                     containingPolicyList = registry._policies;
@@ -132,7 +132,7 @@ namespace Unity
                         _container[null, null, policyInterface] = policy;
                         break;
 
-                    case IBuildKey buildKey:
+                    case NamedTypeBuildKey buildKey:
                         _container[buildKey.Type, buildKey.Name, policyInterface] = policy;
                         break;
 
@@ -152,7 +152,7 @@ namespace Unity
             public void ClearAll()
             {
                 _container._registrations =
-                    new HashRegistry<Type, IRegistry<string, IRegistry<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
+                    new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
             }
         }
     }
