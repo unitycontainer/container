@@ -73,6 +73,7 @@ namespace Unity
             var buildKey = new NamedTypeBuildKey(typeFrom ?? to, name);
             _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
             _policies.Clear<ILifetimePolicy>(buildKey);
+            _policies.Clear<IBuildKeyMappingPolicy>(buildKey);
 
             _registeredNames.RegisterType(typeFrom ?? to, name);
 

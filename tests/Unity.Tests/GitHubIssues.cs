@@ -14,6 +14,20 @@ namespace GitHub
     [TestClass]
     public class Issues
     {
+        [TestMethod]
+        public void unitycontainer_unity_164()
+        {
+            var container = new UnityContainer();
+
+            container.RegisterType<ILogger, MockLogger>();
+            var foo2 = new MockLogger();
+
+            container.RegisterType<ILogger>(new InjectionFactory(x => foo2));
+            var result = container.Resolve<ILogger>();
+
+            Assert.AreSame(result, foo2);
+        }
+
 
         [TestMethod]
         public void unity_156()
