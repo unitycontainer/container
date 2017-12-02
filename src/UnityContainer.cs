@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
 using Unity.Builder;
 using Unity.Container.Registration;
 using Unity.Events;
@@ -106,7 +105,7 @@ namespace Unity
             {
                 foreach (var member in injectionMembers)
                 {
-                    if (member is InjectionFactory || member is DelegateInjectionFactory)
+                    if (member is IInjectionFactory && null != typeFrom && typeFrom != typeTo)
                         throw new InvalidOperationException(Constants.CannotInjectFactory);
 
                     member.AddPolicies(typeFrom, to, name, _policies);
