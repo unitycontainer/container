@@ -11,7 +11,9 @@ using Unity.Resolution;
 
 namespace Unity.Injection
 {
-    public class DelegateInjectionFactory : InjectionMember,  IBuildPlanPolicy
+    public class DelegateInjectionFactory : InjectionMember, 
+                                            IInjectionFactory,  
+                                            IBuildPlanPolicy
     {
         #region Fields
 

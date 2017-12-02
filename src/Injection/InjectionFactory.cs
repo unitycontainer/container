@@ -14,7 +14,7 @@ namespace Unity.Injection
     /// </summary>
     /// <remarks>This is a significantly easier way to do the same
     /// thing the old static factory extension was used for.</remarks>
-    public class InjectionFactory : InjectionMember
+    public class InjectionFactory : InjectionMember, IInjectionFactory
     {
         private readonly Func<IUnityContainer, Type, string, object> factoryFunc;
 
