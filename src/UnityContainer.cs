@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using Unity.Builder;
 using Unity.Container.Registration;
 using Unity.Events;
 using Unity.Exceptions;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.ObjectBuilder;
 using Unity.ObjectBuilder.Policies;
@@ -104,6 +106,9 @@ namespace Unity
             {
                 foreach (var member in injectionMembers)
                 {
+                    if (member is InjectionFactory || member is DelegateInjectionFactory)
+                        throw new InvalidOperationException(Constants.CannotInjectFactory);
+
                     member.AddPolicies(typeFrom, to, name, _policies);
                 }
             }

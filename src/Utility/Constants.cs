@@ -17,6 +17,7 @@ namespace Unity
         public const string CannotInjectMethodWithRefParams = "The method {0}.{1}({2}) has at least one ref parameter.Methods with ref parameters cannot be injected.";
         public const string CannotInjectOpenGenericMethod = "The method {1} on type {0} is marked for injection, but it is an open generic method. Injection cannot be performed.";
         public const string CannotInjectStaticMethod = "The method {0}.{1}({2}) is static. Static methods cannot be injected.";
+        public const string CannotInjectFactory = "Injection factory can not be used in combination with type mapping (RegisterType<To, From>() or RegisterType<To>(new [Delegate]InjectionFactory()) )";
         public const string CannotResolveOpenGenericType = "The type {0} is an open generic type. An open generic type cannot be resolved.";
         public const string ConstructorArgumentResolveOperation = "Resolving parameter '{0}' of constructor {1}";
         public const string ConstructorParameterResolutionFailed = "The parameter {0} could not be resolved when attempting to call constructor {1}.";
