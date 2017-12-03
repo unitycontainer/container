@@ -4,7 +4,7 @@ using Unity.Policy;
 
 namespace Unity.Container.Registration
 {
-    public class PolicyRegistry : LinkedNode<Type, IBuilderPolicy>, 
+    public class PolicyRegistry : LinkedNode<Type, object>, 
                                   IMap<Type, IBuilderPolicy>, 
                                   IPolicyList
     {
@@ -33,7 +33,7 @@ namespace Unity.Container.Registration
                 for (var node = Next; node != null; node = node.Next)
                 {
                     if (node.Key == policy)
-                        return node.Value;
+                        return (IBuilderPolicy)node.Value;
                 }
 
                 return null;
@@ -50,7 +50,7 @@ namespace Unity.Container.Registration
                     }
                 }
 
-                Next = new LinkedNode<Type, IBuilderPolicy>
+                Next = new LinkedNode<Type, object>
                 {
                     Key = policy,
                     Next = Next,
@@ -91,7 +91,7 @@ namespace Unity.Container.Registration
                 }
             }
 
-            Next = new LinkedNode<Type, IBuilderPolicy>
+            Next = new LinkedNode<Type, object>
             {
                 Key = policy,
                 Next = Next,
