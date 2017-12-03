@@ -18,9 +18,14 @@ namespace Unity.ObjectBuilder
     /// </summary>
     public class BuilderContext : IBuilderContext
     {
+        #region Fields
+
         private readonly IStrategyChain _chain;
         private CompositeResolverOverride _resolverOverrides;   // TODO: This does not need to be List
         private bool _ownsOverrides;
+
+        #endregion
+
 
         public BuilderContext(UnityContainer container, NamedTypeBuildKey key, object existing, params ResolverOverride[] resolverOverrides)
         {
@@ -30,7 +35,6 @@ namespace Unity.ObjectBuilder
             _ownsOverrides = true;            
             _resolverOverrides = new CompositeResolverOverride(resolverOverrides);
         }
-
 
         /// <summary>
         /// Initialize a new instance of the <see cref="BuilderContext"/> class with a <see cref="IStrategyChain"/>, 

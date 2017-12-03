@@ -4,11 +4,22 @@ using Unity.Policy;
 
 namespace Unity.Container.Registration
 {
-    public class PolicyRegistry : IMap<Type, IBuilderPolicy>
+    public class PolicyRegistry : LinkedNode<Type, IBuilderPolicy>, 
+                                  IMap<Type, IBuilderPolicy>, 
+                                  IPolicyList
     {
-        #region Fields
+        #region Constructors
 
-        private LinkedNode<Type, IBuilderPolicy> _head;
+        public PolicyRegistry()
+        {
+        }
+
+
+        public PolicyRegistry(PolicyRegistry parent)
+        {
+            Next = parent;
+        }
+
 
         #endregion
 
@@ -19,7 +30,7 @@ namespace Unity.Container.Registration
         {
             get
             {
-                for (var node = _head; node != null; node = node.Next)
+                for (var node = Next; node != null; node = node.Next)
                 {
                     if (node.Key == policy)
                         return node.Value;
@@ -29,7 +40,7 @@ namespace Unity.Container.Registration
             }
             set
             {
-                for (var node = _head; node != null; node = node.Next)
+                for (var node = Next; node != null; node = node.Next)
                 {
                     if (node.Key == policy)
                     {
@@ -39,13 +50,53 @@ namespace Unity.Container.Registration
                     }
                 }
 
-                _head = new LinkedNode<Type, IBuilderPolicy>
+                Next = new LinkedNode<Type, IBuilderPolicy>
                 {
                     Key = policy,
-                    Next = _head,
+                    Next = Next,
                     Value = value
                 };
             }
+        }
+
+        #endregion
+
+
+        #region IPolicyList
+
+        public virtual void Clear(Type policyInterface, object buildKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void ClearAll()
+        {
+            Next = null;
+        }
+
+        public virtual IBuilderPolicy Get(Type policy, object buildKey, out IPolicyList containingPolicyList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Set(Type policy, IBuilderPolicy value, object buildKey = null)
+        {
+            for (var node = Next; node != null; node = node.Next)
+            {
+                if (node.Key == policy)
+                {
+                    // TODO: Check if buildKey is Equal
+                    node.Value = value;
+                    return;
+                }
+            }
+
+            Next = new LinkedNode<Type, IBuilderPolicy>
+            {
+                Key = policy,
+                Next = Next,
+                Value = value
+            };
         }
 
         #endregion

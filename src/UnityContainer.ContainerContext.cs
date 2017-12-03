@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Container;
 using Unity.Container.Storage;
@@ -7,7 +6,6 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Strategy;
 
 namespace Unity
@@ -22,14 +20,27 @@ namespace Unity
         /// Implemented as a nested class to gain access to  
         /// container that would otherwise be inaccessible.
         /// </remarks>
-        private class ContainerContext : ExtensionContext, IContext
+        private class ContainerContext : ExtensionContext, 
+                                         IContainerContext,
+                                         IPolicyList 
         {
+            #region Fields
+
             private readonly UnityContainer _container;
+
+            #endregion
+
+
+            #region Constructors
 
             public ContainerContext(UnityContainer container)
             {
                 _container = container ?? throw new ArgumentNullException(nameof(container));
+                if (null != _container.Parent) _container[null, null] = ((UnityContainer)_container.Parent)[null, null];
             }
+
+            #endregion
+
 
             #region ExtensionContext
 
@@ -39,7 +50,7 @@ namespace Unity
 
             public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies => _container._buildPlanStrategies;
 
-            public override IPolicyList Policies => _container._policies;
+            public override IPolicyList Policies => _container._context;
 
             public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
 
@@ -64,30 +75,9 @@ namespace Unity
             #endregion
 
 
-            #region IContext
+            #region IPolicyList
 
-            IContext IContext.Parent => _container._parent?._context;
-
-            IEnumerable<IContainerRegistration> IContext.this[Type type] => throw new NotImplementedException();
-
-            IContainerRegistration IContext.this[Type type, string name] => (IContainerRegistration)_container[type, name];
-
-            IBuilderPolicy IContext.this[Type type, string name, Type policy] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-            #endregion
-        }
-
-        private class ContainerPolicyList : IPolicyList
-        {
-            private readonly UnityContainer _container;
-
-            public ContainerPolicyList(UnityContainer container)
-            {
-                _container = container;
-                if (null != _container.Parent) _container[null, null] = ((UnityContainer)_container.Parent)[null, null];
-            }
-
-            public IBuilderPolicy Get(Type policyInterface, object requestKey, out IPolicyList containingPolicyList)
+            IBuilderPolicy IPolicyList.Get(Type policyInterface, object requestKey, out IPolicyList containingPolicyList)
             {
                 Type key;
                 string name = null;
@@ -117,14 +107,14 @@ namespace Unity
                     IMap<Type, IBuilderPolicy> data;
                     if (null == (data = registry[key, name])) continue;
 
-                    containingPolicyList = registry._policies;
+                    containingPolicyList = registry._context;
                     return data[policyInterface];
                 }
 
                 return null;
             }
 
-            public void Set(Type policyInterface, IBuilderPolicy policy, object requestKey = null)
+            void IPolicyList.Set(Type policyInterface, IBuilderPolicy policy, object requestKey)
             {
                 switch (requestKey)
                 {
@@ -145,15 +135,30 @@ namespace Unity
                 }
             }
 
-            public void Clear(Type policyInterface, object buildKey)
+            void IPolicyList.Clear(Type policyInterface, object buildKey)
             {
             }
 
-            public void ClearAll()
+            void IPolicyList.ClearAll()
             {
                 _container._registrations =
                     new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
             }
+
+            #endregion
+
+
+            #region IPolicyRegistry
+
+            public IMap<Type, IBuilderPolicy> this[Type type, string name] => _container[type, name];
+
+            public IBuilderPolicy this[Type type, string name, Type policy]
+            {
+                get => _container[type, name, policy];
+                set => _container[type, name, policy] = value;
+            }
+
+            #endregion
         }
     }
 }

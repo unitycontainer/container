@@ -1,38 +1,15 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Container.Registration;
 using Unity.Events;
-using Unity.Exceptions;
 using Unity.Extension;
-using Unity.Lifetime;
-using Unity.ObjectBuilder;
-using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
-using Unity.Registration;
-using Unity.Resolution;
 
 namespace Unity
 {
-    /// <inheritdoc />
-    /// <summary>
-    /// A simple, extensible dependency injection container.
-    /// </summary>
     public partial class UnityContainer : IUnityContainer
     {
-        #region Defaults
-
-        private const int ContainerInitialCapacity = 37;
-        private const int ListToHashCutoverPoint = 8;
-
-        #endregion
-
-
         #region Public Constructor
 
         /// <summary>
@@ -42,81 +19,6 @@ namespace Unity
             : this(null)
         {
         }
-
-        #endregion
-
-
-        #region Getting objects
-
-        /// <summary>
-        /// GetOrDefault an instance of the requested type with the given name typeFrom the container.
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
-        /// <param name="name">Name of the object to retrieve.</param>
-        /// <param name="resolverOverrides">Any overrides for the resolve call.</param>
-        /// <returns>The retrieved object.</returns>
-        public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
-        {
-            return BuildUp(type, null, name, resolverOverrides);
-        }
-
-        #endregion
-
-
-        #region BuildUp existing object
-
-        /// <summary>
-        /// Run an existing object through the container and perform injection on it.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is useful when you don'type control the construction of an
-        /// instance (ASP.NET pages or objects created via XAML, for instance)
-        /// but you still want properties and other injection performed.
-        /// </para></remarks>
-        /// <param name="typeToBuild"><see cref="Type"/> of object to perform injection on.</param>
-        /// <param name="existing">Instance to build up.</param>
-        /// <param name="name">name to use when looking up the typemappings and other configurations.</param>
-        /// <param name="resolverOverrides">Any overrides for the buildup.</param>
-        /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
-        /// container extensions may add things like automatic proxy creation which would
-        /// cause this to return a different object (but still type compatible with <paramref name="typeToBuild"/>).</returns>
-        public object BuildUp(Type typeToBuild, object existing, string name, params ResolverOverride[] resolverOverrides)
-        {
-            var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
-            if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
-
-            var key = new NamedTypeBuildKey(type, name);
-            IBuilderContext context = null;
-
-            try
-            {
-                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
-                    _lifetimeContainer,
-                    _policies,
-                    key,
-                    existing);
-
-                if (null != resolverOverrides && 0 != resolverOverrides.Length)
-                    context.AddResolverOverrides(resolverOverrides);
-
-                if (key.Type.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    throw new ArgumentException(
-                        string.Format(CultureInfo.CurrentCulture,
-                            Constants.CannotResolveOpenGenericType,
-                            key.Type.FullName), nameof(key.Type));
-                }
-
-                context.Strategies.BuildUp(context);
-                return context.Existing;
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(key.Type, key.Name, ex, context);
-            }
-        }
-
 
         #endregion
 
@@ -181,7 +83,7 @@ namespace Unity
 
             // Reset our policies, strategies, and registered names to reset to "zero"
             _strategies.Clear();
-            _policies.ClearAll();
+            ((IPolicyList)_context).ClearAll();
             _registeredNames.Clear();
 
             if (null == _parent)
@@ -260,48 +162,6 @@ namespace Unity
                     disposable.Dispose();
 
                 _extensions.Clear();
-            }
-        }
-
-        #endregion
-
-
-        #region Registrations
-
-        /// <summary>
-        /// GetOrDefault a sequence of <see cref="ContainerRegistration"/> that describe the current state
-        /// of the container.
-        /// </summary>
-        public IEnumerable<IContainerRegistration> Registrations
-        {
-            get
-            {
-                var allRegisteredNames = new Dictionary<Type, List<string>>();
-                FillTypeRegistrationDictionary(allRegisteredNames);
-
-                return
-                    from type in allRegisteredNames.Keys
-                    from name in allRegisteredNames[type]
-                    select new ContainerRegistration(type, name, _policies);
-            }
-        }
-
-        private void FillTypeRegistrationDictionary(IDictionary<Type, List<string>> typeRegistrations)
-        {
-            if (_parent != null)
-            {
-                _parent.FillTypeRegistrationDictionary(typeRegistrations);
-            }
-
-            foreach (Type t in _registeredNames.RegisteredTypes)
-            {
-                if (!typeRegistrations.ContainsKey(t))
-                {
-                    typeRegistrations[t] = new List<string>();
-                }
-
-                typeRegistrations[t] =
-                    (typeRegistrations[t].Concat(_registeredNames.GetKeys(t))).Distinct().ToList();
             }
         }
 

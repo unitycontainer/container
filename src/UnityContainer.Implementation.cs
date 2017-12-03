@@ -26,10 +26,9 @@ namespace Unity
     {
         #region Fields
 
-        private readonly IPolicyList _policies;
         private readonly UnityContainer _parent;
+        private readonly ContainerContext _context;
         private readonly NamedTypesRegistry _registeredNames;
-        private LifetimeContainer _lifetimeContainer;
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
@@ -38,7 +37,7 @@ namespace Unity
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
-        private readonly ContainerContext _context;
+        private LifetimeContainer _lifetimeContainer;
 
         #endregion
 
@@ -58,12 +57,11 @@ namespace Unity
 
             _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
-            _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
+            _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
-            //_policies = new PolicyList(_parent?._policies);
-            _policies = new ContainerPolicyList(this);
-            _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), typeof(UnityContainer));
+
+            _context.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), typeof(UnityContainer));
 
             if (null == _parent) InitializeStrategies();
 
@@ -91,42 +89,15 @@ namespace Unity
             _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(UnityBuildStage.Initialization);
 
             // Policies - mostly used by the build plan strategies
-            _policies.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
-            _policies.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
-            _policies.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
-            _policies.SetDefault<IBuildPlanCreatorPolicy>(buildPlanCreatorPolicy);
+            _context.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
+            _context.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
+            _context.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
+            _context.SetDefault<IBuildPlanCreatorPolicy>(buildPlanCreatorPolicy);
 
-            _policies.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
-            _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
-            _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
-            _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
-        }
-
-
-        private void SetLifetimeManager(Type lifetimeType, string name, LifetimeManager lifetimeManager)
-        {
-            if (lifetimeManager.InUse)
-            {
-                throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-            }
-
-            if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                LifetimeManagerFactory factory =
-                    new LifetimeManagerFactory(_context, lifetimeManager.GetType());
-                _policies.Set<ILifetimeFactoryPolicy>(factory,
-                    new NamedTypeBuildKey(lifetimeType, name));
-            }
-            else
-            {
-                lifetimeManager.InUse = true;
-                _policies.Set<ILifetimePolicy>(lifetimeManager,
-                    new NamedTypeBuildKey(lifetimeType, name));
-                if (lifetimeManager is IDisposable)
-                {
-                    _lifetimeContainer.Add(lifetimeManager);
-                }
-            }
+            _context.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
+            _context.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
+            _context.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
+            _context.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
         }
 
         #endregion
@@ -164,5 +135,35 @@ namespace Unity
         }
 
         #endregion
+
+
+        private class PolicyListProxy : IPolicyList
+        {
+            private readonly IPolicyList _policies;
+            private readonly IMap<Type, IBuilderPolicy> _registration;
+
+            public PolicyListProxy(IPolicyList policies, IMap<Type, IBuilderPolicy> registration)
+            {
+                _policies = policies;
+                _registration = registration;
+            }
+
+            public void Clear(Type policyInterface, object buildKey) { }
+
+            public void ClearAll() { }
+
+            public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+            {
+                return _policies.Get(policyInterface, buildKey, out containingPolicyList);
+            }
+
+            public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null)
+            {
+                _registration[policyInterface] = policy;
+            }
+        }
+        
+
+
     }
 }
