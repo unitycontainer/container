@@ -329,13 +329,45 @@ namespace Unity
         {
             get
             {
-                var allRegisteredNames = new Dictionary<Type, List<string>>();
-                FillTypeRegistrationDictionary(allRegisteredNames);
 
-                return
-                    from type in allRegisteredNames.Keys
-                    from name in allRegisteredNames[type]
-                    select new ContainerRegistration(type, name, _context);
+                var set = new HashSet<IContainerRegistration>(new Comparer());
+                for (var node = this; null != node; node = node._parent)
+                {
+                    for (int i = 0; i < node._registrations.Count; i++)
+                    {
+                        if (node._registrations.Entries[i].Value is IEnumerable<IMap<Type, IBuilderPolicy>> enumerable)
+                        {
+                            var ssd = enumerable.GetType();
+                            foreach (var item in enumerable.OfType<IContainerRegistration>())
+                            {
+                                set.Add(item);
+                            }
+                        }
+                    }
+                }
+
+                return from item in set select item;
+
+                //var allRegisteredNames = new Dictionary<Type, List<string>>();
+                //FillTypeRegistrationDictionary(allRegisteredNames);
+
+                //return
+                //    from type in allRegisteredNames.Keys
+                //    from name in allRegisteredNames[type]
+                //    select new ContainerRegistration(type, name, _context);
+            }
+        }
+
+        private class Comparer : IEqualityComparer<IContainerRegistration>
+        {
+            public bool Equals(IContainerRegistration x, IContainerRegistration y)
+            {
+                return x.RegisteredType == y.RegisteredType && x.Name == y.Name;
+            }
+
+            public int GetHashCode(IContainerRegistration obj)
+            {
+                return obj.RegisteredType.GetHashCode() + obj.Name?.GetHashCode() ?? 0;
             }
         }
 
