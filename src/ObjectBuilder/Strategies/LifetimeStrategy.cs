@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using System;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -19,7 +18,6 @@ namespace Unity.ObjectBuilder.Strategies
     public class LifetimeStrategy : BuilderStrategy
     {
         private readonly object _genericLifetimeManagerLock = new object();
-        private static readonly TransientLifetimeManager TransientManager = new TransientLifetimeManager();
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The

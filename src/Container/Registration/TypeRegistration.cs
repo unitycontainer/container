@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container.Storage;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
@@ -8,7 +9,7 @@ using Unity.Registration;
 
 namespace Unity.Container.Registration
 {
-    public class TypeRegistration : PolicyRegistry, IContainerRegistration
+    public class TypeRegistration : LinkedMap<Type, IBuilderPolicy>, IContainerRegistration
     {
         #region Fields
 

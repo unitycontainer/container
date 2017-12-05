@@ -137,7 +137,23 @@ namespace Unity
         {
             get
             {
-                var index = -1;
+                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+                var targetBucket = hashCode % _registrations.Buckets.Length;
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    if (_registrations.Entries[i].HashCode != hashCode ||
+                        _registrations.Entries[i].Key != type)
+                    {
+                        continue;
+                    }
+
+                    return _registrations.Entries[i].Value?[name];
+                }
+
+                return null;
+            }
+            set
+            {
                 var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
                 var targetBucket = hashCode % _registrations.Buckets.Length;
                 var collisions = 0;
@@ -155,70 +171,15 @@ namespace Unity
                         var existing = _registrations.Entries[i].Value;
                         if (existing.RequireToGrow)
                         {
-                            _registrations.Entries[i].Value =
-                                existing is HashRegistry<string, IMap<Type, IBuilderPolicy>> registry
-                                    ? new HashRegistry<string, IMap<Type, IBuilderPolicy>>(registry)
-                                    : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(ListRegistry.ListToHashCutoverPoint * 2, ((ListRegistry)existing).Head);
+                            existing = existing is HashRegistry<string, IMap<Type, IBuilderPolicy>> registry
+                                ? new HashRegistry<string, IMap<Type, IBuilderPolicy>>(registry)
+                                : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                                    (LinkedRegistry)existing);
+
+                            _registrations.Entries[i].Value = existing;
                         }
 
-                        index = i;
-                        break;
-                    }
-
-                    if (-1 == index)
-                    {
-
-                        if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
-                        {
-                            _registrations = new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(_registrations);
-                            targetBucket = hashCode % _registrations.Buckets.Length;
-                        }
-
-                        index = _registrations.Count;
-                        _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                        _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                        _registrations.Entries[_registrations.Count].Key = type;
-                        _registrations.Entries[_registrations.Count].Value = new ListRegistry();
-                        _registrations.Buckets[targetBucket] = _registrations.Count;
-                        _registrations.Count++;
-                    }
-
-                    // TODO: Add more robust locking
-                    var repo = _registrations.Entries[index].Value;
-                    return repo is HashRegistry<string, IMap<Type, IBuilderPolicy>> hashRegistry
-                        ? hashRegistry.GetOrAdd(name, () => new PolicyRegistry())
-                        : ((ListRegistry)repo).GetOrAdd(name, () => new PolicyRegistry());
-                }
-            }
-            set
-            {
-                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-                var targetBucket = hashCode % _registrations.Buckets.Length;
-                var collisions = 0;
-
-                lock (_syncRoot)
-                {
-                    for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-                    {
-                        if (_registrations.Entries[i].HashCode != hashCode ||
-                            _registrations.Entries[i].Key != type)
-                        {
-                            collisions++;
-                            continue;
-                        }
-
-                        var old = _registrations.Entries[i].Value[name];
-                        if (value != old)
-                        {
-                            if (null != old && old is IContainerRegistration instance && 
-                                     instance.LifetimeManager is IDisposable disposable)
-                            {
-                                _lifetimeContainer.Remove(disposable);
-                                disposable.Dispose();
-                            }
-                            _registrations.Entries[i].Value[name] = value;
-                            
-                        }
+                        existing[name] = value;
                         return;
                     }
 
@@ -231,7 +192,7 @@ namespace Unity
                     _registrations.Entries[_registrations.Count].HashCode = hashCode;
                     _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                     _registrations.Entries[_registrations.Count].Key = type;
-                    _registrations.Entries[_registrations.Count].Value = new ListRegistry(name, value);
+                    _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = value }; 
                     _registrations.Buckets[targetBucket] = _registrations.Count;
                     _registrations.Count++;
                 }
@@ -257,7 +218,51 @@ namespace Unity
 
                 return null;
             }
-            set => this[type, name][interfaceType] = value;
+            set
+            {
+                var collisions = 0;
+                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+                var targetBucket = hashCode % _registrations.Buckets.Length;
+                lock (_syncRoot)
+                {
+                    for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                    {
+                        if (_registrations.Entries[i].HashCode != hashCode ||
+                            _registrations.Entries[i].Key != type)
+                        {
+                            collisions++;
+                            continue;
+                        }
+
+                        var existing = _registrations.Entries[i].Value;
+                        if (existing.RequireToGrow)
+                        {
+                            existing = existing is HashRegistry<string, IMap<Type, IBuilderPolicy>> registry
+                                     ? new HashRegistry<string, IMap<Type, IBuilderPolicy>>(registry)
+                                     : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(LinkedRegistry.ListToHashCutoverPoint * 2, 
+                                                                                           (LinkedRegistry)existing);
+
+                            _registrations.Entries[i].Value = existing;
+                        }
+
+                        existing.GetOrAdd(name, () => new LinkedMap<Type, IBuilderPolicy>())[ interfaceType] = value;
+                        return;
+                    }
+
+                    if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                    {
+                        _registrations = new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(_registrations);
+                        targetBucket = hashCode % _registrations.Buckets.Length;
+                    }
+
+                    _registrations.Entries[_registrations.Count].HashCode = hashCode;
+                    _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
+                    _registrations.Entries[_registrations.Count].Key = type;
+                    _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = new LinkedMap<Type, IBuilderPolicy>(interfaceType, value) };
+                    _registrations.Buckets[targetBucket] = _registrations.Count;
+                    _registrations.Count++;
+                }
+            }
         }
 
 
@@ -284,7 +289,7 @@ namespace Unity
                     {
                         existing = existing is HashRegistry<string, IMap<Type, IBuilderPolicy>> registry
                                  ? new HashRegistry<string, IMap<Type, IBuilderPolicy>>(registry)
-                                 : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(ListRegistry.ListToHashCutoverPoint * 2, ((ListRegistry)existing).Head);
+                                 : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(LinkedRegistry.ListToHashCutoverPoint * 2, (LinkedRegistry)existing);
 
                         _registrations.Entries[i].Value = existing;
                     }
@@ -301,7 +306,7 @@ namespace Unity
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;
                 _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                 _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new ListRegistry(name, registration); 
+                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
                 _registrations.Buckets[targetBucket] = _registrations.Count;
                 _registrations.Count++;
 

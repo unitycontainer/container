@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.ResolverPolicy;
 using Unity.Utility;
 
 namespace Unity.Container.Storage

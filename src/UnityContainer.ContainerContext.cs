@@ -36,7 +36,6 @@ namespace Unity
             public ContainerContext(UnityContainer container)
             {
                 _container = container ?? throw new ArgumentNullException(nameof(container));
-                if (null != _container.Parent) _container[null, null] = ((UnityContainer)_container.Parent)[null, null];
             }
 
             #endregion

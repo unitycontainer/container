@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Container.Registration;
+using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -18,7 +19,6 @@ using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
-using Unity.Strategy;
 
 namespace Unity
 {
@@ -61,9 +61,12 @@ namespace Unity
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
-            _context.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), typeof(UnityContainer));
+            this[typeof(UnityContainer), null, typeof(IRegisteredNamesPolicy)] = new RegisteredNamesPolicy(_registeredNames);
 
-            if (null == _parent) InitializeStrategies();
+            if (null == _parent)
+                InitializeStrategies();
+            else
+                this[null, null] = _parent[null, null];
 
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
@@ -75,29 +78,31 @@ namespace Unity
 
         protected void InitializeStrategies()
         {
-            var buildPlanCreatorPolicy = new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies);
-
             // Main strategy chain
-            _strategies.AddNew<BuildKeyMappingStrategy>(UnityBuildStage.TypeMapping);
-            _strategies.AddNew<LifetimeStrategy>(UnityBuildStage.Lifetime);
-            _strategies.AddNew<ArrayResolutionStrategy>(UnityBuildStage.Creation);
-            _strategies.AddNew<BuildPlanStrategy>(UnityBuildStage.Creation);
+            _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
+            _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
+            _strategies.Add(new ArrayResolutionStrategy(), UnityBuildStage.Creation);
+            _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
 
             // Build plan strategy chain
-            _buildPlanStrategies.AddNew<DynamicMethodConstructorStrategy>(UnityBuildStage.Creation);
-            _buildPlanStrategies.AddNew<DynamicMethodPropertySetterStrategy>(UnityBuildStage.Initialization);
-            _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(UnityBuildStage.Initialization);
+            _buildPlanStrategies.Add(new DynamicMethodConstructorStrategy(), UnityBuildStage.Creation);
+            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), UnityBuildStage.Initialization);
+            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), UnityBuildStage.Initialization);
 
-            // Policies - mostly used by the build plan strategies
-            _context.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
-            _context.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
-            _context.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
-            _context.SetDefault<IBuildPlanCreatorPolicy>(buildPlanCreatorPolicy);
+            // Default Policies - mostly used by the build plan strategies
+            this[null, null] = new LinkedMap<Type, IBuilderPolicy>
+            {
+                [typeof(IBuildPlanCreatorPolicy)] = new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies),
+                [typeof(IConstructorSelectorPolicy)] = new DefaultUnityConstructorSelectorPolicy(),
+                [typeof(IPropertySelectorPolicy)] = new DefaultUnityPropertySelectorPolicy(),
+                [typeof(IMethodSelectorPolicy)] = new DefaultUnityMethodSelectorPolicy()
+            };
 
-            _context.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
-            _context.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
-            _context.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
-            _context.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
+            // Special Cases
+            this[typeof(Func<>), null, typeof(ILifetimePolicy)]  = new PerResolveLifetimeManager();
+            this[typeof(Func<>), null, typeof(IBuildPlanPolicy)] = new DeferredResolveBuildPlanPolicy();
+            this[typeof(Lazy<>), null, typeof(IBuildPlanCreatorPolicy)] = new LazyDynamicMethodBuildPlanCreatorPolicy();
+            this[typeof(IEnumerable<>), null, typeof(IBuildPlanCreatorPolicy)] = new EnumerableDynamicMethodBuildPlanCreatorPolicy();
         }
 
         #endregion
