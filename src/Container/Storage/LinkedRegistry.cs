@@ -6,7 +6,8 @@ namespace Unity.Container.Storage
 {
 
     internal class LinkedRegistry : LinkedMap<string, IMap<Type, IBuilderPolicy>>, 
-                                    IRegistry<string, IMap<Type, IBuilderPolicy>>
+                                    IRegistry<string, IMap<Type, IBuilderPolicy>>,
+                                    IEnumerable<IMap<Type, IBuilderPolicy>>
     {
         #region Fields
 
@@ -114,5 +115,18 @@ namespace Unity.Container.Storage
         public bool RequireToGrow => ListToHashCutoverPoint < _count;
 
         #endregion
+
+        public IEnumerator<IMap<Type, IBuilderPolicy>> GetEnumerator()
+        {
+            for (LinkedNode<string, IMap<Type, IBuilderPolicy>> node = this; node != null; node = node.Next)
+            {
+                yield return node.Value;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }
