@@ -345,9 +345,9 @@ namespace Unity
             {
                 for (int i = 0; i < container._registrations.Count; i++)
                 {
-                    if (container._registrations.Entries[i].Value is IEnumerable<IMap<Type, IBuilderPolicy>> enumerable)
+                    var entry = container._registrations.Entries[i];
+                    if (null != entry.Key && entry.Value is IEnumerable<IMap<Type, IBuilderPolicy>> enumerable)
                     {
-                        var ssd = enumerable.GetType();
                         foreach (var item in enumerable.OfType<IContainerRegistration>())
                         {
                             set.Add(item);
