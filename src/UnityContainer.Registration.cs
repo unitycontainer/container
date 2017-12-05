@@ -329,32 +329,31 @@ namespace Unity
         {
             get
             {
-
                 var set = new HashSet<IContainerRegistration>(new Comparer());
-                for (var node = this; null != node; node = node._parent)
+                GetRegistrations(this, set);
+
+                return from item in set select item;
+            }
+        }
+
+        private void GetRegistrations(UnityContainer container, HashSet<IContainerRegistration> set)
+        {
+            if (null != container._parent)
+                GetRegistrations(container._parent, set);
+
+            lock (_syncRoot)
+            {
+                for (int i = 0; i < container._registrations.Count; i++)
                 {
-                    for (int i = 0; i < node._registrations.Count; i++)
+                    if (container._registrations.Entries[i].Value is IEnumerable<IMap<Type, IBuilderPolicy>> enumerable)
                     {
-                        if (node._registrations.Entries[i].Value is IEnumerable<IMap<Type, IBuilderPolicy>> enumerable)
+                        var ssd = enumerable.GetType();
+                        foreach (var item in enumerable.OfType<IContainerRegistration>())
                         {
-                            var ssd = enumerable.GetType();
-                            foreach (var item in enumerable.OfType<IContainerRegistration>())
-                            {
-                                set.Add(item);
-                            }
+                            set.Add(item);
                         }
                     }
                 }
-
-                return from item in set select item;
-
-                //var allRegisteredNames = new Dictionary<Type, List<string>>();
-                //FillTypeRegistrationDictionary(allRegisteredNames);
-
-                //return
-                //    from type in allRegisteredNames.Keys
-                //    from name in allRegisteredNames[type]
-                //    select new ContainerRegistration(type, name, _context);
             }
         }
 
@@ -370,26 +369,7 @@ namespace Unity
                 return obj.RegisteredType.GetHashCode() + obj.Name?.GetHashCode() ?? 0;
             }
         }
-
-        private void FillTypeRegistrationDictionary(IDictionary<Type, List<string>> typeRegistrations)
-        {
-            if (_parent != null)
-            {
-                _parent.FillTypeRegistrationDictionary(typeRegistrations);
-            }
-
-            foreach (Type t in _registeredNames.RegisteredTypes)
-            {
-                if (!typeRegistrations.ContainsKey(t))
-                {
-                    typeRegistrations[t] = new List<string>();
-                }
-
-                typeRegistrations[t] =
-                    (typeRegistrations[t].Concat(_registeredNames.GetKeys(t))).Distinct().ToList();
-            }
-        }
-
+        
         #endregion
     }
 }
