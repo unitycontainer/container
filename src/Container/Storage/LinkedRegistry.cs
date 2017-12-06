@@ -1,13 +1,13 @@
 ﻿using System;
-using Unity.Container.Registration;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Policy;
 
 namespace Unity.Container.Storage
 {
 
     internal class LinkedRegistry : LinkedMap<string, IMap<Type, IBuilderPolicy>>, 
-                                    IRegistry<string, IMap<Type, IBuilderPolicy>>,
-                                    IEnumerable<IMap<Type, IBuilderPolicy>>
+                                    IRegistry<string, IMap<Type, IBuilderPolicy>>
     {
         #region Fields
 
@@ -20,6 +20,63 @@ namespace Unity.Container.Storage
 
 
         #region IRegistry
+        public override IMap<Type, IBuilderPolicy> this[string key]
+        {
+            set
+            {
+                LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
+                LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
+
+                for (node = this; node != null; node = node.Next)
+                {
+                    if (Equals(node.Key, key))
+                    {
+                        break;
+                    }
+                    last = node;
+                }
+
+                if (node != null)
+                {
+                    // Found it
+                    node.Value = value;
+                    return;
+                }
+
+                // Not found, so add a new one
+                last.Next = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
+                {
+                    Key = key,
+                    Value = value
+                };
+
+                _count++;
+            }
+        }
+
+        public bool RequireToGrow => ListToHashCutoverPoint < _count;
+
+        public IEnumerable<string> Keys
+        {
+            get
+            {
+                for (LinkedNode<string, IMap<Type, IBuilderPolicy>> node = this; node != null; node = node.Next)
+                {
+                    yield return node.Key;
+                }
+            }
+        }
+
+        public IEnumerable<IMap<Type, IBuilderPolicy>> Values
+        {
+            get
+            {
+                for (LinkedNode<string, IMap<Type, IBuilderPolicy>> node = this; node != null; node = node.Next)
+                {
+                    yield return node.Value;
+                }
+            }
+        }
 
         public IMap<Type, IBuilderPolicy> GetOrAdd(string name, Func<IMap<Type, IBuilderPolicy>> factory)
         {
@@ -78,55 +135,7 @@ namespace Unity.Container.Storage
             return null;
         }
 
-        public override IMap<Type, IBuilderPolicy> this[string key]
-        {
-            set
-            {
-                LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
-                LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
-
-                for (node = this; node != null; node = node.Next)
-                {
-                    if (Equals(node.Key, key))
-                    {
-                        break;
-                    }
-                    last = node;
-                }
-
-                if (node != null)
-                {
-                    // Found it
-                    node.Value = value;
-                    return;
-                }
-
-                // Not found, so add a new one
-                last.Next = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
-                {
-                    Key = key,
-                    Value = value
-                };
-
-                _count++;
-            }
-        }
-
-        public bool RequireToGrow => ListToHashCutoverPoint < _count;
 
         #endregion
-
-        public IEnumerator<IMap<Type, IBuilderPolicy>> GetEnumerator()
-        {
-            for (LinkedNode<string, IMap<Type, IBuilderPolicy>> node = this; node != null; node = node.Next)
-            {
-                yield return node.Value;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
 }

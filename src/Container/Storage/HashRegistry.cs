@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Utility;
 
 namespace Unity.Container.Storage
 {
-    internal class HashRegistry<TKey, TValue> : IRegistry<TKey, TValue> 
+    internal class HashRegistry<TKey, TValue> : IRegistry<TKey, TValue>
     {
         #region Constants
 
@@ -110,6 +113,28 @@ namespace Unity.Container.Storage
 
         public bool RequireToGrow => (Entries.Length - Count) < 100 &&
                                      (float)Count / Entries.Length > LoadFactor;
+
+        public IEnumerable<TKey> Keys
+        {
+            get
+            {
+                for (var i = 0; i < Count; i++)
+                {
+                    yield return Entries[i].Key;
+                }
+            }
+        }
+
+        public IEnumerable<TValue> Values
+        {
+            get
+            {
+                for (var i = 0; i < Count; i++)
+                {
+                    yield return Entries[i].Value;
+                }
+            }
+        }
 
         public TValue GetOrAdd(TKey key, Func<TValue> factory)
         {

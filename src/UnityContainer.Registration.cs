@@ -132,6 +132,26 @@ namespace Unity
         #endregion
 
 
+        private IRegistry<string, IMap<Type, IBuilderPolicy>> this[Type type]
+        {
+            get
+            {
+                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+                var targetBucket = hashCode % _registrations.Buckets.Length;
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    if (_registrations.Entries[i].HashCode != hashCode ||
+                        _registrations.Entries[i].Key != type)
+                    {
+                        continue;
+                    }
+
+                    return _registrations.Entries[i].Value;
+                }
+
+                return null;
+            }
+        }
 
         private IMap<Type, IBuilderPolicy> this[Type type, string name]
         {
@@ -330,31 +350,38 @@ namespace Unity
             get
             {
                 var set = new HashSet<IContainerRegistration>(new Comparer());
-                GetRegistrations(this, set);
 
-                return from item in set select item;
+                return GetRegisteredTypes(this).SelectMany(type => GetRegisteredType(type, this, set));
             }
         }
 
-        private void GetRegistrations(UnityContainer container, HashSet<IContainerRegistration> set)
+        private ISet<Type> GetRegisteredTypes(UnityContainer container)
+        {
+            var set = null == container._parent ? new HashSet<Type>() 
+                                                : GetRegisteredTypes(container._parent);
+
+            foreach (var type in container._registrations.Keys.Where(t => null != t))
+                set.Add(type);
+
+            return set;
+        }
+
+        private IEnumerable<IContainerRegistration> GetRegisteredType(Type type, UnityContainer container, ISet<IContainerRegistration> set = null)
         {
             if (null != container._parent)
-                GetRegistrations(container._parent, set);
+                GetRegisteredType(type, container._parent, set);
+            else if (null == set)
+                set = new HashSet<IContainerRegistration>();
+            else
+                set.Clear();
 
-            lock (_syncRoot)
+            foreach (var registration in container[type]?.Values.OfType<IContainerRegistration>()
+                                         ?? Enumerable.Empty<IContainerRegistration>())
             {
-                for (int i = 0; i < container._registrations.Count; i++)
-                {
-                    var entry = container._registrations.Entries[i];
-                    if (null != entry.Key && entry.Value is IEnumerable<IMap<Type, IBuilderPolicy>> enumerable)
-                    {
-                        foreach (var item in enumerable.OfType<IContainerRegistration>())
-                        {
-                            set.Add(item);
-                        }
-                    }
-                }
+                (set ?? throw new ArgumentNullException(nameof(set))).Add(registration);
             }
+
+            return set;
         }
 
         private class Comparer : IEqualityComparer<IContainerRegistration>
