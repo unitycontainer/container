@@ -1,9 +1,12 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Registration;
 using Unity.Utility;
 
 namespace Unity.Container.Storage
 {
-    public class ReverseHashSet<T> 
+    internal class ReverseHashSet : IEnumerable<IContainerRegistration>
     {
         #region Fields
 
@@ -32,46 +35,57 @@ namespace Unity.Container.Storage
         /// Add item to this HashSet. Later value replaces previosly set value
         /// </summary>
         /// <param name="item"></param>
-        public void Add(T item)
+        public void Add(IContainerRegistration item)
         {
-            int hashCode = item?.GetHashCode() & 0x7FFFFFFF ?? 0 ;
-            int bucket = hashCode % _buckets.Length;
-            int collisionCount = 0;
+            var hashCode = item?.GetHashCode() & 0x7FFFFFFF ?? 0 ;
+            var bucket = hashCode % _buckets.Length;
+            var collisionCount = 0;
 
-            for (int i = _buckets[bucket]; --i >= 0; i = _slots[i].next)
+            for (int i = _buckets[bucket]; --i >= 0; i = _slots[i].Next)
             {
-                if (_slots[i].hashCode == hashCode && Equals(_slots[i].value, item))
+                if (_slots[i].HashCode == hashCode && Equals(_slots[i].Value, item))
                 {
-                    _slots[i].value = item;
+                    _slots[i].Value = item;
                     return;
                 }
                 collisionCount++;
             }
 
-            if (_count == _slots.Length)
+            if (_count == _slots.Length || 6 < collisionCount)
             {
                 IncreaseCapacity();
                 bucket = hashCode % _buckets.Length;
             }
 
-            _slots[_count].hashCode = hashCode;
-            _slots[_count].value = item;
-            _slots[_count].next = _buckets[bucket];
+            _slots[_count].HashCode = hashCode;
+            _slots[_count].Value = item;
+            _slots[_count].Next = _buckets[bucket];
             _count++;
             _buckets[bucket] = _count;
         }
 
         public void Clear()
         {
-            for (int i = 0; i < _count; i++)
+            for (var i = 0; i < _count; i++)
             {
                 _buckets[i] = 0;
-                _slots[_count].hashCode = 0;
-                _slots[_count].value = default(T);
-                _slots[_count].next = 0;
+                _slots[_count].HashCode = 0;
+                _slots[_count].Value = null;
+                _slots[_count].Next = 0;
             }
 
             _count = 0;
+        }
+
+        public IEnumerator<IContainerRegistration> GetEnumerator()
+        {
+            for(var i = 0; i < _count; i++)
+                yield return _slots[i].Value;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         #endregion
@@ -84,14 +98,14 @@ namespace Unity.Container.Storage
         {
             int newSize = HashHelpers.ExpandPrime(_count * 2);
 
-            Slot[] newSlots = new Slot[newSize];
+            var newSlots = new Slot[newSize];
             Array.Copy(_slots, newSlots, _count);
 
-            int[] newBuckets = new int[newSize];
-            for (int i = 0; i < _count; i++)
+            var newBuckets = new int[newSize];
+            for (var i = 0; i < _count; i++)
             {
-                int bucket = newSlots[i].hashCode % newSize;
-                newSlots[i].next = newBuckets[bucket];
+                var bucket = newSlots[i].HashCode % newSize;
+                newSlots[i].Next = newBuckets[bucket];
                 newBuckets[bucket] = i + 1;
             }
 
@@ -101,11 +115,11 @@ namespace Unity.Container.Storage
 
         #endregion
 
-        internal struct Slot
+        private struct Slot
         {
-            internal int hashCode;      // Lower 31 bits of hash code, 0 if unused
-            internal T value;
-            internal int next;          // Index of next entry, 0 if last
+            internal int HashCode;      // Lower 31 bits of hash code, 0 if unused
+            internal IContainerRegistration Value;
+            internal int Next;          // Index of next entry, 0 if last
         }
     }
 

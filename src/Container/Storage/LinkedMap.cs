@@ -5,7 +5,7 @@ namespace Unity.Container.Storage
     {
         #region Constructors
 
-        public LinkedMap()
+        protected LinkedMap()
         {
         }
 
@@ -35,13 +35,6 @@ namespace Unity.Container.Storage
             }
             set
             {
-                if (null == Key)
-                {
-                    Key = key;
-                    Value = value;
-                    return;
-                }
-
                 for (var node = (LinkedNode<TKey, TValue>)this; node != null; node = node.Next)
                 {
                     if (Equals(node.Key, key))

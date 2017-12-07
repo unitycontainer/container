@@ -21,7 +21,7 @@ namespace Unity
         /// container that would otherwise be inaccessible.
         /// </remarks>
         private class ContainerContext : ExtensionContext, 
-                                         IContainerContext,
+                                         IContainerContext, 
                                          IPolicyList 
         {
             #region Fields
@@ -37,6 +37,17 @@ namespace Unity
             {
                 _container = container ?? throw new ArgumentNullException(nameof(container));
             }
+
+            public T Policy<T>(Type type, string name) where T : IBuilderPolicy
+            {
+                return (T)_container[type, name, typeof(T)];
+            }
+
+            public void Policy<T>(Type type, string name, T value) where T : IBuilderPolicy
+            {
+                _container[type, name, typeof(T)] = value;
+            }
+
 
             #endregion
 

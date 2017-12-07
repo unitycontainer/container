@@ -5,7 +5,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Container;
 using Unity.Container.Lifetime;
-using Unity.Container.Registration;
 using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
@@ -18,6 +17,7 @@ using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
+using Unity.Policies.Default;
 using Unity.Policy;
 
 namespace Unity
@@ -28,7 +28,6 @@ namespace Unity
 
         private readonly UnityContainer _parent;
         private readonly ContainerContext _context;
-        private readonly NamedTypesRegistry _registeredNames;
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
@@ -57,11 +56,9 @@ namespace Unity
 
             _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
-            _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
             _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
-            this[typeof(UnityContainer), null, typeof(IRegisteredNamesPolicy)] = new RegisteredNamesPolicy(_registeredNames);
 
             if (null == _parent)
                 InitializeStrategies();
@@ -81,7 +78,6 @@ namespace Unity
             // Main strategy chain
             _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
             _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
-            _strategies.Add(new ArrayResolutionStrategy(), UnityBuildStage.Creation);
             _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
 
             // Build plan strategy chain
@@ -90,7 +86,7 @@ namespace Unity
             _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), UnityBuildStage.Initialization);
 
             // Default Policies - mostly used by the build plan strategies
-            this[null, null] = new LinkedMap<Type, IBuilderPolicy>
+            this[null, null] = new LinkedMap<Type, IBuilderPolicy>(typeof(IResolverPolicy), new DefaultResolverPolicy())
             {
                 [typeof(IBuildPlanCreatorPolicy)] = new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies),
                 [typeof(IConstructorSelectorPolicy)] = new DefaultUnityConstructorSelectorPolicy(),
@@ -102,6 +98,7 @@ namespace Unity
             this[typeof(Func<>), null, typeof(ILifetimePolicy)]  = new PerResolveLifetimeManager();
             this[typeof(Func<>), null, typeof(IBuildPlanPolicy)] = new DeferredResolveBuildPlanPolicy();
             this[typeof(Lazy<>), null, typeof(IBuildPlanCreatorPolicy)] = new LazyDynamicMethodBuildPlanCreatorPolicy();
+            this[typeof(Array),  null, typeof(IBuildPlanCreatorPolicy)] = new ArrayBuildPlanCreatorPolicy();
             this[typeof(IEnumerable<>), null, typeof(IBuildPlanCreatorPolicy)] = new EnumerableDynamicMethodBuildPlanCreatorPolicy();
         }
 

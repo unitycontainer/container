@@ -68,9 +68,6 @@ namespace Unity
                 disposable.Dispose();
             }
 
-            // TODO: Obsolete
-            _registeredNames.RegisterType(registration.RegisteredType, registration.Name);
-
             Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, registration.MappedToType, registration.Name, registration.LifetimeManager));
 
             if (null != injectionMembers && injectionMembers.Length > 0)
@@ -120,9 +117,6 @@ namespace Unity
                 _lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
             }
-
-            // TODO: Obsolete
-            _registeredNames.RegisterType(registration.RegisteredType, registration.Name);
 
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registrationType, instance, registrationName, lifetimeManager));
 
@@ -219,24 +213,71 @@ namespace Unity
             }
         }
 
+
+        /// <summary>
+        /// Gets or sets policy for specified named type 
+        /// </summary>
+        /// <remarks>
+        /// This call never fails. If type or name is not present this method crates 
+        /// empty <see cref="InternalRegistration"/> object and initializes it with policy
+        /// </remarks>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <param name="interfaceType"></param>
+        /// <returns></returns>
         private IBuilderPolicy this[Type type, string name, Type interfaceType]
         {
             get
             {
+                var collisions = 0;
                 var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
                 var targetBucket = hashCode % _registrations.Buckets.Length;
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                IMap<Type, IBuilderPolicy> registration = null;
+                lock (_syncRoot)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                    for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                     {
-                        continue;
+                        if (_registrations.Entries[i].HashCode != hashCode ||
+                            _registrations.Entries[i].Key != type)
+                        {
+                            collisions++;
+                            continue;
+                        }
+
+                        var existing = _registrations.Entries[i].Value;
+                        if (existing.RequireToGrow)
+                        {
+                            existing = existing is HashRegistry<string, IMap<Type, IBuilderPolicy>> registry
+                                     ? new HashRegistry<string, IMap<Type, IBuilderPolicy>>(registry)
+                                     : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                                                                                           (LinkedRegistry)existing);
+
+                            _registrations.Entries[i].Value = existing;
+                        }
+
+                        registration = existing.GetOrAdd(name, () => new InternalRegistration(type, name));
+                        break;
                     }
 
-                    return _registrations.Entries[i].Value?[name]?[interfaceType];
+                    if (null == registration)
+                    {
+                        if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                        {
+                            _registrations = new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(_registrations);
+                            targetBucket = hashCode % _registrations.Buckets.Length;
+                        }
+
+                        registration = new InternalRegistration(type, name);
+                        _registrations.Entries[_registrations.Count].HashCode = hashCode;
+                        _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
+                        _registrations.Entries[_registrations.Count].Key = type;
+                        _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
+                        _registrations.Buckets[targetBucket] = _registrations.Count;
+                        _registrations.Count++;
+                    }
                 }
 
-                return null;
+                return registration[interfaceType];
             }
             set
             {
@@ -265,7 +306,7 @@ namespace Unity
                             _registrations.Entries[i].Value = existing;
                         }
 
-                        existing.GetOrAdd(name, () => new LinkedMap<Type, IBuilderPolicy>())[ interfaceType] = value;
+                        existing.GetOrAdd(name, () => new InternalRegistration(type, name))[ interfaceType] = value;
                         return;
                     }
 
@@ -278,13 +319,12 @@ namespace Unity
                     _registrations.Entries[_registrations.Count].HashCode = hashCode;
                     _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                     _registrations.Entries[_registrations.Count].Key = type;
-                    _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = new LinkedMap<Type, IBuilderPolicy>(interfaceType, value) };
+                    _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = new InternalRegistration(type, name){ [interfaceType] = value}};
                     _registrations.Buckets[targetBucket] = _registrations.Count;
                     _registrations.Count++;
                 }
             }
         }
-
 
         #region Thread Safe Accessors
 
@@ -342,15 +382,14 @@ namespace Unity
         #region Registrations
 
         /// <summary>
-        /// GetOrDefault a sequence of <see cref="ContainerRegistration"/> that describe the current state
+        /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
         /// of the container.
         /// </summary>
         public IEnumerable<IContainerRegistration> Registrations
         {
             get
             {
-                var set = new HashSet<IContainerRegistration>(new Comparer());
-
+                var set = new HashSet<IContainerRegistration>();
                 return GetRegisteredTypes(this).SelectMany(type => GetRegisteredType(type, this, set));
             }
         }
@@ -382,19 +421,6 @@ namespace Unity
             }
 
             return set;
-        }
-
-        private class Comparer : IEqualityComparer<IContainerRegistration>
-        {
-            public bool Equals(IContainerRegistration x, IContainerRegistration y)
-            {
-                return x.RegisteredType == y.RegisteredType && x.Name == y.Name;
-            }
-
-            public int GetHashCode(IContainerRegistration obj)
-            {
-                return obj.RegisteredType.GetHashCode() + obj.Name?.GetHashCode() ?? 0;
-            }
         }
         
         #endregion

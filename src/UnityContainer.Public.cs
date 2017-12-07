@@ -84,7 +84,6 @@ namespace Unity
             // Reset our policies, strategies, and registered names to reset to "zero"
             _strategies.Clear();
             ((IPolicyList)_context).ClearAll();
-            _registeredNames.Clear();
 
             if (null == _parent)
                 InitializeStrategies();

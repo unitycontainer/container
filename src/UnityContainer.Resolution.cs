@@ -4,6 +4,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.ObjectBuilder;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
@@ -25,7 +26,10 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            return BuildUp(type, null, name, resolverOverrides);
+            return _context.Policy<IResolverPolicy>(type, name)
+                           .Resolve(_context, resolverOverrides);
+
+            //return BuildUp(type, null, name, resolverOverrides);
         }
 
         #endregion
