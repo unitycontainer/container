@@ -1,4 +1,4 @@
-﻿using Unity.Builder;
+﻿using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity.Policy
@@ -9,9 +9,11 @@ namespace Unity.Policy
     public interface IResolverPolicy : IBuilderPolicy
     {
         /// <summary>
-        /// GetOrDefault the value
+        /// Resolves instance
         /// </summary>
-        /// <returns>The value for the dependency.</returns>
-        object Resolve(params ResolverOverride[] args);
+        /// <param name="context">Current container context.</param>
+        /// <param name="resolverOverrides">Any overrides for the resolve call.</param>
+        /// <returns>Returns resolved value</returns>
+        object Resolve(IContainerContext context, ResolverOverride[] resolverOverrides = null);
     }
 }
