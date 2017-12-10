@@ -14,7 +14,7 @@ namespace Unity.Container
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<TStageEnum>, 
+    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<IBuilderStrategy, TStageEnum>, 
                                                    IEnumerable<IBuilderStrategy>,
                                                    IDisposable
     {
@@ -102,6 +102,19 @@ namespace Unity.Container
                 _cache = null;
                 Invalidated?.Invoke(this, new EventArgs());
             }
+        }
+
+        /// <summary>
+        /// Add a new strategy for the <paramref name="stage"/>.
+        /// </summary>
+        /// <typeparam name="TStrategy">The <see cref="System.Type"/> of strategy</typeparam>
+        /// <typeparam name="TStageEnum">The stage enum</typeparam>
+        /// <param name="chain">The chain this strategy is added to.</param>
+        /// <param name="stage">The stage to add the strategy to.</param>
+        public void AddNew<TStrategy>(TStageEnum stage)
+            where TStrategy : IBuilderStrategy, new()
+        {
+            Add(new TStrategy(), stage);
         }
 
         /// <summary>

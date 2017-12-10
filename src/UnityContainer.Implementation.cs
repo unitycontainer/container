@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Container.Registration;
@@ -30,7 +31,7 @@ namespace Unity
         private readonly NamedTypesRegistry _registeredNames;
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<UnityBuildStage> _strategies;
-        private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
+        private readonly StagedStrategyChain<BuilderStage> _buildPlanStrategies;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -54,7 +55,7 @@ namespace Unity
             _parent?._lifetimeContainer.Add(this);
 
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
-            _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
+            _buildPlanStrategies = new StagedStrategyChain<BuilderStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
             _policies = new PolicyList(_parent?._policies);
@@ -80,9 +81,9 @@ namespace Unity
             _strategies.AddNew<BuildPlanStrategy>(UnityBuildStage.Creation);
 
             // Build plan strategy chain
-            _buildPlanStrategies.AddNew<DynamicMethodConstructorStrategy>(UnityBuildStage.Creation);
-            _buildPlanStrategies.AddNew<DynamicMethodPropertySetterStrategy>(UnityBuildStage.Initialization);
-            _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(UnityBuildStage.Initialization);
+            _buildPlanStrategies.AddNew<DynamicMethodConstructorStrategy>(BuilderStage.Creation);
+            _buildPlanStrategies.AddNew<DynamicMethodPropertySetterStrategy>(BuilderStage.Initialization);
+            _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(BuilderStage.Initialization);
 
             // Policies - mostly used by the build plan strategies
             _policies.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
@@ -188,9 +189,9 @@ namespace Unity
 
             public override IUnityContainer Container => _container;
 
-            public override IStagedStrategyChain<UnityBuildStage> Strategies => _container._strategies;
+            public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies => _container._strategies;
 
-            public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies => _container._buildPlanStrategies;
+            public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies => _container._buildPlanStrategies;
 
             public override IPolicyList Policies => _container._policies;
 

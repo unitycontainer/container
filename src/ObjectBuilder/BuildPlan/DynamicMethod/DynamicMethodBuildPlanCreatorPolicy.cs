@@ -2,6 +2,8 @@
 
 using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
+using Unity.Container;
 using Unity.Policy;
 using Unity.Strategy;
 
@@ -13,14 +15,14 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
     /// </summary>
     public class DynamicMethodBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
-        private readonly IStagedStrategyChain _strategies;
+        private readonly IStagedStrategyChain<IBuilderStrategy, BuilderStage> _strategies;
 
         /// <summary>
         /// Construct a <see cref="DynamicMethodBuildPlanCreatorPolicy"/> that
         /// uses the given strategy chain to construct the build plan.
         /// </summary>
         /// <param name="strategies">The strategy chain.</param>
-        public DynamicMethodBuildPlanCreatorPolicy(IStagedStrategyChain strategies)
+        public DynamicMethodBuildPlanCreatorPolicy(IStagedStrategyChain<IBuilderStrategy, BuilderStage> strategies)
         {
             _strategies = strategies;
         }
@@ -46,7 +48,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         private IBuilderContext GetContext(IBuilderContext originalContext, NamedTypeBuildKey buildKey, DynamicBuildPlanGenerationContext generatorContext)
         {
             return new BuilderContext(originalContext.Container,
-                                      _strategies.MakeStrategyChain(),
+                                      ((StagedStrategyChain<BuilderStage>)_strategies).MakeStrategyChain(),
                                       originalContext.Lifetime,
                                       originalContext.PersistentPolicies,
                                       originalContext.Policies,

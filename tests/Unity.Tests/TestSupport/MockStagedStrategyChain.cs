@@ -13,7 +13,7 @@ namespace Microsoft.Practices.Unity.TestSupport
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    public class MockStagedStrategyChain<TStageEnum> : IStagedStrategyChain<TStageEnum>
+    public class MockStagedStrategyChain<TStageEnum> : IStagedStrategyChain<IBuilderStrategy, TStageEnum>
     {
         private readonly MockStagedStrategyChain<TStageEnum> _innerChain;
         private readonly object _lockObject = new object();
@@ -111,12 +111,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             return typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         }
 
-        void IStagedStrategyChain<TStageEnum>.Add(IBuilderStrategy strategy, TStageEnum stage)
-        {
-            throw new NotImplementedException();
-        }
-
-        IStrategyChain IStagedStrategyChain.MakeStrategyChain()
+        void IStagedStrategyChain<IBuilderStrategy, TStageEnum>.Add(IBuilderStrategy strategy, TStageEnum stage)
         {
             throw new NotImplementedException();
         }
