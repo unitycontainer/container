@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Storage;
 using Unity.Events;
@@ -56,9 +57,9 @@ namespace Unity
 
             public override IUnityContainer Container => _container;
 
-            public override IStagedStrategyChain<UnityBuildStage> Strategies => _container._strategies;
+            public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies => _container._strategies;
 
-            public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies => _container._buildPlanStrategies;
+            public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies => _container._buildPlanStrategies;
 
             public override IPolicyList Policies => _container._context;
 

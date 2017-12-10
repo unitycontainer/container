@@ -14,7 +14,7 @@ namespace Unity.Container
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<TStageEnum>, 
+    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<IBuilderStrategy, TStageEnum>, 
                                                    IEnumerable<IBuilderStrategy>,
                                                    IDisposable
     {

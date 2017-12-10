@@ -30,7 +30,7 @@ namespace Unity
         private readonly ContainerContext _context;
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<UnityBuildStage> _strategies;
-        private readonly StagedStrategyChain<UnityBuildStage> _buildPlanStrategies;
+        private readonly StagedStrategyChain<BuilderStage> _buildPlanStrategies;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -56,7 +56,7 @@ namespace Unity
 
             _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
-            _buildPlanStrategies = new StagedStrategyChain<UnityBuildStage>(_parent?._buildPlanStrategies);
+            _buildPlanStrategies = new StagedStrategyChain<BuilderStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
 
@@ -81,9 +81,9 @@ namespace Unity
             _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
 
             // Build plan strategy chain
-            _buildPlanStrategies.Add(new DynamicMethodConstructorStrategy(), UnityBuildStage.Creation);
-            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), UnityBuildStage.Initialization);
-            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), UnityBuildStage.Initialization);
+            _buildPlanStrategies.Add(new DynamicMethodConstructorStrategy(), BuilderStage.Creation);
+            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
+            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
 
             // Default Policies - mostly used by the build plan strategies
             this[null, null] = new LinkedMap<Type, IBuilderPolicy>(typeof(IResolverPolicy), new DefaultResolverPolicy())

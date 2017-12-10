@@ -2,6 +2,7 @@
 using System;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
@@ -28,14 +29,14 @@ namespace Unity.Tests.TestDoubles
             get { return this.container; }
         }
 
-        public override IStagedStrategyChain<UnityBuildStage> Strategies
+        public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies
         {
             get { return new StagedStrategyChain<UnityBuildStage>(); }
         }
 
-        public override IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies
+        public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies
         {
-            get { return new StagedStrategyChain<UnityBuildStage>(); }
+            get { return new StagedStrategyChain<BuilderStage>(); }
         }
 
         public override IPolicyList Policies
