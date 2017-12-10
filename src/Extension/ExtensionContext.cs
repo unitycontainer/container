@@ -2,6 +2,7 @@
 
 using System;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Events;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -24,15 +25,15 @@ namespace Unity.Extension
         /// <summary>
         /// The strategies this container uses.
         /// </summary>
-        /// <value>The <see cref="IStagedStrategyChain{TStageEnum}"/> that the container uses to build objects.</value>
-        public abstract IStagedStrategyChain<UnityBuildStage> Strategies { get; }
-
+        /// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that the container uses to build objects.</value>
+        public abstract IStagedStrategyChain<IBuilderStrategy,UnityBuildStage> Strategies { get; }
+        
         /// <summary>
         /// The strategies this container uses to construct build plans.
         /// </summary>
-        /// <value>The <see cref="IStagedStrategyChain{TStageEnum}"/> that this container uses when creating
+        /// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that this container uses when creating
         /// build plans.</value>
-        public abstract IStagedStrategyChain<UnityBuildStage> BuildPlanStrategies { get; }
+        public abstract IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies { get; }
 
         /// <summary>
         /// The policies this container uses.

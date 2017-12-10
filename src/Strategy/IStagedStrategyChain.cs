@@ -1,29 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Unity.Builder;
-using Unity.Builder.Strategy;
+﻿using System;
 
 namespace Unity.Strategy
 {
-    public interface IStagedStrategyChain
-    {
-
-        /// <summary>
-        /// Convert this <see cref="IStagedStrategyChain{TStageEnum}"/> into
-        /// a flat <see cref="IStrategyChain"/>.
-        /// </summary>
-        /// <returns>The flattened <see cref="IStrategyChain"/>.</returns>
-        IStrategyChain MakeStrategyChain();
-    }
-
-
-
     /// <summary>
-    /// This interface defines a standard method to convert any <see cref="IStagedStrategyChain{TStageEnum}"/> regardless
-    /// of the stage enum into a regular, flat strategy chain.
+    /// This interface defines a standard method to create multy staged strategy chain.
     /// </summary>
-    public interface IStagedStrategyChain<TStageEnum> : IStagedStrategyChain
+    /// <typeparam name="TStrategyType">The <see cref="System.Type"/> of strategy</typeparam>
+    /// <typeparam name="TStageEnum">The stage enum</typeparam>
+    public interface IStagedStrategyChain<TStrategyType, TStageEnum>
     {
 
         /// <summary>
@@ -31,7 +15,7 @@ namespace Unity.Strategy
         /// </summary>
         /// <param name="strategy">The strategy to add to the chain.</param>
         /// <param name="stage">The stage to add the strategy.</param>
-        void Add(IBuilderStrategy strategy, TStageEnum stage);
+        void Add(TStrategyType strategy, TStageEnum stage);
 
         /// <summary>
         /// Signals that chain has been changed
@@ -40,17 +24,17 @@ namespace Unity.Strategy
     }
 
 
-
     public static class StagedStrategyChainExtensions
     {
         /// <summary>
         /// Add a new strategy for the <paramref name="stage"/>.
         /// </summary>
-        /// <typeparam name="TStrategy">The <see cref="System.Type"/> of <see cref="IBuilderStrategy"/></typeparam>
-        /// <param name="chain"></param>
-        /// <param name="stage">The stage to add the strategy.</param>
-        public static void AddNew<TStrategy>(this IStagedStrategyChain<UnityBuildStage> chain, UnityBuildStage stage)
-            where TStrategy : IBuilderStrategy, new()
+        /// <typeparam name="TStrategy">The <see cref="System.Type"/> of strategy</typeparam>
+        /// <typeparam name="TStageEnum">The stage enum</typeparam>
+        /// <param name="chain">The chain this strategy is added to.</param>
+        /// <param name="stage">The stage to add the strategy to.</param>
+        public static void AddNew<TStrategy, TStageEnum>(this IStagedStrategyChain<TStrategy, TStageEnum> chain, TStageEnum stage)
+            where TStrategy : new()
         {
             chain.Add(new TStrategy(), stage);
         }
