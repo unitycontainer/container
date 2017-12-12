@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Unity.Strategy
 {
@@ -7,7 +8,7 @@ namespace Unity.Strategy
     /// </summary>
     /// <typeparam name="TStrategyType">The <see cref="System.Type"/> of strategy</typeparam>
     /// <typeparam name="TStageEnum">The stage enum</typeparam>
-    public interface IStagedStrategyChain<TStrategyType, TStageEnum>
+    public interface IStagedStrategyChain<TStrategyType, TStageEnum> : IEnumerable<TStrategyType>
     {
 
         /// <summary>
