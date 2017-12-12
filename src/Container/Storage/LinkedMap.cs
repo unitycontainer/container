@@ -9,12 +9,12 @@ namespace Unity.Container.Storage
         {
         }
 
-        public LinkedMap(TKey key, TValue value)
+        public LinkedMap(TKey key, TValue value, LinkedNode<TKey, TValue> next = null)
         {
             Key = key;
             Value = value;
+            Next = next;
         }
-
 
         #endregion
 
