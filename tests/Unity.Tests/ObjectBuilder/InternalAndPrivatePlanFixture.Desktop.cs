@@ -5,6 +5,7 @@ using Microsoft.Practices.ObjectBuilder2.Tests.TestObjects;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
@@ -66,7 +67,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
 
         private static MockBuilderContext GetContext()
         {
-            var chain = new StagedStrategyChain<BuilderStage>();
+            var chain = new StagedStrategyChain<IBuilderStrategy, BuilderStage>();
             chain.Add(new DynamicMethodConstructorStrategy(), BuilderStage.Creation);
 
             var policy = new DynamicMethodBuildPlanCreatorPolicy(chain);

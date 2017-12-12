@@ -14,20 +14,18 @@ namespace Unity.Container
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    public class StagedStrategyChain<TStageEnum> : IStagedStrategyChain<IBuilderStrategy, TStageEnum>, 
-                                                   IEnumerable<IBuilderStrategy>,
-                                                   IDisposable
+    /// <typeparam name="TStrategyType"></typeparam>
+    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>, IDisposable
     {
         #region Fields
 
         private readonly object _lockObject = new object();
-        private readonly StagedStrategyChain<TStageEnum> _innerChain;
-        private readonly IList<IBuilderStrategy>[] _stages = 
-            new IList<IBuilderStrategy>[typeof(TStageEnum).GetTypeInfo()
-                                                          .DeclaredFields
-                                                          .Count(f => f.IsPublic && f.IsStatic)];
+        private readonly StagedStrategyChain<TStrategyType, TStageEnum> _innerChain;
+        private readonly IList<TStrategyType>[] _stages =  new IList<TStrategyType>[typeof(TStageEnum).GetTypeInfo()
+                                                                                                      .DeclaredFields
+                                                                                                      .Count(f => f.IsPublic && f.IsStatic)];
 
-        private IStrategyChain _cache;
+        private IEnumerable<TStrategyType> _cache;
 
         #endregion
 
@@ -35,7 +33,7 @@ namespace Unity.Container
         #region Constructors
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="StagedStrategyChain{TStageEnum}"/> class.
+        /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType,TStageEnum}"/> class.
         /// </summary>
         public StagedStrategyChain()
             : this(null)
@@ -43,10 +41,10 @@ namespace Unity.Container
         }
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="StagedStrategyChain{TStageEnum}"/> class with an inner strategy chain to use when building.
+        /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType, TStageEnum}"/> class with an inner strategy chain to use when building.
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
-        public StagedStrategyChain(StagedStrategyChain<TStageEnum> innerChain)
+        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum> innerChain)
         {
             if (null != innerChain)
             {
@@ -56,7 +54,7 @@ namespace Unity.Container
 
             for (var i = 0; i < _stages.Length; ++i)
             {
-                _stages[i] = new List<IBuilderStrategy>();
+                _stages[i] = new List<TStrategyType>();
             }
         }
 
@@ -73,9 +71,9 @@ namespace Unity.Container
             }
         }
 
-        private IEnumerable<IBuilderStrategy> Enumerate(int i)
+        private IEnumerable<TStrategyType> Enumerate(int i)
         {
-            return (_innerChain?.Enumerate(i) ?? Enumerable.Empty<IBuilderStrategy>()).Concat(_stages[i]);
+            return (_innerChain?.Enumerate(i) ?? Enumerable.Empty<TStrategyType>()).Concat(_stages[i]);
         }
 
         #endregion
@@ -94,7 +92,7 @@ namespace Unity.Container
         /// </summary>
         /// <param name="strategy">The strategy to add to the chain.</param>
         /// <param name="stage">The stage to add the strategy.</param>
-        public void Add(IBuilderStrategy strategy, TStageEnum stage)
+        public void Add(TStrategyType strategy, TStageEnum stage)
         {
             lock (_lockObject)
             {
@@ -123,34 +121,27 @@ namespace Unity.Container
             }
         }
 
-        /// <summary>
-        /// Makes a strategy chain based on this instance.
-        /// </summary>
-        /// <returns>A new <see cref="StrategyChain"/>.</returns>
-        public IStrategyChain MakeStrategyChain()
-        {
-            lock (_lockObject)
-            {
-                if (null == _cache)
-                {
-                    _cache = new StrategyChain(this);
-                }
-
-                return _cache;
-            }
-        }
-
-
         #endregion
 
 
         #region IEnumerable
 
-        public IEnumerator<IBuilderStrategy> GetEnumerator()
+        public IEnumerator<TStrategyType> GetEnumerator()
         {
-            return Enumerable.Range(0, _stages.Length)
-                             .SelectMany(Enumerate)
-                             .GetEnumerator();
+            var cache = _cache;
+            if (null != cache) return cache.GetEnumerator();
+
+            lock (_lockObject)
+            {
+                if (null == _cache)
+                {
+                    _cache = Enumerable.Range(0, _stages.Length)
+                                       .SelectMany(Enumerate)
+                                       .ToArray();
+                }
+
+                return _cache.GetEnumerator();
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

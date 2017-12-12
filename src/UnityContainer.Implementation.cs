@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Container.Storage;
@@ -29,8 +30,8 @@ namespace Unity
         private readonly UnityContainer _parent;
         private readonly ContainerContext _context;
         private readonly List<UnityContainerExtension> _extensions;
-        private readonly StagedStrategyChain<UnityBuildStage> _strategies;
-        private readonly StagedStrategyChain<BuilderStage> _buildPlanStrategies;
+        private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
+        private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -55,8 +56,8 @@ namespace Unity
             _context = new ContainerContext(this);
 
             _extensions = new List<UnityContainerExtension>();
-            _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
-            _buildPlanStrategies = new StagedStrategyChain<BuilderStage>(_parent?._buildPlanStrategies);
+            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
+            _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
 

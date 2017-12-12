@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Exceptions;
 using Unity.ObjectBuilder;
 using Unity.Policy;
@@ -63,7 +64,7 @@ namespace Unity
 
             try
             {
-                context = new BuilderContext(this, _strategies.MakeStrategyChain(),
+                context = new BuilderContext(this, new StrategyChain(_strategies ),
                     _lifetimeContainer,
                     _context,
                     key,

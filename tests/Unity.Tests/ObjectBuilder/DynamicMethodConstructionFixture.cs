@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Builder.Operation;
 using Unity.Builder.Selection;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
@@ -249,7 +250,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
 
         private MockBuilderContext GetContext()
         {
-            StagedStrategyChain<BuilderStage> chain = new StagedStrategyChain<BuilderStage>();
+            StagedStrategyChain<IBuilderStrategy, BuilderStage> chain = new StagedStrategyChain<IBuilderStrategy, BuilderStage>();
             chain.Add(new DynamicMethodConstructorStrategy(), BuilderStage.Creation);
 
             DynamicMethodBuildPlanCreatorPolicy policy =

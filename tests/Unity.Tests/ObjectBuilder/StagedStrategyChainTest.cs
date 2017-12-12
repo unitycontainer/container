@@ -24,14 +24,14 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void InnerStrategiesComeBeforeOuterStrategiesInStrategyChain()
         {
-            StagedStrategyChain<FakeStage> innerChain = new StagedStrategyChain<FakeStage>();
-            StagedStrategyChain<FakeStage> outerChain = new StagedStrategyChain<FakeStage>(innerChain);
+            StagedStrategyChain<IBuilderStrategy, FakeStage> innerChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>();
+            StagedStrategyChain<IBuilderStrategy, FakeStage> outerChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>(innerChain);
             FakeStrategy innerStrategy = new FakeStrategy();
             FakeStrategy outerStrategy = new FakeStrategy();
             innerChain.Add(innerStrategy, FakeStage.Stage1);
             outerChain.Add(outerStrategy, FakeStage.Stage1);
 
-            IStrategyChain chain = outerChain.MakeStrategyChain();
+            IStrategyChain chain = new StrategyChain(outerChain);
 
             AssertOrder(chain, innerStrategy, outerStrategy);
         }
@@ -39,8 +39,8 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void OrderingAcrossStagesForStrategyChain()
         {
-            StagedStrategyChain<FakeStage> innerChain = new StagedStrategyChain<FakeStage>();
-            StagedStrategyChain<FakeStage> outerChain = new StagedStrategyChain<FakeStage>(innerChain);
+            StagedStrategyChain<IBuilderStrategy, FakeStage> innerChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>();
+            StagedStrategyChain<IBuilderStrategy, FakeStage> outerChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>(innerChain);
             FakeStrategy innerStage1 = new FakeStrategy { Name = "innerStage1" };
             FakeStrategy innerStage2 = new FakeStrategy { Name = "innerStage2" };
             FakeStrategy outerStage1 = new FakeStrategy { Name = "outerStage1" };
@@ -50,7 +50,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             outerChain.Add(outerStage1, FakeStage.Stage1);
             outerChain.Add(outerStage2, FakeStage.Stage2);
 
-            IStrategyChain chain = outerChain.MakeStrategyChain();
+            IStrategyChain chain = new StrategyChain(outerChain);
 
             AssertOrder(chain, innerStage1, outerStage1, innerStage2, outerStage2);
         }
@@ -58,9 +58,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void MultipleChildContainers()
         {
-            StagedStrategyChain<FakeStage> innerChain = new StagedStrategyChain<FakeStage>();
-            StagedStrategyChain<FakeStage> outerChain = new StagedStrategyChain<FakeStage>(innerChain);
-            StagedStrategyChain<FakeStage> superChain = new StagedStrategyChain<FakeStage>(outerChain);
+            StagedStrategyChain<IBuilderStrategy, FakeStage> innerChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>();
+            StagedStrategyChain<IBuilderStrategy, FakeStage> outerChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>(innerChain);
+            StagedStrategyChain<IBuilderStrategy, FakeStage> superChain = new StagedStrategyChain<IBuilderStrategy, FakeStage>(outerChain);
 
             FakeStrategy innerStrategy = new FakeStrategy { Name = "innerStrategy" };
             FakeStrategy outerStrategy = new FakeStrategy { Name = "outerStrategy" };
@@ -69,7 +69,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             outerChain.Add(outerStrategy, FakeStage.Stage1);
             superChain.Add(superStrategy, FakeStage.Stage1);
 
-            IStrategyChain chain = superChain.MakeStrategyChain();
+            IStrategyChain chain = new StrategyChain(superChain);
 
             AssertOrder(chain, innerStrategy, outerStrategy, superStrategy);
         }
