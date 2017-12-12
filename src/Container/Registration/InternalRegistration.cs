@@ -11,12 +11,11 @@ namespace Unity.Container.Registration
         #region Constructors
 
         public InternalRegistration(Type type, string name, LinkedNode<Type, IBuilderPolicy> next = null)
-            : base(typeof(IResolvePolicy), null)
+            : base(typeof(IResolvePolicy), null, next)
         {
             Name = string.IsNullOrEmpty(name) ? null : name;
             RegisteredType = type;
             Name = name;
-            Next = next;
         }
 
         #endregion
