@@ -38,7 +38,7 @@ namespace Unity.Container.Registration
             get
             {
                 if (key == typeof(IResolvePolicy))
-                    return GetResolvePolicy();
+                    return Value ?? GetResolvePolicy();
 
                 return base[key];
             }
