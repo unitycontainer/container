@@ -227,7 +227,7 @@ namespace Unity.Policy
         public static TPolicyInterface GetPolicy<TPolicyInterface>(this IPolicyList list, NamedTypeBuildKey buildKey, out IPolicyList containingPolicyList)
         {
             return (TPolicyInterface) (list.GetPolicyForKey(typeof(TPolicyInterface), buildKey, out containingPolicyList) ??
-                                       list.GetPolicyForOpenGenericKey(typeof(TPolicyInterface), buildKey, buildKey.Type, out containingPolicyList) ??
+                                       list.GetPolicyForOpenType(typeof(TPolicyInterface), buildKey, buildKey.Type, out containingPolicyList) ??
                                        list.GetDefaultForPolicy(typeof(TPolicyInterface), out containingPolicyList));
         }
 
@@ -249,6 +249,28 @@ namespace Unity.Policy
                 return list.Get(policyInterface, ReplaceType(buildKey, buildType.GetGenericTypeDefinition()), out containingPolicyList);
             }
             containingPolicyList = null;
+            return null;
+        }
+
+
+        private static IBuilderPolicy GetPolicyForOpenType(this IPolicyList list, Type policyInterface, NamedTypeBuildKey buildKey, Type buildType, out IPolicyList containingPolicyList)
+        {
+            containingPolicyList = null;
+            if (null == buildType) return null; 
+
+            if (buildType.GetTypeInfo().IsGenericType)
+            {
+                var newType = buildType.GetGenericTypeDefinition();
+                return list.Get(policyInterface, new NamedTypeBuildKey(newType, buildKey.Name), out containingPolicyList) ??
+                       list.Get(policyInterface, new NamedTypeBuildKey(newType), out containingPolicyList);
+            }
+
+            if (buildType.IsArray && buildType.GetArrayRank() == 1)
+            {
+                return list.Get(policyInterface, new NamedTypeBuildKey(typeof(Array), buildKey.Name), out containingPolicyList) ??
+                       list.Get(policyInterface, new NamedTypeBuildKey(typeof(Array)), out containingPolicyList);
+            }
+
             return null;
         }
 
