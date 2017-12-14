@@ -1,5 +1,3 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
 using System;
 
 namespace Unity.Policy
@@ -10,28 +8,31 @@ namespace Unity.Policy
     public interface IPolicyList
     {
         /// <summary>
-        /// GetOrDefault the non default policy.
+        /// Get policy
         /// </summary>
-        /// <param name="policyInterface">The interface the policy is registered under.</param>
-        /// <param name="buildKey">The key the policy applies to.</param>
-        /// <param name="containingPolicyList">The policy list in the chain that the searched for policy was found in, null if the policy was
-        /// not found.</param>
-        /// <returns>The policy in the list if present; returns null otherwise.</returns>
-        IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList);
+        /// <param name="type">Type of the registration</param>
+        /// <param name="name">Name of the registration</param>
+        /// <param name="policyInterface">Type of policy to retrieve</param>
+        /// <param name="list">Reference to owner IList holding reference to the policy</param>
+        /// <returns>Instance of the policy or null if none found</returns>
+        IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list);
 
         /// <summary>
-        /// Sets an individual policy.
+        /// Set policy
         /// </summary>
-        /// <param name="policyInterface">The <see cref="Type"/> of the policy.</param>
-        /// <param name="policy">The policy to be registered.</param>
-        /// <param name="buildKey">The key the policy applies.</param>
-        void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null);
+        /// <param name="type">Type of the registration</param>
+        /// <param name="name">Name of the registration</param>
+        /// <param name="policyInterface">Type of policy to be set</param>
+        /// <param name="policy">Policy instance to be set</param>
+        void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy);
+
         /// <summary>
-        /// Removes an individual policy type for a build key.
+        /// Remove specific policy from the list
         /// </summary>
-        /// <param name="policyInterface">The type of policy to remove.</param>
-        /// <param name="buildKey">The key the policy applies.</param>
-        void Clear(Type policyInterface, object buildKey);
+        /// <param name="type">Type of the registration</param>
+        /// <param name="name">Name of the registration</param>
+        /// <param name="policyInterface">Type of policy to be removed</param>
+        void Clear(Type type, string name, Type policyInterface);
 
         /// <summary>
         /// Removes all policies from the list.
