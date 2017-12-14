@@ -1,9 +1,8 @@
 using System;
 using Unity.Container.Storage;
 using Unity.Policy;
-using Unity.Registration;
 
-namespace Unity.Container.Registration
+namespace Unity.Registration
 {
     public class InternalRegistration : LinkedMap<Type, IBuilderPolicy>, 
                                         IRegistration
@@ -11,7 +10,7 @@ namespace Unity.Container.Registration
         #region Constructors
 
         public InternalRegistration(Type type, string name, LinkedNode<Type, IBuilderPolicy> next = null)
-            : base(typeof(IResolvePolicy), null, next)
+            : base(typeof(IResolverPolicy), null, next)
         {
             Name = string.IsNullOrEmpty(name) ? null : name;
             RegisteredType = type;
@@ -37,7 +36,7 @@ namespace Unity.Container.Registration
         {
             get
             {
-                if (key == typeof(IResolvePolicy))
+                if (key == typeof(IResolverPolicy))
                     return Value ?? GetResolvePolicy();
 
                 return base[key];
@@ -53,9 +52,7 @@ namespace Unity.Container.Registration
 
         protected virtual IBuilderPolicy GetResolvePolicy()
         {
-            if (null != Value) return Value;
-
-            return null;
+            return Value;
         }
 
         #endregion

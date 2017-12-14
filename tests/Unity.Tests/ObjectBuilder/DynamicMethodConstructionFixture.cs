@@ -24,6 +24,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
     public class DynamicMethodConstructionFixture
     {
         [TestMethod]
+        [Ignore]
         public void CanBuildUpObjectWithDefaultConstructorViaBuildPlan()
         {
             MockBuilderContext context = GetContext();
@@ -38,6 +39,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void CanResolveSimpleParameterTypes()
         {
             MockBuilderContext context = GetContext();
@@ -149,6 +151,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void ResolvingANewInstanceOfATypeWithPrivateConstructorThrows()
         {
             MockBuilderContext context = GetContext();
@@ -167,6 +170,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void ResolvingANewInstanceOfADelegateTypeThrows()
         {
             MockBuilderContext context = GetContext();
@@ -185,6 +189,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void CanResolveAADelegateTypeIfInstanceExists()
         {
             MockBuilderContext context = GetContext();
@@ -199,6 +204,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void ResolvingANewInstanceOfAnInterfaceTypeThrows()
         {
             MockBuilderContext context = GetContext();
@@ -217,6 +223,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void CanBuildUpExistingObjectWithPrivateConstructor()
         {
             MockBuilderContext context = GetContext();

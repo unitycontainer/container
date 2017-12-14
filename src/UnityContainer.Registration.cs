@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Container;
-using Unity.Container.Registration;
 using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Lifetime;
@@ -255,7 +254,7 @@ namespace Unity
                             _registrations.Entries[i].Value = existing;
                         }
 
-                        registration = existing.GetOrAdd(name, () => new InternalRegistration(type, name));
+                        registration = existing.GetOrAdd(name, () => CreateRegistration(type, name));
                         break;
                     }
 
@@ -267,7 +266,7 @@ namespace Unity
                             targetBucket = hashCode % _registrations.Buckets.Length;
                         }
 
-                        registration = new InternalRegistration(type, name);
+                        registration = CreateRegistration(type, name);
                         _registrations.Entries[_registrations.Count].HashCode = hashCode;
                         _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                         _registrations.Entries[_registrations.Count].Key = type;
@@ -306,7 +305,7 @@ namespace Unity
                             _registrations.Entries[i].Value = existing;
                         }
 
-                        existing.GetOrAdd(name, () => new InternalRegistration(type, name))[ interfaceType] = value;
+                        existing.GetOrAdd(name, () => CreateRegistration(type, name))[ interfaceType] = value;
                         return;
                     }
 
@@ -316,10 +315,13 @@ namespace Unity
                         targetBucket = hashCode % _registrations.Buckets.Length;
                     }
 
+                    var registration = CreateRegistration(type, name);
+                    registration[interfaceType] = value;
+
                     _registrations.Entries[_registrations.Count].HashCode = hashCode;
                     _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                    _registrations.Entries[_registrations.Count].Key = type;
-                    _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = new InternalRegistration(type, name){ [interfaceType] = value}};
+                    _registrations.Entries[_registrations.Count].Key = type;                       
+                    _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
                     _registrations.Buckets[targetBucket] = _registrations.Count;
                     _registrations.Count++;
                 }
@@ -374,12 +376,79 @@ namespace Unity
             }
         }
 
+        /// <summary>
+        /// Retrieves registration for requested named type
+        /// </summary>
+        /// <param name="type">Registration type</param>
+        /// <param name="name">Registration name</param>
+        /// <param name="create">Instruncts container if it should create registration if not found</param>
+        /// <returns>Registration for requested named type or null if named type is not registered and 
+        /// <see cref="create"/> is false</returns>
+        public IRegistration Registration(Type type, string name, bool create = false)
+        {
+            for (var container = this; null != container; container = container._parent)
+            {
+                IMap<Type, IBuilderPolicy> data;
+                if (null == (data = container[type, name])) continue;
+
+                return (IRegistration)data;
+            }
+
+            if (!create) return null;
+
+            var collisions = 0;
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            lock (_syncRoot)
+            {
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    if (_registrations.Entries[i].HashCode != hashCode ||
+                        _registrations.Entries[i].Key != type)
+                    {
+                        collisions++;
+                        continue;
+                    }
+
+                    var existing = _registrations.Entries[i].Value;
+                    if (existing.RequireToGrow)
+                    {
+                        existing = existing is HashRegistry<string, IMap<Type, IBuilderPolicy>> registry
+                                 ? new HashRegistry<string, IMap<Type, IBuilderPolicy>>(registry)
+                                 : new HashRegistry<string, IMap<Type, IBuilderPolicy>>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                                                                                       (LinkedRegistry)existing);
+
+                        _registrations.Entries[i].Value = existing;
+                    }
+
+                    return (IRegistration)existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                }
+
+                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                {
+                    _registrations = new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(_registrations);
+                    targetBucket = hashCode % _registrations.Buckets.Length;
+                }
+
+                var registration = CreateRegistration(type, name);
+                _registrations.Entries[_registrations.Count].HashCode = hashCode;
+                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
+                _registrations.Entries[_registrations.Count].Key = type;
+                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
+                _registrations.Buckets[targetBucket] = _registrations.Count;
+                _registrations.Count++;
+
+                return (IRegistration)registration;
+            }
+        }
+
+
 
         #endregion
 
 
 
-        #region Registrations
+        #region Registrations Collection
 
         /// <summary>
         /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
@@ -389,8 +458,7 @@ namespace Unity
         {
             get
             {
-                var set = new HashSet<IContainerRegistration>();
-                return GetRegisteredTypes(this).SelectMany(type => GetRegisteredType(type, this, set));
+                return GetRegisteredTypes(this).SelectMany(type => GetRegisteredType(this, type));
             }
         }
 
@@ -405,24 +473,53 @@ namespace Unity
             return set;
         }
 
-        private IEnumerable<IContainerRegistration> GetRegisteredType(Type type, UnityContainer container, ISet<IContainerRegistration> set = null)
+        private IEnumerable<IContainerRegistration> GetRegisteredType(UnityContainer container, Type type)
         {
+            ReverseHashSet set;
+
             if (null != container._parent)
-                GetRegisteredType(type, container._parent, set);
-            else if (null == set)
-                set = new HashSet<IContainerRegistration>();
-            else
-                set.Clear();
+                set = (ReverseHashSet)GetRegisteredType(container._parent, type);
+            else 
+                set = new ReverseHashSet();
 
             foreach (var registration in container[type]?.Values.OfType<IContainerRegistration>()
-                                         ?? Enumerable.Empty<IContainerRegistration>())
+                                      ?? Enumerable.Empty<IContainerRegistration>())
             {
-                (set ?? throw new ArgumentNullException(nameof(set))).Add(registration);
+                set.Add(registration);
             }
 
             return set;
         }
-        
+
+        internal IEnumerable<string> GetRegisteredNames(UnityContainer container, Type type)
+        {
+            ISet<string> set;
+
+            if (null != container._parent)
+                set = (ISet<string>)GetRegisteredNames(container._parent, type);
+            else
+                set = new HashSet<string>();
+
+            foreach (var registration in container[type]?.Values.OfType<IContainerRegistration>()
+                                      ?? Enumerable.Empty<IContainerRegistration>())
+            {
+                set.Add(registration.Name);
+            }
+
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+
+            if (generic != type)
+            {
+                foreach (var registration in container[generic]?.Values.OfType<IContainerRegistration>()
+                                          ?? Enumerable.Empty<IContainerRegistration>())
+                {
+                    set.Add(registration.Name);
+                }
+            }
+
+            return set;
+        }
+
         #endregion
     }
 }

@@ -19,9 +19,9 @@ namespace Unity.Tests.Container
         [TestMethod]
         public void ContainerControlledLifetimeReturnsSameInstanceFromMultipleThreads()
         {
-            IUnityContainer container = new UnityContainer()
-                .AddExtension(new SpyExtension(new DelayStrategy(), UnityBuildStage.Lifetime))
-                .RegisterType<object>(new ContainerControlledLifetimeManager());
+            IUnityContainer container = new UnityContainer();
+            container.AddExtension(new SpyExtension(new DelayStrategy(), UnityBuildStage.Lifetime));
+            container.RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;
             object result2 = null;
@@ -35,6 +35,9 @@ namespace Unity.Tests.Container
             {
                 result2 = container.Resolve<object>();
             });
+
+            thread1.Name = "1";
+            thread2.Name = "2";
 
             thread1.Start();
             thread2.Start();

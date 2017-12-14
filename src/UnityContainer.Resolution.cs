@@ -5,7 +5,7 @@ using Unity.Builder;
 using Unity.Container;
 using Unity.Exceptions;
 using Unity.ObjectBuilder;
-using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity
@@ -16,6 +16,16 @@ namespace Unity
     /// </summary>
     public partial class UnityContainer
     {
+        #region Fields
+
+        
+
+
+
+        #endregion
+
+
+
         #region Getting objects
 
         /// <summary>
@@ -27,10 +37,15 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            return _context.Policy<IResolverPolicy>(type, name)
-                           .Resolve(_context, resolverOverrides);
+            //var registration = Registration(type, name, true);
 
-            //return BuildUp(type, null, name, resolverOverrides);
+            //var map = (IMap<Type, IBuilderPolicy>)registration;
+
+            //var policy = (IResolverPolicy)map[typeof(IResolverPolicy)];
+
+            //return policy.Resolve(_context, resolverOverrides);
+
+            return BuildUp(type, null, name, resolverOverrides);
         }
 
         #endregion
@@ -92,5 +107,57 @@ namespace Unity
 
 
         #endregion
+
+
+        #region Select Type
+
+        private StagedStrategyChain<Func<UnityContainer, Type, string, IRegistration>, TypeSelectStage> GetTypeSelectStage()
+        {
+            return new StagedStrategyChain<Func<UnityContainer, Type, string, IRegistration>, TypeSelectStage>
+            {
+                { GetRegisteredType , TypeSelectStage.Registration },
+                { GetArrayType, TypeSelectStage.Array },
+                { GetGenericType, TypeSelectStage.Generic },
+                { GerPocoType, TypeSelectStage.Poco },
+                { GetUnknownType, TypeSelectStage.Exception }
+            };
+        }
+
+        private IRegistration GetRegisteredType(UnityContainer context, Type type, string name)
+        {
+            for (var container = this; null != container; container = container._parent)
+            {
+                var data = container[type, name];
+                if (null == data) continue;
+
+                return (IRegistration)data;
+            }
+
+            return null;
+        }
+
+        private IRegistration GetArrayType(UnityContainer context, Type type, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IRegistration GetGenericType(UnityContainer context, Type type, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IRegistration GerPocoType(UnityContainer context, Type type, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IRegistration GetUnknownType(UnityContainer context, Type type, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        #endregion
+
     }
 }

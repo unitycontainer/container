@@ -5,9 +5,8 @@ using Unity.Container.Storage;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
-using Unity.Registration;
 
-namespace Unity.Container.Registration
+namespace Unity.Registration
 {
     public class TypeRegistration : LinkedMap<Type, IBuilderPolicy>, IContainerRegistration
     {
@@ -99,6 +98,23 @@ namespace Unity.Container.Registration
             }
         }
 
+
+        #endregion
+
+
+        #region Object
+
+        public override bool Equals(object obj)
+        {
+            return obj is IContainerRegistration registration && 
+                   RegisteredType == registration.RegisteredType &&
+                   Name == registration.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return RegisteredType.GetHashCode() + Name?.GetHashCode() ?? 0;
+        }
 
         #endregion
     }

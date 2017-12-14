@@ -56,10 +56,7 @@ namespace Unity.ObjectBuilder.Strategies
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.
             var lifetimePolicy = GetLifetimePolicy(context, out _);
-            if (null == lifetimePolicy) return;
-            
-            if (lifetimePolicy.GetValue() != context.Existing)
-                lifetimePolicy.SetValue(context.Existing, context.Lifetime);
+            lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
         }
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)

@@ -20,6 +20,8 @@ using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
 using Unity.Policies.Default;
 using Unity.Policy;
+using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -32,6 +34,7 @@ namespace Unity
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
+        private readonly StagedStrategyChain<Func<UnityContainer, Type, string, IRegistration>, TypeSelectStage> _discovery;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -53,8 +56,10 @@ namespace Unity
         {
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
+
             _context = new ContainerContext(this);
 
+            _discovery = parent?._discovery ?? GetTypeSelectStage();
             _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
@@ -135,6 +140,12 @@ namespace Unity
             }
 
             return assignmentInstanceType;
+        }
+
+
+        private static IMap<Type, IBuilderPolicy> CreateRegistration(Type type, string name)
+        {
+            return new InternalRegistration(type, name);
         }
 
         #endregion

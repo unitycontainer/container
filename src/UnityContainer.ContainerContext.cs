@@ -7,6 +7,7 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Strategy;
 
 namespace Unity
@@ -84,6 +85,35 @@ namespace Unity
             }
 
             #endregion
+
+
+            #region IContainerContext
+
+            /// <summary>
+            /// Retrieves registration for requested named type
+            /// </summary>
+            /// <param name="type">Registration type</param>
+            /// <param name="name">Registration name</param>
+            /// <param name="create">Instruncts container if it should create registration if not found</param>
+            /// <returns>Registration for requested named type or null if named type is not registered and 
+            /// <see cref="create"/> is false</returns>
+            public IRegistration Registration(Type type, string name, bool create = false)
+            {
+                for (var registry = _container; null != registry; registry = registry._parent)
+                {
+                    IMap<Type, IBuilderPolicy> data;
+                    if (null == (data = registry[type, name])) continue;
+
+                    return (IRegistration)data;
+                }
+
+                if (!create) return null;
+
+                return null;
+            }
+
+            #endregion
+
 
 
             #region IPolicyList

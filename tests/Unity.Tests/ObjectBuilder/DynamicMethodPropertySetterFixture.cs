@@ -27,6 +27,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
     public class DynamicMethodPropertySetterFixture
     {
         [TestMethod]
+        [Ignore]
         public void CanInjectProperties()
         {
             MockBuilderContext context = GetContext();

@@ -38,22 +38,11 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             var generatorContext =
                 new DynamicBuildPlanGenerationContext((buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type);
 
-            IBuilderContext planContext = GetContext((context ?? throw new ArgumentNullException(nameof(context))), buildKey, generatorContext);
+            IBuilderContext planContext = new BuilderContext(context ?? throw new ArgumentNullException(nameof(context)), new StrategyChain(_strategies), generatorContext);
 
             planContext.Strategies.ExecuteBuildUp(planContext);
 
             return new DynamicMethodBuildPlan(generatorContext.GetBuildMethod());
-        }
-
-        private IBuilderContext GetContext(IBuilderContext originalContext, NamedTypeBuildKey buildKey, DynamicBuildPlanGenerationContext generatorContext)
-        {
-            return new BuilderContext(originalContext.Container,
-                                      new StrategyChain(_strategies),
-                                      originalContext.Lifetime,
-                                      originalContext.PersistentPolicies,
-                                      originalContext.Policies,
-                                      buildKey,
-                                      generatorContext);
         }
     }
 }

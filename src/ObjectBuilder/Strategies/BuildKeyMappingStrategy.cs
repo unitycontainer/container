@@ -18,8 +18,8 @@ namespace Unity.ObjectBuilder.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            IBuildKeyMappingPolicy policy = (IBuildKeyMappingPolicy)context.PersistentPolicies
-                                                                           .Get(typeof(IBuildKeyMappingPolicy), context.OriginalBuildKey, out _);
+            IBuildKeyMappingPolicy policy = context.PersistentPolicies
+                                                   .GetPolicy<IBuildKeyMappingPolicy>(context.OriginalBuildKey, out _);
             if (null == policy) return;
 
             var existing = (policy as IDependencyResolverPolicy)?.Resolve(context);

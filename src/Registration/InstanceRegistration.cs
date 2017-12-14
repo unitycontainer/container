@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Registration;
 
-namespace Unity.Container.Registration
+namespace Unity.Registration
 {
     /// <summary>
     /// This class holds instance registration
@@ -147,6 +147,23 @@ namespace Unity.Container.Registration
             }
 
             return assignmentInstanceType;
+        }
+
+        #endregion
+
+
+        #region Object
+
+        public override bool Equals(object obj)
+        {
+            return obj is IContainerRegistration registration &&
+                   RegisteredType == registration.RegisteredType &&
+                   Name == registration.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return RegisteredType.GetHashCode() + Name?.GetHashCode() ?? 0;
         }
 
         #endregion

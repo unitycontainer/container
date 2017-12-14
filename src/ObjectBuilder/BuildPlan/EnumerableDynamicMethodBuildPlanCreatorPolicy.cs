@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan
@@ -20,10 +19,9 @@ namespace Unity.ObjectBuilder.BuildPlan
             typeof(EnumerableDynamicMethodBuildPlanCreatorPolicy).GetTypeInfo()
                                                                  .GetDeclaredMethod(nameof(BuildResolveEnumerable));
 
-        private static readonly MethodInfo CastMethod = typeof(System.Linq.Enumerable).GetTypeInfo()
+        private static readonly MethodInfo CastMethod = typeof(Enumerable).GetTypeInfo()
                                                                           .DeclaredMethods
-                                                                          .First(m => Equals(m.Name, "Cast"));
-
+                                                                          .First(m => Equals(m.Name, nameof(Enumerable.Cast)));
 
         public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
         {
@@ -53,13 +51,14 @@ namespace Unity.ObjectBuilder.BuildPlan
                                                 itemType.GetTypeInfo().Name));
                 }
 
+                // TODO: Requires complete redesign
                 var generic = new Lazy<Type>(() => itemType.GetGenericTypeDefinition());
-                IEnumerable<object> enumerable = container.Registrations
-                                                          .Where(r => r.RegisteredType == itemType || (itemTypeInfo.IsGenericType &&
-                                                                      r.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
-                                                                      r.RegisteredType == generic.Value))
-                                                          .Select(r => context.NewBuildUp(new NamedTypeBuildKey(itemType, r.Name)));
-                context.Existing = CastMethod.MakeGenericMethod(itemType).Invoke(null, new object[] { enumerable });
+                context.Existing = container.Registrations
+                                            .Where(r => r.RegisteredType == itemType || (itemTypeInfo.IsGenericType &&
+                                                        r.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
+                                                        r.RegisteredType == generic.Value))
+                                            .Select(r => context.NewBuildUp(new NamedTypeBuildKey(itemType, r.Name)))
+                                            .Cast<T>();
                 context.BuildComplete = true;
             }
 

@@ -49,8 +49,7 @@ namespace Microsoft.Practices.Unity.Tests
         public void CanChainGenericTypesViaRegisterTypeMethod()
         {
             IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>),
-                    new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")))
+                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")))
                 .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
 
             ICommand<User> cmd = container.Resolve<ICommand<User>>();
@@ -75,9 +74,8 @@ namespace Microsoft.Practices.Unity.Tests
         public void ConfiguredGenericMethodInjectionIsCalled()
         {
             IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>),
-                    new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")),
-                    new InjectionMethod("ChainedExecute", new ResolvedParameter(typeof(ICommand<>), "inner")))
+                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")),
+                                                                            new InjectionMethod("ChainedExecute", new ResolvedParameter(typeof(ICommand<>), "inner")))
                 .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete")
                 .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "inner");
 
