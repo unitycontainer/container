@@ -49,5 +49,10 @@ namespace Unity.Lifetime
         public override void RemoveValue(ILifetimeContainer container = null)
         {
         }
+
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new PerResolveLifetimeManager();
+        }
     }
 }

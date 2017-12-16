@@ -63,6 +63,11 @@ namespace Unity.Lifetime
             }
         }
 
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new HierarchicalLifetimeManager();
+        }
+
 
         #region IDisposable
 

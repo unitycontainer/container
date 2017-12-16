@@ -50,6 +50,11 @@ namespace Unity.Lifetime
             Dispose();
         }
 
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new SingletonLifetimeManager();
+        }
+
         #region IDisposable
 
         /// <summary>		

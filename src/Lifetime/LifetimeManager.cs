@@ -1,4 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+﻿using System;
+using Unity.Builder;
 
 namespace Unity.Lifetime
 {
@@ -6,7 +7,7 @@ namespace Unity.Lifetime
     /// Base class for Lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager : ILifetimePolicy
+    public abstract class LifetimeManager : ILifetimePolicy, ILifetimeFactoryPolicy
     {
         public virtual bool InUse { get; set; }
 
@@ -32,6 +33,29 @@ namespace Unity.Lifetime
         /// <param name="container">The container this lifetime belongs to</param>
         /// </summary>
         public abstract void RemoveValue(ILifetimeContainer container = null);
+
+        #endregion
+
+
+        #region ILifetimeFactoryPolicy
+
+        public ILifetimePolicy CreateLifetimePolicy()
+        {
+            return OnCreateLifetimeManager();
+        }
+
+        public Type LifetimeType => GetType();
+
+        #endregion
+
+
+        #region Implementation
+
+        /// <summary>
+        /// Creates Lifetime Manager
+        /// </summary>
+        /// <returns></returns>
+        protected abstract LifetimeManager OnCreateLifetimeManager();
 
         #endregion
     }

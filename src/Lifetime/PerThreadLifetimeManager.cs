@@ -74,5 +74,10 @@ namespace Unity.Lifetime
                 _values = new Dictionary<Guid, object>();
             }
         }
+
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new PerThreadLifetimeManager();
+        }
     }
 }

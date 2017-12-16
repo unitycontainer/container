@@ -349,14 +349,14 @@ namespace Unity.Policy
             if (buildType.GetTypeInfo().IsGenericType)
             {
                 var newType = buildType.GetGenericTypeDefinition();
-                return list.Get(policyInterface, new NamedTypeBuildKey(newType, buildKey.Name), out containingPolicyList) ??
-                       list.Get(policyInterface, new NamedTypeBuildKey(newType), out containingPolicyList);
+                return list.Get(newType, buildKey.Name, policyInterface, out containingPolicyList) ??
+                       list.Get(newType, string.Empty, policyInterface, out containingPolicyList);
             }
 
             if (buildType.IsArray && buildType.GetArrayRank() == 1)
             {
-                return list.Get(policyInterface, new NamedTypeBuildKey(typeof(Array), buildKey.Name), out containingPolicyList) ??
-                       list.Get(policyInterface, new NamedTypeBuildKey(typeof(Array)), out containingPolicyList);
+                return list.Get(typeof(Array), buildKey.Name, policyInterface, out containingPolicyList) ??
+                       list.Get(typeof(Array), string.Empty, policyInterface, out containingPolicyList);
             }
 
             return null;

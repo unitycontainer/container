@@ -8,6 +8,8 @@ namespace Unity.Lifetime
     /// </summary>
     public class TransientLifetimeManager : LifetimeManager
     {
+        public static TransientLifetimeManager Instance = new TransientLifetimeManager();
+
         public override bool InUse
         {
             get => false;
@@ -39,6 +41,11 @@ namespace Unity.Lifetime
         /// </summary>
         public override void RemoveValue(ILifetimeContainer container = null)
         {
+        }
+
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return Instance;
         }
     }
 }

@@ -40,5 +40,11 @@ namespace Unity.Lifetime
         {
             // DO NOTHING - we don't own this instance.
         }
+
+
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new ExternallyControlledLifetimeManager();
+        }
     }
 }
