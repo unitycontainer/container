@@ -68,7 +68,7 @@ namespace Unity.Injection
             GuardPropertyValueIsCompatible(propInfo, _parameterValue);
 
             SpecifiedPropertiesSelectorPolicy selector =
-                GetSelectorPolicy(policies, implementationType, name);
+                GetSelectorPolicy(policies, serviceType, name);
 
             selector.AddPropertyAndValue(propInfo, _parameterValue);
         }

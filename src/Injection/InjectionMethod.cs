@@ -48,7 +48,7 @@ namespace Unity.Injection
             ValidateMethodCanBeInjected(methodInfo, implementationType);
 
             SpecifiedMethodsSelectorPolicy selector =
-                GetSelectorPolicy(policies, implementationType, name);
+                GetSelectorPolicy(policies, serviceType, name);
             selector.AddMethodAndParameters(methodInfo, _methodParameters);
         }
 

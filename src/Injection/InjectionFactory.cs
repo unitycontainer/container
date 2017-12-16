@@ -51,7 +51,7 @@ namespace Unity.Injection
         {
             var policy = new FactoryDelegateBuildPlanPolicy(factoryFunc);
             (policies ?? throw new ArgumentNullException(nameof(policies))).Set<IBuildPlanPolicy>(policy,
-                new NamedTypeBuildKey(implementationType ?? throw new ArgumentNullException(nameof(implementationType)), name));
+                new NamedTypeBuildKey(serviceType ?? throw new ArgumentNullException(nameof(serviceType)), name));
         }
     }
 }
