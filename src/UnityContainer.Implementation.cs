@@ -101,11 +101,11 @@ namespace Unity
             };
 
             // Special Cases
-            this[typeof(Func<>), null, typeof(ILifetimePolicy)]  = new PerResolveLifetimeManager();
-            this[typeof(Func<>), null, typeof(IBuildPlanPolicy)] = new DeferredResolveBuildPlanPolicy();
-            this[typeof(Lazy<>), null, typeof(IBuildPlanCreatorPolicy)] = new LazyDynamicMethodBuildPlanCreatorPolicy();
-            this[typeof(Array),  null, typeof(IBuildPlanCreatorPolicy)] = new ArrayBuildPlanCreatorPolicy();
-            this[typeof(IEnumerable<>), null, typeof(IBuildPlanCreatorPolicy)] = new EnumerableDynamicMethodBuildPlanCreatorPolicy();
+            this[typeof(Func<>), string.Empty, typeof(ILifetimePolicy)]  = new PerResolveLifetimeManager();
+            this[typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy)] = new DeferredResolveBuildPlanPolicy();
+            this[typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new LazyDynamicMethodBuildPlanCreatorPolicy();
+            this[typeof(Array),  string.Empty, typeof(IBuildPlanCreatorPolicy)] = new ArrayBuildPlanCreatorPolicy();
+            this[typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new EnumerableDynamicMethodBuildPlanCreatorPolicy();
         }
 
         #endregion
@@ -162,22 +162,23 @@ namespace Unity
                 _registration = registration;
             }
 
-            public void Clear(Type policyInterface, object buildKey) { }
-
-            public void ClearAll() { }
-
-            public IBuilderPolicy Get(Type policyInterface, object buildKey, out IPolicyList containingPolicyList)
+            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
             {
-                return _policies.Get(policyInterface, buildKey, out containingPolicyList);
+                return _policies.Get(type, name, policyInterface, out list);
             }
 
-            public void Set(Type policyInterface, IBuilderPolicy policy, object buildKey = null)
+            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
             {
                 _registration[policyInterface] = policy;
             }
+
+            public void Clear(Type type, string name, Type policyInterface)
+            {
+            }
+
+            public void ClearAll()
+            {
+            }
         }
-        
-
-
     }
 }

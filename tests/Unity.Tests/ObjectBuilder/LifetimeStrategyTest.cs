@@ -58,30 +58,6 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             Assert.IsTrue(recovery.WasRecovered);
         }
 
-        [TestMethod]
-        public void LifetimeStrategyUsesFactoryToGetLifetimePolicyForGenericType()
-        {
-            MockBuilderContext context = CreateContext();
-            var openKey = new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<>));
-            context.PersistentPolicies.Set<ILifetimeFactoryPolicy>(
-                new LifetimeFactoryPolicy<RecoverableLifetime>(), openKey);
-
-            context.ExecuteBuildUp(new NamedTypeBuildKey<YetAnotherDummyInterfaceImplementation<string>>(), null);
-
-            context.ExecuteBuildUp(new NamedTypeBuildKey<YetAnotherDummyInterfaceImplementation<int>>(), null);
-
-            ILifetimePolicy stringLifetime =
-                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<string>)));
-            ILifetimePolicy intLifetime =
-                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<int>)));
-
-            Assert.IsNotNull(stringLifetime);
-            Assert.IsNotNull(intLifetime);
-            AssertExtensions.IsInstanceOfType(stringLifetime, typeof(RecoverableLifetime));
-            AssertExtensions.IsInstanceOfType(intLifetime, typeof(RecoverableLifetime));
-            Assert.AreNotSame(stringLifetime, intLifetime);
-        }
-
         private MockBuilderContext CreateContext()
         {
             MockBuilderContext context = new MockBuilderContext();

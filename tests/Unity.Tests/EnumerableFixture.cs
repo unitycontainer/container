@@ -356,20 +356,23 @@ namespace Unity.Tests.CollectionSupport
         [TestMethod]
         public void Enumerable_DisposingScopeDisposesService()
         {
+            EmailService singleton;
+            OtherEmailService transient3;
+
             using (IUnityContainer provider = new UnityContainer())
             {
+                EmailService disposableService;
+                OtherEmailService transient1;
+                OtherEmailService transient2;
+
                 // Arrange
                 provider.RegisterType<IService, EmailService>("Singleton", new ContainerControlledLifetimeManager());
                 provider.RegisterType<IService, EmailService>("Scoped", new HierarchicalLifetimeManager());
                 provider.RegisterType<IService, OtherEmailService>("Transient", new HierarchicalLifetimeManager());
 
-                EmailService disposableService;
-                OtherEmailService transient1;
-                OtherEmailService transient2;
-                EmailService singleton;
 
                 // Act and Assert
-                OtherEmailService transient3 = (OtherEmailService)provider.Resolve<IService>("Transient");
+                transient3 = (OtherEmailService)provider.Resolve<IService>("Transient");
                 using (var scope = provider.CreateChildContainer())
                 {
                     disposableService = (EmailService)scope.Resolve<IService>("Scoped");
@@ -387,15 +390,10 @@ namespace Unity.Tests.CollectionSupport
                 Assert.IsTrue(transient1.Disposed);
                 Assert.IsTrue(transient2.Disposed);
                 Assert.IsFalse(singleton.Disposed);
-
-                var disposableProvider = provider as IDisposable;
-                if (disposableProvider != null)
-                {
-                    disposableProvider.Dispose();
-                    Assert.IsTrue(singleton.Disposed);
-                    Assert.IsTrue(transient3.Disposed);
-                }
             }
+
+            Assert.IsTrue(transient3.Disposed);
+            Assert.IsTrue(singleton.Disposed);
         }
 
         [TestMethod]

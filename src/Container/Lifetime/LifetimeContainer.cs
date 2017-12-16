@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Lifetime;
 
 namespace Unity.Container.Lifetime
@@ -87,15 +88,9 @@ namespace Unity.Container.Lifetime
             {
                 lock (_items)
                 {
-                    var itemsCopy = new List<object>(_items);
-                    itemsCopy.Reverse();
-
-                    foreach (object o in itemsCopy)
+                    foreach (var disposable in _items.OfType<IDisposable>().Reverse())
                     {
-                        if (o is IDisposable d)
-                        {
-                            d.Dispose();
-                        }
+                        disposable.Dispose();
                     }
 
                     _items.Clear();

@@ -118,72 +118,44 @@ namespace Unity
 
             #region IPolicyList
 
-            IBuilderPolicy IPolicyList.Get(Type policyInterface, object requestKey, out IPolicyList containingPolicyList)
-            {
-                Type key;
-                string name = null;
-                containingPolicyList = null;
-
-                switch (requestKey)
-                {
-                    case null:
-                        key = null;
-                        break;
-
-                    case NamedTypeBuildKey buildKey:
-                        key = buildKey.Type;
-                        name = buildKey.Name;
-                        break;
-
-                    case Type buildType:
-                        key = buildType;
-                        break;
-
-                    default:
-                        throw new ArgumentException(nameof(requestKey));
-                }
-
-                for (var registry = _container; null != registry; registry = registry._parent)
-                {
-                    IMap<Type, IBuilderPolicy> data;
-                    if (null == (data = registry[key, name])) continue;
-
-                    containingPolicyList = registry._context;
-                    return data[policyInterface];
-                }
-
-                return null;
-            }
-
-            void IPolicyList.Set(Type policyInterface, IBuilderPolicy policy, object requestKey)
-            {
-                switch (requestKey)
-                {
-                    case null:
-                        _container[null, null, policyInterface] = policy;
-                        break;
-
-                    case NamedTypeBuildKey buildKey:
-                        _container[buildKey.Type, buildKey.Name, policyInterface] = policy;
-                        break;
-
-                    case Type buildType:
-                        _container[buildType, null, policyInterface] = policy;
-                        break;
-
-                    default:
-                        throw new ArgumentException(nameof(requestKey));
-                }
-            }
-
-            void IPolicyList.Clear(Type policyInterface, object buildKey)
-            {
-            }
-
             void IPolicyList.ClearAll()
             {
                 _container._registrations =
                     new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
+            }
+
+            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            {
+                for (var registry = _container; null != registry; registry = registry._parent)
+                {
+                    IMap<Type, IBuilderPolicy> data;
+                    if (null == (data = registry[type, name])) continue;
+
+                    list = registry._context;
+                    return data[policyInterface];
+                }
+
+                list = null;
+                return null;
+            }
+
+            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            {
+                for (var registry = _container; null != registry; registry = registry._parent)
+                {
+                    IMap<Type, IBuilderPolicy> data;
+                    if (null == (data = registry[type, name])) continue;
+
+                    data[policyInterface] = policy;
+                    return;
+                }
+
+                _container[type, name, policyInterface] = policy;
+            }
+
+            public void Clear(Type type, string name, Type policyInterface)
+            {
+                throw new NotImplementedException();
             }
 
             #endregion

@@ -33,5 +33,10 @@ namespace Unity.Container.Lifetime
         {
             return _value;
         }
+
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new ContainerLifetimeManager();
+        }
     }
 }

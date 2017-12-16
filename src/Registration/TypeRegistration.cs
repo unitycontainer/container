@@ -10,13 +10,6 @@ namespace Unity.Registration
 {
     public class TypeRegistration : LinkedMap<Type, IBuilderPolicy>, IContainerRegistration
     {
-        #region Fields
-
-        private static readonly TransientLifetimeManager TransientLifetimeManager = new TransientLifetimeManager();
-
-        #endregion
-
-
         #region Constructors
 
         public TypeRegistration(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
@@ -24,7 +17,7 @@ namespace Unity.Registration
             Name = string.IsNullOrEmpty(name) ? null : name;
             RegisteredType = typeFrom ?? typeTo;
             MappedToType = typeTo;
-            LifetimeManager = lifetimeManager ?? TransientLifetimeManager;
+            LifetimeManager = lifetimeManager ?? TransientLifetimeManager.Instance;
 
             if (LifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
             LifetimeManager.InUse = true;

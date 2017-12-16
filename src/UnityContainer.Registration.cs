@@ -59,9 +59,9 @@ namespace Unity
 
             // Register type
             var registration = new TypeRegistration(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
+            if (registration.LifetimeManager is IDisposable manager) _lifetimeContainer.Add(manager);
 
-            var old = SetOrUpdate(registration.RegisteredType, registration.Name, registration);
-            if (old is IDisposable disposable)
+            if (SetOrUpdate(registration.RegisteredType, registration.Name, registration) is IDisposable disposable)
             {
                 _lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
@@ -107,11 +107,9 @@ namespace Unity
         public IUnityContainer RegisterInstance(Type registrationType, string registrationName, object instance, LifetimeManager lifetimeManager)
         {
             var registration = new InstanceRegistration(registrationType, registrationName, instance, lifetimeManager);
-
             if (registration.LifetimeManager is IDisposable manager) _lifetimeContainer.Add(manager);
-            var old = SetOrUpdate(registration.RegisteredType, registration.Name, registration);
 
-            if (old is IDisposable disposable)
+            if (SetOrUpdate(registration.RegisteredType, registration.Name, registration) is IDisposable disposable)
             {
                 _lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
@@ -327,6 +325,7 @@ namespace Unity
                 }
             }
         }
+
 
         #region Thread Safe Accessors
 

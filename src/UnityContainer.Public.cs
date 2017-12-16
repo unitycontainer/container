@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
+using Unity.Builder.Strategy;
+using Unity.Container;
+using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Policy;
@@ -146,21 +150,14 @@ namespace Unity
         {
             if (disposing)
             {
-                if (_lifetimeContainer != null)
-                {
-                    _lifetimeContainer.Dispose();
-                    _lifetimeContainer = null;
+                _parent?._lifetimeContainer?.Remove(this);
+                _lifetimeContainer?.Dispose();
 
-                    if (_parent != null && _parent._lifetimeContainer != null)
-                    {
-                        _parent._lifetimeContainer.Remove(this);
-                    }
-                }
-
-                foreach (IDisposable disposable in Enumerable.OfType<IDisposable>(_extensions))
+                foreach (IDisposable disposable in _extensions.OfType<IDisposable>().ToArray())
                     disposable.Dispose();
 
                 _extensions.Clear();
+                _registrations = new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(1);
             }
         }
 

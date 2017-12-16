@@ -1,8 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Exceptions;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 
@@ -28,8 +26,10 @@ namespace Unity.ObjectBuilder.Strategies
                 if (planCreator != null)
                 {
                     plan = planCreator.CreatePlan(context, context.BuildKey);
-                    (buildPlanLocation ?? creatorLocation).Set(plan, context.OriginalBuildKey);
+                    (buildPlanLocation ?? creatorLocation).Set(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(IBuildPlanPolicy), plan);
                 }
+                else
+                    throw new ResolutionFailedException(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, null, context);
             }
 
             plan?.BuildUp(context);

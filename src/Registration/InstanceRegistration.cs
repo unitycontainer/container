@@ -43,7 +43,7 @@ namespace Unity.Registration
             // Validate input
             if (null != registrationType) InstanceIsAssignable(registrationType, instance, nameof(instance));
 
-            Name = registrationName;
+            Name = string.IsNullOrEmpty(registrationName) ? null : registrationName;
             RegisteredType = registrationType ??
                              (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
 
@@ -52,6 +52,8 @@ namespace Unity.Registration
 
             lifetime.SetValue(instance);
             LifetimeManager = lifetime;
+
+            MappedToType = registrationType ?? instance.GetType();
         }
 
         #endregion

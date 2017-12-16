@@ -38,6 +38,9 @@ namespace Microsoft.Practices.Unity.Tests
             container.RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")));
             container.RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
 
+            var md = container.Resolve<ICommand<User>>("concrete");
+
+
             ICommand<User> cmd = container.Resolve<ICommand<User>>();
             LoggingCommand<User> logCmd = (LoggingCommand<User>)cmd;
 
@@ -172,9 +175,8 @@ namespace Microsoft.Practices.Unity.Tests
         [TestMethod]
         public void ContainerControlledOpenGenericsAreDisposed()
         {
-            var container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(DisposableCommand<>),
-                              new ContainerControlledLifetimeManager());
+            var container = new UnityContainer();
+            container.RegisterType(typeof(ICommand<>), typeof(DisposableCommand<>), new ContainerControlledLifetimeManager());
 
             var accountCommand = container.Resolve<ICommand<Account>>();
             var userCommand = container.Resolve<ICommand<User>>();
