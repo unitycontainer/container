@@ -155,21 +155,37 @@ namespace Unity
         {
             private readonly IPolicyList _policies;
             private readonly IMap<Type, IBuilderPolicy> _registration;
+            private readonly Type _type;
+            private readonly string _name;
 
             public PolicyListProxy(IPolicyList policies, IMap<Type, IBuilderPolicy> registration)
             {
                 _policies = policies;
                 _registration = registration;
+                if (registration is IRegistration namedType)
+                {
+                    _type = namedType.RegisteredType;
+                    _name = namedType.Name;
+                }
             }
 
             public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
             {
-                return _policies.Get(type, name, policyInterface, out list);
+                if (_type != type || _name != name)
+                {
+                    return _policies.Get(type, name, policyInterface, out list);
+                }
+
+                list = _policies;
+                return _registration[policyInterface];
             }
 
             public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
             {
-                _registration[policyInterface] = policy;
+                if (_type != type || _name != name )
+                    _policies.Set(type, name, policyInterface, policy);
+                else
+                    _registration[policyInterface] = policy;
             }
 
             public void Clear(Type type, string name, Type policyInterface)

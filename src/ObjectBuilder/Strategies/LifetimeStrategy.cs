@@ -65,33 +65,28 @@ namespace Unity.ObjectBuilder.Strategies
             var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out source);
             if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
             {
-                policy = GetLifetimePolicyForGenericType(context, out source);
+                policy = context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(), context.BuildKey.Name, typeof(ILifetimePolicy), out source);
+                if (!(policy is ILifetimeFactoryPolicy factoryPolicy)) return null;
+
+                lock (_genericLifetimeManagerLock)
+                {
+                    // check whether the policy for closed-generic has been added since first checked
+                    var newLifetime = (ILifetimePolicy)source.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out _);
+                    if (null == newLifetime)
+                    {
+                        newLifetime = factoryPolicy.CreateLifetimePolicy();
+                        source.Set(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), newLifetime);
+                        if (newLifetime is IDisposable)
+                        {
+                            context.Lifetime.Add(newLifetime);
+                        }
+                    }
+
+                    return newLifetime;
+                }
             }
 
             return (ILifetimePolicy)policy;
-        }
-
-        private ILifetimePolicy GetLifetimePolicyForGenericType(IBuilderContext context, out IPolicyList factorySource)
-        {
-            var policy = context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(), context.BuildKey.Name, typeof(ILifetimePolicy), out factorySource);
-            if (!(policy is ILifetimeFactoryPolicy factoryPolicy)) return null;
-
-            lock (_genericLifetimeManagerLock)
-            {
-                // check whether the policy for closed-generic has been added since first checked
-                var newLifetime = (ILifetimePolicy)factorySource.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out _);
-                if (null == newLifetime)
-                {
-                    newLifetime = factoryPolicy.CreateLifetimePolicy();
-                    context.PersistentPolicies.Set(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), newLifetime);
-                    if (newLifetime is IDisposable)
-                    {
-                        context.Lifetime.Add(newLifetime);
-                    }
-                }
-
-                return newLifetime;
-            }
         }
     }
 }

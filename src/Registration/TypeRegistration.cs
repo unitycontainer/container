@@ -81,14 +81,6 @@ namespace Unity.Registration
                 
                 return base[policyInterface];
             }
-
-            set
-            {
-                if (typeof(ILifetimePolicy) == policyInterface)
-                    throw new InvalidOperationException("Lifetime Manager should not be reset");
-
-                base[policyInterface] = value;
-            }
         }
 
 
