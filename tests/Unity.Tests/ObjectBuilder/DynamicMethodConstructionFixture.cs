@@ -22,41 +22,6 @@ namespace Unity.Tests.ObjectBuilder
     public class DynamicMethodConstructionFixture
     {
         [TestMethod]
-        public void CanBuildUpObjectWithDefaultConstructorViaBuildPlan()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<NullLogger>();
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-            plan.BuildUp(context);
-
-            object result = context.Existing;
-            Assert.IsNotNull(result);
-            AssertExtensions.IsInstanceOfType(result, typeof(NullLogger));
-        }
-
-        [TestMethod]
-        public void CanResolveSimpleParameterTypes()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<FileLogger>();
-            var lifetimePolicy = new ContainerControlledLifetimeManager();
-            lifetimePolicy.SetValue("C:\\Log.txt");
-            context.Policies.Set<ILifetimePolicy>(lifetimePolicy, new NamedTypeBuildKey<string>());
-
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-
-            plan.BuildUp(context);
-            object result = context.Existing;
-            FileLogger logger = result as FileLogger;
-
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(logger);
-            Assert.AreEqual("C:\\Log.txt", logger.LogFile);
-        }
-
-        [TestMethod]
         public void TheCurrentOperationIsNullAfterSuccessfullyExecutingTheBuildPlan()
         {
             MockBuilderContext context = GetContext();
@@ -144,88 +109,6 @@ namespace Unity.Tests.ObjectBuilder
                 Assert.AreSame(typeof(ConstructorInjectionTestClass), operation.TypeBeingConstructed);
                 Assert.AreEqual("parameter", operation.ParameterName);
             }
-        }
-
-        [TestMethod]
-        public void ResolvingANewInstanceOfATypeWithPrivateConstructorThrows()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<NoPublicConstructorInjectionTestClass>();
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.Fail("should have thrown");
-            }
-            catch (InvalidOperationException)
-            {
-            }
-        }
-
-        [TestMethod]
-        public void ResolvingANewInstanceOfADelegateTypeThrows()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<Func<string, object>>();
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.Fail("should have thrown");
-            }
-            catch (InvalidOperationException)
-            {
-            }
-        }
-
-        [TestMethod]
-        public void CanResolveAADelegateTypeIfInstanceExists()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<Func<string, object>>();
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-            Func<string, object> existing = s => null;
-            context.Existing = existing;
-
-            plan.BuildUp(context);
-            Assert.AreSame(existing, context.Existing);
-        }
-
-        [TestMethod]
-        public void ResolvingANewInstanceOfAnInterfaceTypeThrows()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<IComparable>();
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.Fail("should have thrown");
-            }
-            catch (InvalidOperationException)
-            {
-            }
-        }
-
-        [TestMethod]
-        public void CanBuildUpExistingObjectWithPrivateConstructor()
-        {
-            MockBuilderContext context = GetContext();
-            var key = new NamedTypeBuildKey<NoPublicConstructorInjectionTestClass>();
-            IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-            context.BuildKey = key;
-            context.Existing = NoPublicConstructorInjectionTestClass.CreateInstance();
-            plan.BuildUp(context);
-
-            object result = context.Existing;
-            Assert.IsNotNull(result);
         }
 
         public class TestSingleArgumentConstructorSelectorPolicy<T> : IConstructorSelectorPolicy

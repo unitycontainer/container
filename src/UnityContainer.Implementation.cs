@@ -244,6 +244,11 @@ namespace Unity
             {
                 context.Existing = _value;
             }
+
+            protected override LifetimeManager OnCreateLifetimeManager()
+            {
+                return new ContainerLifetimeManager();
+            }
         }
 
         #endregion

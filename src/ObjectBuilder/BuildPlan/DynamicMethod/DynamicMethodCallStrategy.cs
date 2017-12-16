@@ -46,7 +46,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
-            var selector = context.Policies.Get<IMethodSelectorPolicy>(context.BuildKey, out var resolverPolicyDestination);
+            var selector = context.Policies.Get<IMethodSelectorPolicy>(context.OriginalBuildKey, out var resolverPolicyDestination);
 
             bool shouldClearOperation = false;
 

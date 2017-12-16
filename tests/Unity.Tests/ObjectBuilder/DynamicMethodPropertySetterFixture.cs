@@ -25,27 +25,6 @@ namespace Unity.Tests.ObjectBuilder
     public class DynamicMethodPropertySetterFixture
     {
         [TestMethod]
-        public void CanInjectProperties()
-        {
-            MockBuilderContext context = GetContext();
-            object existingObject = new object();
-            var lifetimePolicy = new ContainerControlledLifetimeManager();
-            lifetimePolicy.SetValue(existingObject);
-            context.Policies.Set<ILifetimePolicy>(lifetimePolicy, new NamedTypeBuildKey<object>());
-
-            IBuildPlanPolicy plan =
-                GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(OnePropertyClass)));
-
-            OnePropertyClass existing = new OnePropertyClass();
-            context.Existing = existing;
-            context.BuildKey = new NamedTypeBuildKey(typeof(OnePropertyClass));
-            plan.BuildUp(context);
-
-            Assert.IsNotNull(existing.Key);
-            Assert.AreSame(existingObject, existing.Key);
-        }
-
-        [TestMethod]
         public void TheCurrentOperationIsNullAfterSuccessfullyExecutingTheBuildPlan()
         {
             MockBuilderContext context = GetContext();

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -27,8 +26,7 @@ namespace Unity.Tests.Generics
         public void ResolveConfiguredGenericType()
         {
             IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(GenericArrayPropertyDependency<>), "testing",
-                    new InjectionProperty("Stuff"))
+                .RegisterType(typeof(GenericArrayPropertyDependency<>), "testing", new InjectionProperty("Stuff"))
                 .RegisterInstance<string>("first", "first")
                 .RegisterInstance<string>("second", "second");
 

@@ -22,6 +22,20 @@ namespace Unity.ObjectBuilder
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
 
+        public BuilderContext(IBuilderContext original, IStrategyChain chain, object existing)
+        {
+            Container = original.Container;
+            _chain = chain;
+            Lifetime = original.Lifetime;
+            OriginalBuildKey = original.OriginalBuildKey;
+            BuildKey = original.BuildKey;
+            PersistentPolicies = original.PersistentPolicies;
+            Policies = original.Policies;
+            Existing = existing;
+            _resolverOverrides = new CompositeResolverOverride();
+            _ownsOverrides = true;
+        }
+
         /// <summary>
         /// Initialize a new instance of the <see cref="BuilderContext"/> class with a <see cref="IStrategyChain"/>, 
         /// <see cref="ILifetimeContainer"/>, <see cref="IPolicyList"/> and the 

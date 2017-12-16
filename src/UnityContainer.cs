@@ -71,12 +71,13 @@ namespace Unity
                 }
             }
 
-            var buildKey = new NamedTypeBuildKey(typeFrom ?? to, name);
+            var buildType = typeFrom ?? to;
+            var buildKey = new NamedTypeBuildKey(buildType, name);
             _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
             _policies.Clear<ILifetimePolicy>(buildKey);
             _policies.Clear<IBuildKeyMappingPolicy>(buildKey);
 
-            _registeredNames.RegisterType(typeFrom ?? to, name);
+            _registeredNames.RegisterType(buildType, name);
 
             if (typeFrom != null && typeFrom != typeTo)
             {
@@ -96,7 +97,7 @@ namespace Unity
             }
             if (lifetimeManager != null)
             {
-                SetLifetimeManager(typeFrom ?? to, name, lifetimeManager);
+                SetLifetimeManager(buildType, name, lifetimeManager);
             }
 
             Registering?.Invoke(this, new RegisterEventArgs(typeFrom, to, name, lifetimeManager));
@@ -108,7 +109,7 @@ namespace Unity
                     if (member is IInjectionFactory && null != typeFrom && typeFrom != typeTo)
                         throw new InvalidOperationException(Constants.CannotInjectFactory);
 
-                    member.AddPolicies(typeFrom, to, name, _policies);
+                    member.AddPolicies(buildType, to, name, _policies);
                 }
             }
 
