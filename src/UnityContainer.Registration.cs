@@ -383,14 +383,14 @@ namespace Unity
         /// <param name="create">Instruncts container if it should create registration if not found</param>
         /// <returns>Registration for requested named type or null if named type is not registered and 
         /// <see cref="create"/> is false</returns>
-        public IRegistration Registration(Type type, string name, bool create = false)
+        public INamedType Registration(Type type, string name, bool create = false)
         {
             for (var container = this; null != container; container = container._parent)
             {
                 IMap<Type, IBuilderPolicy> data;
                 if (null == (data = container[type, name])) continue;
 
-                return (IRegistration)data;
+                return (INamedType)data;
             }
 
             if (!create) return null;
@@ -420,7 +420,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return (IRegistration)existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                    return (INamedType)existing.GetOrAdd(name, () => CreateRegistration(type, name));
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
@@ -437,7 +437,7 @@ namespace Unity
                 _registrations.Buckets[targetBucket] = _registrations.Count;
                 _registrations.Count++;
 
-                return (IRegistration)registration;
+                return (INamedType)registration;
             }
         }
 

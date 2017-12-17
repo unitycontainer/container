@@ -97,14 +97,14 @@ namespace Unity
             /// <param name="create">Instruncts container if it should create registration if not found</param>
             /// <returns>Registration for requested named type or null if named type is not registered and 
             /// <see cref="create"/> is false</returns>
-            public IRegistration Registration(Type type, string name, bool create = false)
+            public INamedType Registration(Type type, string name, bool create = false)
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
                     IMap<Type, IBuilderPolicy> data;
                     if (null == (data = registry[type, name])) continue;
 
-                    return (IRegistration)data;
+                    return (INamedType)data;
                 }
 
                 if (!create) return null;

@@ -37,14 +37,6 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
         {
-            //var registration = Registration(type, name, true);
-
-            //var map = (IMap<Type, IBuilderPolicy>)registration;
-
-            //var policy = (IResolverPolicy)map[typeof(IResolverPolicy)];
-
-            //return policy.Resolve(_context, resolverOverrides);
-
             return BuildUp(type, null, name, resolverOverrides);
         }
 
@@ -111,9 +103,9 @@ namespace Unity
 
         #region Select Type
 
-        private StagedStrategyChain<Func<UnityContainer, Type, string, IRegistration>, TypeSelectStage> GetTypeSelectStage()
+        private StagedStrategyChain<Func<UnityContainer, Type, string, INamedType>, TypeSelectStage> GetTypeSelectStage()
         {
-            return new StagedStrategyChain<Func<UnityContainer, Type, string, IRegistration>, TypeSelectStage>
+            return new StagedStrategyChain<Func<UnityContainer, Type, string, INamedType>, TypeSelectStage>
             {
                 { GetRegisteredType , TypeSelectStage.Registration },
                 { GetArrayType, TypeSelectStage.Array },
@@ -123,35 +115,35 @@ namespace Unity
             };
         }
 
-        private IRegistration GetRegisteredType(UnityContainer context, Type type, string name)
+        private INamedType GetRegisteredType(UnityContainer context, Type type, string name)
         {
             for (var container = this; null != container; container = container._parent)
             {
                 var data = container[type, name];
                 if (null == data) continue;
 
-                return (IRegistration)data;
+                return (INamedType)data;
             }
 
             return null;
         }
 
-        private IRegistration GetArrayType(UnityContainer context, Type type, string name)
+        private INamedType GetArrayType(UnityContainer context, Type type, string name)
         {
             throw new NotImplementedException();
         }
 
-        private IRegistration GetGenericType(UnityContainer context, Type type, string name)
+        private INamedType GetGenericType(UnityContainer context, Type type, string name)
         {
             throw new NotImplementedException();
         }
 
-        private IRegistration GerPocoType(UnityContainer context, Type type, string name)
+        private INamedType GerPocoType(UnityContainer context, Type type, string name)
         {
             throw new NotImplementedException();
         }
 
-        private IRegistration GetUnknownType(UnityContainer context, Type type, string name)
+        private INamedType GetUnknownType(UnityContainer context, Type type, string name)
         {
             throw new NotImplementedException();
         }

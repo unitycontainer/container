@@ -5,12 +5,12 @@ using Unity.Policy;
 namespace Unity.Registration
 {
     public class InternalRegistration : LinkedMap<Type, IBuilderPolicy>, 
-                                        IRegistration
+                                        INamedType
     {
         #region Constructors
 
         public InternalRegistration(Type type, string name, LinkedNode<Type, IBuilderPolicy> next = null)
-            : base(typeof(IResolverPolicy), null, next)
+//            : base(typeof(IResolverPolicy), null, next)
         {
             Name = string.IsNullOrEmpty(name) ? null : name;
             RegisteredType = type;
@@ -36,8 +36,8 @@ namespace Unity.Registration
         {
             get
             {
-                if (key == typeof(IResolverPolicy))
-                    return Value ?? GetResolvePolicy();
+                //if (key == typeof(IResolverPolicy))
+                //    return Value ?? GetResolvePolicy();
 
                 return base[key];
             }

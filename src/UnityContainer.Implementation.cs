@@ -18,7 +18,6 @@ using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
-using Unity.Policies.Default;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -34,7 +33,7 @@ namespace Unity
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
-        private readonly StagedStrategyChain<Func<UnityContainer, Type, string, IRegistration>, TypeSelectStage> _discovery;
+        private readonly StagedStrategyChain<Func<UnityContainer, Type, string, INamedType>, TypeSelectStage> _discovery;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -92,9 +91,8 @@ namespace Unity
             _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
 
             // Default Policies - mostly used by the build plan strategies
-            this[null, null] = new LinkedMap<Type, IBuilderPolicy>(typeof(IResolverPolicy), new DefaultResolverPolicy())
+            this[null, null] = new LinkedMap<Type, IBuilderPolicy>(typeof(IBuildPlanCreatorPolicy), new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies))
             {
-                [typeof(IBuildPlanCreatorPolicy)] = new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies),
                 [typeof(IConstructorSelectorPolicy)] = new DefaultUnityConstructorSelectorPolicy(),
                 [typeof(IPropertySelectorPolicy)] = new DefaultUnityPropertySelectorPolicy(),
                 [typeof(IMethodSelectorPolicy)] = new DefaultUnityMethodSelectorPolicy()
@@ -162,7 +160,7 @@ namespace Unity
             {
                 _policies = policies;
                 _registration = registration;
-                if (registration is IRegistration namedType)
+                if (registration is INamedType namedType)
                 {
                     _type = namedType.RegisteredType;
                     _name = namedType.Name;
