@@ -56,7 +56,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             FakePolicy defaultPolicy = new FakePolicy();
             list.SetDefault<IBuilderPolicy>(defaultPolicy);
 
-            list.ClearDefault<IBuilderPolicy>();
+            list.Clear(null, null, typeof(IBuilderPolicy));
 
             IBuilderPolicy result = list.Get<IBuilderPolicy>(typeof(object));
             Assert.IsNull(result);
@@ -69,7 +69,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             FakePolicy policy = new FakePolicy();
 
             list.Set<IBuilderPolicy>(policy, typeof(string));
-            list.Clear<IBuilderPolicy>(typeof(string));
+            list.Clear(typeof(string), string.Empty, typeof(IBuilderPolicy));
 
             Assert.IsNull(list.Get<IBuilderPolicy>(typeof(string)));
         }
