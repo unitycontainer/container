@@ -17,15 +17,6 @@ namespace Unity.Container
         IUnityContainer Container { get; }
 
         /// <summary>
-        /// Retrieves registration for requested named type
-        /// </summary>
-        /// <param name="type">Registration type</param>
-        /// <param name="name">Registration name</param>
-        /// <param name="create">Instruncts container if it should create registration if not found</param>
-        /// <returns>Registration for requested named type or null if named type is not registered and <see cref="create"/> is false</returns>
-        IRegistration Registration(Type type, string name, bool create = false);
-
-            /// <summary>
         /// Generic method to retrieve policy for registered named type.
         /// </summary>
         /// <typeparam name="TPolicy">Type of the policy to retrieve</typeparam>

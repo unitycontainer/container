@@ -21,6 +21,7 @@ namespace Unity.Policy
         /// <param name="policies"></param>
         /// <param name="policyInterface">The type of policy to remove.</param>
         /// <param name="buildKey">The key the policy applies.</param>
+        [Obsolete("Use IPolicyList.Clear(...)")]
         public static void Clear(this IPolicyList policies, Type policyInterface, object buildKey)
         {
             var key = ParseBuildKey(buildKey);
@@ -33,6 +34,7 @@ namespace Unity.Policy
         /// <typeparam name="TPolicyInterface">The type the policy was registered as.</typeparam>
         /// <param name="policies"><see cref="IPolicyList"/> to remove the policy from.</param>
         /// <param name="buildKey">The key the policy applies.</param>
+        [Obsolete("Use IPolicyList.Clear(...)")]
         public static void Clear<TPolicyInterface>(this IPolicyList policies, object buildKey)
             where TPolicyInterface : IBuilderPolicy
         {
@@ -45,6 +47,7 @@ namespace Unity.Policy
         /// </summary>
         /// <typeparam name="TPolicyInterface">The type the policy was registered as.</typeparam>
         /// <param name="policies"><see cref="IPolicyList"/> to remove the policy from.</param>
+        [Obsolete("Use IPolicyList.Clear(null, null, ...)")]
         public static void ClearDefault<TPolicyInterface>(this IPolicyList policies)
             where TPolicyInterface : IBuilderPolicy
         {
@@ -57,6 +60,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="policies"></param>
         /// <param name="policyInterface">The type the policy was registered as.</param>
+        [Obsolete("Use IPolicyList.Clear(null, null, ...)")]
         public static void ClearDefault(this IPolicyList policies, Type policyInterface)
         {
             (policies ?? throw new ArgumentNullException(nameof(policies))).Clear(null, null, policyInterface);
@@ -74,6 +78,7 @@ namespace Unity.Policy
         /// <param name="policyInterface">The <see cref="Type"/> of the policy.</param>
         /// <param name="policy">The policy to be registered.</param>
         /// <param name="buildKey">The key the policy applies.</param>
+        [Obsolete("Use IPolicyList.Set(...)")]
         public static void Set(this IPolicyList policies, Type policyInterface, IBuilderPolicy policy, object buildKey = null)
         {
             var key = ParseBuildKey(buildKey);
@@ -133,6 +138,7 @@ namespace Unity.Policy
         /// <param name="policyInterface">The interface the policy is registered under.</param>
         /// <param name="buildKey">The key the policy applies.</param>
         /// <returns>The policy in the list, if present; returns null otherwise.</returns>
+        [Obsolete("Use IPolicyList.Get(...)")]
         public static IBuilderPolicy Get(this IPolicyList policies, Type policyInterface, object buildKey)
         {
             return (policies ?? throw new ArgumentNullException(nameof(policies))).GetOrDefault(policyInterface, buildKey, out IPolicyList _);

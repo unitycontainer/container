@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Unity.Registration
 {
     /// <summary>
     /// Basic information about registered type
     /// </summary>
-    public interface I_Registration
+    public interface INamedType
     {
         /// <summary>
         /// Type of the registration.
