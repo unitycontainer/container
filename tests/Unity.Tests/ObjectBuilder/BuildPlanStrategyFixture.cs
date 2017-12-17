@@ -19,7 +19,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             object instance = new object();
             ReturnInstanceBuildPlan plan = new ReturnInstanceBuildPlan(instance);
 
-            context.Policies.Set<IBuildPlanPolicy>(plan, new NamedTypeBuildKey<object>());
+            context.Policies.Set(typeof(object), null, typeof(IBuildPlanPolicy), plan);
 
             object result = context.ExecuteBuildUp(new NamedTypeBuildKey<object>(), null);
 
@@ -33,14 +33,14 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             MockBuilderContext context = new MockBuilderContext();
             context.Strategies.Add(new BuildPlanStrategy());
             MockBuildPlanCreatorPolicy policy = new MockBuildPlanCreatorPolicy();
-            context.Policies.SetDefault<IBuildPlanCreatorPolicy>(policy);
+            context.Policies.Set(null, null, typeof(IBuildPlanCreatorPolicy),policy);
 
             object result = context.ExecuteBuildUp(new NamedTypeBuildKey<object>(), null);
 
             Assert.IsNotNull(result);
             Assert.IsTrue(policy.PolicyWasCreated);
 
-            IBuildPlanPolicy plan = context.Policies.Get<IBuildPlanPolicy>(new NamedTypeBuildKey(typeof(object)));
+            var plan = context.Policies.GetOrDefault(typeof(IBuildPlanPolicy), new NamedTypeBuildKey(typeof(object)), out _);
             Assert.IsNotNull(plan);
         }
     }

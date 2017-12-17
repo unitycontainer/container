@@ -120,7 +120,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         {
             if (selectedConstructor.Constructor.GetParameters().Any(p => p.ParameterType.GetTypeInfo() == target))
             {
-                var policy = context.Policies.Get<ILifetimePolicy>(context.BuildKey, out var _);
+                var policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type, 
+                                                                   context.BuildKey.Name, 
+                                                                   typeof(ILifetimePolicy), out var _);
                 if (null == policy?.GetValue())
                     return true;
             }
@@ -199,11 +201,15 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         /// <param name="context">Current build context.</param>
         public static void SetPerBuildSingleton(IBuilderContext context)
         {
-            var lifetime = (context ?? throw  new ArgumentNullException(nameof(context))).Policies.Get<ILifetimePolicy>(context.OriginalBuildKey);
+            var lifetime = (context ?? throw  new ArgumentNullException(nameof(context)))
+                .Policies.GetOrDefault(typeof(ILifetimePolicy), context.OriginalBuildKey, out _);
+
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-                context.Policies.Set<ILifetimePolicy>(perBuildLifetime, context.OriginalBuildKey);
+                context.Policies.Set(context.OriginalBuildKey.Type, 
+                                     context.OriginalBuildKey.Name, 
+                                     typeof(ILifetimePolicy), perBuildLifetime);
             }
         }
 

@@ -50,7 +50,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         private IPolicyList GetPolicies()
         {
             PolicyList policies = new PolicyList();
-            policies.Set<ILifetimePolicy>(new ContainerControlledLifetimeManager(), new NamedTypeBuildKey(typeof(object)));
+            policies.Set(typeof(object), null, typeof(ILifetimePolicy), new ContainerControlledLifetimeManager());
             return policies;
         }
     }

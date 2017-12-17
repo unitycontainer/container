@@ -34,8 +34,8 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             MockBuilderContext context = CreateContext();
             var key = new NamedTypeBuildKey<object>();
-            context.Policies.Set<ILifetimePolicy>(new ContainerControlledLifetimeManager(), key);
 
+            context.Policies.Set(key.Type, key.Name, typeof(ILifetimePolicy), new ContainerControlledLifetimeManager());
             object result = context.ExecuteBuildUp(key, null);
             object result2 = context.ExecuteBuildUp(key, null);
             Assert.IsNotNull(result);
@@ -48,7 +48,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             MockBuilderContext context = CreateContext();
             var key = new NamedTypeBuildKey<object>();
             RecoverableLifetime recovery = new RecoverableLifetime();
-            context.PersistentPolicies.Set<ILifetimePolicy>(recovery, key);
+            context.PersistentPolicies.Set(key.Type, key.Name, typeof(ILifetimePolicy), recovery);
 
             context.ExecuteBuildUp(key, null);
 

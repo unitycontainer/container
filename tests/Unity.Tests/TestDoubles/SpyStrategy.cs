@@ -51,7 +51,9 @@ namespace Microsoft.Practices.Unity.Tests.TestDoubles
 
         private void UpdateSpyPolicy(IBuilderContext context)
         {
-            SpyPolicy policy = context.Policies.Get<SpyPolicy>(context.BuildKey);
+            SpyPolicy policy = (SpyPolicy)context.Policies
+                                                 .GetOrDefault(typeof(SpyPolicy), 
+                                                         context.BuildKey, out _);
             if (policy != null)
             {
                 policy.WasSpiedOn = true;

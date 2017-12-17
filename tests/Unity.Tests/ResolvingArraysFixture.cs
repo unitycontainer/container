@@ -196,8 +196,9 @@ namespace Microsoft.Practices.Unity.Tests
 
             protected override void Initialize()
             {
-                this.Context.Policies.Set<IConstructorSelectorPolicy>(
-                    new InjectedObjectSelectorPolicy(this.resolverPolicy), NamedTypeBuildKey.Make<InjectedObject>());
+                Context.Policies.Set(typeof(InjectedObject), null, 
+                                     typeof(IConstructorSelectorPolicy),
+                                     new InjectedObjectSelectorPolicy(this.resolverPolicy));
             }
         }
 
