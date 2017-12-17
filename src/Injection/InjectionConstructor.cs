@@ -69,7 +69,7 @@ namespace Unity.Injection
                          null != _types ? ConstructorByType(implementationType, _types)     :
                                           DefaultConstructor(implementationType);
 
-            policies.Set<IConstructorSelectorPolicy>(policy, new NamedTypeBuildKey(serviceType, name));
+            policies.Set(serviceType, name, typeof(IConstructorSelectorPolicy), policy);
         }
 
         private SpecifiedConstructorSelectorPolicy DefaultConstructor(Type typeToCreate)

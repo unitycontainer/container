@@ -51,7 +51,7 @@ namespace Unity.Injection
 
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
         {
-            policies.Set<IBuildPlanPolicy>(this, new NamedTypeBuildKey(serviceType, name));
+            policies.Set(serviceType, name, typeof(IBuildPlanPolicy), this);
         }
 
         #endregion

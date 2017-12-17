@@ -50,8 +50,7 @@ namespace Unity.Injection
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
         {
             var policy = new FactoryDelegateBuildPlanPolicy(factoryFunc);
-            (policies ?? throw new ArgumentNullException(nameof(policies))).Set<IBuildPlanPolicy>(policy,
-                new NamedTypeBuildKey(serviceType ?? throw new ArgumentNullException(nameof(serviceType)), name));
+            policies.Set(serviceType, name, typeof(IBuildPlanPolicy), policy);
         }
     }
 }

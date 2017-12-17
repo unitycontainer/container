@@ -182,11 +182,15 @@ namespace Unity.Builder
         /// <param name="context">Current build context.</param>
         public static void SetPerBuildSingleton(this IBuilderContext context)
         {
-            var lifetime = (context ?? throw new ArgumentNullException(nameof(context))).Policies.Get<ILifetimePolicy>(context.OriginalBuildKey);
+            var lifetime = (context ?? throw new ArgumentNullException(nameof(context)))
+                .Policies.GetOrDefault(typeof(ILifetimePolicy), context.OriginalBuildKey, out _);
+
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-                context.Policies.Set<ILifetimePolicy>(perBuildLifetime, context.OriginalBuildKey);
+                context.Policies.Set(context.OriginalBuildKey.Type, 
+                                     context.OriginalBuildKey.Name, 
+                                     typeof(ILifetimePolicy), perBuildLifetime);
             }
         }
 
