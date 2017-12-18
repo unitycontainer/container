@@ -1,4 +1,4 @@
-﻿namespace Unity.Container.Storage
+﻿namespace Unity.Storage
 {
     public class LinkedNode<TKey, TValue>
     {

@@ -2,12 +2,12 @@
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
-using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 using Unity.Strategy;
 
 namespace Unity
@@ -101,7 +101,7 @@ namespace Unity
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IMap<Type, IBuilderPolicy> data;
+                    IPolicyStore data;
                     if (null == (data = registry[type, name])) continue;
 
                     return (INamedType)data;
@@ -115,24 +115,23 @@ namespace Unity
             #endregion
 
 
-
             #region IPolicyList
 
             void IPolicyList.ClearAll()
             {
                 _container._registrations =
-                    new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(ContainerInitialCapacity);
+                    new HashRegistry<Type, IRegistry<string, IPolicyStore>>(ContainerInitialCapacity);
             }
 
             public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IMap<Type, IBuilderPolicy> data;
+                    IPolicyStore data;
                     if (null == (data = registry[type, name])) continue;
 
                     list = registry._context;
-                    return data[policyInterface];
+                    return data.Get(policyInterface);
                 }
 
                 list = null;
@@ -143,10 +142,10 @@ namespace Unity
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IMap<Type, IBuilderPolicy> data;
+                    IPolicyStore data;
                     if (null == (data = registry[type, name])) continue;
 
-                    data[policyInterface] = policy;
+                    data.Set(policyInterface, policy);
                     return;
                 }
 
@@ -156,19 +155,6 @@ namespace Unity
             public void Clear(Type type, string name, Type policyInterface)
             {
                 throw new NotImplementedException();
-            }
-
-            #endregion
-
-
-            #region IPolicyRegistry
-
-            public IMap<Type, IBuilderPolicy> this[Type type, string name] => _container[type, name];
-
-            public IBuilderPolicy this[Type type, string name, Type policy]
-            {
-                get => _container[type, name, policy];
-                set => _container[type, name, policy] = value;
             }
 
             #endregion

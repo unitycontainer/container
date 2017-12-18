@@ -5,22 +5,21 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
-using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan
+namespace Unity.Policy.BuildPlanCreator
 {
     /// <summary>
     /// An <see cref="IBuildPlanCreatorPolicy"/> implementation
     /// that constructs a build plan for creating <see cref="Lazy{T}"/> objects.
     /// </summary>
-    public class LazyDynamicMethodBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
+    public class GenericLazyBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
         private static readonly MethodInfo BuildResolveLazyMethod;
         private static readonly MethodInfo BuildResolveAllLazyMethod;
 
-        static LazyDynamicMethodBuildPlanCreatorPolicy()
+        static GenericLazyBuildPlanCreatorPolicy()
         {
-            var info = typeof(LazyDynamicMethodBuildPlanCreatorPolicy).GetTypeInfo();
+            var info = typeof(GenericLazyBuildPlanCreatorPolicy).GetTypeInfo();
 
             BuildResolveLazyMethod =
                 info.GetDeclaredMethod(nameof(BuildResolveLazy));

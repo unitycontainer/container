@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container.Storage;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 
 namespace Unity.Registration
 {
-    public class TypeRegistration : LinkedMap<Type, IBuilderPolicy>, IContainerRegistration
+    public class TypeRegistration : InternalRegistration, IContainerRegistration
     {
         #region Constructors
 
         public TypeRegistration(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+            : base(typeFrom ?? typeTo, string.IsNullOrEmpty(name) ? null : name)
         {
-            Name = string.IsNullOrEmpty(name) ? null : name;
-            RegisteredType = typeFrom ?? typeTo;
             MappedToType = typeTo;
             LifetimeManager = lifetimeManager ?? TransientLifetimeManager.Instance;
 
@@ -26,16 +24,15 @@ namespace Unity.Registration
             {
                 if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition)
                 {
-                    this[typeof(IBuildKeyMappingPolicy)] = new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name));
+                    Set(typeof(IBuildKeyMappingPolicy), new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name)));
                 }
                 else
                 {
-                    var policy = (null != injectionMembers && injectionMembers.Length > 0) || lifetimeManager is IRequireBuildUpPolicy
-                        ? new BuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name))
-                        : new ResolveMappingPolicy(new NamedTypeBuildKey(typeTo, name));
-
-                    this[typeof(IBuildKeyMappingPolicy)] = policy;
+                    Set(typeof(IBuildKeyMappingPolicy), new BuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name)));
                 }
+
+                if ((null == injectionMembers || injectionMembers.Length == 0) && !(lifetimeManager is IRequireBuildUpPolicy))
+                    Set(typeof(IBuildPlanPolicy), new ResolveBuildUpPolicy());
             }
         }
 
@@ -45,21 +42,10 @@ namespace Unity.Registration
         #region IContainerRegistration
 
         /// <summary>
-        /// The type that was passed to the <see cref="IUnityContainer.RegisterType"/> method
-        /// as the "from" type, or the only type if type mapping wasn't done.
-        /// </summary>
-        public Type RegisteredType { get; }
-
-        /// <summary>
         /// The type that this registration is mapped to. If no type mapping was done, the
-        /// <see cref="RegisteredType"/> property and this one will have the same value.
+        /// <see cref="InternalRegistration.RegisteredType"/> property and this one will have the same value.
         /// </summary>
         public Type MappedToType { get; }
-
-        /// <summary>
-        /// Name the type was registered under. Null for default registration.
-        /// </summary>
-        public string Name { get; }
 
         /// <summary>
         /// The lifetime manager for this registration.
@@ -71,35 +57,16 @@ namespace Unity.Registration
         #endregion
 
 
-        #region PolicyRegistry
+        #region IPolicyMap
 
-        public override IBuilderPolicy this[Type policyInterface] {
-            get
-            {
-                if (typeof(ILifetimePolicy) == policyInterface)
-                    return LifetimeManager;
-                
-                return base[policyInterface];
-            }
-        }
-
-
-        #endregion
-
-
-        #region Object
-
-        public override bool Equals(object obj)
+        public override IBuilderPolicy Get(Type policyInterface)
         {
-            return obj is IContainerRegistration registration && 
-                   RegisteredType == registration.RegisteredType &&
-                   Name == registration.Name;
+            if (typeof(ILifetimePolicy) == policyInterface)
+                return LifetimeManager;
+
+            return base.Get(policyInterface);
         }
 
-        public override int GetHashCode()
-        {
-            return RegisteredType.GetHashCode() + Name?.GetHashCode() ?? 0;
-        }
 
         #endregion
     }

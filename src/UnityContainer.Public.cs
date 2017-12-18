@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Builder.Strategy;
-using Unity.Container;
-using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -157,7 +154,7 @@ namespace Unity
                     disposable.Dispose();
 
                 _extensions.Clear();
-                _registrations = new HashRegistry<Type, IRegistry<string, IMap<Type, IBuilderPolicy>>>(1);
+                _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(1);
             }
         }
 

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Unity.Container.Storage
+namespace Unity.Storage
 {
 
-    public interface IRegistry<TKey, TValue> : IMap<TKey, TValue>
+    public interface IRegistry<TKey, TValue>
     {
+        TValue this[TKey index] { get; set; }
+
         bool RequireToGrow { get; }
 
         IEnumerable<TKey> Keys { get; }

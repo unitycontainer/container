@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
-using Unity.Container.Storage;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.BuildPlan;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;
@@ -19,8 +18,9 @@ using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
 using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Policy.BuildPlanCreator;
 using Unity.Registration;
-using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -28,18 +28,18 @@ namespace Unity
     {
         #region Fields
 
+        private readonly IPolicyStore _defaultPolicies;
         private readonly UnityContainer _parent;
         private readonly ContainerContext _context;
+        private readonly LifetimeContainer _lifetimeContainer;
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
-        private readonly StagedStrategyChain<Func<UnityContainer, Type, string, INamedType>, TypeSelectStage> _discovery;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
-        private LifetimeContainer _lifetimeContainer;
 
         #endregion
 
@@ -58,25 +58,25 @@ namespace Unity
 
             _context = new ContainerContext(this);
 
-            _discovery = parent?._discovery ?? GetTypeSelectStage();
             _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
+            if (null == _parent) InitializeStrategies();
 
-            if (null == _parent)
-                InitializeStrategies();
-            else
-                this[null, null] = _parent[null, null];
+            // Default Policies
+            _defaultPolicies = parent?._defaultPolicies ?? GetDefaultPolicies();
+            this[null, null] = _defaultPolicies;
 
+            // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
 
         #endregion
 
 
-        #region Default Strategies
+        #region Defaults
 
         protected void InitializeStrategies()
         {
@@ -90,20 +90,30 @@ namespace Unity
             _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
             _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
 
-            // Default Policies - mostly used by the build plan strategies
-            this[null, null] = new LinkedMap<Type, IBuilderPolicy>(typeof(IBuildPlanCreatorPolicy), new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies))
-            {
-                [typeof(IConstructorSelectorPolicy)] = new DefaultUnityConstructorSelectorPolicy(),
-                [typeof(IPropertySelectorPolicy)] = new DefaultUnityPropertySelectorPolicy(),
-                [typeof(IMethodSelectorPolicy)] = new DefaultUnityMethodSelectorPolicy()
-            };
-
             // Special Cases
-            this[typeof(Func<>), string.Empty, typeof(ILifetimePolicy)]  = new PerResolveLifetimeManager();
-            this[typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy)] = new DeferredResolveBuildPlanPolicy();
-            this[typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new LazyDynamicMethodBuildPlanCreatorPolicy();
-            this[typeof(Array),  string.Empty, typeof(IBuildPlanCreatorPolicy)] = new ArrayBuildPlanCreatorPolicy();
-            this[typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new EnumerableDynamicMethodBuildPlanCreatorPolicy();
+            this[null, null] = _defaultPolicies;
+            this[typeof(Func<>), string.Empty, typeof(ILifetimePolicy)]         = new PerResolveLifetimeManager();
+            this[typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy)]        = new DeferredResolveCreatorPolicy();
+            this[typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new GenericLazyBuildPlanCreatorPolicy();
+            this[typeof(Array),  string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
+                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)), 
+                                                        context => context.OriginalBuildKey.Type.GetElementType());
+            this[typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
+                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
+                                                        context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First());
+        }
+
+
+        private IPolicyStore GetDefaultPolicies()
+        {
+            var defaults = new InternalRegistration(null, null);
+
+            defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelectorPolicy());
+            defaults.Set(typeof(IPropertySelectorPolicy),    new DefaultUnityPropertySelectorPolicy());
+            defaults.Set(typeof(IMethodSelectorPolicy),      new DefaultUnityMethodSelectorPolicy());
+            defaults.Set(typeof(IBuildPlanCreatorPolicy),    new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+
+            return defaults;
         }
 
         #endregion
@@ -140,59 +150,12 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-
-        private static IMap<Type, IBuilderPolicy> CreateRegistration(Type type, string name)
+        private static IPolicyStore CreateRegistration(Type type, string name)
         {
             return new InternalRegistration(type, name);
         }
 
+
         #endregion
-
-
-        private class PolicyListProxy : IPolicyList
-        {
-            private readonly IPolicyList _policies;
-            private readonly IMap<Type, IBuilderPolicy> _registration;
-            private readonly Type _type;
-            private readonly string _name;
-
-            public PolicyListProxy(IPolicyList policies, IMap<Type, IBuilderPolicy> registration)
-            {
-                _policies = policies;
-                _registration = registration;
-                if (registration is INamedType namedType)
-                {
-                    _type = namedType.RegisteredType;
-                    _name = namedType.Name;
-                }
-            }
-
-            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
-            {
-                if (_type != type || _name != name)
-                {
-                    return _policies.Get(type, name, policyInterface, out list);
-                }
-
-                list = _policies;
-                return _registration[policyInterface];
-            }
-
-            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-            {
-                if (_type != type || _name != name )
-                    _policies.Set(type, name, policyInterface, policy);
-                else
-                    _registration[policyInterface] = policy;
-            }
-
-            public void Clear(Type type, string name, Type policyInterface)
-            {
-            }
-
-            public void ClearAll()
-            {
-            }
-        }
     }
 }

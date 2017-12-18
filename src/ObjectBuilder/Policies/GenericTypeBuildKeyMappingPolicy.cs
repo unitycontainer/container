@@ -23,13 +23,6 @@ namespace Unity.ObjectBuilder.Policies
         /// <param name="destinationKey">Build key to map to. This must be or contain an open generic type.</param>
         public GenericTypeBuildKeyMappingPolicy(NamedTypeBuildKey destinationKey)
         {
-            if (!(destinationKey ?? throw new ArgumentNullException(nameof(destinationKey))).Type.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.CurrentCulture,
-                        Constants.MustHaveOpenGenericType,
-                                  destinationKey.Type.GetTypeInfo().Name));
-            }
             _destinationKey = destinationKey;
         }
 

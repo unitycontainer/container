@@ -5,15 +5,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
-using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan
+namespace Unity.Policy.BuildPlanCreator
 {
     /// <summary>
     /// Build plan for <see cref="Func{TResult}"/> that will return a Func that will resolve the requested type
     /// through this container later.
     /// </summary>
-    internal class DeferredResolveBuildPlanPolicy : IBuildPlanPolicy
+    internal class DeferredResolveCreatorPolicy : IBuildPlanPolicy
     {
         public void BuildUp(IBuilderContext context)
         {

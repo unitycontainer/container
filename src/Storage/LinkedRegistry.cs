@@ -1,50 +1,53 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Policy;
 
-namespace Unity.Container.Storage
+namespace Unity.Storage
 {
 
-    internal class LinkedRegistry : LinkedMap<string, IMap<Type, IBuilderPolicy>>, 
-                                    IRegistry<string, IMap<Type, IBuilderPolicy>>
+    internal class LinkedRegistry : LinkedNode<string, IPolicyStore>, 
+                                    IRegistry<string, IPolicyStore>
     {
         #region Fields
 
         private int _count;
+        public const int ListToHashCutoverPoint = 8;
 
         #endregion
 
-
-        public const int ListToHashCutoverPoint = 8;
-
-
+        
         #region IRegistry
-        public override IMap<Type, IBuilderPolicy> this[string key]
+
+        public IPolicyStore this[string key]
         {
+            get
+            {
+                for (var node = (LinkedNode<string, IPolicyStore>)this; node != null; node = node.Next)
+                {
+                    if (Equals(node.Key, key))
+                        return node.Value;
+                }
+
+                return default(IPolicyStore);
+            }
             set
             {
-                LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
-                LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
+                LinkedNode<string, IPolicyStore> node;
+                LinkedNode<string, IPolicyStore> last = null;
 
                 for (node = this; node != null; node = node.Next)
                 {
                     if (Equals(node.Key, key))
                     {
-                        break;
+                        // Found it
+                        node.Value = value;
+                        return;
                     }
                     last = node;
                 }
 
-                if (node != null)
-                {
-                    // Found it
-                    node.Value = value;
-                    return;
-                }
-
                 // Not found, so add a new one
-                last.Next = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
+                last.Next = new LinkedNode<string, IPolicyStore>
                 {
                     Key = key,
                     Value = value
@@ -60,28 +63,28 @@ namespace Unity.Container.Storage
         {
             get
             {
-                for (LinkedNode<string, IMap<Type, IBuilderPolicy>> node = this; node != null; node = node.Next)
+                for (LinkedNode<string, IPolicyStore> node = this; node != null; node = node.Next)
                 {
                     yield return node.Key;
                 }
             }
         }
 
-        public IEnumerable<IMap<Type, IBuilderPolicy>> Values
+        public IEnumerable<IPolicyStore> Values
         {
             get
             {
-                for (LinkedNode<string, IMap<Type, IBuilderPolicy>> node = this; node != null; node = node.Next)
+                for (LinkedNode<string, IPolicyStore> node = this; node != null; node = node.Next)
                 {
                     yield return node.Value;
                 }
             }
         }
 
-        public IMap<Type, IBuilderPolicy> GetOrAdd(string name, Func<IMap<Type, IBuilderPolicy>> factory)
+        public IPolicyStore GetOrAdd(string name, Func<IPolicyStore> factory)
         {
-            LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
-            LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
+            LinkedNode<string, IPolicyStore> node;
+            LinkedNode<string, IPolicyStore> last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -96,7 +99,7 @@ namespace Unity.Container.Storage
             }
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
+            last.Next = new LinkedNode<string, IPolicyStore>
             {
                 Key = name,
                 Value = factory()
@@ -107,10 +110,10 @@ namespace Unity.Container.Storage
             return last.Next.Value;
         }
 
-        public IMap<Type, IBuilderPolicy> SetOrReplace(string name, IMap<Type, IBuilderPolicy> value)
+        public IPolicyStore SetOrReplace(string name, IPolicyStore value)
         {
-            LinkedNode<string, IMap<Type, IBuilderPolicy>> node;
-            LinkedNode<string, IMap<Type, IBuilderPolicy>> last = null;
+            LinkedNode<string, IPolicyStore> node;
+            LinkedNode<string, IPolicyStore> last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -124,7 +127,7 @@ namespace Unity.Container.Storage
             }
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IMap<Type, IBuilderPolicy>>
+            last.Next = new LinkedNode<string, IPolicyStore>
             {
                 Key = name,
                 Value = value

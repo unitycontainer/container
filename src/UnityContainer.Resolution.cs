@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container;
 using Unity.Exceptions;
 using Unity.ObjectBuilder;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity
@@ -63,6 +63,7 @@ namespace Unity
         /// cause this to return a different object (but still type compatible with <paramref name="typeToBuild"/>).</returns>
         public object BuildUp(Type typeToBuild, object existing, string name, params ResolverOverride[] resolverOverrides)
         {
+            // Verify arguments
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
 
@@ -71,6 +72,8 @@ namespace Unity
 
             try
             {
+                // Get registration
+
                 context = new BuilderContext(this, new StrategyChain(_strategies ),
                     _lifetimeContainer,
                     _context,
@@ -101,53 +104,36 @@ namespace Unity
         #endregion
 
 
-        #region Select Type
+        #region Resolving Enumerables
 
-        private StagedStrategyChain<Func<UnityContainer, Type, string, INamedType>, TypeSelectStage> GetTypeSelectStage()
+        private static void ResolveArray<T>(IBuilderContext context)
         {
-            return new StagedStrategyChain<Func<UnityContainer, Type, string, INamedType>, TypeSelectStage>
-            {
-                { GetRegisteredType , TypeSelectStage.Registration },
-                { GetArrayType, TypeSelectStage.Array },
-                { GetGenericType, TypeSelectStage.Generic },
-                { GerPocoType, TypeSelectStage.Poco },
-                { GetUnknownType, TypeSelectStage.Exception }
-            };
+            if (null != context.Existing) return;
+
+            var container = (UnityContainer)context.Container;
+            context.Existing = container.GetRegisteredNames(container, typeof(T))
+                .Where(registration => null != registration)
+                .Select(registration => context.NewBuildUp(new NamedTypeBuildKey(typeof(T), registration)))
+                .Cast<T>()
+                .ToArray();
+
+            context.BuildComplete = true;
+            context.SetPerBuildSingleton();
         }
 
-        private INamedType GetRegisteredType(UnityContainer context, Type type, string name)
+        private static void ResolveEnumerable<T>(IBuilderContext context)
         {
-            for (var container = this; null != container; container = container._parent)
-            {
-                var data = container[type, name];
-                if (null == data) continue;
+            if (null != context.Existing) return;
 
-                return (INamedType)data;
-            }
+            var container = (UnityContainer)context.Container;
+            context.Existing = container.GetRegisteredNames(container, typeof(T))
+                .Select(registration => context.NewBuildUp(new NamedTypeBuildKey(typeof(T), registration)))
+                .Cast<T>()
+                .ToArray();
 
-            return null;
+            context.BuildComplete = true;
+            context.SetPerBuildSingleton();
         }
-
-        private INamedType GetArrayType(UnityContainer context, Type type, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        private INamedType GetGenericType(UnityContainer context, Type type, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        private INamedType GerPocoType(UnityContainer context, Type type, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        private INamedType GetUnknownType(UnityContainer context, Type type, string name)
-        {
-            throw new NotImplementedException();
-        }
-
 
         #endregion
 

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Utility;
 
-namespace Unity.Container.Storage
+namespace Unity.Storage
 {
     internal class HashRegistry<TKey, TValue> : IRegistry<TKey, TValue>
     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Registration;
 using Unity.Utility;
 
-namespace Unity.Container.Storage
+namespace Unity.Storage
 {
     internal class ReverseHashSet : IEnumerable<IContainerRegistration>
     {

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Registration
 {
@@ -15,9 +14,17 @@ namespace Unity.Registration
     public class InstanceRegistration : IContainerRegistration, 
                                         IBuildPlanCreatorPolicy, 
                                         IBuildPlanPolicy, 
-                                        IMap<Type, IBuilderPolicy>,
+                                        IPolicyStore,
                                         IDisposable
     {
+        #region Fields
+
+        private readonly int _hash;
+
+        #endregion
+
+
+
         #region Constructors
 
         /// <summary>
@@ -44,8 +51,8 @@ namespace Unity.Registration
             if (null != registrationType) InstanceIsAssignable(registrationType, instance, nameof(instance));
 
             Name = string.IsNullOrEmpty(registrationName) ? null : registrationName;
-            RegisteredType = registrationType ??
-                             (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
+            RegisteredType = registrationType ?? (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
+            _hash = RegisteredType.GetHashCode() + Name?.GetHashCode() ?? 0;
 
             var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
             if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
@@ -59,28 +66,30 @@ namespace Unity.Registration
         #endregion
 
 
-        #region Registry
+        #region IPolicyStore
 
-        public IBuilderPolicy this[Type policy]
+        public IBuilderPolicy Get(Type policyInterface)
         {
-            get
-            {
-                if (typeof(ILifetimePolicy) == policy)
-                    return LifetimeManager;
-                else if (typeof(IBuildKeyMappingPolicy) == policy)
-                {
-                    
-                }
-                else if (typeof(IBuildPlanCreatorPolicy) == policy)
-                    return this;
-                else
-                {
-                    Debug.WriteLine($"==== {policy} ====");
-                }
+            if (typeof(ILifetimePolicy) == policyInterface)
+                return LifetimeManager;
 
-                return null;
-            }
-            set { }
+            if (typeof(IBuildPlanPolicy) == policyInterface ||
+                typeof(IBuildPlanCreatorPolicy) == policyInterface)
+                return this;
+
+            return null;
+        }
+
+        public void Set(Type policyInterface, IBuilderPolicy policy)
+        {
+        }
+
+        public void Clear(Type policyInterface)
+        {
+        }
+
+        public void ClearAll()
+        {
         }
 
         #endregion
@@ -156,16 +165,12 @@ namespace Unity.Registration
 
         #region Object
 
-        public override bool Equals(object obj)
-        {
-            return obj is IContainerRegistration registration &&
-                   RegisteredType == registration.RegisteredType &&
-                   Name == registration.Name;
-        }
-
+        public override bool Equals(object obj) => obj is IContainerRegistration registration && 
+                                                RegisteredType == registration.RegisteredType && 
+                                                                    Name == registration.Name;
         public override int GetHashCode()
         {
-            return RegisteredType.GetHashCode() + Name?.GetHashCode() ?? 0;
+            return _hash;
         }
 
         #endregion

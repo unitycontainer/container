@@ -31,6 +31,7 @@ namespace Unity
         public const string MissingDependency = "Could not resolve dependency for build key {0}.";
         public const string MultipleInjectionConstructors = "The type {0} has multiple constructors marked with the InjectionConstructor attribute. Unable to disambiguate.";
         public const string MustHaveOpenGenericType = "The supplied type {0} must be an open generic type.";
+        public const string MustHaveOpenArrayType = "The supplied type {0} must be an array type.";
         public const string MustHaveSameNumberOfGenericArguments = "The supplied type {0} does not have the same number of generic arguments as the target type {1}.";
         public const string NoConstructorFound = "The type {0} does not have an accessible constructor.";
         public const string NoMatchingGenericArgument = "The type {0} does not have a generic argument named '{1}'";

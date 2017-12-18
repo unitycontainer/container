@@ -22,14 +22,6 @@ namespace Unity.ObjectBuilder.Strategies
                                                    .GetPolicy<IBuildKeyMappingPolicy>(context.OriginalBuildKey, out _);
             if (null == policy) return;
 
-            var existing = (policy as IDependencyResolverPolicy)?.Resolve(context);
-            if (existing != null)
-            {
-                context.Existing = existing;
-                context.BuildComplete = true;
-                return;
-            }
-
             context.BuildKey = policy.Map(context.BuildKey, context);
         }
     }

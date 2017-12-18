@@ -1,26 +1,31 @@
 using System;
-using Unity.Container.Storage;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Registration
 {
-    public class InternalRegistration : LinkedMap<Type, IBuilderPolicy>, 
-                                        INamedType
+    public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
+                                        IPolicyStore, INamedType
     {
+        #region Fields
+
+        private readonly int _hash;
+
+        #endregion
+
         #region Constructors
 
-        public InternalRegistration(Type type, string name, LinkedNode<Type, IBuilderPolicy> next = null)
-//            : base(typeof(IResolverPolicy), null, next)
+        public InternalRegistration(Type type, string name)
         {
-            Name = string.IsNullOrEmpty(name) ? null : name;
-            RegisteredType = type;
             Name = name;
+            RegisteredType = type;
+            _hash = RegisteredType?.GetHashCode() ?? 0 + Name?.GetHashCode() ?? 0;
         }
 
         #endregion
 
 
-        #region  IRegistration
+        #region  INamedType
 
         public Type RegisteredType { get; }
 
@@ -29,32 +34,97 @@ namespace Unity.Registration
         #endregion
 
 
+        #region IPolicyMap
 
-        #region LinkedMap
-
-        public override IBuilderPolicy this[Type key]
+        public virtual IBuilderPolicy Get(Type policyInterface)
         {
-            get
+            for (var node = (LinkedNode<Type, IBuilderPolicy>)this; node != null; node = node.Next)
             {
-                //if (key == typeof(IResolverPolicy))
-                //    return Value ?? GetResolvePolicy();
-
-                return base[key];
+                if (node.Key == policyInterface)
+                    return node.Value;
             }
-            set => base[key] = value;
+
+            return null;
         }
 
-        #endregion
-
-
-
-        #region Implementation
-
-        protected virtual IBuilderPolicy GetResolvePolicy()
+        public virtual void Set(Type policyInterface, IBuilderPolicy policy)
         {
-            return Value;
+            LinkedNode<Type, IBuilderPolicy> node;
+            LinkedNode<Type, IBuilderPolicy> last = null;
+
+            for (node = this; node != null; node = node.Next)
+            {
+                if (node.Key == policyInterface)
+                {
+                    // Found it
+                    node.Value = policy;
+                    return;
+                }
+
+                last = node;
+            }
+
+            // Not found, so add a new one
+            last.Next = new LinkedNode<Type, IBuilderPolicy>
+            {
+                Key = policyInterface,
+                Value = policy
+            };
+        }
+
+        public virtual void Clear(Type policyInterface)
+        {
+            LinkedNode<Type, IBuilderPolicy> node;
+            LinkedNode<Type, IBuilderPolicy> last = null;
+
+            for (node = this; node != null; node = node.Next)
+            {
+                if (node.Key == policyInterface)
+                {
+                    if (null == last)
+                    {
+                        Key = node.Next?.Key;
+                        Value = node.Next?.Value;
+                        Next = node.Next?.Next;
+                    }
+                    else
+                    {
+                        last.Key = node.Next?.Key;
+                        last.Value = node.Next?.Value;
+                        last.Next = node.Next?.Next;
+                    }
+                    return;
+                }
+                
+                last = node;
+            }
+        }
+
+        public virtual void ClearAll()
+        {
+            Key = null;
+            Value = null;
+            Next  = null;
         }
 
         #endregion
+
+
+        #region Object
+
+        public override bool Equals(object obj)
+        {
+            return obj is IContainerRegistration registration &&
+                   RegisteredType == registration.RegisteredType &&
+                   Name == registration.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return _hash;
+        }
+
+        #endregion
+
     }
 }

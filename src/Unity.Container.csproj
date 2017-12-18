@@ -50,8 +50,4 @@
     <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Policies\" />
-  </ItemGroup>
-
 </Project>
