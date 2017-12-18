@@ -88,12 +88,10 @@ namespace Unity
                 }
                 else
                 {
-                    var policy = (null != injectionMembers && injectionMembers.Length > 0) || lifetimeManager is IRequireBuildUpPolicy
-                        ? new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name))
-                        : new ResolveMappingPolicy(new NamedTypeBuildKey(to, name));
-
-                    _policies.Set<IBuildKeyMappingPolicy>(policy, new NamedTypeBuildKey(typeFrom, name));
+                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)), buildKey);
                 }
+                if ((null == injectionMembers || injectionMembers.Length == 0) && !(lifetimeManager is IRequireBuildUpPolicy))
+                    _policies.Set<IBuildPlanPolicy>(new ResolveBuildUpPolicy(), buildKey);
             }
             if (lifetimeManager != null)
             {
