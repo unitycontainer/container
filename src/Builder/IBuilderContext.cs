@@ -46,12 +46,12 @@ namespace Unity.Builder
         /// <value>
         /// The original build key for the build operation.
         /// </value>
-        NamedTypeBuildKey OriginalBuildKey { get; }
+        INamedType OriginalBuildKey { get; }
 
         /// <summary>
         /// GetOrDefault the current build key for the current build operation.
         /// </summary>
-        NamedTypeBuildKey BuildKey { get; set; }
+        INamedType BuildKey { get; set; }
 
         /// <summary>
         /// The set of policies that were passed into this context.
@@ -127,7 +127,7 @@ namespace Unity.Builder
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock = null);
+        object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null);
     }
 
     /// <summary>

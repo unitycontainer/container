@@ -340,14 +340,14 @@ namespace Unity.Policy
 
 
 
-        public static TPolicyInterface GetPolicy<TPolicyInterface>(this IPolicyList list, NamedTypeBuildKey buildKey, out IPolicyList containingPolicyList)
+        public static TPolicyInterface GetPolicy<TPolicyInterface>(this IPolicyList list, INamedType buildKey, out IPolicyList containingPolicyList)
         {
             return (TPolicyInterface)(list.GetPolicyForKey(typeof(TPolicyInterface), buildKey, out containingPolicyList) ??
                                       list.GetPolicyForOpenType(typeof(TPolicyInterface), buildKey, buildKey.Type, out containingPolicyList) ??
                                       list.GetDefaultForPolicy(typeof(TPolicyInterface), out containingPolicyList));
         }
 
-        private static IBuilderPolicy GetPolicyForOpenType(this IPolicyList list, Type policyInterface, NamedTypeBuildKey buildKey, Type buildType, out IPolicyList containingPolicyList)
+        private static IBuilderPolicy GetPolicyForOpenType(this IPolicyList list, Type policyInterface, INamedType buildKey, Type buildType, out IPolicyList containingPolicyList)
         {
             containingPolicyList = null;
             if (null == buildType) return null;
