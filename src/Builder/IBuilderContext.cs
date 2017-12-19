@@ -145,7 +145,8 @@ namespace Unity.Builder
         /// <returns>Created object.</returns>
         public static object NewBuildUp(this IBuilderContext context, INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
         {
-            return context.NewBuildUp(newBuildKey.Type, newBuildKey.Name, childCustomizationBlock);
+            return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
+                .NewBuildUp(newBuildKey?.Type, newBuildKey?.Name, childCustomizationBlock);
         }
 
 
@@ -158,7 +159,8 @@ namespace Unity.Builder
         /// <returns>Resulting object.</returns>
         public static TResult NewBuildUp<TResult>(this IBuilderContext context)
         {
-            return context.NewBuildUp<TResult>(null);
+            return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
+                .NewBuildUp(typeof(TResult), null, null);
         }
 
         /// <summary>
@@ -172,7 +174,7 @@ namespace Unity.Builder
         public static TResult NewBuildUp<TResult>(this IBuilderContext context, string name)
         {
             return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
-                .NewBuildUp(NamedTypeBuildKey.Make<TResult>(name));
+                .NewBuildUp(typeof(TResult), name, null);
         }
 
         /// <summary>
