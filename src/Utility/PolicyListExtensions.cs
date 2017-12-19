@@ -238,7 +238,7 @@ namespace Unity.Policy
         {
             Type buildType;
 
-            if (buildKey is NamedTypeBuildKey basedBuildKey)
+            if (buildKey is INamedType basedBuildKey)
                 buildType = basedBuildKey.Type;
             else
                 buildType = buildKey as Type;
@@ -306,7 +306,7 @@ namespace Unity.Policy
             if (buildKey is Type)
                 return newType;
 
-            if (buildKey is NamedTypeBuildKey originalKey)
+            if (buildKey is INamedType originalKey)
                 return new NamedTypeBuildKey(newType, originalKey.Name);
 
             throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
@@ -319,7 +319,7 @@ namespace Unity.Policy
         {
             switch (buildKey)
             {
-                case NamedTypeBuildKey namedBuildKey:
+                case INamedType namedBuildKey:
                     return new Tuple<Type, string>(namedBuildKey.Type, namedBuildKey.Name);
 
                 case Type typeBuildKey:

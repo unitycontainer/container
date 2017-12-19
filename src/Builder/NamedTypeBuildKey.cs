@@ -81,7 +81,7 @@ namespace Unity.Builder
         /// <returns>True if the two keys are equal, false if not.</returns>
         public override bool Equals(object obj)
         {
-            return this == (obj as NamedTypeBuildKey);
+            return obj is INamedType namedType && Type == namedType.Type && Name == namedType.Name;
         }
 
         /// <summary>
