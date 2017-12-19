@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
+using Unity.Policy.Mapping;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {
@@ -30,7 +31,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             NamedTypeBuildKey original = new NamedTypeBuildKey(typeof(IList<string>), "test");
             IBuildKeyMappingPolicy policy = new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(typeof(List<>), "test"));
 
-            NamedTypeBuildKey result = policy.Map(original, null);
+            var result = policy.Map(original, null);
 
             Assert.AreEqual(typeof(List<string>), result.Type);
             Assert.AreEqual(original.Name, result.Name);

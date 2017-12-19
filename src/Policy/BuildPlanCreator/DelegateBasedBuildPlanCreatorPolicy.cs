@@ -28,7 +28,7 @@ namespace Unity.Policy.BuildPlanCreator
 
         #region IBuildPlanCreatorPolicy
 
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
+        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
             var buildMethod = _resolveMethod.MakeGenericMethod(_getTypeFunc(context))
                                             .CreateDelegate(typeof(DynamicBuildPlanMethod));

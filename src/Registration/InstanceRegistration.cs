@@ -11,7 +11,8 @@ namespace Unity.Registration
     /// <summary>
     /// This class holds instance registration
     /// </summary>
-    public class InstanceRegistration : IContainerRegistration, 
+    public class InstanceRegistration : INamedType, 
+                                        IContainerRegistration, 
                                         IBuildPlanCreatorPolicy, 
                                         IBuildPlanPolicy, 
                                         IPolicyStore,
@@ -51,8 +52,8 @@ namespace Unity.Registration
             if (null != registrationType) InstanceIsAssignable(registrationType, instance, nameof(instance));
 
             Name = string.IsNullOrEmpty(registrationName) ? null : registrationName;
-            RegisteredType = registrationType ?? (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
-            _hash = RegisteredType.GetHashCode() + Name?.GetHashCode() ?? 0;
+            Type = registrationType ?? (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
+            _hash = Type.GetHashCode() + Name?.GetHashCode() ?? 0;
 
             var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
             if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
@@ -95,11 +96,18 @@ namespace Unity.Registration
         #endregion
 
 
-        #region IContainerRegistration
+        #region INamedType
 
         public string Name { get; }
 
-        public Type RegisteredType { get; }
+        public Type Type { get; }
+
+        #endregion
+
+
+        #region IContainerRegistration
+
+        public Type RegisteredType => Type;
 
         public Type MappedToType { get; }
 
@@ -110,7 +118,7 @@ namespace Unity.Registration
 
         #region IBuildPlanCreatorPolicy
 
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
+        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
             return this;
         }

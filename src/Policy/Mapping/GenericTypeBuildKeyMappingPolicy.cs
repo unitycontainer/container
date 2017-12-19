@@ -1,12 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 
-namespace Unity.ObjectBuilder.Policies
+namespace Unity.Policy.Mapping
 {
     /// <summary>
     /// An implementation of <see cref="IBuildKeyMappingPolicy"/> that can map
@@ -14,17 +11,40 @@ namespace Unity.ObjectBuilder.Policies
     /// </summary>
     public class GenericTypeBuildKeyMappingPolicy : IBuildKeyMappingPolicy
     {
-        private readonly NamedTypeBuildKey _destinationKey;
+        #region Fields
+
+        private readonly INamedType _destinationKey;
+
+        #endregion
+
+
+        #region Constructors
+
+        /// <summary>
+        /// Create a new <see cref="GenericTypeBuildKeyMappingPolicy"/> instance
+        /// that will map generic types.
+        /// </summary>
+        /// <param name="type">Type mapped to</param>
+        /// <param name="name">Name</param>
+        public GenericTypeBuildKeyMappingPolicy(Type type, string name)
+        {
+            _destinationKey = new NamedTypeBuildKey(type, name);
+        }
 
         /// <summary>
         /// Create a new <see cref="GenericTypeBuildKeyMappingPolicy"/> instance
         /// that will map generic types.
         /// </summary>
         /// <param name="destinationKey">Build key to map to. This must be or contain an open generic type.</param>
-        public GenericTypeBuildKeyMappingPolicy(NamedTypeBuildKey destinationKey)
+        public GenericTypeBuildKeyMappingPolicy(INamedType destinationKey)
         {
             _destinationKey = destinationKey;
         }
+
+        #endregion
+
+
+        #region IBuildKeyMappingPolicy
 
         /// <summary>
         /// Maps the build key.
@@ -33,33 +53,28 @@ namespace Unity.ObjectBuilder.Policies
         /// <param name="context">Current build context. Used for contextual information
         /// if writing a more sophisticated mapping.</param>
         /// <returns>The new build key.</returns>
-        public NamedTypeBuildKey Map(NamedTypeBuildKey buildKey, IBuilderContext context)
+        public INamedType Map(INamedType buildKey, IBuilderContext context)
         {
-            var originalTypeInfo = (buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type.GetTypeInfo();
+            var originalTypeInfo = buildKey.Type.GetTypeInfo();
             if (originalTypeInfo.IsGenericTypeDefinition)
             {
                 // No need to perform a mapping - the source type is an open generic
                 return _destinationKey;
             }
 
-            GuardSameNumberOfGenericArguments(originalTypeInfo);
+            if (buildKey.Type.GenericTypeArguments.Length != _destinationKey.Type.GetTypeInfo().GenericTypeParameters.Length)
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                                                          Constants.MustHaveSameNumberOfGenericArguments,
+                                                          buildKey.Type.Name, _destinationKey.Type.Name),
+                                            nameof(buildKey.Type));
+            }
+
             Type[] genericArguments = originalTypeInfo.GenericTypeArguments;
             Type resultType = _destinationKey.Type.MakeGenericType(genericArguments);
             return new NamedTypeBuildKey(resultType, _destinationKey.Name);
         }
 
-        private void GuardSameNumberOfGenericArguments(TypeInfo sourceTypeInfo)
-        {
-            if (sourceTypeInfo.GenericTypeArguments.Length != DestinationType.GetTypeInfo().GenericTypeParameters.Length)
-            {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.CurrentCulture,
-                        Constants.MustHaveSameNumberOfGenericArguments,
-                                  sourceTypeInfo.Name, DestinationType.Name),
-                    nameof(sourceTypeInfo));
-            }
-        }
-
-        private Type DestinationType => _destinationKey.Type;
+        #endregion
     }
 }

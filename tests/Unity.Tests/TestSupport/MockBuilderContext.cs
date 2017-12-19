@@ -19,13 +19,13 @@ namespace Microsoft.Practices.Unity.TestSupport
     public class MockBuilderContext : IBuilderContext
     {
         private ILifetimeContainer lifetime = new LifetimeContainer();
-        private NamedTypeBuildKey originalBuildKey = null;
+        private INamedType originalBuildKey = null;
         private IPolicyList persistentPolicies;
         private IPolicyList policies;
         private MockStrategyChain strategies = new MockStrategyChain();
         private CompositeResolverOverride resolverOverrides = new CompositeResolverOverride();
 
-        private NamedTypeBuildKey buildKey = null;
+        private INamedType buildKey = null;
         private object existing = null;
         private IRecoveryStack recoveryStack = new RecoveryStack();
 
@@ -40,7 +40,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             get { return lifetime; }
         }
 
-        public NamedTypeBuildKey OriginalBuildKey
+        public INamedType OriginalBuildKey
         {
             get { return originalBuildKey; }
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             get { return strategies; }
         }
 
-        public NamedTypeBuildKey BuildKey
+        public INamedType BuildKey
         {
             get { return buildKey; }
             set
@@ -104,7 +104,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             return resolverOverrides.GetResolver(this, dependencyType);
         }
 
-        public IBuilderContext CloneForNewBuild(NamedTypeBuildKey newBuildKey, object newExistingObject)
+        public IBuilderContext CloneForNewBuild(INamedType newBuildKey, object newExistingObject)
         {
             var newContext = new MockBuilderContext
                                  {
@@ -131,7 +131,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+        public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
         {
             if (null == childCustomizationBlock)
             {

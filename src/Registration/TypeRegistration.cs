@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
+using Unity.Policy.Mapping;
+using Unity.Storage;
 
 namespace Unity.Registration
 {
@@ -22,17 +23,17 @@ namespace Unity.Registration
 
             if (typeFrom != null && typeFrom != typeTo)
             {
-                if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    Set(typeof(IBuildKeyMappingPolicy), new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name)));
-                }
-                else
-                {
-                    Set(typeof(IBuildKeyMappingPolicy), new BuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name)));
-                }
+                Key = typeof(IBuildKeyMappingPolicy);
+                Value = typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition
+                    ? new GenericTypeBuildKeyMappingPolicy(typeTo, name)
+                    : (IBuildKeyMappingPolicy) new BuildKeyMappingPolicy(typeTo, name);
 
                 if ((null == injectionMembers || injectionMembers.Length == 0) && !(lifetimeManager is IRequireBuildUpPolicy))
-                    Set(typeof(IBuildPlanPolicy), new ResolveBuildUpPolicy());
+                    Next = new LinkedNode<Type, IBuilderPolicy>
+                    {
+                        Key = typeof(IBuildPlanPolicy),
+                        Value = new ResolveBuildUpPolicy()
+                    };
             }
         }
 
@@ -41,9 +42,11 @@ namespace Unity.Registration
 
         #region IContainerRegistration
 
+        public Type RegisteredType => Type;
+
         /// <summary>
         /// The type that this registration is mapped to. If no type mapping was done, the
-        /// <see cref="InternalRegistration.RegisteredType"/> property and this one will have the same value.
+        /// <see cref="InternalRegistration.Type"/> property and this one will have the same value.
         /// </summary>
         public Type MappedToType { get; }
 

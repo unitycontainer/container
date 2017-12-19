@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Events;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -537,7 +538,7 @@ namespace Unity
                 _registration = registration;
                 if (registration is INamedType namedType)
                 {
-                    _type = namedType.RegisteredType;
+                    _type = namedType.Type;
                     _name = namedType.Name;
                 }
             }

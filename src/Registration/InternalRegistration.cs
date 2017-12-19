@@ -1,4 +1,5 @@
 using System;
+using Unity.Builder;
 using Unity.Policy;
 using Unity.Storage;
 
@@ -13,13 +14,14 @@ namespace Unity.Registration
 
         #endregion
 
+
         #region Constructors
 
         public InternalRegistration(Type type, string name)
         {
             Name = name;
-            RegisteredType = type;
-            _hash = RegisteredType?.GetHashCode() ?? 0 + Name?.GetHashCode() ?? 0;
+            Type = type;
+            _hash = Type?.GetHashCode() ?? 0 + Name?.GetHashCode() ?? 0;
         }
 
         #endregion
@@ -27,7 +29,7 @@ namespace Unity.Registration
 
         #region  INamedType
 
-        public Type RegisteredType { get; }
+        public Type Type { get; }
 
         public string Name { get; }
 
@@ -114,8 +116,8 @@ namespace Unity.Registration
 
         public override bool Equals(object obj)
         {
-            return obj is IContainerRegistration registration &&
-                   RegisteredType == registration.RegisteredType &&
+            return obj is INamedType registration &&
+                   Type == registration.Type &&
                    Name == registration.Name;
         }
 
