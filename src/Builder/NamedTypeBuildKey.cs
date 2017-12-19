@@ -9,7 +9,7 @@ namespace Unity.Builder
     /// Build key used to combine a type object with a string name. Used by
     /// ObjectBuilder to indicate exactly what is being built.
     /// </summary>
-    public class NamedTypeBuildKey
+    public class NamedTypeBuildKey : INamedType
     {
         private readonly int _hash;
 

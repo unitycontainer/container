@@ -1,16 +1,16 @@
 ﻿using System;
 
-namespace Unity.Registration
+namespace Unity.Builder
 {
     /// <summary>
     /// Basic information about registered type
     /// </summary>
-    public interface I_Registration
+    public interface INamedType
     {
         /// <summary>
         /// Type of the registration.
         /// </summary>
-        Type RegisteredType { get; }
+        Type Type { get; }
 
         /// <summary>
         /// Name the registered type. Null for default registration.
