@@ -40,7 +40,7 @@ namespace Unity.ObjectBuilder.Policies
         /// <param name="context">Current build context. Used for contextual information
         /// if writing a more sophisticated mapping.</param>
         /// <returns>The new build key.</returns>
-        public NamedTypeBuildKey Map(NamedTypeBuildKey buildKey, IBuilderContext context)
+        public INamedType Map(INamedType buildKey, IBuilderContext context)
         {
             var originalTypeInfo = (buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type.GetTypeInfo();
             if (originalTypeInfo.IsGenericTypeDefinition)

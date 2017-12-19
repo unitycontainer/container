@@ -50,7 +50,7 @@ namespace Unity.ObjectBuilder
         public BuilderContext(IUnityContainer container, IStrategyChain chain,
             ILifetimeContainer lifetime,
             IPolicyList policies,
-            NamedTypeBuildKey originalBuildKey,
+            INamedType originalBuildKey,
             object existing)
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
@@ -78,7 +78,7 @@ namespace Unity.ObjectBuilder
         /// combined.</param>
         /// <param name="buildKey">Build key for this context.</param>
         /// <param name="existing">Existing object to build up.</param>
-        public BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, object existing)
+        public BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, INamedType buildKey, object existing)
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
@@ -105,7 +105,7 @@ namespace Unity.ObjectBuilder
         /// combined.</param>
         /// <param name="buildKey">Build key for this context.</param>
         /// <param name="resolverOverrides">The resolver overrides.</param>
-        protected BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, NamedTypeBuildKey buildKey, CompositeResolverOverride resolverOverrides)
+        protected BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, INamedType buildKey, CompositeResolverOverride resolverOverrides)
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             _chain = chain;
@@ -135,7 +135,7 @@ namespace Unity.ObjectBuilder
         /// <summary>
         /// GetOrDefault the current build key for the current build operation.
         /// </summary>
-        public NamedTypeBuildKey BuildKey { get; set; }
+        public INamedType BuildKey { get; set; }
 
         /// <summary>
         /// The current object being built up or torn down.
@@ -159,7 +159,7 @@ namespace Unity.ObjectBuilder
         /// <value>
         /// The original build key for the build operation.
         /// </value>
-        public NamedTypeBuildKey OriginalBuildKey { get; }
+        public INamedType OriginalBuildKey { get; }
 
         /// <summary>
         /// The set of policies that were passed into this context.
@@ -243,7 +243,7 @@ namespace Unity.ObjectBuilder
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
+        public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
         {
             ChildContext =
                 new BuilderContext(Container, _chain, Lifetime, PersistentPolicies, Policies, newBuildKey, _resolverOverrides);

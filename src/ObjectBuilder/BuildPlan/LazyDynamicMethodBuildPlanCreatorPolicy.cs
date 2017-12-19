@@ -37,7 +37,7 @@ namespace Unity.ObjectBuilder.BuildPlan
         /// <returns>
         /// The build plan.
         /// </returns>
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
+        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
             return new DynamicMethodBuildPlan(CreateBuildPlanMethod((buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type));
         }

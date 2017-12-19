@@ -33,7 +33,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// <param name="context">The current build context.</param>
         /// <param name="buildKey">The current build key.</param>
         /// <returns>The created build plan.</returns>
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
+        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
             DynamicBuildPlanGenerationContext generatorContext =
                 new DynamicBuildPlanGenerationContext((buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type);

@@ -49,7 +49,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
     {
         private bool policyWasCreated = false;
 
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
+        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
             policyWasCreated = true;
             return new ReturnInstanceBuildPlan(new object());

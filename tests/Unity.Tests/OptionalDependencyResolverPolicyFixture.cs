@@ -71,11 +71,11 @@ namespace Microsoft.Practices.Unity.Tests
             var mainContext = new MockContext();
             mainContext.NewBuildupCallback = (k) =>
             {
-                if (k == expectedKey)
+                if ((NamedTypeBuildKey)k == expectedKey)
                 {
                     return expected;
                 }
-                if (k == notExpectedKey)
+                if ((NamedTypeBuildKey)k == notExpectedKey)
                 {
                     return notExpected;
                 }
@@ -110,7 +110,7 @@ namespace Microsoft.Practices.Unity.Tests
 
         public class MockContext : IBuilderContext
         {
-            public Func<NamedTypeBuildKey, object> NewBuildupCallback;
+            public Func<INamedType, object> NewBuildupCallback;
 
             public IStrategyChain Strategies
             {
@@ -122,12 +122,12 @@ namespace Microsoft.Practices.Unity.Tests
                 get { throw new NotImplementedException(); }
             }
 
-            public NamedTypeBuildKey OriginalBuildKey
+            public INamedType OriginalBuildKey
             {
                 get { throw new NotImplementedException(); }
             }
 
-            public NamedTypeBuildKey BuildKey
+            public INamedType BuildKey
             {
                 get
                 {
@@ -207,12 +207,12 @@ namespace Microsoft.Practices.Unity.Tests
                 throw new NotImplementedException();
             }
 
-            public object NewBuildUp(NamedTypeBuildKey newBuildKey)
+            public object NewBuildUp(INamedType newBuildKey)
             {
                 return NewBuildupCallback(newBuildKey);
             }
 
-            public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+            public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
             {
                 return NewBuildupCallback(newBuildKey);
             }

@@ -28,7 +28,7 @@ namespace Unity.ObjectBuilder.Policies
         /// <param name="context">Current build context. Used for contextual information
         /// if writing a more sophisticated mapping, unused in this implementation.</param>
         /// <returns>The new build key.</returns>
-        public NamedTypeBuildKey Map(NamedTypeBuildKey buildKey, IBuilderContext context)
+        public INamedType Map(INamedType buildKey, IBuilderContext context)
         {
             return _newBuildKey;
         }

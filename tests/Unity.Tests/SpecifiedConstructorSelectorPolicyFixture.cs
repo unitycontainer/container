@@ -120,7 +120,7 @@ namespace Microsoft.Practices.Unity.Tests
             {
             }
 
-            public BuilderContextMock(NamedTypeBuildKey buildKey)
+            public BuilderContextMock(INamedType buildKey)
             {
                 this.BuildKey = buildKey;
             }
@@ -135,7 +135,7 @@ namespace Microsoft.Practices.Unity.Tests
                 get { throw new NotImplementedException(); }
             }
 
-            public NamedTypeBuildKey OriginalBuildKey
+            public INamedType OriginalBuildKey
             {
                 get { return BuildKey; }
             }
@@ -155,7 +155,7 @@ namespace Microsoft.Practices.Unity.Tests
                 get { throw new NotImplementedException(); }
             }
 
-            public NamedTypeBuildKey BuildKey { get; set; }
+            public INamedType BuildKey { get; set; }
 
             public object Existing
             {
@@ -183,12 +183,12 @@ namespace Microsoft.Practices.Unity.Tests
 
             public IUnityContainer Container { get; set; }
 
-            public object NewBuildUp(NamedTypeBuildKey newBuildKey)
+            public object NewBuildUp(INamedType newBuildKey)
             {
                 throw new NotImplementedException();
             }
 
-            public object NewBuildUp(NamedTypeBuildKey newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+            public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
             {
                 throw new NotImplementedException();
             }

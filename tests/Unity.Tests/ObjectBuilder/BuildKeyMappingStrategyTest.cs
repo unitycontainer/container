@@ -96,7 +96,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
 
         private class SpyStrategy : BuilderStrategy
         {
-            public NamedTypeBuildKey BuildKey;
+            public INamedType BuildKey;
 
             public override void PreBuildUp(IBuilderContext context)
             {

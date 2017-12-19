@@ -24,7 +24,7 @@ namespace Unity.ObjectBuilder.BuildPlan
                                                                           .First(m => Equals(m.Name, "Cast"));
 
 
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, NamedTypeBuildKey buildKey)
+        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
             var itemType = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey
                                                                                         .Type
