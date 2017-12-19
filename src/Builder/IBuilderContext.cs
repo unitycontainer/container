@@ -104,6 +104,11 @@ namespace Unity.Builder
         IBuilderContext ChildContext { get; }
 
         /// <summary>
+        /// The build context used to resolve a dependency during the build operation represented by this context.
+        /// </summary>
+        IBuilderContext ParentContext { get; }
+        
+        /// <summary>
         /// Add a new set of resolver override objects to the current build operation.
         /// </summary>
         /// <param name="newOverrides"><see cref="ResolverOverride"/> objects to add.</param>
@@ -117,6 +122,17 @@ namespace Unity.Builder
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
         IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType);
 
+        // TODO: Add summary here
+        object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null);
+    }
+
+    /// <summary>
+    /// Extension methods to provide convenience overloads over the
+    /// <see cref="IBuilderContext"/> interface.
+    /// </summary>
+    public static class BuilderContextExtensions
+    {
+
         /// <summary>
         /// A convenience method to do a new buildup operation on an existing context. This
         /// overload allows you to specify extra policies which will be in effect for the duration
@@ -127,15 +143,12 @@ namespace Unity.Builder
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null);
-    }
+        public static object NewBuildUp(this IBuilderContext context, INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
+        {
+            return context.NewBuildUp(newBuildKey.Type, newBuildKey.Name, childCustomizationBlock);
+        }
 
-    /// <summary>
-    /// Extension methods to provide convenience overloads over the
-    /// <see cref="IBuilderContext"/> interface.
-    /// </summary>
-    public static class BuilderContextExtensions
-    {
+
         /// <summary>
         /// Start a recursive build up operation to retrieve the default
         /// value for the given <typeparamref name="TResult"/> type.
