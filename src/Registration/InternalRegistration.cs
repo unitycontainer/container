@@ -6,7 +6,8 @@ using Unity.Storage;
 namespace Unity.Registration
 {
     public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
-                                        IPolicyStore, INamedType
+                                        IPolicyStore, 
+                                        INamedType
     {
         #region Fields
 
@@ -21,17 +22,8 @@ namespace Unity.Registration
         {
             Name = name;
             Type = type;
-            _hash = Type?.GetHashCode() ?? 0 + Name?.GetHashCode() ?? 0;
+            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
-
-        #endregion
-
-
-        #region  INamedType
-
-        public Type Type { get; }
-
-        public string Name { get; }
 
         #endregion
 
@@ -112,7 +104,11 @@ namespace Unity.Registration
         #endregion
 
 
-        #region Object
+        #region INamedType
+
+        public Type Type { get; }
+
+        public string Name { get; }
 
         public override bool Equals(object obj)
         {
@@ -126,7 +122,11 @@ namespace Unity.Registration
             return _hash;
         }
 
-        #endregion
+        public static implicit operator NamedTypeBuildKey(InternalRegistration namedType)
+        {
+            return new NamedTypeBuildKey(namedType.Type, namedType.Name);
+        }
 
+        #endregion
     }
 }

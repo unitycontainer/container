@@ -1,6 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using Unity.Builder;
 
 namespace Unity.Policy.Mapping
@@ -8,23 +6,29 @@ namespace Unity.Policy.Mapping
     /// <summary>
     /// Represents a builder policy for mapping build keys.
     /// </summary>
-    public class BuildKeyMappingPolicy : IBuildKeyMappingPolicy
+    public class BuildKeyMappingPolicy : NamedTypeBase, IBuildKeyMappingPolicy
     {
-        private readonly INamedType _newBuildKey;
+        #region Constructors
 
         /// <summary>
         /// Initialize a new instance of the <see cref="BuildKeyMappingPolicy"/> with the new build key.
         /// </summary>
         /// <param name="newBuildKey">The new build key.</param>
         public BuildKeyMappingPolicy(INamedType newBuildKey)
+            : base(newBuildKey.Type, newBuildKey.Name)
         {
-            _newBuildKey = newBuildKey;
         }
 
         public BuildKeyMappingPolicy(Type type, string name)
+            : base(type, name)
         {
-            _newBuildKey = new NamedTypeBuildKey(type, name);
         }
+
+        #endregion
+
+
+        #region IBuildKeyMappingPolicy
+
 
         /// <summary>
         /// Maps the build key.
@@ -35,7 +39,9 @@ namespace Unity.Policy.Mapping
         /// <returns>The new build key.</returns>
         public INamedType Map(INamedType buildKey, IBuilderContext context)
         {
-            return _newBuildKey;
+            return this;
         }
+
+        #endregion
     }
 }

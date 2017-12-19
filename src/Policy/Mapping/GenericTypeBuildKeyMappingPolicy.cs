@@ -9,15 +9,8 @@ namespace Unity.Policy.Mapping
     /// An implementation of <see cref="IBuildKeyMappingPolicy"/> that can map
     /// generic types.
     /// </summary>
-    public class GenericTypeBuildKeyMappingPolicy : IBuildKeyMappingPolicy
+    public class GenericTypeBuildKeyMappingPolicy : NamedTypeBase, IBuildKeyMappingPolicy
     {
-        #region Fields
-
-        private readonly INamedType _destinationKey;
-
-        #endregion
-
-
         #region Constructors
 
         /// <summary>
@@ -27,8 +20,8 @@ namespace Unity.Policy.Mapping
         /// <param name="type">Type mapped to</param>
         /// <param name="name">Name</param>
         public GenericTypeBuildKeyMappingPolicy(Type type, string name)
+            : base(type, name)
         {
-            _destinationKey = new NamedTypeBuildKey(type, name);
         }
 
         /// <summary>
@@ -37,8 +30,8 @@ namespace Unity.Policy.Mapping
         /// </summary>
         /// <param name="destinationKey">Build key to map to. This must be or contain an open generic type.</param>
         public GenericTypeBuildKeyMappingPolicy(INamedType destinationKey)
+            : base(destinationKey.Type, destinationKey.Name)
         {
-            _destinationKey = destinationKey;
         }
 
         #endregion
@@ -59,20 +52,20 @@ namespace Unity.Policy.Mapping
             if (originalTypeInfo.IsGenericTypeDefinition)
             {
                 // No need to perform a mapping - the source type is an open generic
-                return _destinationKey;
+                return this;
             }
 
-            if (buildKey.Type.GenericTypeArguments.Length != _destinationKey.Type.GetTypeInfo().GenericTypeParameters.Length)
+            if (buildKey.Type.GenericTypeArguments.Length != Type.GetTypeInfo().GenericTypeParameters.Length)
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                                                           Constants.MustHaveSameNumberOfGenericArguments,
-                                                          buildKey.Type.Name, _destinationKey.Type.Name),
+                                                          buildKey.Type.Name, Type.Name),
                                             nameof(buildKey.Type));
             }
 
             Type[] genericArguments = originalTypeInfo.GenericTypeArguments;
-            Type resultType = _destinationKey.Type.MakeGenericType(genericArguments);
-            return new NamedTypeBuildKey(resultType, _destinationKey.Name);
+            Type resultType = Type.MakeGenericType(genericArguments);
+            return new NamedTypeBuildKey(resultType, Name);
         }
 
         #endregion

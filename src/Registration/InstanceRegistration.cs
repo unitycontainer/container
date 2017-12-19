@@ -11,20 +11,13 @@ namespace Unity.Registration
     /// <summary>
     /// This class holds instance registration
     /// </summary>
-    public class InstanceRegistration : INamedType, 
+    public class InstanceRegistration : NamedTypeBase, 
                                         IContainerRegistration, 
                                         IBuildPlanCreatorPolicy, 
                                         IBuildPlanPolicy, 
                                         IPolicyStore,
                                         IDisposable
     {
-        #region Fields
-
-        private readonly int _hash;
-
-        #endregion
-
-
 
         #region Constructors
 
@@ -47,13 +40,11 @@ namespace Unity.Registration
         /// User is responsible for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public InstanceRegistration(Type registrationType, string registrationName, object instance, LifetimeManager lifetimeManager)
+            : base(registrationType ?? (instance ?? throw new ArgumentNullException(nameof(instance))).GetType(),
+                string.IsNullOrEmpty(registrationName) ? null : registrationName)
         {
             // Validate input
             if (null != registrationType) InstanceIsAssignable(registrationType, instance, nameof(instance));
-
-            Name = string.IsNullOrEmpty(registrationName) ? null : registrationName;
-            Type = registrationType ?? (instance ?? throw new ArgumentNullException(nameof(instance))).GetType();
-            _hash = Type.GetHashCode() + Name?.GetHashCode() ?? 0;
 
             var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
             if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
@@ -92,15 +83,6 @@ namespace Unity.Registration
         public void ClearAll()
         {
         }
-
-        #endregion
-
-
-        #region INamedType
-
-        public string Name { get; }
-
-        public Type Type { get; }
 
         #endregion
 
@@ -166,19 +148,6 @@ namespace Unity.Registration
             }
 
             return assignmentInstanceType;
-        }
-
-        #endregion
-
-
-        #region Object
-
-        public override bool Equals(object obj) => obj is IContainerRegistration registration && 
-                                                RegisteredType == registration.RegisteredType && 
-                                                                    Name == registration.Name;
-        public override int GetHashCode()
-        {
-            return _hash;
         }
 
         #endregion
