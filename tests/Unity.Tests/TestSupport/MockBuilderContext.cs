@@ -94,6 +94,8 @@ namespace Microsoft.Practices.Unity.TestSupport
 
         public IUnityContainer Container { get; set; } = new UnityContainer();
 
+        public IBuilderContext ParentContext => throw new NotImplementedException();
+
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {
             resolverOverrides.AddRange(newOverrides);
@@ -121,18 +123,17 @@ namespace Microsoft.Practices.Unity.TestSupport
             return newContext;
         }
 
-        /// <summary>
-        /// A convenience method to do a new buildup operation on an existing context. This
-        /// overload allows you to specify extra policies which will be in effect for the duration
-        /// of the build.
-        /// </summary>
-        /// <param name="newBuildKey">Key defining what to build up.</param>
-        /// <param name="childCustomizationBlock">A delegate that takes a <see cref="IBuilderContext"/>. This
-        /// is invoked with the new child context before the build up process starts. This gives callers
-        /// the opportunity to customize the context for the build process.</param>
-        /// <returns>Created object.</returns>
-        public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+        public object ExecuteBuildUp(INamedType buildKey, object existing)
         {
+            this.BuildKey = buildKey;
+            this.Existing = existing;
+
+            return Strategies.ExecuteBuildUp(this);
+        }
+
+        public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
+        {
+            var newBuildKey = new NamedTypeBuildKey(type, name);
             if (null == childCustomizationBlock)
             {
                 var clone = CloneForNewBuild(newBuildKey, null);
@@ -154,14 +155,6 @@ namespace Microsoft.Practices.Unity.TestSupport
             childCustomizationBlock(newContext);
 
             return strategies.ExecuteBuildUp(newContext);
-        }
-
-        public object ExecuteBuildUp(INamedType buildKey, object existing)
-        {
-            this.BuildKey = buildKey;
-            this.Existing = existing;
-
-            return Strategies.ExecuteBuildUp(this);
         }
     }
 }

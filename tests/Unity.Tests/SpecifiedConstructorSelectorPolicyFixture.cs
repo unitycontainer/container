@@ -183,12 +183,9 @@ namespace Microsoft.Practices.Unity.Tests
 
             public IUnityContainer Container { get; set; }
 
-            public object NewBuildUp(INamedType newBuildKey)
-            {
-                throw new NotImplementedException();
-            }
+            public IBuilderContext ParentContext => throw new NotImplementedException();
 
-            public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+            public object NewBuildUp(INamedType newBuildKey)
             {
                 throw new NotImplementedException();
             }
@@ -199,6 +196,11 @@ namespace Microsoft.Practices.Unity.Tests
             }
 
             public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
             {
                 throw new NotImplementedException();
             }

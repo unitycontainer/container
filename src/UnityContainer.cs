@@ -73,7 +73,8 @@ namespace Unity
 
             var buildType = typeFrom ?? to;
             var buildKey = new NamedTypeBuildKey(buildType, name);
-            _policies.Set<IBuildPlanPolicy>(new OverriddenBuildPlanMarkerPolicy(), buildKey);
+
+            _policies.Set(buildKey.Type, buildKey.Name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
             _policies.Clear(buildKey.Type, buildKey.Name, typeof(ILifetimePolicy));
             _policies.Clear(buildKey.Type, buildKey.Name, typeof(IBuildKeyMappingPolicy));
 
@@ -153,7 +154,9 @@ namespace Unity
             SetLifetimeManager(type, name, lifetime);
 
             if (lifetime is IBuildPlanPolicy buildPlanPolicy)
-                _policies.Set(buildPlanPolicy, new NamedTypeBuildKey(type, name));
+                _policies.Set(type, name, typeof(IBuildPlanPolicy), buildPlanPolicy);
+            else
+                _policies.Set(type, name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
 
             RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type,
                                                               instance,
@@ -379,6 +382,18 @@ namespace Unity
         }
 
         #endregion
+
+        /// <summary>
+        /// Returns information about existing registration
+        /// </summary>
+        /// <param name="type">Type to check</param>
+        /// <param name="name">Name of the registration</param>
+        /// <returns>True if registratin exists</returns>
+        public bool IsRegistered(Type type, string name)
+        {
+            return null != _policies.Get(type, name, typeof(IBuildPlanPolicy), out _);
+        }
+
 
         /// <summary>
         /// GetOrDefault a sequence of <see cref="ContainerRegistration"/> that describe the current state
