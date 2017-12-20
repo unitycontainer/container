@@ -15,7 +15,7 @@ namespace Unity.Builder.Strategy
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        void PreBuildUp(IBuilderContext context);
+        object PreBuildUp(IBuilderContext context);
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -23,6 +23,6 @@ namespace Unity.Builder.Strategy
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        void PostBuildUp(IBuilderContext context);
+        void PostBuildUp(IBuilderContext context, object pre = null);
     }
 }

@@ -14,8 +14,10 @@ namespace Unity.Builder.Strategy
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public virtual void PreBuildUp(IBuilderContext context)
+        /// <returns>Returns intermediate value or policy</returns>
+        public virtual object PreBuildUp(IBuilderContext context)
         {
+            return null;
         }
 
         /// <summary>
@@ -24,7 +26,8 @@ namespace Unity.Builder.Strategy
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public virtual void PostBuildUp(IBuilderContext context)
+        /// <param name="pre">Value returned by <see cref="PreBuildUp"/> method.</param>
+        public virtual void PostBuildUp(IBuilderContext context, object pre = null)
         {
         }
     }
