@@ -123,6 +123,9 @@ namespace Unity
         /// <returns>The new child container.</returns>
         IUnityContainer CreateChildContainer();
 
+        // TODO: Add summary
+        bool IsRegistered(Type type, string name);
+
         /// <summary>
         /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
         /// of the container.

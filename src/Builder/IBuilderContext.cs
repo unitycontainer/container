@@ -99,10 +99,15 @@ namespace Unity.Builder
         object CurrentOperation { get; set; }
 
         /// <summary>
-        /// The build context used to resolve a dependency during the build operation represented by this context.
+        /// The child build context.
         /// </summary>
         IBuilderContext ChildContext { get; }
 
+        /// <summary>
+        /// The parent build context.
+        /// </summary>
+        IBuilderContext ParentContext { get; }
+        
         /// <summary>
         /// Add a new set of resolver override objects to the current build operation.
         /// </summary>
@@ -118,6 +123,25 @@ namespace Unity.Builder
         IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType);
 
         /// <summary>
+        /// A method to do a new buildup operation on an existing context.
+        /// </summary>
+        /// <param name="type">Type of to build</param>
+        /// <param name="name">Name of the type to build</param>
+        /// <param name="childCustomizationBlock">A delegate that takes a <see cref="IBuilderContext"/>. This
+        /// is invoked with the new child context before the build up process starts. This gives callers
+        /// the opportunity to customize the context for the build process.</param>
+        /// <returns>Resolved object</returns>
+        object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null);
+    }
+
+    /// <summary>
+    /// Extension methods to provide convenience overloads over the
+    /// <see cref="IBuilderContext"/> interface.
+    /// </summary>
+    public static class BuilderContextExtensions
+    {
+
+        /// <summary>
         /// A convenience method to do a new buildup operation on an existing context. This
         /// overload allows you to specify extra policies which will be in effect for the duration
         /// of the build.
@@ -127,15 +151,13 @@ namespace Unity.Builder
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Created object.</returns>
-        object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null);
-    }
+        public static object NewBuildUp(this IBuilderContext context, INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
+        {
+            return (context ?? throw new ArgumentNullException(nameof(context)))
+                .NewBuildUp(newBuildKey?.Type, newBuildKey?.Name, childCustomizationBlock);
+        }
 
-    /// <summary>
-    /// Extension methods to provide convenience overloads over the
-    /// <see cref="IBuilderContext"/> interface.
-    /// </summary>
-    public static class BuilderContextExtensions
-    {
+
         /// <summary>
         /// Start a recursive build up operation to retrieve the default
         /// value for the given <typeparamref name="TResult"/> type.
@@ -145,7 +167,8 @@ namespace Unity.Builder
         /// <returns>Resulting object.</returns>
         public static TResult NewBuildUp<TResult>(this IBuilderContext context)
         {
-            return context.NewBuildUp<TResult>(null);
+            return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
+                .NewBuildUp(typeof(TResult), null, null);
         }
 
         /// <summary>
@@ -159,7 +182,7 @@ namespace Unity.Builder
         public static TResult NewBuildUp<TResult>(this IBuilderContext context, string name)
         {
             return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
-                .NewBuildUp(NamedTypeBuildKey.Make<TResult>(name));
+                .NewBuildUp(typeof(TResult), name, null);
         }
 
         /// <summary>
