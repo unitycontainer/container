@@ -9,8 +9,7 @@ namespace Unity.Injection
     /// A class that lets you specify a factory method the container
     /// will use to create the object.
     /// </summary>
-    /// <remarks>This is a significantly easier way to do the same
-    /// thing the old static factory extension was used for.</remarks>
+    /// <remarks>This factory allow using predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types.</remarks>
     public class InjectionFactory : InjectionMember, IInjectionFactory, IBuildPlanPolicy
     {
         #region Fields
