@@ -788,7 +788,7 @@ namespace Unity
 
         #endregion
 
-        #region Introspection Helpers
+        #region Registration Helpers
 
         /// <summary>
         /// Check if a particular type has been registered with the container with
@@ -804,21 +804,6 @@ namespace Unity
         }
 
         /// <summary>
-        /// Check if a particular type/name pair has been registered with the container.
-        /// </summary>
-        /// <param name="container">Container to inspect.</param>
-        /// <param name="typeToCheck">Type to check registration for.</param>
-        /// <param name="nameToCheck">Name to check registration for.</param>
-        /// <returns>True if this type/name pair has been registered, false if not.</returns>
-        public static bool IsRegistered(this IUnityContainer container, Type typeToCheck, string nameToCheck)
-        {
-            var registration = from r in (container ?? throw new ArgumentNullException(nameof(container))).Registrations
-                               where r.RegisteredType == (typeToCheck ?? throw new ArgumentNullException(nameof(typeToCheck))) && r.Name == nameToCheck
-                               select r;
-            return registration.FirstOrDefault() != null;
-        }
-
-        /// <summary>
         /// Check if a particular type has been registered with the container with the default name.
         /// </summary>
         /// <typeparam name="T">Type to check registration for.</typeparam>
@@ -826,7 +811,7 @@ namespace Unity
         /// <returns>True if this type has been registered, false if not.</returns>
         public static bool IsRegistered<T>(this IUnityContainer container)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).IsRegistered(typeof(T));
+            return (container ?? throw new ArgumentNullException(nameof(container))).IsRegistered(typeof(T), null);
         }
 
         /// <summary>

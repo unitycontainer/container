@@ -99,12 +99,12 @@ namespace Unity.Builder
         object CurrentOperation { get; set; }
 
         /// <summary>
-        /// The build context used to resolve a dependency during the build operation represented by this context.
+        /// The child build context.
         /// </summary>
         IBuilderContext ChildContext { get; }
 
         /// <summary>
-        /// The build context used to resolve a dependency during the build operation represented by this context.
+        /// The parent build context.
         /// </summary>
         IBuilderContext ParentContext { get; }
         
@@ -122,7 +122,15 @@ namespace Unity.Builder
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
         IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType);
 
-        // TODO: Add summary here
+        /// <summary>
+        /// A method to do a new buildup operation on an existing context.
+        /// </summary>
+        /// <param name="type">Type of to build</param>
+        /// <param name="name">Name of the type to build</param>
+        /// <param name="childCustomizationBlock">A delegate that takes a <see cref="IBuilderContext"/>. This
+        /// is invoked with the new child context before the build up process starts. This gives callers
+        /// the opportunity to customize the context for the build process.</param>
+        /// <returns>Resolved object</returns>
         object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null);
     }
 
@@ -145,7 +153,7 @@ namespace Unity.Builder
         /// <returns>Created object.</returns>
         public static object NewBuildUp(this IBuilderContext context, INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
         {
-            return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
+            return (context ?? throw new ArgumentNullException(nameof(context)))
                 .NewBuildUp(newBuildKey?.Type, newBuildKey?.Name, childCustomizationBlock);
         }
 
