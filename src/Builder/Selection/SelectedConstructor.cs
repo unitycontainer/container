@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Unity.Policy;
 
 namespace Unity.Builder.Selection
 {
     /// <summary>
-    /// Objects of this type are the return value from <see cref="IConstructorSelectorPolicy.SelectConstructor"/>.
+    /// Objects of this type are the return value from 
+    /// <see cref="Unity.Policy.IConstructorSelectorPolicy.SelectConstructor"/>.
     /// It encapsulates the desired <see cref="ConstructorInfo"/> with the string keys
     /// needed to look up the <see cref="IResolverPolicy"/> for each
     /// parameter.

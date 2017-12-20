@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Selection;
 
@@ -20,7 +19,7 @@ namespace Unity.Policy
         /// <param name="context">Current build context.</param>
         /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
         /// generated resolver objects into.</param>
-        /// <returns>Sequence of <see cref="PropertyInfo"/> objects
+        /// <returns>Sequence of <see cref="System.Reflection.PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
         IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination);
     }

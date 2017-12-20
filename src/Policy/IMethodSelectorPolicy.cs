@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Selection;
 
@@ -9,7 +8,7 @@ namespace Unity.Policy
 {
     /// <summary>
     /// An <see cref="IBuilderPolicy"/> that will examine the given
-    /// types and return a sequence of <see cref="MethodInfo"/> objects
+    /// types and return a sequence of <see cref="System.Reflection.MethodInfo"/> objects
     /// that should be called as part of building the object.
     /// </summary>
     public interface IMethodSelectorPolicy : IBuilderPolicy
