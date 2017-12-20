@@ -83,7 +83,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         private int sleepTimeMS = 500;
         private static object @lock = new object();
 
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             // Sleep
             lock (SleepingStrategy.@lock)
@@ -92,15 +92,17 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             }
 
             this.sleepTimeMS = this.sleepTimeMS == 0 ? 500 : 0;
+            return null;
         }
     }
 
     // A test strategy that just creates an object.
     internal class NewObjectStrategy : BuilderStrategy
     {
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             context.Existing = new object();
+            return null;
         }
     }
 }

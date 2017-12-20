@@ -7,7 +7,7 @@ using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles
 {
-    public class ExceptionThrowingTestResolverPolicy : IDependencyResolverPolicy
+    public class ExceptionThrowingTestResolverPolicy : IResolverPolicy
     {
         private Exception exceptionToThrow;
 

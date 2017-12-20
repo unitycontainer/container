@@ -73,7 +73,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             return new MockStrategyChain(new[] { this });
         }
 
-        public void PreBuildUp(IBuilderContext context)
+        public object PreBuildUp(IBuilderContext context)
         {
             this.childContext = this.parentContext.ChildContext;
             this.receivedContext = context;
@@ -82,9 +82,11 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             {
                 throw new Exception();
             }
+
+            return null;
         }
 
-        public void PostBuildUp(IBuilderContext context)
+        public void PostBuildUp(IBuilderContext context, object pre = null)
         {
         }
     }

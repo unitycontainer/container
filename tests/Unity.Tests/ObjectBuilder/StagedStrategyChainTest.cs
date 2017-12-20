@@ -92,6 +92,16 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
                 throw new NotImplementedException();
             }
 
+            object IBuilderStrategy.PreBuildUp(IBuilderContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void PostBuildUp(IBuilderContext context, object pre = null)
+            {
+                throw new NotImplementedException();
+            }
+
             public string Name { get; set; }
         }
     }

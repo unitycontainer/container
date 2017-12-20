@@ -123,6 +123,24 @@ namespace Unity
         #endregion
 
 
+        #region Check Registration
+
+
+        public bool IsRegistered(Type type, string name)
+        {
+            for (var registry = this; null != registry; registry = registry._parent)
+            {
+                if (null == registry[type, name]) continue;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+
         private IRegistry<string, IPolicyStore> this[Type type]
         {
             get

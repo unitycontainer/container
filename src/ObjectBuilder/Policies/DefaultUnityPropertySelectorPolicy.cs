@@ -22,7 +22,7 @@ namespace Unity.ObjectBuilder.Policies
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected override IDependencyResolverPolicy CreateResolver(PropertyInfo property)
+        protected override IResolverPolicy CreateResolver(PropertyInfo property)
         {
             var attributes =
                 (property ?? throw new ArgumentNullException(nameof(property))).GetCustomAttributes(typeof(DependencyResolutionAttribute), false)

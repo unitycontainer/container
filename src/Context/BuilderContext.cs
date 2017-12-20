@@ -210,6 +210,8 @@ namespace Unity.ObjectBuilder
         /// </summary>
         public IBuilderContext ChildContext { get; private set; }
 
+        public IBuilderContext ParentContext { get; private set; }
+
         /// <summary>
         /// Add a new set of resolver override objects to the current build operation.
         /// </summary>
@@ -233,24 +235,26 @@ namespace Unity.ObjectBuilder
         /// </summary>
         /// <param name="dependencyType">Type of the dependency.</param>
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
-        public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+        public IResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
             return _resolverOverrides.GetResolver(this, dependencyType);
         }
 
         /// <summary>
-        /// A convenience method to do a new buildup operation on an existing context. This
-        /// overload allows you to specify extra policies which will be in effect for the duration
-        /// of the build.
+        /// A method to do a new buildup operation on an existing context.
         /// </summary>
-        /// <param name="newBuildKey">Key defining what to build up.</param>
+        /// <param name="type">Type of to build</param>
+        /// <param name="name">Name of the type to build</param>
         /// <param name="childCustomizationBlock">A delegate that takes a <see cref="IBuilderContext"/>. This
         /// is invoked with the new child context before the build up process starts. This gives callers
         /// the opportunity to customize the context for the build process.</param>
-        /// <returns>Created object.</returns>
-        public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
+        /// <returns>Resolved object</returns>
+        public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
         {
-            ChildContext = new BuilderContext(Container, _chain, Lifetime, PersistentPolicies, Policies, newBuildKey, _resolverOverrides);
+            ChildContext = new BuilderContext(Container, _chain, Lifetime, 
+                                              PersistentPolicies, Policies, 
+                                              new NamedTypeBuildKey(type, name), _resolverOverrides)
+            { ParentContext = this};
 
             childCustomizationBlock?.Invoke(ChildContext);
             var result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);

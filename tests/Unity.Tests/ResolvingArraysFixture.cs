@@ -187,9 +187,9 @@ namespace Microsoft.Practices.Unity.Tests
 
         private class InjectedObjectConfigurationExtension : UnityContainerExtension
         {
-            private readonly IDependencyResolverPolicy resolverPolicy;
+            private readonly IResolverPolicy resolverPolicy;
 
-            public InjectedObjectConfigurationExtension(IDependencyResolverPolicy resolverPolicy)
+            public InjectedObjectConfigurationExtension(IResolverPolicy resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }
@@ -204,9 +204,9 @@ namespace Microsoft.Practices.Unity.Tests
 
         private class InjectedObjectSelectorPolicy : IConstructorSelectorPolicy
         {
-            private readonly IDependencyResolverPolicy resolverPolicy;
+            private readonly IResolverPolicy resolverPolicy;
 
-            public InjectedObjectSelectorPolicy(IDependencyResolverPolicy resolverPolicy)
+            public InjectedObjectSelectorPolicy(IResolverPolicy resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }
@@ -245,13 +245,15 @@ namespace Microsoft.Practices.Unity.Tests
             this.container = container;
         }
 
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             if ((NamedTypeBuildKey)context.BuildKey == NamedTypeBuildKey.Make<IUnityContainer>())
             {
                 context.Existing = this.container;
                 context.BuildComplete = true;
             }
+
+            return null;
         }
     }
 }

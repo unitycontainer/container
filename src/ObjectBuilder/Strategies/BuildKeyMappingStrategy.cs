@@ -16,13 +16,14 @@ namespace Unity.ObjectBuilder.Strategies
         /// and if found maps the build key for the current operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             IBuildKeyMappingPolicy policy = context.PersistentPolicies
                                                    .GetPolicy<IBuildKeyMappingPolicy>(context.OriginalBuildKey, out _);
-            if (null == policy) return;
+            if (null == policy) return null;
 
             context.BuildKey = policy.Map(context.BuildKey, context);
+            return null;
         }
     }
 }

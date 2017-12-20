@@ -58,6 +58,6 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         /// </summary>
         /// <param name="parameter">Parameter to create the resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected abstract IDependencyResolverPolicy CreateResolver(ParameterInfo parameter);
+        protected abstract IResolverPolicy CreateResolver(ParameterInfo parameter);
     }
 }
