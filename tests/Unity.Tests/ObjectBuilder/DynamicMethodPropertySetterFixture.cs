@@ -11,7 +11,6 @@ using Unity.Builder;
 using Unity.Builder.Operation;
 using Unity.Builder.Selection;
 using Unity.Container;
-using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Strategies;
@@ -146,9 +145,9 @@ namespace Unity.Tests.ObjectBuilder
 
         public class TestSinglePropertySelectorPolicy<T> : IPropertySelectorPolicy
         {
-            private IDependencyResolverPolicy resolverPolicy;
+            private IResolverPolicy resolverPolicy;
 
-            public TestSinglePropertySelectorPolicy(IDependencyResolverPolicy resolverPolicy)
+            public TestSinglePropertySelectorPolicy(IResolverPolicy resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }

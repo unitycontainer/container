@@ -6,7 +6,7 @@ using Unity.Policy;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles
 {
-    public class CurrentOperationSensingResolverPolicy<T> : IDependencyResolverPolicy
+    public class CurrentOperationSensingResolverPolicy<T> : IResolverPolicy
     {
         public object CurrentOperation;
 

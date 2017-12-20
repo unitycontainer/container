@@ -232,9 +232,9 @@ namespace Unity.Tests.ObjectBuilder
 
         public class TestSingleArgumentMethodSelectorPolicy<T> : IMethodSelectorPolicy
         {
-            private IDependencyResolverPolicy resolverPolicy;
+            private IResolverPolicy resolverPolicy;
 
-            public TestSingleArgumentMethodSelectorPolicy(IDependencyResolverPolicy resolverPolicy)
+            public TestSingleArgumentMethodSelectorPolicy(IResolverPolicy resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }

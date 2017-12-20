@@ -98,10 +98,11 @@ namespace Microsoft.Practices.Unity.Tests
         {
             private int delayMS = 500;
 
-            public override void PreBuildUp(IBuilderContext context)
+            public override object PreBuildUp(IBuilderContext context)
             {
                 Thread.Sleep(this.delayMS);
                 this.delayMS = this.delayMS == 0 ? 500 : 0;
+                return null;
             }
         }
 
@@ -111,13 +112,14 @@ namespace Microsoft.Practices.Unity.Tests
         {
             private bool shouldThrow = true;
 
-            public override void PreBuildUp(IBuilderContext context)
+            public override object PreBuildUp(IBuilderContext context)
             {
                 if (this.shouldThrow)
                 {
                     this.shouldThrow = false;
                     throw new Exception("Throwing from buildup chain");
                 }
+                return null;
             }
         }
     }

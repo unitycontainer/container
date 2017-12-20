@@ -90,7 +90,7 @@ namespace Microsoft.Practices.Unity.Tests
             Assert.AreSame(expectedCtor, result.Constructor);
         }
 
-        private static void AssertPolicyIsCorrect(IDependencyResolverPolicy policy)
+        private static void AssertPolicyIsCorrect(IResolverPolicy policy)
         {
             Assert.IsNotNull(policy);
             AssertExtensions.IsInstanceOfType(policy, typeof(LiteralValueDependencyResolverPolicy));
@@ -183,12 +183,9 @@ namespace Microsoft.Practices.Unity.Tests
 
             public IUnityContainer Container { get; set; }
 
-            public object NewBuildUp(INamedType newBuildKey)
-            {
-                throw new NotImplementedException();
-            }
+            public IBuilderContext ParentContext => throw new NotImplementedException();
 
-            public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+            public object NewBuildUp(INamedType newBuildKey)
             {
                 throw new NotImplementedException();
             }
@@ -198,7 +195,12 @@ namespace Microsoft.Practices.Unity.Tests
                 throw new NotImplementedException();
             }
 
-            public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+            public IResolverPolicy GetOverriddenResolver(Type dependencyType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
             {
                 throw new NotImplementedException();
             }

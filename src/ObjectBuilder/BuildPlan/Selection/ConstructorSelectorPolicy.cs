@@ -20,12 +20,12 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         where TInjectionConstructorMarkerAttribute : Attribute
     {
         /// <summary>
-        /// Create a <see cref="IDependencyResolverPolicy"/> instance for the given
+        /// Create a <see cref="IResolverPolicy"/> instance for the given
         /// <see cref="ParameterInfo"/>.
         /// </summary>
         /// <param name="parameter">Parameter to create the resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected override IDependencyResolverPolicy CreateResolver(ParameterInfo parameter)
+        protected override IResolverPolicy CreateResolver(ParameterInfo parameter)
         {
             return new FixedTypeResolverPolicy((parameter ?? throw new ArgumentNullException(nameof(parameter))).ParameterType);
         }

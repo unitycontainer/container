@@ -197,12 +197,14 @@ namespace Microsoft.Practices.Unity.Tests
 
             public IUnityContainer Container { get; set; }
 
+            public IBuilderContext ParentContext => throw new NotImplementedException();
+
             public void AddResolverOverrides(System.Collections.Generic.IEnumerable<ResolverOverride> newOverrides)
             {
                 throw new NotImplementedException();
             }
 
-            public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+            public IResolverPolicy GetOverriddenResolver(Type dependencyType)
             {
                 throw new NotImplementedException();
             }
@@ -212,9 +214,9 @@ namespace Microsoft.Practices.Unity.Tests
                 return NewBuildupCallback(newBuildKey);
             }
 
-            public object NewBuildUp(INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock)
+            public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
             {
-                return NewBuildupCallback(newBuildKey);
+                return NewBuildupCallback(new NamedTypeBuildKey(type, name));
             }
         }
 

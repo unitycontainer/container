@@ -18,12 +18,12 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         where TResolutionAttribute : Attribute
     {
         /// <summary>
-        /// Create a <see cref="IDependencyResolverPolicy"/> for the given
+        /// Create a <see cref="IResolverPolicy"/> for the given
         /// property.
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected override IDependencyResolverPolicy CreateResolver(PropertyInfo property)
+        protected override IResolverPolicy CreateResolver(PropertyInfo property)
         {
             return new FixedTypeResolverPolicy((property ?? throw new ArgumentNullException(nameof(property))).PropertyType);
         }

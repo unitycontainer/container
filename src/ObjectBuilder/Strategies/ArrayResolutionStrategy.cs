@@ -25,7 +25,7 @@ namespace Unity.ObjectBuilder.Strategies
         /// Do the PreBuildUp stage of construction. This is where the actual work is performed.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             Type typeToBuild = context.BuildKey.Type;
             if (typeToBuild.IsArray && typeToBuild.GetArrayRank() == 1)
@@ -39,6 +39,7 @@ namespace Unity.ObjectBuilder.Strategies
                 context.Existing = resolver(context);
                 context.BuildComplete = true;
             }
+            return null;
         }
 
         private static object ResolveArray<T>(IBuilderContext context)
