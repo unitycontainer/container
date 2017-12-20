@@ -8,24 +8,24 @@ using Unity.Policy;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IDependencyResolverPolicy"/> that resolves to
+    /// An implementation of <see cref="IResolverPolicy"/> that resolves to
     /// to an array populated with the values that result from resolving other instances
-    /// of <see cref="IDependencyResolverPolicy"/>.
+    /// of <see cref="IResolverPolicy"/>.
     /// </summary>
-    public class ResolvedArrayWithElementsResolverPolicy : IDependencyResolverPolicy
+    public class ResolvedArrayWithElementsResolverPolicy : IResolverPolicy
     {
-        private delegate object Resolver(IBuilderContext context, IDependencyResolverPolicy[] elementPolicies);
+        private delegate object Resolver(IBuilderContext context, IResolverPolicy[] elementPolicies);
         private readonly Resolver _resolver;
-        private readonly IDependencyResolverPolicy[] _elementPolicies;
+        private readonly IResolverPolicy[] _elementPolicies;
 
         /// <summary>
         /// Create an instance of <see cref="ResolvedArrayWithElementsResolverPolicy"/>
-        /// with the given type and a collection of <see cref="IDependencyResolverPolicy"/>
+        /// with the given type and a collection of <see cref="IResolverPolicy"/>
         /// instances to use when populating the result.
         /// </summary>
         /// <param name="elementType">The type.</param>
         /// <param name="elementPolicies">The resolver policies to use when populating an array.</param>
-        public ResolvedArrayWithElementsResolverPolicy(Type elementType, params IDependencyResolverPolicy[] elementPolicies)
+        public ResolvedArrayWithElementsResolverPolicy(Type elementType, params IResolverPolicy[] elementPolicies)
         {
 
             var resolverMethodInfo
@@ -47,7 +47,7 @@ namespace Unity.ResolverPolicy
             return _resolver(context ?? throw new ArgumentNullException(nameof(context)), _elementPolicies);
         }
 
-        private static object DoResolve<T>(IBuilderContext context, IDependencyResolverPolicy[] elementPolicies)
+        private static object DoResolve<T>(IBuilderContext context, IResolverPolicy[] elementPolicies)
         {
             T[] result = new T[elementPolicies.Length];
 

@@ -11,14 +11,14 @@ namespace Unity.Builder.Selection
     /// </summary>
     public class SelectedMemberWithParameters
     {
-        private readonly List<IDependencyResolverPolicy> _parameterResolvers = new List<IDependencyResolverPolicy>();
+        private readonly List<IResolverPolicy> _parameterResolvers = new List<IResolverPolicy>();
 
         /// <summary>
         /// Adds the parameter resolver. Resolvers are assumed
         /// to be in the order of the parameters to the member.
         /// </summary>
         /// <param name="newResolver">The new resolver.</param>
-        public void AddParameterResolver(IDependencyResolverPolicy newResolver)
+        public void AddParameterResolver(IResolverPolicy newResolver)
         {
             _parameterResolvers.Add(newResolver);
         }
@@ -27,7 +27,7 @@ namespace Unity.Builder.Selection
         /// Gets the parameter resolvers.
         /// </summary>
         /// <returns>An array with the parameter resolvers.</returns>
-        public IDependencyResolverPolicy[] GetParameterResolvers()
+        public IResolverPolicy[] GetParameterResolvers()
         {
             return _parameterResolvers.ToArray();
         }

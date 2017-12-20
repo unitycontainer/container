@@ -76,13 +76,13 @@ namespace Unity.Resolution
         }
 
         /// <summary>
-        /// Return a <see cref="IDependencyResolverPolicy"/> that can be used to give a value
+        /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
         /// for the given desired dependency.
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <param name="dependencyType">Type of dependency desired.</param>
-        /// <returns>a <see cref="IDependencyResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IDependencyResolverPolicy GetResolver(IBuilderContext context, Type dependencyType)
+        /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
+        public override IResolverPolicy GetResolver(IBuilderContext context, Type dependencyType)
         {
             // Walk backwards over the resolvers, this way newer resolvers can replace
             // older ones.

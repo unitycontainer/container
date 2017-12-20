@@ -49,16 +49,16 @@ namespace Unity.Builder.Selection
 
         private SelectedProperty CreateSelectedProperty(PropertyInfo property)
         {
-            IDependencyResolverPolicy resolver = this.CreateResolver(property);
+            IResolverPolicy resolver = this.CreateResolver(property);
             return new SelectedProperty(property, resolver);
         }
 
         /// <summary>
-        /// Create a <see cref="IDependencyResolverPolicy"/> for the given
+        /// Create a <see cref="IResolverPolicy"/> for the given
         /// property.
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected abstract IDependencyResolverPolicy CreateResolver(PropertyInfo property);
+        protected abstract IResolverPolicy CreateResolver(PropertyInfo property);
     }
 }
