@@ -38,14 +38,14 @@ namespace Unity.Attributes
         public string Name { get; }
 
         /// <summary>
-        /// Create an instance of <see cref="IDependencyResolverPolicy"/> that
+        /// Create an instance of <see cref="IResolverPolicy"/> that
         /// will be used to get the value for the member this attribute is
         /// applied to.
         /// </summary>
         /// <param name="typeToResolve">Type of parameter or property that
         /// this attribute is decoration.</param>
         /// <returns>The resolver object.</returns>
-        public override IDependencyResolverPolicy CreateResolver(Type typeToResolve)
+        public override IResolverPolicy CreateResolver(Type typeToResolve)
         {
             return new OptionalDependencyResolverPolicy(typeToResolve, Name);
         }

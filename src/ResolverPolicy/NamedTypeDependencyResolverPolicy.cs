@@ -7,11 +7,11 @@ using Unity.Policy;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IDependencyResolverPolicy"/> that stores a
+    /// An implementation of <see cref="IResolverPolicy"/> that stores a
     /// type and name, and at resolution time puts them together into a
     /// <see cref="NamedTypeBuildKey"/>.
     /// </summary>
-    public class NamedTypeDependencyResolverPolicy : IDependencyResolverPolicy
+    public class NamedTypeDependencyResolverPolicy : IResolverPolicy
     {
         /// <summary>
         /// Create an instance of <see cref="NamedTypeDependencyResolverPolicy"/>

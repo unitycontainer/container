@@ -6,10 +6,10 @@ using Unity.Policy;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// A <see cref="IDependencyResolverPolicy"/> implementation that returns
+    /// A <see cref="IResolverPolicy"/> implementation that returns
     /// the value set in the constructor.
     /// </summary>
-    public class LiteralValueDependencyResolverPolicy : IDependencyResolverPolicy
+    public class LiteralValueDependencyResolverPolicy : IResolverPolicy
     {
         private readonly object _dependencyValue;
 

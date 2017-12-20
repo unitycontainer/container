@@ -20,7 +20,7 @@ namespace Unity.Builder.Selection
         /// </summary>
         /// <param name="property">The property.</param>
         /// <param name="resolver"></param>
-        public SelectedProperty(PropertyInfo property, IDependencyResolverPolicy resolver)
+        public SelectedProperty(PropertyInfo property, IResolverPolicy resolver)
         {
             Property = property;
             Resolver = resolver;
@@ -34,6 +34,6 @@ namespace Unity.Builder.Selection
         /// <summary>
         /// IDependencyResolverPolicy for this property
         /// </summary>
-        public IDependencyResolverPolicy Resolver { get; }
+        public IResolverPolicy Resolver { get; }
     }
 }

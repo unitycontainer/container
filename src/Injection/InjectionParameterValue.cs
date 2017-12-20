@@ -39,13 +39,13 @@ namespace Unity.Injection
         public abstract bool MatchesType(Type t);
 
         /// <summary>
-        /// Return a <see cref="IDependencyResolverPolicy"/> instance that will
+        /// Return a <see cref="IResolverPolicy"/> instance that will
         /// return this types value for the parameter.
         /// </summary>
         /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
         /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IDependencyResolverPolicy"/>.</returns>
-        public abstract IDependencyResolverPolicy GetResolverPolicy(Type typeToBuild);
+        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
+        public abstract IResolverPolicy GetResolverPolicy(Type typeToBuild);
 
         /// <summary>
         /// Convert the given set of arbitrary values to a sequence of InjectionParameterValue

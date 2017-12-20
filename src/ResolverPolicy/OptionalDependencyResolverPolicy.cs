@@ -9,10 +9,10 @@ using Unity.Policy;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// A <see cref="IDependencyResolverPolicy"/> that will attempt to
+    /// A <see cref="IResolverPolicy"/> that will attempt to
     /// resolve a value, and return null if it cannot rather than throwing.
     /// </summary>
-    public class OptionalDependencyResolverPolicy : IDependencyResolverPolicy
+    public class OptionalDependencyResolverPolicy : IResolverPolicy
     {
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyResolverPolicy"/> object

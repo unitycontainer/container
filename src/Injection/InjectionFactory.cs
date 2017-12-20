@@ -1,8 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using Unity.Builder;
-using Unity.Builder.Policy;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -12,11 +9,17 @@ namespace Unity.Injection
     /// A class that lets you specify a factory method the container
     /// will use to create the object.
     /// </summary>
-    /// <remarks>This is a significantly easier way to do the same
-    /// thing the old static factory extension was used for.</remarks>
-    public class InjectionFactory : InjectionMember, IInjectionFactory
+    /// <remarks>This factory allow using predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types.</remarks>
+    public class InjectionFactory : InjectionMember, IInjectionFactory, IBuildPlanPolicy
     {
-        private readonly Func<IUnityContainer, Type, string, object> factoryFunc;
+        #region Fields
+
+        private readonly Func<IUnityContainer, Type, string, object> _factoryFunc;
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Create a new instance of <see cref="InjectionFactory"/> with
@@ -35,8 +38,13 @@ namespace Unity.Injection
         /// <param name="factoryFunc">Factory function.</param>
         public InjectionFactory(Func<IUnityContainer, Type, string, object> factoryFunc)
         {
-            this.factoryFunc = factoryFunc ?? throw new ArgumentNullException(nameof(factoryFunc));
+            _factoryFunc = factoryFunc ?? throw new ArgumentNullException(nameof(factoryFunc));
         }
+
+        #endregion
+
+
+        #region IInjectionFactory
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -49,8 +57,24 @@ namespace Unity.Injection
         /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
         {
-            var policy = new FactoryDelegateBuildPlanPolicy(factoryFunc);
-            policies.Set(serviceType, name, typeof(IBuildPlanPolicy), policy);
+            policies.Set(serviceType, name, typeof(IBuildPlanPolicy), this);
         }
+
+        #endregion
+
+
+        #region IBuildPlanPolicy
+
+        public void BuildUp(IBuilderContext context)
+        {
+            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
+            {
+                var currentContainer = context.NewBuildUp<IUnityContainer>();
+                context.Existing = _factoryFunc(currentContainer, context.BuildKey.Type, context.BuildKey.Name);
+                context.SetPerBuildSingleton();
+            }
+        }
+
+        #endregion
     }
 }

@@ -27,13 +27,13 @@ namespace Unity.Resolution
         public virtual InjectionParameterValue Value { get; }
 
         /// <summary>
-        /// Return a <see cref="IDependencyResolverPolicy"/> that can be used to give a value
+        /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
         /// for the given desired dependency.
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <param name="dependencyType">Type of dependency desired.</param>
-        /// <returns>a <see cref="IDependencyResolverPolicy"/> object if this override applies, null if not.</returns>
-        public abstract IDependencyResolverPolicy GetResolver(IBuilderContext context, Type dependencyType);
+        /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
+        public abstract IResolverPolicy GetResolver(IBuilderContext context, Type dependencyType);
 
         /// <summary>
         /// Wrap this resolver in one that verifies the type of the object being built.

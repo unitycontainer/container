@@ -7,11 +7,11 @@ using Unity.Policy;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IDependencyResolverPolicy"/> that
+    /// An implementation of <see cref="IResolverPolicy"/> that
     /// calls back into the build chain to build up the dependency, passing
     /// a type given at compile time as its build key.
     /// </summary>
-    public class FixedTypeResolverPolicy : IDependencyResolverPolicy
+    public class FixedTypeResolverPolicy : IResolverPolicy
     {
         private readonly NamedTypeBuildKey _keyToBuild;
 

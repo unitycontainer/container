@@ -13,13 +13,13 @@ namespace Unity.Attributes
     public abstract class DependencyResolutionAttribute : Attribute
     {
         /// <summary>
-        /// Create an instance of <see cref="IDependencyResolverPolicy"/> that
+        /// Create an instance of <see cref="IResolverPolicy"/> that
         /// will be used to get the value for the member this attribute is
         /// applied to.
         /// </summary>
         /// <param name="typeToResolve">Type of parameter or property that
         /// this attribute is decoration.</param>
         /// <returns>The resolver object.</returns>
-        public abstract IDependencyResolverPolicy CreateResolver(Type typeToResolve);
+        public abstract IResolverPolicy CreateResolver(Type typeToResolve);
     }
 }

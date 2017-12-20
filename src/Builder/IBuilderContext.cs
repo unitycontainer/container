@@ -115,12 +115,12 @@ namespace Unity.Builder
         void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides);
 
         /// <summary>
-        /// GetOrDefault a <see cref="IDependencyResolverPolicy"/> object for the given <paramref name="dependencyType"/>
+        /// GetOrDefault a <see cref="IResolverPolicy"/> object for the given <paramref name="dependencyType"/>
         /// or null if that dependency hasn't been overridden.
         /// </summary>
         /// <param name="dependencyType">Type of the dependency.</param>
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
-        IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType);
+        IResolverPolicy GetOverriddenResolver(Type dependencyType);
 
         /// <summary>
         /// A method to do a new buildup operation on an existing context.
