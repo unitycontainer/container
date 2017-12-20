@@ -11,11 +11,11 @@ using Unity.Builder;
 using Unity.Builder.Operation;
 using Unity.Builder.Selection;
 using Unity.Container;
-using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Policy.Selection;
 using DependencyAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.DependencyAttribute;
 using InjectionConstructorAttribute = Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles.InjectionConstructorAttribute;
 
@@ -146,14 +146,14 @@ namespace Unity.Tests.ObjectBuilder
 
         public class TestSinglePropertySelectorPolicy<T> : IPropertySelectorPolicy
         {
-            private IDependencyResolverPolicy resolverPolicy;
+            private IResolverPolicy resolverPolicy;
 
-            public TestSinglePropertySelectorPolicy(IDependencyResolverPolicy resolverPolicy)
+            public TestSinglePropertySelectorPolicy(IResolverPolicy resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }
 
-            public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination)
+            public IEnumerable<ISelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination)
             {
                 const BindingFlags Filter = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
                 var firstProperty = typeof(T).GetProperties(Filter).First();

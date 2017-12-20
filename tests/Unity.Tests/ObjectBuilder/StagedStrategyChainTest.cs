@@ -83,12 +83,12 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
 
         private class FakeStrategy : IBuilderStrategy
         {
-            public void PreBuildUp(IBuilderContext context)
+            public object PreBuildUp(IBuilderContext context)
             {
                 throw new NotImplementedException();
             }
 
-            public void PostBuildUp(IBuilderContext context)
+            public void PostBuildUp(IBuilderContext context, object pre = null)
             {
                 throw new NotImplementedException();
             }

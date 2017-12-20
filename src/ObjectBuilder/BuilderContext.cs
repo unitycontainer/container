@@ -225,12 +225,12 @@ namespace Unity.ObjectBuilder
         }
 
         /// <summary>
-        /// GetOrDefault a <see cref="IDependencyResolverPolicy"/> object for the given <paramref name="dependencyType"/>
+        /// GetOrDefault a <see cref="IResolverPolicy"/> object for the given <paramref name="dependencyType"/>
         /// or null if that dependency hasn't been overridden.
         /// </summary>
         /// <param name="dependencyType">Type of the dependency.</param>
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
-        public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+        public IResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
             return _resolverOverrides.GetResolver(this, dependencyType);
         }

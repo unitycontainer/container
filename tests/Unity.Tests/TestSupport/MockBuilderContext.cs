@@ -101,7 +101,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             resolverOverrides.AddRange(newOverrides);
         }
 
-        public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+        public IResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
             return resolverOverrides.GetResolver(this, dependencyType);
         }

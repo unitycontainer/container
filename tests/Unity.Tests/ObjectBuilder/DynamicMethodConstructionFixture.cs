@@ -113,9 +113,9 @@ namespace Unity.Tests.ObjectBuilder
 
         public class TestSingleArgumentConstructorSelectorPolicy<T> : IConstructorSelectorPolicy
         {
-            private IDependencyResolverPolicy parameterResolverPolicy;
+            private IResolverPolicy parameterResolverPolicy;
 
-            public TestSingleArgumentConstructorSelectorPolicy(IDependencyResolverPolicy parameterResolverPolicy)
+            public TestSingleArgumentConstructorSelectorPolicy(IResolverPolicy parameterResolverPolicy)
             {
                 this.parameterResolverPolicy = parameterResolverPolicy;
             }

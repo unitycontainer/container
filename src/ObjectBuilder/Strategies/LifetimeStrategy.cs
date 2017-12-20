@@ -27,9 +27,9 @@ namespace Unity.ObjectBuilder.Strategies
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
-            if (context.Existing != null) return;
+            if (context.Existing != null) return null;
 
             var lifetimePolicy = GetLifetimePolicy(context, out var _);
             if (lifetimePolicy is IRequiresRecovery recovery)
@@ -43,6 +43,7 @@ namespace Unity.ObjectBuilder.Strategies
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
+            return null;
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace Unity.ObjectBuilder.Strategies
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PostBuildUp(IBuilderContext context)
+        public override void PostBuildUp(IBuilderContext context, object pre = null)
         {
             // If we got to this method, then we know the lifetime policy didn't
             // find the object. So we go ahead and store it.

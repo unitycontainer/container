@@ -19,7 +19,7 @@ namespace Unity.ObjectBuilder.Strategies
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             var plan = context.Policies.Get<IBuildPlanPolicy>(context.OriginalBuildKey, out var buildPlanLocation);
             if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
@@ -33,6 +33,7 @@ namespace Unity.ObjectBuilder.Strategies
             }
 
             plan?.BuildUp(context);
+            return null;
         }
     }
 }

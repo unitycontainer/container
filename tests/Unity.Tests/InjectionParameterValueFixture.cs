@@ -47,7 +47,7 @@ namespace Microsoft.Practices.Unity.Tests
             Type expectedType = typeof(ILogger);
 
             ResolvedParameter parameter = new ResolvedParameter<ILogger>();
-            IDependencyResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
+            IResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
 
             AssertExtensions.IsInstanceOfType(resolver, typeof(NamedTypeDependencyResolverPolicy));
             Assert.AreEqual(expectedType, ((NamedTypeDependencyResolverPolicy)resolver).Type);
@@ -61,7 +61,7 @@ namespace Microsoft.Practices.Unity.Tests
             string name = "special";
 
             ResolvedParameter parameter = new ResolvedParameter(expectedType, name);
-            IDependencyResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
+            IResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
 
             AssertExtensions.IsInstanceOfType(resolver, typeof(NamedTypeDependencyResolverPolicy));
             Assert.AreEqual(expectedType, ((NamedTypeDependencyResolverPolicy)resolver).Type);
@@ -84,7 +84,7 @@ namespace Microsoft.Practices.Unity.Tests
 
             InjectionParameter parameter = (InjectionParameter)values[0];
             Assert.AreEqual(typeof(int), parameter.ParameterType);
-            IDependencyResolverPolicy policy = parameter.GetResolverPolicy(null);
+            IResolverPolicy policy = parameter.GetResolverPolicy(null);
             int result = (int)policy.Resolve(null);
 
             Assert.AreEqual(15, result);
@@ -132,7 +132,7 @@ namespace Microsoft.Practices.Unity.Tests
 
         private void AssertExpectedValue(InjectionParameter parameter, Type expectedType, object expectedValue)
         {
-            IDependencyResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
+            IResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
             object result = resolver.Resolve(null);
 
             Assert.AreEqual(expectedType, parameter.ParameterType);

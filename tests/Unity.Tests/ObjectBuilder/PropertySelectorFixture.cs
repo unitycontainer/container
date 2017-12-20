@@ -7,11 +7,10 @@ using System.Reflection;
 using Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
-using Unity.Builder.Selection;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.Policy;
+using Unity.Policy.Selection;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {
@@ -48,7 +47,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             IPropertySelectorPolicy selector = new PropertySelectorPolicy<DependencyAttribute>();
             IBuilderContext context = GetContext(t);
-            var properties = new List<SelectedProperty>(selector.SelectProperties(context, context.PersistentPolicies));
+            var properties = new List<ISelectedProperty>(selector.SelectProperties(context, context.PersistentPolicies));
             return properties.Select(sp => sp.Property).ToList();
         }
 

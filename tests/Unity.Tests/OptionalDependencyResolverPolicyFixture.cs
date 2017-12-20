@@ -204,7 +204,7 @@ namespace Microsoft.Practices.Unity.Tests
                 throw new NotImplementedException();
             }
 
-            public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+            public IResolverPolicy GetOverriddenResolver(Type dependencyType)
             {
                 throw new NotImplementedException();
             }

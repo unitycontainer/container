@@ -90,7 +90,7 @@ namespace Microsoft.Practices.Unity.Tests
             Assert.AreSame(expectedCtor, result.Constructor);
         }
 
-        private static void AssertPolicyIsCorrect(IDependencyResolverPolicy policy)
+        private static void AssertPolicyIsCorrect(IResolverPolicy policy)
         {
             Assert.IsNotNull(policy);
             AssertExtensions.IsInstanceOfType(policy, typeof(LiteralValueDependencyResolverPolicy));
@@ -195,7 +195,7 @@ namespace Microsoft.Practices.Unity.Tests
                 throw new NotImplementedException();
             }
 
-            public IDependencyResolverPolicy GetOverriddenResolver(Type dependencyType)
+            public IResolverPolicy GetOverriddenResolver(Type dependencyType)
             {
                 throw new NotImplementedException();
             }

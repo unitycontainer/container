@@ -35,7 +35,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override object PreBuildUp(IBuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
@@ -76,6 +76,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             {
                 dynamicBuildContext.AddToBuildPlan(dynamicBuildContext.GetClearCurrentOperationExpression());
             }
+
+            return null;
         }
 
         private static MethodInfo GetValidatedPropertySetter(PropertyInfo property)

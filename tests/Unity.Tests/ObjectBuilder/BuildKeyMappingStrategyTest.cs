@@ -98,9 +98,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             public INamedType BuildKey;
 
-            public override void PreBuildUp(IBuilderContext context)
+            public override object PreBuildUp(IBuilderContext context)
             {
                 this.BuildKey = context.BuildKey;
+                return null;
             }
         }
     }
