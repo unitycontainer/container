@@ -1,12 +1,12 @@
 <Project>
 
   <PropertyGroup>
-    <Version>6.0.0-alpha</Version>
+    <Version>6.0.0-pre</Version>
     <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, .NET 4.0, 4.5, 4.7 package.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
-    <UnityAbstractionsVersion>3.*</UnityAbstractionsVersion>
+    <UnityAbstractionsVersion>3.0.0</UnityAbstractionsVersion>
   </PropertyGroup>
 
 </Project>
