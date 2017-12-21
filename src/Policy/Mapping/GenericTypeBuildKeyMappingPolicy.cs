@@ -48,14 +48,14 @@ namespace Unity.Policy.Mapping
         /// <returns>The new build key.</returns>
         public INamedType Map(INamedType buildKey, IBuilderContext context)
         {
-            var originalTypeInfo = buildKey.Type.GetTypeInfo();
-            if (originalTypeInfo.IsGenericTypeDefinition)
+            var targetTypeInfo = buildKey.Type.GetTypeInfo();
+            if (targetTypeInfo.IsGenericTypeDefinition)
             {
                 // No need to perform a mapping - the source type is an open generic
                 return this;
             }
 
-            if (buildKey.Type.GenericTypeArguments.Length != Type.GetTypeInfo().GenericTypeParameters.Length)
+            if (targetTypeInfo.GenericTypeArguments.Length != Type.GetTypeInfo().GenericTypeParameters.Length)
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                                                           Constants.MustHaveSameNumberOfGenericArguments,
@@ -63,7 +63,7 @@ namespace Unity.Policy.Mapping
                                             nameof(buildKey.Type));
             }
 
-            Type[] genericArguments = originalTypeInfo.GenericTypeArguments;
+            Type[] genericArguments = targetTypeInfo.GenericTypeArguments;
             Type resultType = Type.MakeGenericType(genericArguments);
             return new NamedTypeBuildKey(resultType, Name);
         }
