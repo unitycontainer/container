@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
@@ -69,7 +70,7 @@ namespace Unity.Injection
         public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
         {
             var elementType = !_elementType.IsArray ? _elementType 
-                : _elementType.GetArrayParameterType(typeToBuild.GenericTypeArguments);
+                : _elementType.GetArrayParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
 
             var elementPolicies = _elementValues.Select(pv => pv.GetResolverPolicy(typeToBuild))
                                                 .ToArray();
