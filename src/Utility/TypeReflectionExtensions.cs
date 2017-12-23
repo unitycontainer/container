@@ -104,26 +104,28 @@ namespace Unity.Utility
                 return typeToReflect.GetGenericTypeDefinition().MakeGenericType(typeArgs);
             }
 
+            if (typeToReflect.IsArray)
+            {
+                return typeToReflect.GetArrayParameterType(genericArguments);
+            }
+
             if (info.IsGenericParameter)
             {
                 return genericArguments[typeToReflect.GenericParameterPosition];
             }
 
-            if (typeToReflect.IsArray && typeToReflect.GetElementType().GetTypeInfo().IsGenericParameter)
-            {
-                int rank;
-                if ((rank = typeToReflect.GetArrayRank()) == 1)
-                {
-                    // work around to the fact that Type.MakeArrayType() != Type.MakeArrayType(1)
-                    return genericArguments[typeToReflect.GetElementType().GenericParameterPosition]
-                        .MakeArrayType();
-                }
-
-                return genericArguments[typeToReflect.GetElementType().GenericParameterPosition]
-                    .MakeArrayType(rank);
-            }
-
             return typeToReflect;
+        }
+
+
+        public static Type GetArrayParameterType(this Type typeToReflect, Type[] genericArguments)
+        {
+            var rank = typeToReflect.GetArrayRank();
+            var element = typeToReflect.GetElementType();
+            var type = element.IsArray ? element.GetArrayParameterType(genericArguments)
+                                       : genericArguments[element.GenericParameterPosition];
+
+            return 1 == rank ? type.MakeArrayType() : type.MakeArrayType(rank);
         }
 
 
@@ -189,6 +191,5 @@ namespace Unity.Utility
 
             return !toMatch.Where((t, i) => !t.MatchesType(candidateTypes[i])).Any();
         }
-
     }
 }

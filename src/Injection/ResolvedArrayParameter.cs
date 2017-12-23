@@ -3,8 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -26,7 +28,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         public ResolvedArrayParameter(Type elementType, params object[] elementValues)
-            : this(GetArrayType(elementType), elementType, elementValues)
+            : this(elementType.MakeArrayType(), elementType, elementValues)
         {
         }
 
@@ -66,17 +68,13 @@ namespace Unity.Injection
         /// <returns>The <see cref="IResolverPolicy"/>.</returns>
         public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
         {
-            List<IResolverPolicy> resolverPolicies = new List<IResolverPolicy>();
-            foreach (InjectionParameterValue pv in _elementValues)
-            {
-                resolverPolicies.Add(pv.GetResolverPolicy(_elementType));
-            }
-            return new ResolvedArrayWithElementsResolverPolicy(_elementType, resolverPolicies.ToArray());
-        }
+            var elementType = !_elementType.IsArray ? _elementType 
+                : _elementType.GetArrayParameterType(typeToBuild.GenericTypeArguments);
 
-        private static Type GetArrayType(Type elementType)
-        {
-            return (elementType ?? throw new ArgumentNullException(nameof(elementType))).MakeArrayType();
+            var elementPolicies = _elementValues.Select(pv => pv.GetResolverPolicy(typeToBuild))
+                                                .ToArray();
+
+            return new ResolvedArrayWithElementsResolverPolicy(elementType, elementPolicies);
         }
     }
 

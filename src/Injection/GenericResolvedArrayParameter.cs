@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -74,13 +75,8 @@ namespace Unity.Injection
             GuardTypeToBuildHasMatchingGenericParameter(typeToBuild);
 
             Type typeToResolve = typeToBuild.GetNamedGenericParameter(_genericParameterName);
-
-            var resolverPolicies = new List<IResolverPolicy>();
-            foreach (InjectionParameterValue pv in _elementValues)
-            {
-                resolverPolicies.Add(pv.GetResolverPolicy(typeToBuild));
-            }
-            return new ResolvedArrayWithElementsResolverPolicy(typeToResolve, resolverPolicies.ToArray());
+            var elementPolicies = _elementValues.Select(pv => pv.GetResolverPolicy(typeToBuild)).ToArray();
+            return new ResolvedArrayWithElementsResolverPolicy(typeToResolve, elementPolicies);
         }
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)
