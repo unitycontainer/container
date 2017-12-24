@@ -228,18 +228,6 @@ namespace Unity
             }
         }
 
-
-        /// <summary>
-        /// Gets or sets policy for specified named type 
-        /// </summary>
-        /// <remarks>
-        /// This call never fails. If type or name is not present this method crates 
-        /// empty <see cref="InternalRegistration"/> object and initializes it with policy
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="name"></param>
-        /// <param name="interfaceType"></param>
-        /// <returns></returns>
         private IBuilderPolicy this[Type type, string name, Type interfaceType]
         {
             get
@@ -392,74 +380,6 @@ namespace Unity
                 return null;
             }
         }
-
-        /// <summary>
-        /// Retrieves registration for requested named type
-        /// </summary>
-        /// <param name="type">Registration type</param>
-        /// <param name="name">Registration name</param>
-        /// <param name="create">Instruncts container if it should create registration if not found</param>
-        /// <returns>Registration for requested named type or null if named type is not registered and 
-        /// <see cref="create"/> is false</returns>
-        public INamedType Registration(Type type, string name, bool create = false)
-        {
-            for (var container = this; null != container; container = container._parent)
-            {
-                IPolicyStore data;
-                if (null == (data = container[type, name])) continue;
-
-                return (INamedType)data;
-            }
-
-            if (!create) return null;
-
-            var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            lock (_syncRoot)
-            {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-                {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
-                    {
-                        collisions++;
-                        continue;
-                    }
-
-                    var existing = _registrations.Entries[i].Value;
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry<string, IPolicyStore> registry
-                                 ? new HashRegistry<string, IPolicyStore>(registry)
-                                 : new HashRegistry<string, IPolicyStore>(LinkedRegistry.ListToHashCutoverPoint * 2,
-                                                                                       (LinkedRegistry)existing);
-
-                        _registrations.Entries[i].Value = existing;
-                    }
-
-                    return (INamedType)existing.GetOrAdd(name, () => CreateRegistration(type, name));
-                }
-
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
-                {
-                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
-                }
-
-                var registration = CreateRegistration(type, name);
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
-
-                return (INamedType)registration;
-            }
-        }
-
-
 
         #endregion
 

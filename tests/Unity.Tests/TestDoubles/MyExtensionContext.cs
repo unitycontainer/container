@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
-using Microsoft.Practices.ObjectBuilder2;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Storage;
+using Unity.Strategies;
 using Unity.Strategy;
 
 namespace Unity.Tests.TestDoubles

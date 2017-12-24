@@ -8,7 +8,7 @@ using System.Reflection;
 using Unity.Builder.Strategy;
 using Unity.Strategy;
 
-namespace Unity.Container
+namespace Unity.Storage
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies partitioned by stages.

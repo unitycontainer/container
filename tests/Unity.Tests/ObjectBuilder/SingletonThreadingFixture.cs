@@ -4,16 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Lifetime;
 using Unity.ObjectBuilder;
-using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Strategies;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class SingletonThreadingFixture

@@ -8,7 +8,7 @@ using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.Strategies
+namespace Unity.Strategies
 {
     /// <summary>
     /// An <see cref="IBuilderStrategy"/> implementation that uses
@@ -45,7 +45,7 @@ namespace Unity.ObjectBuilder.Strategies
                 context.BuildComplete = true;
             }
 
-            return null;
+            return lifetimePolicy;
         }
 
         /// <summary>
@@ -54,12 +54,10 @@ namespace Unity.ObjectBuilder.Strategies
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PostBuildUp(IBuilderContext context, object pre = null)
+        /// <param name="lifetimePolicy"></param>
+        public override void PostBuildUp(IBuilderContext context, object lifetimePolicy = null)
         {
-            // If we got to this method, then we know the lifetime policy didn't
-            // find the object. So we go ahead and store it.
-            var lifetimePolicy = GetLifetimePolicy(context, out _);
-            lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
+            (lifetimePolicy as ILifetimePolicy)?.SetValue(context.Existing, context.Lifetime);
         }
 
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)

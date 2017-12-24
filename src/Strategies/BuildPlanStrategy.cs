@@ -4,7 +4,7 @@ using Unity.Exceptions;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.Strategies
+namespace Unity.Strategies
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that will look for a build plan

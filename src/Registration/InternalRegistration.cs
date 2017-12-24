@@ -28,7 +28,7 @@ namespace Unity.Registration
         #endregion
 
 
-        #region IPolicyMap
+        #region IPolicyStore
 
         public virtual IBuilderPolicy Get(Type policyInterface)
         {

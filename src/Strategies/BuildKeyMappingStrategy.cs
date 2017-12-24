@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.Strategies
+namespace Unity.Strategies
 {
     /// <summary>
     /// Represents a strategy for mapping build keys in the build up operation.
@@ -22,7 +23,9 @@ namespace Unity.ObjectBuilder.Strategies
                                                    .GetPolicy<IBuildKeyMappingPolicy>(context.OriginalBuildKey, out _);
             if (null == policy) return null;
 
-            context.BuildKey = policy.Map(context.BuildKey, context);
+            var key = policy.Map(context.BuildKey, context);
+            if (key != context.BuildKey) Debug.WriteLine("");
+            context.BuildKey = key;
             return null;
         }
     }

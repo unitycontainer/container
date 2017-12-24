@@ -2,16 +2,17 @@
 
 using System;
 using System.Collections.Generic;
-using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Strategy;
 using Unity.Utility;
 
-namespace Unity.ObjectBuilder
+namespace Unity.Builder
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
@@ -27,6 +28,28 @@ namespace Unity.ObjectBuilder
         #endregion
 
 
+        #region Constructors
+
+        public BuilderContext(IUnityContainer container, ILifetimeContainer lifetime, IEnumerable<IBuilderStrategy> chain, IPolicyList policies, 
+                              INamedType registration, object existing, params ResolverOverride[] resolverOverrides)
+        {
+            Container = container;
+            _chain = new StrategyChain(chain);
+            Lifetime = lifetime;
+            Existing = existing;
+            BuildKey = registration is IPolicyStore store ? store.Get<IBuildKeyMappingPolicy>()?.Map(registration, this) ?? registration
+                                                          : registration;
+            OriginalBuildKey = registration;
+
+            PersistentPolicies = new PolicyListWrapper(registration, policies);
+            Policies = new PolicyList(PersistentPolicies);
+
+            _ownsOverrides = true;
+            _resolverOverrides = new CompositeResolverOverride();
+            if (null != resolverOverrides && 0 != resolverOverrides.Length)
+                _resolverOverrides.AddRange(resolverOverrides);
+        }
+
         public BuilderContext(IBuilderContext original, IStrategyChain chain, object existing)
         {
             Container = original.Container;
@@ -41,33 +64,45 @@ namespace Unity.ObjectBuilder
             _ownsOverrides = true;
         }
 
-        /// <summary>
-        /// Initialize a new instance of the <see cref="BuilderContext"/> class with a <see cref="IStrategyChain"/>, 
-        /// <see cref="ILifetimeContainer"/>, <see cref="IPolicyList"/> and the 
-        /// build key used to start this build operation. 
-        /// </summary>
-        /// <param name="container"></param>
-        /// <param name="chain">The <see cref="IStrategyChain"/> to use for this context.</param>
-        /// <param name="lifetime">The <see cref="ILifetimeContainer"/> to use for this context.</param>
-        /// <param name="policies">The <see cref="IPolicyList"/> to use for this context.</param>
-        /// <param name="originalBuildKey">Build key to start building.</param>
-        /// <param name="existing">The existing object to build up.</param>
-        public BuilderContext(IUnityContainer container, IStrategyChain chain,
-            ILifetimeContainer lifetime,
-            IPolicyList policies,
-            INamedType originalBuildKey,
-            object existing)
+        private class PolicyListWrapper : IPolicyList
         {
-            Container = container ?? throw new ArgumentNullException(nameof(container));
-            _chain = chain;
-            Lifetime = lifetime;
-            OriginalBuildKey = originalBuildKey;
-            BuildKey = originalBuildKey;
-            PersistentPolicies = policies;
-            Policies = new PolicyList(PersistentPolicies);
-            Existing = existing;
-            _resolverOverrides = new CompositeResolverOverride();
-            _ownsOverrides = true;
+            private readonly INamedType _store;
+            private readonly IPolicyList _policies;
+
+            public PolicyListWrapper(INamedType store, IPolicyList policies)
+            {
+                _store = store;
+                _policies = policies;
+            }
+
+            public void Clear(Type type, string name, Type policyInterface)
+            {
+            }
+
+            public void ClearAll()
+            {
+            }
+
+            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            {
+                list = null;
+
+                if (type != _store.Type || name != _store.Name)
+                    return _policies.Get(type, name, policyInterface, out list);
+
+                var result = ((IPolicyStore) _store).Get(policyInterface);
+                if (null != result) list = this;
+
+                return result;
+            }
+
+            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            {
+                if (type != _store.Type || name != _store.Name)
+                    _policies.Set(type, name, policyInterface, policy);
+
+                ((IPolicyStore)_store).Set(policyInterface, policy);
+            }
         }
 
         /// <summary>
@@ -123,6 +158,9 @@ namespace Unity.ObjectBuilder
             _resolverOverrides = resolverOverrides;
             _ownsOverrides = false;
         }
+
+        #endregion
+
 
         #region IBuilderContext
 

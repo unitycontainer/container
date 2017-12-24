@@ -8,7 +8,8 @@ using Unity.Storage;
 
 namespace Unity.Registration
 {
-    public class TypeRegistration : InternalRegistration, IContainerRegistration
+    public class TypeRegistration : InternalRegistration, 
+                                    IContainerRegistration
     {
         #region Constructors
 
@@ -21,6 +22,7 @@ namespace Unity.Registration
             if (LifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
             LifetimeManager.InUse = true;
 
+            // Always store MappingPolicy in this.Key this.Value
             if (typeFrom != null && typeFrom != typeTo)
             {
                 Key = typeof(IBuildKeyMappingPolicy);
@@ -28,6 +30,7 @@ namespace Unity.Registration
                     ? new GenericTypeBuildKeyMappingPolicy(typeTo, name)
                     : (IBuildKeyMappingPolicy) new BuildKeyMappingPolicy(typeTo, name);
 
+                // TODO: Optimize proper resolution path
                 if ((null == injectionMembers || injectionMembers.Length == 0) && !(lifetimeManager is IRequireBuildUpPolicy))
                     Next = new LinkedNode<Type, IBuilderPolicy>
                     {
@@ -60,7 +63,7 @@ namespace Unity.Registration
         #endregion
 
 
-        #region IPolicyMap
+        #region IPolicyStore
 
         public override IBuilderPolicy Get(Type policyInterface)
         {

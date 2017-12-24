@@ -2,17 +2,14 @@
 
 using System;
 using Microsoft.Practices.ObjectBuilder2.Tests.Utility;
-using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Strategies;
-using Unity.Policy;
+using Unity.Strategies;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class LifetimeStrategyTest

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
@@ -16,11 +15,11 @@ using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
-using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
 using Unity.Policy.BuildPlanCreator;
 using Unity.Registration;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity
 {
@@ -56,18 +55,18 @@ namespace Unity
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
-            _context = new ContainerContext(this);
-
             _extensions = new List<UnityContainerExtension>();
             _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
             _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
-            if (null == _parent) InitializeStrategies();
 
             // Default Policies
+            if (null == _parent) InitializeStrategies();
             _defaultPolicies = parent?._defaultPolicies ?? GetDefaultPolicies();
             this[null, null] = _defaultPolicies;
+
+            _context = new ContainerContext(this);
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());

@@ -7,9 +7,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
+using Unity.Storage;
 using Unity.Strategy;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class StagedStrategyChainTest

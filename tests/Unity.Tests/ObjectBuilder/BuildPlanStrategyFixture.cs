@@ -3,10 +3,10 @@
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
-using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Strategies;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class BuildPlanStrategyFixture
