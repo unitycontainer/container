@@ -24,7 +24,7 @@ namespace Unity.ResolverPolicy
             _keyToBuild = new NamedTypeBuildKey(typeToBuild);
         }
 
-        #region IDependencyResolverPolicy Members
+        #region IResolverPolicy Members
 
         /// <summary>
         /// GetOrDefault the value for a dependency.
@@ -33,7 +33,7 @@ namespace Unity.ResolverPolicy
         /// <returns>The value for the dependency.</returns>
         public object Resolve(IBuilderContext context)
         {
-            return (context ?? throw new ArgumentNullException(nameof(context))).NewBuildUp(_keyToBuild);
+            return (context ?? throw new ArgumentNullException(nameof(context))).NewBuildUp(_keyToBuild.Type, _keyToBuild.Name);
         }
 
         #endregion

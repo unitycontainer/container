@@ -33,7 +33,7 @@ namespace Unity.ResolverPolicy
         public object Resolve(IBuilderContext context)
         {
             return (context ?? throw new ArgumentNullException(nameof(context)))
-                .NewBuildUp(new NamedTypeBuildKey(Type, Name));
+                .NewBuildUp(Type, Name);
         }
 
         /// <summary>

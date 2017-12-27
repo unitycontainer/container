@@ -69,8 +69,7 @@ namespace Unity.Injection
         {
             if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
             {
-                var currentContainer = context.NewBuildUp<IUnityContainer>();
-                context.Existing = _factoryFunc(currentContainer, context.BuildKey.Type, context.BuildKey.Name);
+                context.Existing = _factoryFunc(context.Container, context.BuildKey.Type, context.BuildKey.Name);
                 context.SetPerBuildSingleton();
             }
         }

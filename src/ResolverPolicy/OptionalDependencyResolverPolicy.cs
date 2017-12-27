@@ -54,7 +54,7 @@ namespace Unity.ResolverPolicy
         /// </summary>
         public string Name { get; }
 
-        #region IDependencyResolverPolicy Members
+        #region IResolverPolicy Members
 
         /// <summary>
         /// GetOrDefault the value for a dependency.
@@ -63,10 +63,9 @@ namespace Unity.ResolverPolicy
         /// <returns>The value for the dependency.</returns>
         public object Resolve(IBuilderContext context)
         {
-            var newKey = new NamedTypeBuildKey(DependencyType, Name);
             try
             {
-                return (context ?? throw new ArgumentNullException(nameof(context))).NewBuildUp(newKey);
+                return (context ?? throw new ArgumentNullException(nameof(context))).NewBuildUp(DependencyType, Name);
             }
             catch (Exception)
             {

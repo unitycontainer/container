@@ -157,7 +157,6 @@ namespace Unity.Builder
                 .NewBuildUp(newBuildKey?.Type, newBuildKey?.Name, childCustomizationBlock);
         }
 
-
         /// <summary>
         /// Start a recursive build up operation to retrieve the default
         /// value for the given <typeparamref name="TResult"/> type.

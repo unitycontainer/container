@@ -32,7 +32,7 @@ namespace Unity.Builder.Selection
         public PropertyInfo Property { get; }
 
         /// <summary>
-        /// IDependencyResolverPolicy for this property
+        /// IResolverPolicy for this property
         /// </summary>
         public IResolverPolicy Resolver { get; }
     }
