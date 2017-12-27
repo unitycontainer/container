@@ -14,6 +14,7 @@ using Unity.Injection;
 using Unity.ObjectBuilder;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Storage;
 
 namespace Microsoft.Practices.Unity.Tests
 {
@@ -71,29 +72,6 @@ namespace Microsoft.Practices.Unity.Tests
 
             List<ILogger> results = new List<ILogger>(container.ResolveAll<ILogger>());
             CollectionAssertExtensions.AreEqual(new ILogger[] { o1, o2 }, results);
-        }
-
-        [TestMethod]
-        public void ResolverWithElementsReturnsEmptyArrayIfThereAreNoElements()
-        {
-            IUnityContainer container = new UnityContainer();
-            object o1 = new object();
-            object o2 = new object();
-            object o3 = new object();
-
-            container
-                .RegisterInstance<object>("o1", o1)
-                .RegisterInstance<object>("o2", o2);
-
-            BuilderContext context = GetContext(container, new NamedTypeBuildKey<object>());
-
-            ResolvedArrayWithElementsResolverPolicy resolver
-                = new ResolvedArrayWithElementsResolverPolicy(typeof(object));
-
-            object[] results = (object[])resolver.Resolve(context);
-
-            Assert.IsNotNull(results);
-            Assert.AreEqual(0, results.Length);
         }
 
         [TestMethod]
@@ -174,15 +152,6 @@ namespace Microsoft.Practices.Unity.Tests
             Assert.AreEqual(2, results.Length);
             Assert.AreSame(o1, results[0]);
             Assert.AreSame(o2, results[1]);
-        }
-
-        private BuilderContext GetContext(IUnityContainer container, NamedTypeBuildKey buildKey)
-        {
-            var strategies = new MockStrategyChain();
-            strategies.Add(new ReturnContainerStrategy(container));
-            PolicyList persistentPolicies = new PolicyList();
-            PolicyList transientPolicies = new PolicyList(persistentPolicies);
-            return new BuilderContext(new UnityContainer(), strategies, null, persistentPolicies, transientPolicies, buildKey, null);
         }
 
         private class InjectedObjectConfigurationExtension : UnityContainerExtension

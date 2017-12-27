@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Unity.Policy;
 
-namespace Unity.Container
+namespace Unity.Storage
 {
     /// <summary>
     /// A custom collection wrapper over <see cref="IBuilderPolicy"/> objects.

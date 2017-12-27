@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Container;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Tests.ObjectBuilder
 {

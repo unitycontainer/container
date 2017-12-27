@@ -63,7 +63,7 @@ namespace Unity.Registration
         #endregion
 
 
-        #region IPolicyStore
+        #region IPolicySet
 
         public override IBuilderPolicy Get(Type policyInterface)
         {

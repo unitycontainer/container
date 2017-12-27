@@ -21,8 +21,9 @@ namespace Unity.Builder
     {
         #region Fields
 
+        private readonly IContainerContext _context;
         private readonly IStrategyChain _chain;
-        private CompositeResolverOverride _resolverOverrides;   // TODO: This does not need to be List
+        private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
 
         #endregion
@@ -30,16 +31,16 @@ namespace Unity.Builder
 
         #region Constructors
 
-        public BuilderContext(IUnityContainer container, ILifetimeContainer lifetime, IEnumerable<IBuilderStrategy> chain, IPolicyList policies, 
+        public BuilderContext(IContainerContext context, ILifetimeContainer lifetime, IEnumerable<IBuilderStrategy> chain, IPolicyList policies, 
                               INamedType registration, object existing, params ResolverOverride[] resolverOverrides)
         {
-            Container = container;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _chain = new StrategyChain(chain);
             Lifetime = lifetime;
             Existing = existing;
-            BuildKey = registration is IPolicyStore store ? store.Get<IBuildKeyMappingPolicy>()?.Map(registration, this) ?? registration
-                                                          : registration;
+
             OriginalBuildKey = registration;
+            BuildKey = OriginalBuildKey;
 
             PersistentPolicies = new PolicyListWrapper(registration, policies);
             Policies = new PolicyList(PersistentPolicies);
@@ -52,7 +53,7 @@ namespace Unity.Builder
 
         public BuilderContext(IBuilderContext original, IStrategyChain chain, object existing)
         {
-            Container = original.Container;
+            _context = ((BuilderContext) original)._context;
             _chain = chain;
             Lifetime = original.Lifetime;
             OriginalBuildKey = original.OriginalBuildKey;
@@ -62,6 +63,24 @@ namespace Unity.Builder
             Existing = existing;
             _resolverOverrides = new CompositeResolverOverride();
             _ownsOverrides = true;
+        }
+
+
+        protected BuilderContext(IBuilderContext original, Type type, string name)
+        {
+            var parent = (BuilderContext) original;
+
+            ParentContext = parent;
+            _context = parent._context;
+            _chain = parent._chain;
+            Lifetime = parent.Lifetime;
+            Existing = null;
+            _resolverOverrides = parent._resolverOverrides;
+            _ownsOverrides = false;
+            Policies = parent.Policies;
+            PersistentPolicies = parent.PersistentPolicies;
+            OriginalBuildKey = new NamedTypeBuildKey(type, name);
+            BuildKey = OriginalBuildKey;
         }
 
         private class PolicyListWrapper : IPolicyList
@@ -90,7 +109,7 @@ namespace Unity.Builder
                 if (type != _store.Type || name != _store.Name)
                     return _policies.Get(type, name, policyInterface, out list);
 
-                var result = ((IPolicyStore) _store).Get(policyInterface);
+                var result = ((IPolicySet) _store).Get(policyInterface);
                 if (null != result) list = this;
 
                 return result;
@@ -101,62 +120,8 @@ namespace Unity.Builder
                 if (type != _store.Type || name != _store.Name)
                     _policies.Set(type, name, policyInterface, policy);
 
-                ((IPolicyStore)_store).Set(policyInterface, policy);
+                ((IPolicySet)_store).Set(policyInterface, policy);
             }
-        }
-
-        /// <summary>
-        /// Create a new <see cref="BuilderContext"/> using the explicitly provided
-        /// values.
-        /// </summary>
-        /// <param name="container"></param>
-        /// <param name="chain">The <see cref="IStrategyChain"/> to use for this context.</param>
-        /// <param name="lifetime">The <see cref="ILifetimeContainer"/> to use for this context.</param>
-        /// <param name="persistentPolicies">The set of persistent policies to use for this context.</param>
-        /// <param name="transientPolicies">The set of transient policies to use for this context. It is
-        /// the caller's responsibility to ensure that the transient and persistent policies are properly
-        /// combined.</param>
-        /// <param name="buildKey">Build key for this context.</param>
-        /// <param name="existing">Existing object to build up.</param>
-        public BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, INamedType buildKey, object existing)
-        {
-            Container = container ?? throw new ArgumentNullException(nameof(container));
-            _chain = chain;
-            Lifetime = lifetime;
-            PersistentPolicies = persistentPolicies;
-            Policies = transientPolicies;
-            OriginalBuildKey = buildKey;
-            BuildKey = buildKey;
-            Existing = existing;
-            _resolverOverrides = new CompositeResolverOverride();
-            _ownsOverrides = true;
-        }
-
-        /// <summary>
-        /// Create a new <see cref="BuilderContext"/> using the explicitly provided
-        /// values.
-        /// </summary>
-        /// <param name="container"></param>
-        /// <param name="chain">The <see cref="IStrategyChain"/> to use for this context.</param>
-        /// <param name="lifetime">The <see cref="ILifetimeContainer"/> to use for this context.</param>
-        /// <param name="persistentPolicies">The set of persistent policies to use for this context.</param>
-        /// <param name="transientPolicies">The set of transient policies to use for this context. It is
-        /// the caller's responsibility to ensure that the transient and persistent policies are properly
-        /// combined.</param>
-        /// <param name="buildKey">Build key for this context.</param>
-        /// <param name="resolverOverrides">The resolver overrides.</param>
-        protected BuilderContext(IUnityContainer container, IStrategyChain chain, ILifetimeContainer lifetime, IPolicyList persistentPolicies, IPolicyList transientPolicies, INamedType buildKey, CompositeResolverOverride resolverOverrides)
-        {
-            Container = container ?? throw new ArgumentNullException(nameof(container));
-            _chain = chain;
-            Lifetime = lifetime;
-            PersistentPolicies = persistentPolicies;
-            Policies = transientPolicies;
-            OriginalBuildKey = buildKey;
-            BuildKey = buildKey;
-            Existing = null;
-            _resolverOverrides = resolverOverrides;
-            _ownsOverrides = false;
         }
 
         #endregion
@@ -164,7 +129,7 @@ namespace Unity.Builder
 
         #region IBuilderContext
 
-        public IUnityContainer Container { get; }
+        public IUnityContainer Container => _context.Container;
 
         /// <summary>
         /// Gets the head of the strategy chain.
@@ -268,7 +233,7 @@ namespace Unity.Builder
         }
 
         /// <summary>
-        /// GetOrDefault a <see cref="IDependencyResolverPolicy"/> object for the given <paramref name="dependencyType"/>
+        /// GetOrDefault a <see cref="IResolverPolicy"/> object for the given <paramref name="dependencyType"/>
         /// or null if that dependency hasn't been overridden.
         /// </summary>
         /// <param name="dependencyType">Type of the dependency.</param>
@@ -277,6 +242,8 @@ namespace Unity.Builder
         {
             return _resolverOverrides.GetResolver(this, dependencyType);
         }
+
+        #endregion
 
         /// <summary>
         /// A method to do a new buildup operation on an existing context.
@@ -289,10 +256,7 @@ namespace Unity.Builder
         /// <returns>Resolved object</returns>
         public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
         {
-            ChildContext = new BuilderContext(Container, _chain, Lifetime, 
-                                              PersistentPolicies, Policies, 
-                                              new NamedTypeBuildKey(type, name), _resolverOverrides)
-            { ParentContext = this};
+            ChildContext = new BuilderContext(this, type, name);
 
             childCustomizationBlock?.Invoke(ChildContext);
             var result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
@@ -301,6 +265,5 @@ namespace Unity.Builder
             return result;
         }
 
-        #endregion
     }
 }

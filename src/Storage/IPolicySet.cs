@@ -3,7 +3,7 @@ using Unity.Policy;
 
 namespace Unity.Storage
 {
-    public interface IPolicyStore
+    public interface IPolicySet
     {
         /// <summary>
         /// Get policy

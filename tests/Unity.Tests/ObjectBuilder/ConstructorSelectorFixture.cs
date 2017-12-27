@@ -12,6 +12,7 @@ using Unity.Builder.Selection;
 using Unity.Container;
 using Unity.Policy;
 using Unity.ObjectBuilder.BuildPlan.Selection;
+using Unity.Storage;
 using Unity.Tests.TestObjects;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests

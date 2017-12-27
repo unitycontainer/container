@@ -5,8 +5,8 @@ using Unity.Policy;
 namespace Unity.Storage
 {
 
-    internal class LinkedRegistry : LinkedNode<string, IPolicyStore>, 
-                                    IRegistry<string, IPolicyStore>
+    internal class LinkedRegistry : LinkedNode<string, IPolicySet>, 
+                                    IRegistry<string, IPolicySet>
     {
         #region Fields
 
@@ -18,22 +18,22 @@ namespace Unity.Storage
         
         #region IRegistry
 
-        public IPolicyStore this[string key]
+        public IPolicySet this[string key]
         {
             get
             {
-                for (var node = (LinkedNode<string, IPolicyStore>)this; node != null; node = node.Next)
+                for (var node = (LinkedNode<string, IPolicySet>)this; node != null; node = node.Next)
                 {
                     if (Equals(node.Key, key))
                         return node.Value;
                 }
 
-                return default(IPolicyStore);
+                return default(IPolicySet);
             }
             set
             {
-                LinkedNode<string, IPolicyStore> node;
-                LinkedNode<string, IPolicyStore> last = null;
+                LinkedNode<string, IPolicySet> node;
+                LinkedNode<string, IPolicySet> last = null;
 
                 for (node = this; node != null; node = node.Next)
                 {
@@ -47,7 +47,7 @@ namespace Unity.Storage
                 }
 
                 // Not found, so add a new one
-                last.Next = new LinkedNode<string, IPolicyStore>
+                last.Next = new LinkedNode<string, IPolicySet>
                 {
                     Key = key,
                     Value = value
@@ -63,28 +63,28 @@ namespace Unity.Storage
         {
             get
             {
-                for (LinkedNode<string, IPolicyStore> node = this; node != null; node = node.Next)
+                for (LinkedNode<string, IPolicySet> node = this; node != null; node = node.Next)
                 {
                     yield return node.Key;
                 }
             }
         }
 
-        public IEnumerable<IPolicyStore> Values
+        public IEnumerable<IPolicySet> Values
         {
             get
             {
-                for (LinkedNode<string, IPolicyStore> node = this; node != null; node = node.Next)
+                for (LinkedNode<string, IPolicySet> node = this; node != null; node = node.Next)
                 {
                     yield return node.Value;
                 }
             }
         }
 
-        public IPolicyStore GetOrAdd(string name, Func<IPolicyStore> factory)
+        public IPolicySet GetOrAdd(string name, Func<IPolicySet> factory)
         {
-            LinkedNode<string, IPolicyStore> node;
-            LinkedNode<string, IPolicyStore> last = null;
+            LinkedNode<string, IPolicySet> node;
+            LinkedNode<string, IPolicySet> last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -99,7 +99,7 @@ namespace Unity.Storage
             }
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IPolicyStore>
+            last.Next = new LinkedNode<string, IPolicySet>
             {
                 Key = name,
                 Value = factory()
@@ -110,10 +110,10 @@ namespace Unity.Storage
             return last.Next.Value;
         }
 
-        public IPolicyStore SetOrReplace(string name, IPolicyStore value)
+        public IPolicySet SetOrReplace(string name, IPolicySet value)
         {
-            LinkedNode<string, IPolicyStore> node;
-            LinkedNode<string, IPolicyStore> last = null;
+            LinkedNode<string, IPolicySet> node;
+            LinkedNode<string, IPolicySet> last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -127,7 +127,7 @@ namespace Unity.Storage
             }
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IPolicyStore>
+            last.Next = new LinkedNode<string, IPolicySet>
             {
                 Key = name,
                 Value = value

@@ -17,7 +17,7 @@ namespace Unity.ObjectBuilder.Policies
     public class DefaultUnityPropertySelectorPolicy : PropertySelectorBase<DependencyResolutionAttribute>
     {
         /// <summary>
-        /// Create a <see cref="IDependencyResolverPolicy"/> for the given
+        /// Create a <see cref="IResolverPolicy"/> for the given
         /// property.
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>

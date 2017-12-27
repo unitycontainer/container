@@ -101,7 +101,7 @@ namespace Unity
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IPolicyStore data;
+                    IPolicySet data;
                     if (null == (data = registry[type, name])) continue;
 
                     return (INamedType)data;
@@ -120,14 +120,14 @@ namespace Unity
             void IPolicyList.ClearAll()
             {
                 _container._registrations =
-                    new HashRegistry<Type, IRegistry<string, IPolicyStore>>(ContainerInitialCapacity);
+                    new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
             }
 
             public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IPolicyStore data;
+                    IPolicySet data;
                     if (null == (data = registry[type, name])) continue;
 
                     list = registry._context;
@@ -142,7 +142,7 @@ namespace Unity
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
-                    IPolicyStore data;
+                    IPolicySet data;
                     if (null == (data = registry[type, name])) continue;
 
                     data.Set(policyInterface, policy);

@@ -16,7 +16,7 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
     public class DefaultUnityConstructorSelectorPolicy : ConstructorSelectorPolicyBase<InjectionConstructorAttribute>
     {
         /// <summary>
-        /// Create a <see cref="IDependencyResolverPolicy"/> instance for the given
+        /// Create a <see cref="IResolverPolicy"/> instance for the given
         /// <see cref="ParameterInfo"/>.
         /// </summary>
         /// <remarks>

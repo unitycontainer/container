@@ -7,7 +7,7 @@ namespace Unity.ObjectBuilder.Policies
     {
         public void BuildUp(IBuilderContext context)
         {
-            context.Existing = context.NewBuildUp(context.BuildKey);
+            context.Existing = context.NewBuildUp(context.BuildKey.Type, context.BuildKey.Name);
             context.BuildComplete = null != context.Existing;
         }
     }

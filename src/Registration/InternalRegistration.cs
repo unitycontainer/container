@@ -6,7 +6,7 @@ using Unity.Storage;
 namespace Unity.Registration
 {
     public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
-                                        IPolicyStore, 
+                                        IPolicySet, 
                                         INamedType
     {
         #region Fields
@@ -28,7 +28,7 @@ namespace Unity.Registration
         #endregion
 
 
-        #region IPolicyStore
+        #region IPolicySet
 
         public virtual IBuilderPolicy Get(Type policyInterface)
         {

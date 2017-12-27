@@ -25,8 +25,8 @@ namespace Unity
         #region Fields
 
         private readonly object _syncRoot = new object();
-        private HashRegistry<Type, IRegistry<string, IPolicyStore>> _registrations = 
-            new HashRegistry<Type, IRegistry<string, IPolicyStore>>(ContainerInitialCapacity);
+        private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations = 
+            new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace Unity
             var registration = new TypeRegistration(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
             if (registration.LifetimeManager is IDisposable manager) _lifetimeContainer.Add(manager);
 
-            if (SetOrUpdate(registration.RegisteredType, registration.Name, registration) is IDisposable disposable)
+            if (SetOrUpdate(registration) is IDisposable disposable)
             {
                 _lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
@@ -109,7 +109,7 @@ namespace Unity
             var registration = new InstanceRegistration(registrationType, registrationName, instance, lifetimeManager);
             if (registration.LifetimeManager is IDisposable manager) _lifetimeContainer.Add(manager);
 
-            if (SetOrUpdate(registration.RegisteredType, registration.Name, registration) is IDisposable disposable)
+            if (SetOrUpdate(registration) is IDisposable disposable)
             {
                 _lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
@@ -141,7 +141,7 @@ namespace Unity
         #endregion
 
 
-        private IRegistry<string, IPolicyStore> this[Type type]
+        private IRegistry<string, IPolicySet> this[Type type]
         {
             get
             {
@@ -162,7 +162,7 @@ namespace Unity
             }
         }
 
-        private IPolicyStore this[Type type, string name]
+        private IPolicySet this[Type type, string name]
         {
             get
             {
@@ -200,9 +200,9 @@ namespace Unity
                         var existing = _registrations.Entries[i].Value;
                         if (existing.RequireToGrow)
                         {
-                            existing = existing is HashRegistry<string, IPolicyStore> registry
-                                ? new HashRegistry<string, IPolicyStore>(registry)
-                                : new HashRegistry<string, IPolicyStore>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                            existing = existing is HashRegistry<string, IPolicySet> registry
+                                ? new HashRegistry<string, IPolicySet>(registry)
+                                : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
                                     (LinkedRegistry)existing);
 
                             _registrations.Entries[i].Value = existing;
@@ -214,7 +214,7 @@ namespace Unity
 
                     if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                     {
-                        _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(_registrations);
+                        _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                         targetBucket = hashCode % _registrations.Buckets.Length;
                     }
 
@@ -235,7 +235,7 @@ namespace Unity
                 var collisions = 0;
                 var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
                 var targetBucket = hashCode % _registrations.Buckets.Length;
-                IPolicyStore registration = null;
+                IPolicySet registration = null;
                 lock (_syncRoot)
                 {
                     for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -250,9 +250,9 @@ namespace Unity
                         var existing = _registrations.Entries[i].Value;
                         if (existing.RequireToGrow)
                         {
-                            existing = existing is HashRegistry<string, IPolicyStore> registry
-                                     ? new HashRegistry<string, IPolicyStore>(registry)
-                                     : new HashRegistry<string, IPolicyStore>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                            existing = existing is HashRegistry<string, IPolicySet> registry
+                                     ? new HashRegistry<string, IPolicySet>(registry)
+                                     : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
                                                                                            (LinkedRegistry)existing);
 
                             _registrations.Entries[i].Value = existing;
@@ -266,7 +266,7 @@ namespace Unity
                     {
                         if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                         {
-                            _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(_registrations);
+                            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                             targetBucket = hashCode % _registrations.Buckets.Length;
                         }
 
@@ -301,9 +301,9 @@ namespace Unity
                         var existing = _registrations.Entries[i].Value;
                         if (existing.RequireToGrow)
                         {
-                            existing = existing is HashRegistry<string, IPolicyStore> registry
-                                     ? new HashRegistry<string, IPolicyStore>(registry)
-                                     : new HashRegistry<string, IPolicyStore>(LinkedRegistry.ListToHashCutoverPoint * 2, 
+                            existing = existing is HashRegistry<string, IPolicySet> registry
+                                     ? new HashRegistry<string, IPolicySet>(registry)
+                                     : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2, 
                                                                                            (LinkedRegistry)existing);
 
                             _registrations.Entries[i].Value = existing;
@@ -315,7 +315,7 @@ namespace Unity
 
                     if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                     {
-                        _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(_registrations);
+                        _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                         targetBucket = hashCode % _registrations.Buckets.Length;
                     }
 
@@ -335,17 +335,17 @@ namespace Unity
 
         #region Thread Safe Accessors
 
-        private IPolicyStore SetOrUpdate(Type type, string name, IPolicyStore registration)
+        private IPolicySet SetOrUpdate(INamedType registration)
         {
             var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var hashCode = (registration.Type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
             lock (_syncRoot)
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                 {
                     if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                        _registrations.Entries[i].Key != registration.Type)
                     {
                         collisions++;
                         continue;
@@ -354,26 +354,26 @@ namespace Unity
                     var existing = _registrations.Entries[i].Value;
                     if (existing.RequireToGrow)
                     {
-                        existing = existing is HashRegistry<string, IPolicyStore> registry
-                                 ? new HashRegistry<string, IPolicyStore>(registry)
-                                 : new HashRegistry<string, IPolicyStore>(LinkedRegistry.ListToHashCutoverPoint * 2, (LinkedRegistry)existing);
+                        existing = existing is HashRegistry<string, IPolicySet> registry
+                                 ? new HashRegistry<string, IPolicySet>(registry)
+                                 : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2, (LinkedRegistry)existing);
 
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.SetOrReplace(name, registration);
+                    return existing.SetOrReplace(registration.Name, (IPolicySet)registration);
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                 {
-                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(_registrations);
+                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;
                 _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
+                _registrations.Entries[_registrations.Count].Key = registration.Type;
+                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [registration.Name] = (IPolicySet)registration };
                 _registrations.Buckets[targetBucket] = _registrations.Count;
                 _registrations.Count++;
 
@@ -466,11 +466,11 @@ namespace Unity
         private class PolicyListProxy : IPolicyList
         {
             private readonly IPolicyList _policies;
-            private readonly IPolicyStore _registration;
+            private readonly IPolicySet _registration;
             private readonly Type _type;
             private readonly string _name;
 
-            public PolicyListProxy(IPolicyList policies, IPolicyStore registration)
+            public PolicyListProxy(IPolicyList policies, IPolicySet registration)
             {
                 _policies = policies;
                 _registration = registration;

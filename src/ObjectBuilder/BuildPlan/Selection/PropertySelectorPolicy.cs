@@ -18,7 +18,7 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         where TResolutionAttribute : Attribute
     {
         /// <summary>
-        /// Create a <see cref="IDependencyResolverPolicy"/> for the given
+        /// Create a <see cref="IResolverPolicy"/> for the given
         /// property.
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>

@@ -61,10 +61,9 @@ namespace Unity
 
             try
             {
-                context = new BuilderContext(this, _lifetimeContainer, 
-                                                   _strategies, _context,
-                                                   Registration(type, name, true),
-                                                   existing, resolverOverrides);
+                context = new BuilderContext(_context, _lifetimeContainer, _strategies, _context,
+                                             Registration(type, name, true),
+                                             existing, resolverOverrides);
 
                 if (type.GetTypeInfo().IsGenericTypeDefinition)
                 {
@@ -95,7 +94,7 @@ namespace Unity
             var container = (UnityContainer)context.Container;
             context.Existing = container.GetRegisteredNames(container, typeof(T))
                 .Where(registration => null != registration)
-                .Select(registration => context.NewBuildUp(new NamedTypeBuildKey(typeof(T), registration)))
+                .Select(registration => context.NewBuildUp(typeof(T), registration))
                 .Cast<T>()
                 .ToArray();
 
@@ -109,7 +108,7 @@ namespace Unity
 
             var container = (UnityContainer)context.Container;
             context.Existing = container.GetRegisteredNames(container, typeof(T))
-                .Select(registration => context.NewBuildUp(new NamedTypeBuildKey(typeof(T), registration)))
+                .Select(registration => context.NewBuildUp(typeof(T), registration))
                 .Cast<T>()
                 .ToArray();
 
@@ -135,7 +134,7 @@ namespace Unity
         {
             for (var container = this; null != container; container = container._parent)
             {
-                IPolicyStore data;
+                IPolicySet data;
                 if (null == (data = container[type, name])) continue;
 
                 return (INamedType)data;
@@ -160,9 +159,9 @@ namespace Unity
                     var existing = _registrations.Entries[i].Value;
                     if (existing.RequireToGrow)
                     {
-                        existing = existing is HashRegistry<string, IPolicyStore> registry
-                                 ? new HashRegistry<string, IPolicyStore>(registry)
-                                 : new HashRegistry<string, IPolicyStore>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                        existing = existing is HashRegistry<string, IPolicySet> registry
+                                 ? new HashRegistry<string, IPolicySet>(registry)
+                                 : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
                                                                                        (LinkedRegistry)existing);
 
                         _registrations.Entries[i].Value = existing;
@@ -173,7 +172,7 @@ namespace Unity
 
                 if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                 {
-                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicyStore>>(_registrations);
+                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 

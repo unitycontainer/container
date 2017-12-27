@@ -27,7 +27,7 @@ namespace Unity
     {
         #region Fields
 
-        private readonly IPolicyStore _defaultPolicies;
+        private readonly IPolicySet _defaultPolicies;
         private readonly UnityContainer _parent;
         private readonly ContainerContext _context;
         private readonly LifetimeContainer _lifetimeContainer;
@@ -103,7 +103,7 @@ namespace Unity
         }
 
 
-        private IPolicyStore GetDefaultPolicies()
+        private IPolicySet GetDefaultPolicies()
         {
             var defaults = new InternalRegistration(null, null);
 
@@ -149,7 +149,7 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        private static IPolicyStore CreateRegistration(Type type, string name)
+        private static IPolicySet CreateRegistration(Type type, string name)
         {
             return new InternalRegistration(type, name);
         }

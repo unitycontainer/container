@@ -15,7 +15,7 @@ namespace Unity.Registration
                                         IContainerRegistration, 
                                         IBuildPlanCreatorPolicy, 
                                         IBuildPlanPolicy, 
-                                        IPolicyStore,
+                                        IPolicySet,
                                         IDisposable
     {
 
@@ -58,7 +58,7 @@ namespace Unity.Registration
         #endregion
 
 
-        #region IPolicyStore
+        #region IPolicySet
 
         public IBuilderPolicy Get(Type policyInterface)
         {
