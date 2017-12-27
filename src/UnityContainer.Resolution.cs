@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -61,8 +62,14 @@ namespace Unity
 
             try
             {
-                context = new BuilderContext(_context, _lifetimeContainer, _strategies, _context,
-                                             Registration(type, name, true),
+                var registration = Registration(type, name, true);
+                var policies = new PolicyListWrapper(registration, _context);
+                var transient = new PolicyList(policies);
+                context = new BuilderContext(this, _lifetimeContainer, 
+                                                   _strategies,
+                                                    policies, 
+                                                    transient, 
+                                                    registration,
                                              existing, resolverOverrides);
 
                 if (type.GetTypeInfo().IsGenericTypeDefinition)
@@ -83,6 +90,56 @@ namespace Unity
 
 
         #endregion
+
+
+
+        private class PolicyListWrapper : IPolicyList
+        {
+            private readonly INamedType _store;
+            private readonly IPolicyList _policies;
+
+            public PolicyListWrapper(INamedType store, IPolicyList policies)
+            {
+                _store = store;
+                _policies = policies;
+            }
+
+            public void Clear(Type type, string name, Type policyInterface)
+            {
+            }
+
+            public void ClearAll()
+            {
+            }
+
+            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            {
+                list = null;
+
+                if (type != _store.Type || name != _store.Name)
+                    return _policies.Get(type, name, policyInterface, out list);
+
+                var result = ((IPolicySet)_store).Get(policyInterface);
+                if (null != result) list = this;
+
+                return result;
+            }
+
+            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            {
+                if (type != _store.Type || name != _store.Name)
+                    _policies.Set(type, name, policyInterface, policy);
+
+                ((IPolicySet)_store).Set(policyInterface, policy);
+            }
+        }
+
+
+
+
+
+
+
 
 
         #region Resolving Enumerables

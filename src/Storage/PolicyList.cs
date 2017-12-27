@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Unity.Policy;
 
@@ -14,7 +13,7 @@ namespace Unity.Storage
 
         private readonly IPolicyList _innerPolicyList;
         private readonly IDictionary<PolicyKey, IBuilderPolicy> _policies = 
-            new ConcurrentDictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+            new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
 
         #endregion
 

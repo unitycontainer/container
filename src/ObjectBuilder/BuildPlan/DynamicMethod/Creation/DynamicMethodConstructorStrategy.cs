@@ -95,6 +95,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             IConstructorSelectorPolicy selector =
                 context.Policies.GetPolicy<IConstructorSelectorPolicy>(context.OriginalBuildKey, out var resolverPolicyDestination);
 
+
+            context.Policies.Get<IConstructorSelectorPolicy>(null, null, out resolverPolicyDestination);
+
             SelectedConstructor selectedConstructor = selector.SelectConstructor(context, resolverPolicyDestination);
 
             if (selectedConstructor == null)

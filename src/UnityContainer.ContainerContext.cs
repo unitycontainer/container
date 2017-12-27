@@ -1,12 +1,10 @@
 ﻿using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Storage;
 using Unity.Strategy;
 
@@ -23,7 +21,6 @@ namespace Unity
         /// container that would otherwise be inaccessible.
         /// </remarks>
         private class ContainerContext : ExtensionContext, 
-                                         IContainerContext, 
                                          IPolicyList 
         {
             #region Fields

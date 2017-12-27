@@ -21,7 +21,6 @@ namespace Unity.Builder
     {
         #region Fields
 
-        private readonly IContainerContext _context;
         private readonly IStrategyChain _chain;
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
@@ -31,19 +30,19 @@ namespace Unity.Builder
 
         #region Constructors
 
-        public BuilderContext(IContainerContext context, ILifetimeContainer lifetime, IEnumerable<IBuilderStrategy> chain, IPolicyList policies, 
-                              INamedType registration, object existing, params ResolverOverride[] resolverOverrides)
+        public BuilderContext(IUnityContainer container, ILifetimeContainer lifetime, IEnumerable<IBuilderStrategy> chain,
+            IPolicyList persistentPolicies, IPolicyList policies, INamedType buildKey, object existing, params ResolverOverride[] resolverOverrides)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
             _chain = new StrategyChain(chain);
+            Container = container;
             Lifetime = lifetime;
             Existing = existing;
 
-            OriginalBuildKey = registration;
+            OriginalBuildKey = buildKey;
             BuildKey = OriginalBuildKey;
 
-            PersistentPolicies = new PolicyListWrapper(registration, policies);
-            Policies = new PolicyList(PersistentPolicies);
+            Policies = policies;
+            PersistentPolicies = persistentPolicies;
 
             _ownsOverrides = true;
             _resolverOverrides = new CompositeResolverOverride();
@@ -53,8 +52,9 @@ namespace Unity.Builder
 
         public BuilderContext(IBuilderContext original, IStrategyChain chain, object existing)
         {
-            _context = ((BuilderContext) original)._context;
             _chain = chain;
+            Container = original.Container;
+            ParentContext = original;
             Lifetime = original.Lifetime;
             OriginalBuildKey = original.OriginalBuildKey;
             BuildKey = original.BuildKey;
@@ -70,9 +70,9 @@ namespace Unity.Builder
         {
             var parent = (BuilderContext) original;
 
-            ParentContext = parent;
-            _context = parent._context;
             _chain = parent._chain;
+            ParentContext = original;
+            Container = original.Container;
             Lifetime = parent.Lifetime;
             Existing = null;
             _resolverOverrides = parent._resolverOverrides;
@@ -83,53 +83,12 @@ namespace Unity.Builder
             BuildKey = OriginalBuildKey;
         }
 
-        private class PolicyListWrapper : IPolicyList
-        {
-            private readonly INamedType _store;
-            private readonly IPolicyList _policies;
-
-            public PolicyListWrapper(INamedType store, IPolicyList policies)
-            {
-                _store = store;
-                _policies = policies;
-            }
-
-            public void Clear(Type type, string name, Type policyInterface)
-            {
-            }
-
-            public void ClearAll()
-            {
-            }
-
-            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
-            {
-                list = null;
-
-                if (type != _store.Type || name != _store.Name)
-                    return _policies.Get(type, name, policyInterface, out list);
-
-                var result = ((IPolicySet) _store).Get(policyInterface);
-                if (null != result) list = this;
-
-                return result;
-            }
-
-            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-            {
-                if (type != _store.Type || name != _store.Name)
-                    _policies.Set(type, name, policyInterface, policy);
-
-                ((IPolicySet)_store).Set(policyInterface, policy);
-            }
-        }
-
         #endregion
 
 
         #region IBuilderContext
 
-        public IUnityContainer Container => _context.Container;
+        public IUnityContainer Container { get; }
 
         /// <summary>
         /// Gets the head of the strategy chain.

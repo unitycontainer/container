@@ -1,6 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -18,7 +16,14 @@ namespace Unity.Strategies
     /// </summary>
     public class LifetimeStrategy : BuilderStrategy
     {
+        #region Fields
+
         private readonly object _genericLifetimeManagerLock = new object();
+
+        #endregion
+
+
+        #region BuilderStrategy
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -60,6 +65,11 @@ namespace Unity.Strategies
             (lifetimePolicy as ILifetimePolicy)?.SetValue(context.Existing, context.Lifetime);
         }
 
+        #endregion
+
+
+        #region Implementation
+
         private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
         {
             var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out source);
@@ -88,5 +98,7 @@ namespace Unity.Strategies
 
             return (ILifetimePolicy)policy;
         }
+
+        #endregion
     }
 }
