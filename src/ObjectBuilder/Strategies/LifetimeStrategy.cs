@@ -1,12 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
+using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
+using Unity.Strategy;
 
 namespace Unity.ObjectBuilder.Strategies
 {
@@ -16,10 +17,16 @@ namespace Unity.ObjectBuilder.Strategies
     /// has already been created and to update or remove that
     /// object from some backing store.
     /// </summary>
-    public class LifetimeStrategy : BuilderStrategy
+    public class LifetimeStrategy : BuilderStrategy, IRegisterTypeStrategy
     {
+        #region Fields
+
         private readonly object _genericLifetimeManagerLock = new object();
-        private static readonly TransientLifetimeManager TransientManager = new TransientLifetimeManager();
+
+        #endregion
+
+
+        #region BuilderStrategy
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -70,7 +77,7 @@ namespace Unity.ObjectBuilder.Strategies
 
             if (policy == null)
             {
-                policy = TransientManager;
+                policy = TransientLifetimeManager.Instance;
                 context.PersistentPolicies.Set(policy, context.OriginalBuildKey);
             }
 
@@ -110,5 +117,44 @@ namespace Unity.ObjectBuilder.Strategies
 
             return null;
         }
+
+        #endregion
+
+
+        #region IRegisterTypeStrategy
+
+        public void RegisterType(IContainerContext context, Type typeFrom, Type typeTo, string name, 
+                                 LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        {
+            var lifetimeType = typeFrom ?? typeTo;
+
+            if (null == lifetimeManager)
+            {
+                context.Policies.Clear(lifetimeType, name, typeof(ILifetimePolicy));
+                return;
+            }
+
+            if (lifetimeManager.InUse)
+            {
+                throw new InvalidOperationException(Constants.LifetimeManagerInUse);
+            }
+
+            if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                LifetimeManagerFactory factory = new LifetimeManagerFactory((ExtensionContext)context, lifetimeManager.GetType());
+                context.Policies.Set<ILifetimeFactoryPolicy>(factory, new NamedTypeBuildKey(lifetimeType, name));
+            }
+            else
+            {
+                lifetimeManager.InUse = true;
+                context.Policies.Set<ILifetimePolicy>(lifetimeManager, new NamedTypeBuildKey(lifetimeType, name));
+                if (lifetimeManager is IDisposable)
+                {
+                    context.Lifetime.Add(lifetimeManager);
+                }
+            }
+        }
+
+        #endregion
     }
 }

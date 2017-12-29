@@ -13,10 +13,10 @@ using Unity.Extension;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.ObjectBuilder;
-using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Strategy;
 
 namespace Unity
 {
@@ -51,56 +51,33 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        /// <returns>The <see cref="UnityContainer"/> object that this method was called on 
+        /// (this in C#, Me in Visual Basic).</returns>
+        public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, 
+                                            LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
-            var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
+            // Validate input 
+            if (string.Empty == name) name = null;
 
-            if (string.IsNullOrEmpty(name))
+            if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
+
+            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
+                !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
             {
-                name = null;
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
+                                                                                      typeFrom, typeTo), nameof(typeFrom));
             }
 
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !to.GetTypeInfo().IsGenericType)
-            {
-                if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
-                {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.TypesAreNotAssignable,
-                                                                                          typeFrom,
-                                                                                          to), nameof(typeFrom));
-                }
-            }
+            // Register Type
+            var buildType = typeFrom ?? typeTo;
 
-            var buildType = typeFrom ?? to;
-            var buildKey = new NamedTypeBuildKey(buildType, name);
+            // Clear build plan
+            _policies.Set(buildType, name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
 
-            _policies.Set(buildKey.Type, buildKey.Name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
-            _policies.Clear(buildKey.Type, buildKey.Name, typeof(ILifetimePolicy));
-            _policies.Clear(buildKey.Type, buildKey.Name, typeof(IBuildKeyMappingPolicy));
-
+            // Register Type/Name
             _registeredNames.RegisterType(buildType, name);
 
-            if (typeFrom != null && typeFrom != typeTo)
-            {
-                if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && to.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    _policies.Set<IBuildKeyMappingPolicy>(new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)),
-                        new NamedTypeBuildKey(typeFrom, name));
-                }
-                else
-                {
-                    _policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(to, name)), buildKey);
-                }
-                if ((null == injectionMembers || injectionMembers.Length == 0) && !(lifetimeManager is IRequireBuildUpPolicy))
-                    _policies.Set<IBuildPlanPolicy>(new ResolveBuildUpPolicy(), buildKey);
-            }
-            if (lifetimeManager != null)
-            {
-                SetLifetimeManager(buildType, name, lifetimeManager);
-            }
-
-            Registering?.Invoke(this, new RegisterEventArgs(typeFrom, to, name, lifetimeManager));
-
+            // Add Injection Members to the list
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
                 foreach (var member in injectionMembers)
@@ -108,9 +85,17 @@ namespace Unity
                     if (member is IInjectionFactory && null != typeFrom && typeFrom != typeTo)
                         throw new InvalidOperationException(Constants.CannotInjectFactory);
 
-                    member.AddPolicies(buildType, to, name, _policies);
+                    member.AddPolicies(buildType, typeTo, name, _policies);
                 }
             }
+
+            // Register policies for each strategy
+            // TODO: Use cached version to impreve performance
+            foreach (var strategy in _strategies.OfType<IRegisterTypeStrategy>())
+                strategy.RegisterType(_context, typeFrom, typeTo, name, lifetimeManager, injectionMembers);
+
+            // Raise event
+            Registering?.Invoke(this, new RegisterEventArgs(typeFrom, typeTo, name, lifetimeManager));
 
             return this;
         }
@@ -322,8 +307,7 @@ namespace Unity
         public IUnityContainer CreateChildContainer()
         {
             var child = new UnityContainer(this);
-            var childContext = new ContainerContext(child);
-            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(childContext));
+            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
             return child;
         }
 
@@ -382,6 +366,7 @@ namespace Unity
         }
 
         #endregion
+
 
         /// <summary>
         /// Returns information about existing registration

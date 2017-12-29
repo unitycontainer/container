@@ -221,7 +221,8 @@ namespace Unity.ObjectBuilder
                 _ownsOverrides = true;
             }
 
-            _resolverOverrides.AddRange(newOverrides);
+            if (null != newOverrides)
+                _resolverOverrides.AddRange(newOverrides);
         }
 
         /// <summary>

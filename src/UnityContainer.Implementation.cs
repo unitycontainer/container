@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -32,6 +31,7 @@ namespace Unity
         private readonly List<UnityContainerExtension> _extensions;
         private readonly StagedStrategyChain<UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<BuilderStage> _buildPlanStrategies;
+        private readonly ContainerContext _context;
 
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
@@ -53,7 +53,7 @@ namespace Unity
 
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
-
+            _context = new ContainerContext(this);
             _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<BuilderStage>(_parent?._buildPlanStrategies);
             _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
@@ -178,7 +178,7 @@ namespace Unity
         /// This is a nested class so that it can access state in the
         /// container that would otherwise be inaccessible.
         /// </remarks>
-        private class ContainerContext : ExtensionContext
+        private class ContainerContext : ExtensionContext, IContainerContext
         {
             private readonly UnityContainer _container;
 
