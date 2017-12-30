@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
-using Unity.Policy.Mapping;
-using Unity.Storage;
 
 namespace Unity.Registration
 {
@@ -13,31 +9,22 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public TypeRegistration(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        public TypeRegistration(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager)
             : base(typeFrom ?? typeTo, string.IsNullOrEmpty(name) ? null : name)
         {
             MappedToType = typeTo;
-            LifetimeManager = lifetimeManager ?? TransientLifetimeManager.Instance;
 
-            if (LifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-            LifetimeManager.InUse = true;
-
-            // Always store MappingPolicy in this.Key this.Value
-            if (typeFrom != null && typeFrom != typeTo)
+            // Make sure manager is not being used already
+            if (lifetimeManager.InUse)
             {
-                Key = typeof(IBuildKeyMappingPolicy);
-                Value = typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition
-                    ? new GenericTypeBuildKeyMappingPolicy(typeTo, name)
-                    : (IBuildKeyMappingPolicy) new BuildKeyMappingPolicy(typeTo, name);
-
-                // TODO: Optimize proper resolution path
-                if ((null == injectionMembers || injectionMembers.Length == 0) && !(lifetimeManager is IRequireBuildUpPolicy))
-                    Next = new LinkedNode<Type, IBuilderPolicy>
-                    {
-                        Key = typeof(IBuildPlanPolicy),
-                        Value = new ResolveBuildUpPolicy()
-                    };
+                if (lifetimeManager is ILifetimeFactoryPolicy factory)
+                    lifetimeManager = (LifetimeManager)factory.CreateLifetimePolicy();
+                else
+                    throw new InvalidOperationException(Constants.LifetimeManagerInUse);
             }
+
+            LifetimeManager = lifetimeManager;
+            LifetimeManager.InUse = true;
         }
 
         #endregion

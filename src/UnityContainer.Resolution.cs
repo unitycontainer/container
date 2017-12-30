@@ -66,7 +66,7 @@ namespace Unity
                 var policies = new PolicyListWrapper(registration, _context);
                 var transient = new PolicyList(policies);
                 context = new BuilderContext(this, _lifetimeContainer, 
-                                                   _strategies,
+                                                   _strategyChain,
                                                     policies, 
                                                     transient, 
                                                     registration,

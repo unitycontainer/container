@@ -9,6 +9,7 @@ using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
+using Unity.Strategy;
 
 namespace Unity
 {
@@ -47,37 +48,53 @@ namespace Unity
         public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             // Validate imput
-            var to = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !to.GetTypeInfo().IsGenericType)
+            if (string.Empty == name) name = null; 
+            if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
+            if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
+            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
+                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
             {
-                if (!typeFrom.GetTypeInfo().IsAssignableFrom(to.GetTypeInfo()))
-                {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                        Constants.TypesAreNotAssignable, typeFrom, to), nameof(typeFrom));
-                }
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                    Constants.TypesAreNotAssignable, typeFrom, typeTo), nameof(typeFrom));
             }
 
-            // Register type
-            var registration = new TypeRegistration(typeFrom, typeTo, name, lifetimeManager, injectionMembers);
-            if (registration.LifetimeManager is IDisposable manager) _lifetimeContainer.Add(manager);
+            // Create registration and add to appropriate storage
+            var container = (lifetimeManager is ISingletonLifetimePolicy) ? GetRootContainer() : this;
+            var registration =new TypeRegistration(typeFrom, typeTo, name, lifetimeManager);
 
-            if (SetOrUpdate(registration) is IDisposable disposable)
+            // Add or replace existing 
+            if (container.SetOrUpdate(registration) is IDisposable disposable)
             {
-                _lifetimeContainer.Remove(disposable);
+                container._lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
             }
 
-            Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, registration.MappedToType, registration.Name, registration.LifetimeManager));
+            // If Disposable add to container's lifetime
+            if (registration.LifetimeManager is IDisposable manager)
+                container._lifetimeContainer.Add(manager);
 
+            // Add Injection Members
+            var context = container._context.RegistrationContext(registration);
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
-                var proxy = new PolicyListProxy(_context, registration);
                 foreach (var member in injectionMembers)
                 {
-                    member.AddPolicies(registration.RegisteredType, registration.MappedToType, registration.Name, proxy);
+                    member.AddPolicies(registration.RegisteredType, registration.MappedToType, 
+                                       registration.Name, context.Policies);
                 }
             }
 
+            // Register policies for each strategy
+            var strategies = container._registerTypeStrategies;
+            foreach (var strategy in strategies)
+                strategy.RegisterType(context, registration.RegisteredType, registration.MappedToType,
+                                      registration.Name, registration.LifetimeManager, injectionMembers);
+
+            // Raise event
+            container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, 
+                                                                      registration.MappedToType,
+                                                                      registration.Name, 
+                                                                      registration.LifetimeManager));
             return this;
         }
 
@@ -106,17 +123,27 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer RegisterInstance(Type registrationType, string registrationName, object instance, LifetimeManager lifetimeManager)
         {
-            var registration = new InstanceRegistration(registrationType, registrationName, instance, lifetimeManager);
-            if (registration.LifetimeManager is IDisposable manager) _lifetimeContainer.Add(manager);
+            // Validate imput
+            if (string.Empty == registrationName) registrationName = null;
+            if (null == instance) throw new ArgumentNullException(nameof(instance));
 
-            if (SetOrUpdate(registration) is IDisposable disposable)
+            // Create registration and add to appropriate storage
+            var registration = new InstanceRegistration(registrationType, registrationName, instance, lifetimeManager);
+            var container = (lifetimeManager is ISingletonLifetimePolicy) ? GetRootContainer() : this;
+
+            // Add or replace existing 
+            if (container.SetOrUpdate(registration) is IDisposable disposable)
             {
-                _lifetimeContainer.Remove(disposable);
+                container._lifetimeContainer.Remove(disposable);
                 disposable.Dispose();
             }
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registrationType, instance, registrationName, lifetimeManager));
+            if (registration.LifetimeManager is IDisposable manager)
+                container._lifetimeContainer.Add(manager);
 
+            // Raise event
+            container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registration.RegisteredType, instance,
+                                                                   registration.Name, registration.LifetimeManager));
             return this;
         }
 
@@ -333,7 +360,7 @@ namespace Unity
         }
 
 
-        #region Thread Safe Accessors
+        #region Special Accessors
 
         private IPolicySet SetOrUpdate(INamedType registration)
         {
@@ -382,7 +409,6 @@ namespace Unity
         }
 
         #endregion
-
 
 
         #region Registrations Collection
@@ -455,62 +481,6 @@ namespace Unity
             }
 
             return set;
-        }
-
-        #endregion
-
-
-        #region PolicyListProxy
-
-
-        private class PolicyListProxy : IPolicyList
-        {
-            private readonly IPolicyList _policies;
-            private readonly IPolicySet _registration;
-            private readonly Type _type;
-            private readonly string _name;
-
-            public PolicyListProxy(IPolicyList policies, IPolicySet registration)
-            {
-                _policies = policies;
-                _registration = registration;
-                if (registration is INamedType namedType)
-                {
-                    _type = namedType.Type;
-                    _name = namedType.Name;
-                }
-            }
-
-            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
-            {
-                if (_type != type || _name != name)
-                {
-                    return _policies.Get(type, name, policyInterface, out list);
-                }
-
-                list = _policies;
-                return _registration.Get(policyInterface);
-            }
-
-            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-            {
-                if (_type != type || _name != name)
-                    _policies.Set(type, name, policyInterface, policy);
-                else
-                    _registration.Set(policyInterface, policy);
-            }
-
-            public void Clear(Type type, string name, Type policyInterface)
-            {
-                if (_type != type || _name != name)
-                    _policies.Clear(type, name, policyInterface);
-                else
-                    _registration.Clear(policyInterface);
-            }
-
-            public void ClearAll()
-            {
-            }
         }
 
         #endregion

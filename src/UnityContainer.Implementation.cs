@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
@@ -20,6 +21,7 @@ using Unity.Policy.BuildPlanCreator;
 using Unity.Registration;
 using Unity.Storage;
 using Unity.Strategies;
+using Unity.Strategy;
 
 namespace Unity
 {
@@ -27,18 +29,27 @@ namespace Unity
     {
         #region Fields
 
-        private readonly IPolicySet _defaultPolicies;
+        // Container specific
         private readonly UnityContainer _parent;
-        private readonly ContainerContext _context;
         private readonly LifetimeContainer _lifetimeContainer;
         private readonly List<UnityContainerExtension> _extensions;
+        
+        // Policies
+        private readonly IPolicySet _defaultPolicies;
+        private readonly ContainerContext _context;
+        
+        // Strategies
         private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
         private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
-
+        
+        // Events
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
-
+        
+        // Caches
+        private IRegisterTypeStrategy[] _registerTypeStrategies;
+        private IStrategyChain _strategyChain;
 
         #endregion
 
@@ -52,21 +63,29 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
+            // Parent
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
 
-            _extensions = new List<UnityContainerExtension>();
+            // Strategies
             _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
             _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
-            _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
+            // Lifetime
+            _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
 
             // Default Policies
             if (null == _parent) InitializeStrategies();
             _defaultPolicies = parent?._defaultPolicies ?? GetDefaultPolicies();
             this[null, null] = _defaultPolicies;
 
+            // Context and policies
+            _extensions = new List<UnityContainerExtension>();
             _context = new ContainerContext(this);
+
+            // Caches
+            OnStrategiesChanged(this, null);
+            _strategies.Invalidated += OnStrategiesChanged;
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
@@ -120,6 +139,12 @@ namespace Unity
 
         #region Implementation
 
+        private void OnStrategiesChanged(object sender, EventArgs e)
+        {
+            _registerTypeStrategies = _strategies.OfType<IRegisterTypeStrategy>().ToArray();
+            _strategyChain = new StrategyChain(_strategies);
+        }
+
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
         {
             if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))
@@ -154,6 +179,14 @@ namespace Unity
             return new InternalRegistration(type, name);
         }
 
+        private UnityContainer GetRootContainer()
+        {
+            UnityContainer container;
+
+            for (container = this; container._parent != null; container = container._parent) ;
+
+            return container;
+        }
 
         #endregion
     }

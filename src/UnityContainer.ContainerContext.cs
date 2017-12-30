@@ -5,6 +5,7 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Storage;
 using Unity.Strategy;
 
@@ -20,7 +21,8 @@ namespace Unity
         /// Implemented as a nested class to gain access to  
         /// container that would otherwise be inaccessible.
         /// </remarks>
-        private class ContainerContext : ExtensionContext, 
+        private class ContainerContext : ExtensionContext,
+                                         IContainerContext,
                                          IPolicyList 
         {
             #region Fields
@@ -35,18 +37,8 @@ namespace Unity
             public ContainerContext(UnityContainer container)
             {
                 _container = container ?? throw new ArgumentNullException(nameof(container));
+                Policies = this;
             }
-
-            public T Policy<T>(Type type, string name) where T : IBuilderPolicy
-            {
-                return (T)_container[type, name, typeof(T)];
-            }
-
-            public void Policy<T>(Type type, string name, T value) where T : IBuilderPolicy
-            {
-                _container[type, name, typeof(T)] = value;
-            }
-
 
             #endregion
 
@@ -59,7 +51,7 @@ namespace Unity
 
             public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies => _container._buildPlanStrategies;
 
-            public override IPolicyList Policies => _container._context;
+            public override IPolicyList Policies { get; }
 
             public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
 
@@ -86,27 +78,9 @@ namespace Unity
 
             #region IContainerContext
 
-            /// <summary>
-            /// Retrieves registration for requested named type
-            /// </summary>
-            /// <param name="type">Registration type</param>
-            /// <param name="name">Registration name</param>
-            /// <param name="create">Instruncts container if it should create registration if not found</param>
-            /// <returns>Registration for requested named type or null if named type is not registered and 
-            /// <see cref="create"/> is false</returns>
-            public INamedType Registration(Type type, string name, bool create = false)
+            public IContainerContext RegistrationContext(InternalRegistration registration)
             {
-                for (var registry = _container; null != registry; registry = registry._parent)
-                {
-                    IPolicySet data;
-                    if (null == (data = registry[type, name])) continue;
-
-                    return (INamedType)data;
-                }
-
-                if (!create) return null;
-
-                return null;
+                return new RegistrationContext(_container, registration);
             }
 
             #endregion
@@ -114,13 +88,13 @@ namespace Unity
 
             #region IPolicyList
 
-            void IPolicyList.ClearAll()
+            public virtual void ClearAll()
             {
                 _container._registrations =
                     new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
             }
 
-            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            public virtual IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
@@ -135,7 +109,7 @@ namespace Unity
                 return null;
             }
 
-            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            public virtual void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
             {
                 for (var registry = _container; null != registry; registry = registry._parent)
                 {
@@ -149,9 +123,51 @@ namespace Unity
                 _container[type, name, policyInterface] = policy;
             }
 
-            public void Clear(Type type, string name, Type policyInterface)
+            public virtual void Clear(Type type, string name, Type policyInterface)
             {
                 throw new NotImplementedException();
+            }
+
+            #endregion
+        }
+
+        private class RegistrationContext : ContainerContext
+        {
+            private readonly InternalRegistration _registration;
+
+            internal RegistrationContext(UnityContainer container, InternalRegistration registration)
+                : base(container)
+            {
+                _registration = registration;
+            }
+
+
+            #region IPolicyList
+
+            public override IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            {
+                if (_registration.Type != type || _registration.Name != name)
+                    return base.Get(type, name, policyInterface, out list);
+
+                list = this;
+                return _registration.Get(policyInterface);
+            }
+
+
+            public override void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            {
+                if (_registration.Type != type || _registration.Name != name)
+                    base.Set(type, name, policyInterface, policy);
+
+                _registration.Set(policyInterface, policy);
+            }
+
+            public override void Clear(Type type, string name, Type policyInterface)
+            {
+                if (_registration.Type != type || _registration.Name != name)
+                    base.Clear(type, name, policyInterface);
+
+                _registration.Clear(policyInterface);
             }
 
             #endregion

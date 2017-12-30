@@ -1,14 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Unity.Builder.Strategy;
-using Unity.Container;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
-using Unity.Storage;
 using Unity.Strategy;
 using Unity.Utility;
 
@@ -30,10 +25,10 @@ namespace Unity.Builder
 
         #region Constructors
 
-        public BuilderContext(IUnityContainer container, ILifetimeContainer lifetime, IEnumerable<IBuilderStrategy> chain,
+        public BuilderContext(IUnityContainer container, ILifetimeContainer lifetime, IStrategyChain chain,
             IPolicyList persistentPolicies, IPolicyList policies, INamedType buildKey, object existing, params ResolverOverride[] resolverOverrides)
         {
-            _chain = new StrategyChain(chain);
+            _chain = chain;
             Container = container;
             Lifetime = lifetime;
             Existing = existing;
