@@ -1,6 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +15,8 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private readonly IDictionary<ILifetimeContainer, object> _values = new Dictionary<ILifetimeContainer, object>();
+        private readonly IDictionary<ILifetimeContainer, object> _values = 
+            new ConcurrentDictionary<ILifetimeContainer, object>();
 
         #endregion
 

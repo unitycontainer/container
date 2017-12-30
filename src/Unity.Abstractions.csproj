@@ -22,6 +22,10 @@
     <RootNamespace>Unity</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
+    <Compile Remove="Utility\ConcurrentDictionary.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
