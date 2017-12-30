@@ -4,4 +4,4 @@
 [![NuGet](https://img.shields.io/nuget/v/Unity.Abstractions.svg)](https://www.nuget.org/packages/Unity.Abstractions)
 
 # Unity Abstractions
-Home for all public interfaces
+Home for all public interfaces and declarations
