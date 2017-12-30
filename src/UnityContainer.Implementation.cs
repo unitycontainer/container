@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -37,6 +38,9 @@ namespace Unity
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
+        // Caches
+        private IRegisterTypeStrategy[] _registerTypeStrategies;
+
         #endregion
 
 
@@ -62,6 +66,10 @@ namespace Unity
             _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
 
             if (null == _parent) InitializeStrategies();
+
+            // Caches
+            OnStrategiesChanged(this, null);
+            _strategies.Invalidated += OnStrategiesChanged;
 
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
@@ -127,6 +135,20 @@ namespace Unity
 
 
         #region Implementation
+
+        private UnityContainer GetRootContainer()
+        {
+            UnityContainer container;
+
+            for (container = this; container._parent != null; container = container._parent) ;
+
+            return container;
+        }
+
+        private void OnStrategiesChanged(object sender, EventArgs e)
+        {
+            _registerTypeStrategies = _strategies.OfType<IRegisterTypeStrategy>().ToArray();
+        }
 
         /// <summary>
         /// Verifies that an argument instance is assignable from the provided type (meaning

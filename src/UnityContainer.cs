@@ -70,12 +70,13 @@ namespace Unity
 
             // Register Type
             var buildType = typeFrom ?? typeTo;
+            var container = (lifetimeManager is ISingletonLifetimePolicy) ? GetRootContainer() : this;
 
             // Clear build plan
-            _policies.Set(buildType, name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
+            container._policies.Set(buildType, name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
 
             // Register Type/Name
-            _registeredNames.RegisterType(buildType, name);
+            container._registeredNames.RegisterType(buildType, name);
 
             // Add Injection Members to the list
             if (null != injectionMembers && injectionMembers.Length > 0)
@@ -85,17 +86,17 @@ namespace Unity
                     if (member is IInjectionFactory && null != typeFrom && typeFrom != typeTo)
                         throw new InvalidOperationException(Constants.CannotInjectFactory);
 
-                    member.AddPolicies(buildType, typeTo, name, _policies);
+                    member.AddPolicies(buildType, typeTo, name, container._policies);
                 }
             }
 
             // Register policies for each strategy
-            // TODO: Use cached version to impreve performance
-            foreach (var strategy in _strategies.OfType<IRegisterTypeStrategy>())
+            var strategies = container._registerTypeStrategies;
+            foreach (var strategy in strategies)
                 strategy.RegisterType(_context, typeFrom, typeTo, name, lifetimeManager, injectionMembers);
 
             // Raise event
-            Registering?.Invoke(this, new RegisterEventArgs(typeFrom, typeTo, name, lifetimeManager));
+            container.Registering?.Invoke(this, new RegisterEventArgs(typeFrom, typeTo, name, lifetimeManager));
 
             return this;
         }
@@ -132,21 +133,20 @@ namespace Unity
 
             var type = toType ?? instance.GetType();
             var lifetime = manager ?? new ContainerControlledLifetimeManager();
+            var container = (manager is ISingletonLifetimePolicy) ? GetRootContainer() : this;
 
-            _registeredNames.RegisterType(type, name);
+            container._registeredNames.RegisterType(type, name);
 
             lifetime.SetValue(instance);
-            SetLifetimeManager(type, name, lifetime);
+            container.SetLifetimeManager(type, name, lifetime);
 
             if (lifetime is IBuildPlanPolicy buildPlanPolicy)
-                _policies.Set(type, name, typeof(IBuildPlanPolicy), buildPlanPolicy);
+                container._policies.Set(type, name, typeof(IBuildPlanPolicy), buildPlanPolicy);
             else
-                _policies.Set(type, name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
+                container._policies.Set(type, name, typeof(IBuildPlanPolicy), new OverriddenBuildPlanMarkerPolicy());
 
-            RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type,
-                                                              instance,
-                                                              name,
-                                                              lifetime));
+            container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(type, instance,
+                                                                                      name, lifetime));
             return this;
         }
 

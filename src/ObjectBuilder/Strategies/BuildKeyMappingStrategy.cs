@@ -35,15 +35,11 @@ namespace Unity.ObjectBuilder.Strategies
         public void RegisterType(IContainerContext context, Type typeFrom, Type typeTo, string name, 
                                  LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            var buildType = typeFrom ?? typeTo;
-
             if (null == typeFrom || typeFrom == typeTo)
             {
-                context.Policies.Clear(buildType, name, typeof(IBuildKeyMappingPolicy));
+                context.Policies.Clear(typeTo, name, typeof(IBuildKeyMappingPolicy));
                 return;
             }
-
-            var buildKey = new NamedTypeBuildKey(buildType, name);
 
             if (typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition)
             {
@@ -52,12 +48,13 @@ namespace Unity.ObjectBuilder.Strategies
             }
             else
             {
-                context.Policies.Set<IBuildKeyMappingPolicy>(new BuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name)), buildKey);
+                context.Policies.Set(typeFrom, name, typeof(IBuildKeyMappingPolicy), 
+                                     new BuildKeyMappingPolicy(new NamedTypeBuildKey(typeTo, name)));
             }
 
             var members = null == injectionMembers ? new InjectionMember[0] : injectionMembers;
             if (!members.Where(m => m is InjectionConstructor || m is InjectionMethod || m is InjectionProperty).Any() && !(lifetimeManager is IRequireBuildUpPolicy))
-                context.Policies.Set<IBuildPlanPolicy>(new ResolveBuildUpPolicy(), buildKey);
+                context.Policies.Set(typeFrom, name, typeof(IBuildPlanPolicy), new ResolveBuildUpPolicy());
         }
     }
 }
