@@ -137,7 +137,7 @@ namespace Unity
 
             container._registeredNames.RegisterType(type, name);
 
-            lifetime.SetValue(instance);
+            lifetime.SetValue(instance, _lifetimeContainer);
             container.SetLifetimeManager(type, name, lifetime);
 
             if (lifetime is IBuildPlanPolicy buildPlanPolicy)
