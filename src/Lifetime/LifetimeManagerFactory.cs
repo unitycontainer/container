@@ -13,6 +13,7 @@ namespace Unity.Lifetime
     public class LifetimeManagerFactory : ILifetimeFactoryPolicy
     {
         private readonly ExtensionContext _containerContext;
+        private readonly ILifetimeFactoryPolicy _policy;
 
         /// <summary>
         /// Create a new <see cref="LifetimeManagerFactory"/> that will
@@ -28,11 +29,35 @@ namespace Unity.Lifetime
         }
 
         /// <summary>
+        /// Create a new <see cref="LifetimeManagerFactory"/> that will
+        /// return instances of the given type, creating them by
+        /// resolving through the container.
+        /// </summary>
+        /// <param name="policy">LifetimeManager to create.</param>
+        public LifetimeManagerFactory(ExtensionContext containerContext, ILifetimeFactoryPolicy policy)
+        {
+            _containerContext = containerContext;
+            _policy = policy ?? throw new ArgumentNullException(nameof(policy));
+            LifetimeType = policy.GetType();
+        }
+
+
+        /// <summary>
         /// Create a new instance of <see cref="ILifetimePolicy"/>.
         /// </summary>
         /// <returns>The new instance.</returns>
         public ILifetimePolicy CreateLifetimePolicy()
         {
+            if (null != _policy)
+            {
+                var policy = _policy.CreateLifetimePolicy();
+                if (policy is IDisposable)
+                {
+                    _containerContext.Lifetime.Add(policy);
+                }
+                return policy;
+            }
+
             var lifetime = typeof(TransientLifetimeManager) == LifetimeType 
                          ? new TransientLifetimeManager() 
                          : (LifetimeManager)_containerContext.Container.Resolve(LifetimeType, null);
