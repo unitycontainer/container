@@ -141,7 +141,7 @@ namespace Unity.ObjectBuilder.Strategies
 
             if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
             {
-                LifetimeManagerFactory factory = new LifetimeManagerFactory((ExtensionContext)context, lifetimeManager.GetType());
+                LifetimeManagerFactory factory = new LifetimeManagerFactory((ExtensionContext)context, lifetimeManager);
                 context.Policies.Set<ILifetimeFactoryPolicy>(factory, new NamedTypeBuildKey(lifetimeType, name));
             }
             else
