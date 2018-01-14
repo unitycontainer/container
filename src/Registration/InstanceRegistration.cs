@@ -46,12 +46,7 @@ namespace Unity.Registration
             // Validate input
             if (null != registrationType) InstanceIsAssignable(registrationType, instance, nameof(instance));
 
-            var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
-            if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-
-            lifetime.SetValue(instance);
-            LifetimeManager = lifetime;
-
+            LifetimeManager = lifetimeManager;
             MappedToType = registrationType ?? instance.GetType();
         }
 

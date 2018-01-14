@@ -60,7 +60,7 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = (lifetimeManager is ISingletonLifetimePolicy) ? GetRootContainer() : this;
-            var registration =new TypeRegistration(typeFrom, typeTo, name, lifetimeManager);
+            var registration = new TypeRegistration(typeFrom, typeTo, name, lifetimeManager);
 
             // Add or replace existing 
             if (container.SetOrUpdate(registration) is IDisposable disposable)
@@ -127,8 +127,13 @@ namespace Unity
             if (string.Empty == registrationName) registrationName = null;
             if (null == instance) throw new ArgumentNullException(nameof(instance));
 
+            // TODO: Move to strategy
+            var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
+            if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
+            lifetime.SetValue(instance, _lifetimeContainer);
+
             // Create registration and add to appropriate storage
-            var registration = new InstanceRegistration(registrationType, registrationName, instance, lifetimeManager);
+            var registration = new InstanceRegistration(registrationType, registrationName, instance, lifetime);
             var container = (lifetimeManager is ISingletonLifetimePolicy) ? GetRootContainer() : this;
 
             // Add or replace existing 
