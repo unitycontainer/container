@@ -57,7 +57,8 @@ namespace Unity.ObjectBuilder.BuildPlan
                                                           .Where(r => r.RegisteredType == itemType || (itemTypeInfo.IsGenericType &&
                                                                       r.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
                                                                       r.RegisteredType == generic.Value))
-                                                          .Select(r => context.NewBuildUp(new NamedTypeBuildKey(itemType, r.Name)));
+                                                          .Select(r => context.NewBuildUp(new NamedTypeBuildKey(itemType, r.Name)))
+                                                          .ToArray();
                 context.Existing = CastMethod.MakeGenericMethod(itemType).Invoke(null, new object[] { enumerable });
                 context.BuildComplete = true;
             }
