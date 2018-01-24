@@ -15,7 +15,18 @@ namespace Unity.Storage
 
         #endregion
 
-        
+
+        #region Constructors
+
+        public LinkedRegistry(string key, IPolicySet value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        #endregion
+
+
         #region IRegistry
 
         public IPolicySet this[string key]

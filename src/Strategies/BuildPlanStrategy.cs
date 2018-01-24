@@ -50,16 +50,17 @@ namespace Unity.Strategies
 
         public static TPolicyInterface GetPolicy<TPolicyInterface>(IPolicyList list, INamedType buildKey, out IPolicyList containingPolicyList)
         {
-            return (TPolicyInterface)(list.Get(buildKey.Type, buildKey.Name, typeof(TPolicyInterface), out containingPolicyList) ??
-                                      GetPolicyForOpenType(list, typeof(TPolicyInterface), buildKey, buildKey.Type, out containingPolicyList) ??
-                                      list.Get(null, null, typeof(TPolicyInterface), out containingPolicyList));
+            return (TPolicyInterface)(list.Get(buildKey.Type, buildKey.Name, typeof(TPolicyInterface), out containingPolicyList)     ??
+                                      GetExtended(list, typeof(TPolicyInterface), buildKey, buildKey.Type, out containingPolicyList) ??
+                                      list.Get(null, null, typeof(TPolicyInterface), out containingPolicyList));    // Nothing! Get Default
         }
 
-        private static IBuilderPolicy GetPolicyForOpenType(IPolicyList list, Type policyInterface, INamedType buildKey, Type buildType, out IPolicyList containingPolicyList)
+        private static IBuilderPolicy GetExtended(IPolicyList list, Type policyInterface, INamedType buildKey, Type buildType, out IPolicyList containingPolicyList)
         {
             containingPolicyList = null;
             if (null == buildType) return null;
 
+            // Check if generic
             if (buildType.GetTypeInfo().IsGenericType)
             {
                 var newType = buildType.GetGenericTypeDefinition();
@@ -67,13 +68,15 @@ namespace Unity.Strategies
                        list.Get(newType, string.Empty, policyInterface, out containingPolicyList);
             }
 
+            // Check if array
             if (buildType.IsArray && buildType.GetArrayRank() == 1)
             {
                 return list.Get(typeof(Array), buildKey.Name, policyInterface, out containingPolicyList) ??
                        list.Get(typeof(Array), string.Empty, policyInterface, out containingPolicyList);
             }
 
-            return null;
+            // Check default for type
+            return list.Get(buildType, string.Empty, policyInterface, out containingPolicyList);
         }
 
         #endregion

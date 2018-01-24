@@ -237,7 +237,7 @@ namespace Unity
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;
                 _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                 _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry { [name] = registration };
+                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, registration);
                 _registrations.Buckets[targetBucket] = _registrations.Count;
                 _registrations.Count++;
 
