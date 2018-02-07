@@ -32,6 +32,16 @@ namespace Unity.Lifetime
             _value = new WeakReference(newValue);
         }
 
+        /// <summary>
+        /// Remove the given object from backing store.
+        /// </summary>
+        /// <param name="container">Instance of container</param>
+        public override void RemoveValue(ILifetimeContainer container = null)
+        {
+            // DO NOTHING - we don't own this instance.
+        }
+
+
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new ExternallyControlledLifetimeManager();
