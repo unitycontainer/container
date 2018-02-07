@@ -20,10 +20,6 @@ namespace Unity.Lifetime
             return null;
         }
 
-        public override void RemoveValue(ILifetimeContainer container = null)
-        {
-        }
-
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return this;
