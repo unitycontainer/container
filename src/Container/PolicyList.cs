@@ -77,7 +77,7 @@ namespace Unity.Container
         {
             list = null;
 
-            if (_policies.TryGetValue(new PolicyKey(type, name, policyInterface), out var policy))
+            if (0 < _policies.Count && _policies.TryGetValue(new PolicyKey(type, name, policyInterface), out var policy))
             {
                 list = this;
                 return policy;
