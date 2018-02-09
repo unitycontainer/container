@@ -11,9 +11,9 @@ namespace Unity.Storage
     {
         #region Fields
 
+        private readonly object _sync = new object();
         private readonly IPolicyList _innerPolicyList;
-        private readonly IDictionary<PolicyKey, IBuilderPolicy> _policies = 
-            new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+        private IDictionary<PolicyKey, IBuilderPolicy> _policies = null;
 
         #endregion
 
@@ -46,12 +46,12 @@ namespace Unity.Storage
         /// <value>
         /// The number of items in the locator.
         /// </value>
-        public int Count => _policies.Count;
+        public int Count => _policies?.Count ?? 0;
 
 
         public void Clear(Type type, string name, Type policyInterface)
         {
-            _policies.Remove(new PolicyKey(type, name, policyInterface));
+            _policies?.Remove(new PolicyKey(type, name, policyInterface));
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Unity.Storage
         /// </summary>
         public void ClearAll()
         {
-            _policies.Clear();
+            _policies = null;
         }
 
         /// <summary>
@@ -75,8 +75,9 @@ namespace Unity.Storage
         public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
         {
             list = null;
+            IBuilderPolicy policy = null;
 
-            if (_policies.TryGetValue(new PolicyKey(type, name, policyInterface), out var policy))
+            if (_policies?.TryGetValue(new PolicyKey(type, name, policyInterface), out policy) ?? false)
             {
                 list = this;
                 return policy;
@@ -88,6 +89,14 @@ namespace Unity.Storage
 
         public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
+            if (null == _policies)
+            {
+                lock (_sync)
+                {
+                    if (null == _policies)
+                        _policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+                }
+            }
             _policies[new PolicyKey(type, name, policyInterface)] = policy;
         }
 
