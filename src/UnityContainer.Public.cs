@@ -87,7 +87,7 @@ namespace Unity
             ((IPolicyList)_context).ClearAll();
 
             if (null == _parent)
-                InitializeStrategies();
+                InitializeRootContainer();
 
             return this;
         }

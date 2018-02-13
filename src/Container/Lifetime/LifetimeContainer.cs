@@ -20,6 +20,18 @@ namespace Unity.Container.Lifetime
     {
         private readonly List<object> _items = new List<object>();
 
+        public LifetimeContainer(IUnityContainer parent = null)
+        {
+            Container = parent;
+        }
+
+        /// <summary>
+        /// The IUnityContainer this container is associated with.
+        /// </summary>
+        /// <value>The <see cref="IUnityContainer"/> object.</value>
+        public IUnityContainer Container { get; }
+
+
         /// <summary>
         /// Gets the number of references in the lifetime container
         /// </summary>

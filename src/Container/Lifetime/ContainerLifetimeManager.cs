@@ -1,5 +1,4 @@
-﻿using Unity.Builder;
-using Unity.Lifetime;
+﻿using Unity.Lifetime;
 
 namespace Unity.Container.Lifetime
 {
@@ -13,25 +12,9 @@ namespace Unity.Container.Lifetime
     /// </remarks>
     internal class ContainerLifetimeManager : LifetimeManager
     {
-        private object _value;
-
         public override object GetValue(ILifetimeContainer container = null)
         {
-            return _value;
-        }
-
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
-        {
-            _value = newValue;
-        }
-
-        public override void RemoveValue(ILifetimeContainer container = null)
-        {
-        }
-
-        public object Resolve(IBuilderContext _)
-        {
-            return _value;
+            return container.Container;
         }
 
         protected override LifetimeManager OnCreateLifetimeManager()
