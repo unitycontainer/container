@@ -26,13 +26,13 @@ namespace Unity.Lifetime
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
         /// <param name="container">The container this lifetime belongs to</param>
-        public abstract void SetValue(object newValue, ILifetimeContainer container = null);
+        public virtual void SetValue(object newValue, ILifetimeContainer container = null) { }
 
         /// <summary>
         /// Remove the given object from backing store.
         /// <param name="container">The container this lifetime belongs to</param>
         /// </summary>
-        public abstract void RemoveValue(ILifetimeContainer container = null);
+        public virtual void RemoveValue(ILifetimeContainer container = null) { }
 
         #endregion
 

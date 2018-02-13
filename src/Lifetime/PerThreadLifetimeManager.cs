@@ -57,15 +57,6 @@ namespace Unity.Lifetime
             _values[_key] = newValue;
         }
 
-        /// <summary>
-        /// Remove the given object from backing store.
-        /// </summary>
-        /// <param name="container">Instance of container</param>
-        /// <remarks>Not implemented for this lifetime manager.</remarks>
-        public override void RemoveValue(ILifetimeContainer container = null)
-        {
-        }
-
         private static void EnsureValues()
         {
             // no need for locking, values is TLS
