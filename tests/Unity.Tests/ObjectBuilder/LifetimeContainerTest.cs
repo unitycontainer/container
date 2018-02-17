@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Unity;
 using Unity.Container.Lifetime;
 using Unity.Lifetime;
@@ -127,48 +126,44 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         [TestMethod]
         public void ShouldDisposeAsManyAsPossibleWhenTaskExeptionIsThrown()
         {
-            var obj1 = new Mock<IDisposable>();
-            var obj3 = new Mock<IDisposable>();
+            var obj1 = new DisposableObject();
+            var obj3 = new DisposableObject();
 
             try
             {
                 using (var container = new UnityContainer())
                 {
-                    container.RegisterInstance(nameof(obj1), obj1.Object);
+                    container.RegisterInstance(nameof(obj1), obj1);
                     var obj2 = Task.Run(async () => await Task.Delay(10000));
                     container.RegisterInstance(nameof(obj2), obj2);
-                    container.RegisterInstance(nameof(obj3), obj3.Object);
+                    container.RegisterInstance(nameof(obj3), obj3);
                 }
 
                 Assert.Fail("Exceptions should be thrown");
             }
-            catch (InvalidOperationException e) when(e.Message.Contains("A task may only be disposed if it is in a completion state"))
+            catch (InvalidOperationException e) when (e.Message.Contains("A task may only be disposed if it is in a completion state"))
             {
             }
 
-            obj1.Verify(_ => _.Dispose());
-            obj3.Verify(_ => _.Dispose());
+            Assert.IsTrue(obj1.WasDisposed);
+            Assert.IsTrue(obj3.WasDisposed);
         }
 
         [TestMethod]
         public void ShouldDisposeAsManyAsPossibleWhenSingleExeptionIsThrown()
         {
-            var obj1 = new Mock<IDisposable>();
-            var obj2 = new Mock<IDisposable>();
-            obj2.Setup(_ => _.Dispose()).Callback(() =>
-            {
-                throw new NotImplementedException();
-            });
+            var obj1 = new DisposableObject();
+            var obj2 = new DisposableObjectThatThrowsOnDispose();
 
-            var obj3 = new Mock<IDisposable>();
+            var obj3 = new DisposableObject();
 
             try
             {
                 using (var container = new UnityContainer())
                 {
-                    container.RegisterInstance(nameof(obj1), obj1.Object);
-                    container.RegisterInstance(nameof(obj2), obj2.Object);
-                    container.RegisterInstance(nameof(obj3), obj3.Object);
+                    container.RegisterInstance(nameof(obj1), obj1);
+                    container.RegisterInstance(nameof(obj2), obj2);
+                    container.RegisterInstance(nameof(obj3), obj3);
                 }
 
                 Assert.Fail("Exceptions should be thrown");
@@ -177,36 +172,28 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             {
             }
 
-            obj1.Verify(_ => _.Dispose());
-            obj2.Verify(_ => _.Dispose());
-            obj3.Verify(_ => _.Dispose());
+            Assert.IsTrue(obj1.WasDisposed);
+            Assert.IsTrue(obj2.WasDisposed);
+            Assert.IsTrue(obj3.WasDisposed);
         }
 
         [TestMethod]
         public void ShouldDisposeAsManyAsPossibleWhenExeptionsAreThrown()
         {
-            var obj1 = new Mock<IDisposable>();
-            var obj2 = new Mock<IDisposable>();
-            obj2.Setup(_ => _.Dispose()).Callback(() =>
-            {
-                throw new NotImplementedException();
-            });
+            var obj1 = new DisposableObject();
+            var obj2 = new DisposableObjectThatThrowsOnDispose();
 
-            var obj3 = new Mock<IDisposable>();
-            var obj4 = new Mock<IDisposable>();
-            obj4.Setup(_ => _.Dispose()).Callback(() =>
-            {
-                throw new NotImplementedException();
-            });
+            var obj3 = new DisposableObject();
+            var obj4 = new DisposableObjectThatThrowsOnDispose();
 
             try
             {
                 using (var container = new UnityContainer())
                 {
-                    container.RegisterInstance(nameof(obj1), obj1.Object);
-                    container.RegisterInstance(nameof(obj2), obj2.Object);
-                    container.RegisterInstance(nameof(obj3), obj3.Object);
-                    container.RegisterInstance(nameof(obj4), obj4.Object);
+                    container.RegisterInstance(nameof(obj1), obj1);
+                    container.RegisterInstance(nameof(obj2), obj2);
+                    container.RegisterInstance(nameof(obj3), obj3);
+                    container.RegisterInstance(nameof(obj4), obj4);
                 }
 
                 Assert.Fail("Exceptions should be thrown");
@@ -216,17 +203,17 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
                 Assert.AreEqual(2, e.InnerExceptions.Count);
             }
 
-            obj1.Verify(_ => _.Dispose());
-            obj2.Verify(_ => _.Dispose());
-            obj3.Verify(_ => _.Dispose());
-            obj4.Verify(_ => _.Dispose());
+            Assert.IsTrue(obj1.WasDisposed);
+            Assert.IsTrue(obj2.WasDisposed);
+            Assert.IsTrue(obj3.WasDisposed);
+            Assert.IsTrue(obj4.WasDisposed);
         }
 
         private class DisposableObject : IDisposable
         {
             public bool WasDisposed = false;
 
-            public void Dispose()
+            public virtual void Dispose()
             {
                 WasDisposed = true;
             }
@@ -245,6 +232,15 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             public void Dispose()
             {
                 DisposePosition = ++count;
+            }
+        }
+
+        private class DisposableObjectThatThrowsOnDispose : DisposableObject
+        {
+            public override void Dispose()
+            {
+                base.Dispose();
+                throw new NotImplementedException();
             }
         }
     }
