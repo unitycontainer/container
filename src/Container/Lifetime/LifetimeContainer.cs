@@ -100,12 +100,29 @@ namespace Unity.Container.Lifetime
             {
                 lock (_items)
                 {
+                    var exceptions = new List<Exception>();
                     foreach (var disposable in _items.OfType<IDisposable>().Reverse())
                     {
-                        disposable.Dispose();
+                        try
+                        {
+                            disposable.Dispose();
+                        }
+                        catch (Exception e)
+                        {
+                            exceptions.Add(e);
+                        }
                     }
 
                     _items.Clear();
+
+                    if (exceptions.Count == 1)
+                    {
+                        throw exceptions.First();
+                    }
+                    else if (exceptions.Count > 1)
+                    {
+                        throw new AggregateException(exceptions);
+                    }
                 }
             }
         }
