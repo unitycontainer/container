@@ -199,24 +199,24 @@ namespace Unity.Tests.ChildContainer
         [TestMethod]
         public void ChainOfContainers()
         {
-            UnityContainer parent = new UnityContainer();
-            IUnityContainer child = parent.CreateChildContainer();
-            IUnityContainer child2 = child.CreateChildContainer();
-            IUnityContainer child3 = child2.CreateChildContainer();
+            var parent = new UnityContainer();
+            var child1 = parent.CreateChildContainer();
+            var child2 = child1.CreateChildContainer();
+            var child3 = child2.CreateChildContainer();
 
-            TestContainer obj1 = new TestContainer();
+            var obj1 = new TestContainer();
 
-            parent.RegisterInstance<TestContainer>("InParent", obj1);
-            child.RegisterInstance<TestContainer>("InChild", obj1);
-            child2.RegisterInstance<TestContainer>("InChild2", obj1);
-            child3.RegisterInstance<TestContainer>("InChild3", obj1);
+            parent.RegisterInstance("InParent", obj1);
+            child1.RegisterInstance("InChild1", obj1);
+            child2.RegisterInstance("InChild2", obj1);
+            child3.RegisterInstance("InChild3", obj1);
 
             object objresolve = child3.Resolve<TestContainer>("InParent");
             object objresolve1 = parent.Resolve<TestContainer>("InChild3");
 
             Assert.AreSame(obj1, objresolve);
             
-            child.Dispose();
+            child1.Dispose();
             
             //parent not getting disposed
             Assert.IsTrue(obj1.WasDisposed);

@@ -6,8 +6,9 @@ using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Storage;
+using Unity.Strategies;
 using Unity.Strategy;
 
 namespace Unity.Tests.TestDoubles
@@ -30,12 +31,12 @@ namespace Unity.Tests.TestDoubles
 
         public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies
         {
-            get { return new StagedStrategyChain<UnityBuildStage>(); }
+            get { return new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(); }
         }
 
         public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies
         {
-            get { return new StagedStrategyChain<BuilderStage>(); }
+            get { return new StagedStrategyChain<IBuilderStrategy, BuilderStage>(); }
         }
 
         public override IPolicyList Policies

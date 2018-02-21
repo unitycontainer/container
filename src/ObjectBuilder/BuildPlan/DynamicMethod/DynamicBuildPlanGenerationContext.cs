@@ -27,7 +27,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             typeof(IBuilderContext).GetTypeInfo()
                                    .DeclaredMembers
                                    .First(m => m.Name == nameof(IBuilderContext.Existing));
-
         /// <summary>
         /// 
         /// </summary>

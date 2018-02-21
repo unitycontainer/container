@@ -7,16 +7,20 @@ using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
-using Unity.Container.Registration;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.BuildPlan;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.ObjectBuilder.Policies;
-using Unity.ObjectBuilder.Strategies;
 using Unity.Policy;
+using Unity.Policy.BuildPlanCreator;
+using Unity.Registration;
+using Unity.Storage;
+using Unity.Strategies;
 using Unity.Strategy;
 
 namespace Unity
@@ -25,21 +29,27 @@ namespace Unity
     {
         #region Fields
 
-        private LifetimeContainer _lifetimeContainer;
-        private readonly PolicyList _policies;
+        // Container specific
         private readonly UnityContainer _parent;
-        private readonly NamedTypesRegistry _registeredNames;
+        private readonly LifetimeContainer _lifetimeContainer;
         private readonly List<UnityContainerExtension> _extensions;
-        private readonly StagedStrategyChain<UnityBuildStage> _strategies;
-        private readonly StagedStrategyChain<BuilderStage> _buildPlanStrategies;
+        
+        // Policies
+        private readonly IPolicySet _defaultPolicies;
         private readonly ContainerContext _context;
-
+        
+        // Strategies
+        private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
+        private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
+        
+        // Events
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
-
+        
         // Caches
         private IRegisterTypeStrategy[] _registerTypeStrategies;
+        private IStrategyChain _strategyChain;
 
         #endregion
 
@@ -53,82 +63,74 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
-            _extensions = new List<UnityContainerExtension>();
-
+            // Parent
             _parent = parent;
             _parent?._lifetimeContainer.Add(this);
-            _context = new ContainerContext(this);
-            _strategies = new StagedStrategyChain<UnityBuildStage>(_parent?._strategies);
-            _buildPlanStrategies = new StagedStrategyChain<BuilderStage>(_parent?._buildPlanStrategies);
-            _registeredNames = new NamedTypesRegistry(_parent?._registeredNames);
-            _lifetimeContainer = new LifetimeContainer { _strategies, _buildPlanStrategies };
-            _policies = new PolicyList(_parent?._policies);
-            _policies.Set<IRegisteredNamesPolicy>(new RegisteredNamesPolicy(_registeredNames), null);
 
-            if (null == _parent) InitializeStrategies();
+            // Strategies
+            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
+            _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
+
+            // Lifetime
+            _lifetimeContainer = new LifetimeContainer(this) { _strategies, _buildPlanStrategies };
+
+            // Default Policies
+            if (null == _parent) InitializeRootContainer();
+            _defaultPolicies = parent?._defaultPolicies ?? GetDefaultPolicies();
+            this[null, null] = _defaultPolicies;
+
+            // Context and policies
+            _extensions = new List<UnityContainerExtension>();
+            _context = new ContainerContext(this);
 
             // Caches
             OnStrategiesChanged(this, null);
             _strategies.Invalidated += OnStrategiesChanged;
-
-            RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
 
         #endregion
 
 
-        #region Default Strategies
+        #region Defaults
 
-        protected void InitializeStrategies()
+        protected void InitializeRootContainer()
         {
             // Main strategy chain
-            _strategies.AddNew<BuildKeyMappingStrategy>(UnityBuildStage.TypeMapping);
-            _strategies.AddNew<LifetimeStrategy>(UnityBuildStage.Lifetime);
-
-            _strategies.AddNew<ArrayResolutionStrategy>(UnityBuildStage.Creation);
-            _strategies.AddNew<BuildPlanStrategy>(UnityBuildStage.Creation);
+            _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
+            _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
+            _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
 
             // Build plan strategy chain
-            _buildPlanStrategies.AddNew<DynamicMethodConstructorStrategy>(BuilderStage.Creation);
-            _buildPlanStrategies.AddNew<DynamicMethodPropertySetterStrategy>(BuilderStage.Initialization);
-            _buildPlanStrategies.AddNew<DynamicMethodCallStrategy>(BuilderStage.Initialization);
+            _buildPlanStrategies.Add(new DynamicMethodConstructorStrategy(), BuilderStage.Creation);
+            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
+            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
 
-            // Policies - mostly used by the build plan strategies
-            _policies.SetDefault<IConstructorSelectorPolicy>(new DefaultUnityConstructorSelectorPolicy());
-            _policies.SetDefault<IPropertySelectorPolicy>(new DefaultUnityPropertySelectorPolicy());
-            _policies.SetDefault<IMethodSelectorPolicy>(new DefaultUnityMethodSelectorPolicy());
-            _policies.SetDefault<IBuildPlanCreatorPolicy>(new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
-            _policies.Set<IBuildPlanPolicy>(new DeferredResolveBuildPlanPolicy(), typeof(Func<>));
-            _policies.Set<ILifetimePolicy>(new PerResolveLifetimeManager(), typeof(Func<>));
-            _policies.Set<IBuildPlanCreatorPolicy>(new LazyDynamicMethodBuildPlanCreatorPolicy(), typeof(Lazy<>));
-            _policies.Set<IBuildPlanCreatorPolicy>(new EnumerableDynamicMethodBuildPlanCreatorPolicy(), typeof(IEnumerable<>));
+            // Special Cases
+            this[null, null] = _defaultPolicies;
+            this[typeof(Func<>), string.Empty, typeof(ILifetimePolicy)]         = new PerResolveLifetimeManager();
+            this[typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy)]        = new DeferredResolveCreatorPolicy();
+            this[typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new GenericLazyBuildPlanCreatorPolicy();
+            this[typeof(Array),  string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
+                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)), 
+                                                        context => context.OriginalBuildKey.Type.GetElementType());
+            this[typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
+                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
+                                                        context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First());
+            // Register this instance
+            RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
 
 
-        private void SetLifetimeManager(Type lifetimeType, string name, LifetimeManager lifetimeManager)
+        private IPolicySet GetDefaultPolicies()
         {
-            if (lifetimeManager.InUse)
-            {
-                throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-            }
+            var defaults = new InternalRegistration(null, null);
 
-            if (lifetimeType.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                LifetimeManagerFactory factory =
-                    new LifetimeManagerFactory(new ContainerContext(this), lifetimeManager.GetType());
-                _policies.Set<ILifetimeFactoryPolicy>(factory,
-                    new NamedTypeBuildKey(lifetimeType, name));
-            }
-            else
-            {
-                lifetimeManager.InUse = true;
-                _policies.Set<ILifetimePolicy>(lifetimeManager,
-                    new NamedTypeBuildKey(lifetimeType, name));
-                if (lifetimeManager is IDisposable)
-                {
-                    _lifetimeContainer.Add(lifetimeManager);
-                }
-            }
+            defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelectorPolicy());
+            defaults.Set(typeof(IPropertySelectorPolicy),    new DefaultUnityPropertySelectorPolicy());
+            defaults.Set(typeof(IMethodSelectorPolicy),      new DefaultUnityMethodSelectorPolicy());
+            defaults.Set(typeof(IBuildPlanCreatorPolicy),    new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+
+            return defaults;
         }
 
         #endregion
@@ -136,28 +138,12 @@ namespace Unity
 
         #region Implementation
 
-        private UnityContainer GetRootContainer()
-        {
-            UnityContainer container;
-
-            for (container = this; container._parent != null; container = container._parent) ;
-
-            return container;
-        }
-
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
             _registerTypeStrategies = _strategies.OfType<IRegisterTypeStrategy>().ToArray();
+            _strategyChain = new StrategyChain(_strategies);
         }
 
-        /// <summary>
-        /// Verifies that an argument instance is assignable from the provided type (meaning
-        /// interfaces are implemented, or classes exist in the base class hierarchy, or instance can be 
-        /// assigned through a runtime wrapper, as is the case for COM Objects).
-        /// </summary>
-        /// <param name="assignmentTargetType">The argument type that will be assigned to.</param>
-        /// <param name="assignmentInstance">The instance that will be assigned.</param>
-        /// <param name="argumentName">Argument name.</param>
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
         {
             if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))
@@ -187,90 +173,18 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        #endregion
-
-
-        #region Nested Types
-
-        /// <summary>
-        /// Implementation of the ExtensionContext that is actually used
-        /// by the UnityContainer implementation.
-        /// </summary>
-        /// <remarks>
-        /// This is a nested class so that it can access state in the
-        /// container that would otherwise be inaccessible.
-        /// </remarks>
-        private class ContainerContext : ExtensionContext, IContainerContext
+        private static IPolicySet CreateRegistration(Type type, string name)
         {
-            private readonly UnityContainer _container;
-
-            public ContainerContext(UnityContainer container)
-            {
-                _container = container ?? throw new ArgumentNullException(nameof(container));
-            }
-
-            public override IUnityContainer Container => _container;
-
-            public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies => _container._strategies;
-
-            public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies => _container._buildPlanStrategies;
-
-            public override IPolicyList Policies => _container._policies;
-
-            public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
-
-            public override event EventHandler<RegisterEventArgs> Registering
-            {
-                add => _container.Registering += value;
-                remove => _container.Registering -= value;
-            }
-
-            /// <summary>
-            /// This event is raised when the <see cref="Unity.UnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
-            /// or one of its overloads, is called.
-            /// </summary>
-            public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
-            {
-                add => _container.RegisteringInstance += value;
-                remove => _container.RegisteringInstance -= value;
-            }
-
-            public override event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
-            {
-                add => _container.ChildContainerCreated += value;
-                remove => _container.ChildContainerCreated -= value;
-            }
+            return new InternalRegistration(type, name);
         }
 
-
-        // Works like the ExternallyControlledLifetimeManager, but uses regular instead of weak references
-        private class ContainerLifetimeManager : LifetimeManager, IBuildPlanPolicy
+        private UnityContainer GetRootContainer()
         {
-            private object _value;
+            UnityContainer container;
 
-            public override object GetValue(ILifetimeContainer container = null)
-            {
-                return _value;
-            }
+            for (container = this; container._parent != null; container = container._parent) ;
 
-            public override void SetValue(object newValue, ILifetimeContainer container = null)
-            {
-                _value = newValue;
-            }
-
-            public override void RemoveValue(ILifetimeContainer container = null)
-            {
-            }
-
-            public void BuildUp(IBuilderContext context)
-            {
-                context.Existing = _value;
-            }
-
-            protected override LifetimeManager OnCreateLifetimeManager()
-            {
-                return new ContainerLifetimeManager();
-            }
+            return container;
         }
 
         #endregion

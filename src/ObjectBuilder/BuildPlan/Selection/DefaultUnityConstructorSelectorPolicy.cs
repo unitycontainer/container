@@ -28,9 +28,10 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         protected override IResolverPolicy CreateResolver(ParameterInfo parameter)
         {
             // Resolve all DependencyAttributes on this parameter, if any
-            var attrs = (parameter ?? throw new ArgumentNullException(nameof(parameter))).GetCustomAttributes(false).OfType<DependencyResolutionAttribute>().ToList();
-
-            if (attrs.Count > 0)
+            var attrs = (parameter ?? throw new ArgumentNullException(nameof(parameter))).GetCustomAttributes(false)
+                                                                                         .OfType<DependencyResolutionAttribute>()
+                                                                                         .ToArray();
+            if (attrs.Length > 0)
             {
                 // Since this attribute is defined with MultipleUse = false, the compiler will
                 // enforce at most one. So we don't need to check for more.

@@ -11,6 +11,7 @@ using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Strategy;
 using Unity.Utility;
 
@@ -123,9 +124,11 @@ namespace Microsoft.Practices.Unity.TestSupport
             return newContext;
         }
 
-        public object ExecuteBuildUp(INamedType buildKey, object existing)
+
+        public object ExecuteBuildUp(NamedTypeBuildKey buildKey, object existing)
         {
             this.BuildKey = buildKey;
+            this.originalBuildKey = buildKey;
             this.Existing = existing;
 
             return Strategies.ExecuteBuildUp(this);

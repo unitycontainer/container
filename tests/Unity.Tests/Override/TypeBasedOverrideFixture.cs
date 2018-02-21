@@ -67,12 +67,15 @@ namespace Unity.Tests.Override
 
             IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<TypeToUndergoeTypeBasedInject1>().RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), new InjectionProperty("PropertyToInject", "DefaultValue"));
-            var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
-            TypeToInject3ForTypeOverride overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
+            container.RegisterType<TypeToUndergoeTypeBasedInject1>()
+                     .RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), 
+                                                                                   new InjectionProperty("PropertyToInject", "DefaultValue"));
 
-            Assert.AreEqual<int>(222, overriddenProperty.Value);
-            Assert.AreEqual<string>("TestOverrideProp", overriddenProperty.PropertyToInject);
+            var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
+            var overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
+
+            Assert.AreEqual(222, overriddenProperty.Value);
+            Assert.AreEqual("TestOverrideProp", overriddenProperty.PropertyToInject);
         }
 
         [TestMethod]

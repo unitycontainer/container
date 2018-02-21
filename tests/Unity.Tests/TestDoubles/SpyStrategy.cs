@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
-using Microsoft.Practices.Unity.Tests.TestDoubles;
+using Microsoft.Practices.ObjectBuilder2;
+using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Unity.Tests.TestDoubles
+namespace Microsoft.Practices.Unity.Tests.TestDoubles
 {
     /// <summary>
     /// A small noop strategy that lets us check afterwards to
@@ -13,33 +14,47 @@ namespace Unity.Tests.TestDoubles
     /// </summary>
     internal class SpyStrategy : BuilderStrategy
     {
-        private IBuilderContext context;
-        private object buildKey;
-        private object existing;
-        private bool buildUpWasCalled;
+        private IBuilderContext context = null;
+        private object buildKey = null;
+        private object existing = null;
+        private bool buildUpWasCalled = false;
 
         public override object PreBuildUp(IBuilderContext context)
         {
-            buildUpWasCalled = true;
+            this.buildUpWasCalled = true;
             this.context = context;
-            buildKey = context.BuildKey;
-            existing = context.Existing;
+            this.buildKey = context.BuildKey;
+            this.existing = context.Existing;
 
-            UpdateSpyPolicy(context);
+            this.UpdateSpyPolicy(context);
             return null;
         }
 
-        public IBuilderContext Context => context;
+        public IBuilderContext Context
+        {
+            get { return this.context; }
+        }
 
-        public object BuildKey => buildKey;
+        public object BuildKey
+        {
+            get { return this.buildKey; }
+        }
 
-        public object Existing => existing;
+        public object Existing
+        {
+            get { return this.existing; }
+        }
 
-        public bool BuildUpWasCalled => buildUpWasCalled;
+        public bool BuildUpWasCalled
+        {
+            get { return this.buildUpWasCalled; }
+        }
 
         private void UpdateSpyPolicy(IBuilderContext context)
         {
-            SpyPolicy policy = context.Policies.Get<SpyPolicy>(context.BuildKey);
+            SpyPolicy policy = (SpyPolicy)context.Policies
+                                                 .GetOrDefault(typeof(SpyPolicy), 
+                                                         context.BuildKey, out _);
             if (policy != null)
             {
                 policy.WasSpiedOn = true;

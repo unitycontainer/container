@@ -5,6 +5,8 @@ using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
+using Unity.Tests.Container;
+using Unity.Tests.TestObjects;
 
 
 namespace Unity.Tests.Lifetime
@@ -292,16 +294,16 @@ namespace Unity.Tests.Lifetime
         {
             IUnityContainer uc = new UnityContainer();
 
-            A aInstance = new A();
-            uc.RegisterType<A>(new ContainerControlledLifetimeManager())
-                .RegisterType<A>("SetA", new ContainerControlledLifetimeManager())
-                .RegisterInstance<A>(aInstance)
-                .RegisterInstance<A>("hello", aInstance)
-                .RegisterInstance<A>("hello", aInstance, new ExternallyControlledLifetimeManager());
+            var aInstance = new EmailService();
+            uc.RegisterType(null, typeof(EmailService), null,  new ContainerControlledLifetimeManager(), null);
+            uc.RegisterType<EmailService>("SetA", new ContainerControlledLifetimeManager());
+            uc.RegisterInstance(aInstance);
+            uc.RegisterInstance("hello", aInstance);
+            uc.RegisterInstance("hello", aInstance, new ExternallyControlledLifetimeManager());
 
-            A obj = uc.Resolve<A>();
-            A obj1 = uc.Resolve<A>("SetA");
-            A obj2 = uc.Resolve<A>("hello");
+            var obj =  uc.Resolve<EmailService>();
+            var obj1 = uc.Resolve<EmailService>("SetA");
+            var obj2 = uc.Resolve<EmailService>("hello");
 
             Assert.AreNotSame(obj, obj1);
             Assert.AreSame(obj, obj2);

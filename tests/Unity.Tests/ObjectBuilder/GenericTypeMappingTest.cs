@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
+using Unity.Policy.Mapping;
 
 namespace Microsoft.Practices.ObjectBuilder2.Tests
 {

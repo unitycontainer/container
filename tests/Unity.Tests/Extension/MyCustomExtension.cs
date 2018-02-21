@@ -32,7 +32,7 @@ namespace Unity.Tests.Extension
 
         public IMyCustomConfigurator AddPolicy()
         {
-            Context.Policies.Set<IBuildPlanPolicy>(new MyCustomPolicy(), null);
+            Context.Policies.Set(null, null, typeof(IBuildPlanPolicy), new MyCustomPolicy());
             this.checkPolicyAdded = true;
             return this;
         }

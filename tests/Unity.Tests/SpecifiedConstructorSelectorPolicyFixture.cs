@@ -17,6 +17,7 @@ using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.ResolverPolicy;
+using Unity.Storage;
 using Unity.Strategy;
 
 namespace Microsoft.Practices.Unity.Tests
@@ -120,7 +121,7 @@ namespace Microsoft.Practices.Unity.Tests
             {
             }
 
-            public BuilderContextMock(INamedType buildKey)
+            public BuilderContextMock(NamedTypeBuildKey buildKey)
             {
                 this.BuildKey = buildKey;
             }
@@ -184,11 +185,6 @@ namespace Microsoft.Practices.Unity.Tests
             public IUnityContainer Container { get; set; }
 
             public IBuilderContext ParentContext => throw new NotImplementedException();
-
-            public object NewBuildUp(INamedType newBuildKey)
-            {
-                throw new NotImplementedException();
-            }
 
             public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
             {

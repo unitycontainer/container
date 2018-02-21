@@ -5,10 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Practices.Unity.TestSupport;
 using Unity.Builder.Strategy;
 using Unity.Strategy;
 
-namespace Microsoft.Practices.Unity.TestSupport
+namespace Unity.Tests.TestSupport
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
@@ -43,7 +44,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             _innerChain = innerChain;
         }
 
-        public event EventHandler<EventArgs> Invalidated = delegate(object sender, EventArgs args) {  };
+        public event EventHandler<EventArgs> Invalidated = delegate {  };
 
         /// <summary>
         /// Adds a strategy to the chain at a particular stage.

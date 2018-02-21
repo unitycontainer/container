@@ -1,52 +1,27 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Container;
 using Unity.Policy;
+using Unity.Storage;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class PolicyListTest
     {
-        [TestMethod]
-        public void CanAddMultiplePoliciesToBagAndRetrieveThem()
-        {
-            PolicyList list = new PolicyList();
-            FakePolicy policy1 = new FakePolicy();
-            FakePolicy policy2 = new FakePolicy();
-
-            list.Set<IBuilderPolicy>(policy1, "1");
-            list.Set<IBuilderPolicy>(policy2, "2");
-
-            Assert.AreSame(policy1, list.Get<IBuilderPolicy>("1"));
-            Assert.AreSame(policy2, list.Get<IBuilderPolicy>("2"));
-        }
 
         [TestMethod]
         public void CanAddPolicyToBagAndRetrieveIt()
         {
             PolicyList list = new PolicyList();
             FakePolicy policy = new FakePolicy();
-            list.Set<IBuilderPolicy>(policy, typeof(object));
+            list.Set(typeof(object), string.Empty, typeof(IBuilderPolicy), policy);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(typeof(object));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), typeof(object), out _);
 
             Assert.AreSame(policy, result);
-        }
-
-        [TestMethod]
-        public void CanClearAllPolicies()
-        {
-            PolicyList list = new PolicyList();
-            list.Set<IBuilderPolicy>(new FakePolicy(), "1");
-            list.Set<IBuilderPolicy>(new FakePolicy(), "2");
-
-            list.ClearAll();
-
-            Assert.AreEqual(0, list.Count);
         }
 
         [TestMethod]
@@ -54,11 +29,11 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             PolicyList list = new PolicyList();
             FakePolicy defaultPolicy = new FakePolicy();
-            list.SetDefault<IBuilderPolicy>(defaultPolicy);
+            list.Set(null, null, typeof(IBuilderPolicy), defaultPolicy);
 
             list.Clear(null, null, typeof(IBuilderPolicy));
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(typeof(object));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), typeof(object), out _);
             Assert.IsNull(result);
         }
 
@@ -68,10 +43,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList list = new PolicyList();
             FakePolicy policy = new FakePolicy();
 
-            list.Set<IBuilderPolicy>(policy, typeof(string));
-            list.Clear(typeof(string), string.Empty, typeof(IBuilderPolicy));
+            list.Set(typeof(string), string.Empty, typeof(IBuilderPolicy),  policy);
+            list.Clear(typeof(string) , string.Empty, typeof(IBuilderPolicy));
 
-            Assert.IsNull(list.Get<IBuilderPolicy>(typeof(string)));
+            Assert.IsNull(list.GetOrDefault(typeof(IBuilderPolicy), typeof(string), out _));
         }
 
         [TestMethod]
@@ -79,9 +54,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             PolicyList list = new PolicyList();
             FakePolicy policy = new FakePolicy();
-            list.Set(policy, typeof(IDummy<>));
+            list.Set(typeof(IDummy<>), string.Empty, typeof(FakePolicy), policy);
 
-            FakePolicy result = list.Get<FakePolicy>(typeof(IDummy<int>));
+            var result = list.GetOrDefault(typeof(FakePolicy), typeof(IDummy<int>), out _);
 
             Assert.AreSame(policy, result);
         }
@@ -91,9 +66,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             PolicyList list = new PolicyList();
             FakePolicy defaultPolicy = new FakePolicy();
-            list.SetDefault<IBuilderPolicy>(defaultPolicy);
+            list.Set(null, null, typeof(IBuilderPolicy), defaultPolicy);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(typeof(object));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), typeof(object), out _);
 
             Assert.AreSame(defaultPolicy, result);
         }
@@ -103,9 +78,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             PolicyList list = new PolicyList();
             FakePolicy policyForType = new FakePolicy();
-            list.Set<IBuilderPolicy>(policyForType, typeof(object));
+            list.Set(typeof(object), string.Empty, typeof(IBuilderPolicy), policyForType);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(new NamedTypeBuildKey<object>("name"));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), new NamedTypeBuildKey<object>("name"), out _);
 
             Assert.AreSame(policyForType, result);
         }
@@ -116,10 +91,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList list = new PolicyList();
             FakePolicy openTypePolicy = new FakePolicy();
             FakePolicy closedTypePolicy = new FakePolicy();
-            list.Set<IBuilderPolicy>(openTypePolicy, typeof(IDummy<>));
-            list.Set<IBuilderPolicy>(closedTypePolicy, typeof(IDummy<object>));
+            list.Set(typeof(IDummy<>), string.Empty, typeof(IBuilderPolicy), openTypePolicy);
+            list.Set(typeof(IDummy<object>), string.Empty, typeof(IBuilderPolicy), closedTypePolicy);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(new NamedTypeBuildKey<IDummy<object>>("name"));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), new NamedTypeBuildKey<IDummy<object>>("name"), out _);
             Assert.AreSame(closedTypePolicy, result);
         }
 
@@ -128,9 +103,9 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             PolicyList list = new PolicyList();
             FakePolicy policyForType = new FakePolicy();
-            list.Set<IBuilderPolicy>(policyForType, typeof(IDummy<>));
+            list.Set(typeof(IDummy<>), string.Empty, typeof(IBuilderPolicy), policyForType);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(new NamedTypeBuildKey<IDummy<object>>("name"));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), new NamedTypeBuildKey<IDummy<object>>("name"), out _);
             Assert.AreSame(policyForType, result);
         }
 
@@ -141,11 +116,11 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList outerList = new PolicyList(innerList);
             FakePolicy innerPolicy = new FakePolicy();
             FakePolicy outerPolicy = new FakePolicy();
-            innerList.SetDefault(innerPolicy);
-            outerList.SetDefault(outerPolicy);
+            innerList.Set(null, null, typeof(FakePolicy), innerPolicy);
+            outerList.Set(null, null, typeof(FakePolicy), outerPolicy);
 
             IPolicyList containingPolicyList;
-            FakePolicy result = outerList.Get<FakePolicy>(typeof(object), out containingPolicyList);
+            var result = outerList.GetOrDefault(typeof(FakePolicy), typeof(object), out containingPolicyList);
 
             Assert.AreSame(outerPolicy, result);
             Assert.AreSame(outerList, containingPolicyList);
@@ -158,11 +133,11 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList outerList = new PolicyList(innerList);
             FakePolicy innerPolicy = new FakePolicy();
             FakePolicy outerPolicy = new FakePolicy();
-            innerList.Set(innerPolicy, typeof(object));
-            outerList.Set(outerPolicy, typeof(object));
+            innerList.Set(typeof(object), string.Empty, typeof(FakePolicy), innerPolicy);
+            outerList.Set(typeof(object), string.Empty, typeof(FakePolicy), outerPolicy);
 
             IPolicyList containingPolicyList;
-            FakePolicy result = outerList.Get<FakePolicy>(typeof(object), out containingPolicyList);
+            var result = outerList.GetOrDefault(typeof(FakePolicy), typeof(object), out containingPolicyList);
 
             Assert.AreSame(outerPolicy, result);
             Assert.AreSame(outerList, containingPolicyList);
@@ -174,10 +149,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList list = new PolicyList();
             FakePolicy policy1 = new FakePolicy();
             FakePolicy policy2 = new FakePolicy();
-            list.Set<IBuilderPolicy>(policy1, typeof(string));
-            list.Set<IBuilderPolicy>(policy2, typeof(string));
+            list.Set(typeof(string), string.Empty, typeof(IBuilderPolicy), policy1);
+            list.Set(typeof(string), string.Empty, typeof(IBuilderPolicy), policy2);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(typeof(string));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), typeof(string), out _);
 
             Assert.AreSame(policy2, result);
         }
@@ -188,10 +163,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList list = new PolicyList();
             FakePolicy genericPolicy = new FakePolicy();
             FakePolicy specificPolicy = new FakePolicy();
-            list.Set(genericPolicy, typeof(IDummy<>));
-            list.Set(specificPolicy, typeof(IDummy<int>));
+            list.Set(typeof(IDummy<>), string.Empty, typeof(FakePolicy), genericPolicy);
+            list.Set(typeof(IDummy<int>), string.Empty, typeof(FakePolicy), specificPolicy);
 
-            FakePolicy result = list.Get<FakePolicy>(typeof(IDummy<int>));
+            var result = list.GetOrDefault(typeof(FakePolicy), typeof(IDummy<int>), out _);
 
             Assert.AreSame(specificPolicy, result);
         }
@@ -203,11 +178,11 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList outerList = new PolicyList(innerList);
             FakePolicy innerPolicy = new FakePolicy();
             FakePolicy outerPolicy = new FakePolicy();
-            innerList.Set(innerPolicy, typeof(object));
-            outerList.SetDefault(outerPolicy);
+            innerList.Set(typeof(object), string.Empty, typeof(FakePolicy), innerPolicy);
+            outerList.Set(null, null, typeof(FakePolicy), outerPolicy);
 
             IPolicyList containingPolicyList;
-            FakePolicy result = outerList.Get<FakePolicy>(typeof(object), out containingPolicyList);
+            var result = outerList.GetOrDefault(typeof(FakePolicy), typeof(object), out containingPolicyList);
 
             Assert.AreSame(innerPolicy, result);
             Assert.AreSame(innerList, containingPolicyList);
@@ -219,10 +194,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList list = new PolicyList();
             FakePolicy defaultPolicy = new FakePolicy();
             FakePolicy specificPolicy = new FakePolicy();
-            list.Set<IBuilderPolicy>(specificPolicy, typeof(object));
-            list.SetDefault<IBuilderPolicy>(defaultPolicy);
+            list.Set(typeof(object), string.Empty, typeof(IBuilderPolicy), specificPolicy);
+            list.Set(null, null, typeof(IBuilderPolicy), defaultPolicy);
 
-            IBuilderPolicy result = list.Get<IBuilderPolicy>(typeof(object));
+            IBuilderPolicy result = list.GetOrDefault(typeof(IBuilderPolicy), typeof(object), out _);
 
             Assert.AreSame(specificPolicy, result);
         }
@@ -233,10 +208,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList innerList = new PolicyList();
             PolicyList outerList = new PolicyList(innerList);
             FakePolicy policy = new FakePolicy();
-            innerList.Set(policy, typeof(object));
+            innerList.Set(typeof(object), string.Empty, typeof(FakePolicy), policy);
 
             IPolicyList containingPolicies;
-            FakePolicy result = outerList.Get<FakePolicy>(typeof(object), out containingPolicies);
+            var result = outerList.GetOrDefault(typeof(FakePolicy), typeof(object), out containingPolicies);
 
             Assert.AreSame(policy, result);
             Assert.AreSame(innerList, containingPolicies);
@@ -248,10 +223,10 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             PolicyList innerList = new PolicyList();
             PolicyList outerList = new PolicyList(innerList);
             FakePolicy policy = new FakePolicy();
-            innerList.SetDefault(policy);
+            innerList.Set(null, null, typeof(FakePolicy), policy);
 
             IPolicyList containingPolicyList;
-            FakePolicy result = outerList.Get<FakePolicy>(typeof(object), out containingPolicyList);
+            var result = outerList.GetOrDefault(typeof(FakePolicy), typeof(object), out containingPolicyList);
 
             Assert.AreSame(policy, result);
             Assert.AreSame(innerList, containingPolicyList);

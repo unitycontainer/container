@@ -2,17 +2,14 @@
 
 using System;
 using Microsoft.Practices.ObjectBuilder2.Tests.Utility;
-using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Strategies;
-using Unity.Policy;
+using Unity.Strategies;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.ObjectBuilder
 {
     [TestClass]
     public class LifetimeStrategyTest
@@ -34,8 +31,8 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             MockBuilderContext context = CreateContext();
             var key = new NamedTypeBuildKey<object>();
-            context.Policies.Set<ILifetimePolicy>(new ContainerControlledLifetimeManager(), key);
 
+            context.Policies.Set(key.Type, key.Name, typeof(ILifetimePolicy), new ContainerControlledLifetimeManager());
             object result = context.ExecuteBuildUp(key, null);
             object result2 = context.ExecuteBuildUp(key, null);
             Assert.IsNotNull(result);
@@ -48,7 +45,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
             MockBuilderContext context = CreateContext();
             var key = new NamedTypeBuildKey<object>();
             RecoverableLifetime recovery = new RecoverableLifetime();
-            context.PersistentPolicies.Set<ILifetimePolicy>(recovery, key);
+            context.PersistentPolicies.Set(key.Type, key.Name, typeof(ILifetimePolicy), recovery);
 
             context.ExecuteBuildUp(key, null);
 
@@ -56,30 +53,6 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
 
             context.RecoveryStack.ExecuteRecovery();
             Assert.IsTrue(recovery.WasRecovered);
-        }
-
-        [TestMethod]
-        public void LifetimeStrategyUsesFactoryToGetLifetimePolicyForGenericType()
-        {
-            MockBuilderContext context = CreateContext();
-            var openKey = new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<>));
-            context.PersistentPolicies.Set<ILifetimeFactoryPolicy>(
-                new LifetimeFactoryPolicy<RecoverableLifetime>(), openKey);
-
-            context.ExecuteBuildUp(new NamedTypeBuildKey<YetAnotherDummyInterfaceImplementation<string>>(), null);
-
-            context.ExecuteBuildUp(new NamedTypeBuildKey<YetAnotherDummyInterfaceImplementation<int>>(), null);
-
-            ILifetimePolicy stringLifetime =
-                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<string>)));
-            ILifetimePolicy intLifetime =
-                context.Policies.GetNoDefault<ILifetimePolicy>(new NamedTypeBuildKey(typeof(YetAnotherDummyInterfaceImplementation<int>)));
-
-            Assert.IsNotNull(stringLifetime);
-            Assert.IsNotNull(intLifetime);
-            AssertExtensions.IsInstanceOfType(stringLifetime, typeof(RecoverableLifetime));
-            AssertExtensions.IsInstanceOfType(intLifetime, typeof(RecoverableLifetime));
-            Assert.AreNotSame(stringLifetime, intLifetime);
         }
 
         private MockBuilderContext CreateContext()

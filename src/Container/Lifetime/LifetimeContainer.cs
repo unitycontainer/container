@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Lifetime;
 
 namespace Unity.Container.Lifetime
@@ -18,6 +19,18 @@ namespace Unity.Container.Lifetime
     public class LifetimeContainer : ILifetimeContainer
     {
         private readonly List<object> _items = new List<object>();
+
+        public LifetimeContainer(IUnityContainer parent = null)
+        {
+            Container = parent;
+        }
+
+        /// <summary>
+        /// The IUnityContainer this container is associated with.
+        /// </summary>
+        /// <value>The <see cref="IUnityContainer"/> object.</value>
+        public IUnityContainer Container { get; }
+
 
         /// <summary>
         /// Gets the number of references in the lifetime container
@@ -87,15 +100,9 @@ namespace Unity.Container.Lifetime
             {
                 lock (_items)
                 {
-                    var itemsCopy = new List<object>(_items);
-                    itemsCopy.Reverse();
-
-                    foreach (object o in itemsCopy)
+                    foreach (var disposable in _items.OfType<IDisposable>().Reverse())
                     {
-                        if (o is IDisposable d)
-                        {
-                            d.Dispose();
-                        }
+                        disposable.Dispose();
                     }
 
                     _items.Clear();

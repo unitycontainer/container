@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -26,7 +27,8 @@ namespace Unity.Tests.Generics
         public void ResolveConfiguredGenericType()
         {
             IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(GenericArrayPropertyDependency<>), "testing", new InjectionProperty("Stuff"))
+                .RegisterType(typeof(GenericArrayPropertyDependency<>), "testing",
+                    new InjectionProperty("Stuff"))
                 .RegisterInstance<string>("first", "first")
                 .RegisterInstance<string>("second", "second");
 
@@ -48,9 +50,10 @@ namespace Unity.Tests.Generics
             myDict.Add("One", "two");
             myDict.Add("Two", "three");
 
-            IUnityContainer container = new UnityContainer()
-                .RegisterInstance(myDict)
-                .RegisterType(typeof(IDictionary<,>), typeof(Dictionary<,>), new ExternallyControlledLifetimeManager());
+            IUnityContainer container = new UnityContainer();
+            container.RegisterInstance(myDict);
+            container.RegisterType(typeof(IDictionary<,>), typeof(Dictionary<,>), new ExternallyControlledLifetimeManager(), 
+                                                                                  new InjectionConstructor());
 
             IDictionary<string, string> result = container.Resolve<IDictionary<string, string>>();
             Assert.AreSame(myDict, result);
@@ -80,13 +83,13 @@ namespace Unity.Tests.Generics
         [TestMethod]
         public void Testmethod_NoLifetimeSpecified()
         {
-            List<int> myList = new List<int>();
-            IUnityContainer container = new UnityContainer()
-                .RegisterInstance<List<int>>(myList)
-                .RegisterType<List<int>>(new InjectionConstructor());
+            var myList = new List<int>();
+            var container = new UnityContainer()
+                .RegisterInstance<IList<int>>(myList)
+                .RegisterType<List<int>>();
 
-            List<int> result = container.Resolve<List<int>>();
-            Assert.AreNotSame(myList, result);
+            var result = container.Resolve<IList<int>>();
+            Assert.AreSame(myList, result);
         }
 
         /// <summary>
@@ -110,13 +113,13 @@ namespace Unity.Tests.Generics
         [TestMethod]
         public void Testmethod_ListOfString()
         {
-            List<string> myList = new List<string>();
-            IUnityContainer container = new UnityContainer()
-                .RegisterInstance<List<string>>(myList)
-                .RegisterType<List<string>>(new InjectionConstructor());
+            var myList = new List<string>();
+            var container = new UnityContainer()
+                .RegisterInstance<IList<string>>(myList)
+                .RegisterType<List<string>>();
 
-            List<string> result = container.Resolve<List<string>>();
-            Assert.AreNotSame(myList, result);
+            IList<string> result = container.Resolve<IList<string>>();
+            Assert.AreSame(myList, result);
         }
 
         /// <summary>
@@ -126,12 +129,12 @@ namespace Unity.Tests.Generics
         [TestMethod]
         public void Testmethod_ListOfObjectType()
         {
-            List<Foo> myList = new List<Foo>();
-            IUnityContainer container = new UnityContainer()
-                .RegisterInstance<IList<Foo>>(myList)
-                .RegisterType<IList<Foo>, List<Foo>>(new InjectionConstructor());
+            var myList = new List<Foo>();
+            var container = new UnityContainer()
+                .RegisterInstance(myList)
+                .RegisterType<IList<Foo>, List<Foo>>();
 
-            IList<Foo> result = container.Resolve<IList<Foo>>();
+            var result = container.Resolve<IList<Foo>>();
             Assert.IsInstanceOfType(result, typeof(List<Foo>));
         }
 
