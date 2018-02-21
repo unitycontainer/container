@@ -147,14 +147,41 @@ namespace Unity
         {
             if (disposing)
             {
-                _parent?._lifetimeContainer?.Remove(this);
-                _lifetimeContainer?.Dispose();
+                var exceptions = new List<Exception>();
+
+                try
+                {
+                    _parent?._lifetimeContainer?.Remove(this);
+                    _lifetimeContainer?.Dispose();
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
 
                 foreach (IDisposable disposable in _extensions.OfType<IDisposable>().ToArray())
-                    disposable.Dispose();
+                {
+                    try
+                    {
+                        disposable.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        exceptions.Add(e);
+                    }
+                }
 
                 _extensions.Clear();
                 _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(1);
+
+                if (exceptions.Count == 1)
+                {
+                    throw exceptions.First();
+                }
+                else if (exceptions.Count > 1)
+                {
+                    throw new AggregateException(exceptions);
+                }
             }
         }
 
