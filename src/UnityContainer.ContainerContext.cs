@@ -27,6 +27,7 @@ namespace Unity
         {
             #region Fields
 
+            private readonly object syncRoot = new object();
             private readonly UnityContainer _container;
 
             #endregion
@@ -47,9 +48,52 @@ namespace Unity
 
             public override IUnityContainer Container => _container;
 
-            public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies => _container._strategies;
+            public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies
+            {
+                get
+                {
+                    if (null != _container._parent && 
+                        _container._parent._strategies == _container._strategies)
+                    {
+                        lock (syncRoot)
+                        {
+                            if (_container._parent._strategies == _container._strategies)
+                            {
+                                _container._strategies.Invalidated -= _container.OnStrategiesChanged;
+                                _container._strategies = 
+                                    new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_container._parent._strategies);
+                                _container._strategies.Invalidated += _container.OnStrategiesChanged;
+                                _container._lifetimeContainer.Add(_container._strategies);
 
-            public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies => _container._buildPlanStrategies;
+                            }
+                        }
+                    }
+
+                    return _container._strategies;
+                }
+            }
+
+            public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies
+            {
+                get
+                {
+                    if (null != _container._parent && 
+                        _container._parent._buildPlanStrategies == _container._buildPlanStrategies)
+                    {
+                        lock (syncRoot)
+                        {
+                            if (_container._parent._buildPlanStrategies == _container._buildPlanStrategies)
+                            {
+                                _container._buildPlanStrategies = 
+                                    new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
+                                _container._lifetimeContainer.Add(_container._buildPlanStrategies);
+                            }
+                        }
+                    }
+
+                    return _container._buildPlanStrategies;
+                }
+            }
 
             public override IPolicyList Policies { get; }
 

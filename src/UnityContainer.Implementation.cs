@@ -39,8 +39,8 @@ namespace Unity
         private readonly ContainerContext _context;
         
         // Strategies
-        private readonly StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
-        private readonly StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
+        private StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
+        private StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
         
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -68,11 +68,13 @@ namespace Unity
             _parent?._lifetimeContainer.Add(this);
 
             // Strategies
-            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
-            _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_parent?._buildPlanStrategies);
+            _strategies = _parent?._strategies;
+            _buildPlanStrategies = _parent?._buildPlanStrategies;
+            _registerTypeStrategies = _parent?._registerTypeStrategies;
+            _strategyChain = _parent?._strategyChain;
 
             // Lifetime
-            _lifetimeContainer = new LifetimeContainer(this) { _strategies, _buildPlanStrategies };
+            _lifetimeContainer = new LifetimeContainer(this);
 
             // Default Policies
             if (null == _parent) InitializeRootContainer();
@@ -84,7 +86,6 @@ namespace Unity
             _context = new ContainerContext(this);
 
             // Caches
-            OnStrategiesChanged(this, null);
             _strategies.Invalidated += OnStrategiesChanged;
         }
 
@@ -95,6 +96,12 @@ namespace Unity
 
         protected void InitializeRootContainer()
         {
+            // Initialize strategies
+            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>();
+            _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>();
+            _lifetimeContainer.Add(_strategies);
+            _lifetimeContainer.Add(_buildPlanStrategies);
+
             // Main strategy chain
             _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
             _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
@@ -116,6 +123,10 @@ namespace Unity
             this[typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
                 new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
                                                         context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First());
+            // Caches
+            _registerTypeStrategies = _strategies.OfType<IRegisterTypeStrategy>().ToArray();
+            _strategyChain = new StrategyChain(_strategies);
+
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }

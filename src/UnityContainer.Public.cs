@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Policy;
@@ -83,8 +85,9 @@ namespace Unity
             _extensions.Clear();
 
             // Reset our policies, strategies, and registered names to reset to "zero"
-            _strategies.Clear();
-            ((IPolicyList)_context).ClearAll();
+            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
+
+            _context.ClearAll();
 
             if (null == _parent)
                 InitializeRootContainer();
