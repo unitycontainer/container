@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -60,6 +61,13 @@ namespace Unity.Registration
             return base.Get(policyInterface);
         }
 
+        public override void Set(Type policyInterface, IBuilderPolicy policy)
+        {
+            if (policy is InjectionFactory && (MappedToType != RegisteredType))
+                throw new InvalidOperationException("Registration where both MappedToType and InjectionFactory are set is not supported");
+
+            base.Set(policyInterface, policy);
+        }
 
         #endregion
     }
