@@ -67,8 +67,15 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                             Expression.Constant(null)),
                             CreateInstanceBuildupExpression(buildContext, context)));
 
-            buildContext.AddToBuildPlan(
-                Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
+            for (var parent = context.ParentContext; null != parent; parent = parent.ParentContext)
+            {
+                if (parent.OriginalBuildKey is IPolicySet set &&
+                    set.Get(typeof(ILifetimePolicy)) is PerResolveLifetimeManager manager)
+                {
+                    buildContext.AddToBuildPlan(
+                        Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
+                }
+            }
 
             return null;
         }
@@ -206,16 +213,10 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         /// <param name="context">Current build context.</param>
         public static void SetPerBuildSingleton(IBuilderContext context)
         {
-            var lifetime = (context ?? throw  new ArgumentNullException(nameof(context)))
-                .Policies.GetOrDefault(typeof(ILifetimePolicy), context.OriginalBuildKey, out _);
-
-            if (lifetime is PerResolveLifetimeManager)
-            {
-                var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-                context.Policies.Set(context.OriginalBuildKey.Type, 
-                                     context.OriginalBuildKey.Name, 
-                                     typeof(ILifetimePolicy), perBuildLifetime);
-            }
+            var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
+            context.Policies.Set(context.OriginalBuildKey.Type,
+                                 context.OriginalBuildKey.Name,
+                                 typeof(ILifetimePolicy), perBuildLifetime);
         }
 
         /// <summary>
