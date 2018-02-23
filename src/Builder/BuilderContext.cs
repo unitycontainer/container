@@ -152,13 +152,7 @@ namespace Unity.Builder
         { get
             {
                 if (null == _recoveryStack)
-                {
-                    lock (OriginalBuildKey)
-                    {
-                        if (null == _recoveryStack)
-                            _recoveryStack = new RecoveryStack();
-                    }
-                }
+                    _recoveryStack = new RecoveryStack();
 
                 return _recoveryStack;
             }
