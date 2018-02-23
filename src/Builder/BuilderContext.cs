@@ -147,7 +147,22 @@ namespace Unity.Builder
         /// Gets the collection of <see cref="IRequiresRecovery"/> objects
         /// that need to execute in event of an exception.
         /// </summary>
-        public IRecoveryStack RecoveryStack { get; } = new RecoveryStack();
+        private IRecoveryStack _recoveryStack;
+        public IRecoveryStack RecoveryStack
+        { get
+            {
+                if (null == _recoveryStack)
+                {
+                    lock (OriginalBuildKey)
+                    {
+                        if (null == _recoveryStack)
+                            _recoveryStack = new RecoveryStack();
+                    }
+                }
+
+                return _recoveryStack;
+            }
+        }
 
         /// <summary>
         /// Flag indicating if the build operation should continue.
