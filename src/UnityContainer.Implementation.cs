@@ -31,7 +31,7 @@ namespace Unity
 
         // Container specific
         private readonly UnityContainer _parent;
-        private readonly LifetimeContainer _lifetimeContainer;
+        internal readonly LifetimeContainer _lifetimeContainer;
         private readonly List<UnityContainerExtension> _extensions;
         
         // Policies
@@ -49,7 +49,7 @@ namespace Unity
         
         // Caches
         private IRegisterTypeStrategy[] _registerTypeStrategies;
-        private IStrategyChain _strategyChain;
+        internal IStrategyChain _strategyChain;
 
         #endregion
 
