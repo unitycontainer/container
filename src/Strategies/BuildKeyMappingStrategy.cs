@@ -56,12 +56,6 @@ namespace Unity.Strategies
                        ? new GenericTypeBuildKeyMappingPolicy(typeTo, name)
                        : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(typeTo, name);
             context.Policies.Set(typeFrom, name, typeof(IBuildKeyMappingPolicy), policy);
-
-            // Require Re-Resolve if no injectors specified
-            var members = null == injectionMembers ? new InjectionMember[0] : injectionMembers;
-            var overrides = members.Where(m => m is InjectionConstructor || m is InjectionMethod || m is InjectionProperty).Any();
-            if (lifetimeManager is IRequireBuildUpPolicy || overrides) return;
-            context.Policies.Set(typeFrom, name, typeof(IBuildPlanPolicy), new ResolveBuildUpPolicy());
         }
 
         #endregion
