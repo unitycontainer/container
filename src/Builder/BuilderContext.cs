@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Unity.Exceptions;
 using Unity.Lifetime;
@@ -40,9 +40,11 @@ namespace Unity.Builder
             PersistentPolicies = persistentPolicies;
 
             _ownsOverrides = true;
-            _resolverOverrides = new CompositeResolverOverride();
-            if (null != resolverOverrides && 0 != resolverOverrides.Length)
+            if (null != resolverOverrides && 0 < resolverOverrides.Length)
+            {
+                _resolverOverrides = new CompositeResolverOverride();
                 _resolverOverrides.AddRange(resolverOverrides);
+            }
         }
 
         public BuilderContext(IBuilderContext original, IStrategyChain chain, object existing)
@@ -56,14 +58,13 @@ namespace Unity.Builder
             PersistentPolicies = original.PersistentPolicies;
             Policies = original.Policies;
             Existing = existing;
-            _resolverOverrides = new CompositeResolverOverride();
             _ownsOverrides = true;
         }
 
 
         protected BuilderContext(IBuilderContext original, Type type, string name)
         {
-            var parent = (BuilderContext) original;
+            var parent = (BuilderContext)original;
 
             _chain = parent._chain;
             ParentContext = original;
@@ -149,7 +150,8 @@ namespace Unity.Builder
         /// </summary>
         private IRecoveryStack _recoveryStack;
         public IRecoveryStack RecoveryStack
-        { get
+        {
+            get
             {
                 if (null == _recoveryStack)
                     _recoveryStack = new RecoveryStack();
@@ -184,7 +186,11 @@ namespace Unity.Builder
         /// <param name="newOverrides"><see cref="ResolverOverride"/> objects to add.</param>
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {
-            if (!_ownsOverrides)
+            if (null == _resolverOverrides)
+            {
+                _resolverOverrides = new CompositeResolverOverride();
+            }
+            else if (!_ownsOverrides)
             {
                 var sharedOverrides = _resolverOverrides;
                 _resolverOverrides = new CompositeResolverOverride();
@@ -203,7 +209,7 @@ namespace Unity.Builder
         /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
         public IResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
-            return _resolverOverrides.GetResolver(this, dependencyType);
+            return _resolverOverrides?.GetResolver(this, dependencyType);
         }
 
         #endregion
