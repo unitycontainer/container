@@ -27,6 +27,10 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override object PreBuildUp(IBuilderContext context)
         {
+            if (context.OriginalBuildKey is TypeRegistration registration && 
+                registration.RegisteredType == registration.MappedToType)
+                return null;
+                
             IBuildKeyMappingPolicy policy = context.PersistentPolicies.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type, 
                                                                                                    context.OriginalBuildKey.Name, out _) 
                                           ?? (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType 
