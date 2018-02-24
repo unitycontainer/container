@@ -72,10 +72,9 @@ namespace Unity.Builder
         IPolicyList Policies { get; }
 
         /// <summary>
-        /// Gets the collection of <see cref="IRequiresRecovery"/> objects
-        /// that need to execute in event of an exception.
+        /// Reference to Lifetime manager which requires recovery
         /// </summary>
-        IRecoveryStack RecoveryStack { get; }
+        IRequiresRecovery RequiresRecovery { get; set; }
 
         /// <summary>
         /// The current object being built up or torn down.
