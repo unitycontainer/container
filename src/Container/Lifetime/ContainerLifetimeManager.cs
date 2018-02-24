@@ -14,7 +14,7 @@ namespace Unity.Container.Lifetime
     {
         public override object GetValue(ILifetimeContainer container = null)
         {
-            return container.Container;
+            return container?.Container;
         }
 
         protected override LifetimeManager OnCreateLifetimeManager()
