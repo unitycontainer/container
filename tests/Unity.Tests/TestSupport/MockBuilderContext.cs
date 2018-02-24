@@ -97,6 +97,8 @@ namespace Microsoft.Practices.Unity.TestSupport
 
         public IBuilderContext ParentContext => throw new NotImplementedException();
 
+        public IRequiresRecovery RequiresRecovery { get; set; }
+
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {
             resolverOverrides.AddRange(newOverrides);

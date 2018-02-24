@@ -198,6 +198,8 @@ namespace Microsoft.Practices.Unity.Tests
 
             public IBuilderContext ParentContext => throw new NotImplementedException();
 
+            public IRequiresRecovery RequiresRecovery { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
             public void AddResolverOverrides(System.Collections.Generic.IEnumerable<ResolverOverride> newOverrides)
             {
                 throw new NotImplementedException();

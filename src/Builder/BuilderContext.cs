@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -13,7 +15,7 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    public class BuilderContext : IBuilderContext, IPolicyList
+    public class BuilderContext : IBuilderContext, IPolicyList, IStrategyChain
     {
         #region Fields
 
@@ -24,7 +26,6 @@ namespace Unity.Builder
         UnityContainer _container;
 
         #endregion
-
 
         #region Constructors
 
@@ -147,20 +148,9 @@ namespace Unity.Builder
         public IPolicyList Policies { get; }
 
         /// <summary>
-        /// Gets the collection of <see cref="IRequiresRecovery"/> objects
-        /// that need to execute in event of an exception.
+        /// Reference to Lifetime manager which requires recovery
         /// </summary>
-        private IRecoveryStack _recoveryStack;
-        public IRecoveryStack RecoveryStack
-        {
-            get
-            {
-                if (null == _recoveryStack)
-                    _recoveryStack = new RecoveryStack();
-
-                return _recoveryStack;
-            }
-        }
+        public IRequiresRecovery RequiresRecovery { get; set; }
 
         /// <summary>
         /// Flag indicating if the build operation should continue.
@@ -216,6 +206,7 @@ namespace Unity.Builder
 
         #endregion
 
+
         /// <summary>
         /// A method to do a new buildup operation on an existing context.
         /// </summary>
@@ -269,6 +260,27 @@ namespace Unity.Builder
 
         void IPolicyList.ClearAll()
         {
+        }
+
+        #endregion
+
+
+        #region IStrategyChain
+
+
+        public IEnumerator<IBuilderStrategy> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void BuildUp(IBuilderContext context)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

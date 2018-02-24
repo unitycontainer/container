@@ -97,7 +97,7 @@ namespace Microsoft.Practices.Unity.TestSupport
             }
             catch (Exception)
             {
-                context.RecoveryStack.ExecuteRecovery();
+                context.RequiresRecovery?.Recover();
                 throw;
             }
         }

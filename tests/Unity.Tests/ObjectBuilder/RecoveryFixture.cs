@@ -20,7 +20,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
         {
             var recovery = new RecoveryObject();
             MockBuilderContext context = GetContext();
-            context.RecoveryStack.Add(recovery);
+            context.RequiresRecovery = recovery;
 
             try
             {

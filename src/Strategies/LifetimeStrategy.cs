@@ -40,7 +40,7 @@ namespace Unity.Strategies
 
             if (lifetimePolicy is IRequiresRecovery recovery)
             {
-                context.RecoveryStack.Add(recovery);
+                context.RequiresRecovery = recovery;
             }
 
             var existing = lifetimePolicy.GetValue(context.Lifetime);

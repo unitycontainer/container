@@ -49,9 +49,9 @@ namespace Unity.Tests.ObjectBuilder
 
             context.ExecuteBuildUp(key, null);
 
-            Assert.AreEqual(1, context.RecoveryStack.Count);
+            Assert.IsNotNull(context.RequiresRecovery);
 
-            context.RecoveryStack.ExecuteRecovery();
+            context.RequiresRecovery.Recover();
             Assert.IsTrue(recovery.WasRecovered);
         }
 

@@ -51,7 +51,7 @@ namespace Unity.Container
             }
             catch (Exception)
             {
-                context.RecoveryStack.ExecuteRecovery();
+                context.RequiresRecovery?.Recover();
                 throw;
             }
         }
