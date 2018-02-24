@@ -19,9 +19,10 @@ namespace Unity.Policy.Mapping
         {
         }
 
-        public BuildKeyMappingPolicy(Type type, string name)
+        public BuildKeyMappingPolicy(Type type, string name, bool build)
             : base(type, name)
         {
+            RequireBuild = build;
         }
 
         #endregion
@@ -41,6 +42,11 @@ namespace Unity.Policy.Mapping
         {
             return this;
         }
+
+        /// <summary>
+        /// Instructs engine to resolve type rather than build it
+        /// </summary>
+        public bool RequireBuild { get; } = true;
 
         #endregion
     }

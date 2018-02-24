@@ -3,9 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Injection;
 using Unity.Lifetime;
-using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Policy.Mapping;
 using Unity.Registration;
@@ -41,6 +39,13 @@ namespace Unity.Strategies
             if (null == policy) return null;
 
             context.BuildKey = policy.Map(context.BuildKey, context);
+
+            if (!policy.RequireBuild && context.Container.IsRegistered(context.BuildKey.Type, context.BuildKey.Name))
+            {
+                context.Existing = context.NewBuildUp(context.BuildKey.Type, context.BuildKey.Name);
+                context.BuildComplete = null != context.Existing;
+            }
+
             return null;
         }
 
@@ -55,10 +60,14 @@ namespace Unity.Strategies
             // Validate imput
             if (typeFrom == null || typeFrom == typeTo) return;
 
+            // Require Re-Resolve if no injectors specified
+            var buildRequired = lifetimeManager is IRequireBuildUpPolicy || 
+                (null == injectionMembers ? false : injectionMembers.Any(m => m.BuildRequired));
+
             // Set mapping policy
             var policy = typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition
-                       ? new GenericTypeBuildKeyMappingPolicy(typeTo, name)
-                       : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(typeTo, name);
+                       ? new GenericTypeBuildKeyMappingPolicy(typeTo, name, buildRequired)
+                       : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(typeTo, name, buildRequired);
             context.Policies.Set(typeFrom, name, typeof(IBuildKeyMappingPolicy), policy);
         }
 

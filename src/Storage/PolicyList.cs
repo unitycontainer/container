@@ -90,13 +90,8 @@ namespace Unity.Storage
         public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
             if (null == _policies)
-            {
-                lock (_sync)
-                {
-                    if (null == _policies)
-                        _policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
-                }
-            }
+                _policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+
             _policies[new PolicyKey(type, name, policyInterface)] = policy;
         }
 

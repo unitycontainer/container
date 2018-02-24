@@ -13,6 +13,7 @@ using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
 {
@@ -67,14 +68,11 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                             Expression.Constant(null)),
                             CreateInstanceBuildupExpression(buildContext, context)));
 
-            for (var parent = context.ParentContext; null != parent; parent = parent.ParentContext)
+            var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out _);
+            if (policy is PerResolveLifetimeManager)
             {
-                if (parent.OriginalBuildKey is IPolicySet set &&
-                    set.Get(typeof(ILifetimePolicy)) is PerResolveLifetimeManager manager)
-                {
-                    buildContext.AddToBuildPlan(
-                        Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
-                }
+                buildContext.AddToBuildPlan(
+                    Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
             }
 
             return null;

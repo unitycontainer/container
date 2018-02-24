@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity;
 
 namespace Performance
 {
@@ -6,6 +7,9 @@ namespace Performance
     {
         static void Main(string[] args)
         {
+            var container = new UnityContainer();
+
+            var res = container.Resolve<object>();
         }
     }
 }

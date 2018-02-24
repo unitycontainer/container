@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 
 namespace Unity.Registration
 {
+    [DebuggerDisplay("Registered: {RegisteredType}, MappedTo: {MappedToType}, LifetimeManager: {LifetimeManager}")]
     public class TypeRegistration : InternalRegistration, 
                                     IContainerRegistration
     {

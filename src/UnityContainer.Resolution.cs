@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
-using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
 

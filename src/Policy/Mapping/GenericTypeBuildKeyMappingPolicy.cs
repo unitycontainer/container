@@ -19,9 +19,10 @@ namespace Unity.Policy.Mapping
         /// </summary>
         /// <param name="type">Type mapped to</param>
         /// <param name="name">Name</param>
-        public GenericTypeBuildKeyMappingPolicy(Type type, string name)
+        public GenericTypeBuildKeyMappingPolicy(Type type, string name, bool build)
             : base(type, name)
         {
+            RequireBuild = build;
         }
 
         /// <summary>
@@ -67,6 +68,11 @@ namespace Unity.Policy.Mapping
             Type resultType = Type.MakeGenericType(genericArguments);
             return new NamedTypeBuildKey(resultType, Name);
         }
+
+        /// <summary>
+        /// Instructs engine to resolve type rather than build it
+        /// </summary>
+        public bool RequireBuild { get; } = true;
 
         #endregion
     }
