@@ -42,7 +42,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
@@ -76,8 +76,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
             {
                 dynamicBuildContext.AddToBuildPlan(dynamicBuildContext.GetClearCurrentOperationExpression());
             }
-
-            return null;
         }
 
         private IEnumerable<Expression> BuildMethodParameterExpressions(DynamicBuildPlanGenerationContext context, SelectedMethod method, string methodSignature)

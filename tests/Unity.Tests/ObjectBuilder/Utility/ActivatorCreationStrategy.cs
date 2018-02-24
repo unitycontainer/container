@@ -17,14 +17,12 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests.Utility
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             if (context.Existing == null)
             {
                 context.Existing = Activator.CreateInstance(context.BuildKey.Type);
             }
-
-            return null;
         }
     }
 }

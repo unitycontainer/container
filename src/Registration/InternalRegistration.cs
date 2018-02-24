@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using Unity.Builder;
 using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Registration
 {
+    [DebuggerDisplay("InternalRegistration(Type: {Type}, Name: {Name})")]
     public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
                                         IPolicySet, 
                                         INamedType

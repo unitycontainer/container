@@ -54,7 +54,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         /// </summary>
         /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
         /// <param name="context">The context for the operation.</param>
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             DynamicBuildPlanGenerationContext buildContext =
                 (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
@@ -74,8 +74,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                 buildContext.AddToBuildPlan(
                     Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
             }
-
-            return null;
         }
 
         internal Expression CreateInstanceBuildupExpression(DynamicBuildPlanGenerationContext buildContext, IBuilderContext context)

@@ -6,7 +6,7 @@ using Unity.Policy;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("Registered: {RegisteredType}, MappedTo: {MappedToType}, LifetimeManager: {LifetimeManager}")]
+    [DebuggerDisplay("TypeRegistration(Type: {RegisteredType}, Name: {Name},  MappedTo: {MappedToType}, LifetimeManager: {LifetimeManager})")]
     public class TypeRegistration : InternalRegistration, 
                                     IContainerRegistration
     {

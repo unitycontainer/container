@@ -214,15 +214,13 @@ namespace Microsoft.Practices.Unity.Tests
             this.container = container;
         }
 
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             if ((NamedTypeBuildKey)context.BuildKey == NamedTypeBuildKey.Make<IUnityContainer>())
             {
                 context.Existing = this.container;
                 context.BuildComplete = true;
             }
-
-            return null;
         }
     }
 }

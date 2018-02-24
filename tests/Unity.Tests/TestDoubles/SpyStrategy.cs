@@ -19,7 +19,7 @@ namespace Microsoft.Practices.Unity.Tests.TestDoubles
         private object existing = null;
         private bool buildUpWasCalled = false;
 
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             this.buildUpWasCalled = true;
             this.context = context;
@@ -27,7 +27,6 @@ namespace Microsoft.Practices.Unity.Tests.TestDoubles
             this.existing = context.Existing;
 
             this.UpdateSpyPolicy(context);
-            return null;
         }
 
         public IBuilderContext Context

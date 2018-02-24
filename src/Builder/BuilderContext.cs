@@ -1,21 +1,18 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategy;
-using Unity.Utility;
 
 namespace Unity.Builder
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    public class BuilderContext : IBuilderContext, IPolicyList, IStrategyChain
+    public class BuilderContext : IBuilderContext, IPolicyList
     {
         #region Fields
 
@@ -260,27 +257,6 @@ namespace Unity.Builder
 
         void IPolicyList.ClearAll()
         {
-        }
-
-        #endregion
-
-
-        #region IStrategyChain
-
-
-        public IEnumerator<IBuilderStrategy> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BuildUp(IBuilderContext context)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

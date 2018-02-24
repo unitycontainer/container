@@ -23,11 +23,11 @@ namespace Unity.Strategies
         /// and if found maps the build key for the current operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             if (context.OriginalBuildKey is TypeRegistration registration && 
                 registration.RegisteredType == registration.MappedToType)
-                return null;
+                return;
                 
             IBuildKeyMappingPolicy policy = context.PersistentPolicies.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type, 
                                                                                                    context.OriginalBuildKey.Name, out _) 
@@ -36,7 +36,7 @@ namespace Unity.Strategies
                                                                                          context.OriginalBuildKey.Name, out _) 
                                           : null);
 
-            if (null == policy) return null;
+            if (null == policy) return;
 
             context.BuildKey = policy.Map(context.BuildKey, context);
 
@@ -45,8 +45,6 @@ namespace Unity.Strategies
                 context.Existing = context.NewBuildUp(context.BuildKey.Type, context.BuildKey.Name);
                 context.BuildComplete = null != context.Existing;
             }
-
-            return null;
         }
 
         #endregion

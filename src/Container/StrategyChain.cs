@@ -35,18 +35,17 @@ namespace Unity.Container
         {
             var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
             var i = -1;
-            var values = new object[_strategies.Length];    // TODO: Store in struct
 
             try
             {
                 while (!context.BuildComplete && ++i < _strategies.Length)
                 {
-                    values[i] = _strategies[i].PreBuildUp(context);
+                    _strategies[i].PreBuildUp(context);
                 }
 
                 while (--i >= 0)
                 {
-                    _strategies[i].PostBuildUp(context, values[i]);
+                    _strategies[i].PostBuildUp(context);
                 }
             }
             catch (Exception)

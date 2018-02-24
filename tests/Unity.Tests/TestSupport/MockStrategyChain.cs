@@ -72,7 +72,6 @@ namespace Microsoft.Practices.Unity.TestSupport
         {
             var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
             int i = 0;
-            var values = new object[_strategies.Count];
 
             try
             {
@@ -82,7 +81,7 @@ namespace Microsoft.Practices.Unity.TestSupport
                     {
                         break;
                     }
-                    values[i] = _strategies[i].PreBuildUp(context);
+                    _strategies[i].PreBuildUp(context);
                 }
 
                 if (context.BuildComplete)
@@ -92,7 +91,7 @@ namespace Microsoft.Practices.Unity.TestSupport
 
                 for (--i; i >= 0; --i)
                 {
-                    _strategies[i].PostBuildUp(context, values[i]);
+                    _strategies[i].PostBuildUp(context);
                 }
             }
             catch (Exception)

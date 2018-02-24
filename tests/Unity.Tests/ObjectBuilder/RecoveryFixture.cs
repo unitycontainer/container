@@ -54,7 +54,7 @@ namespace Microsoft.Practices.ObjectBuilder2.Tests
 
         private class ThrowingStrategy : BuilderStrategy
         {
-            public override object PreBuildUp(IBuilderContext context)
+            public override void PreBuildUp(IBuilderContext context)
             {
                 throw new Exception("Throwing from strategy");
             }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -61,8 +62,9 @@ namespace Unity
 
             try
             {
+                var registration = Registration(type, name, true);
                 context = new BuilderContext(this, _context,
-                                                   Registration(type, name, true),
+                                                   registration,
                                                    existing, 
                                                    resolverOverrides);
 
@@ -134,8 +136,11 @@ namespace Unity
         /// <see cref="create"/> is false</returns>
         public INamedType Registration(Type type, string name, bool create = false)
         {
+            var root = this;
             for (var container = this; null != container; container = container._parent)
             {
+                root = container;
+
                 IPolicySet data;
                 if (null == (data = container[type, name])) continue;
 
@@ -146,19 +151,19 @@ namespace Unity
 
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            lock (_syncRoot)
+            var targetBucket = hashCode % root._registrations.Buckets.Length;
+            lock (root._syncRoot)
             {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                for (var i = root._registrations.Buckets[targetBucket]; i >= 0; i = root._registrations.Entries[i].Next)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                    if (root._registrations.Entries[i].HashCode != hashCode ||
+                        root._registrations.Entries[i].Key != type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = _registrations.Entries[i].Value;
+                    var existing = root._registrations.Entries[i].Value;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry<string, IPolicySet> registry
@@ -166,25 +171,25 @@ namespace Unity
                                  : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
                                                                                        (LinkedRegistry)existing);
 
-                        _registrations.Entries[i].Value = existing;
+                        root._registrations.Entries[i].Value = existing;
                     }
 
                     return (INamedType)existing.GetOrAdd(name, () => CreateRegistration(type, name));
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                if (root._registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
                 {
-                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
+                    root._registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(root._registrations);
+                    targetBucket = hashCode % root._registrations.Buckets.Length;
                 }
 
                 var registration = CreateRegistration(type, name);
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
+                root._registrations.Entries[root._registrations.Count].HashCode = hashCode;
+                root._registrations.Entries[root._registrations.Count].Next = root._registrations.Buckets[targetBucket];
+                root._registrations.Entries[root._registrations.Count].Key = type;
+                root._registrations.Entries[root._registrations.Count].Value = new LinkedRegistry(name, registration);
+                root._registrations.Buckets[targetBucket] = root._registrations.Count;
+                root._registrations.Count++;
 
                 return (INamedType)registration;
             }

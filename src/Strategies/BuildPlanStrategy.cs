@@ -21,7 +21,7 @@ namespace Unity.Strategies
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
             var plan = GetPolicy<IBuildPlanPolicy>(context.Policies, context.OriginalBuildKey, out var buildPlanLocation);
 
@@ -38,8 +38,6 @@ namespace Unity.Strategies
             }
 
             plan?.BuildUp(context);
-
-            return null;
         }
 
         #endregion

@@ -31,17 +31,15 @@ namespace Unity.Strategies
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override object PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp(IBuilderContext context)
         {
-            if (null != context.Existing) return null;
+            if (null != context.Existing) return;
 
             var lifetimePolicy = GetLifetimePolicy(context, out _);
-            if (null == lifetimePolicy) return null;
+            if (null == lifetimePolicy) return;
 
-            if (lifetimePolicy is IRequiresRecovery recovery)
-            {
-                context.RequiresRecovery = recovery;
-            }
+            if (lifetimePolicy is IRequiresRecovery recoveryPolicy)
+                context.RequiresRecovery = recoveryPolicy;
 
             var existing = lifetimePolicy.GetValue(context.Lifetime);
             if (existing != null)
@@ -49,8 +47,6 @@ namespace Unity.Strategies
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
-
-            return lifetimePolicy;
         }
 
         /// <summary>
@@ -59,10 +55,12 @@ namespace Unity.Strategies
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        /// <param name="lifetimePolicy"></param>
-        public override void PostBuildUp(IBuilderContext context, object lifetimePolicy = null)
+        public override void PostBuildUp(IBuilderContext context)
         {
-            (lifetimePolicy as ILifetimePolicy)?.SetValue(context.Existing, context.Lifetime);
+            var lifetimePolicy = (ILifetimePolicy)context.Policies.Get(context.OriginalBuildKey.Type, 
+                                                                       context.OriginalBuildKey.Name, 
+                                                                       typeof(ILifetimePolicy), out _);
+            lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
         }
 
         #endregion
