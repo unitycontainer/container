@@ -72,6 +72,8 @@ namespace Unity.Injection
             policies.Set(serviceType, name, typeof(IConstructorSelectorPolicy), policy);
         }
 
+        public override bool BuildRequired => true;
+
         private SpecifiedConstructorSelectorPolicy DefaultConstructor(Type typeToCreate)
         {
             foreach (var ctor in typeToCreate.GetTypeInfo()

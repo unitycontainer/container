@@ -52,6 +52,8 @@ namespace Unity.Injection
             selector.AddMethodAndParameters(methodInfo, _methodParameters);
         }
 
+        public override bool BuildRequired => true;
+
         /// <summary>
         /// A small function to handle name matching. You can override this
         /// to do things like case insensitive comparisons.

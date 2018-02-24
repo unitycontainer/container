@@ -73,6 +73,8 @@ namespace Unity.Injection
             selector.AddPropertyAndValue(propInfo, _parameterValue);
         }
 
+        public override bool BuildRequired => true;
+
         private InjectionParameterValue InitializeParameterValue(PropertyInfo propInfo)
         {
             if (_parameterValue == null)

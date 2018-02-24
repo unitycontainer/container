@@ -18,5 +18,10 @@ namespace Unity.Policy
         /// (called when getting container registrations).</param>
         /// <returns>The new build key.</returns>
         INamedType Map(INamedType buildKey, IBuilderContext context);
+
+        /// <summary>
+        /// Instructs engine to resolve type rather than build it
+        /// </summary>
+        bool RequireBuild { get; }
     }
 }

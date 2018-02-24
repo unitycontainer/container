@@ -32,5 +32,21 @@ namespace Unity.Registration
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
         public abstract void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies);
+
+        /// <summary>
+        /// This injection member instructs engine, when type mapping is present, 
+        /// to build type instead of resolving it
+        /// </summary>
+        /// <remarks>
+        /// When types registered like this:
+        /// 
+        /// Line 1: container.RegisterType{OtherService}(new ContainerControlledLifetimeManager());  
+        /// Line 2: container.RegisterType{IService, OtherService}();
+        /// Line 3: container.RegisterType{IOtherService, OtherService}(new InjectionConstructor(container));
+        /// 
+        /// It is expected that IService resolves instance registered on line 1. But when IOtherService is resolved 
+        /// it requires differen constructor so it should be built instead.
+        /// </remarks>
+        public virtual bool BuildRequired { get; }
     }
 }
