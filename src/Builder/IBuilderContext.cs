@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -31,6 +32,11 @@ namespace Unity.Builder
         /// strategies in the chain.
         /// </returns>
         IStrategyChain Strategies { get; }
+
+        /// <summary>
+        /// Set of strategies used for building of this context
+        /// </summary>
+        BuilderStrategy[] BuildChain { get; }
 
         /// <summary>
         /// Gets the <see cref="ILifetimeContainer"/> associated with the build.

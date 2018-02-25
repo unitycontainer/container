@@ -1,4 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+﻿
+using Unity.Registration;
 
 namespace Unity.Builder.Strategy
 {
@@ -6,10 +7,10 @@ namespace Unity.Builder.Strategy
     /// Represents a strategy in the chain of responsibility.
     /// Strategies are required to support both BuildUp and TearDown.
     /// </summary>
-    public abstract class BuilderStrategy : IBuilderStrategy// IRegisterTypeStrategy
+    public abstract class BuilderStrategy
     {
 
-        #region IBuilderStrategy
+        #region Build
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -30,6 +31,33 @@ namespace Unity.Builder.Strategy
         /// <param name="context">Context of the build operation.</param>
         public virtual void PostBuildUp(IBuilderContext context)
         {
+        }
+
+        #endregion
+
+
+        #region Registration and Analysis
+
+        /// <summary>
+        /// Analyses registered type
+        /// </summary>
+        /// <param name="container">Reference to hositng container</param>
+        /// <param name="registration">Reference to registration</param>
+        /// <returns>Returns true if this strategy will participate in building of registered type</returns>
+        public virtual bool RegisterType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Analyses registered type
+        /// </summary>
+        /// <param name="container">Reference to hositng container</param>
+        /// <param name="registration">Reference to registration</param>
+        /// <returns>Returns true if this strategy will participate in building of registered type</returns>
+        public virtual bool RegisterInstance(IUnityContainer container, INamedType registration)
+        {
+            return false;
         }
 
         #endregion

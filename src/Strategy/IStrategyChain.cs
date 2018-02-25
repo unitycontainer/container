@@ -9,7 +9,7 @@ namespace Unity.Strategy
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.
     /// </summary>
-    public interface IStrategyChain : IEnumerable<IBuilderStrategy>, IBuildPlanPolicy
+    public interface IStrategyChain : IEnumerable<BuilderStrategy>, IBuildPlanPolicy
     {
     }
 }
