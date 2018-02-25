@@ -58,31 +58,19 @@ namespace Unity
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
 
-            IBuilderContext context = null;
+            BuilderContext context = null;
+            context = new BuilderContext(this, _context, 
+                                        (InternalRegistration)Registration(type, name, true),
+                                        existing, resolverOverrides);
 
-            try
+            if (type.GetTypeInfo().IsGenericTypeDefinition)
             {
-                var registration = Registration(type, name, true);
-                context = new BuilderContext(this, _context,
-                                                   registration,
-                                                   existing, 
-                                                   resolverOverrides);
-
-                if (type.GetTypeInfo().IsGenericTypeDefinition)
-                {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                                                              Constants.CannotResolveOpenGenericType,
-                                                              type.FullName), nameof(typeToBuild));
-                }
-
-                context.Strategies.BuildUp(context);
-            }
-            catch (Exception ex)
-            {
-                throw new ResolutionFailedException(type, name, ex, context);
+                throw new ResolutionFailedException(type, name, new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                                                          Constants.CannotResolveOpenGenericType,
+                                                          type.FullName), nameof(typeToBuild)), context);
             }
 
-            return context.Existing;
+            return _builUpPipeline(context);
         }
 
 

@@ -12,6 +12,16 @@ namespace Unity.Tests.Container
     public class ContainerBasicFixture
     {
         [TestMethod]
+        public void ResolveRegistered()
+        {
+            UnityContainer uc1 = new UnityContainer();
+
+            uc1.RegisterType<ITest, ATest>();
+
+            var res = uc1.Resolve<ITest>();
+        }
+
+        [TestMethod]
         public void ResolveAllOnlyReturnsInterfaceRegistrations()
         {
             ITest iTest;

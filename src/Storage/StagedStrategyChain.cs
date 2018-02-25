@@ -113,7 +113,7 @@ namespace Unity.Storage
             {
                 foreach (var list in _stages)
                 {
-                    ((List<IBuilderStrategy>)list).Clear();
+                    ((List<BuilderStrategy>)list).Clear();
                 }
                 _cache = null;
                 Invalidated?.Invoke(this, new EventArgs());

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Practices.ObjectBuilder2;
 using Unity;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
@@ -98,6 +99,8 @@ namespace Microsoft.Practices.Unity.TestSupport
         public IBuilderContext ParentContext => throw new NotImplementedException();
 
         public IRequiresRecovery RequiresRecovery { get; set; }
+
+        public BuilderStrategy[] BuildChain => throw new NotImplementedException();
 
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {

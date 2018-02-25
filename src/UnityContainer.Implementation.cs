@@ -8,6 +8,7 @@ using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
+using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
@@ -39,8 +40,9 @@ namespace Unity
         private readonly ContainerContext _context;
         
         // Strategies
-        private StagedStrategyChain<IBuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<IBuilderStrategy, BuilderStage> _buildPlanStrategies;
+        private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
+        private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
+        private Func<IBuilderContext, object> _builUpPipeline;
         
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -48,8 +50,8 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
         
         // Caches
-        private IRegisterTypeStrategy[] _registerTypeStrategies;
         internal IStrategyChain _strategyChain;
+        internal BuilderStrategy[] _buildChain;
 
         #endregion
 
@@ -70,8 +72,9 @@ namespace Unity
             // Strategies
             _strategies = _parent?._strategies;
             _buildPlanStrategies = _parent?._buildPlanStrategies;
-            _registerTypeStrategies = _parent?._registerTypeStrategies;
             _strategyChain = _parent?._strategyChain;
+            _buildChain = _parent?._buildChain;
+            _builUpPipeline = _parent?._builUpPipeline ?? ThrowingBuildUp;
 
             // Lifetime
             _lifetimeContainer = new LifetimeContainer(this);
@@ -97,8 +100,8 @@ namespace Unity
         protected void InitializeRootContainer()
         {
             // Initialize strategies
-            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>();
-            _buildPlanStrategies = new StagedStrategyChain<IBuilderStrategy, BuilderStage>();
+            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>();
             _lifetimeContainer.Add(_strategies);
             _lifetimeContainer.Add(_buildPlanStrategies);
 
@@ -124,8 +127,8 @@ namespace Unity
                 new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
                                                         context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First());
             // Caches
-            _registerTypeStrategies = _strategies.OfType<IRegisterTypeStrategy>().ToArray();
             _strategyChain = new StrategyChain(_strategies);
+            _buildChain = _strategies.ToArray();
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
@@ -149,10 +152,36 @@ namespace Unity
 
         #region Implementation
 
+        private static object ThrowingBuildUp(IBuilderContext context)
+        {
+            var i = -1;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < context.BuildChain.Length)
+                {
+                    context.BuildChain[i].PreBuildUp(context);
+                }
+
+                while (--i >= 0)
+                {
+                    context.BuildChain[i].PostBuildUp(context);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.RequiresRecovery?.Recover();
+                throw new ResolutionFailedException(context.OriginalBuildKey.Type, 
+                                                    context.OriginalBuildKey.Name, ex, context);
+            }
+
+            return context.Existing;
+        }
+
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
-            _registerTypeStrategies = _strategies.OfType<IRegisterTypeStrategy>().ToArray();
             _strategyChain = new StrategyChain(_strategies);
+            _buildChain = _strategies.ToArray();
         }
 
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)

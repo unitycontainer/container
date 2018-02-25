@@ -14,9 +14,9 @@ namespace Unity.Strategies
     /// <summary>
     /// Represents a strategy for mapping build keys in the build up operation.
     /// </summary>
-    public class BuildKeyMappingStrategy : BuilderStrategy, IRegisterTypeStrategy
+    public class BuildKeyMappingStrategy : BuilderStrategy
     {
-        #region BuilderStrategy
+        #region Build
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation.  Looks for the <see cref="IBuildKeyMappingPolicy"/>
@@ -25,7 +25,7 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            if (context.OriginalBuildKey is TypeRegistration registration && 
+            if (context.OriginalBuildKey is ContainerRegistration registration && 
                 registration.RegisteredType == registration.MappedToType)
                 return;
                 
@@ -50,23 +50,41 @@ namespace Unity.Strategies
         #endregion
 
 
+
+
+        #region Registration and Analysis
+
+        public override bool RegisterType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        {
+            var registration = (ContainerRegistration)namedType;
+
+            // Validate imput
+            if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
+
+            // Require Re-Resolve if no injectors specified
+            var buildRequired = registration.LifetimeManager is IRequireBuildUpPolicy ||
+                (null == injectionMembers ? false : injectionMembers.Any(m => m.BuildRequired));
+
+            // Set mapping policy
+            var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition && 
+                         registration.MappedToType.GetTypeInfo().IsGenericTypeDefinition
+                       ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired)
+                       : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired);
+            registration.Set(typeof(IBuildKeyMappingPolicy), policy);
+
+            return true;
+        }
+
+        #endregion
+
+
+
+
         #region IRegisterTypeStrategy
 
         public void RegisterType(IContainerContext context, Type typeFrom, Type typeTo, string name, 
                                  LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            // Validate imput
-            if (typeFrom == null || typeFrom == typeTo) return;
-
-            // Require Re-Resolve if no injectors specified
-            var buildRequired = lifetimeManager is IRequireBuildUpPolicy || 
-                (null == injectionMembers ? false : injectionMembers.Any(m => m.BuildRequired));
-
-            // Set mapping policy
-            var policy = typeFrom.GetTypeInfo().IsGenericTypeDefinition && typeTo.GetTypeInfo().IsGenericTypeDefinition
-                       ? new GenericTypeBuildKeyMappingPolicy(typeTo, name, buildRequired)
-                       : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(typeTo, name, buildRequired);
-            context.Policies.Set(typeFrom, name, typeof(IBuildKeyMappingPolicy), policy);
         }
 
         #endregion

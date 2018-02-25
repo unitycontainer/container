@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Builder.Strategy;
+using Unity.Container;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategy;
@@ -26,7 +30,7 @@ namespace Unity.Builder
 
         #region Constructors
 
-        public BuilderContext(UnityContainer container, IPolicyList policies, INamedType registration, 
+        public BuilderContext(UnityContainer container, IPolicyList policies, InternalRegistration registration, 
                               object existing, params ResolverOverride[] resolverOverrides)
         {
             _container = container;
@@ -38,6 +42,7 @@ namespace Unity.Builder
             BuildKey = OriginalBuildKey;
             PersistentPolicies = this;
             Policies = new PolicyList(PersistentPolicies);
+            BuildChain = registration.BuildChain ?? _container._buildChain;
 
             _ownsOverrides = true;
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
@@ -47,11 +52,12 @@ namespace Unity.Builder
             }
         }
 
-        public BuilderContext(IBuilderContext original, IStrategyChain chain, object existing)
+        public BuilderContext(IBuilderContext original, IEnumerable<BuilderStrategy> chain, object existing)
         {
             _container = ((BuilderContext)original)._container;
             _policies = ((BuilderContext)original)._policies;
-            _chain = chain;
+            _chain = new StrategyChain(chain);
+            BuildChain = chain.ToArray();
             ParentContext = original;
             OriginalBuildKey = original.OriginalBuildKey;
             BuildKey = original.BuildKey;
@@ -77,6 +83,7 @@ namespace Unity.Builder
             PersistentPolicies = parent.PersistentPolicies;
             OriginalBuildKey = new NamedTypeBuildKey(type, name);
             BuildKey = OriginalBuildKey;
+            BuildChain = _container._buildChain;
         }
 
         #endregion
@@ -94,6 +101,11 @@ namespace Unity.Builder
         /// strategies in the chain.
         /// </returns>
         public IStrategyChain Strategies => _chain;
+
+        /// <summary>
+        /// Set of strategies used for building of this context
+        /// </summary>
+        public BuilderStrategy[] BuildChain { get; }
 
         /// <summary>
         /// GetOrDefault the current build key for the current build operation.

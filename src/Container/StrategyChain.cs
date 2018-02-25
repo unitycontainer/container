@@ -15,13 +15,13 @@ namespace Unity.Container
     /// </summary>
     public class StrategyChain : IStrategyChain
     {
-        private readonly IBuilderStrategy[] _strategies;
+        private readonly BuilderStrategy[] _strategies;
 
         /// <summary>
         /// Initialize a new instance of the <see cref="StrategyChain"/> class with a collection of strategies.
         /// </summary>
         /// <param name="strategies">A collection of strategies to initialize the chain.</param>
-        public StrategyChain(IEnumerable<IBuilderStrategy> strategies)
+        public StrategyChain(IEnumerable<BuilderStrategy> strategies)
         {
             _strategies = strategies.ToArray();
         }
@@ -64,9 +64,9 @@ namespace Unity.Container
         /// <returns>
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
         /// </returns>
-        IEnumerator<IBuilderStrategy> IEnumerable<IBuilderStrategy>.GetEnumerator()
+        IEnumerator<BuilderStrategy> IEnumerable<BuilderStrategy>.GetEnumerator()
         {
-            return _strategies.Cast<IBuilderStrategy>().GetEnumerator();
+            return _strategies.Cast<BuilderStrategy>().GetEnumerator();
         }
 
         /// <summary>

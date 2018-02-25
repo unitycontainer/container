@@ -29,14 +29,14 @@ namespace Unity.Tests.TestDoubles
             get { return this.container; }
         }
 
-        public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies
+        public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies
         {
-            get { return new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(); }
+            get { return new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(); }
         }
 
-        public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies
+        public override IStagedStrategyChain<BuilderStrategy, BuilderStage> BuildPlanStrategies
         {
-            get { return new StagedStrategyChain<IBuilderStrategy, BuilderStage>(); }
+            get { return new StagedStrategyChain<BuilderStrategy, BuilderStage>(); }
         }
 
         public override IPolicyList Policies

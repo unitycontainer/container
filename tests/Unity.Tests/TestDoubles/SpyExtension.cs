@@ -16,18 +16,18 @@ namespace Microsoft.Practices.Unity.Tests.TestDoubles
     /// </summary>
     internal class SpyExtension : UnityContainerExtension
     {
-        private IBuilderStrategy strategy;
+        private BuilderStrategy strategy;
         private UnityBuildStage stage;
         private IBuilderPolicy policy;
         private Type policyType;
 
-        public SpyExtension(IBuilderStrategy strategy, UnityBuildStage stage)
+        public SpyExtension(BuilderStrategy strategy, UnityBuildStage stage)
         {
             this.strategy = strategy;
             this.stage = stage;
         }
 
-        public SpyExtension(IBuilderStrategy strategy, UnityBuildStage stage, IBuilderPolicy policy, Type policyType)
+        public SpyExtension(BuilderStrategy strategy, UnityBuildStage stage, IBuilderPolicy policy, Type policyType)
         {
             this.strategy = strategy;
             this.stage = stage;

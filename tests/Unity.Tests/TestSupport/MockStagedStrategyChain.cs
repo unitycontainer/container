@@ -15,22 +15,22 @@ namespace Unity.Tests.TestSupport
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    public class MockStagedStrategyChain<TStageEnum> : IStagedStrategyChain<IBuilderStrategy, TStageEnum>
+    public class MockStagedStrategyChain<TStageEnum> : IStagedStrategyChain<BuilderStrategy, TStageEnum>
     {
         private readonly MockStagedStrategyChain<TStageEnum> _innerChain;
         private readonly object _lockObject = new object();
-        private readonly List<IBuilderStrategy>[] _stages;
+        private readonly List<BuilderStrategy>[] _stages;
 
         /// <summary>
         /// Initialize a new instance of the <see cref="MockStagedStrategyChain{TStageEnum}"/> class.
         /// </summary>
         public MockStagedStrategyChain()
         {
-            _stages = new List<IBuilderStrategy>[NumberOfEnumValues()];
+            _stages = new List<BuilderStrategy>[NumberOfEnumValues()];
 
             for (int i = 0; i < _stages.Length; ++i)
             {
-                _stages[i] = new List<IBuilderStrategy>();
+                _stages[i] = new List<BuilderStrategy>();
             }
         }
 
@@ -51,7 +51,7 @@ namespace Unity.Tests.TestSupport
         /// </summary>
         /// <param name="strategy">The strategy to add to the chain.</param>
         /// <param name="stage">The stage to add the strategy.</param>
-        public void Add(IBuilderStrategy strategy, TStageEnum stage)
+        public void Add(BuilderStrategy strategy, TStageEnum stage)
         {
             lock (_lockObject)
             {
@@ -70,7 +70,7 @@ namespace Unity.Tests.TestSupport
         {
             lock (_lockObject)
             {
-                foreach (List<IBuilderStrategy> stage in _stages)
+                foreach (List<BuilderStrategy> stage in _stages)
                 {
                     stage.Clear();
                 }
@@ -113,7 +113,7 @@ namespace Unity.Tests.TestSupport
             return typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         }
 
-        public IEnumerator<IBuilderStrategy> GetEnumerator()
+        public IEnumerator<BuilderStrategy> GetEnumerator()
         {
             throw new NotImplementedException();
         }

@@ -14,7 +14,7 @@ namespace Microsoft.Practices.Unity.TestSupport
     /// </summary>
     public class MockStrategyChain : IStrategyChain
     {
-        private readonly List<IBuilderStrategy> _strategies = new List<IBuilderStrategy>();
+        private readonly List<BuilderStrategy> _strategies = new List<BuilderStrategy>();
 
         /// <summary>
         /// Initialize a new instance of the <see cref="MockStrategyChain"/> class.
@@ -34,7 +34,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// Adds a strategy to the chain.
         /// </summary>
         /// <param name="strategy">The strategy to add to the chain.</param>
-        public void Add(IBuilderStrategy strategy)
+        public void Add(BuilderStrategy strategy)
         {
             _strategies.Add(strategy);
         }
@@ -45,7 +45,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// <param name="strategyEnumerable">The strategies to add to the chain.</param>
         public void AddRange(IEnumerable strategyEnumerable)
         {
-            foreach (IBuilderStrategy strategy in strategyEnumerable 
+            foreach (BuilderStrategy strategy in strategyEnumerable 
                                                ?? throw new ArgumentNullException(nameof(strategyEnumerable)))
             {
                 Add(strategy);
@@ -58,7 +58,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// <returns>The reversed strategy chain.</returns>
         public IStrategyChain Reverse()
         {
-            List<IBuilderStrategy> reverseList = new List<IBuilderStrategy>(_strategies);
+            List<BuilderStrategy> reverseList = new List<BuilderStrategy>(_strategies);
             reverseList.Reverse();
             return new MockStrategyChain(reverseList);
         }
@@ -110,7 +110,7 @@ namespace Microsoft.Practices.Unity.TestSupport
         /// <returns>
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
         /// </returns>
-        IEnumerator<IBuilderStrategy> IEnumerable<IBuilderStrategy>.GetEnumerator()
+        IEnumerator<BuilderStrategy> IEnumerable<BuilderStrategy>.GetEnumerator()
         {
             return _strategies.GetEnumerator();
         }

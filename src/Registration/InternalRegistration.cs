@@ -1,12 +1,13 @@
 using System;
 using System.Diagnostics;
 using Unity.Builder;
+using Unity.Builder.Strategy;
 using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("InternalRegistration(Type: {Type}, Name: {Name})")]
+    [DebuggerDisplay("InternalRegistration( Type: {Type},  Name: {Name} )")]
     public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
                                         IPolicySet, 
                                         INamedType
@@ -28,6 +29,8 @@ namespace Unity.Registration
         }
 
         #endregion
+
+        public virtual BuilderStrategy[] BuildChain { get; set; }
 
 
         #region IPolicySet

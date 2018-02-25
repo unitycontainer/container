@@ -5,11 +5,13 @@ using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Strategies
 {
     /// <summary>
-    /// An <see cref="IBuilderStrategy"/> implementation that uses
+    /// An <see cref="BuilderStrategy"/> implementation that uses
     /// a <see cref="ILifetimePolicy"/> to figure out if an object
     /// has already been created and to update or remove that
     /// object from some backing store.
@@ -23,14 +25,8 @@ namespace Unity.Strategies
         #endregion
 
 
-        #region BuilderStrategy
+        #region Build
 
-        /// <summary>
-        /// Called during the chain of responsibility for a build operation. The
-        /// PreBuildUp method is called when the chain is being executed in the
-        /// forward direction.
-        /// </summary>
-        /// <param name="context">Context of the build operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
             if (null != context.Existing) return;
@@ -49,18 +45,34 @@ namespace Unity.Strategies
             }
         }
 
-        /// <summary>
-        /// Called during the chain of responsibility for a build operation. The
-        /// PostBuildUp method is called when the chain has finished the PreBuildUp
-        /// phase and executes in reverse order from the PreBuildUp calls.
-        /// </summary>
-        /// <param name="context">Context of the build operation.</param>
         public override void PostBuildUp(IBuilderContext context)
         {
             var lifetimePolicy = (ILifetimePolicy)context.Policies.Get(context.OriginalBuildKey.Type, 
                                                                        context.OriginalBuildKey.Name, 
                                                                        typeof(ILifetimePolicy), out _);
             lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
+        }
+
+        #endregion
+
+
+        #region Registration and Analysis
+
+        public override bool RegisterType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        {
+            if (registration is IPolicySet set)
+            {
+                var policy = set.Get(typeof(ILifetimePolicy));
+                if (policy is TransientLifetimeManager)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override bool RegisterInstance(IUnityContainer container, INamedType registration)
+        {
+            return true;
         }
 
         #endregion

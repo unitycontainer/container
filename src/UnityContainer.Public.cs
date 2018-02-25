@@ -85,7 +85,7 @@ namespace Unity
             _extensions.Clear();
 
             // Reset our policies, strategies, and registered names to reset to "zero"
-            _strategies = new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_parent?._strategies);
+            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(_parent?._strategies);
 
             _context.ClearAll();
 

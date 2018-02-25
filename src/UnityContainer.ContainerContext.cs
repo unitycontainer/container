@@ -48,7 +48,7 @@ namespace Unity
 
             public override IUnityContainer Container => _container;
 
-            public override IStagedStrategyChain<IBuilderStrategy, UnityBuildStage> Strategies
+            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies
             {
                 get
                 {
@@ -61,7 +61,7 @@ namespace Unity
                             {
                                 _container._strategies.Invalidated -= _container.OnStrategiesChanged;
                                 _container._strategies = 
-                                    new StagedStrategyChain<IBuilderStrategy, UnityBuildStage>(_container._parent._strategies);
+                                    new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(_container._parent._strategies);
                                 _container._strategies.Invalidated += _container.OnStrategiesChanged;
                                 _container._lifetimeContainer.Add(_container._strategies);
 
@@ -73,7 +73,7 @@ namespace Unity
                 }
             }
 
-            public override IStagedStrategyChain<IBuilderStrategy, BuilderStage> BuildPlanStrategies
+            public override IStagedStrategyChain<BuilderStrategy, BuilderStage> BuildPlanStrategies
             {
                 get
                 {
@@ -85,7 +85,7 @@ namespace Unity
                             if (_container._parent._buildPlanStrategies == _container._buildPlanStrategies)
                             {
                                 _container._buildPlanStrategies = 
-                                    new StagedStrategyChain<IBuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
+                                    new StagedStrategyChain<BuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
                                 _container._lifetimeContainer.Add(_container._buildPlanStrategies);
                             }
                         }

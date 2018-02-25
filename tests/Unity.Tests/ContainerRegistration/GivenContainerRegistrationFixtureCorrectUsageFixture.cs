@@ -82,7 +82,7 @@ namespace Unity.Tests.ContainerRegistration
             Assert.AreEqual(1, count);
             Assert.AreEqual(1, childCount);
 
-            var mappedCount = child.Registrations.Where(c => c.MappedToType == typeof(IUnityContainer)).Count();
+            var mappedCount = child.Registrations.Where(c => c.MappedToType == typeof(UnityContainer)).Count();
 
             Assert.AreEqual(1, mappedCount);
         }

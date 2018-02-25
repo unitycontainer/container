@@ -6,26 +6,16 @@ using Unity.Policy;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("TypeRegistration(Type: {RegisteredType}, Name: {Name},  MappedTo: {MappedToType}, LifetimeManager: {LifetimeManager})")]
-    public class TypeRegistration : InternalRegistration, 
-                                    IContainerRegistration
+    [DebuggerDisplay("ContainerRegistration( Type: {RegisteredType},  Name: {Name},   MappedTo: {MappedToType},  LifetimeManager: {LifetimeManager})")]
+    public class ContainerRegistration : InternalRegistration, 
+                                         IContainerRegistration
     {
         #region Constructors
 
-        public TypeRegistration(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager)
-            : base(typeFrom ?? typeTo, string.IsNullOrEmpty(name) ? null : name)
+        public ContainerRegistration(Type registeredType, string name, Type mappedTo, LifetimeManager lifetimeManager)
+            : base(registeredType ?? mappedTo, string.IsNullOrEmpty(name) ? null : name)
         {
-            MappedToType = typeTo;
-
-            // Make sure manager is not being used already
-            if (lifetimeManager.InUse)
-            {
-                if (lifetimeManager is ILifetimeFactoryPolicy factory)
-                    lifetimeManager = (LifetimeManager)factory.CreateLifetimePolicy();
-                else
-                    throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-            }
-
+            MappedToType = mappedTo;
             LifetimeManager = lifetimeManager;
             LifetimeManager.InUse = true;
         }
