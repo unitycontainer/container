@@ -51,12 +51,9 @@ namespace Unity.Strategies
             if (context.Registration is InternalRegistration registration && 
                 null != context.Registration.Get<IBuildPlanPolicy>())
             {
-                lock (registration)
-                {
-                    registration.BuildChain = registration.BuildChain
-                                                          .Where(strategy => !(strategy is BuildKeyMappingStrategy))
-                                                          .ToArray();
-                }
+                registration.BuildChain = registration.BuildChain
+                                                      .Where(strategy => !(strategy is BuildKeyMappingStrategy))
+                                                      .ToArray();
             }
         }
         
