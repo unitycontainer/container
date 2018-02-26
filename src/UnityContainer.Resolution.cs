@@ -32,12 +32,12 @@ namespace Unity
 
             var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), null, resolverOverrides);
 
-            if (type.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                throw new ResolutionFailedException(type, name, new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                                                          Constants.CannotResolveOpenGenericType,
-                                                          type.FullName), nameof(typeToBuild)), context);
-            }
+            //if (type.GetTypeInfo().IsGenericTypeDefinition)
+            //{
+            //    throw new ResolutionFailedException(type, name, new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+            //                                              Constants.CannotResolveOpenGenericType,
+            //                                              type.FullName), nameof(typeToBuild)), context);
+            //}
 
             return BuilUpPipeline(context);
         }
@@ -72,12 +72,12 @@ namespace Unity
 
             var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), existing, resolverOverrides);
 
-            if (type.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                throw new ResolutionFailedException(type, name, new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                                                          Constants.CannotResolveOpenGenericType,
-                                                          type.FullName), nameof(typeToBuild)), context);
-            }
+            //if (type.GetTypeInfo().IsGenericTypeDefinition)
+            //{
+            //    throw new ResolutionFailedException(type, name, new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+            //                                              Constants.CannotResolveOpenGenericType,
+            //                                              type.FullName), nameof(typeToBuild)), context);
+            //}
 
             return BuilUpPipeline(context);
         }
