@@ -77,6 +77,8 @@ namespace Unity
         #endregion
 
 
+        private static BuilderStrategy[] _unregisteredBuildChain = new[] { new BuildPlanStrategy() };
+
         #region Constructors
 
         /// <summary>
@@ -296,7 +298,10 @@ namespace Unity
 
         private static IPolicySet CreateRegistration(Type type, string name)
         {
-            return new InternalRegistration(type, name);
+            return new InternalRegistration(type, name)
+            {
+                BuildChain = _unregisteredBuildChain
+            };
         }
 
         #endregion
