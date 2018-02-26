@@ -25,6 +25,7 @@ namespace Unity.Builder
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
         UnityContainer _container;
+// TODO:        LinkedNode<Type, IBuilderPolicy> _registration;
 
         #endregion
 
