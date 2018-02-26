@@ -29,37 +29,39 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(IBuilderContext context)
         {
-            if (null != context.Existing) return;
+            // TODO: if (null != context.Existing) return;
 
-            ILifetimePolicy policy = (ILifetimePolicy)context.Policies.Get(context.OriginalBuildKey.Type, 
-                                                                           context.OriginalBuildKey.Name, 
-                                                                           typeof(ILifetimePolicy), out _);
-            if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
+            ILifetimePolicy policy = (ILifetimePolicy)context.Get(context.OriginalBuildKey.Type, 
+                                                                  context.OriginalBuildKey.Name, 
+                                                                  typeof(ILifetimePolicy), out _);
+            if (null == policy)
             {
-                policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(), 
-                                                               context.BuildKey.Name, typeof(ILifetimePolicy), out _);
-                if (policy is ILifetimeFactoryPolicy factoryPolicy)
+                if (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
                 {
-                    lock (_genericLifetimeManagerLock)
+                    policy = (ILifetimePolicy)context.Get(context.BuildKey.Type.GetGenericTypeDefinition(),
+                                                          context.BuildKey.Name, typeof(ILifetimePolicy), out _);
+                    if (policy is ILifetimeFactoryPolicy factoryPolicy)
                     {
-                        // check whether the policy for closed-generic has been added since first checked
-                        policy = (ILifetimePolicy)context.Registration.Get(typeof(ILifetimePolicy));
-                        if (null == policy)
+                        lock (_genericLifetimeManagerLock)
                         {
-                            policy = factoryPolicy.CreateLifetimePolicy();
-                            context.Registration.Set(typeof(ILifetimePolicy), policy);
-
-                            if (policy is IDisposable)
+                            // check whether the policy for closed-generic has been added since first checked
+                            policy = (ILifetimePolicy)context.Registration.Get(typeof(ILifetimePolicy));
+                            if (null == policy)
                             {
-                                context.Lifetime.Add(policy);
+                                policy = factoryPolicy.CreateLifetimePolicy();
+                                context.Registration.Set(typeof(ILifetimePolicy), policy);
+
+                                if (policy is IDisposable)
+                                {
+                                    context.Lifetime.Add(policy);
+                                }
                             }
                         }
                     }
+                    else return;
                 }
-
+                else return;
             }
-
-            if (null == policy) return;
 
             if (policy is IRequiresRecovery recoveryPolicy)
                 context.RequiresRecovery = recoveryPolicy;
@@ -70,7 +72,6 @@ namespace Unity.Strategies
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
-
         }
 
         public override void PostBuildUp(IBuilderContext context)
