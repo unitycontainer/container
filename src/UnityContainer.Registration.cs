@@ -318,6 +318,18 @@ namespace Unity
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
+
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            {
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != type)
+                {
+                    continue;
+                }
+
+                return _registrations.Entries[i].Value?[name];
+            }
+
             lock (_syncRoot)
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
