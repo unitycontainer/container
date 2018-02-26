@@ -63,15 +63,15 @@ namespace Unity.Strategies
                 else return;
             }
 
-            if (policy is IRequiresRecovery recoveryPolicy)
-                context.RequiresRecovery = recoveryPolicy;
-
             var existing = policy.GetValue(context.Lifetime);
             if (existing != null)
             {
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
+
+            if (policy is IRequiresRecovery recoveryPolicy)
+                context.RequiresRecovery = recoveryPolicy;
         }
 
         public override void PostBuildUp(IBuilderContext context)
