@@ -45,9 +45,19 @@ namespace Unity.Strategies
             }
         }
 
+
+        public override void PostBuildUp(IBuilderContext context)
+        {
+            if (context.Registration is InternalRegistration registration && 
+                null != context.Registration.Get<IBuildPlanPolicy>())
+            {
+                registration.BuildChain = registration.BuildChain
+                                                      .Where(strategy => !(strategy is BuildKeyMappingStrategy))
+                                                      .ToArray();
+            }
+        }
+        
         #endregion
-
-
 
 
         #region Registration and Analysis
