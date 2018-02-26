@@ -16,7 +16,8 @@ namespace Unity.Registration
             : base(registeredType ?? mappedTo, string.IsNullOrEmpty(name) ? null : name)
         {
             MappedToType = mappedTo;
-            LifetimeManager = lifetimeManager;
+            Key = typeof(ILifetimePolicy);
+            Value = lifetimeManager;
             LifetimeManager.InUse = true;
         }
 
@@ -38,20 +39,12 @@ namespace Unity.Registration
         /// </summary>
         /// <remarks>
         /// This property will be null if this registration is for an open generic.</remarks>
-        public LifetimeManager LifetimeManager { get; }
+        public LifetimeManager LifetimeManager => (LifetimeManager)Value;
 
         #endregion
 
 
         #region IPolicySet
-
-        public override IBuilderPolicy Get(Type policyInterface)
-        {
-            if (typeof(ILifetimePolicy) == policyInterface)
-                return LifetimeManager;
-
-            return base.Get(policyInterface);
-        }
 
         public override void Set(Type policyInterface, IBuilderPolicy policy)
         {
