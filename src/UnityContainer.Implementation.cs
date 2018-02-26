@@ -241,9 +241,10 @@ namespace Unity
 
             try
             {
-                while (!context.BuildComplete && ++i < context.BuildChain.Length)
+                for(i = 0; i < context.BuildChain.Length; i++)
                 {
                     context.BuildChain[i].PreBuildUp(context);
+                    if (context.BuildComplete) break;
                 }
 
                 while (--i >= 0)
