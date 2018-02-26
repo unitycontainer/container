@@ -42,6 +42,7 @@ namespace Unity.Strategies
             }
 
             plan?.BuildUp(context);
+            context.BuildComplete = true;
         }
 
         #endregion
