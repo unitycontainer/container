@@ -15,9 +15,29 @@ namespace Unity.Lifetime
         #region Fields
 
         protected object Value;
+        private Func<ILifetimeContainer, object> _currentGetValue;
+        private Action<object, ILifetimeContainer> _currentSetValue;
 
         #endregion
 
+        public ContainerControlledLifetimeManager()
+        {
+            _currentGetValue = base.GetValue;
+            _currentSetValue = base.SetValue;
+        }
+
+        public override object GetValue(ILifetimeContainer container = null)
+        {
+            return _currentGetValue(container);
+        }
+
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        {
+            _currentSetValue(newValue, container);
+            _currentSetValue = (o, c) => throw new InvalidOperationException("Value of ContainerControlledLifetimeManager can only be set once");
+            _currentGetValue = SynchronizedGetValue;
+        }
+        
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
         /// with this Lifetime policy.
