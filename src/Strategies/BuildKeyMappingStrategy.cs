@@ -84,18 +84,5 @@ namespace Unity.Strategies
         }
 
         #endregion
-
-
-
-
-        #region IRegisterTypeStrategy
-
-        public void RegisterType(IContainerContext context, Type typeFrom, Type typeTo, string name, 
-                                 LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-        }
-
-        #endregion
-
     }
 }
