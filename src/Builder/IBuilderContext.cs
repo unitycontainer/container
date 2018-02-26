@@ -60,12 +60,10 @@ namespace Unity.Builder
         INamedType BuildKey { get; set; }
 
         /// <summary>
-        /// The set of policies that were passed into this context.
+        /// Set of policies associated with this registration
         /// </summary>
-        /// <remarks>This returns the policies passed into the context.
-        /// Policies added here will remain after buildup completes.</remarks>
-        /// <value>The persistent policies for the current context.</value>
-        IPolicyList PersistentPolicies { get; }
+        IPolicySet Registration { get; }
+
 
         /// <summary>
         /// Gets the policies for the current context. 
