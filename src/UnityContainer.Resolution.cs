@@ -20,13 +20,26 @@ namespace Unity
         /// <summary>
         /// GetOrDefault an instance of the requested type with the given name typeFrom the container.
         /// </summary>
-        /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
-        /// <param name="name">Name of the object to retrieve.</param>
+        /// <param name="typeToBuild"><see cref="Type"/> of object to get typeFrom the container.</param>
+        /// <param name="nameToBuild">Name of the object to retrieve.</param>
         /// <param name="resolverOverrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        public object Resolve(Type type, string name, params ResolverOverride[] resolverOverrides)
+        public object Resolve(Type typeToBuild, string nameToBuild, params ResolverOverride[] resolverOverrides)
         {
-            return BuildUp(type, null, name, resolverOverrides);
+            // Verify arguments
+            var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
+            var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
+
+            var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), null, resolverOverrides);
+
+            if (type.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                throw new ResolutionFailedException(type, name, new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                                                          Constants.CannotResolveOpenGenericType,
+                                                          type.FullName), nameof(typeToBuild)), context);
+            }
+
+            return BuilUpPipeline(context);
         }
 
         #endregion

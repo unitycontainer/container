@@ -66,10 +66,10 @@ namespace Unity
         internal BuilderStrategy[] _buildChain;
 
         // Methods
-        private Func<Type, string, bool> IsTypeRegistered;
-        private Func<Type, string, IPolicySet> GetRegistration;
-        private Func<IBuilderContext, object> BuilUpPipeline;
-        private Func<INamedType, IPolicySet> Register;
+        internal Func<Type, string, bool> IsTypeRegistered;
+        internal Func<Type, string, IPolicySet> GetRegistration;
+        internal Func<IBuilderContext, object> BuilUpPipeline;
+        internal Func<INamedType, IPolicySet> Register;
         internal GetPolicyDelegate GetPolicy;
         internal SetPolicyDelegate SetPolicy;
         internal ClearPolicyDelegate ClearPolicy;

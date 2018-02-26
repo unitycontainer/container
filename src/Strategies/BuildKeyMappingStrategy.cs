@@ -29,13 +29,11 @@ namespace Unity.Strategies
                 registration.RegisteredType == registration.MappedToType)
                 return;
                 
-            IBuildKeyMappingPolicy policy = context.PersistentPolicies.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type, 
-                                                                                                   context.OriginalBuildKey.Name, out _) 
+            IBuildKeyMappingPolicy policy = context.Registration.Get<IBuildKeyMappingPolicy>() 
                                           ?? (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType 
                                           ? context.Policies.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type.GetGenericTypeDefinition(), 
                                                                                          context.OriginalBuildKey.Name, out _) 
                                           : null);
-
             if (null == policy) return;
 
             context.BuildKey = policy.Map(context.BuildKey, context);

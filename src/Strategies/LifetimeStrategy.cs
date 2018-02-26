@@ -31,18 +31,46 @@ namespace Unity.Strategies
         {
             if (null != context.Existing) return;
 
-            var lifetimePolicy = GetLifetimePolicy(context, out _);
-            if (null == lifetimePolicy) return;
+            ILifetimePolicy policy = (ILifetimePolicy)context.Policies.Get(context.OriginalBuildKey.Type, 
+                                                                           context.OriginalBuildKey.Name, 
+                                                                           typeof(ILifetimePolicy), out _);
+            if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
+            {
+                policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(), 
+                                                               context.BuildKey.Name, typeof(ILifetimePolicy), out _);
+                if (policy is ILifetimeFactoryPolicy factoryPolicy)
+                {
+                    lock (_genericLifetimeManagerLock)
+                    {
+                        // check whether the policy for closed-generic has been added since first checked
+                        policy = (ILifetimePolicy)context.Registration.Get(typeof(ILifetimePolicy));
+                        if (null == policy)
+                        {
+                            policy = factoryPolicy.CreateLifetimePolicy();
+                            context.Registration.Set(typeof(ILifetimePolicy), policy);
 
-            if (lifetimePolicy is IRequiresRecovery recoveryPolicy)
+                            if (policy is IDisposable)
+                            {
+                                context.Lifetime.Add(policy);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            if (null == policy) return;
+
+            if (policy is IRequiresRecovery recoveryPolicy)
                 context.RequiresRecovery = recoveryPolicy;
 
-            var existing = lifetimePolicy.GetValue(context.Lifetime);
+            var existing = policy.GetValue(context.Lifetime);
             if (existing != null)
             {
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
+
         }
 
         public override void PostBuildUp(IBuilderContext context)
@@ -73,40 +101,6 @@ namespace Unity.Strategies
         public override bool RegisterInstance(IUnityContainer container, INamedType registration)
         {
             return true;
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private ILifetimePolicy GetLifetimePolicy(IBuilderContext context, out IPolicyList source)
-        {
-            var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out source);
-            if (policy == null && context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
-            {
-                policy = context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(), context.BuildKey.Name, typeof(ILifetimePolicy), out source);
-                if (!(policy is ILifetimeFactoryPolicy factoryPolicy)) return null;
-
-                lock (_genericLifetimeManagerLock)
-                {
-                    // check whether the policy for closed-generic has been added since first checked
-                    var newLifetime = (ILifetimePolicy)source.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), out _);
-                    if (null == newLifetime)
-                    {
-                        newLifetime = factoryPolicy.CreateLifetimePolicy();
-                        source.Set(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy), newLifetime);
-                        if (newLifetime is IDisposable)
-                        {
-                            context.Lifetime.Add(newLifetime);
-                        }
-                    }
-
-                    return newLifetime;
-                }
-            }
-
-            return (ILifetimePolicy)policy;
         }
 
         #endregion

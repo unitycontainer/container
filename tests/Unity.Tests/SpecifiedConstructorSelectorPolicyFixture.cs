@@ -191,6 +191,8 @@ namespace Microsoft.Practices.Unity.Tests
 
             public BuilderStrategy[] BuildChain => throw new NotImplementedException();
 
+            public IPolicySet Registration => throw new NotImplementedException();
+
             public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
             {
                 throw new NotImplementedException();
