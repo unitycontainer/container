@@ -68,6 +68,7 @@ namespace Unity.Strategies
             {
                 context.Existing = existing;
                 context.BuildComplete = true;
+                return;
             }
 
             if (policy is IRequiresRecovery recoveryPolicy)
