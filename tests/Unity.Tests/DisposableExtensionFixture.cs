@@ -49,19 +49,6 @@ namespace Microsoft.Practices.Unity.Tests
             container.Dispose();
         }
 
-        [TestMethod]
-        public void RemovedExtensionsAreDisposed()
-        {
-            DisposableExtension extension = new DisposableExtension();
-            IUnityContainer container = new UnityContainer()
-                .AddExtension(extension);
-
-            container.RemoveAllExtensions();
-
-            Assert.IsTrue(extension.Removed);
-            Assert.IsTrue(extension.Disposed);
-        }
-
         private class DisposableExtension : UnityContainerExtension, IDisposable
         {
             public bool Disposed = false;

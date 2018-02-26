@@ -90,16 +90,6 @@ namespace Unity.Tests
         }
 
         [TestMethod]
-        public void CanReinstallDefaultBehavior()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RemoveAllExtensions();
-
-            object result = container.Resolve<object>();
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
         public void CanLookupExtensionByClassName()
         {
             MockContainerExtension extension = new MockContainerExtension();

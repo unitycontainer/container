@@ -87,16 +87,6 @@ namespace Unity.Tests.Extension
         }
 
         [TestMethod]
-        public void Ext_CanReinstallDefaultBehavior()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RemoveAllExtensions();
-            object result = container.Resolve<object>();
-            
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
         public void Ext_CancheckDefaultBehavior()
         {
             IUnityContainer container = new UnityContainer();

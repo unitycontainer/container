@@ -126,29 +126,12 @@ namespace Unity.Tests.Extension
         }
 
         /// <summary>
-        /// Remove all extensions from the container
-        /// </summary>
-        [TestMethod]
-        public void RemoveAllExtensions()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RemoveAllExtensions();
-
-            // Default behavior should always work
-            object result = container.Resolve<object>();
-
-            Assert.IsNotNull(result);
-        }
-
-
-        /// <summary>
         /// Remove all extensions. Add default extension and the new extension.
         /// </summary>
         [TestMethod]
         public void AddDefaultAndCustomExtensions()
         {
             IUnityContainer container = new UnityContainer()
-                .RemoveAllExtensions()
                 .AddExtension(new MyCustomExtension());
 
             object result = container.Resolve<object>();

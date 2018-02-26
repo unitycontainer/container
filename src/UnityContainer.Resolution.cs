@@ -6,7 +6,6 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity
 {
@@ -58,10 +57,7 @@ namespace Unity
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
 
-            BuilderContext context = null;
-            context = new BuilderContext(this, _context, 
-                                        (InternalRegistration)Registration(type, name, true),
-                                        existing, resolverOverrides);
+            var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), existing, resolverOverrides);
 
             if (type.GetTypeInfo().IsGenericTypeDefinition)
             {
@@ -70,7 +66,7 @@ namespace Unity
                                                           type.FullName), nameof(typeToBuild)), context);
             }
 
-            return _builUpPipeline(context);
+            return BuilUpPipeline(context);
         }
 
 
@@ -107,82 +103,6 @@ namespace Unity
             context.BuildComplete = true;
             context.SetPerBuildSingleton();
         }
-
-        #endregion
-
-
-        #region Implementation
-
-
-        /// <summary>
-        /// Retrieves registration for requested named type
-        /// </summary>
-        /// <param name="type">Registration type</param>
-        /// <param name="name">Registration name</param>
-        /// <param name="create">Instruncts container if it should create registration if not found</param>
-        /// <returns>Registration for requested named type or null if named type is not registered and 
-        /// <see cref="create"/> is false</returns>
-        public INamedType Registration(Type type, string name, bool create = false)
-        {
-            var root = this;
-            for (var container = this; null != container; container = container._parent)
-            {
-                root = container;
-
-                IPolicySet data;
-                if (null == (data = container[type, name])) continue;
-
-                return (INamedType)data;
-            }
-
-            if (!create) return null;
-
-            var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % root._registrations.Buckets.Length;
-            lock (root._syncRoot)
-            {
-                for (var i = root._registrations.Buckets[targetBucket]; i >= 0; i = root._registrations.Entries[i].Next)
-                {
-                    if (root._registrations.Entries[i].HashCode != hashCode ||
-                        root._registrations.Entries[i].Key != type)
-                    {
-                        collisions++;
-                        continue;
-                    }
-
-                    var existing = root._registrations.Entries[i].Value;
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry<string, IPolicySet> registry
-                                 ? new HashRegistry<string, IPolicySet>(registry)
-                                 : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
-                                                                                       (LinkedRegistry)existing);
-
-                        root._registrations.Entries[i].Value = existing;
-                    }
-
-                    return (INamedType)existing.GetOrAdd(name, () => CreateRegistration(type, name));
-                }
-
-                if (root._registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
-                {
-                    root._registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(root._registrations);
-                    targetBucket = hashCode % root._registrations.Buckets.Length;
-                }
-
-                var registration = CreateRegistration(type, name);
-                root._registrations.Entries[root._registrations.Count].HashCode = hashCode;
-                root._registrations.Entries[root._registrations.Count].Next = root._registrations.Buckets[targetBucket];
-                root._registrations.Entries[root._registrations.Count].Key = type;
-                root._registrations.Entries[root._registrations.Count].Value = new LinkedRegistry(name, registration);
-                root._registrations.Buckets[targetBucket] = root._registrations.Count;
-                root._registrations.Count++;
-
-                return (INamedType)registration;
-            }
-        }
-
 
         #endregion
     }

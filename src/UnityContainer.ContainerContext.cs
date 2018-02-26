@@ -120,98 +120,20 @@ namespace Unity
             #endregion
 
 
-            #region IContainerContext
-
-            public IContainerContext RegistrationContext(InternalRegistration registration)
-            {
-                return new RegistrationContext(_container, registration);
-            }
-
-            #endregion
-
-
             #region IPolicyList
 
             public virtual void ClearAll()
             {
-                _container._registrations =
-                    new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
             }
 
-            public virtual IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
-            {
-                for (var registry = _container; null != registry; registry = registry._parent)
-                {
-                    IPolicySet data;
-                    if (null == (data = registry[type, name])) continue;
-
-                    list = registry._context;
-                    return data.Get(policyInterface);
-                }
-
-                list = null;
-                return null;
-            }
+            public virtual IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list) 
+                => _container.GetPolicy(type, name, policyInterface, out list);
 
             public virtual void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-            {
-                for (var registry = _container; null != registry; registry = registry._parent)
-                {
-                    IPolicySet data;
-                    if (null == (data = registry[type, name])) continue;
-
-                    data.Set(policyInterface, policy);
-                    return;
-                }
-
-                _container[type, name, policyInterface] = policy;
-            }
+                => _container.SetPolicy(type, name, policyInterface, policy);
 
             public virtual void Clear(Type type, string name, Type policyInterface)
             {
-                throw new NotImplementedException();
-            }
-
-            #endregion
-        }
-
-        private class RegistrationContext : ContainerContext
-        {
-            private readonly InternalRegistration _registration;
-
-            internal RegistrationContext(UnityContainer container, InternalRegistration registration)
-                : base(container)
-            {
-                _registration = registration;
-            }
-
-
-            #region IPolicyList
-
-            public override IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
-            {
-                if (_registration.Type != type || _registration.Name != name)
-                    return base.Get(type, name, policyInterface, out list);
-
-                list = this;
-                return _registration.Get(policyInterface);
-            }
-
-
-            public override void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-            {
-                if (_registration.Type != type || _registration.Name != name)
-                    base.Set(type, name, policyInterface, policy);
-
-                _registration.Set(policyInterface, policy);
-            }
-
-            public override void Clear(Type type, string name, Type policyInterface)
-            {
-                if (_registration.Type != type || _registration.Name != name)
-                    base.Clear(type, name, policyInterface);
-
-                _registration.Clear(policyInterface);
             }
 
             #endregion

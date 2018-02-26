@@ -20,9 +20,9 @@ namespace Unity.Container.Lifetime
     {
         private readonly List<object> _items = new List<object>();
 
-        public LifetimeContainer(IUnityContainer parent = null)
+        public LifetimeContainer(IUnityContainer owner = null)
         {
-            Container = parent;
+            Container = owner;
         }
 
         /// <summary>
@@ -96,34 +96,40 @@ namespace Unity.Container.Lifetime
         /// </param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing) return;
+
+            IDisposable[] disposables;
+
+            lock (_items)
             {
-                lock (_items)
+                disposables = _items.OfType<IDisposable>()
+                                    .Reverse()
+                                    .ToArray();
+                _items.Clear();
+            }
+
+
+            var exceptions = new List<Exception>();
+            foreach (var disposable in disposables)
+            {
+                try
                 {
-                    var exceptions = new List<Exception>();
-                    foreach (var disposable in _items.OfType<IDisposable>().Reverse())
-                    {
-                        try
-                        {
-                            disposable.Dispose();
-                        }
-                        catch (Exception e)
-                        {
-                            exceptions.Add(e);
-                        }
-                    }
-
-                    _items.Clear();
-
-                    if (exceptions.Count == 1)
-                    {
-                        throw exceptions.First();
-                    }
-                    else if (exceptions.Count > 1)
-                    {
-                        throw new AggregateException(exceptions);
-                    }
+                    disposable.Dispose();
                 }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+
+
+            if (exceptions.Count == 1)
+            {
+                throw exceptions.First();
+            }
+            else if (exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
             }
         }
 
@@ -135,7 +141,7 @@ namespace Unity.Container.Lifetime
         /// </returns>
         public IEnumerator<object> GetEnumerator()
         {
-            return _items?.GetEnumerator() ?? throw new InvalidOperationException();
+            return _items.GetEnumerator();
         }
 
         /// <summary>

@@ -9,7 +9,7 @@ namespace Performance
         {
             var container = new UnityContainer();
 
-            var res = container.Resolve<IUnityContainer>();
+            var res = container.Resolve(typeof(IUnityContainer), null, null);
         }
     }
 }

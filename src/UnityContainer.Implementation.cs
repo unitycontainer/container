@@ -28,30 +28,51 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Delegates
+
+        internal delegate IBuilderPolicy GetPolicyDelegate(Type type, string name, Type policyInterface, out IPolicyList list);
+        internal delegate void SetPolicyDelegate(Type type, string name, Type policyInterface, IBuilderPolicy policy);
+        internal delegate void ClearPolicyDelegate(Type type, string name, Type policyInterface);
+
+        #endregion
+
+
         #region Fields
 
         // Container specific
         private readonly UnityContainer _parent;
         internal readonly LifetimeContainer _lifetimeContainer;
-        private readonly List<UnityContainerExtension> _extensions;
-        
+        private List<UnityContainerExtension> _extensions;
+        private UnityContainer _root;
+
         // Policies
-        private readonly IPolicySet _defaultPolicies;
         private readonly ContainerContext _context;
-        
+
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
         private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
-        private Func<IBuilderContext, object> _builUpPipeline;
-        
+
+        // Registrations
+        private readonly object _syncRoot = new object();
+        private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
+
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
-        
+
         // Caches
         internal IStrategyChain _strategyChain;
         internal BuilderStrategy[] _buildChain;
+
+        // Methods
+        private Func<Type, string, bool> IsTypeRegistered;
+        private Func<Type, string, IPolicySet> GetRegistration;
+        private Func<IBuilderContext, object> BuilUpPipeline;
+        private Func<INamedType, IPolicySet> Register;
+        internal GetPolicyDelegate GetPolicy;
+        internal SetPolicyDelegate SetPolicy;
+        internal ClearPolicyDelegate ClearPolicy;
 
         #endregion
 
@@ -59,46 +80,21 @@ namespace Unity
         #region Constructors
 
         /// <summary>
-        /// Create a <see cref="Unity.UnityContainer"/> with the given parent container.
+        /// Create a default <see cref="UnityContainer"/>.
         /// </summary>
-        /// <param name="parent">The parent <see cref="Unity.UnityContainer"/>. The current object
-        /// will apply its own settings first, and then check the parent for additional ones.</param>
-        private UnityContainer(UnityContainer parent)
+        public UnityContainer()
         {
-            // Parent
-            _parent = parent;
-            _parent?._lifetimeContainer.Add(this);
-
-            // Strategies
-            _strategies = _parent?._strategies;
-            _buildPlanStrategies = _parent?._buildPlanStrategies;
-            _strategyChain = _parent?._strategyChain;
-            _buildChain = _parent?._buildChain;
-            _builUpPipeline = _parent?._builUpPipeline ?? ThrowingBuildUp;
+            _root = this;
 
             // Lifetime
             _lifetimeContainer = new LifetimeContainer(this);
 
-            // Default Policies
-            if (null == _parent) InitializeRootContainer();
-            _defaultPolicies = parent?._defaultPolicies ?? GetDefaultPolicies();
-            this[null, null] = _defaultPolicies;
+            // Registrations
+            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
 
             // Context and policies
-            _extensions = new List<UnityContainerExtension>();
             _context = new ContainerContext(this);
 
-            // Caches
-            _strategies.Invalidated += OnStrategiesChanged;
-        }
-
-        #endregion
-
-
-        #region Defaults
-
-        protected void InitializeRootContainer()
-        {
             // Initialize strategies
             _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
             _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>();
@@ -115,34 +111,86 @@ namespace Unity
             _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
             _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
 
-            // Special Cases
-            this[null, null] = _defaultPolicies;
-            this[typeof(Func<>), string.Empty, typeof(ILifetimePolicy)]         = new PerResolveLifetimeManager();
-            this[typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy)]        = new DeferredResolveCreatorPolicy();
-            this[typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = new GenericLazyBuildPlanCreatorPolicy();
-            this[typeof(Array),  string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
-                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)), 
-                                                        context => context.OriginalBuildKey.Type.GetElementType());
-            this[typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy)] = 
+            // Default Policies
+            Set( null, null, GetDefaultPolicies()); 
+            Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
+            Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
+            Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
+            Set(typeof(Array), string.Empty, typeof(IBuildPlanCreatorPolicy),
+                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
+                                                        context => context.OriginalBuildKey.Type.GetElementType()));
+            Set(typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy),
                 new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
-                                                        context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First());
+                                                        context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First()));
             // Caches
             _strategyChain = new StrategyChain(_strategies);
             _buildChain = _strategies.ToArray();
+            _strategies.Invalidated += OnStrategiesChanged;
+
+            // Methods
+            BuilUpPipeline = ThrowingBuildUp;
+            IsTypeRegistered = (type, name) => null != Get(type, name);
+            GetRegistration = GetOrAdd;
+            Register = AddOrUpdate;
+            GetPolicy = Get;
+            SetPolicy = Set;
+            ClearPolicy = Clear;
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
 
+        /// <summary>
+        /// Create a <see cref="Unity.UnityContainer"/> with the given parent container.
+        /// </summary>
+        /// <param name="parent">The parent <see cref="Unity.UnityContainer"/>. The current object
+        /// will apply its own settings first, and then check the parent for additional ones.</param>
+        private UnityContainer(UnityContainer parent)
+        {
+            _root = parent._root;
+
+            // Lifetime
+            _lifetimeContainer = new LifetimeContainer(this);
+
+            // Context and policies
+            _context = new ContainerContext(this);
+
+            // Parent
+            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            _parent._lifetimeContainer.Add(this);
+
+            // Strategies
+            _strategies = _parent._strategies;
+            _buildPlanStrategies = _parent._buildPlanStrategies;
+            _strategyChain = _parent._strategyChain;
+            _buildChain = _parent._buildChain;
+
+            // Caches
+            _strategies.Invalidated += OnStrategiesChanged;
+
+            // Methods
+            BuilUpPipeline = _parent.BuilUpPipeline;
+            IsTypeRegistered = _parent.IsTypeRegistered;
+            GetRegistration = _parent.GetRegistration;
+            Register = CreateAndSetOrUpdate;
+            GetPolicy = parent.GetPolicy;
+            SetPolicy = CreateAndSetPolicy;
+            ClearPolicy = delegate { };
+        }
+
+        #endregion
+
+
+        #region Defaults
 
         private IPolicySet GetDefaultPolicies()
         {
             var defaults = new InternalRegistration(null, null);
 
             defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelectorPolicy());
-            defaults.Set(typeof(IPropertySelectorPolicy),    new DefaultUnityPropertySelectorPolicy());
-            defaults.Set(typeof(IMethodSelectorPolicy),      new DefaultUnityMethodSelectorPolicy());
-            defaults.Set(typeof(IBuildPlanCreatorPolicy),    new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+            defaults.Set(typeof(IPropertySelectorPolicy), new DefaultUnityPropertySelectorPolicy());
+            defaults.Set(typeof(IMethodSelectorPolicy), new DefaultUnityMethodSelectorPolicy());
+            defaults.Set(typeof(IBuildPlanCreatorPolicy), new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
 
             return defaults;
         }
@@ -151,6 +199,39 @@ namespace Unity
 
 
         #region Implementation
+
+        private void CreateAndSetPolicy(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        {
+            lock (GetRegistration)
+            {
+                if (null == _registrations)
+                    SetupChildContainerBehaviors();
+            }
+
+            Set(type, name, policyInterface, policy);
+        }
+
+        private IPolicySet CreateAndSetOrUpdate(INamedType registration)
+        {
+            lock (GetRegistration)
+            {
+                if (null == _registrations)
+                    SetupChildContainerBehaviors();
+            }
+
+            return AddOrUpdate(registration);
+        }
+
+        private void SetupChildContainerBehaviors()
+        {
+            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
+            IsTypeRegistered = (type, name) => null != Get(type, name);
+            GetRegistration = (type, name) => Get(type, name) ?? _parent.GetRegistration(type, name);
+            Register = AddOrUpdate;
+            GetPolicy = Get;
+            SetPolicy = Set;
+            ClearPolicy = Clear;
+        }
 
         private static object ThrowingBuildUp(IBuilderContext context)
         {
@@ -171,7 +252,7 @@ namespace Unity
             catch (Exception ex)
             {
                 context.RequiresRecovery?.Recover();
-                throw new ResolutionFailedException(context.OriginalBuildKey.Type, 
+                throw new ResolutionFailedException(context.OriginalBuildKey.Type,
                                                     context.OriginalBuildKey.Name, ex, context);
             }
 
@@ -218,13 +299,56 @@ namespace Unity
             return new InternalRegistration(type, name);
         }
 
-        private UnityContainer GetRootContainer()
+        #endregion
+
+
+        #region Nested Types
+
+        private class RegistrationContext : IPolicyList
         {
-            UnityContainer container;
+            private readonly InternalRegistration _registration;
+            private readonly UnityContainer _container;
 
-            for (container = this; container._parent != null; container = container._parent) ;
+            internal RegistrationContext(UnityContainer container, InternalRegistration registration)
+            {
+                _registration = registration;
+                _container = container;
+            }
 
-            return container;
+
+            #region IPolicyList
+
+            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            {
+                if (_registration.Type != type || _registration.Name != name)
+                    return _container.GetPolicy(type, name, policyInterface, out list);
+
+                list = this;
+                return _registration.Get(policyInterface);
+            }
+
+
+            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            {
+                if (_registration.Type != type || _registration.Name != name)
+                    _container.SetPolicy(type, name, policyInterface, policy);
+
+                _registration.Set(policyInterface, policy);
+            }
+
+            public void Clear(Type type, string name, Type policyInterface)
+            {
+                if (_registration.Type != type || _registration.Name != name)
+                    _container.ClearPolicy(type, name, policyInterface);
+
+                _registration.Clear(policyInterface);
+            }
+
+            public void ClearAll()
+            {
+            }
+
+            #endregion
         }
 
         #endregion

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Unity.Builder.Strategy;
 using Unity.Container;
@@ -16,11 +17,11 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
+    [DebuggerDisplay("Resolving: {OriginalBuildKey.Type},  Name: {OriginalBuildKey.Name}")]
     public class BuilderContext : IBuilderContext, IPolicyList
     {
         #region Fields
 
-        private readonly IPolicyList _policies;
         private readonly IStrategyChain _chain;
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
@@ -30,12 +31,11 @@ namespace Unity.Builder
 
         #region Constructors
 
-        public BuilderContext(UnityContainer container, IPolicyList policies, InternalRegistration registration, 
+        public BuilderContext(UnityContainer container, InternalRegistration registration, 
                               object existing, params ResolverOverride[] resolverOverrides)
         {
             _container = container;
             _chain = _container._strategyChain;
-            _policies = policies;
 
             Existing = existing;
             OriginalBuildKey = registration;
@@ -55,7 +55,6 @@ namespace Unity.Builder
         public BuilderContext(IBuilderContext original, IEnumerable<BuilderStrategy> chain, object existing)
         {
             _container = ((BuilderContext)original)._container;
-            _policies = ((BuilderContext)original)._policies;
             _chain = new StrategyChain(chain);
             BuildChain = chain.ToArray();
             ParentContext = original;
@@ -73,7 +72,6 @@ namespace Unity.Builder
             var parent = (BuilderContext)original;
 
             _container = parent._container;
-            _policies = parent._policies;
             _chain = parent._chain;
             _resolverOverrides = parent._resolverOverrides;
             _ownsOverrides = false;
@@ -243,7 +241,7 @@ namespace Unity.Builder
             list = null;
 
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
-                return _policies.Get(type, name, policyInterface, out list);
+                return _container.GetPolicy(type, name, policyInterface, out list);
 
             var result = ((IPolicySet)OriginalBuildKey).Get(policyInterface);
             if (null != result) list = this;
@@ -254,7 +252,7 @@ namespace Unity.Builder
         void IPolicyList.Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
-                _policies.Set(type, name, policyInterface, policy);
+                _container.SetPolicy(type, name, policyInterface, policy);
 
             ((IPolicySet)OriginalBuildKey).Set(policyInterface, policy);
         }
@@ -262,7 +260,7 @@ namespace Unity.Builder
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
-                _policies.Clear(type, name, policyInterface);
+                _container.ClearPolicy(type, name, policyInterface);
 
             ((IPolicySet)OriginalBuildKey).Clear(policyInterface);
         }

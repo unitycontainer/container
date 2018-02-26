@@ -2,30 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Builder.Strategy;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer : IUnityContainer
     {
-        #region Public Constructor
-
-        /// <summary>
-        /// Create a default <see cref="UnityContainer"/>.
-        /// </summary>
-        public UnityContainer()
-            : this(null)
-        {
-        }
-
-        #endregion
-
-
         #region Extension Management
 
         /// <summary>
@@ -35,7 +19,13 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer AddExtension(UnityContainerExtension extension)
         {
-            _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
+            lock (_lifetimeContainer)
+            {
+                if (null == _extensions)
+                    _extensions = new List<UnityContainerExtension>();
+
+                _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
+            }
             extension.InitializeExtension(_context);
 
             return this;
@@ -52,47 +42,9 @@ namespace Unity
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
         public object Configure(Type configurationInterface)
         {
-            return _extensions.FirstOrDefault(ex => configurationInterface.GetTypeInfo()
-                              .IsAssignableFrom(ex.GetType().GetTypeInfo()));
-        }
-
-        /// <summary>
-        /// Remove all installed extensions typeFrom this container.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method removes all extensions typeFrom the container, including the default ones
-        /// that implement the out-of-the-box behavior. After this method, if you want to use
-        /// the container again you will need to either read the default extensions or replace
-        /// them with your own.
-        /// </para>
-        /// <para>
-        /// The registered instances and singletons that have already been set up in this container
-        /// do not get removed.
-        /// </para>
-        /// </remarks>
-        /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RemoveAllExtensions()
-        {
-            var toRemove = new List<UnityContainerExtension>(_extensions);
-            toRemove.Reverse();
-            foreach (UnityContainerExtension extension in toRemove)
-            {
-                extension.Remove();
-                (extension as IDisposable)?.Dispose();
-            }
-
-            _extensions.Clear();
-
-            // Reset our policies, strategies, and registered names to reset to "zero"
-            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(_parent?._strategies);
-
-            _context.ClearAll();
-
-            if (null == _parent)
-                InitializeRootContainer();
-
-            return this;
+            return _extensions?.FirstOrDefault(ex => configurationInterface.GetTypeInfo()
+                                                                          .IsAssignableFrom(ex.GetType()
+                                                                          .GetTypeInfo()));
         }
 
         #endregion
@@ -148,20 +100,22 @@ namespace Unity
         /// method, false if being called typeFrom a finalizer.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing) return;
+
+            var exceptions = new List<Exception>();
+
+            try
             {
-                var exceptions = new List<Exception>();
+                _parent?._lifetimeContainer.Remove(this);
+                _lifetimeContainer.Dispose();
+            }
+            catch (Exception e)
+            {
+                exceptions.Add(e);
+            }
 
-                try
-                {
-                    _parent?._lifetimeContainer?.Remove(this);
-                    _lifetimeContainer?.Dispose();
-                }
-                catch (Exception e)
-                {
-                    exceptions.Add(e);
-                }
-
+            if (null != _extensions)
+            {
                 foreach (IDisposable disposable in _extensions.OfType<IDisposable>().ToArray())
                 {
                     try
@@ -174,17 +128,18 @@ namespace Unity
                     }
                 }
 
-                _extensions.Clear();
-                _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(1);
+                _extensions = null;
+            }
 
-                if (exceptions.Count == 1)
-                {
-                    throw exceptions.First();
-                }
-                else if (exceptions.Count > 1)
-                {
-                    throw new AggregateException(exceptions);
-                }
+            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(1);
+
+            if (exceptions.Count == 1)
+            {
+                throw exceptions.First();
+            }
+            else if (exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
             }
         }
 
