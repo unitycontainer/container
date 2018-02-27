@@ -48,26 +48,11 @@ namespace Unity.Registration
 
         public virtual void Set(Type policyInterface, IBuilderPolicy policy)
         {
-            LinkedNode<Type, IBuilderPolicy> node;
-            LinkedNode<Type, IBuilderPolicy> last = null;
-
-            for (node = this; node != null; node = node.Next)
-            {
-                if (node.Key == policyInterface)
-                {
-                    // Found it
-                    node.Value = policy;
-                    return;
-                }
-
-                last = node;
-            }
-
-            // Not found, so add a new one
-            last.Next = new LinkedNode<Type, IBuilderPolicy>
+            Next = new LinkedNode<Type, IBuilderPolicy>
             {
                 Key = policyInterface,
-                Value = policy
+                Value = policy,
+                Next = Next
             };
         }
 
@@ -92,7 +77,6 @@ namespace Unity.Registration
                         last.Value = node.Next?.Value;
                         last.Next = node.Next?.Next;
                     }
-                    return;
                 }
                 
                 last = node;
