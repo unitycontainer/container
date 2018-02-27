@@ -111,8 +111,8 @@ namespace Unity
             _lifetimeContainer.Add(_buildPlanStrategies);
 
             // Main strategy chain
-            _strategies.Add(new ArrayResolveStrategy(), UnityBuildStage.Enumerable);
-            _strategies.Add(new EnumerableStrategy(), UnityBuildStage.Enumerable);
+            _strategies.Add(new ArrayResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray))), UnityBuildStage.Enumerable);
+            _strategies.Add(new EnumerableResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable))), UnityBuildStage.Enumerable);
             _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
             _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
             _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
