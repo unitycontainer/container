@@ -295,9 +295,15 @@ namespace Unity
         private IPolicySet CreateRegistration(Type type, string name)
         {
             var registration = new InternalRegistration(type, name);
+            var chain = new List<BuilderStrategy>();
 
-            registration.BuildChain = _strategies.Where(s => s.RequiredToBuildType(this, registration, null))
-                                                 .ToArray();
+            foreach (var strategy in _strategies)
+            {
+                if (strategy.RequiredToBuildType(this, registration, null))
+                    chain.Add(strategy);
+            }
+
+            registration.BuildChain = chain;
             return registration;
         }
 
