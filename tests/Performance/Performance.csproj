@@ -20,5 +20,14 @@
   <ItemGroup Condition="!Exists('$(UnityAbstractions)')">
     <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\" />
+    <Folder Include="Tests\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.12" />
+  </ItemGroup>
   
 </Project>
