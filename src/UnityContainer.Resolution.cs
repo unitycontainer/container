@@ -83,8 +83,6 @@ namespace Unity
 
         private static void ResolveArray<T>(IBuilderContext context)
         {
-            if (null != context.Existing) return;
-
             var container = (UnityContainer)context.Container;
             context.Existing = container.GetRegisteredNames(container, typeof(T))
                 .Where(registration => null != registration)
@@ -98,8 +96,6 @@ namespace Unity
 
         private static void ResolveEnumerable<T>(IBuilderContext context)
         {
-            if (null != context.Existing) return;
-
             var container = (UnityContainer)context.Container;
             context.Existing = container.GetRegisteredNames(container, typeof(T))
                 .Select(registration => context.NewBuildUp(typeof(T), registration))
