@@ -377,19 +377,18 @@ namespace Unity
         
         private IPolicySet CreateRegistration(Type type, string name)
         {
-            var registration = new InternalRegistration(type, name)
-            {
-                BuildChain = new List<BuilderStrategy>()
-            };
-
+            var registration = new InternalRegistration(type, name);
+            var chain = new List<BuilderStrategy>();
             var strategies = _buildChain;
+
             for (var i = 0; i < strategies.Length; i++)
             {
                 var strategy = strategies[i];
                 if (strategy.RequiredToBuildType(this, registration, null))
-                    registration.BuildChain.Add(strategy);
+                    chain.Add(strategy);
             }
 
+            registration.BuildChain = chain;
             return registration;
         }
 
