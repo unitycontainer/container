@@ -25,7 +25,7 @@ namespace Unity.Builder
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
         UnityContainer _container;
-// TODO:        LinkedNode<Type, IBuilderPolicy> _registration;
+        LinkedNode<Type, IBuilderPolicy> _next;
 
         #endregion
 
@@ -36,6 +36,7 @@ namespace Unity.Builder
         {
             _container = container;
             _chain = _container._strategyChain;
+            _next = registration;
 
             Existing = existing;
             Registration = registration;
@@ -179,18 +180,33 @@ namespace Unity.Builder
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 return _container.GetPolicy(type, name, policyInterface, out list);
 
-            var result = ((IPolicySet)OriginalBuildKey).Get(policyInterface);
-            if (null != result) list = this;
+            for (var node = _next; node != null; node = node.Next)
+            {
+                if (node.Key == policyInterface)
+                {
+                    list = this;
+                    return node.Value;
+                }
+            }
 
-            return result;
+            return null;
         }
 
         void IPolicyList.Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+            {
                 _container.SetPolicy(type, name, policyInterface, policy);
-
-            ((IPolicySet)OriginalBuildKey).Set(policyInterface, policy);
+            }
+            else
+            {
+                _next = new LinkedNode<Type, IBuilderPolicy>()
+                {
+                    Key = policyInterface,
+                    Value = policy,
+                    Next = _next
+                };
+            }
         }
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
