@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -30,7 +31,7 @@ namespace Unity.Registration
 
         #endregion
 
-        public virtual BuilderStrategy[] BuildChain { get; set; }
+        public virtual IList<BuilderStrategy> BuildChain { get; set; }
 
 
         #region IPolicySet
