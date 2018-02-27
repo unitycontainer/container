@@ -291,6 +291,90 @@ namespace Unity
             return assignmentInstanceType;
         }
 
+        private static ReverseHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
+        {
+            ReverseHashSet<InternalRegistration> set;
+
+            if (null != container._parent)
+                set = GetNamedRegistrations(container._parent, type);
+            else
+                set = new ReverseHashSet<InternalRegistration>();
+
+            if (null == container._registrations) return set;
+
+            var registrations = container.Get(type);
+            if (null != registrations && null != registrations.Values)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration &&
+                        !string.IsNullOrEmpty(registration.Name))
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+
+            if (generic != type)
+            {
+                registrations = container.Get(generic);
+                if (null != registrations && null != registrations.Values)
+                {
+                    var registry = registrations.Values;
+                    foreach (var entry in registry)
+                    {
+                        if (entry is IContainerRegistration registration &&
+                            !string.IsNullOrEmpty(registration.Name))
+                            set.Add((InternalRegistration)registration);
+                    }
+                }
+            }
+
+            return set;
+        }
+
+        private static ReverseHashSet<InternalRegistration> GetNotEmptyRegistrations(UnityContainer container, Type type)
+        {
+            ReverseHashSet<InternalRegistration> set;
+
+            if (null != container._parent)
+                set = GetNotEmptyRegistrations(container._parent, type);
+            else
+                set = new ReverseHashSet<InternalRegistration>();
+
+            if (null == container._registrations) return set;
+
+            var registrations = container.Get(type);
+            if (null != registrations && null != registrations.Values)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+
+            if (generic != type)
+            {
+                registrations = container.Get(generic);
+                if (null != registrations && null != registrations.Values)
+                {
+                    var registry = registrations.Values;
+                    foreach (var entry in registry)
+                    {
+                        if (entry is IContainerRegistration registration && string.Empty != registration.Name)
+                            set.Add((InternalRegistration)registration);
+                    }
+                }
+            }
+
+            return set;
+        }
+        
         private IPolicySet CreateRegistration(Type type, string name)
         {
             var registration = new InternalRegistration(type, name);
