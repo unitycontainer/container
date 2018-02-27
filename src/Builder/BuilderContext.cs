@@ -140,9 +140,31 @@ namespace Unity.Builder
         public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
         {
             ChildContext = new BuilderContext(this, type, name);
-
             childCustomizationBlock?.Invoke(ChildContext);
-            var result = ChildContext.Strategies.ExecuteBuildUp(ChildContext);
+
+            var i = -1;
+            var chain = ChildContext.BuildChain;
+
+            try
+            {
+                for (i = 0; i < chain.Length; i++)
+                {
+                    chain[i].PreBuildUp(ChildContext);
+                    if (ChildContext.BuildComplete) break;
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ChildContext);
+                }
+            }
+            catch (Exception)
+            {
+                ChildContext.RequiresRecovery?.Recover();
+                throw;
+            }
+
+            var result = ChildContext.Existing;
             ChildContext = null;
 
             return result;
