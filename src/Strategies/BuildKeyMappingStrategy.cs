@@ -1,13 +1,10 @@
-using System;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Policy.Mapping;
 using Unity.Registration;
-using Unity.Strategy;
 
 namespace Unity.Strategies
 {
@@ -49,6 +46,7 @@ namespace Unity.Strategies
         public override void PostBuildUp(IBuilderContext context)
         {
             if (context.Registration is InternalRegistration registration && 
+                null != registration.BuildChain &&
                 null != context.Registration.Get<IBuildPlanPolicy>())
             {
                 registration.BuildChain = registration.BuildChain
@@ -62,10 +60,23 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RegisterType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
-            var registration = (ContainerRegistration)namedType;
+            switch (namedType)
+            {
+                case ContainerRegistration registration:
+                    return AnalysStaticRegistration(container, registration, injectionMembers);
 
+                case InternalRegistration registration:
+                    return AnalysDynamicRegistration(container, registration);
+
+                default:
+                    return false;
+            }
+        }
+
+        private bool AnalysStaticRegistration(IUnityContainer container, ContainerRegistration registration, params InjectionMember[] injectionMembers)
+        {
             // Validate imput
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
 
@@ -74,7 +85,7 @@ namespace Unity.Strategies
                 (null == injectionMembers ? false : injectionMembers.Any(m => m.BuildRequired));
 
             // Set mapping policy
-            var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition && 
+            var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
                          registration.MappedToType.GetTypeInfo().IsGenericTypeDefinition
                        ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired)
                        : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired);
@@ -82,6 +93,12 @@ namespace Unity.Strategies
 
             return true;
         }
+
+        private bool AnalysDynamicRegistration(IUnityContainer container, InternalRegistration registration)
+        {
+            return registration.Type.GetTypeInfo().IsGenericType;
+        }
+
 
         #endregion
     }

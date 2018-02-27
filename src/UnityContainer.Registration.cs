@@ -80,7 +80,7 @@ namespace Unity
             }
 
             // Register policies for each strategy
-            registration.BuildChain = _strategies.Where(s => s.RegisterType(this, registration, injectionMembers))
+            registration.BuildChain = _strategies.Where(s => s.RequiredToBuildType(this, registration, injectionMembers))
                                                  .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, 
@@ -143,7 +143,7 @@ namespace Unity
                 container._lifetimeContainer.Add(manager);
 
             // Register Build strategies
-            registration.BuildChain = _strategies.Where(s => s.RegisterInstance(this, registration))
+            registration.BuildChain = _strategies.Where(s => s.RequiredToResolveInstance(this, registration))
                                                  .ToArray();
             // Raise event
             container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registration.RegisteredType, instance,
@@ -327,7 +327,8 @@ namespace Unity
                     continue;
                 }
 
-                return _registrations.Entries[i].Value?[name];
+                var policy = _registrations.Entries[i].Value?[name];
+                if (null != policy) return policy; 
             }
 
             lock (_syncRoot)
@@ -495,7 +496,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    existing.GetOrAdd(name, () => CreateRegistration(type, name)).Set(policyInterface, policy);
+                    existing.GetOrAdd(name, () => new InternalRegistration(type, name)).Set(policyInterface, policy);
                     return;
                 }
 
@@ -505,7 +506,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
+                var registration = new InternalRegistration(type, name);
                 registration.Set(policyInterface, policy);
 
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;

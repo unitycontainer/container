@@ -29,16 +29,14 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(IBuilderContext context)
         {
-            // TODO: if (null != context.Existing) return;
-
-            ILifetimePolicy policy = (ILifetimePolicy)context.Get(context.OriginalBuildKey.Type, 
+            ILifetimePolicy policy = (ILifetimePolicy)context.Policies.Get(context.OriginalBuildKey.Type, 
                                                                   context.OriginalBuildKey.Name, 
                                                                   typeof(ILifetimePolicy), out _);
             if (null == policy)
             {
                 if (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
                 {
-                    policy = (ILifetimePolicy)context.Get(context.BuildKey.Type.GetGenericTypeDefinition(),
+                    policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(),
                                                           context.BuildKey.Name, typeof(ILifetimePolicy), out _);
                     if (policy is ILifetimeFactoryPolicy factoryPolicy)
                     {
@@ -88,19 +86,30 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RegisterType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
-            if (registration is IPolicySet set)
+            switch (namedType)
             {
-                var policy = set.Get(typeof(ILifetimePolicy));
-                if (policy is TransientLifetimeManager)
+                // Static registration
+                case ContainerRegistration registration:    
+
+                    if (null == registration.LifetimeManager || 
+                        registration.LifetimeManager is TransientLifetimeManager)
+                        return false;
+
+                    return true;
+
+                // Dynamic registration
+                case InternalRegistration registration:
+                    return (registration.Type.GetTypeInfo().IsGenericType) 
+                        ? true : false;
+
+                default:
                     return false;
             }
-
-            return true;
         }
 
-        public override bool RegisterInstance(IUnityContainer container, INamedType registration)
+        public override bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
         {
             return true;
         }

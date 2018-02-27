@@ -77,8 +77,6 @@ namespace Unity
         #endregion
 
 
-        private static BuilderStrategy[] _unregisteredBuildChain = new[] { new BuildPlanStrategy() };
-
         #region Constructors
 
         /// <summary>
@@ -96,6 +94,15 @@ namespace Unity
 
             // Context and policies
             _context = new ContainerContext(this);
+
+            // Methods
+            BuilUpPipeline = ThrowingBuildUp;
+            IsTypeRegistered = (type, name) => null != Get(type, name);
+            GetRegistration = GetOrAdd;
+            Register = AddOrUpdate;
+            GetPolicy = Get;
+            SetPolicy = Set;
+            ClearPolicy = Clear;
 
             // Initialize strategies
             _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
@@ -129,15 +136,6 @@ namespace Unity
             _buildChain = _strategies.ToArray();
             _strategies.Invalidated += OnStrategiesChanged;
 
-            // Methods
-            BuilUpPipeline = ThrowingBuildUp;
-            IsTypeRegistered = (type, name) => null != Get(type, name);
-            GetRegistration = GetOrAdd;
-            Register = AddOrUpdate;
-            GetPolicy = Get;
-            SetPolicy = Set;
-            ClearPolicy = Clear;
-
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
@@ -149,8 +147,6 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
-            _root = parent._root;
-
             // Lifetime
             _lifetimeContainer = new LifetimeContainer(this);
 
@@ -160,15 +156,7 @@ namespace Unity
             // Parent
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _parent._lifetimeContainer.Add(this);
-
-            // Strategies
-            _strategies = _parent._strategies;
-            _buildPlanStrategies = _parent._buildPlanStrategies;
-            _strategyChain = _parent._strategyChain;
-            _buildChain = _parent._buildChain;
-
-            // Caches
-            _strategies.Invalidated += OnStrategiesChanged;
+            _root = _parent._root;
 
             // Methods
             BuilUpPipeline = _parent.BuilUpPipeline;
@@ -178,6 +166,15 @@ namespace Unity
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
+
+            // Strategies
+            _strategies = _parent._strategies;
+            _buildPlanStrategies = _parent._buildPlanStrategies;
+            _strategyChain = _parent._strategyChain;
+            _buildChain = _parent._buildChain;
+
+            // Caches
+            _strategies.Invalidated += OnStrategiesChanged;
         }
 
         #endregion
@@ -238,18 +235,19 @@ namespace Unity
         private static object ThrowingBuildUp(IBuilderContext context)
         {
             var i = -1;
+            var chain = context.BuildChain;
 
             try
             {
-                for(i = 0; i < context.BuildChain.Length; i++)
+                for(i = 0; i < chain.Length; i++)
                 {
-                    context.BuildChain[i].PreBuildUp(context);
+                    chain[i].PreBuildUp(context);
                     if (context.BuildComplete) break;
                 }
 
                 while (--i >= 0)
                 {
-                    context.BuildChain[i].PostBuildUp(context);
+                    chain[i].PostBuildUp(context);
                 }
             }
             catch (Exception ex)
@@ -297,12 +295,13 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        private static IPolicySet CreateRegistration(Type type, string name)
+        private IPolicySet CreateRegistration(Type type, string name)
         {
-            return new InternalRegistration(type, name)
-            {
-                BuildChain = _unregisteredBuildChain
-            };
+            var registration = new InternalRegistration(type, name);
+
+            registration.BuildChain = _strategies.Where(s => s.RequiredToBuildType(this, registration, null))
+                                                 .ToArray();
+            return registration;
         }
 
         #endregion
@@ -338,16 +337,16 @@ namespace Unity
             {
                 if (_registration.Type != type || _registration.Name != name)
                     _container.SetPolicy(type, name, policyInterface, policy);
-
-                _registration.Set(policyInterface, policy);
+                else
+                    _registration.Set(policyInterface, policy);
             }
 
             public void Clear(Type type, string name, Type policyInterface)
             {
                 if (_registration.Type != type || _registration.Name != name)
                     _container.ClearPolicy(type, name, policyInterface);
-
-                _registration.Clear(policyInterface);
+                else
+                    _registration.Clear(policyInterface);
             }
 
             public void ClearAll()

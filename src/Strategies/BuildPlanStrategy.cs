@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Strategies
 {
@@ -42,7 +44,23 @@ namespace Unity.Strategies
             }
 
             plan?.BuildUp(context);
-            context.BuildComplete = true;
+        }
+
+        #endregion
+
+
+        #region Registration and Analysis
+
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        {
+            //if (namedType is InternalRegistration registration && registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+            //{
+            //    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+            //                                              Constants.CannotResolveOpenGenericType,
+            //                                              registration.Type.FullName));
+            //}
+
+            return base.RequiredToBuildType(container, namedType, injectionMembers);
         }
 
         #endregion
