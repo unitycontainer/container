@@ -127,12 +127,7 @@ namespace Unity
             Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
             Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
-            Set(typeof(Array), string.Empty, typeof(IBuildPlanCreatorPolicy),
-                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
-                                                        context => context.OriginalBuildKey.Type.GetElementType()));
-            Set(typeof(IEnumerable<>), string.Empty, typeof(IBuildPlanCreatorPolicy),
-                new DelegateBasedBuildPlanCreatorPolicy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
-                                                        context => context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First()));
+
             // Caches
             _strategyChain = new StrategyChain(_strategies);
             _buildChain = _strategies.ToArray();
