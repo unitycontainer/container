@@ -81,28 +81,30 @@ namespace Unity
         internal static void ResolveArray<T>(IBuilderContext context)
         {
             var container = (UnityContainer)context.Container;
-            context.Existing = new List<T>();
+            var list = new List<T>();
 
             var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(T));
             for (var i = 0; i < registrations.Count; i++)
             {
-                ((IList<T>)context.Existing).Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
+                list.Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
             }
 
+            context.Existing = list;
             context.BuildComplete = true;
         }
 
         internal static void ResolveEnumerable<T>(IBuilderContext context)
         {
             var container = (UnityContainer)context.Container;
-            context.Existing = new List<T>();
+            var list = new List<T>();
 
             var registrations = (IList<InternalRegistration>)GetNotEmptyRegistrations(container, typeof(T));
             for (var i = 0; i < registrations.Count; i++)
             {
-                ((IList<T>)context.Existing).Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
+                list.Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
             }
 
+            context.Existing = list;
             context.BuildComplete = true;
         }
 
