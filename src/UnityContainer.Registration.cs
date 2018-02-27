@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -80,8 +79,16 @@ namespace Unity
             }
 
             // Register policies for each strategy
-            registration.BuildChain = _strategies.Where(s => s.RequiredToBuildType(this, registration, injectionMembers))
-                                                 .ToArray();
+            var chain = new List<BuilderStrategy>();
+            var strategies = _buildChain;
+            for (var i = 0; i < strategies.Length; i++)
+            {
+                var strategy = strategies[i];
+                if (strategy.RequiredToBuildType(this, registration, null))
+                    chain.Add(strategy);
+            }
+            registration.BuildChain = chain;
+
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, 
                                                                       registration.MappedToType,
