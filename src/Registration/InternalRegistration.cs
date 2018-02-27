@@ -48,12 +48,20 @@ namespace Unity.Registration
 
         public virtual void Set(Type policyInterface, IBuilderPolicy policy)
         {
-            Next = new LinkedNode<Type, IBuilderPolicy>
+            if (null == Value && null == Key)
             {
-                Key = policyInterface,
-                Value = policy,
-                Next = Next
-            };
+                Key = policyInterface;
+                Value = policy;
+            }
+            else
+            {
+                Next = new LinkedNode<Type, IBuilderPolicy>
+                {
+                    Key = policyInterface,
+                    Value = policy,
+                    Next = Next
+                };
+            }
         }
 
         public virtual void Clear(Type policyInterface)
