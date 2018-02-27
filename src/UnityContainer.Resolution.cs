@@ -1,9 +1,6 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
+using System;
+using System.Collections.Generic;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Registration;
 using Unity.Resolution;
 
@@ -81,29 +78,32 @@ namespace Unity
 
         #region Resolving Enumerables
 
-        private static void ResolveArray<T>(IBuilderContext context)
+        internal static void ResolveArray<T>(IBuilderContext context)
         {
             var container = (UnityContainer)context.Container;
-            context.Existing = container.GetRegisteredNames(container, typeof(T))
-                .Where(registration => null != registration)
-                .Select(registration => context.NewBuildUp(typeof(T), registration))
-                .Cast<T>()
-                .ToArray();
+            context.Existing = new List<T>();
+
+            var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(T));
+            for (var i = 0; i < registrations.Count; i++)
+            {
+                ((IList<T>)context.Existing).Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
+            }
 
             context.BuildComplete = true;
-            context.SetPerBuildSingleton();
         }
 
-        private static void ResolveEnumerable<T>(IBuilderContext context)
+        internal static void ResolveEnumerable<T>(IBuilderContext context)
         {
             var container = (UnityContainer)context.Container;
-            context.Existing = container.GetRegisteredNames(container, typeof(T))
-                .Select(registration => context.NewBuildUp(typeof(T), registration))
-                .Cast<T>()
-                .ToArray();
+            context.Existing = new List<T>();
+
+            var registrations = (IList<InternalRegistration>)GetNotEmptyRegistrations(container, typeof(T));
+            for (var i = 0; i < registrations.Count; i++)
+            {
+                ((IList<T>)context.Existing).Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
+            }
 
             context.BuildComplete = true;
-            context.SetPerBuildSingleton();
         }
 
         #endregion
