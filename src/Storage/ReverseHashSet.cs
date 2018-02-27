@@ -1,13 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Registration;
 using Unity.Utility;
 
 namespace Unity.Storage
 {
-    internal class ReverseHashSet : IEnumerable<IContainerRegistration>
+    internal class ReverseHashSet<T> : IEnumerable<T>, IList<T>
     {
+        private struct Slot
+        {
+            internal int HashCode;      // Lower 31 bits of hash code, 0 if unused
+            internal T Value;
+            internal int Next;          // Index of next entry, 0 if last
+        }
+
         #region Fields
 
         private int[] _buckets;
@@ -29,13 +35,54 @@ namespace Unity.Storage
         #endregion
 
 
+        #region IList<T>
+
+        public int Count => _count;
+
+        public bool IsReadOnly => true;
+
+        public T this[int index] { get => _slots[index].Value; set => throw new NotImplementedException(); }
+
+        public bool Contains(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int IndexOf(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(int index, T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
         #region ReverseHashSet methods
 
         /// <summary>
         /// Add item to this HashSet. Later value replaces previosly set value
         /// </summary>
         /// <param name="item"></param>
-        public void Add(IContainerRegistration item)
+        public void Add(T item)
         {
             var hashCode = item?.GetHashCode() & 0x7FFFFFFF ?? 0 ;
             var bucket = hashCode % _buckets.Length;
@@ -70,14 +117,14 @@ namespace Unity.Storage
             {
                 _buckets[i] = 0;
                 _slots[_count].HashCode = 0;
-                _slots[_count].Value = null;
+                _slots[_count].Value = default(T);
                 _slots[_count].Next = 0;
             }
 
             _count = 0;
         }
 
-        public IEnumerator<IContainerRegistration> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             for(var i = 0; i < _count; i++)
                 yield return _slots[i].Value;
@@ -114,13 +161,5 @@ namespace Unity.Storage
         }
 
         #endregion
-
-        private struct Slot
-        {
-            internal int HashCode;      // Lower 31 bits of hash code, 0 if unused
-            internal IContainerRegistration Value;
-            internal int Next;          // Index of next entry, 0 if last
-        }
     }
-
 }
