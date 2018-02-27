@@ -379,9 +379,11 @@ namespace Unity
         {
             var registration = new InternalRegistration(type, name);
             var chain = new List<BuilderStrategy>();
+            var strategies = _buildChain;
 
-            foreach (var strategy in _strategies)
+            for (var i = 0; i < strategies.Length; i++)
             {
+                var strategy = strategies[i];
                 if (strategy.RequiredToBuildType(this, registration, null))
                     chain.Add(strategy);
             }
