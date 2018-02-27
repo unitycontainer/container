@@ -235,10 +235,9 @@ namespace Unity
 
             try
             {
-                for(i = 0; i < chain.Length; i++)
+                while (!context.BuildComplete && ++i < chain.Count)
                 {
                     chain[i].PreBuildUp(context);
-                    if (context.BuildComplete) break;
                 }
 
                 while (--i >= 0)
