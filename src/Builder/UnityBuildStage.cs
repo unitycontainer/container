@@ -14,6 +14,11 @@ namespace Unity.Builder
         Setup,
 
         /// <summary>
+        /// Stage where Array or IEnumerable is resolved
+        /// </summary>
+        Enumerable,
+
+        /// <summary>
         /// Third stage. lifetime managers are checked here,
         /// and if they're available the rest of the pipeline is skipped.
         /// </summary>
