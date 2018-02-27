@@ -49,23 +49,6 @@ namespace Unity.Strategies
         #endregion
 
 
-        #region Registration and Analysis
-
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
-        {
-            //if (namedType is InternalRegistration registration && registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-            //{
-            //    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-            //                                              Constants.CannotResolveOpenGenericType,
-            //                                              registration.Type.FullName));
-            //}
-
-            return base.RequiredToBuildType(container, namedType, injectionMembers);
-        }
-
-        #endregion
-
-
         #region Implementation
 
         public static TPolicyInterface GetPolicy<TPolicyInterface>(IPolicyList list, INamedType buildKey)
