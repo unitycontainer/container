@@ -44,7 +44,7 @@ namespace Unity.Builder.Strategy
         /// <param name="container">Reference to hositng container</param>
         /// <param name="registration">Reference to registration</param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RegisterType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        public virtual bool RequiredToBuildType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
         {
             return true;
         }
@@ -55,7 +55,7 @@ namespace Unity.Builder.Strategy
         /// <param name="container">Reference to hositng container</param>
         /// <param name="registration">Reference to registration</param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RegisterInstance(IUnityContainer container, INamedType registration)
+        public virtual bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
         {
             return false;
         }
