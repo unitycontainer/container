@@ -94,6 +94,8 @@ namespace Unity
 
             // Context and policies
             _context = new ContainerContext(this);
+            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
+            _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>();
 
             // Methods
             BuilUpPipeline = ThrowingBuildUp;
@@ -104,13 +106,12 @@ namespace Unity
             SetPolicy = Set;
             ClearPolicy = Clear;
 
-            // Initialize strategies
-            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-            _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>();
+            // TODO: Initialize disposables 
             _lifetimeContainer.Add(_strategies);
             _lifetimeContainer.Add(_buildPlanStrategies);
 
             // Main strategy chain
+            _strategies.Add(new EnumerableStrategy(), UnityBuildStage.Enumerable);
             _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
             _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
             _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
