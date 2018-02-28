@@ -37,8 +37,12 @@ namespace Unity.Strategies
 
             if (!policy.RequireBuild && context.Container.IsRegistered(context.BuildKey.Type, context.BuildKey.Name))
             {
-                context.Existing = context.NewBuildUp(context.BuildKey.Type, context.BuildKey.Name);
-                context.BuildComplete = null != context.Existing;
+                context.Registration.Set(typeof(IBuildPlanPolicy), 
+                    new DynamicMethodBuildPlan(c => 
+                    {
+                        c.Existing = context.NewBuildUp(context.BuildKey.Type, context.BuildKey.Name);
+                        c.BuildComplete = null != context.Existing;
+                    }));
             }
         }
 
