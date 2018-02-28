@@ -532,7 +532,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    existing.GetOrAdd(name, () => new InternalRegistration(type, name)).Set(policyInterface, policy);
+                    existing.GetOrAdd(name, () => CreateRegistration(type, name, policyInterface, policy));
                     return;
                 }
 
@@ -542,9 +542,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = new InternalRegistration(type, name);
-                registration.Set(policyInterface, policy);
-
+                var registration = CreateRegistration(type, name, policyInterface, policy);
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;
                 _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                 _registrations.Entries[_registrations.Count].Key = type;
