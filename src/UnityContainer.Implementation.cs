@@ -397,6 +397,13 @@ namespace Unity
             return registration;
         }
 
+        private IPolicySet CreateRegistration(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        {
+            var registration = new InternalRegistration(type, name, policyInterface, policy);
+            registration.BuildChain = GetBuilders(registration);
+            return registration;
+        }
+
         #endregion
 
 
