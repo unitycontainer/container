@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -32,11 +31,6 @@ namespace Unity.Builder
         /// strategies in the chain.
         /// </returns>
         IStrategyChain Strategies { get; }
-
-        /// <summary>
-        /// Set of strategies used for building of this context
-        /// </summary>
-        BuilderStrategy[] BuildChain { get; }
 
         /// <summary>
         /// Gets the <see cref="ILifetimeContainer"/> associated with the build.
@@ -143,50 +137,6 @@ namespace Unity.Builder
     /// </summary>
     public static class BuilderContextExtensions
     {
-
-        /// <summary>
-        /// A convenience method to do a new buildup operation on an existing context. This
-        /// overload allows you to specify extra policies which will be in effect for the duration
-        /// of the build.
-        /// </summary>
-        /// <param name="newBuildKey">Key defining what to build up.</param>
-        /// <param name="childCustomizationBlock">A delegate that takes a <see cref="IBuilderContext"/>. This
-        /// is invoked with the new child context before the build up process starts. This gives callers
-        /// the opportunity to customize the context for the build process.</param>
-        /// <returns>Created object.</returns>
-        public static object NewBuildUp(this IBuilderContext context, INamedType newBuildKey, Action<IBuilderContext> childCustomizationBlock = null)
-        {
-            return (context ?? throw new ArgumentNullException(nameof(context)))
-                .NewBuildUp(newBuildKey?.Type, newBuildKey?.Name, childCustomizationBlock);
-        }
-
-        /// <summary>
-        /// Start a recursive build up operation to retrieve the default
-        /// value for the given <typeparamref name="TResult"/> type.
-        /// </summary>
-        /// <typeparam name="TResult">Type of object to build.</typeparam>
-        /// <param name="context">Parent context.</param>
-        /// <returns>Resulting object.</returns>
-        public static TResult NewBuildUp<TResult>(this IBuilderContext context)
-        {
-            return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
-                .NewBuildUp(typeof(TResult), null, null);
-        }
-
-        /// <summary>
-        /// Start a recursive build up operation to retrieve the named
-        /// implementation for the given <typeparamref name="TResult"/> type.
-        /// </summary>
-        /// <typeparam name="TResult">Type to resolve.</typeparam>
-        /// <param name="context">Parent context.</param>
-        /// <param name="name">Name to resolve with.</param>
-        /// <returns>The resulting object.</returns>
-        public static TResult NewBuildUp<TResult>(this IBuilderContext context, string name)
-        {
-            return (TResult)(context ?? throw new ArgumentNullException(nameof(context)))
-                .NewBuildUp(typeof(TResult), name, null);
-        }
-
         /// <summary>
         /// Add a set of <see cref="ResolverOverride"/>s to the context, specified as a 
         /// variable argument list.
