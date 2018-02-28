@@ -83,8 +83,8 @@ namespace Unity.Strategies
         {
             if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && registration.IsOpenGeneric)
             {
-                throw new ResolutionFailedException(registration.Type, registration.Name, "Unable to resolve open generic type",
-                    new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.CannotResolveOpenGenericType, registration.Type.FullName)));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, 
+                    Constants.CannotResolveOpenGenericType, registration.Type.FullName));
             }
 
             return null;
