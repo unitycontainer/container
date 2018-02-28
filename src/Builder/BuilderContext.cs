@@ -236,23 +236,17 @@ namespace Unity.Builder
 
         void IPolicyList.Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
-            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
-                _container.SetPolicy(type, name, policyInterface, policy);
-
-            if (this == Policies)
-            {
-                var policyList = new Storage.PolicyList(this);
-                policyList.Set(type, name, policyInterface, policy);
-                Policies = policyList;
-            }
+            var policyList = new Storage.PolicyList(this);
+            policyList.Set(type, name, policyInterface, policy);
+            Policies = policyList;
         }
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 _container.ClearPolicy(type, name, policyInterface);
-
-            Registration.Clear(policyInterface);
+            else
+                Registration.Clear(policyInterface);
         }
 
         void IPolicyList.ClearAll()
@@ -281,16 +275,16 @@ namespace Unity.Builder
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 _container.SetPolicy(type, name, policyInterface, policy);
-
-            Registration.Set(policyInterface, policy);
+            else
+                Registration.Set(policyInterface, policy);
         }
 
         void Clear(Type type, string name, Type policyInterface)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 _container.ClearPolicy(type, name, policyInterface);
-
-            Registration.Clear(policyInterface);
+            else
+                Registration.Clear(policyInterface);
         }
 
         void ClearAll()
