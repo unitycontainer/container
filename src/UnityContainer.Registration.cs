@@ -522,6 +522,13 @@ namespace Unity
                     }
 
                     var existing = _registrations.Entries[i].Value;
+                    var policySet = existing[name];
+                    if (null != policySet)
+                    {
+                        policySet.Set(policyInterface, policy);
+                        return;
+                    }
+
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry<string, IPolicySet> registry
