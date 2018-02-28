@@ -122,16 +122,16 @@ namespace Unity
             _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
             _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
 
+            // Caches
+            _strategyChain = new StrategyChain(_strategies);
+            _buildChain = _strategies.ToArray();
+            _strategies.Invalidated += OnStrategiesChanged;
+
             // Default Policies
             Set( null, null, GetDefaultPolicies()); 
             Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
             Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
-
-            // Caches
-            _strategyChain = new StrategyChain(_strategies);
-            _buildChain = _strategies.ToArray();
-            _strategies.Invalidated += OnStrategiesChanged;
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
