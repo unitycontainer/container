@@ -103,21 +103,24 @@ namespace Unity
         {
             if (!disposing) return;
 
-            var exceptions = new List<Exception>();
+            List<Exception> exceptions = null;
 
             try
             {
+                _strategies.Invalidated -= OnStrategiesChanged;
                 _parent?._lifetimeContainer.Remove(this);
                 _lifetimeContainer.Dispose();
             }
             catch (Exception e)
             {
+                if (null == exceptions) exceptions = new List<Exception>();
                 exceptions.Add(e);
             }
 
             if (null != _extensions)
             {
-                foreach (IDisposable disposable in _extensions.OfType<IDisposable>().ToArray())
+                foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
+                                                              .ToList())
                 {
                     try
                     {
@@ -125,6 +128,7 @@ namespace Unity
                     }
                     catch (Exception e)
                     {
+                        if (null == exceptions) exceptions = new List<Exception>();
                         exceptions.Add(e);
                     }
                 }
@@ -134,11 +138,11 @@ namespace Unity
 
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(1);
 
-            if (exceptions.Count == 1)
+            if (null != exceptions && exceptions.Count == 1)
             {
-                throw exceptions.First();
+                throw exceptions[0];
             }
-            else if (exceptions.Count > 1)
+            else if (null != exceptions && exceptions.Count > 1)
             {
                 throw new AggregateException(exceptions);
             }
