@@ -62,7 +62,7 @@ namespace Unity.Tests
         public void ExtensionCanAddStrategy()
         {
             SpyStrategy spy = new SpyStrategy();
-            SpyExtension extension = new SpyExtension(spy, UnityBuildStage.PostInitialization);
+            SpyExtension extension = new SpyExtension(spy, UnityBuildStage.PreCreation);
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);
@@ -79,7 +79,7 @@ namespace Unity.Tests
             SpyPolicy spyPolicy = new SpyPolicy();
 
             SpyExtension extension =
-                new SpyExtension(spy, UnityBuildStage.PostInitialization, spyPolicy, typeof(SpyPolicy));
+                new SpyExtension(spy, UnityBuildStage.PreCreation, spyPolicy, typeof(SpyPolicy));
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);

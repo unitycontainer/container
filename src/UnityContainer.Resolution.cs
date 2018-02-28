@@ -26,8 +26,8 @@ namespace Unity
             // Verify arguments
             var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
-
-            var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), null, resolverOverrides);
+            var registration = GetRegistration(type, name);
+            var context = new BuilderContext(this, (InternalRegistration)registration, null, resolverOverrides);
 
             return BuilUpPipeline(context);
         }
@@ -79,10 +79,15 @@ namespace Unity
             var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(T));
             for (var i = 0; i < registrations.Count; i++)
             {
-                list.Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
+                var registration = registrations[i];
+
+                if (registration.IsOpenGeneric)
+                    list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                else
+                    list.Add((T)((BuilderContext)context).NewBuildUp(registration));
             }
 
-            context.Existing = list;
+            context.Existing = list.ToArray();
             context.BuildComplete = true;
         }
 
@@ -94,7 +99,12 @@ namespace Unity
             var registrations = (IList<InternalRegistration>)GetNotEmptyRegistrations(container, typeof(T));
             for (var i = 0; i < registrations.Count; i++)
             {
-                list.Add((T)((BuilderContext)context).NewBuildUp(registrations[i]));
+                var registration = registrations[i];
+
+                if (registration.IsOpenGeneric)
+                    list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                else
+                    list.Add((T)((BuilderContext)context).NewBuildUp(registration));
             }
 
             context.Existing = list;

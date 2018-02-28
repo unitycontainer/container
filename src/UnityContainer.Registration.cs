@@ -78,13 +78,13 @@ namespace Unity
                 }
             }
 
-            // Register policies for each strategy
+            // Check what strategies to run
             var chain = new List<BuilderStrategy>();
             var strategies = _buildChain;
             for (var i = 0; i < strategies.Length; i++)
             {
                 var strategy = strategies[i];
-                if (strategy.RequiredToBuildType(this, registration, null))
+                if (strategy.RequiredToBuildType(this, registration, injectionMembers))
                     chain.Add(strategy);
             }
             registration.BuildChain = chain;
@@ -149,9 +149,17 @@ namespace Unity
             if (registration.LifetimeManager is IDisposable manager)
                 container._lifetimeContainer.Add(manager);
 
-            // Register Build strategies
-            registration.BuildChain = _strategies.Where(s => s.RequiredToResolveInstance(this, registration))
-                                                 .ToArray();
+            // Check what strategies to run
+            var chain = new List<BuilderStrategy>();
+            var strategies = _buildChain;
+            for (var i = 0; i < strategies.Length; i++)
+            {
+                var strategy = strategies[i];
+                if (strategy.RequiredToResolveInstance(this, registration))
+                    chain.Add(strategy);
+            }
+            registration.BuildChain = chain;
+
             // Raise event
             container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registration.RegisteredType, instance,
                                                                    registration.Name, registration.LifetimeManager));
@@ -178,7 +186,13 @@ namespace Unity
         {
             get
             {
-                return GetRegisteredTypes(this).SelectMany(type => GetRegisteredType(this, type));
+                var types = GetRegisteredTypes(this);
+                foreach (var type in types)
+                {
+                    var registrations = GetRegisteredType(this, type);
+                    foreach (var registration in registrations)
+                        yield return registration;
+                }
             }
         }
 
@@ -189,27 +203,34 @@ namespace Unity
 
             if (null == container._registrations) return set;
 
-            foreach (var type in container._registrations.Keys.Where(t => null != t))
+            var types = container._registrations.Keys;
+            foreach (var type in types)
+            {
+                if (null == type) continue;
                 set.Add(type);
+            }
 
             return set;
         }
 
         private IEnumerable<IContainerRegistration> GetRegisteredType(UnityContainer container, Type type)
         {
-            ReverseHashSet set;
+            MiniHashSet<IContainerRegistration> set;
 
             if (null != container._parent)
-                set = (ReverseHashSet)GetRegisteredType(container._parent, type);
+                set = (MiniHashSet<IContainerRegistration>)GetRegisteredType(container._parent, type);
             else 
-                set = new ReverseHashSet();
+                set = new MiniHashSet<IContainerRegistration>();
 
             if (null == container._registrations) return set;
 
-            foreach (var registration in container.Get(type)?.Values.OfType<IContainerRegistration>()
-                                      ?? Enumerable.Empty<IContainerRegistration>())
+            var section = container.Get(type)?.Values;
+            if (null == section) return set;
+            
+            foreach (var namedType in section)
             {
-                set.Add(registration);
+                if (namedType is IContainerRegistration registration)
+                    set.Add(registration);
             }
 
             return set;
@@ -226,20 +247,28 @@ namespace Unity
 
             if (null == container._registrations) return set;
 
-            foreach (var registration in container.Get(type)?.Values.OfType<IContainerRegistration>()
-                                      ?? Enumerable.Empty<IContainerRegistration>())
+            var section = container.Get(type)?.Values;
+            if (null != section)
             {
-                set.Add(registration.Name);
+                foreach (var namedType in section)
+                {
+                    if (namedType is IContainerRegistration registration)
+                        set.Add(registration.Name);
+                }
             }
 
             var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
 
             if (generic != type)
             {
-                foreach (var registration in container.Get(generic)?.Values.OfType<IContainerRegistration>()
-                                          ?? Enumerable.Empty<IContainerRegistration>())
+                section = container.Get(generic)?.Values;
+                if (null != section)
                 {
-                    set.Add(registration.Name);
+                    foreach (var namedType in section)
+                    {
+                        if (namedType is IContainerRegistration registration)
+                            set.Add(registration.Name);
+                    }
                 }
             }
 

@@ -29,6 +29,11 @@ namespace Microsoft.Practices.Unity.Tests.TestDoubles
             this.UpdateSpyPolicy(context);
         }
 
+        public override void PostBuildUp(IBuilderContext context)
+        {
+            this.existing = context.Existing;
+        }
+
         public IBuilderContext Context
         {
             get { return this.context; }

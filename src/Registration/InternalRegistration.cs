@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Policy;
@@ -8,7 +9,7 @@ using Unity.Storage;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("InternalRegistration( Type: {Type},  Name: {Name} )")]
+    [DebuggerDisplay("InternalRegistration( Type: {Type?.Name},  Name: {Name} )")]
     public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
                                         IPolicySet, 
                                         INamedType
@@ -27,11 +28,15 @@ namespace Unity.Registration
             Name = name;
             Type = type;
             _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
+
+            IsOpenGeneric = null != type && type.GetTypeInfo().IsGenericTypeDefinition;
         }
 
         #endregion
 
         public virtual IList<BuilderStrategy> BuildChain { get; set; }
+
+        public bool IsOpenGeneric { get; }
 
 
         #region IPolicySet

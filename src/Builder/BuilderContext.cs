@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Exceptions;
@@ -25,18 +24,16 @@ namespace Unity.Builder
         private CompositeResolverOverride _resolverOverrides;
         private bool _ownsOverrides;
         UnityContainer _container;
-        LinkedNode<Type, IBuilderPolicy> _next;
 
         #endregion
 
         #region Constructors
 
-        public BuilderContext(UnityContainer container, InternalRegistration registration, 
+        public BuilderContext(UnityContainer container, InternalRegistration registration,
                               object existing, params ResolverOverride[] resolverOverrides)
         {
             _container = container;
             _chain = _container._strategyChain;
-            _next = registration;
 
             Existing = existing;
             Registration = registration;
@@ -65,7 +62,7 @@ namespace Unity.Builder
             _ownsOverrides = true;
         }
 
-        protected BuilderContext(IBuilderContext original, Type type, string name)
+        protected BuilderContext(IBuilderContext original, InternalRegistration registration)
         {
             var parent = (BuilderContext)original;
 
@@ -76,8 +73,25 @@ namespace Unity.Builder
             ParentContext = original;
             Existing = null;
             Policies = parent.Policies;
-            Registration = _container.GetRegistration(type, name);
+            Registration = registration;
             OriginalBuildKey = (INamedType)Registration;
+            BuildKey = OriginalBuildKey;
+        }
+
+        protected BuilderContext(IBuilderContext original, Type type, string name)
+        {
+            var parent = (BuilderContext)original;
+            var registration = (InternalRegistration)parent._container.GetRegistration(type, name);
+
+            _container = parent._container;
+            _chain = parent._chain;
+            _resolverOverrides = parent._resolverOverrides;
+            _ownsOverrides = false;
+            ParentContext = original;
+            Existing = null;
+            Policies = parent.Policies;
+            Registration = registration;
+            OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
         }
 
@@ -90,8 +104,6 @@ namespace Unity.Builder
 
         public IStrategyChain Strategies => _chain;
 
-        public BuilderStrategy[] BuildChain => (OriginalBuildKey as InternalRegistration)?.BuildChain
-                                                                                         ?? _chain.ToArray();
         public INamedType BuildKey { get; set; }
 
         public object Existing { get; set; }
@@ -138,20 +150,50 @@ namespace Unity.Builder
 
         #endregion
 
+        public object NewBuildUp(InternalRegistration registration)
+        {
+            ChildContext = new BuilderContext(this, registration);
+
+            var i = -1;
+            var chain = registration.BuildChain;
+
+            try
+            {
+                while (!ChildContext.BuildComplete && ++i < chain.Count)
+                {
+                    chain[i].PreBuildUp(ChildContext);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ChildContext);
+                }
+            }
+            catch (Exception)
+            {
+                ChildContext.RequiresRecovery?.Recover();
+                throw;
+            }
+
+            var result = ChildContext.Existing;
+            ChildContext = null;
+
+            return result;
+        }
+
         public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
         {
             ChildContext = new BuilderContext(this, type, name);
             childCustomizationBlock?.Invoke(ChildContext);
 
             var i = -1;
-            var chain = ChildContext.BuildChain;
+            var chain = ((InternalRegistration)ChildContext.Registration).BuildChain;
 
             try
             {
-                for (i = 0; i < chain.Length; i++)
+                while (!ChildContext.BuildComplete && ++i < chain.Count)
                 {
                     chain[i].PreBuildUp(ChildContext);
-                    if (ChildContext.BuildComplete) break;
                 }
 
                 while (--i >= 0)
@@ -180,33 +222,18 @@ namespace Unity.Builder
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 return _container.GetPolicy(type, name, policyInterface, out list);
 
-            for (var node = _next; node != null; node = node.Next)
-            {
-                if (node.Key == policyInterface)
-                {
-                    list = this;
-                    return node.Value;
-                }
-            }
+            var result = ((IPolicySet)OriginalBuildKey).Get(policyInterface);
+            if (null != result) list = this;
 
-            return null;
+            return result;
         }
 
         void IPolicyList.Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
-            {
                 _container.SetPolicy(type, name, policyInterface, policy);
-            }
-            else
-            {
-                _next = new LinkedNode<Type, IBuilderPolicy>()
-                {
-                    Key = policyInterface,
-                    Value = policy,
-                    Next = _next
-                };
-            }
+
+            ((IPolicySet)OriginalBuildKey).Set(policyInterface, policy);
         }
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)

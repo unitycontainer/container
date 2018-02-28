@@ -57,7 +57,7 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
-             return namedType is InternalRegistration registration && !(registration is ContainerRegistration) &&
+             return namedType is InternalRegistration registration &&
                     registration.Type.GetTypeInfo().IsGenericType && 
                     typeof(IEnumerable<>) == registration.Type.GetGenericTypeDefinition() 
                 ? true : false;

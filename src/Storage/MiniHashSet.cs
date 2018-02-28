@@ -5,7 +5,7 @@ using Unity.Utility;
 
 namespace Unity.Storage
 {
-    internal class ReverseHashSet<T> : IEnumerable<T>, IList<T>
+    internal class MiniHashSet<T> : IEnumerable<T>, IList<T>
     {
         private struct Slot
         {
@@ -25,7 +25,7 @@ namespace Unity.Storage
 
         #region Constructors
 
-        public ReverseHashSet()
+        public MiniHashSet()
         {
             _count = 0;
             _buckets = new int[37];

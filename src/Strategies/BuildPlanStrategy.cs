@@ -4,7 +4,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
-using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -44,10 +43,31 @@ namespace Unity.Strategies
             }
 
             plan?.BuildUp(context);
-            context.BuildComplete = true;
         }
 
         #endregion
+
+
+        #region Registration and Analysis
+
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        {
+            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && registration.IsOpenGeneric)
+            {
+                throw new ResolutionFailedException(registration.Type, registration.Name, "Unable to resolve open generic type", 
+                    new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.CannotResolveOpenGenericType, registration.Type.FullName)));
+            }
+
+            return true;
+        }
+
+        public override bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
+        {
+            return true;
+        }
+
+        #endregion
+
 
 
         #region Implementation

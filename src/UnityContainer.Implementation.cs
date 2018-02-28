@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -182,10 +183,10 @@ namespace Unity
         {
             var defaults = new InternalRegistration(null, null);
 
+            defaults.Set(typeof(IBuildPlanCreatorPolicy), new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
             defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelectorPolicy());
             defaults.Set(typeof(IPropertySelectorPolicy), new DefaultUnityPropertySelectorPolicy());
             defaults.Set(typeof(IMethodSelectorPolicy), new DefaultUnityMethodSelectorPolicy());
-            defaults.Set(typeof(IBuildPlanCreatorPolicy), new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
 
             return defaults;
         }
@@ -231,7 +232,7 @@ namespace Unity
         private static object ThrowingBuildUp(IBuilderContext context)
         {
             var i = -1;
-            var chain = context.BuildChain;
+            var chain = ((InternalRegistration)context.Registration).BuildChain;
 
             try
             {
@@ -290,14 +291,14 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        private static ReverseHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
+        private static MiniHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
         {
-            ReverseHashSet<InternalRegistration> set;
+            MiniHashSet<InternalRegistration> set;
 
             if (null != container._parent)
                 set = GetNamedRegistrations(container._parent, type);
             else
-                set = new ReverseHashSet<InternalRegistration>();
+                set = new MiniHashSet<InternalRegistration>();
 
             if (null == container._registrations) return set;
 
@@ -333,14 +334,14 @@ namespace Unity
             return set;
         }
 
-        private static ReverseHashSet<InternalRegistration> GetNotEmptyRegistrations(UnityContainer container, Type type)
+        private static MiniHashSet<InternalRegistration> GetNotEmptyRegistrations(UnityContainer container, Type type)
         {
-            ReverseHashSet<InternalRegistration> set;
+            MiniHashSet<InternalRegistration> set;
 
             if (null != container._parent)
                 set = GetNotEmptyRegistrations(container._parent, type);
             else
-                set = new ReverseHashSet<InternalRegistration>();
+                set = new MiniHashSet<InternalRegistration>();
 
             if (null == container._registrations) return set;
 
@@ -373,10 +374,9 @@ namespace Unity
 
             return set;
         }
-        
-        private IPolicySet CreateRegistration(Type type, string name)
+
+        internal IList<BuilderStrategy> GetBuilders(InternalRegistration registration)
         {
-            var registration = new InternalRegistration(type, name);
             var chain = new List<BuilderStrategy>();
             var strategies = _buildChain;
 
@@ -387,7 +387,13 @@ namespace Unity
                     chain.Add(strategy);
             }
 
-            registration.BuildChain = chain;
+            return chain;
+        }
+
+        private IPolicySet CreateRegistration(Type type, string name)
+        {
+            var registration = new InternalRegistration(type, name);
+            registration.BuildChain = GetBuilders(registration);
             return registration;
         }
 
@@ -423,7 +429,7 @@ namespace Unity
             public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
             {
                 if (_registration.Type != type || _registration.Name != name)
-                    _container.SetPolicy(type, name, policyInterface, policy);
+                    _container.GetRegistration(type, name).Set(policyInterface, policy);
                 else
                     _registration.Set(policyInterface, policy);
             }

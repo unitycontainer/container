@@ -55,7 +55,7 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
-            return  namedType is InternalRegistration registration && !(registration is ContainerRegistration) && 
+            return  namedType is InternalRegistration registration && 
                     registration.Type.IsArray && registration.Type.GetArrayRank() == 1
                 ? true : false;
         }
