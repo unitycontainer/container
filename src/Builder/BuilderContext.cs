@@ -225,7 +225,7 @@ namespace Unity.Builder
         {
             list = null;
 
-            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 return _container.GetPolicy(type, name, policyInterface, out list);
 
             var result = Registration.Get(policyInterface);
@@ -242,7 +242,7 @@ namespace Unity.Builder
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
         {
-            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 _container.ClearPolicy(type, name, policyInterface);
             else
                 Registration.Clear(policyInterface);
@@ -261,7 +261,7 @@ namespace Unity.Builder
         {
             list = null;
 
-            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 return _container.GetPolicy(type, name, policyInterface, out list);
 
             var result = Registration.Get(policyInterface);
@@ -280,7 +280,7 @@ namespace Unity.Builder
 
         void Clear(Type type, string name, Type policyInterface)
         {
-            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 _container.ClearPolicy(type, name, policyInterface);
             else
                 Registration.Clear(policyInterface);
