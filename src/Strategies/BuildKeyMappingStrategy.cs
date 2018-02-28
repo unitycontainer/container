@@ -49,9 +49,17 @@ namespace Unity.Strategies
                 null != registration.BuildChain &&
                 null != context.Registration.Get<IBuildPlanPolicy>())
             {
-                registration.BuildChain = registration.BuildChain
-                                                      .Where(strategy => !(strategy is BuildKeyMappingStrategy))
-                                                      .ToArray();
+                var chain = new List<BuilderStrategy>();
+                var strategies = registration.BuildChain;
+
+                for (var i = 0; i < strategies.Count; i++)
+                {
+                    var strategy = strategies[i];
+                    if (!(strategy is BuildKeyMappingStrategy))
+                        chain.Add(strategy);
+                }
+
+                registration.BuildChain = chain;
             }
         }
         
