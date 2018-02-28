@@ -88,25 +88,20 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
-            switch (namedType)
+            if (namedType is InternalRegistration registration)
             {
-                // Static registration
-                case ContainerRegistration registration:    
-
-                    if (null == registration.LifetimeManager || 
-                        registration.LifetimeManager is TransientLifetimeManager)
-                        return false;
-
-                    return true;
+                var policy = registration.Get(typeof(ILifetimePolicy));
+                if (null != policy)
+                {
+                    return policy is TransientLifetimeManager ? false : true;
+                }
 
                 // Dynamic registration
-                case InternalRegistration registration:
-                    return (registration.Type.GetTypeInfo().IsGenericType) 
-                        ? true : false;
-
-                default:
-                    return false;
+                if (!(registration is ContainerRegistration) && registration.Type.GetTypeInfo().IsGenericType)
+                    return true;
             }
+
+            return false;
         }
 
         public override bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
