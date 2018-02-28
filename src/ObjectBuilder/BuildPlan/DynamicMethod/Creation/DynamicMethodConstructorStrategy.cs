@@ -244,7 +244,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             var typeToBuild = context.BuildKey.Type;
             if (!typeToBuild.GetTypeInfo().IsInterface)
             {
-                if (typeToBuild == typeof(string))
+                if (ReferenceEquals(typeToBuild, typeof(string)))
                 {
                     throw new InvalidOperationException(
                         string.Format(
