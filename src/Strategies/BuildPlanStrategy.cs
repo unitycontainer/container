@@ -68,13 +68,6 @@ namespace Unity.Strategies
                        list.Get(newType, string.Empty, policyInterface, out _);
             }
 
-            // Check if array
-            if (buildType.IsArray && buildType.GetArrayRank() == 1)
-            {
-                return list.Get(typeof(Array), buildKey.Name, policyInterface, out _) ??
-                       list.Get(typeof(Array), string.Empty, policyInterface, out _);
-            }
-
             // Check default for type
             return list.Get(buildType, string.Empty, policyInterface, out _);
         }
