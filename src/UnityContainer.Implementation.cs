@@ -256,6 +256,31 @@ namespace Unity
             return context.Existing;
         }
 
+        private static object NotThrowingBuildUp(IBuilderContext context)
+        {
+            var i = -1;
+            var chain = ((InternalRegistration)context.Registration).BuildChain;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Count)
+                {
+                    chain[i].PreBuildUp(context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(context);
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return context.Existing;
+        }
+
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
             _strategyChain = new StrategyChain(_strategies);

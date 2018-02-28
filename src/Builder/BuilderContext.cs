@@ -126,6 +126,8 @@ namespace Unity.Builder
 
         public IBuilderContext ParentContext { get; private set; }
 
+        public IPolicyList PersistentPolicies => this;
+
         public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
         {
             if (null == _resolverOverrides)

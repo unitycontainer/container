@@ -27,7 +27,6 @@ namespace Unity.Registration
         {
             Name = name;
             Type = type;
-            IsOpenGeneric = null != type && type.GetTypeInfo().IsGenericTypeDefinition;
 
             _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
@@ -38,7 +37,6 @@ namespace Unity.Registration
             Type = type;
             Key = policyInterface;
             Value = policy;
-            IsOpenGeneric = null != type && type.GetTypeInfo().IsGenericTypeDefinition;
 
             _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
@@ -46,9 +44,6 @@ namespace Unity.Registration
         #endregion
 
         public virtual IList<BuilderStrategy> BuildChain { get; set; }
-
-        public bool IsOpenGeneric { get; }
-
 
         #region IPolicySet
 

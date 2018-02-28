@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
@@ -81,7 +82,7 @@ namespace Unity
             {
                 var registration = registrations[i];
 
-                if (registration.IsOpenGeneric)
+                if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
                     list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
                 else
                     list.Add((T)((BuilderContext)context).NewBuildUp(registration));
@@ -101,7 +102,7 @@ namespace Unity
             {
                 var registration = registrations[i];
 
-                if (registration.IsOpenGeneric)
+                if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
                     list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
                 else
                     list.Add((T)((BuilderContext)context).NewBuildUp(registration));
