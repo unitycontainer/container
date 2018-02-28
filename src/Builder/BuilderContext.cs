@@ -39,7 +39,7 @@ namespace Unity.Builder
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
-            Policies = new Storage.PolicyList(this);
+            Policies = (IPolicyList)this;
 
             _ownsOverrides = true;
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
@@ -114,7 +114,7 @@ namespace Unity.Builder
 
         public IPolicySet Registration { get; }
 
-        public IPolicyList Policies { get; }
+        public IPolicyList Policies { get; private set; }
 
         public IRequiresRecovery RequiresRecovery { get; set; }
 
@@ -149,6 +149,9 @@ namespace Unity.Builder
         }
 
         #endregion
+
+        
+        #region Build
 
         public object NewBuildUp(InternalRegistration registration)
         {
@@ -213,7 +216,10 @@ namespace Unity.Builder
             return result;
         }
 
-        #region  : IPolicyList
+        #endregion
+
+
+        #region  : Policies
 
         IBuilderPolicy IPolicyList.Get(Type type, string name, Type policyInterface, out IPolicyList list)
         {
@@ -222,7 +228,7 @@ namespace Unity.Builder
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 return _container.GetPolicy(type, name, policyInterface, out list);
 
-            var result = ((IPolicySet)OriginalBuildKey).Get(policyInterface);
+            var result = Registration.Get(policyInterface);
             if (null != result) list = this;
 
             return result;
@@ -233,7 +239,12 @@ namespace Unity.Builder
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 _container.SetPolicy(type, name, policyInterface, policy);
 
-            ((IPolicySet)OriginalBuildKey).Set(policyInterface, policy);
+            if (this == Policies)
+            {
+                var policyList = new Storage.PolicyList(this);
+                policyList.Set(type, name, policyInterface, policy);
+                Policies = policyList;
+            }
         }
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
@@ -241,10 +252,48 @@ namespace Unity.Builder
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 _container.ClearPolicy(type, name, policyInterface);
 
-            ((IPolicySet)OriginalBuildKey).Clear(policyInterface);
+            Registration.Clear(policyInterface);
         }
 
         void IPolicyList.ClearAll()
+        {
+        }
+
+        #endregion
+
+
+        #region Registration
+
+        IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+        {
+            list = null;
+
+            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+                return _container.GetPolicy(type, name, policyInterface, out list);
+
+            var result = Registration.Get(policyInterface);
+            if (null != result) list = this;
+
+            return result;
+        }
+
+        void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        {
+            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+                _container.SetPolicy(type, name, policyInterface, policy);
+
+            Registration.Set(policyInterface, policy);
+        }
+
+        void Clear(Type type, string name, Type policyInterface)
+        {
+            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
+                _container.ClearPolicy(type, name, policyInterface);
+
+            Registration.Clear(policyInterface);
+        }
+
+        void ClearAll()
         {
         }
 
