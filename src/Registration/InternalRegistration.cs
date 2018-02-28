@@ -9,7 +9,7 @@ using Unity.Storage;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("InternalRegistration( Type: {Type?.Name},  Name: {Name} )")]
+    [DebuggerDisplay("InternalRegistration:  Type={Type?.Name},    Name={Name}")]
     public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
                                         IPolicySet, 
                                         INamedType
