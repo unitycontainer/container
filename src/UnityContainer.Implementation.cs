@@ -436,7 +436,7 @@ namespace Unity
             public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
             {
                 if (_registration.Type != type || _registration.Name != name)
-                    _container.GetRegistration(type, name).Set(policyInterface, policy);
+                    _container.SetPolicy(type, name, policyInterface, policy);
                 else
                     _registration.Set(policyInterface, policy);
             }
