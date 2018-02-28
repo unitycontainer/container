@@ -236,9 +236,8 @@ namespace Unity.Builder
 
         void IPolicyList.Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
-            var policyList = new Storage.PolicyList(this);
-            policyList.Set(type, name, policyInterface, policy);
-            Policies = policyList;
+            Policies = new Storage.PolicyList(this);
+            Policies.Set(type, name, policyInterface, policy);
         }
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
