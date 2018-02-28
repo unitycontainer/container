@@ -56,7 +56,7 @@ namespace Unity.Registration
         {
             for (var node = (LinkedNode<Type, IBuilderPolicy>)this; node != null; node = node.Next)
             {
-                if (node.Key == policyInterface)
+                if (ReferenceEquals(node.Key, policyInterface))
                     return node.Value;
             }
 
@@ -88,7 +88,7 @@ namespace Unity.Registration
 
             for (node = this; node != null; node = node.Next)
             {
-                if (node.Key == policyInterface)
+                if (ReferenceEquals(node.Key, policyInterface))
                 {
                     if (null == last)
                     {
@@ -127,7 +127,7 @@ namespace Unity.Registration
         public override bool Equals(object obj)
         {
             return obj is INamedType registration &&
-                   Type == registration.Type &&
+                   ReferenceEquals(Type, registration.Type) &&
                    Name == registration.Name;
         }
 
