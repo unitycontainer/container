@@ -37,7 +37,7 @@ namespace Unity.Builder
         public override bool Equals(object obj)
         {
             return obj is INamedType namedType &&
-                   Type == namedType.Type &&
+                   ReferenceEquals(Type, namedType.Type) &&
                    Name == namedType.Name;
         }
 
