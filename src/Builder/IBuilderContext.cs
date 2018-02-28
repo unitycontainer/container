@@ -58,6 +58,18 @@ namespace Unity.Builder
         /// </summary>
         IPolicySet Registration { get; }
 
+        /// <summary>
+        /// Reference to Lifetime manager which requires recovery
+        /// </summary>
+        IRequiresRecovery RequiresRecovery { get; set; }
+
+        /// <summary>
+        /// The set of policies that were passed into this context.
+        /// </summary>
+        /// <remarks>This returns the policies passed into the context.
+        /// Policies added here will remain after buildup completes.</remarks>
+        /// <value>The persistent policies for the current context.</value>
+        IPolicyList PersistentPolicies { get; }
 
         /// <summary>
         /// Gets the policies for the current context. 
@@ -68,11 +80,6 @@ namespace Unity.Builder
         /// The policies for the current context.
         /// </value>
         IPolicyList Policies { get; }
-
-        /// <summary>
-        /// Reference to Lifetime manager which requires recovery
-        /// </summary>
-        IRequiresRecovery RequiresRecovery { get; set; }
 
         /// <summary>
         /// The current object being built up or torn down.
