@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
@@ -31,7 +31,7 @@ namespace Unity.Strategies
 
             if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
             {
-                var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ??
+                var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? CheckIfOpenGeneric(context.Registration) ??
                     GetPolicy<IBuildPlanCreatorPolicy>(context.Policies, context.BuildKey);
                 if (planCreator != null)
                 {
@@ -46,28 +46,6 @@ namespace Unity.Strategies
         }
 
         #endregion
-
-
-        #region Registration and Analysis
-
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
-        {
-            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && registration.IsOpenGeneric)
-            {
-                throw new ResolutionFailedException(registration.Type, registration.Name, "Unable to resolve open generic type", 
-                    new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.CannotResolveOpenGenericType, registration.Type.FullName)));
-            }
-
-            return true;
-        }
-
-        public override bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
-        {
-            return true;
-        }
-
-        #endregion
-
 
 
         #region Implementation
@@ -99,6 +77,17 @@ namespace Unity.Strategies
 
             // Check default for type
             return list.Get(buildType, string.Empty, policyInterface, out _);
+        }
+
+        private static IBuildPlanCreatorPolicy CheckIfOpenGeneric(IPolicySet namedType)
+        {
+            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && registration.IsOpenGeneric)
+            {
+                throw new ResolutionFailedException(registration.Type, registration.Name, "Unable to resolve open generic type",
+                    new ArgumentException(string.Format(CultureInfo.CurrentCulture, Constants.CannotResolveOpenGenericType, registration.Type.FullName)));
+            }
+
+            return null;
         }
 
         #endregion
