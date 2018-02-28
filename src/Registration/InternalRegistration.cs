@@ -27,9 +27,20 @@ namespace Unity.Registration
         {
             Name = name;
             Type = type;
-            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
-
             IsOpenGeneric = null != type && type.GetTypeInfo().IsGenericTypeDefinition;
+
+            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
+        }
+
+        public InternalRegistration(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        {
+            Name = name;
+            Type = type;
+            Key = policyInterface;
+            Value = policy;
+            IsOpenGeneric = null != type && type.GetTypeInfo().IsGenericTypeDefinition;
+
+            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
 
         #endregion
