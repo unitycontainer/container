@@ -6,7 +6,7 @@ using Unity.Policy;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("ContainerRegistration( Type: {RegisteredType?.Name},\t Name: {Name},\t MappedTo: {MappedToType?.Name},\t {LifetimeManager?.GetType()?.Name})")]
+    [DebuggerDisplay("ContainerRegistration: Type={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
     public class ContainerRegistration : InternalRegistration, 
                                          IContainerRegistration
     {
