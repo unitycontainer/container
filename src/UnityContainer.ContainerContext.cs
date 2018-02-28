@@ -130,7 +130,7 @@ namespace Unity
                 => _container.GetPolicy(type, name, policyInterface, out list);
 
             public virtual void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-                => _container.GetRegistration(type, name).Set(policyInterface, policy);
+                => _container.SetPolicy(type, name, policyInterface, policy);
 
             public virtual void Clear(Type type, string name, Type policyInterface)
             {
