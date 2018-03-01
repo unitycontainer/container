@@ -42,8 +42,16 @@ namespace Unity.Strategies
                 context.Registration.Set(typeof(IBuildPlanPolicy), 
                     new DynamicMethodBuildPlan(c => 
                     {
-                        c.Existing = context.NewBuildUp(context.BuildKey.Type, context.BuildKey.Name);
+                        ((BuilderContext)c).ChildContext = new BuilderContext(c, context.BuildKey.Type, context.BuildKey.Name);
+                        ((BuilderContext)c.ChildContext).BuildUp();
+
+                        c.Existing = c.ChildContext.Existing;
                         c.BuildComplete = null != context.Existing;
+
+                        var plan = c.ChildContext.Registration.Get(typeof(IBuildPlanPolicy));
+                        if (null != plan) context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+
+                        ((BuilderContext)c).ChildContext = null;
                     }));
             }
         }
