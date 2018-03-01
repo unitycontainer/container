@@ -93,6 +93,9 @@ namespace Unity.Strategies
                 var policy = registration.Get(typeof(ILifetimePolicy));
                 if (null != policy)
                 {
+                    if (policy is ISingletonLifetimePolicy || policy is IContainerLifetimePolicy)
+                        registration.EnableOptimization = false;
+
                     return policy is TransientLifetimeManager ? false : true;
                 }
 
