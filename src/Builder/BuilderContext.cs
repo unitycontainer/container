@@ -78,7 +78,7 @@ namespace Unity.Builder
             BuildKey = OriginalBuildKey;
         }
 
-        protected BuilderContext(IBuilderContext original, Type type, string name)
+        internal BuilderContext(IBuilderContext original, Type type, string name)
         {
             var parent = (BuilderContext)original;
             var registration = (InternalRegistration)parent._container.GetRegistration(type, name);
@@ -154,6 +154,32 @@ namespace Unity.Builder
 
         
         #region Build
+
+        public object BuildUp()
+        {
+            var i = -1;
+            var chain = ((InternalRegistration)Registration).BuildChain;
+
+            try
+            {
+                while (!BuildComplete && ++i < chain.Count)
+                {
+                    chain[i].PreBuildUp(this);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(this);
+                }
+            }
+            catch (Exception)
+            {
+                RequiresRecovery?.Recover();
+                throw;
+            }
+
+            return Existing;
+        }
 
         public object NewBuildUp(InternalRegistration registration)
         {
