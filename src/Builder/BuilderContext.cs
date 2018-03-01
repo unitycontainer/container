@@ -122,7 +122,7 @@ namespace Unity.Builder
 
         public object CurrentOperation { get; set; }
 
-        public IBuilderContext ChildContext { get; private set; }
+        public IBuilderContext ChildContext { get; internal set; }
 
         public IBuilderContext ParentContext { get; private set; }
 
