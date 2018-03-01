@@ -48,8 +48,11 @@ namespace Unity.Strategies
                         c.Existing = c.ChildContext.Existing;
                         c.BuildComplete = null != context.Existing;
 
-                        var plan = c.ChildContext.Registration.Get(typeof(IBuildPlanPolicy));
-                        if (null != plan) context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+                        if (((InternalRegistration)context.Registration).EnableOptimization)
+                        {
+                            var plan = c.ChildContext.Registration.Get(typeof(IBuildPlanPolicy));
+                            if (null != plan) context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+                        }
 
                         ((BuilderContext)c).ChildContext = null;
                     }));
