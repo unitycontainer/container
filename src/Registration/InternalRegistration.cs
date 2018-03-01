@@ -43,7 +43,15 @@ namespace Unity.Registration
 
         #endregion
 
+
+        #region Public Members
+
         public virtual IList<BuilderStrategy> BuildChain { get; set; }
+
+        public bool EnableOptimization { get; set; } = true;
+
+        #endregion
+
 
         #region IPolicySet
 
