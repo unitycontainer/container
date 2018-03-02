@@ -26,6 +26,7 @@ using Unity.Strategy;
 
 namespace Unity
 {
+    [CLSCompliant(true)]
     public partial class UnityContainer
     {
         #region Delegates
