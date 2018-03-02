@@ -221,7 +221,7 @@ namespace Unity
         private void SetupChildContainerBehaviors()
         {
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
-            IsTypeRegistered = (type, name) => null != Get(type, name);
+            IsTypeRegistered = IsTypeRegisteredLocally;
             GetRegistration = (type, name) => Get(type, name) ?? _parent.GetRegistration(type, name);
             Register = AddOrUpdate;
             GetPolicy = Get;

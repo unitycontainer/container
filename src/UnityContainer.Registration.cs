@@ -173,6 +173,27 @@ namespace Unity
 
         public bool IsRegistered(Type type, string name) => IsTypeRegistered(type, name);
 
+        public bool IsTypeRegisteredLocally(Type type, string name)
+        {
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            {
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != type)
+                {
+                    continue;
+                }
+
+                return null == _registrations.Entries[i].Value?[name]
+                    ? _parent?.IsTypeRegistered(type, name) ?? false
+                    : true;
+            }
+
+            return _parent?.IsTypeRegistered(type, name) ?? false; ;
+        }
+
+
         #endregion
 
 
