@@ -12,6 +12,7 @@ namespace Unity
     /// <summary>
     /// Interface defining the behavior of the Unity dependency injection container.
     /// </summary>
+    [CLSCompliant(true)]
     public interface IUnityContainer : IDisposable
     {
         /// <summary>
