@@ -400,7 +400,7 @@ namespace Unity
 
             return set;
         }
-
+        
         internal IList<BuilderStrategy> GetBuilders(InternalRegistration registration)
         {
             var chain = new List<BuilderStrategy>();
@@ -409,7 +409,8 @@ namespace Unity
             for (var i = 0; i < strategies.Length; i++)
             {
                 var strategy = strategies[i];
-                if (strategy.RequiredToBuildType(this, registration, null))
+
+                if (registration.Type != null && strategy.RequiredToBuildType(this, registration, null))
                     chain.Add(strategy);
             }
 
