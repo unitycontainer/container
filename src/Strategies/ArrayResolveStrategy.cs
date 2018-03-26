@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -15,15 +16,17 @@ namespace Unity.Strategies
         #region Fields
 
         private readonly MethodInfo _resolveMethod;
+        private readonly MethodInfo _resolveLazyMethod;
 
         #endregion
 
 
         #region Constructors
 
-        public ArrayResolveStrategy(MethodInfo method)
+        public ArrayResolveStrategy(MethodInfo method, MethodInfo lazy)
         {
             _resolveMethod = method;
+            _resolveLazyMethod = lazy;
         }
 
         #endregion
@@ -36,9 +39,11 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<IBuildPlanPolicy>();
             if (plan == null)
             {
-                var buildMethod = _resolveMethod.MakeGenericMethod(context.OriginalBuildKey
-                                                                          .Type.GetElementType())
-                                                .CreateDelegate(typeof(DynamicBuildPlanMethod));
+                var type = context.OriginalBuildKey.Type.GetElementType();
+                var info = type.GetTypeInfo();
+                var buildMethod = info.IsGenericType && typeof(Lazy<>) == info.GetGenericTypeDefinition()
+                                ? _resolveLazyMethod.MakeGenericMethod().CreateDelegate(typeof(DynamicBuildPlanMethod))
+                                : _resolveMethod.MakeGenericMethod().CreateDelegate(typeof(DynamicBuildPlanMethod));
 
                 plan = new DynamicMethodBuildPlan((DynamicBuildPlanMethod)buildMethod);
                 context.Registration.Set(typeof(IBuildPlanPolicy), plan);
