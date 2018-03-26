@@ -112,6 +112,23 @@ namespace Unity
             context.BuildComplete = true;
         }
 
+        internal static void ResolveLazyEnumerable<T>(IBuilderContext context)
+        {
+            var type = typeof(T).GetTypeInfo().GenericTypeArguments[0];
+            var container = (UnityContainer)context.Container;
+            var list = new List<T>();
+
+            var registrations = (IList<InternalRegistration>)GetNotEmptyRegistrations(container, type);
+            for (var i = 0; i < registrations.Count; i++)
+            {
+                var registration = registrations[i];
+
+                list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+            }
+
+            context.Existing = list;
+            context.BuildComplete = true;
+        }
         #endregion
     }
 }
