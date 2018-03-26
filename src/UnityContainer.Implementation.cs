@@ -223,11 +223,30 @@ namespace Unity
         {
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
             IsTypeRegistered = IsTypeRegisteredLocally;
-            GetRegistration = (type, name) => Get(type, name) ?? _parent.GetRegistration(type, name);
+            GetRegistration = GetOrGetParentOrAddCurrent;
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
+        }
+
+        private IPolicySet GetOrGetParentOrAddCurrent(Type type, string name)
+        {
+            var policy = Get(type, name);
+            if (policy == null)
+            {
+                var parent = _parent;
+
+                while (policy == null && parent != null)
+                {
+                    policy = parent.Get(type, name);
+                    parent = parent._parent;
+                }
+            }
+            if (policy == null)
+                policy = GetOrAdd(type, name);
+
+            return policy;
         }
 
         private static object ThrowingBuildUp(IBuilderContext context)
