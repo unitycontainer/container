@@ -102,7 +102,7 @@ namespace Unity.Strategies
 
         private bool AnalysStaticRegistration(IUnityContainer container, ContainerRegistration registration, params InjectionMember[] injectionMembers)
         {
-            // Validate imput
+            // Validate input
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
 
             // Require Re-Resolve if no injectors specified

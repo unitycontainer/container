@@ -42,8 +42,8 @@ namespace Unity.Strategies
                 var type = context.OriginalBuildKey.Type.GetElementType();
                 var info = type.GetTypeInfo();
                 var buildMethod = info.IsGenericType && typeof(Lazy<>) == info.GetGenericTypeDefinition()
-                                ? _resolveLazyMethod.MakeGenericMethod().CreateDelegate(typeof(DynamicBuildPlanMethod))
-                                : _resolveMethod.MakeGenericMethod().CreateDelegate(typeof(DynamicBuildPlanMethod));
+                                ? _resolveLazyMethod.MakeGenericMethod(type).CreateDelegate(typeof(DynamicBuildPlanMethod))
+                                : _resolveMethod.MakeGenericMethod(type).CreateDelegate(typeof(DynamicBuildPlanMethod));
 
                 plan = new DynamicMethodBuildPlan((DynamicBuildPlanMethod)buildMethod);
                 context.Registration.Set(typeof(IBuildPlanPolicy), plan);

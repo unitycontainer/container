@@ -1,6 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
@@ -16,6 +14,7 @@ namespace Unity.Policy.BuildPlanCreator
     {
         private static readonly MethodInfo BuildResolveLazyMethod;
         private static readonly MethodInfo BuildResolveAllLazyMethod;
+        private static readonly MethodInfo BuildResolveLazyEnumerableMethod;
 
         static GenericLazyBuildPlanCreatorPolicy()
         {
@@ -26,6 +25,9 @@ namespace Unity.Policy.BuildPlanCreator
 
             BuildResolveAllLazyMethod =
                 info.GetDeclaredMethod(nameof(BuildResolveAllLazy));
+
+            BuildResolveLazyEnumerableMethod =
+                info.GetDeclaredMethod(nameof(BuildResolveLazyEnumerable));
         }
 
         /// <summary>
@@ -47,9 +49,10 @@ namespace Unity.Policy.BuildPlanCreator
 
             MethodInfo lazyMethod;
 
-            if (itemType.GetTypeInfo().IsGenericType && itemType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            var info = itemType.GetTypeInfo();
+            if (info.IsGenericType && itemType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
-                lazyMethod = BuildResolveAllLazyMethod.MakeGenericMethod(itemType.GetTypeInfo().GenericTypeArguments[0]);
+                lazyMethod = BuildResolveLazyEnumerableMethod.MakeGenericMethod(itemType.GetTypeInfo().GenericTypeArguments[0]);
             }
             else
             {
@@ -66,7 +69,16 @@ namespace Unity.Policy.BuildPlanCreator
                 context.Existing = new Lazy<T>(() => context.Container.Resolve<T>(context.BuildKey.Name));
             }
 
-            // match the behavior of DynamicMethodConstructorStrategy
+            context.SetPerBuildSingleton();
+        }
+
+        private static void BuildResolveLazyEnumerable<T>(IBuilderContext context)
+        {
+            if (context.Existing == null)
+            {
+                context.Existing = new Lazy<IEnumerable<T>>(() => context.Container.Resolve<IEnumerable<T>>());
+            }
+
             context.SetPerBuildSingleton();
         }
 
@@ -74,10 +86,9 @@ namespace Unity.Policy.BuildPlanCreator
         {
             if (context.Existing == null)
             {
-                context.Existing = new Lazy<IEnumerable<T>>(() => context.Container.ResolveAll<T>());
+                context.Existing = new Lazy<T[]>(() => (T[])context.Container.ResolveAll<T>());
             }
 
-            // match the behavior of DynamicMethodConstructorStrategy
             context.SetPerBuildSingleton();
         }
     }

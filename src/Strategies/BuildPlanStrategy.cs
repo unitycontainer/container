@@ -25,7 +25,7 @@ namespace Unity.Strategies
         public override void PreBuildUp(IBuilderContext context)
         {
             var plan = context.Registration.Get<IBuildPlanPolicy>() ??
-                       (IBuildPlanPolicy)GetExtended(context.Policies, typeof(IBuildPlanPolicy), 
+                       (IBuildPlanPolicy)GetGeneric(context.Policies, typeof(IBuildPlanPolicy), 
                                                      context.OriginalBuildKey, 
                                                      context.OriginalBuildKey.Type);
 
@@ -52,14 +52,12 @@ namespace Unity.Strategies
 
         public static TPolicyInterface GetPolicy<TPolicyInterface>(IPolicyList list, INamedType buildKey)
         {
-            return (TPolicyInterface)(GetExtended(list, typeof(TPolicyInterface), buildKey, buildKey.Type) ??
+            return (TPolicyInterface)(GetGeneric(list, typeof(TPolicyInterface), buildKey, buildKey.Type) ??
                                       list.Get(null, null, typeof(TPolicyInterface), out _));    // Nothing! Get Default
         }
 
-        private static IBuilderPolicy GetExtended(IPolicyList list, Type policyInterface, INamedType buildKey, Type buildType)
+        private static IBuilderPolicy GetGeneric(IPolicyList list, Type policyInterface, INamedType buildKey, Type buildType)
         {
-            if (null == buildType) return null;
-
             // Check if generic
             if (buildType.GetTypeInfo().IsGenericType)
             {
@@ -68,8 +66,7 @@ namespace Unity.Strategies
                        list.Get(newType, string.Empty, policyInterface, out _);
             }
 
-            // Check default for type
-            return list.Get(buildType, string.Empty, policyInterface, out _);
+            return null;
         }
 
         private static IBuildPlanCreatorPolicy CheckIfOpenGeneric(IPolicySet namedType)
