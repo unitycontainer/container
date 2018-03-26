@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
+using Unity.Attributes;
 
+#if NET40
 namespace System.Reflection
 {
-#if NET40
+    using Unity;
+
     internal class TypeInfo 
     {
         private const BindingFlags DeclaredOnlyLookup = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
-        private Type _type;
+        private readonly Type _type;
 
 
         internal TypeInfo(Type type)
@@ -46,6 +49,8 @@ namespace System.Reflection
 
         public bool ContainsGenericParameters => _type.ContainsGenericParameters;
 
+        public bool IsConstructedGenericType => _type.IsGenericType && !_type.ContainsGenericParameters;
+
     #region moved over from Type
 
         //// Fields
@@ -72,17 +77,10 @@ namespace System.Reflection
             }
         }
 
-        public virtual System.Reflection.TypeInfo GetDeclaredNestedType(String name)
+        public virtual TypeInfo GetDeclaredNestedType(String name)
         {
             var nt = _type.GetNestedType(name, DeclaredOnlyLookup);
-            if (nt == null)
-            {
-                return null; //the extension method GetTypeInfo throws for null
-            }
-            else
-            {
-                return nt.GetTypeInfo();
-            }
+            return nt == null ? null : nt.GetTypeInfo();
         }
 
         public virtual PropertyInfo GetDeclaredProperty(String name)
@@ -93,46 +91,17 @@ namespace System.Reflection
 
         //// Properties
 
-        public virtual IEnumerable<ConstructorInfo> DeclaredConstructors
-        {
-            get
-            {
-                return _type.GetConstructors(DeclaredOnlyLookup);
-            }
-        }
+        public virtual IEnumerable<ConstructorInfo> DeclaredConstructors => _type.GetConstructors(DeclaredOnlyLookup);
 
-        public virtual IEnumerable<EventInfo> DeclaredEvents
-        {
-            get
-            {
-                return _type.GetEvents(DeclaredOnlyLookup);
-            }
-        }
+        public virtual IEnumerable<EventInfo> DeclaredEvents => _type.GetEvents(DeclaredOnlyLookup);
 
-        public virtual IEnumerable<FieldInfo> DeclaredFields
-        {
-            get
-            {
-                return _type.GetFields(DeclaredOnlyLookup);
-            }
-        }
+        public virtual IEnumerable<FieldInfo> DeclaredFields => _type.GetFields(DeclaredOnlyLookup);
 
-        public virtual IEnumerable<MemberInfo> DeclaredMembers
-        {
-            get
-            {
-                return _type.GetMembers(DeclaredOnlyLookup);
-            }
-        }
+        public virtual IEnumerable<MemberInfo> DeclaredMembers => _type.GetMembers(DeclaredOnlyLookup);
 
-        public virtual IEnumerable<MethodInfo> DeclaredMethods
-        {
-            get
-            {
-                return _type.GetMethods(DeclaredOnlyLookup);
-            }
-        }
-        public virtual IEnumerable<System.Reflection.TypeInfo> DeclaredNestedTypes
+        public virtual IEnumerable<MethodInfo> DeclaredMethods => _type.GetMethods(DeclaredOnlyLookup);
+
+        public virtual IEnumerable<TypeInfo> DeclaredNestedTypes
         {
             get
             {
@@ -143,25 +112,12 @@ namespace System.Reflection
             }
         }
 
-        public virtual IEnumerable<PropertyInfo> DeclaredProperties
-        {
-            get
-            {
-                return _type.GetProperties(DeclaredOnlyLookup);
-            }
-        }
+        public virtual IEnumerable<PropertyInfo> DeclaredProperties => _type.GetProperties(DeclaredOnlyLookup);
 
 
-        public virtual IEnumerable<Type> ImplementedInterfaces
-        {
-            get
-            {
-                return _type.GetInterfaces();
-            }
-        }
+        public virtual IEnumerable<Type> ImplementedInterfaces => _type.GetInterfaces();
 
-
-    #endregion
+        #endregion
 
         public override int GetHashCode()
         {
@@ -183,13 +139,38 @@ namespace System.Reflection
             return left?.GetHashCode() != right?.GetHashCode();
         }
 
+        public Type GetGenericTypeDefinition()
+        {
+            return _type.GetGenericTypeDefinition();
+        }
     }
+}
 #endif
 
+namespace Unity
+{
+    using System;
+    using System.Reflection;
 
-    internal static class IntrospectionExtensions
+
+    internal static class Compatibility
     {
+#if NETSTANDARD1_0
+        public static System.Reflection.ConstructorInfo[] GetConstructors(this System.Type type)
+        {
+            var ctors = type.GetTypeInfo().DeclaredConstructors;
+            return ctors is ConstructorInfo[] array ? array : ctors.ToArray();
+        }
+#endif
+
 #if NET40
+        public static Attribute GetCustomAttribute(this ParameterInfo parameter, Type type)
+        {
+            return parameter.GetCustomAttributes(false)
+                            .OfType<DependencyResolutionAttribute>()
+                            .FirstOrDefault();
+        }
+
         public static TypeInfo GetTypeInfo(this Type type)
         {
             if (type == null)
