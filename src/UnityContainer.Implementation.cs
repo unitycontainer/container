@@ -112,7 +112,8 @@ namespace Unity
             _lifetimeContainer.Add(_buildPlanStrategies);
 
             // Main strategy chain
-            _strategies.Add(new ArrayResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray))), UnityBuildStage.Enumerable);
+            _strategies.Add(new ArrayResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)), 
+                                                     typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveLazyArray))), UnityBuildStage.Enumerable);
             _strategies.Add(new EnumerableResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)), 
                                                           typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveLazyEnumerable))), UnityBuildStage.Enumerable);
             _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
