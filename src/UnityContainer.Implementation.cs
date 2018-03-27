@@ -515,7 +515,7 @@ namespace Unity
                 }
                 else if (type.IsArray)
                 {
-                    next = info.GetElementType();
+                    next = type.GetElementType();
                     if (typeof(Lazy<>) != next &&
                         typeof(Func<>) != next &&
                         null != GetChained(next)) return next;
