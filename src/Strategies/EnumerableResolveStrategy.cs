@@ -11,24 +11,25 @@ using Unity.Registration;
 namespace Unity.Strategies
 {
     /// <summary>
-    /// This strategy is responsible for building IEnumerable<>
+    /// This strategy is responsible for building IEnumerable
     /// </summary>
     public class EnumerableResolveStrategy : BuilderStrategy
     {
         #region Fields
 
         private readonly MethodInfo _resolveMethod;
-        private readonly MethodInfo _resolveLazyMethod;
+        private readonly MethodInfo _resolveGenericMethod;
+        delegate void ResolveGenericEnumerable(IBuilderContext context, Type type);
 
         #endregion
 
 
         #region Constructors
 
-        public EnumerableResolveStrategy(MethodInfo method, MethodInfo lazy)
+        public EnumerableResolveStrategy(MethodInfo method, MethodInfo generic)
         {
             _resolveMethod = method;
-            _resolveLazyMethod = lazy;
+            _resolveGenericMethod = generic;
         }
 
         #endregion
@@ -41,17 +42,26 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<IBuildPlanPolicy>();
             if (plan == null)
             {
-                var args = context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First();
-                var info = args.GetTypeInfo();
-                var buildMethod = info.IsGenericType && typeof(Lazy<>) == info.GetGenericTypeDefinition()
-                                ? _resolveLazyMethod.MakeGenericMethod(args).CreateDelegate(typeof(DynamicBuildPlanMethod))
-                                : _resolveMethod.MakeGenericMethod(args).CreateDelegate(typeof(DynamicBuildPlanMethod));
+                var typeArgument = context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First();
+                var type = ((UnityContainer) context.Container).GetFinalType(typeArgument);
+                if (type != typeArgument)
+                {
+                    var method = _resolveGenericMethod.MakeGenericMethod(typeArgument)
+                                                      .CreateDelegate(typeof(ResolveGenericEnumerable));
 
-                plan = new DynamicMethodBuildPlan((DynamicBuildPlanMethod)buildMethod);
+                    plan = new DynamicMethodBuildPlan(c => method.DynamicInvoke(c, type));
+                }
+                else
+                {
+                    plan = new DynamicMethodBuildPlan((DynamicBuildPlanMethod) 
+                        _resolveMethod.MakeGenericMethod(typeArgument)
+                                      .CreateDelegate(typeof(DynamicBuildPlanMethod)));
+                }
+
                 context.Registration.Set(typeof(IBuildPlanPolicy), plan);
             }
 
-            plan?.BuildUp(context);
+            plan.BuildUp(context);
             context.BuildComplete = true;
         }
 
@@ -64,8 +74,7 @@ namespace Unity.Strategies
         {
              return namedType is InternalRegistration registration &&
                     registration.Type.GetTypeInfo().IsGenericType && 
-                    typeof(IEnumerable<>) == registration.Type.GetGenericTypeDefinition() 
-                ? true : false;
+                    typeof(IEnumerable<>) == registration.Type.GetGenericTypeDefinition();
         }
 
         #endregion

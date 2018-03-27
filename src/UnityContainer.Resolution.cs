@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
-    /// <inheritdoc />
     /// <summary>
     /// A simple, extensible dependency injection container.
     /// </summary>
@@ -43,13 +44,13 @@ namespace Unity
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is useful when you don'type control the construction of an
+        /// This method is useful when you don't control the construction of an
         /// instance (ASP.NET pages or objects created via XAML, for instance)
         /// but you still want properties and other injection performed.
         /// </para></remarks>
         /// <param name="typeToBuild"><see cref="Type"/> of object to perform injection on.</param>
         /// <param name="existing">Instance to build up.</param>
-        /// <param name="nameToBuild">name to use when looking up the typemappings and other configurations.</param>
+        /// <param name="nameToBuild">name to use when looking up the type mappings and other configurations.</param>
         /// <param name="resolverOverrides">Any overrides for the buildup.</param>
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would
@@ -70,7 +71,7 @@ namespace Unity
         #endregion
 
 
-        #region Resolving Enumerables
+        #region Resolving Collections
 
         internal static void ResolveArray<T>(IBuilderContext context)
         {
@@ -78,10 +79,8 @@ namespace Unity
             var list = new List<T>();
 
             var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(T));
-            for (var i = 0; i < registrations.Count; i++)
+            foreach (var registration in registrations)
             {
-                var registration = registrations[i];
-
                 if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
                     list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
                 else
@@ -92,20 +91,15 @@ namespace Unity
             context.BuildComplete = true;
         }
 
-        internal static void ResolveLazyArray<T>(IBuilderContext context)
+        internal static void ResolveGenericArray<T>(IBuilderContext context, Type type)
         {
-            var type = typeof(T).GetTypeInfo().GenericTypeArguments[0];
+            var set = new MiniHashSet<InternalRegistration>();
             var container = (UnityContainer)context.Container;
-            var list = new List<T>();
+            GetNamedRegistrations(container, typeof(T), set);
+            GetNamedRegistrations(container, type, set);
 
-            var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, type);
-            for (var i = 0; i < registrations.Count; i++)
-            {
-                var registration = registrations[i];
-                list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
-            }
-
-            context.Existing = list.ToArray();
+            context.Existing = set.Select(registration => (T) ((BuilderContext) context).NewBuildUp(typeof(T), registration.Name))
+                                  .ToArray();
             context.BuildComplete = true;
         }
         
@@ -114,11 +108,9 @@ namespace Unity
             var container = (UnityContainer)context.Container;
             var list = new List<T>();
 
-            var registrations = (IList<InternalRegistration>)GetNotEmptyRegistrations(container, typeof(T));
-            for (var i = 0; i < registrations.Count; i++)
+            var registrations = (IList<InternalRegistration>)GetExplicitRegistrations(container, typeof(T));
+            foreach (var registration in registrations)
             {
-                var registration = registrations[i];
-
                 if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
                     list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
                 else
@@ -129,21 +121,15 @@ namespace Unity
             context.BuildComplete = true;
         }
 
-        internal static void ResolveLazyEnumerable<T>(IBuilderContext context)
+        internal static void ResolveGenericEnumerable<T>(IBuilderContext context, Type type)
         {
-            var type = typeof(T).GetTypeInfo().GenericTypeArguments[0];
+            var set = new MiniHashSet<InternalRegistration>();
             var container = (UnityContainer)context.Container;
-            var list = new List<T>();
+            GetExplicitRegistrations(container, typeof(T), set);
+            GetExplicitRegistrations(container, type, set);
 
-            var registrations = (IList<InternalRegistration>)GetNotEmptyRegistrations(container, type);
-            for (var i = 0; i < registrations.Count; i++)
-            {
-                var registration = registrations[i];
-
-                list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
-            }
-
-            context.Existing = list;
+            context.Existing = set.Select(registration => (T) ((BuilderContext) context).NewBuildUp(typeof(T), registration.Name))
+                                  .ToList();
             context.BuildComplete = true;
         }
         #endregion

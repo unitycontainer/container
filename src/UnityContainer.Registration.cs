@@ -37,7 +37,7 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
-            // Validate imput
+            // Validate input
             if (string.Empty == name) name = null; 
             if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
             if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance; 
@@ -122,7 +122,7 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer RegisterInstance(Type registeredType, string name, object instance, LifetimeManager lifetimeManager)
         {
-            // Validate imput
+            // Validate input
             if (string.Empty == name) name = null;
             if (null == instance) throw new ArgumentNullException(nameof(instance));
 
@@ -185,12 +185,11 @@ namespace Unity
                     continue;
                 }
 
-                return null == _registrations.Entries[i].Value?[name]
-                    ? _parent?.IsTypeRegistered(type, name) ?? false
-                    : true;
+                return null != _registrations.Entries[i].Value?[name] || 
+                       (_parent?.IsTypeRegistered(type, name) ?? false);
             }
 
-            return _parent?.IsTypeRegistered(type, name) ?? false; ;
+            return _parent?.IsTypeRegistered(type, name) ?? false;
         }
 
 
@@ -257,45 +256,6 @@ namespace Unity
             return set;
         }
 
-        private IEnumerable<string> GetRegisteredNames(UnityContainer container, Type type)
-        {
-            ISet<string> set;
-
-            if (null != container._parent)
-                set = (ISet<string>)GetRegisteredNames(container._parent, type);
-            else
-                set = new HashSet<string>();
-
-            if (null == container._registrations) return set;
-
-            var section = container.Get(type)?.Values;
-            if (null != section)
-            {
-                foreach (var namedType in section)
-                {
-                    if (namedType is IContainerRegistration registration)
-                        set.Add(registration.Name);
-                }
-            }
-
-            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
-
-            if (generic != type)
-            {
-                section = container.Get(generic)?.Values;
-                if (null != section)
-                {
-                    foreach (var namedType in section)
-                    {
-                        if (namedType is IContainerRegistration registration)
-                            set.Add(registration.Name);
-                    }
-                }
-            }
-
-            return set;
-        }
-
         #endregion
 
 
@@ -317,6 +277,26 @@ namespace Unity
             }
 
             return null;
+        }
+
+        private IRegistry<string, IPolicySet> GetChained(Type type)
+        {
+            if (null == _registrations) return _parent?.GetChained(type);
+
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            {
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != type)
+                {
+                    continue;
+                }
+
+                return _registrations.Entries[i].Value;
+            }
+
+            return _parent?.GetChained(type);
         }
 
         #endregion
@@ -428,6 +408,96 @@ namespace Unity
                 _registrations.Count++;
                 return registration;
             }
+        }
+
+        private IPolicySet GetOrAddGeneric(Type type, string name, Type definition)
+        {
+            var collisions = 0;
+            int hashCode;
+            int targetBucket;
+
+            if (null != _parent)
+            {
+                hashCode = (definition?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+                targetBucket = hashCode % _registrations.Buckets.Length;
+                for (var j = _registrations.Buckets[targetBucket]; j >= 0; j = _registrations.Entries[j].Next)
+                {
+                    if (_registrations.Entries[j].HashCode != hashCode ||
+                        _registrations.Entries[j].Key != definition)
+                    {
+                        continue;
+                    }
+
+                    if (null != _registrations.Entries[j].Value?[name]) break;
+
+                    return _parent._getGenericRegistration(type, name, definition);
+                }
+            }
+
+            hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            targetBucket = hashCode % _registrations.Buckets.Length;
+
+            lock (_syncRoot)
+            {
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    if (_registrations.Entries[i].HashCode != hashCode ||
+                        _registrations.Entries[i].Key != type)
+                    {
+                        collisions++;
+                        continue;
+                    }
+
+                    var existing = _registrations.Entries[i].Value;
+                    if (existing.RequireToGrow)
+                    {
+                        existing = existing is HashRegistry<string, IPolicySet> registry
+                                 ? new HashRegistry<string, IPolicySet>(registry)
+                                 : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
+                                                                                       (LinkedRegistry)existing);
+
+                        _registrations.Entries[i].Value = existing;
+                    }
+
+                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                }
+
+                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                {
+                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
+                    targetBucket = hashCode % _registrations.Buckets.Length;
+                }
+
+                var registration = CreateRegistration(type, name);
+                _registrations.Entries[_registrations.Count].HashCode = hashCode;
+                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
+                _registrations.Entries[_registrations.Count].Key = type;
+                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, registration);
+                _registrations.Buckets[targetBucket] = _registrations.Count;
+                _registrations.Count++;
+                return registration;
+            }
+
+
+        }
+
+        private IPolicySet GetChained(Type type, string name)
+        {
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            {
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != type)
+                {
+                    continue;
+                }
+
+                return _registrations.Entries[i].Value?[name] ?? 
+                       _parent?._get(type, name); 
+            }
+
+            return _parent?._get(type, name);
         }
 
         private IPolicySet Get(Type type, string name)

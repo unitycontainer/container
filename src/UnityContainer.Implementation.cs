@@ -75,6 +75,9 @@ namespace Unity
         internal SetPolicyDelegate SetPolicy;
         internal ClearPolicyDelegate ClearPolicy;
 
+        private Func<Type, string, IPolicySet> _get;
+        private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
+
         #endregion
 
 
@@ -107,15 +110,19 @@ namespace Unity
             SetPolicy = Set;
             ClearPolicy = Clear;
 
+            _get = Get;
+            _getGenericRegistration = GetOrAddGeneric;
+
+
             // TODO: Initialize disposables 
             _lifetimeContainer.Add(_strategies);
             _lifetimeContainer.Add(_buildPlanStrategies);
 
             // Main strategy chain
-            _strategies.Add(new ArrayResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)), 
-                                                     typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveLazyArray))), UnityBuildStage.Enumerable);
-            _strategies.Add(new EnumerableResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)), 
-                                                          typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveLazyEnumerable))), UnityBuildStage.Enumerable);
+            _strategies.Add(new ArrayResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
+                                                     typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))), UnityBuildStage.Enumerable);
+            _strategies.Add(new EnumerableResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
+                                                          typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))), UnityBuildStage.Enumerable);
             _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
             _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
             _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
@@ -131,7 +138,7 @@ namespace Unity
             _strategies.Invalidated += OnStrategiesChanged;
 
             // Default Policies
-            Set( null, null, GetDefaultPolicies()); 
+            Set(null, null, GetDefaultPolicies());
             Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
             Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
@@ -166,6 +173,9 @@ namespace Unity
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
+
+            _get = _parent._get;
+            _getGenericRegistration = _parent._getGenericRegistration;
 
             // Strategies
             _strategies = _parent._strategies;
@@ -225,11 +235,27 @@ namespace Unity
         {
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
             IsTypeRegistered = IsTypeRegisteredLocally;
-            GetRegistration = (type, name) => Get(type, name) ?? _parent.GetRegistration(type, name);
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
+
+            GetRegistration = GetDynamicRegistration;
+
+            _get = GetChained;
+            _getGenericRegistration = GetOrAddGeneric;
+        }
+
+
+        private IPolicySet GetDynamicRegistration(Type type, string name)
+        {
+            var registration = _get(type, name);
+            if (null != registration) return registration;
+
+            var info = type.GetTypeInfo();
+            return !info.IsGenericType
+                   ? _root.GetOrAdd(type, name)
+                   : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
         private static object ThrowingBuildUp(IBuilderContext context)
@@ -362,19 +388,36 @@ namespace Unity
             return set;
         }
 
-        private static MiniHashSet<InternalRegistration> GetNotEmptyRegistrations(UnityContainer container, Type type)
+        private static void GetNamedRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
         {
-            MiniHashSet<InternalRegistration> set;
-
             if (null != container._parent)
-                set = GetNotEmptyRegistrations(container._parent, type);
-            else
-                set = new MiniHashSet<InternalRegistration>();
+                GetNamedRegistrations(container._parent, type, set);
+
+            if (null == container._registrations) return;
+
+            var registrations = container.Get(type);
+            if (registrations?.Values != null)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration &&
+                        !string.IsNullOrEmpty(registration.Name))
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+        }
+
+        private static MiniHashSet<InternalRegistration> GetExplicitRegistrations(UnityContainer container, Type type)
+        {
+            var set = null != container._parent
+                ? GetExplicitRegistrations(container._parent, type)
+                : new MiniHashSet<InternalRegistration>();
 
             if (null == container._registrations) return set;
 
             var registrations = container.Get(type);
-            if (null != registrations && null != registrations.Values)
+            if (registrations?.Values != null)
             {
                 var registry = registrations.Values;
                 foreach (var entry in registry)
@@ -389,7 +432,7 @@ namespace Unity
             if (generic != type)
             {
                 registrations = container.Get(generic);
-                if (null != registrations && null != registrations.Values)
+                if (registrations?.Values != null)
                 {
                     var registry = registrations.Values;
                     foreach (var entry in registry)
@@ -402,8 +445,29 @@ namespace Unity
 
             return set;
         }
-        
-        internal IList<BuilderStrategy> GetBuilders(InternalRegistration registration)
+
+        private static void GetExplicitRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
+        {
+            if (null != container._parent)
+                GetExplicitRegistrations(container._parent, type, set);
+
+            if (null == container._registrations) return;
+
+            var registrations = container.Get(type);
+            if (registrations?.Values != null)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+
+            return;
+        }
+
+        private IList<BuilderStrategy> GetBuilders(InternalRegistration registration)
         {
             var chain = new List<BuilderStrategy>();
             var strategies = _buildChain;
@@ -431,6 +495,38 @@ namespace Unity
             var registration = new InternalRegistration(type, name, policyInterface, policy);
             registration.BuildChain = GetBuilders(registration);
             return registration;
+        }
+
+        internal Type GetFinalType(Type argType)
+        {
+            Type next;
+            for (var type = argType; null != type; type = next)
+            {
+                var info = type.GetTypeInfo();
+                if (info.IsGenericType)
+                {
+                    var definition = info.GetGenericTypeDefinition();
+                    if (typeof(Lazy<>) != definition &&
+                        typeof(Func<>) != definition &&
+                        null != GetChained(definition)) return definition;
+
+                    next = info.GenericTypeArguments[0];
+                    if (null != GetChained(next)) return next;
+                }
+                else if (info.IsArray)
+                {
+                    next = info.GetElementType();
+                    if (typeof(Lazy<>) != next &&
+                        typeof(Func<>) != next &&
+                        null != GetChained(next)) return next;
+                }
+                else
+                {
+                    return type;
+                }
+            }
+
+            return argType;
         }
 
         #endregion

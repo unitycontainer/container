@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -16,17 +17,18 @@ namespace Unity.Strategies
         #region Fields
 
         private readonly MethodInfo _resolveMethod;
-        private readonly MethodInfo _resolveLazyMethod;
+        private readonly MethodInfo _resolveGenericMethod;
+        delegate void ResolveGenericArray(IBuilderContext context, Type type);
 
         #endregion
 
 
         #region Constructors
 
-        public ArrayResolveStrategy(MethodInfo method, MethodInfo lazy)
+        public ArrayResolveStrategy(MethodInfo method, MethodInfo generic)
         {
             _resolveMethod = method;
-            _resolveLazyMethod = lazy;
+            _resolveGenericMethod = generic;
         }
 
         #endregion
@@ -39,14 +41,24 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<IBuildPlanPolicy>();
             if (plan == null)
             {
-                var type = context.OriginalBuildKey.Type.GetElementType();
-                var info = type.GetTypeInfo();
-                var buildMethod = info.IsGenericType && typeof(Lazy<>) == info.GetGenericTypeDefinition()
-                                ? _resolveLazyMethod.MakeGenericMethod(type).CreateDelegate(typeof(DynamicBuildPlanMethod))
-                                : _resolveMethod.MakeGenericMethod(type).CreateDelegate(typeof(DynamicBuildPlanMethod));
+                var typeArgument = context.OriginalBuildKey.Type.GetElementType();
+                var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
+                if (type != typeArgument)
+                {
+                    var method = _resolveGenericMethod.MakeGenericMethod(typeArgument)
+                        .CreateDelegate(typeof(ResolveGenericArray));
 
-                plan = new DynamicMethodBuildPlan((DynamicBuildPlanMethod)buildMethod);
+                    plan = new DynamicMethodBuildPlan(c => method.DynamicInvoke(c, type));
+                }
+                else
+                {
+                    plan = new DynamicMethodBuildPlan((DynamicBuildPlanMethod)
+                        _resolveMethod.MakeGenericMethod(typeArgument)
+                            .CreateDelegate(typeof(DynamicBuildPlanMethod)));
+                }
+
                 context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+
             }
 
             plan?.BuildUp(context);
