@@ -513,7 +513,7 @@ namespace Unity
                     next = info.GenericTypeArguments[0];
                     if (null != GetChained(next)) return next;
                 }
-                else if (info.IsArray)
+                else if (type.IsArray)
                 {
                     next = info.GetElementType();
                     if (typeof(Lazy<>) != next &&
