@@ -508,17 +508,17 @@ namespace Unity
                     var definition = info.GetGenericTypeDefinition();
                     if (typeof(Lazy<>) != definition &&
                         typeof(Func<>) != definition &&
-                        null != GetChained(definition)) return definition;
+                        IsRegistered(definition)) return definition;
 
                     next = info.GenericTypeArguments[0];
-                    if (null != GetChained(next)) return next;
+                    if (IsRegistered(next)) return next;
                 }
                 else if (type.IsArray)
                 {
                     next = type.GetElementType();
                     if (typeof(Lazy<>) != next &&
                         typeof(Func<>) != next &&
-                        null != GetChained(next)) return next;
+                        IsRegistered(next)) return next;
                 }
                 else
                 {
@@ -527,6 +527,26 @@ namespace Unity
             }
 
             return argType;
+        }
+
+        private bool IsRegistered(Type type)
+        {
+            if (null == _registrations) return _parent?.IsRegistered(type) ?? false;
+
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            {
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != type)
+                {
+                    continue;
+                }
+
+                return null != _registrations.Entries[i].Value as IContainerRegistration;
+            }
+
+            return _parent?.IsRegistered(type) ?? false;
         }
 
         #endregion
