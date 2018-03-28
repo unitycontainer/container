@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
@@ -14,59 +15,84 @@ namespace Unity
     /// </summary>
     public partial class UnityContainer
     {
-        #region Getting objects
+        #region Dynamic Registrations
 
-        /// <summary>
-        /// GetOrDefault an instance of the requested type with the given name typeFrom the container.
-        /// </summary>
-        /// <param name="typeToBuild"><see cref="Type"/> of object to get typeFrom the container.</param>
-        /// <param name="nameToBuild">Name of the object to retrieve.</param>
-        /// <param name="resolverOverrides">Any overrides for the resolve call.</param>
-        /// <returns>The retrieved object.</returns>
-        public object Resolve(Type typeToBuild, string nameToBuild, params ResolverOverride[] resolverOverrides)
+        private IPolicySet GetDynamicRegistration(Type type, string name)
         {
-            // Verify arguments
-            var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
-            var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
-            var registration = GetRegistration(type, name);
-            var context = new BuilderContext(this, (InternalRegistration)registration, null, resolverOverrides);
+            var registration = _get(type, name);
+            if (null != registration) return registration;
 
-            return BuilUpPipeline(context);
+            var info = type.GetTypeInfo();
+            return !info.IsGenericType
+                ? _root.GetOrAdd(type, name)
+                : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
-        #endregion
-
-
-        #region BuildUp existing object
-
-        /// <summary>
-        /// Run an existing object through the container and perform injection on it.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is useful when you don't control the construction of an
-        /// instance (ASP.NET pages or objects created via XAML, for instance)
-        /// but you still want properties and other injection performed.
-        /// </para></remarks>
-        /// <param name="typeToBuild"><see cref="Type"/> of object to perform injection on.</param>
-        /// <param name="existing">Instance to build up.</param>
-        /// <param name="nameToBuild">name to use when looking up the type mappings and other configurations.</param>
-        /// <param name="resolverOverrides">Any overrides for the buildup.</param>
-        /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
-        /// container extensions may add things like automatic proxy creation which would
-        /// cause this to return a different object (but still type compatible with <paramref name="typeToBuild"/>).</returns>
-        public object BuildUp(Type typeToBuild, object existing, string nameToBuild, params ResolverOverride[] resolverOverrides)
+        private static object ThrowingBuildUp(IBuilderContext context)
         {
-            // Verify arguments
-            var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
-            var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
-            if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
+            var i = -1;
+            var chain = ((InternalRegistration)context.Registration).BuildChain;
 
-            var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), existing, resolverOverrides);
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Count)
+                {
+                    chain[i].PreBuildUp(context);
+                }
 
-            return BuilUpPipeline(context);
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(context);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.RequiresRecovery?.Recover();
+                throw new ResolutionFailedException(context.OriginalBuildKey.Type,
+                    context.OriginalBuildKey.Name, ex, context);
+            }
+
+            return context.Existing;
         }
 
+        private static object NotThrowingBuildUp(IBuilderContext context)
+        {
+            var i = -1;
+            var chain = ((InternalRegistration)context.Registration).BuildChain;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Count)
+                {
+                    chain[i].PreBuildUp(context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(context);
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return context.Existing;
+        }
+
+        private IPolicySet CreateRegistration(Type type, string name)
+        {
+            var registration = new InternalRegistration(type, name);
+            registration.BuildChain = GetBuilders(registration);
+            return registration;
+        }
+
+        private IPolicySet CreateRegistration(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        {
+            var registration = new InternalRegistration(type, name, policyInterface, policy);
+            registration.BuildChain = GetBuilders(registration);
+            return registration;
+        }
 
         #endregion
 
@@ -132,6 +158,128 @@ namespace Unity
                                   .ToList();
             context.BuildComplete = true;
         }
+
+
+        private static MiniHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
+        {
+            MiniHashSet<InternalRegistration> set;
+
+            if (null != container._parent)
+                set = GetNamedRegistrations(container._parent, type);
+            else
+                set = new MiniHashSet<InternalRegistration>();
+
+            if (null == container._registrations) return set;
+
+            var registrations = container.Get(type);
+            if (null != registrations && null != registrations.Values)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration &&
+                        !string.IsNullOrEmpty(registration.Name))
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+
+            if (generic != type)
+            {
+                registrations = container.Get(generic);
+                if (null != registrations && null != registrations.Values)
+                {
+                    var registry = registrations.Values;
+                    foreach (var entry in registry)
+                    {
+                        if (entry is IContainerRegistration registration &&
+                            !string.IsNullOrEmpty(registration.Name))
+                            set.Add((InternalRegistration)registration);
+                    }
+                }
+            }
+
+            return set;
+        }
+
+        private static void GetNamedRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
+        {
+            if (null != container._parent)
+                GetNamedRegistrations(container._parent, type, set);
+
+            if (null == container._registrations) return;
+
+            var registrations = container.Get(type);
+            if (registrations?.Values != null)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration &&
+                        !string.IsNullOrEmpty(registration.Name))
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+        }
+
+        private static MiniHashSet<InternalRegistration> GetExplicitRegistrations(UnityContainer container, Type type)
+        {
+            var set = null != container._parent
+                ? GetExplicitRegistrations(container._parent, type)
+                : new MiniHashSet<InternalRegistration>();
+
+            if (null == container._registrations) return set;
+
+            var registrations = container.Get(type);
+            if (registrations?.Values != null)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+
+            if (generic != type)
+            {
+                registrations = container.Get(generic);
+                if (registrations?.Values != null)
+                {
+                    var registry = registrations.Values;
+                    foreach (var entry in registry)
+                    {
+                        if (entry is IContainerRegistration registration && string.Empty != registration.Name)
+                            set.Add((InternalRegistration)registration);
+                    }
+                }
+            }
+
+            return set;
+        }
+
+        private static void GetExplicitRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
+        {
+            if (null != container._parent)
+                GetExplicitRegistrations(container._parent, type, set);
+
+            if (null == container._registrations) return;
+
+            var registrations = container.Get(type);
+            if (registrations?.Values != null)
+            {
+                var registry = registrations.Values;
+                foreach (var entry in registry)
+                {
+                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
+                        set.Add((InternalRegistration)registration);
+                }
+            }
+        }
+
         #endregion
     }
 }

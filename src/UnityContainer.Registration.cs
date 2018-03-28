@@ -192,29 +192,31 @@ namespace Unity
             return _parent?.IsTypeRegistered(type, name) ?? false;
         }
 
+        private bool IsRegistered(Type type)
+        {
+            if (null != _registrations)
+            {
+                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+                var targetBucket = hashCode % _registrations.Buckets.Length;
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    if (_registrations.Entries[i].HashCode != hashCode ||
+                        _registrations.Entries[i].Key != type)
+                    {
+                        continue;
+                    }
+
+                    return true;
+                }
+            }
+
+            return _parent?.IsRegistered(type) ?? false;
+        }
 
         #endregion
 
 
         #region Registrations Collection
-
-        /// <summary>
-        /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
-        /// of the container.
-        /// </summary>
-        public IEnumerable<IContainerRegistration> Registrations
-        {
-            get
-            {
-                var types = GetRegisteredTypes(this);
-                foreach (var type in types)
-                {
-                    var registrations = GetRegisteredType(this, type);
-                    foreach (var registration in registrations)
-                        yield return registration;
-                }
-            }
-        }
 
         private ISet<Type> GetRegisteredTypes(UnityContainer container)
         {
@@ -259,7 +261,7 @@ namespace Unity
         #endregion
 
 
-        #region Entire Type of named registrations
+        #region Type of named registrations
 
         private IRegistry<string, IPolicySet> Get(Type type)
         {
@@ -277,26 +279,6 @@ namespace Unity
             }
 
             return null;
-        }
-
-        private IRegistry<string, IPolicySet> GetChained(Type type)
-        {
-            if (null == _registrations) return _parent?.GetChained(type);
-
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
-                {
-                    continue;
-                }
-
-                return _registrations.Entries[i].Value;
-            }
-
-            return _parent?.GetChained(type);
         }
 
         #endregion

@@ -8,7 +8,6 @@ using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
-using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
@@ -246,70 +245,6 @@ namespace Unity
             _getGenericRegistration = GetOrAddGeneric;
         }
 
-
-        private IPolicySet GetDynamicRegistration(Type type, string name)
-        {
-            var registration = _get(type, name);
-            if (null != registration) return registration;
-
-            var info = type.GetTypeInfo();
-            return !info.IsGenericType
-                   ? _root.GetOrAdd(type, name)
-                   : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
-        }
-
-        private static object ThrowingBuildUp(IBuilderContext context)
-        {
-            var i = -1;
-            var chain = ((InternalRegistration)context.Registration).BuildChain;
-
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Count)
-                {
-                    chain[i].PreBuildUp(context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(context);
-                }
-            }
-            catch (Exception ex)
-            {
-                context.RequiresRecovery?.Recover();
-                throw new ResolutionFailedException(context.OriginalBuildKey.Type,
-                                                    context.OriginalBuildKey.Name, ex, context);
-            }
-
-            return context.Existing;
-        }
-
-        private static object NotThrowingBuildUp(IBuilderContext context)
-        {
-            var i = -1;
-            var chain = ((InternalRegistration)context.Registration).BuildChain;
-
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Count)
-                {
-                    chain[i].PreBuildUp(context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(context);
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-
-            return context.Existing;
-        }
-
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
             _strategyChain = new StrategyChain(_strategies);
@@ -345,156 +280,18 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        private static MiniHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
-        {
-            MiniHashSet<InternalRegistration> set;
-
-            if (null != container._parent)
-                set = GetNamedRegistrations(container._parent, type);
-            else
-                set = new MiniHashSet<InternalRegistration>();
-
-            if (null == container._registrations) return set;
-
-            var registrations = container.Get(type);
-            if (null != registrations && null != registrations.Values)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration &&
-                        !string.IsNullOrEmpty(registration.Name))
-                        set.Add((InternalRegistration)registration);
-                }
-            }
-
-            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
-
-            if (generic != type)
-            {
-                registrations = container.Get(generic);
-                if (null != registrations && null != registrations.Values)
-                {
-                    var registry = registrations.Values;
-                    foreach (var entry in registry)
-                    {
-                        if (entry is IContainerRegistration registration &&
-                            !string.IsNullOrEmpty(registration.Name))
-                            set.Add((InternalRegistration)registration);
-                    }
-                }
-            }
-
-            return set;
-        }
-
-        private static void GetNamedRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
-        {
-            if (null != container._parent)
-                GetNamedRegistrations(container._parent, type, set);
-
-            if (null == container._registrations) return;
-
-            var registrations = container.Get(type);
-            if (registrations?.Values != null)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration &&
-                        !string.IsNullOrEmpty(registration.Name))
-                        set.Add((InternalRegistration)registration);
-                }
-            }
-        }
-
-        private static MiniHashSet<InternalRegistration> GetExplicitRegistrations(UnityContainer container, Type type)
-        {
-            var set = null != container._parent
-                ? GetExplicitRegistrations(container._parent, type)
-                : new MiniHashSet<InternalRegistration>();
-
-            if (null == container._registrations) return set;
-
-            var registrations = container.Get(type);
-            if (registrations?.Values != null)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
-                        set.Add((InternalRegistration)registration);
-                }
-            }
-
-            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
-
-            if (generic != type)
-            {
-                registrations = container.Get(generic);
-                if (registrations?.Values != null)
-                {
-                    var registry = registrations.Values;
-                    foreach (var entry in registry)
-                    {
-                        if (entry is IContainerRegistration registration && string.Empty != registration.Name)
-                            set.Add((InternalRegistration)registration);
-                    }
-                }
-            }
-
-            return set;
-        }
-
-        private static void GetExplicitRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
-        {
-            if (null != container._parent)
-                GetExplicitRegistrations(container._parent, type, set);
-
-            if (null == container._registrations) return;
-
-            var registrations = container.Get(type);
-            if (registrations?.Values != null)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
-                        set.Add((InternalRegistration)registration);
-                }
-            }
-
-            return;
-        }
-
         private IList<BuilderStrategy> GetBuilders(InternalRegistration registration)
         {
             var chain = new List<BuilderStrategy>();
             var strategies = _buildChain;
 
-            for (var i = 0; i < strategies.Length; i++)
+            foreach (var strategy in strategies)
             {
-                var strategy = strategies[i];
-
                 if (registration.Type != null && strategy.RequiredToBuildType(this, registration, null))
                     chain.Add(strategy);
             }
 
             return chain;
-        }
-
-        private IPolicySet CreateRegistration(Type type, string name)
-        {
-            var registration = new InternalRegistration(type, name);
-            registration.BuildChain = GetBuilders(registration);
-            return registration;
-        }
-
-        private IPolicySet CreateRegistration(Type type, string name, Type policyInterface, IBuilderPolicy policy)
-        {
-            var registration = new InternalRegistration(type, name, policyInterface, policy);
-            registration.BuildChain = GetBuilders(registration);
-            return registration;
         }
 
         internal Type GetFinalType(Type argType)
@@ -529,24 +326,67 @@ namespace Unity
             return argType;
         }
 
-        private bool IsRegistered(Type type)
+        #endregion
+
+
+        #region IDisposable Implementation
+
+        /// <summary>
+        /// Dispose this container instance.
+        /// </summary>
+        /// <remarks>
+        /// This class doesn't have a finalizer, so <paramref name="disposing"/> will always be true.</remarks>
+        /// <param name="disposing">True if being called typeFrom the IDisposable.Dispose
+        /// method, false if being called typeFrom a finalizer.</param>
+        protected virtual void Dispose(bool disposing)
         {
-            if (null == _registrations) return _parent?.IsRegistered(type) ?? false;
+            if (!disposing) return;
 
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+            List<Exception> exceptions = null;
+
+            try
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
-                {
-                    continue;
-                }
-
-                return null != _registrations.Entries[i].Value as IContainerRegistration;
+                _strategies.Invalidated -= OnStrategiesChanged;
+                _parent?._lifetimeContainer.Remove(this);
+                _lifetimeContainer.Dispose();
+            }
+            catch (Exception exception)
+            {
+                exceptions = new List<Exception> { exception };
             }
 
-            return _parent?.IsRegistered(type) ?? false;
+            if (null != _extensions)
+            {
+                foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
+                                                              .ToList())
+                {
+                    try
+                    {
+                        disposable.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        if (null == exceptions) exceptions = new List<Exception>();
+                        exceptions.Add(e);
+                    }
+                }
+
+                _extensions = null;
+            }
+
+            lock (GetRegistration)
+            {
+                _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(1);
+            }
+
+            if (null != exceptions && exceptions.Count == 1)
+            {
+                throw exceptions[0];
+            }
+            else if (null != exceptions && exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
+            }
         }
 
         #endregion
