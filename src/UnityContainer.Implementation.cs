@@ -302,10 +302,10 @@ namespace Unity
                 var info = type.GetTypeInfo();
                 if (info.IsGenericType)
                 {
+                    if (IsRegistered(type)) return type;
+
                     var definition = info.GetGenericTypeDefinition();
-                    if (typeof(Lazy<>) != definition &&
-                        typeof(Func<>) != definition &&
-                        IsRegistered(definition)) return definition;
+                    if (IsRegistered(definition)) return definition;
 
                     next = info.GenericTypeArguments[0];
                     if (IsRegistered(next)) return next;
@@ -313,9 +313,7 @@ namespace Unity
                 else if (type.IsArray)
                 {
                     next = type.GetElementType();
-                    if (typeof(Lazy<>) != next &&
-                        typeof(Func<>) != next &&
-                        IsRegistered(next)) return next;
+                    if (IsRegistered(next)) return next;
                 }
                 else
                 {
