@@ -171,7 +171,9 @@ namespace Unity
 
         #region Check Registration
 
-        public bool IsRegistered(Type type, string name) => IsTypeRegistered(type, name);
+        public bool IsRegistered(Type type, string name) => ReferenceEquals(string.Empty, name) 
+                                                          ? IsRegistered(type) 
+                                                          : IsTypeRegistered(type, name);
 
         private bool IsTypeRegisteredLocally(Type type, string name)
         {
