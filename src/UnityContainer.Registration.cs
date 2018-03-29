@@ -173,7 +173,7 @@ namespace Unity
 
         public bool IsRegistered(Type type, string name) => IsTypeRegistered(type, name);
 
-        public bool IsTypeRegisteredLocally(Type type, string name)
+        private bool IsTypeRegisteredLocally(Type type, string name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -186,18 +186,8 @@ namespace Unity
                 }
 
                 var registry = _registrations.Entries[i].Value;
-                if (string.Empty == name)
-                {
-                    return _registrations.Entries[i]
-                                         .Value
-                                         .Keys
-                                         .Where(k => string.Empty != k)
-                                         .Any() ||
-                          (_parent?.IsTypeRegistered(type, name) ?? false);
-                }
-                else
-                    return null != registry?[name] || 
-                       (_parent?.IsTypeRegistered(type, name) ?? false);
+                return null != registry?[name] as IContainerRegistration ||
+                   (_parent?.IsTypeRegistered(type, name) ?? false);
             }
 
             return _parent?.IsTypeRegistered(type, name) ?? false;
@@ -219,9 +209,10 @@ namespace Unity
 
                     return _registrations.Entries[i]
                                          .Value
-                                         .Keys
-                                         .Where(k => string.Empty != k)
-                                         .Any();
+                                         .Values
+                                         .Where(v => v is IContainerRegistration)
+                                         .Any() ||
+                          (_parent?.IsRegistered(type) ?? false); 
                 }
             }
 
