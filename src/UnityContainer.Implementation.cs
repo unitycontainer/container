@@ -102,7 +102,7 @@ namespace Unity
 
             // Methods
             BuilUpPipeline = ThrowingBuildUp;
-            IsTypeRegistered = (type, name) => null != Get(type, name);
+            IsTypeRegistered = IsTypeRegisteredLocally;
             GetRegistration = GetOrAdd;
             Register = AddOrUpdate;
             GetPolicy = Get;
