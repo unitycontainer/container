@@ -302,18 +302,18 @@ namespace Unity
                 var info = type.GetTypeInfo();
                 if (info.IsGenericType)
                 {
-                    if (IsRegistered(type)) return type;
+                    if (IsRegistered(type, string.Empty)) return type;
 
                     var definition = info.GetGenericTypeDefinition();
-                    if (IsRegistered(definition)) return definition;
+                    if (IsRegistered(definition, string.Empty)) return definition;
 
                     next = info.GenericTypeArguments[0];
-                    if (IsRegistered(next)) return next;
+                    if (IsRegistered(next, string.Empty)) return next;
                 }
                 else if (type.IsArray)
                 {
                     next = type.GetElementType();
-                    if (IsRegistered(next)) return next;
+                    if (IsRegistered(next, string.Empty)) return next;
                 }
                 else
                 {
