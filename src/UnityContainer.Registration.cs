@@ -206,7 +206,11 @@ namespace Unity
                         continue;
                     }
 
-                    return true;
+                    return _registrations.Entries[i]
+                                         .Value
+                                         .Keys
+                                         .Where(k => string.Empty != k)
+                                         .Any();
                 }
             }
 
