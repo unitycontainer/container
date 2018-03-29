@@ -185,7 +185,18 @@ namespace Unity
                     continue;
                 }
 
-                return null != _registrations.Entries[i].Value?[name] || 
+                var registry = _registrations.Entries[i].Value;
+                if (string.Empty == name)
+                {
+                    return _registrations.Entries[i]
+                                         .Value
+                                         .Keys
+                                         .Where(k => string.Empty != k)
+                                         .Any() ||
+                          (_parent?.IsTypeRegistered(type, name) ?? false);
+                }
+                else
+                    return null != registry?[name] || 
                        (_parent?.IsTypeRegistered(type, name) ?? false);
             }
 
