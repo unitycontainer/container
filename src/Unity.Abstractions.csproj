@@ -20,6 +20,7 @@
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
+    <TargetFrameworks>netstandard1.0;netstandard2.0;net47;net46;net45;net40;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
@@ -37,13 +38,11 @@
   </ItemGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <TargetFrameworks>netstandard1.0;netstandard2.0;net47;net46;net45;net40;netcoreapp1.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <OutputPath>$(SolutionDir)lib</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <TargetFramework>netstandard1.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>Full</DebugType>
   </PropertyGroup>
