@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
@@ -171,11 +172,11 @@ namespace Unity
 
         #region Check Registration
 
-        public bool IsRegistered(Type type, string name) => ReferenceEquals(string.Empty, name) 
-                                                          ? IsRegistered(type) 
-                                                          : IsTypeRegistered(type, name);
+        public bool IsRegistered(Type type, string name) => 
+            ReferenceEquals(string.Empty, name) ? _isTypeExplicitlyRegistered(type)
+                                                : _isExplicitlyRegistered(type, name);
 
-        private bool IsTypeRegisteredLocally(Type type, string name)
+        private bool IsExplicitlyRegisteredLocally(Type type, string name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -188,37 +189,32 @@ namespace Unity
                 }
 
                 var registry = _registrations.Entries[i].Value;
-                return null != registry?[name] as IContainerRegistration ||
-                   (_parent?.IsTypeRegistered(type, name) ?? false);
+                return registry?[name] is IContainerRegistration ||
+                       (_parent?.IsRegistered(type, name) ?? false);
             }
 
-            return _parent?.IsTypeRegistered(type, name) ?? false;
+            return _parent?.IsRegistered(type, name) ?? false;
         }
 
-        private bool IsRegistered(Type type)
+        private bool IsTypeTypeExplicitlyRegisteredLocally(Type type)
         {
-            if (null != _registrations)
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-                var targetBucket = hashCode % _registrations.Buckets.Length;
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                if (_registrations.Entries[i].HashCode != hashCode ||
+                    _registrations.Entries[i].Key != type)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
-                    {
-                        continue;
-                    }
-
-                    return _registrations.Entries[i]
-                                         .Value
-                                         .Values
-                                         .Where(v => v is IContainerRegistration)
-                                         .Any() ||
-                          (_parent?.IsRegistered(type) ?? false); 
+                    continue;
                 }
+
+                return _registrations.Entries[i].Value
+                           .Values
+                           .Any(v => v is IContainerRegistration) ||
+                       (_parent?._isTypeExplicitlyRegistered(type) ?? false); 
             }
 
-            return _parent?.IsRegistered(type) ?? false;
+            return _parent?._isTypeExplicitlyRegistered(type) ?? false;
         }
 
         #endregion
@@ -469,25 +465,6 @@ namespace Unity
             }
 
 
-        }
-
-        private IPolicySet GetChained(Type type, string name)
-        {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
-                {
-                    continue;
-                }
-
-                return _registrations.Entries[i].Value?[name] ?? 
-                       _parent?._get(type, name); 
-            }
-
-            return _parent?._get(type, name);
         }
 
         private IPolicySet Get(Type type, string name)

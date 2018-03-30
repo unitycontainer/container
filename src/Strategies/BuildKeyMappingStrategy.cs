@@ -37,7 +37,7 @@ namespace Unity.Strategies
 
             context.BuildKey = policy.Map(context.BuildKey, context);
 
-            if (!policy.RequireBuild && context.Container.IsRegistered(context.BuildKey.Type, context.BuildKey.Name))
+            if (!policy.RequireBuild && ((UnityContainer)context.Container).RegistrationExists(context.BuildKey.Type, context.BuildKey.Name))
             {
                 context.Registration.Set(typeof(IBuildPlanPolicy), 
                     new DynamicMethodBuildPlan(c => 
@@ -47,12 +47,6 @@ namespace Unity.Strategies
 
                         c.Existing = c.ChildContext.Existing;
                         c.BuildComplete = null != context.Existing;
-
-                        //if (((InternalRegistration)context.Registration).EnableOptimization)
-                        //{
-                        //    var plan = c.ChildContext.Registration.Get(typeof(IBuildPlanPolicy));
-                        //    if (null != plan) context.Registration.Set(typeof(IBuildPlanPolicy), plan);
-                        //}
 
                         ((BuilderContext)c).ChildContext = null;
                     }));
@@ -90,24 +84,24 @@ namespace Unity.Strategies
             switch (namedType)
             {
                 case ContainerRegistration registration:
-                    return AnalysStaticRegistration(container, registration, injectionMembers);
+                    return AnaliseStaticRegistration(registration, injectionMembers);
 
                 case InternalRegistration registration:
-                    return AnalysDynamicRegistration(container, registration);
+                    return AnaliseDynamicRegistration(registration);
 
                 default:
                     return false;
             }
         }
 
-        private bool AnalysStaticRegistration(IUnityContainer container, ContainerRegistration registration, params InjectionMember[] injectionMembers)
+        private bool AnaliseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
         {
-            // Validate input
+            // Validate input  
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
 
             // Require Re-Resolve if no injectors specified
             var buildRequired = registration.LifetimeManager is IRequireBuildUpPolicy ||
-                (null == injectionMembers ? false : injectionMembers.Any(m => m.BuildRequired));
+                (injectionMembers?.Any(m => m.BuildRequired) ?? false);
 
             // Set mapping policy
             var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
@@ -119,7 +113,7 @@ namespace Unity.Strategies
             return true;
         }
 
-        private bool AnalysDynamicRegistration(IUnityContainer container, InternalRegistration registration)
+        private bool AnaliseDynamicRegistration(InternalRegistration registration)
         {
             return registration.Type.GetTypeInfo().IsGenericType;
         }

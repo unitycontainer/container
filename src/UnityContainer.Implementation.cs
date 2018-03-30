@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -66,16 +67,18 @@ namespace Unity
         internal BuilderStrategy[] _buildChain;
 
         // Methods
-        internal Func<Type, string, bool> IsTypeRegistered;
         internal Func<Type, string, IPolicySet> GetRegistration;
-        internal Func<IBuilderContext, object> BuilUpPipeline;
+        internal Func<IBuilderContext, object> BuildUpPipeline;
         internal Func<INamedType, IPolicySet> Register;
         internal GetPolicyDelegate GetPolicy;
         internal SetPolicyDelegate SetPolicy;
         internal ClearPolicyDelegate ClearPolicy;
+        internal Func<Type, string, bool> RegistrationExists;
 
         private Func<Type, string, IPolicySet> _get;
         private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
+        private Func<Type, bool> _isTypeExplicitlyRegistered;
+        private Func<Type, string, bool> _isExplicitlyRegistered;
 
         #endregion
 
@@ -101,17 +104,18 @@ namespace Unity
             _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>();
 
             // Methods
-            BuilUpPipeline = ThrowingBuildUp;
-            IsTypeRegistered = IsTypeRegisteredLocally;
+            _get = Get;
+            _getGenericRegistration = GetOrAddGeneric;
+            _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
+            _isTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
+
+            BuildUpPipeline = ThrowingBuildUp;
             GetRegistration = GetOrAdd;
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
-
-            _get = Get;
-            _getGenericRegistration = GetOrAddGeneric;
-
+            RegistrationExists = (type, name) => null != _get(type, name);
 
             // TODO: Initialize disposables 
             _lifetimeContainer.Add(_strategies);
@@ -165,16 +169,18 @@ namespace Unity
             _root = _parent._root;
 
             // Methods
-            BuilUpPipeline = _parent.BuilUpPipeline;
-            IsTypeRegistered = _parent.IsTypeRegistered;
+            _get = _parent._get;
+            _getGenericRegistration = _parent._getGenericRegistration;
+            _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
+            _isTypeExplicitlyRegistered = _parent._isTypeExplicitlyRegistered;
+
+            BuildUpPipeline = _parent.BuildUpPipeline;
             GetRegistration = _parent.GetRegistration;
             Register = CreateAndSetOrUpdate;
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
-
-            _get = _parent._get;
-            _getGenericRegistration = _parent._getGenericRegistration;
+            RegistrationExists = (type, name) => null != _get(type, name);
 
             // Strategies
             _strategies = _parent._strategies;
@@ -233,7 +239,6 @@ namespace Unity
         private void SetupChildContainerBehaviors()
         {
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
-            IsTypeRegistered = IsTypeRegisteredLocally;
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
@@ -241,8 +246,10 @@ namespace Unity
 
             GetRegistration = GetDynamicRegistration;
 
-            _get = GetChained;
+            _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
             _getGenericRegistration = GetOrAddGeneric;
+            _isTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
+            _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
         }
 
         private void OnStrategiesChanged(object sender, EventArgs e)
@@ -294,6 +301,7 @@ namespace Unity
             return chain;
         }
 
+        [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         internal Type GetFinalType(Type argType)
         {
             Type next;
@@ -302,18 +310,18 @@ namespace Unity
                 var info = type.GetTypeInfo();
                 if (info.IsGenericType)
                 {
-                    if (IsRegistered(type)) return type;
+                    if (_isTypeExplicitlyRegistered(type)) return type;
 
                     var definition = info.GetGenericTypeDefinition();
-                    if (IsRegistered(definition)) return definition;
+                    if (_isTypeExplicitlyRegistered(definition)) return definition;
 
                     next = info.GenericTypeArguments[0];
-                    if (IsRegistered(next)) return next;
+                    if (_isTypeExplicitlyRegistered(next)) return next;
                 }
                 else if (type.IsArray)
                 {
                     next = type.GetElementType();
-                    if (IsRegistered(next)) return next;
+                    if (_isTypeExplicitlyRegistered(next)) return next;
                 }
                 else
                 {
@@ -336,6 +344,7 @@ namespace Unity
         /// This class doesn't have a finalizer, so <paramref name="disposing"/> will always be true.</remarks>
         /// <param name="disposing">True if being called typeFrom the IDisposable.Dispose
         /// method, false if being called typeFrom a finalizer.</param>
+        [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing) return;

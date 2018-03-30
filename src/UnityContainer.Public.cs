@@ -29,7 +29,7 @@ namespace Unity
             var registration = GetRegistration(type, name);
             var context = new BuilderContext(this, (InternalRegistration)registration, null, resolverOverrides);
 
-            return BuilUpPipeline(context);
+            return BuildUpPipeline(context);
         }
 
         #endregion
@@ -62,7 +62,7 @@ namespace Unity
 
             var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), existing, resolverOverrides);
 
-            return BuilUpPipeline(context);
+            return BuildUpPipeline(context);
         }
 
 
