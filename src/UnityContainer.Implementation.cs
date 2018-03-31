@@ -301,6 +301,13 @@ namespace Unity
             return chain;
         }
 
+
+
+        private static readonly HashSet<Type> _set = new HashSet<Type>
+        {
+            typeof(Func<>), typeof(Func<,>), typeof(Func<,,>),      // etc
+        };
+
         [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         internal Type GetFinalType(Type argType)
         {
@@ -308,21 +315,35 @@ namespace Unity
             for (var type = argType; null != type; type = next)
             {
                 var info = type.GetTypeInfo();
-                if (info.IsGenericType)
-                {
-                    if (_isTypeExplicitlyRegistered(type)) return type;
 
-                    var definition = info.GetGenericTypeDefinition();
-                    if (_isTypeExplicitlyRegistered(definition)) return definition;
-
-                    next = info.GenericTypeArguments[0];
-                    if (_isTypeExplicitlyRegistered(next)) return next;
-                }
-                else if (type.IsArray)
+                if (type.IsArray)
                 {
                     next = type.GetElementType();
                     if (_isTypeExplicitlyRegistered(next)) return next;
                 }
+                else if (info.IsGenericType)
+                {
+                    var definition = info.GetGenericTypeDefinition();
+
+                    if (definition == typeof(Lazy<>) ||
+                      definition == typeof(IEnumerable<>) ||
+                        _set.Contains(info.GetGenericTypeDefinition()))
+                    {
+                        if (_isTypeExplicitlyRegistered(type)) return type;
+
+
+                        if (_isTypeExplicitlyRegistered(definition)) return definition;
+
+                        next = info.GenericTypeArguments[0];
+                        if (_isTypeExplicitlyRegistered(next)) return next;
+
+                    }
+                    else
+                    {
+                        return definition;
+                    }
+                }
+
                 else
                 {
                     return type;
