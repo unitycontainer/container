@@ -301,27 +301,39 @@ namespace Unity
             return chain;
         }
 
+       
+
         [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         internal Type GetFinalType(Type argType)
         {
+           
             Type next;
             for (var type = argType; null != type; type = next)
             {
                 var info = type.GetTypeInfo();
-                if (info.IsGenericType)
-                {
-                    if (_isTypeExplicitlyRegistered(type)) return type;
 
-                    var definition = info.GetGenericTypeDefinition();
-                    if (_isTypeExplicitlyRegistered(definition)) return definition;
-
-                    next = info.GenericTypeArguments[0];
-                    if (_isTypeExplicitlyRegistered(next)) return next;
-                }
-                else if (type.IsArray)
+                if (type.IsArray)
                 {
                     next = type.GetElementType();
                     if (_isTypeExplicitlyRegistered(next)) return next;
+                }else if (info.IsGenericType) //this should be IsEnumerable || IsLazy only ? not all other generics
+                {
+                    var definition = info.GetGenericTypeDefinition();
+                    if (definition == typeof(Lazy<>) || definition == typeof(IEnumerable<>))
+                    {
+
+                        if (_isTypeExplicitlyRegistered(type)) return type;
+
+
+                        if (_isTypeExplicitlyRegistered(definition)) return definition;
+
+                        next = info.GenericTypeArguments[0];
+                        if (_isTypeExplicitlyRegistered(next)) return next;
+                    }
+                    else
+                    {
+                        return type;
+                    }
                 }
                 else
                 {
