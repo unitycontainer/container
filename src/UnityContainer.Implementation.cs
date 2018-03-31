@@ -41,7 +41,7 @@ namespace Unity
         #region Fields
 
         // Container specific
-        private readonly UnityContainer _parent;
+        private readonly UnityContainer _parent; 
         internal readonly LifetimeContainer _lifetimeContainer;
         private List<UnityContainerExtension> _extensions;
         private UnityContainer _root;
@@ -144,7 +144,7 @@ namespace Unity
             Set(null, null, GetDefaultPolicies());
             Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
-            Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
+            Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy(_context.Policies));
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());

@@ -24,10 +24,11 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(IBuilderContext context)
         {
-            var plan = context.Registration.Get<IBuildPlanPolicy>() ??
-                       (IBuildPlanPolicy)GetGeneric(context.Policies, typeof(IBuildPlanPolicy), 
-                                                     context.OriginalBuildKey, 
-                                                     context.OriginalBuildKey.Type);
+            var plan = context.Registration.Get<IBuildPlanPolicy>() ?? (IBuildPlanPolicy)(
+                       context.Policies.Get(context.BuildKey.Type, string.Empty, typeof(IBuildPlanPolicy), out _) ?? 
+                       GetGeneric(context.Policies, typeof(IBuildPlanPolicy), 
+                                                    context.OriginalBuildKey, 
+                                                    context.OriginalBuildKey.Type));
 
             if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
             {

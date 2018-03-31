@@ -12,6 +12,8 @@ namespace Unity.Policy.BuildPlanCreator
     /// </summary>
     public class GenericLazyBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
+        private readonly IPolicyList _policies;
+
         private static readonly MethodInfo BuildResolveLazyMethod;
         private static readonly MethodInfo BuildResolveAllLazyMethod;
         private static readonly MethodInfo BuildResolveLazyEnumerableMethod;
@@ -30,6 +32,16 @@ namespace Unity.Policy.BuildPlanCreator
                 info.GetDeclaredMethod(nameof(BuildResolveLazyEnumerable));
         }
 
+        public GenericLazyBuildPlanCreatorPolicy()
+        {
+            
+        }
+
+        public GenericLazyBuildPlanCreatorPolicy(IPolicyList policies)
+        {
+            _policies = policies;
+        }
+
         /// <summary>
         /// Creates a build plan using the given context and build key.
         /// </summary>
@@ -40,7 +52,13 @@ namespace Unity.Policy.BuildPlanCreator
         /// </returns>
         public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
         {
-            return new DynamicMethodBuildPlan(CreateBuildPlanMethod((buildKey ?? throw new ArgumentNullException(nameof(buildKey))).Type));
+            var method = CreateBuildPlanMethod(buildKey.Type);
+            var plan = new DynamicMethodBuildPlan(method);
+            
+            // Register BuildPlan policy with the container to optimize performance
+            _policies?.Set(buildKey.Type, string.Empty, typeof(IBuildPlanPolicy), plan);
+
+            return plan;
         }
 
         private static DynamicBuildPlanMethod CreateBuildPlanMethod(Type lazyType)
