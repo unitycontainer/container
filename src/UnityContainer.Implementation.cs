@@ -301,12 +301,16 @@ namespace Unity
             return chain;
         }
 
-       
+
+
+        private static readonly HashSet<Type> _set = new HashSet<Type>
+        {
+            typeof(Func<>), typeof(Func<,>), typeof(Func<,,>),      // etc
+        };
 
         [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         internal Type GetFinalType(Type argType)
         {
-           
             Type next;
             for (var type = argType; null != type; type = next)
             {
@@ -316,12 +320,15 @@ namespace Unity
                 {
                     next = type.GetElementType();
                     if (_isTypeExplicitlyRegistered(next)) return next;
-                }else if (info.IsGenericType) //this should be IsEnumerable || IsLazy only ? not all other generics
+                }
+                else if (info.IsGenericType)
                 {
                     var definition = info.GetGenericTypeDefinition();
-                    if (definition == typeof(Lazy<>) || definition == typeof(IEnumerable<>))
-                    {
 
+                    if (definition == typeof(Lazy<>) ||
+                      definition == typeof(IEnumerable<>) ||
+                        _set.Contains(info.GetGenericTypeDefinition()))
+                    {
                         if (_isTypeExplicitlyRegistered(type)) return type;
 
 
@@ -329,12 +336,14 @@ namespace Unity
 
                         next = info.GenericTypeArguments[0];
                         if (_isTypeExplicitlyRegistered(next)) return next;
+
                     }
                     else
                     {
-                        return type;
+                        return definition;
                     }
                 }
+
                 else
                 {
                     return type;
