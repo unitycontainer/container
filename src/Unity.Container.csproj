@@ -13,8 +13,8 @@
     <PackageLicenseUrl>https://github.com/unitycontainer/unity/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/12849707</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
-    <Authors>Microsoft.Practices.Unity</Authors>
-    <Company>Microsoft.Practices.Unity</Company>
+    <Authors>Unity Open Source Project</Authors>
+    <Company>Unity Open Source Project</Company>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
