@@ -217,6 +217,67 @@ namespace Unity
             return _parent?._isTypeExplicitlyRegistered(type) ?? false;
         }
 
+        internal bool RegistrationExists(Type type, string name)
+        {
+            IPolicySet defaultRegistration = null;
+            IPolicySet noNameRegistration = null;
+
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            for (var container = this; null != container; container = container._parent)
+            {
+                if (null == _registrations) continue;
+
+                var targetBucket = hashCode % container._registrations.Buckets.Length;
+                for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
+                {
+                    if (container._registrations.Entries[i].HashCode != hashCode ||
+                        container._registrations.Entries[i].Key != type)
+                    {
+                        continue;
+                    }
+
+                    var registry = container._registrations.Entries[i].Value;
+
+                    if (null != registry[name]) return true;
+                    if (null == defaultRegistration) defaultRegistration = registry[string.Empty];
+                    if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
+                }
+            }
+
+            if (null != defaultRegistration) return true;
+            if (null != noNameRegistration) return true;
+
+            var info = type.GetTypeInfo();
+            if (!info.IsGenericType) return false;
+
+            type = info.GetGenericTypeDefinition();
+            hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            for (var container = this; null != container; container = container._parent)
+            {
+                if (null == _registrations) continue;
+
+                var targetBucket = hashCode % container._registrations.Buckets.Length;
+                for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
+                {
+                    if (container._registrations.Entries[i].HashCode != hashCode ||
+                        container._registrations.Entries[i].Key != type)
+                    {
+                        continue;
+                    }
+
+                    var registry = container._registrations.Entries[i].Value;
+
+                    if (null != registry[name]) return true;
+                    if (null == defaultRegistration) defaultRegistration = registry[string.Empty];
+                    if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
+                }
+            }
+
+            if (null != defaultRegistration) return true;
+            return null != noNameRegistration;
+        }
+
+
         #endregion
 
 

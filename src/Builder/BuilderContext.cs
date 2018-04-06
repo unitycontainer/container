@@ -62,7 +62,7 @@ namespace Unity.Builder
             _ownsOverrides = true;
         }
 
-        protected BuilderContext(IBuilderContext original, InternalRegistration registration)
+        internal BuilderContext(IBuilderContext original, InternalRegistration registration)
         {
             var parent = (BuilderContext)original;
 

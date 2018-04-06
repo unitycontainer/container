@@ -73,7 +73,6 @@ namespace Unity
         internal GetPolicyDelegate GetPolicy;
         internal SetPolicyDelegate SetPolicy;
         internal ClearPolicyDelegate ClearPolicy;
-        internal Func<Type, string, bool> RegistrationExists;
 
         private Func<Type, string, IPolicySet> _get;
         private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
@@ -115,7 +114,6 @@ namespace Unity
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
-            RegistrationExists = (type, name) => null != _get(type, name);
 
             // TODO: Initialize disposables 
             _lifetimeContainer.Add(_strategies);
@@ -180,7 +178,6 @@ namespace Unity
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
-            RegistrationExists = (type, name) => null != _get(type, name);
 
             // Strategies
             _strategies = _parent._strategies;
