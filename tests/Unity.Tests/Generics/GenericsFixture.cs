@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
@@ -191,6 +193,117 @@ namespace Unity.Tests.Generics
 
             IRepository<int> result = container.Resolve<IRepository<int>>();
             Assert.IsNotNull(result);
+        }
+
+        public interface IService<T> { }
+        public class ServiceA<T> : IService<T> { }
+        public class ServiceB<T> : IService<T> { }
+
+        [TestMethod]
+        public void CanResolveOpenGenericCollections()
+        {
+            IUnityContainer container = new UnityContainer()
+                .RegisterType(typeof(IService<>), typeof(ServiceA<>), "A")
+                .RegisterType(typeof(IService<>), typeof(ServiceB<>), "B");
+
+            List<IService<int>> result = container.Resolve<IEnumerable<IService<int>>>().ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(result.Any(svc => svc is ServiceA<int>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceB<int>));
+        }
+
+        public class ServiceStruct<T> : IService<T> where T : struct { }
+
+        [TestMethod]
+        public void CanResolveStructConstraintsCollections()
+        {
+            IUnityContainer container = new UnityContainer()
+                .RegisterType(typeof(IService<>), typeof(ServiceA<>), "A")
+                .RegisterType(typeof(IService<>), typeof(ServiceB<>), "B")
+                .RegisterType(typeof(IService<>), typeof(ServiceStruct<>), "Struct");
+
+            List<IService<int>> result = container.Resolve<IEnumerable<IService<int>>>().ToList();
+            Assert.AreEqual(3, result.Count);
+            Assert.IsTrue(result.Any(svc => svc is ServiceA<int>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceB<int>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceStruct<int>));
+
+            List<IService<string>> constrainedResult = container.Resolve<IEnumerable<IService<string>>>().ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceA<string>));
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceB<string>));
+        }
+
+        public class ServiceClass<T> : IService<T> where T : class { }
+
+        [TestMethod]
+        public void CanResolveClassConstraintsCollections()
+        {
+            IUnityContainer container = new UnityContainer()
+                .RegisterType(typeof(IService<>), typeof(ServiceA<>), "A")
+                .RegisterType(typeof(IService<>), typeof(ServiceB<>), "B")
+                .RegisterType(typeof(IService<>), typeof(ServiceClass<>), "Class");
+
+            List<IService<string>> result = container.Resolve<IEnumerable<IService<string>>>().ToList();
+            Assert.AreEqual(3, result.Count);
+            Assert.IsTrue(result.Any(svc => svc is ServiceA<string>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceB<string>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceClass<string>));
+
+            List<IService<int>> constrainedResult = container.Resolve<IEnumerable<IService<int>>>().ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceA<int>));
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceB<int>));
+        }
+
+        public class ServiceNewConstraint<T> : IService<T> where T : new() { }
+
+        public class TypeWithNoPublicNoArgCtors
+        {
+            public TypeWithNoPublicNoArgCtors(int _) { }
+            private TypeWithNoPublicNoArgCtors() { }
+        }
+
+        [TestMethod]
+        public void CanResolveDefaultCtorConstraintsCollections()
+        {
+            IUnityContainer container = new UnityContainer()
+                .RegisterType(typeof(IService<>), typeof(ServiceA<>), "A")
+                .RegisterType(typeof(IService<>), typeof(ServiceB<>), "B")
+                .RegisterType(typeof(IService<>), typeof(ServiceNewConstraint<>), "NewConstraint");
+
+            List<IService<int>> result = container.Resolve<IEnumerable<IService<int>>>().ToList();
+            Assert.AreEqual(3, result.Count);
+            Assert.IsTrue(result.Any(svc => svc is ServiceA<int>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceB<int>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceNewConstraint<int>));
+
+            List<IService<TypeWithNoPublicNoArgCtors>> constrainedResult = container.Resolve<IEnumerable<IService<TypeWithNoPublicNoArgCtors>>>().ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceA<TypeWithNoPublicNoArgCtors>));
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceB<TypeWithNoPublicNoArgCtors>));
+        }
+
+        public class ServiceInterfaceConstraint<T> : IService<T> where T : IEnumerable { }
+
+        [TestMethod]
+        public void CanResolveInterfaceConstraintsCollections()
+        {
+            IUnityContainer container = new UnityContainer()
+                .RegisterType(typeof(IService<>), typeof(ServiceA<>), "A")
+                .RegisterType(typeof(IService<>), typeof(ServiceB<>), "B")
+                .RegisterType(typeof(IService<>), typeof(ServiceInterfaceConstraint<>), "InterfaceConstraint");
+
+            List<IService<string>> result = container.Resolve<IEnumerable<IService<string>>>().ToList();
+            Assert.AreEqual(3, result.Count);
+            Assert.IsTrue(result.Any(svc => svc is ServiceA<string>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceB<string>));
+            Assert.IsTrue(result.Any(svc => svc is ServiceInterfaceConstraint<string>));
+
+            List<IService<int>> constrainedResult = container.Resolve<IEnumerable<IService<int>>>().ToList();
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceA<int>));
+            Assert.IsTrue(constrainedResult.Any(svc => svc is ServiceB<int>));
         }
     }
 }
