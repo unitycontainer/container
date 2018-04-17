@@ -6,6 +6,10 @@ install:
   - ps: $env:build_version = (Select-Xml -Path ".\package.props" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
 
+assembly_info: 
+  patch: true 
+  assembly_informational_version: "{version} $(GIT_HASH)"
+
 dotnet_csproj:
   patch: false
 
