@@ -254,7 +254,7 @@ namespace Unity
             hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             for (var container = this; null != container; container = container._parent)
             {
-                if (null == _registrations) continue;
+                if (null == container._registrations) continue;
 
                 var targetBucket = hashCode % container._registrations.Buckets.Length;
                 for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
