@@ -39,7 +39,7 @@ namespace Unity.Builder
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
-            Policies = (IPolicyList)this;
+            Policies = new Storage.PolicyList(this);
 
             _ownsOverrides = true;
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
@@ -264,7 +264,6 @@ namespace Unity.Builder
 
         void IPolicyList.Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {
-            Policies = new Storage.PolicyList(this);
             Policies.Set(type, name, policyInterface, policy);
         }
 

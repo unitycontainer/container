@@ -1,6 +1,6 @@
+using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Lifetime;
 using Unity.Attributes;
 
@@ -9,6 +9,98 @@ namespace Unity.Tests.Issues
     [TestClass]
     public class GitHubIssues
     {
+
+        [TestMethod]
+        public void unitycontainer_unity_204_1()
+        {
+            var container = new UnityContainer();
+
+            container.RegisterType(typeof(ContextFactory), new PerResolveLifetimeManager());
+            container.RegisterType<Service1>();
+            container.RegisterType<Service2>();
+            container.RegisterType<Repository1>();
+            container.RegisterType<Repository2>();
+
+            var service1 = container.Resolve<Service1>();
+
+            Assert.AreEqual(service1.Repository1.Factory.Identity, service1.Repository2.Factory.Identity, "case1");
+
+            var service2 = container.Resolve<Service2>();
+
+            Assert.AreEqual(service2.Service.Repository1.Factory.Identity, service2.Service.Repository2.Factory.Identity, "case2");
+        }
+
+
+
+        [TestMethod]
+        public void unitycontainer_unity_204_2()
+        {
+            var container = new UnityContainer();
+            container.RegisterType(typeof(ContextFactory), new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Service1),       new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Service2),       new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Repository1),    new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Repository2),    new PerResolveLifetimeManager());
+
+            var service1 = container.Resolve<Service1>();
+
+            Assert.AreEqual(service1.Repository1.Factory.Identity, service1.Repository2.Factory.Identity, "case1");
+
+            var service2 = container.Resolve<Service2>();
+
+            Assert.AreEqual(service2.Service.Repository1.Factory.Identity, service2.Service.Repository2.Factory.Identity, "case2");
+        }
+
+
+
+        public class ContextFactory
+        {
+            public string Identity { get; set; } = Guid.NewGuid().ToString();
+        }
+
+        public class Repository1
+        {
+            public Repository1(ContextFactory factory)
+            {
+                Factory = factory;
+            }
+
+            public ContextFactory Factory { get; }
+        }
+
+        public class Repository2
+        {
+            public Repository2(ContextFactory factory)
+            {
+                Factory = factory;
+            }
+
+            public ContextFactory Factory { get; }
+        }
+
+        public class Service1
+        {
+            public Service1(Repository1 repository1, Repository2 repository2)
+            {
+                Repository1 = repository1;
+                Repository2 = repository2;
+            }
+
+            public Repository1 Repository1 { get; }
+            public Repository2 Repository2 { get; }
+        }
+
+        public class Service2
+        {
+            public Service2(Service1 service)
+            {
+                Service = service;
+            }
+
+            public Service1 Service { get; }
+        }
+
+
         [TestMethod]
         public void unitycontainer_container_82()
         {
@@ -16,17 +108,10 @@ namespace Unity.Tests.Issues
             var rootContainer = new UnityContainer();
             rootContainer.RegisterType<MainClass>(new PerResolveLifetimeManager());
             rootContainer.RegisterType<IHostClass, MainClass>();
-            
+
             // Create a child container
             var childContainer = rootContainer.CreateChildContainer();
 
-            //Resolve main class from root container - WORKS
-            //NOTE: if you uncomment these lines it fixes the issue i guess it's beause the MainClass get's 
-            //resolved in the context of the root container
-//            var main1 = rootContainer.Resolve<MainClass>();
-//            Assert.AreEqual(main1, main1.HelperClass.HostClass);
-
-            //Resolve main class from child container - GENERATES STACK OVERFLOW
             var main2 = childContainer.Resolve<MainClass>();
             Assert.AreEqual(main2, main2.HelperClass.HostClass);
         }
@@ -55,7 +140,7 @@ namespace Unity.Tests.Issues
 
     public class HelperClass
     {
-        [Dependency] 
+        [Dependency]
         public IHostClass HostClass { get; set; }
     }
 }
