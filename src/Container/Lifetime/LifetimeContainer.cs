@@ -103,6 +103,7 @@ namespace Unity.Container.Lifetime
             lock (_items)
             {
                 disposables = _items.OfType<IDisposable>()
+                                    .Distinct()
                                     .Reverse()
                                     .ToArray();
                 _items.Clear();
