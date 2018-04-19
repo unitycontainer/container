@@ -107,10 +107,17 @@ namespace Unity
             var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(T));
             foreach (var registration in registrations)
             {
-                if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                    list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
-                else
-                    list.Add((T)((BuilderContext)context).NewBuildUp(registration));
+                try
+                {
+                    if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+                        list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                    else
+                        list.Add((T)((BuilderContext)context).NewBuildUp(registration));
+                }
+                catch 
+                {
+                    // Ignore errors
+                }
             }
 
             context.Existing = list.ToArray();
@@ -124,8 +131,22 @@ namespace Unity
             GetNamedRegistrations(container, typeof(T), set);
             GetNamedRegistrations(container, type, set);
 
-            context.Existing = set.Select(registration => (T) ((BuilderContext) context).NewBuildUp(typeof(T), registration.Name))
+            context.Existing = set.Select(registration =>
+                                      {
+                                          try
+                                          {
+                                              return (T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name);
+                                          }
+                                          catch 
+                                          {
+                                              // Ignore
+                                          }
+                                      
+                                          return default(T);
+                                      })
+                                  .Where(v => null != v)
                                   .ToArray();
+
             context.BuildComplete = true;
         }
         
@@ -137,10 +158,17 @@ namespace Unity
             var registrations = (IList<InternalRegistration>)GetExplicitRegistrations(container, typeof(T));
             foreach (var registration in registrations)
             {
-                if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                    list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
-                else
-                    list.Add((T)((BuilderContext)context).NewBuildUp(registration));
+                try
+                {
+                    if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+                        list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                    else
+                        list.Add((T)((BuilderContext)context).NewBuildUp(registration));
+                }
+                catch 
+                {
+                    // Ignore
+                }
             }
 
             context.Existing = list;
@@ -154,7 +182,20 @@ namespace Unity
             GetExplicitRegistrations(container, typeof(T), set);
             GetExplicitRegistrations(container, type, set);
 
-            context.Existing = set.Select(registration => (T) ((BuilderContext) context).NewBuildUp(typeof(T), registration.Name))
+            context.Existing = set.Select(registration =>
+                                      {
+                                          try
+                                          {
+                                              return (T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name);
+                                          }
+                                          catch 
+                                          {
+                                              // Ignore
+                                          }
+                                      
+                                          return default(T);
+                                      })
+                                  .Where(v => null != v)
                                   .ToList();
             context.BuildComplete = true;
         }
