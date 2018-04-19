@@ -88,7 +88,7 @@ namespace Unity
                 if (strategy.RequiredToBuildType(this, registration, injectionMembers))
                     chain.Add(strategy);
             }
-            registration.BuildChain = chain;
+            registration.BuildChain = chain.ToArray();
 
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, 
