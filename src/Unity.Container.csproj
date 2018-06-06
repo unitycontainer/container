@@ -6,6 +6,7 @@
     <FileVersion>$(Version).0</FileVersion>
     <AssemblyVersion>$(Version).0</AssemblyVersion>
     <AssemblyInformationalVersion>$(FileVersion)</AssemblyInformationalVersion>
+    <DebugType>pdbonly</DebugType>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
     <Copyright>Copyright © Microsoft 2008</Copyright>
