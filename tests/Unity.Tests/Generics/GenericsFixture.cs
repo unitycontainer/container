@@ -1,9 +1,6 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -198,6 +195,30 @@ namespace Unity.Tests.Generics
         public interface IService<T> { }
         public class ServiceA<T> : IService<T> { }
         public class ServiceB<T> : IService<T> { }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exceptions.ResolutionFailedException))]
+        public void FailedResolveAllTest()
+        {
+            var container = new UnityContainer();
+
+            container.RegisterType<IFoo, Foo>("1");
+            container.RegisterType<IFoo>("2", new InjectionFactory(c => { throw new System.InvalidOperationException(); }));
+
+            container.ResolveAll<IFoo>();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exceptions.ResolutionFailedException))]
+        public void FailedResolveEnumerableTest()
+        {
+            var container = new UnityContainer();
+
+            container.RegisterType<IFoo, Foo>("1");
+            container.RegisterType<IFoo>("2", new InjectionFactory(c => { throw new System.InvalidOperationException(); }));
+
+            container.Resolve<IEnumerable<IFoo>>();
+        }
 
         [TestMethod]
         public void CanResolveOpenGenericCollections()
