@@ -102,25 +102,9 @@ namespace Unity
         internal static void ResolveArray<T>(IBuilderContext context)
         {
             var container = (UnityContainer)context.Container;
-            var list = new List<T>();
-
             var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(T));
-            foreach (var registration in registrations)
-            {
-                try
-                {
-                    if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                        list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
-                    else
-                        list.Add((T)((BuilderContext)context).NewBuildUp(registration));
-                }
-                catch 
-                {
-                    // Ignore errors
-                }
-            }
 
-            context.Existing = list.ToArray();
+            context.Existing = ResolveRegistrations<T>(context, registrations).ToArray();
             context.BuildComplete = true;
         }
 
@@ -131,47 +115,16 @@ namespace Unity
             GetNamedRegistrations(container, typeof(T), set);
             GetNamedRegistrations(container, type, set);
 
-            context.Existing = set.Select(registration =>
-                                      {
-                                          try
-                                          {
-                                              return (T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name);
-                                          }
-                                          catch 
-                                          {
-                                              // Ignore
-                                          }
-                                      
-                                          return default(T);
-                                      })
-                                  .Where(v => null != v)
-                                  .ToArray();
-
+            context.Existing = ResolveGenericRegistrations<T>(context, set).ToArray();
             context.BuildComplete = true;
         }
         
         internal static void ResolveEnumerable<T>(IBuilderContext context)
         {
             var container = (UnityContainer)context.Container;
-            var list = new List<T>();
-
             var registrations = (IList<InternalRegistration>)GetExplicitRegistrations(container, typeof(T));
-            foreach (var registration in registrations)
-            {
-                try
-                {
-                    if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                        list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
-                    else
-                        list.Add((T)((BuilderContext)context).NewBuildUp(registration));
-                }
-                catch 
-                {
-                    // Ignore
-                }
-            }
 
-            context.Existing = list;
+            context.Existing = ResolveRegistrations<T>(context, registrations);
             context.BuildComplete = true;
         }
 
@@ -182,24 +135,51 @@ namespace Unity
             GetExplicitRegistrations(container, typeof(T), set);
             GetExplicitRegistrations(container, type, set);
 
-            context.Existing = set.Select(registration =>
-                                      {
-                                          try
-                                          {
-                                              return (T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name);
-                                          }
-                                          catch 
-                                          {
-                                              // Ignore
-                                          }
-                                      
-                                          return default(T);
-                                      })
-                                  .Where(v => null != v)
-                                  .ToList();
+            context.Existing = ResolveGenericRegistrations<T>(context, set);
             context.BuildComplete = true;
         }
 
+
+        private static IList<T> ResolveGenericRegistrations<T>(IBuilderContext context, IEnumerable<InternalRegistration> registrations)
+        {
+            var list = new List<T>();
+            foreach (var registration in registrations)
+            {
+                try
+                {
+                    list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                }
+                catch (ArgumentException ex)
+                {
+                    if (!(ex.InnerException is TypeLoadException))
+                        throw;
+                }
+            }
+
+            return list;
+        }
+
+        private static IList<T> ResolveRegistrations<T>(IBuilderContext context, IList<InternalRegistration> registrations)
+        {
+            var list = new List<T>();
+            foreach (var registration in registrations)
+            {
+                try
+                {
+                    if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+                        list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                    else
+                        list.Add((T)((BuilderContext)context).NewBuildUp(registration));
+                }
+                catch (ArgumentException ex)
+                {
+                    if (!(ex.InnerException is TypeLoadException))
+                        throw;
+                }
+            }
+
+            return list;
+        }
 
         private static MiniHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
         {
