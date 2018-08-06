@@ -9,6 +9,22 @@ namespace Unity.Tests.Issues
     [TestClass]
     public class GitHubIssues
     {
+        public interface IFoo { }
+
+        public class Foo : IFoo
+        {
+            public Foo(string view) { }
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_88()
+        {
+            var ioc = new UnityContainer();
+            ioc.RegisterType<IFoo, Foo>(new HierarchicalLifetimeManager());
+
+            var value1 = ioc.CreateChildContainer().Resolve<IFoo>(new Resolution.ParameterOverride("view", "qq").OnType<Foo>());
+            var value2 = ioc.CreateChildContainer().Resolve<IFoo>(new Resolution.ParameterOverride("view", "qq").OnType<Foo>());
+        }
 
         [TestMethod]
         public void unitycontainer_unity_204_1()
