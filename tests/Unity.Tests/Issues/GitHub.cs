@@ -3,6 +3,8 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
 using Unity.Attributes;
+using Unity.Injection;
+using Unity.Exceptions;
 
 namespace Unity.Tests.Issues
 {
@@ -24,6 +26,18 @@ namespace Unity.Tests.Issues
 
             var value1 = ioc.CreateChildContainer().Resolve<IFoo>(new Resolution.ParameterOverride("view", "qq").OnType<Foo>());
             var value2 = ioc.CreateChildContainer().Resolve<IFoo>(new Resolution.ParameterOverride("view", "qq").OnType<Foo>());
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_92()
+        {
+            var ioc = new UnityContainer();
+            ioc.RegisterType<IFoo>(
+                string.Empty, 
+                new SingletonLifetimeManager(), 
+                new InjectionFactory(c => { throw new InvalidOperationException(); }));
+
+            Assert.ThrowsException<ResolutionFailedException>(() => ioc.Resolve<IFoo>());
         }
 
         [TestMethod]

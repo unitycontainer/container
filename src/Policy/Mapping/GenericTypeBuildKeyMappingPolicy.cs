@@ -65,7 +65,7 @@ namespace Unity.Policy.Mapping
             }
 
             Type[] genericArguments = targetTypeInfo.GenericTypeArguments;
-            Type resultType = Type.MakeGenericType(genericArguments);
+            Type resultType = MakeGenericTypeOrThrow(genericArguments);
             return new NamedTypeBuildKey(resultType, Name);
         }
 
@@ -73,6 +73,18 @@ namespace Unity.Policy.Mapping
         /// Instructs engine to resolve type rather than build it
         /// </summary>
         public bool RequireBuild { get; } = true;
+
+        private Type MakeGenericTypeOrThrow(Type[] genericArguments)
+        {
+            try
+            {
+                return Type.MakeGenericType(genericArguments);
+            }
+            catch (ArgumentException ae)
+            {
+                throw new MakeGenericTypeFailedException(ae);
+            }
+        }
 
         #endregion
     }

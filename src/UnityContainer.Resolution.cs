@@ -149,10 +149,8 @@ namespace Unity
                 {
                     list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
                 }
-                catch (ArgumentException ex)
+                catch (Policy.Mapping.MakeGenericTypeFailedException)
                 {
-                    if (!(ex.InnerException is TypeLoadException))
-                        throw;
                 }
             }
 
