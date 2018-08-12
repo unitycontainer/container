@@ -29,17 +29,7 @@
     <Compile Remove="Utility\ConcurrentDictionary.cs" />
   </ItemGroup>
 
-  
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <OutputPath>$(SolutionDir)lib</OutputPath>
-  </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>Full</DebugType>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-  </PropertyGroup>
-  
   <ItemGroup Condition="Exists('$(UnityAbstractions)')">
     <ProjectReference Include="$(UnityAbstractions)" />
   </ItemGroup>
@@ -48,10 +38,16 @@
     <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
   </ItemGroup>
 
-  <!--
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-  -->
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <OutputPath>$(SolutionDir)lib</OutputPath>
+    <DebugType>Portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
 
 </Project>
