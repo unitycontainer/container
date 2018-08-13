@@ -169,7 +169,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             yield return Expression.Call(null,
                                         SetCurrentOperationToInvokingConstructorMethod,
                                         Expression.Constant(signature),
-                                        buildContext.ContextParameter);
+                                        buildContext.ContextParameter,
+                                        Expression.Constant(selectedConstructor.Constructor.DeclaringType));
 
             yield return Expression.Assign(
                             buildContext.GetExistingObjectExpression(),
@@ -194,7 +195,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                                                 SetCurrentOperationToResolvingParameterMethod,
                                                 Expression.Constant(constructionParameters[i].Name, typeof(string)),
                                                 Expression.Constant(constructorSignature),
-                                                buildContext.ContextParameter));
+                                                buildContext.ContextParameter,
+                                                Expression.Constant(selectedConstructor.Constructor.DeclaringType)));
                 i++;
             }
         }
@@ -258,19 +260,17 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         /// <summary>
         /// A helper method used by the generated IL to store the current operation in the build context.
         /// </summary>
-        public static void SetCurrentOperationToResolvingParameter(string parameterName, string constructorSignature, IBuilderContext context)
+        public static void SetCurrentOperationToResolvingParameter(string parameterName, string constructorSignature, IBuilderContext context, Type type)
         {
-            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new ConstructorArgumentResolveOperation(
-                context.BuildKey.Type, constructorSignature, parameterName);
+            context.CurrentOperation = new ConstructorArgumentResolveOperation(type, constructorSignature, parameterName);
         }
 
         /// <summary>
         /// A helper method used by the generated IL to store the current operation in the build context.
         /// </summary>
-        public static void SetCurrentOperationToInvokingConstructor(string constructorSignature, IBuilderContext context)
+        public static void SetCurrentOperationToInvokingConstructor(string constructorSignature, IBuilderContext context, Type type)
         {
-            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new InvokingConstructorOperation(
-                context.BuildKey.Type, constructorSignature);
+            context.CurrentOperation = new InvokingConstructorOperation(type, constructorSignature);
         }
 
         /// <summary>

@@ -11,21 +11,41 @@ namespace Unity.Tests.Issues
     [TestClass]
     public class GitHubIssues
     {
-        public interface IFoo { }
+        public interface IFoo
+        {
+            string View { get; }
+        }
 
         public class Foo : IFoo
         {
-            public Foo(string view) { }
+            public string View { get; }
+
+            public Foo(string view)
+            {
+                View = view;
+            }
         }
 
         [TestMethod]
         public void unitycontainer_container_88()
         {
+            var str1 = "s1";
+            var str2 = "s2";
+
             var ioc = new UnityContainer();
             ioc.RegisterType<IFoo, Foo>(new HierarchicalLifetimeManager());
 
-            var value1 = ioc.CreateChildContainer().Resolve<IFoo>(new Resolution.ParameterOverride("view", "qq").OnType<Foo>());
-            var value2 = ioc.CreateChildContainer().Resolve<IFoo>(new Resolution.ParameterOverride("view", "qq").OnType<Foo>());
+            var ch1 = ioc.CreateChildContainer();
+            var ch2 = ioc.CreateChildContainer();
+
+            var value1 = ch1.Resolve<IFoo>(new Resolution.ParameterOverride("view", str1).OnType<Foo>());
+            var value2 = ch2.Resolve<IFoo>(new Resolution.ParameterOverride("view", str2).OnType<Foo>());
+
+            Assert.IsNotNull(value1);
+            Assert.IsNotNull(value2);
+
+            Assert.AreEqual(value1.View, str1);
+            Assert.AreEqual(value2.View, str2);
         }
 
         [TestMethod]
