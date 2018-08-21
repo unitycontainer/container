@@ -291,7 +291,7 @@ namespace Unity
 
             foreach (var strategy in strategies)
             {
-                if (registration.Type != null && strategy.RequiredToBuildType(this, registration, null))
+                if (strategy.RequiredToBuildType(this, registration, null))
                     chain.Add(strategy);
             }
 
