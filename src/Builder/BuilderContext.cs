@@ -44,8 +44,7 @@ namespace Unity.Builder
             _ownsOverrides = true;
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
             {
-                _resolverOverrides = new CompositeResolverOverride();
-                _resolverOverrides.AddRange(resolverOverrides);
+                _resolverOverrides = new CompositeResolverOverride(resolverOverrides);
             }
         }
 
