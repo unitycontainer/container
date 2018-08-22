@@ -148,15 +148,6 @@ namespace Unity.Tests.Container
             AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<List<ATest>>("List"));
         }
 
-        [TestMethod]
-        public void ResolveArrayOfAtest()
-        {
-            UnityContainer uc1 = new UnityContainer();
-
-            uc1.RegisterType<ATest[]>("Array");
-            ATest[] arr = (ATest[])uc1.Resolve<ATest[]>("Array");
-        }
-
         #region Basic Parameterized Constructor
 
         [TestMethod]

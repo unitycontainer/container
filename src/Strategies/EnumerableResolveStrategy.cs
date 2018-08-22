@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Registration;
@@ -72,6 +73,13 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
+            if (namedType is ContainerRegistration containerRegistration)
+            {
+                if (containerRegistration.RegisteredType != containerRegistration.MappedToType ||
+                    null != injectionMembers && injectionMembers.Any(i => i is IInjectionFactory))
+                    return false;
+            }
+
              return namedType is InternalRegistration registration &&
                     registration.Type.GetTypeInfo().IsGenericType && 
                     typeof(IEnumerable<>) == registration.Type.GetGenericTypeDefinition();

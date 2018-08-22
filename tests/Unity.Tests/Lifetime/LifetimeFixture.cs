@@ -295,8 +295,9 @@ namespace Unity.Tests.Lifetime
             IUnityContainer uc = new UnityContainer();
 
             var aInstance = new EmailService();
-            uc.RegisterType(null, typeof(EmailService), null,  new ContainerControlledLifetimeManager(), null);
-            uc.RegisterType<EmailService>("SetA", new ContainerControlledLifetimeManager());
+
+            uc.RegisterType(null, typeof(EmailService), null, new ContainerControlledLifetimeManager(), null);
+            uc.RegisterType(null, typeof(EmailService), "SetA", new ContainerControlledLifetimeManager(), null);
             uc.RegisterInstance(aInstance);
             uc.RegisterInstance("hello", aInstance);
             uc.RegisterInstance("hello", aInstance, new ExternallyControlledLifetimeManager());

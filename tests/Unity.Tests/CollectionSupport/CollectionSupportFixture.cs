@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Injection;
 using Unity.Lifetime;
 
 
@@ -11,11 +12,57 @@ namespace Unity.Tests.CollectionSupport
     public class CollectionSupportFixture
     {
         [TestMethod]
+        public void ResolvingEnumTypeSucceedsIfItWasNotRegistered()
+        {
+            IUnityContainer container = new UnityContainer();
+
+            Assert.IsNotNull(container.Resolve<IEnumerable<TestClass>>());
+        }
+
+
+        [TestMethod]
         public void ResolvingAnArrayTypeSucceedsIfItWasNotRegistered()
         {
             IUnityContainer container = new UnityContainer();
 
-            TestClass[] resolved = container.Resolve<TestClass[]>();
+            Assert.IsNotNull(container.Resolve<TestClass[]>());
+        }
+
+        [TestMethod]
+        public void ResolvingAnArrayWithFactory()
+        {
+            var name = "test";
+            var data = new [] { new TestClass(), new TestClass() };
+
+            var container = new UnityContainer()
+                .RegisterType<TestClass[]>(new InjectionFactory(c => data))
+                .RegisterType<TestClass[]>(name, new InjectionFactory(c => data));
+
+            Assert.AreSame(data, container.Resolve<TestClass[]>());
+            Assert.AreSame(data, container.Resolve<TestClass[]>(name));
+        }
+
+        [TestMethod]
+        public void ResolvingEnumWithFactory()
+        {
+            var name = "test";
+            var data = new [] { new TestClass(), new TestClass() };
+
+            var container = new UnityContainer()
+                .RegisterType<IEnumerable<TestClass>>(new InjectionFactory(c => data))
+                .RegisterType<IEnumerable<TestClass>>(name, new InjectionFactory(c => data));
+
+            Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>());
+            Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>(name));
+        }
+
+        [TestMethod]
+        public void ResolvingEnumWithMap()
+        {
+            var container = new UnityContainer()
+                .RegisterType<IEnumerable<TestClass>, List<TestClass>>(new InjectionConstructor());
+
+            Assert.IsInstanceOfType(container.Resolve<IEnumerable<TestClass>>(), typeof(List<TestClass>));
         }
 
         [TestMethod]

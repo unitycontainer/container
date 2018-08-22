@@ -34,6 +34,15 @@ namespace Microsoft.Practices.Unity.Tests
         }
 
         [TestMethod]
+        public void ResolveArrayOfAtest()
+        {
+            UnityContainer uc1 = new UnityContainer();
+
+            uc1.RegisterType<EmptyClass[]>("Array");
+            Assert.IsNotNull(uc1.Resolve<EmptyClass[]>("Array"));
+        }
+
+        [TestMethod]
         public void ContainerReturnsEmptyArrayIfNoObjectsRegistered()
         {
             IUnityContainer container = new UnityContainer();
