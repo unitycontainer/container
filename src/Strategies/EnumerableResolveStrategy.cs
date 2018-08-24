@@ -80,7 +80,7 @@ namespace Unity.Strategies
                     return false;
             }
 
-             return namedType is InternalRegistration registration &&
+             return namedType is InternalRegistration registration && null != registration.Type &&
                     registration.Type.GetTypeInfo().IsGenericType && 
                     typeof(IEnumerable<>) == registration.Type.GetGenericTypeDefinition();
         }
