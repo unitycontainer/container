@@ -115,7 +115,7 @@ namespace Unity.Strategies
 
         private bool AnaliseDynamicRegistration(InternalRegistration registration)
         {
-            return registration.Type.GetTypeInfo().IsGenericType;
+            return null != registration.Type && registration.Type.GetTypeInfo().IsGenericType;
         }
 
 

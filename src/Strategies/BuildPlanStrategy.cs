@@ -72,7 +72,8 @@ namespace Unity.Strategies
 
         private static IBuildPlanCreatorPolicy CheckIfOpenGeneric(IPolicySet namedType)
         {
-            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && 
+                null != registration.Type && registration.Type.GetTypeInfo().IsGenericTypeDefinition)
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, 
                     Constants.CannotResolveOpenGenericType, registration.Type.FullName));
