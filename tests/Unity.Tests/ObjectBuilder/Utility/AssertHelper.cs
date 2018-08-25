@@ -1,11 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.v5.ObjectBuilder.Utility
 {
     internal class AssertHelper
     {

@@ -1,11 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
+﻿using Unity.Policy;
 
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
-using Unity.Builder;
-using Unity.Policy;
-
-namespace Microsoft.Practices.Unity.Tests.TestDoubles
+namespace Unity.Tests.v5.TestDoubles
 {
     /// <summary>
     /// A sample policy that gets used by the SpyStrategy

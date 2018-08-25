@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Exceptions;
 using Unity.Injection;
+using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests
+namespace Unity.Tests.v5.Injection
 {
     [TestClass]
     public class DelegateInjectionFactoryFixture

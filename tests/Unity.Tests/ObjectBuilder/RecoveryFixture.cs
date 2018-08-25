@@ -1,14 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Microsoft.Practices.Unity.TestSupport;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.v5.ObjectBuilder
 {
     // Testing that the IRequiresRecovery interface is
     // properly handled in the buildup process.

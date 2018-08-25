@@ -1,11 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Configuration;
 using System.IO;
-using Microsoft.Practices.ObjectBuilder2;
 
-namespace Microsoft.Practices.Unity.TestSupport.Configuration
+namespace Unity.Tests.v5.TestSupport.Configuration
 {
     public class ConfigFileLoader<TResourceLocator>
     {

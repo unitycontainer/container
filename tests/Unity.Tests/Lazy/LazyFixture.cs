@@ -1,10 +1,8 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
-using Microsoft.Practices.Unity;
-using Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity.Tests.TestObjects;
 
-namespace Unity.Tests.Lazy
+namespace Unity.Tests.v5.Lazy
 {
     [TestClass]
     public class LazyFixture

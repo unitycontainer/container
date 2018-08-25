@@ -1,19 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.Policy;
+using Unity.Tests.v5.TestDoubles;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests
+namespace Unity.Tests.v5.ObjectBuilder
 {
     [TestClass]
     public class PropertySelectorFixture

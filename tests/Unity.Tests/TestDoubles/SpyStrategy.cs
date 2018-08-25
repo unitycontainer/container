@@ -1,12 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
-using Unity.Builder;
+﻿using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Policy;
 
-namespace Microsoft.Practices.Unity.Tests.TestDoubles
+namespace Unity.Tests.v5.TestDoubles
 {
     /// <summary>
     /// A small noop strategy that lets us check afterwards to

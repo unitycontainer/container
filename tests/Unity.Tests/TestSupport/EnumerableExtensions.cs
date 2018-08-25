@@ -1,12 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Practices.Unity.Utility;
 
-namespace Microsoft.Practices.ObjectBuilder2
+namespace Unity.Tests.v5.TestSupport
 {
     /// <summary>
     /// The almost inevitable collection of extra helper methods on

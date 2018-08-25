@@ -1,16 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using System.Collections.Generic;
-using Microsoft.Practices.Unity.TestSupport;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Storage;
 using Unity.Strategy;
+using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests.ObjectBuilder
+namespace Unity.Tests.v5.ObjectBuilder
 {
     [TestClass]
     public class StagedStrategyChainTest

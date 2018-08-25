@@ -1,9 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
 
-namespace Unity.Tests.Container
+namespace Unity.Tests.v5.Container
 {
     [TestClass]
     public class ContainerDefaultContentFixture

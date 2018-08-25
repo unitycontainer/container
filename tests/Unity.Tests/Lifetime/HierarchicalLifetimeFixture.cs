@@ -1,11 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Lifetime;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5.Lifetime
 {
     [TestClass]
     public class WhenUsingHierarchicalLifetimeWithChildContainers

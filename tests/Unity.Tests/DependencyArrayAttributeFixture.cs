@@ -1,12 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
 using Unity.Exceptions;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5
 {
     [TestClass]
     public class DependencyArrayAttributeFixture

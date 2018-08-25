@@ -1,8 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
@@ -12,7 +9,7 @@ using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Strategy;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5.Injection
 {
     /// <summary>
     /// Summary description for OptionalDependencyResolverPolicyFixture

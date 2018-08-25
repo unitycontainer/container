@@ -1,13 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
 using Unity.Lifetime;
+using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests.Lazy
+namespace Unity.Tests.v5.Lazy
 {
     /// <summary>
     /// Summary description for DeferredResolveFixture

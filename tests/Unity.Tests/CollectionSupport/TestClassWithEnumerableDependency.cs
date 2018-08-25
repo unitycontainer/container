@@ -1,8 +1,7 @@
-﻿using Microsoft.Practices.Unity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Attributes;
 
-namespace Unity.Tests.CollectionSupport
+namespace Unity.Tests.v5.CollectionSupport
 {
     public class TestClassWithEnumerableDependency
     {

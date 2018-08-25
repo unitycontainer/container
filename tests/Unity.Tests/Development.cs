@@ -1,14 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unity.Injection;
-using Unity.Lifetime;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Tests.TestObjects;
 
-namespace Unity.Tests
+namespace Unity.Tests.v5
 {
     [TestClass]
     public class DevelopmentTests

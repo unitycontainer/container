@@ -1,12 +1,12 @@
 using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Lifetime;
 using Unity.Attributes;
-using Unity.Injection;
 using Unity.Exceptions;
+using Unity.Injection;
+using Unity.Lifetime;
 
-namespace Unity.Tests.Issues
+namespace Unity.Tests.v5.Issues
 {
     [TestClass]
     public class GitHubIssues

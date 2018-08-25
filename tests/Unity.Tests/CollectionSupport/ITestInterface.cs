@@ -1,4 +1,4 @@
-﻿namespace Tests.Unity.MSTests.CollectionSupport
+﻿namespace Unity.Tests.v5.CollectionSupport
 {
     public interface ITestInterface
     {

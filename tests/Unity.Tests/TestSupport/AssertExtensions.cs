@@ -1,10 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Microsoft.Practices.Unity.TestSupport
+namespace Unity.Tests.v5.TestSupport
 {
     public static class AssertExtensions
     {

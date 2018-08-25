@@ -1,10 +1,6 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.Practices.Unity;
 using Unity.Extension;
 
-
-namespace Unity.Tests.TestDoubles
+namespace Unity.Tests.v5.TestDoubles
 {
     internal class MockContainerExtension : UnityContainerExtension, IMockConfiguration
     {

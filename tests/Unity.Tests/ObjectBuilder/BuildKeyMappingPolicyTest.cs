@@ -1,10 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Policy.Mapping;
 
-namespace Unity.Tests.ObjectBuilder
+namespace Unity.Tests.v5.ObjectBuilder
 {
     [TestClass]
     public class BuildKeyMappingPolicyTest

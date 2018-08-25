@@ -1,12 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using Microsoft.Practices.Unity;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.Tests.ContainerRegistration
+namespace Unity.Tests.v5.ContainerRegistration
 {
     [TestClass]
     public class GivenContainerRegistrationFixtureCorrectUsageFixture

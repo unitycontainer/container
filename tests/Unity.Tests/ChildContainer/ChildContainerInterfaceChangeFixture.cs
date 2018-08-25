@@ -1,12 +1,8 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.TestSupport;
 using Unity.Lifetime;
 
-namespace Unity.Tests.ChildContainer
+namespace Unity.Tests.v5.ChildContainer
 {
     /// <summary>
     /// Summary description for TestChildContainerInterfaceChanges

@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-namespace Unity.Tests.Generics
+
+namespace Unity.Tests.v5.Generics
 {
     public class HaveManyGenericTypes<T1, T2, T3, T4> : IHaveManyGenericTypes<T1, T2, T3, T4>
     {

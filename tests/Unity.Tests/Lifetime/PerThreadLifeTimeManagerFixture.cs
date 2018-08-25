@@ -1,12 +1,10 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Practices.Unity;
-using Unity.Tests.Generics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
+using Unity.Tests.v5.Generics;
 
-namespace Unity.Tests.Lifetime
+namespace Unity.Tests.v5.Lifetime
 {
     [TestClass]
     public class PerThreadLifeTimeManagerFixture

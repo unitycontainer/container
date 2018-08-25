@@ -1,12 +1,9 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-using System;
-using Microsoft.Practices.Unity;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Attributes;
 using Unity.Lifetime;
 
-namespace Unity.Tests.SeparateContainer
+namespace Unity.Tests.v5.Container
 {
     [TestClass]
     public class SeperateContainerFixture

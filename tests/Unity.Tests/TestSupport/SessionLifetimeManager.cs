@@ -1,14 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
 using Unity.Lifetime;
 
-namespace Microsoft.Practices.Unity.TestSupport
+namespace Unity.Tests.v5.TestSupport
 {
     [TypeConverter(typeof(SessionKeyTypeConverter))]
     public class SessionLifetimeManager : LifetimeManager

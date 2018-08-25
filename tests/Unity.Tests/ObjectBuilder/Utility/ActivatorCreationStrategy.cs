@@ -1,13 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Unity;
+﻿using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests.Utility
+namespace Unity.Tests.v5.ObjectBuilder.Utility
 {
     internal class ActivatorCreationStrategy : BuilderStrategy
     {

@@ -1,14 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Microsoft.Practices.ObjectBuilder2;
-using Unity;
+﻿using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Extension;
 using Unity.Policy;
 
-namespace Microsoft.Practices.Unity.Tests.TestDoubles
+namespace Unity.Tests.v5.TestDoubles
 {
     /// <summary>
     /// A simple extension that puts the supplied strategy into the

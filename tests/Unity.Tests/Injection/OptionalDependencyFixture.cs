@@ -1,13 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-using System;
-using Microsoft.Practices.Unity;
-
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
 using Unity.Injection;
 
-
-namespace Unity.Tests
+namespace Unity.Tests.v5.Injection
 {
     /// <summary>
     /// Summary description for OptionalDependencyFixture

@@ -1,15 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
-using Microsoft.Practices.Unity.Tests.TestDoubles;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Lifetime;
+using Unity.Tests.v5.TestDoubles;
 
-namespace Unity.Tests.Container
+namespace Unity.Tests.v5.Container
 {
     // Test for a race condition in the ContainerControlledLifetime
     // class.

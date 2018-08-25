@@ -1,10 +1,6 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-
-using Microsoft.Practices.Unity;
 using Unity.Attributes;
 
-namespace Unity.Tests.Override
+namespace Unity.Tests.v5.Override
 {
     public class SubjectType1ToInject : ISubjectTypeToInject
     {

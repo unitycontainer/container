@@ -1,22 +1,15 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Microsoft.Practices.ObjectBuilder2;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
-using Unity.Container;
 using Unity.Extension;
 using Unity.Injection;
-using Unity.ObjectBuilder;
 using Unity.Policy;
 using Unity.ResolverPolicy;
-using Unity.Storage;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5
 {
     [TestClass]
     public class ResolvingArraysFixture

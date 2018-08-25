@@ -1,13 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Attributes;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5
 {
     /// <summary>
     /// Summary description for DeferredResolveFixture

@@ -1,15 +1,10 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
 using System;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
-using Unity.Tests.Container;
 using Unity.Tests.TestObjects;
+using Unity.Tests.v5.Container;
 
-
-namespace Unity.Tests.Lifetime
+namespace Unity.Tests.v5.Lifetime
 {
     /// <summary>
     /// Summary description for MyTest

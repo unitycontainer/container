@@ -1,13 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Microsoft.Practices.Unity.TestSupport;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5.Generics
 {
     // Test fixture to verify generic object chaining.
     // Reported as a bug in http://www.codeplex.com/unity/Thread/View.aspx?ThreadId=27231

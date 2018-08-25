@@ -1,17 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Builder;
 using Unity.Builder.Policy;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
-using Unity.Container;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -20,8 +15,10 @@ using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Storage;
 using Unity.Strategy;
+using Unity.Tests.v5.Generics;
+using Unity.Tests.v5.TestSupport;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5
 {
     /// <summary>
     /// Summary description for SpecifiedConstructorSelectorPolicyFixture

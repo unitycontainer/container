@@ -1,11 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
 using Unity.Attributes;
 
-namespace Microsoft.Practices.Unity.Tests
+namespace Unity.Tests.v5.Issues
 {
     /// <summary>
     /// Test for dynamic method creation and the CLR bug. This test will only

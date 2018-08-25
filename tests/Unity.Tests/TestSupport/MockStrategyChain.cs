@@ -1,13 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Strategy;
 
-namespace Microsoft.Practices.Unity.TestSupport
+namespace Unity.Tests.v5.TestSupport
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.

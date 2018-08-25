@@ -1,13 +1,12 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
 using System.Collections.Generic;
-using Microsoft.Practices.Unity.TestSupport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
+using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests.Override
+namespace Unity.Tests.v5.Override
 {
     /// <summary>
     /// Summary description for TypeBasedOverrideFixture

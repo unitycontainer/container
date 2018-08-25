@@ -1,11 +1,6 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-using Microsoft.Practices.Unity;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Unity.Attributes;
 
-namespace Unity.Tests.CollectionSupport
+namespace Unity.Tests.v5.CollectionSupport
 {
     public class TestClassWithDependencyTypeMethod
     {

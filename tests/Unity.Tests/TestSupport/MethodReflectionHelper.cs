@@ -1,11 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Unity
+namespace Unity.Tests.v5.TestSupport
 {
     /// <summary>
     /// Helper class to wrap common reflection stuff dealing with

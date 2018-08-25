@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.Tests.Generics
+namespace Unity.Tests.v5.Generics
 {
     /// <summary>
     /// Summary description for TestGenerics

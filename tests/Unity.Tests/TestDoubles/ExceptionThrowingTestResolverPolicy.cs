@@ -1,11 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Unity;
+﻿using System;
 using Unity.Builder;
 using Unity.Policy;
 
-namespace Microsoft.Practices.ObjectBuilder2.Tests.TestDoubles
+namespace Unity.Tests.v5.TestDoubles
 {
     public class ExceptionThrowingTestResolverPolicy : IResolverPolicy
     {

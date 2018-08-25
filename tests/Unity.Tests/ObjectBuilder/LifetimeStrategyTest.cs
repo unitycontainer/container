@@ -1,15 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
-using Microsoft.Practices.ObjectBuilder2.Tests.Utility;
-using Microsoft.Practices.Unity.TestSupport;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Strategies;
+using Unity.Tests.v5.ObjectBuilder.Utility;
+using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests.ObjectBuilder
+namespace Unity.Tests.v5.ObjectBuilder
 {
     [TestClass]
     public class LifetimeStrategyTest

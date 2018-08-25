@@ -1,12 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.Practices.Unity.Tests.TestDoubles;
-using Microsoft.Practices.Unity.TestSupport;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Extension;
+using Unity.Tests.v5.TestDoubles;
 
-namespace Unity.Tests
+namespace Unity.Tests.v5.Container
 {
     [TestClass]
     public class UnityExtensionFixture

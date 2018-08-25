@@ -1,12 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System.Collections.Generic;
-using Microsoft.Practices.Unity.Tests.TestObjects;
-using Microsoft.Practices.Unity.TestSupport;
+﻿using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using Unity.Injection;
+using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests
+namespace Unity.Tests.v5.Container
 {
     /// <summary>
     /// Tests for the hierarchical features of the UnityContainer.

@@ -1,8 +1,6 @@
-// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
 using System;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Container;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Lifetime;
@@ -11,7 +9,7 @@ using Unity.Storage;
 using Unity.Strategies;
 using Unity.Strategy;
 
-namespace Unity.Tests.TestDoubles
+namespace Unity.Tests.v5.TestDoubles
 {
     public class MyExtensionContext : ExtensionContext
     {

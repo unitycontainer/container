@@ -1,10 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace Microsoft.Practices.Unity.TestSupport
+namespace Unity.Tests.v5.TestSupport
 {
     /// <summary>
     /// A faked up type converter that converts integers, then returns the

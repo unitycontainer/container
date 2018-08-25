@@ -1,13 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved. See License.txt in the project root for license information.
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
-namespace Unity.Tests.Override
+namespace Unity.Tests.v5.Override
 {
     [TestClass]
     public class MultiThreadedPropertyOverrideTests
