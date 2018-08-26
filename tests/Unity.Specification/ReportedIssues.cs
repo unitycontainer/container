@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
+using Unity.Specification.Issues;
 
-namespace Unity.Specification.Tests
+namespace Specification.Tests
 {
     [TestClass]
-    public class ResolutionTestFixture : Resolution.SpecificationTests
+    public class ReportedIssues : ReportedIssuesTests
     {
         public override IUnityContainer GetContainer()
         {

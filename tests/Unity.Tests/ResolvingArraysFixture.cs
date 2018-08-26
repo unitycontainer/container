@@ -4,7 +4,6 @@ using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Extension;
-using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Tests.v5.TestSupport;
@@ -14,37 +13,6 @@ namespace Unity.Tests.v5
     [TestClass]
     public class ResolvingArraysFixture
     {
-        [TestMethod]
-        public void ContainerCanResolveListOfT()
-        {
-            IUnityContainer container = new UnityContainer();
-
-            container.RegisterType(typeof(List<>), new InjectionConstructor());
-
-            var result = container.Resolve<List<EmptyClass>>();
-
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void ResolveArrayOfAtest()
-        {
-            UnityContainer uc1 = new UnityContainer();
-
-            uc1.RegisterType<EmptyClass[]>("Array");
-            Assert.IsNotNull(uc1.Resolve<EmptyClass[]>("Array"));
-        }
-
-        [TestMethod]
-        public void ContainerReturnsEmptyArrayIfNoObjectsRegistered()
-        {
-            IUnityContainer container = new UnityContainer();
-            List<object> results = new List<object>(container.ResolveAll<object>());
-
-            Assert.IsNotNull(results);
-            CollectionAssertExtensions.AreEqual(new object[0], results);
-        }
-
         [TestMethod]
         public void ResolveAllReturnsRegisteredObjects()
         {
@@ -202,7 +170,7 @@ namespace Unity.Tests.v5
             }
         }
 
-        public class EmptyClass
+        public class SimpleClass
         {
         }
     }

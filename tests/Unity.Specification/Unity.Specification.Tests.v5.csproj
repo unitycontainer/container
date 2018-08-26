@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <IsPackable>false</IsPackable>
+    <RootNamespace>Specification.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Unity;
+using Unity.Specification.Injection;
 
-namespace Unity.Specification.Tests
+namespace Specification.Tests
 {
     [TestClass]
-    public class RegistrationTestFixture : Registration.SpecificationTests
+    public class Injection : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

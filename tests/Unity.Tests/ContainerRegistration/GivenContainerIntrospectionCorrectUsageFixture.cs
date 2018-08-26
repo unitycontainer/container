@@ -15,39 +15,6 @@ namespace Unity.Tests.v5.ContainerRegistration
         }
 
         [TestMethod]
-        public void WhenIsRegisteredIsCalledForDefaultInstance()
-        {
-            container.RegisterInstance<ITypeInterface>(new TypeImplementation("default"));
-
-            var result = container.IsRegistered(typeof(ITypeInterface));
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void WhenIsRegisteredIsCalledForNamedInstance()
-        {
-            container.RegisterInstance<ITypeInterface>("foo", new TypeImplementation("foo"));
-
-            var result = container.IsRegistered(typeof(ITypeInterface), "foo");
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void WhenIsRegisteredIsCalledForDefaultTypeRegisteredOnParentFromChildContainer()
-        {
-            container.RegisterType<ITypeInterface, TypeImplementation>(new InjectionConstructor("default"));
-            container.RegisterType<ITypeInterface, TypeImplementation>("foo", new InjectionConstructor("foo"));
-
-            var child = container.CreateChildContainer();
-
-            var result = child.IsRegistered(typeof(ITypeInterface));
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
         public void WhenIsRegisteredIsCalledForDefaultTypeFromChildContainer()
         {
             container.RegisterType<ITypeInterface, TypeImplementation>(new InjectionConstructor("default"));

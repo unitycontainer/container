@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Builder.Policy;
 using Unity.Builder.Selection;
@@ -18,7 +18,7 @@ using Unity.Strategy;
 using Unity.Tests.v5.Generics;
 using Unity.Tests.v5.TestSupport;
 
-namespace Unity.Tests.v5
+namespace Unity.Tests.v5.ObjectBuilder
 {
     /// <summary>
     /// Summary description for SpecifiedConstructorSelectorPolicyFixture
