@@ -285,8 +285,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     Constants.CannotConstructInterface,
-                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type,
-                    context.BuildKey));
+                    context.BuildKey.Type), 
+                new InvalidRegistrationException());
         }
 
         /// <summary>
@@ -300,9 +300,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         {
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
-                    Constants.CannotConstructAbstractClass,
-                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type,
-                    context.BuildKey));
+                    Constants.CannotConstructAbstractClass, 
+                    context.BuildKey.Type), 
+                new InvalidRegistrationException());
         }
 
         /// <summary>
@@ -315,10 +315,15 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         public static void ThrowForAttemptingToConstructDelegate(IBuilderContext context)
         {
             throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.CannotConstructDelegate,
-                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type,
-                    context.BuildKey));
+                string.Format(
+                    CultureInfo.CurrentCulture, Constants.CannotConstructDelegate, 
+                    context.BuildKey.Type), 
+                new InvalidRegistrationException());
+        }
+
+        public class InvalidRegistrationException : Exception
+        {
+            
         }
 
         /// <summary>

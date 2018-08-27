@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
@@ -147,10 +148,13 @@ namespace Unity
             {
                 try
                 {
-                    list.Add((T)((BuilderContext)context).NewBuildUp(typeof(T), registration.Name));
+                    list.Add((T) ((BuilderContext) context).NewBuildUp(typeof(T), registration.Name));
                 }
-                catch (Policy.Mapping.MakeGenericTypeFailedException)
+                catch (Policy.Mapping.MakeGenericTypeFailedException) { /* Ignore */ }
+                catch (InvalidOperationException ex)
                 {
+                    if (!(ex.InnerException is DynamicMethodConstructorStrategy.InvalidRegistrationException))
+                        throw;
                 }
             }
 
