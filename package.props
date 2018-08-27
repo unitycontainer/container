@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <Version>5.8.9</Version>
+    <Version>5.8.10</Version>
     <PackageReleaseNotes>This package is compatible with .NET Standard 1.0 and 2.0, .NET Core 1.0 and 2.0, .NET 4.0, 4.5, 4.6, 4.7</PackageReleaseNotes>
   </PropertyGroup>
 
