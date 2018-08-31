@@ -17,5 +17,5 @@ A clear and concise description of what you want to happen.
 Possible impact of the change on existing users.
 
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Additional context:**
+Add any other context or information about the feature request here.
