@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
@@ -27,6 +29,7 @@ using Unity.Strategy;
 namespace Unity
 {
     [CLSCompliant(true)]
+    [DebuggerDisplay("{DebugName()}")]
     public partial class UnityContainer
     {
         #region Delegates
@@ -41,21 +44,21 @@ namespace Unity
         #region Fields
 
         // Container specific
-        private readonly UnityContainer _parent; 
         internal readonly LifetimeContainer _lifetimeContainer;
         private List<UnityContainerExtension> _extensions;
-        private UnityContainer _root;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly UnityContainer _parent; 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private UnityContainer _root;
 
         // Policies
-        private readonly ContainerContext _context;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly ContainerContext _context;
 
         // Strategies
-        private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
 
         // Registrations
-        private readonly object _syncRoot = new object();
-        private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly object _syncRoot = new object();
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -67,17 +70,17 @@ namespace Unity
         internal BuilderStrategy[] _buildChain;
 
         // Methods
-        internal Func<Type, string, IPolicySet> GetRegistration;
-        internal Func<IBuilderContext, object> BuildUpPipeline;
-        internal Func<INamedType, IPolicySet> Register;
-        internal GetPolicyDelegate GetPolicy;
-        internal SetPolicyDelegate SetPolicy;
-        internal ClearPolicyDelegate ClearPolicy;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<IBuilderContext, object> BuildUpPipeline;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<INamedType, IPolicySet> Register;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal GetPolicyDelegate GetPolicy;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal SetPolicyDelegate SetPolicy;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal ClearPolicyDelegate ClearPolicy;
 
-        private Func<Type, string, IPolicySet> _get;
-        private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-        private Func<Type, bool> _isTypeExplicitlyRegistered;
-        private Func<Type, string, bool> _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, bool> _isTypeExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool> _isExplicitlyRegistered;
 
         #endregion
 
@@ -210,6 +213,18 @@ namespace Unity
 
 
         #region Implementation
+
+        private string DebugName()
+        {
+            var types = (_registrations?.Keys ?? Enumerable.Empty<Type>())
+                .SelectMany(t => _registrations[t].Values)
+                .OfType<IContainerRegistration>()
+                .Count();
+
+            if (null == _parent) return $"Container[{types}]";
+
+            return _parent.DebugName() + $".Child[{types}]"; ;
+        }
 
         private void CreateAndSetPolicy(Type type, string name, Type policyInterface, IBuilderPolicy policy)
         {

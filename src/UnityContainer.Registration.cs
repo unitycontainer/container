@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -17,8 +18,8 @@ namespace Unity
     {
         #region Constants
 
-        private const int ContainerInitialCapacity = 37;
-        private const int ListToHashCutoverPoint = 8;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ContainerInitialCapacity = 37;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]  private const int ListToHashCutoverPoint = 8;
 
         #endregion
 
