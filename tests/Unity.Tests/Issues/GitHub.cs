@@ -5,6 +5,9 @@ using Unity.Attributes;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Builder.Strategy;
+using Unity.Extension;
+using Unity.Builder;
 
 namespace Unity.Tests.v5.Issues
 {
@@ -24,6 +27,75 @@ namespace Unity.Tests.v5.Issues
             {
                 View = view;
             }
+        }
+
+        public class DefaultConstructibleFoo : IFoo
+        {
+            public string View => throw new NotImplementedException();
+        }
+
+        public class DefaultConstructibleGenericFoo<T> : IFoo
+        {
+            public string View => throw new NotImplementedException();
+        }
+
+        public class TestStrategy : BuilderStrategy
+        {
+            public bool WasExecuted { get; set; } = false;
+
+            public override void PreBuildUp(IBuilderContext context)
+            {
+                WasExecuted = true;
+            }
+        }
+
+        public class TestStrategyExtension : UnityContainerExtension, 
+                                             IUnityContainerExtensionConfigurator
+        {
+            public TestStrategy TestStrategy { get; } = new TestStrategy();
+
+            protected override void Initialize()
+            {
+                Context.Strategies.Add(TestStrategy, Builder.UnityBuildStage.PreCreation);
+            }
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_108_without_any_registrations()
+        {
+            var ioc = new UnityContainer();
+
+            var child = ioc.CreateChildContainer();
+            child.AddExtension(new TestStrategyExtension());
+            var childExtension = child.Configure<TestStrategyExtension>();
+
+            child.Resolve<DefaultConstructibleFoo>();
+            Assert.IsTrue(childExtension.TestStrategy.WasExecuted);
+
+            childExtension.TestStrategy.WasExecuted = false;
+            child.Resolve<DefaultConstructibleGenericFoo<int>>();
+            Assert.IsTrue(childExtension.TestStrategy.WasExecuted);
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_108_with_some_existing_registration()
+        {
+            var ioc = new UnityContainer();
+
+            var child = ioc.CreateChildContainer();
+            child.AddExtension(new TestStrategyExtension());
+            var childExtension = child.Configure<TestStrategyExtension>();
+
+            child.RegisterType<IFoo, DefaultConstructibleFoo>();
+            child.Resolve<IFoo>();
+            childExtension.TestStrategy.WasExecuted = false;
+
+            child.Resolve<DefaultConstructibleFoo>();
+            Assert.IsTrue(childExtension.TestStrategy.WasExecuted);
+
+            childExtension.TestStrategy.WasExecuted = false;
+            child.Resolve<DefaultConstructibleGenericFoo<int>>();
+            Assert.IsTrue(childExtension.TestStrategy.WasExecuted);
         }
 
         [TestMethod]
