@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
@@ -112,7 +111,7 @@ namespace Unity
             _isTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
 
             BuildUpPipeline = ThrowingBuildUp;
-            GetRegistration = GetOrAdd;
+            GetRegistration = (type, name) => GetOrAdd(type, name, CreateRegistration);
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
@@ -176,7 +175,7 @@ namespace Unity
             _isTypeExplicitlyRegistered = _parent._isTypeExplicitlyRegistered;
 
             BuildUpPipeline = _parent.BuildUpPipeline;
-            GetRegistration = _parent.GetRegistration;
+            GetRegistration = (type, name) => _parent.GetOrAdd(type, name, CreateRegistration);
             Register = CreateAndSetOrUpdate;
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;

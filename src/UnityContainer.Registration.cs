@@ -398,7 +398,7 @@ namespace Unity
             }
         }
 
-        private IPolicySet GetOrAdd(Type type, string name)
+        private IPolicySet GetOrAdd(Type type, string name, Func<Type, string, IPolicySet> createRegistration)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -438,7 +438,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                    return existing.GetOrAdd(name, () => createRegistration(type, name));
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
@@ -447,7 +447,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
+                var registration = createRegistration(type, name);
                 _registrations.Entries[_registrations.Count].HashCode = hashCode;
                 _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
                 _registrations.Entries[_registrations.Count].Key = type;
@@ -525,8 +525,6 @@ namespace Unity
                 _registrations.Count++;
                 return registration;
             }
-
-
         }
 
         private IPolicySet Get(Type type, string name)

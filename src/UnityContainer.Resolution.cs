@@ -25,7 +25,7 @@ namespace Unity
 
             var info = type.GetTypeInfo();
             return !info.IsGenericType
-                ? _root.GetOrAdd(type, name)
+                ? _root.GetOrAdd(type, name, CreateRegistration)
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
