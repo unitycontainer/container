@@ -4,57 +4,37 @@ using Unity.Policy;
 
 namespace Unity.Tests.v5.TestDoubles
 {
-    /// <summary>
-    /// A small noop strategy that lets us check afterwards to
-    /// see if it ran in the strategy chain.
-    /// </summary>
     internal class SpyStrategy : BuilderStrategy
     {
-        private IBuilderContext context = null;
-        private object buildKey = null;
-        private object existing = null;
-        private bool buildUpWasCalled = false;
-
         public override void PreBuildUp(IBuilderContext context)
         {
-            this.buildUpWasCalled = true;
-            this.context = context;
-            this.buildKey = context.BuildKey;
-            this.existing = context.Existing;
+            this.BuildUpWasCalled = true;
+            this.Context = context;
+            this.BuildKey = context.BuildKey;
+            this.Existing = context.Existing;
 
             this.UpdateSpyPolicy(context);
         }
 
         public override void PostBuildUp(IBuilderContext context)
         {
-            this.existing = context.Existing;
+            this.Existing = context.Existing;
         }
 
-        public IBuilderContext Context
-        {
-            get { return this.context; }
-        }
+        public IBuilderContext Context { get; private set; }
 
-        public object BuildKey
-        {
-            get { return this.buildKey; }
-        }
+        public INamedType BuildKey { get; private set; }
 
-        public object Existing
-        {
-            get { return this.existing; }
-        }
+        public object Existing { get; private set; }
 
-        public bool BuildUpWasCalled
-        {
-            get { return this.buildUpWasCalled; }
-        }
+        public bool BuildUpWasCalled { get; private set; }
 
         private void UpdateSpyPolicy(IBuilderContext context)
         {
-            SpyPolicy policy = (SpyPolicy)context.Policies
-                                                 .GetOrDefault(typeof(SpyPolicy), 
-                                                         context.BuildKey, out _);
+            var policy = (SpyPolicy)context
+                .Policies
+                .GetOrDefault(typeof(SpyPolicy), context.BuildKey, out _);
+
             if (policy != null)
             {
                 policy.WasSpiedOn = true;

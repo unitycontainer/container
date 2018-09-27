@@ -24,9 +24,15 @@ namespace Unity
             if (null != registration) return registration;
 
             var info = type.GetTypeInfo();
-            return !info.IsGenericType
+
+            if (info.IsGenericType)
+            {
+                return GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
+            }
+
+            return _root.IsRegistered(type, name)
                 ? _root.GetOrAdd(type, name)
-                : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
+                : GetOrAdd(type, name);
         }
 
         private static object ThrowingBuildUp(IBuilderContext context)

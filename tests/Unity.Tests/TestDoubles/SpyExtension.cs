@@ -34,7 +34,11 @@ namespace Unity.Tests.v5.TestDoubles
         protected override void Initialize()
         {
             Context.Strategies.Add(this.strategy, this.stage);
-            Context.Policies.Set(null, null, this.policyType, this.policy);
+
+            if (this.policy != null)
+            {
+                Context.Policies.Set(null, null, this.policyType, this.policy);
+            }
         }
     }
 }

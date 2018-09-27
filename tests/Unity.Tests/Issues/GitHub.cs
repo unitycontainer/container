@@ -1,10 +1,13 @@
 using System;
 using System.Diagnostics;
+using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Attributes;
+using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Tests.TestObjects;
 
 namespace Unity.Tests.v5.Issues
 {
@@ -24,6 +27,48 @@ namespace Unity.Tests.v5.Issues
             {
                 View = view;
             }
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_108_without_any_registrations()
+        {
+            var ioc = new UnityContainer();
+            var child = ioc.CreateChildContainer();
+            var spyStrategy = new TestDoubles.SpyStrategy();
+            child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+
+            child.Resolve<EmailService>();
+
+            Assert.AreEqual(typeof(EmailService), spyStrategy.BuildKey.Type);
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_108_with_some_existing_registration()
+        {
+            var ioc = new UnityContainer();
+            var child = ioc.CreateChildContainer();
+            var spyStrategy = new TestDoubles.SpyStrategy();
+            child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+
+            child.RegisterType<IService, EmailService>();
+            child.Resolve<IService>();
+            child.Resolve<EmailService>();
+
+            Assert.AreEqual(typeof(EmailService), spyStrategy.BuildKey.Type);
+        }
+
+        [TestMethod]
+        public void unitycontainer_container_108_for_dependencies()
+        {
+            var child = new UnityContainer().CreateChildContainer();
+            var spyStrategy = new TestDoubles.SpyStrategy();
+            child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+
+            child.RegisterType<ObjectWithOneDependency, ObjectWithOneDependency>();
+            child.Resolve<ObjectWithOneDependency>();
+
+            var innerDependencyType = typeof(object);
+            Assert.AreEqual(innerDependencyType, spyStrategy.BuildKey.Type);
         }
 
         [TestMethod]
