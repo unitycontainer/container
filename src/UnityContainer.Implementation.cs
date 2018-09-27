@@ -45,7 +45,7 @@ namespace Unity
 
         // Container specific
         internal readonly LifetimeContainer _lifetimeContainer;
-        private List<UnityContainerExtension> _extensions;
+        private List<IUnityContainerExtensionConfigurator> _extensions;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly UnityContainer _parent; 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private UnityContainer _root;
 

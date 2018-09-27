@@ -76,16 +76,16 @@ namespace Unity
         /// </summary>
         /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
         /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer AddExtension(UnityContainerExtension extension)
+        public IUnityContainer AddExtension(IUnityContainerExtensionConfigurator extension)
         {
             lock (_lifetimeContainer)
             {
                 if (null == _extensions)
-                    _extensions = new List<UnityContainerExtension>();
+                    _extensions = new List<IUnityContainerExtensionConfigurator>();
 
                 _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
             }
-            extension.InitializeExtension(_context);
+            (extension as UnityContainerExtension)?.InitializeExtension(_context);
 
             return this;
         }
