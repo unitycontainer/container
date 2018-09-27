@@ -20,7 +20,7 @@
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
-    <TargetFrameworks>netstandard1.0;netstandard2.0;net47;net46;net45;net40;netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
@@ -29,12 +29,21 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netstandard'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Builder\**" />
+    <EmbeddedResource Remove="Builder\**" />
+    <None Remove="Builder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Policy\Build\" />
+    <Folder Include="ResolverPolicy\" />
   </ItemGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
