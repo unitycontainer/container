@@ -34,17 +34,6 @@
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netstandard'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Builder\**" />
-    <EmbeddedResource Remove="Builder\**" />
-    <None Remove="Builder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Policy\Build\" />
-    <Folder Include="ResolverPolicy\" />
-  </ItemGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
