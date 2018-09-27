@@ -29,14 +29,6 @@
     <Compile Remove="Utility\ConcurrentDictionary.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
-    <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netstandard'))">
-    <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-  </ItemGroup>
-
   <PropertyGroup>
     <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
@@ -48,18 +40,21 @@
   </ItemGroup>
 
 
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
+    <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netstandard'))">
+    <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+  </ItemGroup>
+
+
   <ItemGroup Condition="Exists('$(UnityAbstractions)')">
     <ProjectReference Include="$(UnityAbstractions)" />
   </ItemGroup>
 
   <ItemGroup Condition="!Exists('$(UnityAbstractions)')">
     <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Build\**" />
-    <EmbeddedResource Remove="Build\**" />
-    <None Remove="Build\**" />
   </ItemGroup>
 
 
