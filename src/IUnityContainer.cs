@@ -78,7 +78,7 @@ namespace Unity
         /// </summary>
         /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer AddExtension(UnityContainerExtension extension);
+        IUnityContainer AddExtension(IUnityContainerExtensionConfigurator extension);
 
         /// <summary>
         /// Resolve access to a configuration interface exposed by an extension.
