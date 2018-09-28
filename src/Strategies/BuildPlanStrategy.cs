@@ -4,6 +4,8 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
+using Unity.Lifetime;
+using Unity.ObjectBuilder.BuildPlan.Activator;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -48,6 +50,19 @@ namespace Unity.Strategies
 
         #endregion
 
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        {
+            if (registration is ContainerRegistration containerRegistration)
+            {
+                if (containerRegistration.LifetimeManager is SingletonLifetimeManager
+                    || containerRegistration.LifetimeManager is ContainerControlledLifetimeManager)
+                {
+                    containerRegistration.Set(typeof(IBuildPlanPolicy), new ConstructorInvokeBuildPlan());
+                }
+            }
+
+            return true;
+        }
 
         #region Implementation
 

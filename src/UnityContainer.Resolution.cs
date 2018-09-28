@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
+using Unity.ObjectBuilder.BuildPlan;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
@@ -153,7 +153,7 @@ namespace Unity
                 catch (Policy.Mapping.MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (InvalidOperationException ex)
                 {
-                    if (!(ex.InnerException is DynamicMethodConstructorStrategy.InvalidRegistrationException))
+                    if (!(ex.InnerException is ObjectBuilderExceptions.InvalidRegistrationException))
                         throw;
                 }
             }
