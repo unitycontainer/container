@@ -54,7 +54,7 @@ namespace Unity.Tests.v5.TestDoubles
         {
             SpyPolicy policy = (SpyPolicy)context.Policies
                                                  .GetOrDefault(typeof(SpyPolicy), 
-                                                         context.BuildKey, out _);
+                                                         context.BuildKey);
             if (policy != null)
             {
                 policy.WasSpiedOn = true;

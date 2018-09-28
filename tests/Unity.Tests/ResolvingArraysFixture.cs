@@ -150,7 +150,7 @@ namespace Unity.Tests.v5
                 this.resolverPolicy = resolverPolicy;
             }
 
-            public SelectedConstructor SelectConstructor(IBuilderContext context, IPolicyList resolverPoliciesDestination)
+            public SelectedConstructor SelectConstructor(IBuilderContext context)
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
                 var selectedConstructor = new SelectedConstructor(ctr);

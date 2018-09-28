@@ -45,7 +45,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         {
             IPropertySelectorPolicy selector = new PropertySelectorPolicy<DependencyAttribute>();
             IBuilderContext context = GetContext(t);
-            var properties = new List<SelectedProperty>(selector.SelectProperties(context, ((MockBuilderContext)context).PersistentPolicies));
+            var properties = new List<SelectedProperty>(selector.SelectProperties(context));
             return properties.Select(sp => sp.Property).ToList();
         }
 

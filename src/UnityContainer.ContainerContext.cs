@@ -124,10 +124,10 @@ namespace Unity
             {
             }
 
-            public virtual IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list) 
-                => _container.GetPolicy(type, name, policyInterface, out list);
+            public virtual object Get(Type type, string name, Type policyInterface) 
+                => _container.GetPolicy(type, name, policyInterface);
 
-            public virtual void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            public virtual void Set(Type type, string name, Type policyInterface, object policy)
                 => _container.SetPolicy(type, name, policyInterface, policy);
 
             public virtual void Clear(Type type, string name, Type policyInterface)

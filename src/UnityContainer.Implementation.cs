@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
@@ -29,13 +28,12 @@ using Unity.Strategy;
 namespace Unity
 {
     [CLSCompliant(true)]
-    [DebuggerDisplay("{DebugName()}")]
     public partial class UnityContainer
     {
         #region Delegates
 
-        internal delegate IBuilderPolicy GetPolicyDelegate(Type type, string name, Type policyInterface, out IPolicyList list);
-        internal delegate void SetPolicyDelegate(Type type, string name, Type policyInterface, IBuilderPolicy policy);
+        internal delegate object GetPolicyDelegate(Type type, string name, Type policyInterface);
+        internal delegate void SetPolicyDelegate(Type type, string name, Type policyInterface, object policy);
         internal delegate void ClearPolicyDelegate(Type type, string name, Type policyInterface);
 
         #endregion
@@ -214,19 +212,7 @@ namespace Unity
 
         #region Implementation
 
-        private string DebugName()
-        {
-            var types = (_registrations?.Keys ?? Enumerable.Empty<Type>())
-                .SelectMany(t => _registrations[t].Values)
-                .OfType<IContainerRegistration>()
-                .Count();
-
-            if (null == _parent) return $"Container[{types}]";
-
-            return _parent.DebugName() + $".Child[{types}]"; ;
-        }
-
-        private void CreateAndSetPolicy(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        private void CreateAndSetPolicy(Type type, string name, Type policyInterface, object policy)
         {
             lock (GetRegistration)
             {
@@ -427,17 +413,16 @@ namespace Unity
 
             #region IPolicyList
 
-            public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+            public object Get(Type type, string name, Type policyInterface)
             {
                 if (_registration.Type != type || _registration.Name != name)
-                    return _container.GetPolicy(type, name, policyInterface, out list);
+                    return _container.GetPolicy(type, name, policyInterface);
 
-                list = this;
                 return _registration.Get(policyInterface);
             }
 
 
-            public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+            public void Set(Type type, string name, Type policyInterface, object policy)
             {
                 if (_registration.Type != type || _registration.Name != name)
                     _container.SetPolicy(type, name, policyInterface, policy);
@@ -451,10 +436,6 @@ namespace Unity
                     _container.ClearPolicy(type, name, policyInterface);
                 else
                     _registration.Clear(policyInterface);
-            }
-
-            public void ClearAll()
-            {
             }
 
             #endregion

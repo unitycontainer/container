@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Policy;
@@ -10,8 +9,8 @@ using Unity.Storage;
 namespace Unity.Registration
 {
     [DebuggerDisplay("InternalRegistration:  Type={Type?.Name},    Name={Name}")]
-    public class InternalRegistration : LinkedNode<Type, IBuilderPolicy>, 
-                                        IPolicySet, 
+    public class InternalRegistration : LinkedNode<Type, object>,
+                                        IPolicySet,
                                         INamedType
     {
         #region Fields
@@ -31,7 +30,7 @@ namespace Unity.Registration
             _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
 
-        public InternalRegistration(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        public InternalRegistration(Type type, string name, Type policyInterface, object policy)
         {
             Name = name;
             Type = type;
@@ -55,9 +54,9 @@ namespace Unity.Registration
 
         #region IPolicySet
 
-        public virtual IBuilderPolicy Get(Type policyInterface)
+        public virtual object Get(Type policyInterface)
         {
-            for (var node = (LinkedNode<Type, IBuilderPolicy>)this; node != null; node = node.Next)
+            for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
             {
                 if (ReferenceEquals(node.Key, policyInterface))
                     return node.Value;
@@ -66,7 +65,7 @@ namespace Unity.Registration
             return null;
         }
 
-        public virtual void Set(Type policyInterface, IBuilderPolicy policy)
+        public virtual void Set(Type policyInterface, object policy)
         {
             if (null == Value && null == Key)
             {
@@ -75,7 +74,7 @@ namespace Unity.Registration
             }
             else
             {
-                Next = new LinkedNode<Type, IBuilderPolicy>
+                Next = new LinkedNode<Type, object>
                 {
                     Key = policyInterface,
                     Value = policy,
@@ -86,8 +85,8 @@ namespace Unity.Registration
 
         public virtual void Clear(Type policyInterface)
         {
-            LinkedNode<Type, IBuilderPolicy> node;
-            LinkedNode<Type, IBuilderPolicy> last = null;
+            LinkedNode<Type, object> node;
+            LinkedNode<Type, object> last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -106,7 +105,7 @@ namespace Unity.Registration
                         last.Next = node.Next?.Next;
                     }
                 }
-                
+
                 last = node;
             }
         }
@@ -115,7 +114,7 @@ namespace Unity.Registration
         {
             Key = null;
             Value = null;
-            Next  = null;
+            Next = null;
         }
 
         #endregion
