@@ -15,9 +15,7 @@ namespace Unity.Policy
         /// Choose the constructor to call for the given type.
         /// </summary>
         /// <param name="context">Current build context</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>The chosen constructor.</returns>
-        SelectedConstructor SelectConstructor(IBuilderContext context, IPolicyList resolverPolicyDestination);
+        SelectedConstructor SelectConstructor(IBuilderContext context);
     }
 }

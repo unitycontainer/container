@@ -142,7 +142,7 @@ namespace Unity.Injection
 
         private static SpecifiedMethodsSelectorPolicy GetSelectorPolicy(IPolicyList policies, Type typeToCreate, string name)
         {
-            var selector = policies.Get(typeToCreate, name, typeof(IMethodSelectorPolicy), out _);
+            var selector = policies.Get(typeToCreate, name, typeof(IMethodSelectorPolicy));
             if (!(selector is SpecifiedMethodsSelectorPolicy))
             {
                 selector = new SpecifiedMethodsSelectorPolicy();

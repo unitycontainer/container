@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -37,10 +35,8 @@ namespace Unity.Builder.Policy
         /// Return the sequence of methods to call while building the target object.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context, IPolicyList resolverPolicyDestination)
+        public IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context)
         {
             foreach (Tuple<MethodInfo, IEnumerable<InjectionParameterValue>> method in _methods)
             {
@@ -64,15 +60,13 @@ namespace Unity.Builder.Policy
                                      m.GetParameters().ParametersMatch(closedMethodParameterTypes))); 
                 }
 
-                AddParameterResolvers(typeToBuild, resolverPolicyDestination,
-                                      method.Item2, selectedMethod);
+                AddParameterResolvers(typeToBuild, method.Item2, selectedMethod);
 
                 yield return selectedMethod;
             }
         }
 
         private static void AddParameterResolvers(Type typeToBuild,
-            IPolicyList policies,
             IEnumerable<InjectionParameterValue> parameterValues,
             SelectedMemberWithParameters result)
         {
