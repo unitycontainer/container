@@ -3,7 +3,7 @@ using System;
 namespace Unity.Policy
 {
     /// <summary>
-    /// A custom collection over <see cref="IBuilderPolicy"/> objects.
+    /// A custom collection over <see cref="Object"/> objects.
     /// </summary>
     public interface IPolicyList
     {
@@ -15,7 +15,7 @@ namespace Unity.Policy
         /// <param name="policyInterface">Type of policy to retrieve</param>
         /// <param name="list">Reference to owner IList holding reference to the policy</param>
         /// <returns>Instance of the policy or null if none found</returns>
-        IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list);
+        object Get(Type type, string name, Type policyInterface);
 
         /// <summary>
         /// Set policy
@@ -24,7 +24,7 @@ namespace Unity.Policy
         /// <param name="name">Name of the registration</param>
         /// <param name="policyInterface">Type of policy to be set</param>
         /// <param name="policy">Policy instance to be set</param>
-        void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy);
+        void Set(Type type, string name, Type policyInterface, object policy);
 
         /// <summary>
         /// Remove specific policy from the list
@@ -33,10 +33,5 @@ namespace Unity.Policy
         /// <param name="name">Name of the registration</param>
         /// <param name="policyInterface">Type of policy to be removed</param>
         void Clear(Type type, string name, Type policyInterface);
-
-        /// <summary>
-        /// Removes all policies from the list.
-        /// </summary>
-        void ClearAll();
     }
 }

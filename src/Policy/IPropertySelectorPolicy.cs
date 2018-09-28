@@ -17,10 +17,8 @@ namespace Unity.Policy
         /// should be set as part of building that object.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>Sequence of <see cref="System.Reflection.PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination);
+        IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context);
     }
 }

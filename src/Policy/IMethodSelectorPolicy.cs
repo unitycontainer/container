@@ -17,9 +17,7 @@ namespace Unity.Policy
         /// Return the sequence of methods to call while building the target object.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>Sequence of methods to call.</returns>
-        IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context, IPolicyList resolverPolicyDestination);
+        IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context);
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -21,11 +19,9 @@ namespace Unity.Builder.Selection
         /// should be set as part of building that object.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public virtual IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination)
+        public virtual IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context)
         {
             Type t = context.BuildKey.Type;
 

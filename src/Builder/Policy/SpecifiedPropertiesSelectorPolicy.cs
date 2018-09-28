@@ -1,13 +1,11 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Injection;
-using Unity.Policy;
 
-namespace Unity.Builder.Policy
+namespace Unity.Policy
 {
     /// <summary>
     /// An implementation of <see cref="IPropertySelectorPolicy"/> which returns
@@ -35,11 +33,9 @@ namespace Unity.Builder.Policy
         /// should be set as part of building that object.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context, IPolicyList resolverPolicyDestination)
+        public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context)
         {
             Type typeToBuild = context.BuildKey.Type;
             foreach (Tuple<PropertyInfo, InjectionParameterValue> pair in _propertiesAndValues)
