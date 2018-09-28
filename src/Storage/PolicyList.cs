@@ -13,7 +13,7 @@ namespace Unity.Storage
 
         private readonly object _sync = new object();
         private readonly IPolicyList _innerPolicyList;
-        private IDictionary<PolicyKey, IBuilderPolicy> _policies = null;
+        private IDictionary<PolicyKey, object> _policies = null;
 
         #endregion
 
@@ -55,14 +55,6 @@ namespace Unity.Storage
         }
 
         /// <summary>
-        /// Removes all policies from the list.
-        /// </summary>
-        public void ClearAll()
-        {
-            _policies = null;
-        }
-
-        /// <summary>
         /// Removes a default policy.
         /// </summary>
         /// <param name="policyInterface">The type the policy was registered as.</param>
@@ -72,25 +64,23 @@ namespace Unity.Storage
         }
 
 
-        public IBuilderPolicy Get(Type type, string name, Type policyInterface, out IPolicyList list)
+        public object Get(Type type, string name, Type policyInterface)
         {
-            list = null;
-            IBuilderPolicy policy = null;
+            object policy = null;
 
             if (_policies?.TryGetValue(new PolicyKey(type, name, policyInterface), out policy) ?? false)
             {
-                list = this;
                 return policy;
             }
 
-            return _innerPolicyList?.Get(type, name, policyInterface, out list);
+            return _innerPolicyList?.Get(type, name, policyInterface);
         }
 
 
-        public void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        public void Set(Type type, string name, Type policyInterface, object policy)
         {
             if (null == _policies)
-                _policies = new Dictionary<PolicyKey, IBuilderPolicy>(PolicyKeyEqualityComparer.Default);
+                _policies = new Dictionary<PolicyKey, object>(PolicyKeyEqualityComparer.Default);
 
             _policies[new PolicyKey(type, name, policyInterface)] = policy;
         }

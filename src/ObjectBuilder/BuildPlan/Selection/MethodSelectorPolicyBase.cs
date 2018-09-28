@@ -23,10 +23,8 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         /// Return the sequence of methods to call while building the target object.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        /// <param name="resolverPolicyDestination">The <see cref='IPolicyList'/> to add any
-        /// generated resolver objects into.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public virtual IEnumerable<Builder.Selection.SelectedMethod> SelectMethods(IBuilderContext context, IPolicyList resolverPolicyDestination)
+        public virtual IEnumerable<Builder.Selection.SelectedMethod> SelectMethods(IBuilderContext context)
         {
             Type t = context.BuildKey.Type;
             var candidateMethods = t.GetMethodsHierarchical()

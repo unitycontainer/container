@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -39,11 +37,11 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
-            var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>( context.OriginalBuildKey, out var resolverPolicyDestination);
+            var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
             bool shouldClearOperation = false;
 
-            foreach (var property in selector.SelectProperties(context, resolverPolicyDestination))
+            foreach (var property in selector.SelectProperties(context))
             {
                 shouldClearOperation = true;
 

@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -46,11 +44,11 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
 
-            var selector = context.Policies.GetPolicy<IMethodSelectorPolicy>(context.OriginalBuildKey, out var resolverPolicyDestination);
+            var selector = context.Policies.GetPolicy<IMethodSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
             bool shouldClearOperation = false;
 
-            foreach (SelectedMethod method in selector.SelectMethods(context, resolverPolicyDestination))
+            foreach (SelectedMethod method in selector.SelectMethods(context))
             {
                 shouldClearOperation = true;
 

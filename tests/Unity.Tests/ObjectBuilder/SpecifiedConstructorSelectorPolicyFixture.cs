@@ -34,7 +34,7 @@ namespace Unity.Tests.v5.ObjectBuilder
             var policy = new SpecifiedConstructorSelectorPolicy(ctor, new InjectionParameterValue[0]);
             var builderContext = new BuilderContextMock(new NamedTypeBuildKey(typeof(ClassWithSimpleConstructor)));
 
-            SelectedConstructor selectedCtor = policy.SelectConstructor(builderContext, new PolicyList());
+            SelectedConstructor selectedCtor = policy.SelectConstructor(builderContext);
 
             Assert.AreEqual(ctor, selectedCtor.Constructor);
             Assert.AreEqual(0, selectedCtor.GetParameterResolvers().Length);
@@ -54,7 +54,7 @@ namespace Unity.Tests.v5.ObjectBuilder
 
             var builderContext = new BuilderContextMock(new NamedTypeBuildKey(typeof(ClassWithConstructorParameters)));
 
-            SelectedConstructor selectedCtor = policy.SelectConstructor(builderContext, builderContext.PersistentPolicies);
+            SelectedConstructor selectedCtor = policy.SelectConstructor(builderContext);
 
             Assert.AreEqual(ctor, selectedCtor.Constructor);
             Assert.AreEqual(2, selectedCtor.GetParameterResolvers().Length);
@@ -83,7 +83,7 @@ namespace Unity.Tests.v5.ObjectBuilder
                     BuildKey = new NamedTypeBuildKey(typeof(LoggingCommand<User>))
                 };
 
-            SelectedConstructor result = policy.SelectConstructor(ctx, new PolicyList());
+            SelectedConstructor result = policy.SelectConstructor(ctx);
 
             ConstructorInfo expectedCtor = typeof(LoggingCommand<User>).GetMatchingConstructor(Types(typeof(ICommand<User>)));
             Assert.AreSame(expectedCtor, result.Constructor);
