@@ -14,29 +14,6 @@ namespace Unity.Tests.v5.Injection
     [TestClass]
     public class InjectionParameterValueFixture
     {
-        [TestMethod]
-        public void InjectionParameterReturnsExpectedValue()
-        {
-            int expected = 12;
-            InjectionParameter parameter = new InjectionParameter(expected);
-            AssertExpectedValue(parameter, typeof(int), expected);
-        }
-
-        [TestMethod]
-        public void InjectionParameterCanTakeExplicitType()
-        {
-            double expected = Math.E;
-            InjectionParameter parameter = new InjectionParameter<double>(expected);
-            AssertExpectedValue(parameter, typeof(double), expected);
-        }
-
-        [TestMethod]
-        public void InjectionParameterCanReturnNull()
-        {
-            string expected = null;
-            InjectionParameter parameter = new InjectionParameter(typeof(string), expected);
-            AssertExpectedValue(parameter, typeof(string), expected);
-        }
 
         [TestMethod]
         public void DependencyParameterCreatesExpectedResolver()
@@ -75,19 +52,6 @@ namespace Unity.Tests.v5.Injection
         }
 
         [TestMethod]
-        public void ObjectsConverterToInjectionParametersResolveCorrectly()
-        {
-            List<InjectionParameterValue> values = GetParameterValues(15);
-
-            InjectionParameter parameter = (InjectionParameter)values[0];
-            Assert.AreEqual(typeof(int), parameter.ParameterType);
-            IResolverPolicy policy = parameter.GetResolverPolicy(null);
-            int result = (int)policy.Resolve(null);
-
-            Assert.AreEqual(15, result);
-        }
-
-        [TestMethod]
         public void TypesAndObjectsImplicitlyConvertToInjectionParameters()
         {
             List<InjectionParameterValue> values = GetParameterValues(
@@ -117,24 +81,6 @@ namespace Unity.Tests.v5.Injection
                 {
                     new InjectionParameter(null);
                 });
-        }
-
-        [TestMethod]
-        public void InjectionParameterForNullValueReturnsExpectedValueIfTypeIsSuppliedExplicitly()
-        {
-            var parameter = new InjectionParameter(typeof(string), null);
-
-            AssertExpectedValue(parameter, typeof(string), null);
-        }
-
-        private void AssertExpectedValue(InjectionParameter parameter, Type expectedType, object expectedValue)
-        {
-            IResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
-            object result = resolver.Resolve(null);
-
-            Assert.AreEqual(expectedType, parameter.ParameterType);
-            AssertExtensions.IsInstanceOfType(resolver, typeof(LiteralValueDependencyResolverPolicy));
-            Assert.AreEqual(expectedValue, result);
         }
 
         private List<InjectionParameterValue> GetParameterValues(params object[] values)

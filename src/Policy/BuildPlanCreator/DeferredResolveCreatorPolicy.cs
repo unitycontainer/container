@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
@@ -14,9 +12,10 @@ namespace Unity.Policy.BuildPlanCreator
     /// </summary>
     internal class DeferredResolveCreatorPolicy : IBuildPlanPolicy
     {
-        public void BuildUp(IBuilderContext context)
+        public void BuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
+            if (context.Existing == null)
             {
                 Type typeToBuild = GetTypeToBuild(context.BuildKey.Type);
                 string nameToBuild = context.BuildKey.Name;
@@ -34,7 +33,7 @@ namespace Unity.Policy.BuildPlanCreator
 
                 context.Existing = resolveMethod;
 
-                DynamicMethodConstructorStrategy.SetPerBuildSingleton(context);
+                DynamicMethodConstructorStrategy.SetPerBuildSingleton(ref context);
             }
         }
 

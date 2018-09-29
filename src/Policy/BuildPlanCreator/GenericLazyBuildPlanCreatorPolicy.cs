@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container.Lifetime;
+using Unity.Delegates;
+using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 
 namespace Unity.Policy.BuildPlanCreator
@@ -12,102 +14,49 @@ namespace Unity.Policy.BuildPlanCreator
     /// </summary>
     public class GenericLazyBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
-        private readonly IPolicyList _policies;
+        #region Fields
 
-        private static readonly MethodInfo BuildResolveLazyMethod;
-        private static readonly MethodInfo BuildResolveAllLazyMethod;
-        private static readonly MethodInfo BuildResolveLazyEnumerableMethod;
+        private static readonly MethodInfo BuildResolveLazyMethod =
+            typeof(GenericLazyBuildPlanCreatorPolicy).GetTypeInfo()
+                .GetDeclaredMethod(nameof(BuildResolveLazy));
 
-        static GenericLazyBuildPlanCreatorPolicy()
+        #endregion
+
+
+        #region IBuildPlanCreatorPolicy
+
+        public IBuildPlanPolicy CreatePlan<TBuilderContext>(ref TBuilderContext context, INamedType buildKey) where TBuilderContext : IBuilderContext
         {
-            var info = typeof(GenericLazyBuildPlanCreatorPolicy).GetTypeInfo();
+            var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
+            var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(typeof(TBuilderContext), itemType);
 
-            BuildResolveLazyMethod =
-                info.GetDeclaredMethod(nameof(BuildResolveLazy));
-
-            BuildResolveAllLazyMethod =
-                info.GetDeclaredMethod(nameof(BuildResolveAllLazy));
-
-            BuildResolveLazyEnumerableMethod =
-                info.GetDeclaredMethod(nameof(BuildResolveLazyEnumerable));
+            return new DynamicMethodBuildPlan(lazyMethod.CreateDelegate(typeof(ResolveDelegate<TBuilderContext>)));
         }
 
-        public GenericLazyBuildPlanCreatorPolicy()
+        #endregion
+
+
+        #region Implementation
+
+        private static object BuildResolveLazy<TContext, T>(ref TContext context)
+            where TContext : IBuilderContext
         {
-            
-        }
+            var container = context.Container;
+            var name = context.Name;
+            context.Existing = new Lazy<T>(() => container.Resolve<T>(name));
 
-        public GenericLazyBuildPlanCreatorPolicy(IPolicyList policies)
-        {
-            _policies = policies;
-        }
-
-        /// <summary>
-        /// Creates a build plan using the given context and build key.
-        /// </summary>
-        /// <param name="context">Current build context.</param>
-        /// <param name="buildKey">Current build key.</param>
-        /// <returns>
-        /// The build plan.
-        /// </returns>
-        public IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey)
-        {
-            var method = CreateBuildPlanMethod(buildKey.Type);
-            var plan = new DynamicMethodBuildPlan(method);
-            
-            // Register BuildPlan policy with the container to optimize performance
-            _policies?.Set(buildKey.Type, string.Empty, typeof(IBuildPlanPolicy), plan);
-
-            return plan;
-        }
-
-        private static DynamicBuildPlanMethod CreateBuildPlanMethod(Type lazyType)
-        {
-            var itemType = lazyType.GetTypeInfo().GenericTypeArguments[0];
-
-            MethodInfo lazyMethod;
-
-            var info = itemType.GetTypeInfo();
-            if (info.IsGenericType && itemType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            var lifetime = context.Policies.GetOrDefault(typeof(ILifetimePolicy), context.OriginalBuildKey);
+            if (lifetime is PerResolveLifetimeManager)
             {
-                lazyMethod = BuildResolveLazyEnumerableMethod.MakeGenericMethod(itemType.GetTypeInfo().GenericTypeArguments[0]);
-            }
-            else
-            {
-                lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(itemType);
+                var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
+                context.Policies.Set(context.OriginalBuildKey.Type,
+                    context.OriginalBuildKey.Name,
+                    typeof(ILifetimePolicy), perBuildLifetime);
             }
 
-            return (DynamicBuildPlanMethod)lazyMethod.CreateDelegate(typeof(DynamicBuildPlanMethod));
+            return context.Existing;
         }
 
-        private static void BuildResolveLazy<T>(IBuilderContext context)
-        {
-            if (context.Existing == null)
-            {
-                context.Existing = new Lazy<T>(() => context.Container.Resolve<T>(context.BuildKey.Name));
-            }
-
-            context.SetPerBuildSingleton();
-        }
-
-        private static void BuildResolveLazyEnumerable<T>(IBuilderContext context)
-        {
-            if (context.Existing == null)
-            {
-                context.Existing = new Lazy<IEnumerable<T>>(() => context.Container.Resolve<IEnumerable<T>>());
-            }
-
-            context.SetPerBuildSingleton();
-        }
-
-        private static void BuildResolveAllLazy<T>(IBuilderContext context)
-        {
-            if (context.Existing == null)
-            {
-                context.Existing = new Lazy<T[]>(() => (T[])context.Container.ResolveAll<T>());
-            }
-
-            context.SetPerBuildSingleton();
-        }
+        #endregion
     }
 }

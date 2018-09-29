@@ -9,6 +9,8 @@ using Unity.Builder.Operation;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
+using Unity.Exceptions;
+using Unity.Expressions;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -20,111 +22,160 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
     /// </summary>
     public class DynamicMethodConstructorStrategy : BuilderStrategy
     {
-        private static readonly MethodInfo ThrowForNullExistingObjectMethod;
-        private static readonly MethodInfo ThrowForNullExistingObjectWithInvalidConstructorMethod;
-        private static readonly MethodInfo ThrowForAttemptingToConstructInterfaceMethod;
-        private static readonly MethodInfo ThrowForAttemptingToConstructAbstractClassMethod;
-        private static readonly MethodInfo ThrowForAttemptingToConstructDelegateMethod;
-        private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod;
-        private static readonly MethodInfo SetCurrentOperationToInvokingConstructorMethod;
-        private static readonly MethodInfo SetPerBuildSingletonMethod;
-        private static readonly MethodInfo ThrowForReferenceItselfConstructorMethod;
+        #region Static Fields
 
-        static DynamicMethodConstructorStrategy()
-        {
-            var info = typeof(DynamicMethodConstructorStrategy).GetTypeInfo();
+        private static readonly TypeInfo TypeInfo = typeof(DynamicMethodConstructorStrategy).GetTypeInfo();
+        private static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
+        private static readonly ConstructorInfo ConstructorArgumentResolveOperationCtor =
+            typeof(ConstructorArgumentResolveOperation).GetTypeInfo().DeclaredConstructors.First();
+        private static readonly MethodInfo StringFormat = typeof(string).GetTypeInfo() 
+                                                                        .DeclaredMethods
+                                                                        .First(m =>
+                                                                        {
+                                                                            var parameters = m.GetParameters();
+                                                                            return m.Name == nameof(string.Format) &&
+                                                                                   m.GetParameters().Length == 2 &&
+                                                                                   typeof(object) == parameters[1].ParameterType;
+                                                                        });
 
-            ThrowForNullExistingObjectMethod = info.GetDeclaredMethod(nameof(ThrowForNullExistingObject));
-            ThrowForNullExistingObjectWithInvalidConstructorMethod = info.GetDeclaredMethod(nameof(ThrowForNullExistingObjectWithInvalidConstructor));
-            ThrowForAttemptingToConstructInterfaceMethod = info.GetDeclaredMethod(nameof(ThrowForAttemptingToConstructInterface));
-            ThrowForAttemptingToConstructAbstractClassMethod = info.GetDeclaredMethod(nameof(ThrowForAttemptingToConstructAbstractClass));
-            ThrowForAttemptingToConstructDelegateMethod = info.GetDeclaredMethod(nameof(ThrowForAttemptingToConstructDelegate));
-            SetCurrentOperationToResolvingParameterMethod = info.GetDeclaredMethod(nameof(SetCurrentOperationToResolvingParameter));
-            SetCurrentOperationToInvokingConstructorMethod = info.GetDeclaredMethod(nameof(SetCurrentOperationToInvokingConstructor));
-            SetPerBuildSingletonMethod = info.GetDeclaredMethod(nameof(SetPerBuildSingleton));
-            ThrowForReferenceItselfConstructorMethod = info.GetDeclaredMethod(nameof(ThrowForReferenceItselfConstructor));
+        #endregion
 
-        }
+
+        #region BuilderStrategy
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
-            DynamicBuildPlanGenerationContext buildContext =
-                (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
+            // Verify the type we're trying to build is actually constructable -
+            // CLR primitive types like string and int aren't.
+            if (!context.TypeInfo.IsInterface)
+            {
+                if (context.Type == typeof(string))
+                {
+                    throw new InvalidOperationException(
+                        $"The type {context.TypeInfo.Name} cannot be constructed. You must configure the container to supply this value.");
+                }
+            }
 
-            GuardTypeIsNonPrimitive(context);
+            DynamicBuildPlanGenerationContext buildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
             buildContext.AddToBuildPlan(
-                 Expression.IfThen(
-                        Expression.Equal(
-                            buildContext.GetExistingObjectExpression(),
-                            Expression.Constant(null)),
-                            CreateInstanceBuildupExpression(buildContext, context)));
+                Expression.IfThen(
+                    Expression.Equal(
+                        BuilderContextExpression<TBuilderContext>.Existing,
+                        Expression.Constant(null)),
+                    CreateInstanceBuildupExpression(buildContext, ref context)));
 
             var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy));
             if (policy is PerResolveLifetimeManager)
             {
+                // TODO: Optimize
+                var setPerBuildSingletonMethod = TypeInfo.GetDeclaredMethod(nameof(SetPerBuildSingleton)).MakeGenericMethod(typeof(TBuilderContext));
+
                 buildContext.AddToBuildPlan(
-                    Expression.Call(null, SetPerBuildSingletonMethod, buildContext.ContextParameter));
+                    Expression.Call(null, setPerBuildSingletonMethod, BuilderContextExpression<TBuilderContext>.Context));
             }
         }
 
-        internal Expression CreateInstanceBuildupExpression(DynamicBuildPlanGenerationContext buildContext, IBuilderContext context)
+        #endregion
+
+
+        #region Implementation
+
+        internal Expression CreateInstanceBuildupExpression<TBuilderContext>(DynamicBuildPlanGenerationContext buildContext, ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            var targetTypeInfo = context.BuildKey.Type.GetTypeInfo();
+            // Validate type can be constructed
 
-            if (targetTypeInfo.IsInterface)
-            {
-                return CreateThrowWithContext(buildContext, ThrowForAttemptingToConstructInterfaceMethod);
-            }
+            if (context.TypeInfo.IsInterface) return Expression.Throw(
+                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.Call(
+                        StringFormat,
+                        Expression.Constant(Constants.CannotConstructInterface),
+                        BuildContextExpression<TBuilderContext>.Type),
+                    InvalidRegistrationExpression));
 
-            if (targetTypeInfo.IsAbstract)
-            {
-                return CreateThrowWithContext(buildContext, ThrowForAttemptingToConstructAbstractClassMethod);
-            }
+            if (context.TypeInfo.IsAbstract) return Expression.Throw(
+                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.Call(
+                        StringFormat,
+                        Expression.Constant(Constants.CannotConstructAbstractClass),
+                        BuildContextExpression<TBuilderContext>.Type),
+                    InvalidRegistrationExpression));
 
-            if (targetTypeInfo.IsSubclassOf(typeof(Delegate)))
-            {
-                return CreateThrowWithContext(buildContext, ThrowForAttemptingToConstructDelegateMethod);
-            }
+            if (context.TypeInfo.IsSubclassOf(typeof(Delegate))) return Expression.Throw(
+                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.Call(
+                        StringFormat,
+                        Expression.Constant(Constants.CannotConstructDelegate),
+                        BuildContextExpression<TBuilderContext>.Type),
+                    InvalidRegistrationExpression));
+
+            if (context.Type == typeof(string)) return Expression.Throw(
+                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.Call(
+                        StringFormat,
+                        Expression.Constant(Constants.TypeIsNotConstructable),
+                        BuildContextExpression<TBuilderContext>.Type),
+                    InvalidRegistrationExpression));
 
             IConstructorSelectorPolicy selector =
                 context.Policies.GetPolicy<IConstructorSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            SelectedConstructor selectedConstructor = selector.SelectConstructor(context);
+            if (null == selector) return Expression.Throw(
+                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.Call(
+                        StringFormat,
+                        Expression.Constant("No appropriate constructor selector is registered for type {0}."),
+                        BuildContextExpression<TBuilderContext>.Type),
+                    InvalidRegistrationExpression));
 
-            if (selectedConstructor == null)
-            {
-                return CreateThrowWithContext(buildContext, ThrowForNullExistingObjectMethod);
-            }
+            SelectedConstructor selectedConstructor = selector.SelectConstructor(ref context);
 
-            string signature = CreateSignatureString(selectedConstructor.Constructor);
+            if (selectedConstructor == null) return Expression.Throw(
+                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.NoConstructorFound),
+                            BuildContextExpression<TBuilderContext>.Type),
+                        InvalidRegistrationExpression));
 
             if (selectedConstructor.Constructor.GetParameters().Any(pi => pi.ParameterType.IsByRef))
             {
-                return CreateThrowForNullExistingObjectWithInvalidConstructor(buildContext, signature);
+                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, context.Type, selectedConstructor.Constructor)),
+                        InvalidRegistrationExpression)));
             }
 
-            if (IsInvalidConstructor(targetTypeInfo, context, selectedConstructor))
+            if (IsInvalidConstructor(context.TypeInfo, ref context, selectedConstructor))
             {
-                return CreateThrowForReferenceItselfMethodConstructor(buildContext, signature);
+                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefItself, context.Type, selectedConstructor.Constructor)),
+                        InvalidRegistrationExpression)));
             }
 
-            return Expression.Block(CreateNewBuildupSequence(buildContext, selectedConstructor, signature));
+            var parameterExpressions = BuildConstructionParameterExpressions<TBuilderContext>(buildContext, selectedConstructor);
+
+            return Expression.Assign(
+                BuilderContextExpression<TBuilderContext>.Existing,
+                Expression.Convert(Expression.New(selectedConstructor.Constructor, parameterExpressions), typeof(object))
+            );
         }
 
-
-        private static bool IsInvalidConstructor(TypeInfo target, IBuilderContext context, SelectedConstructor selectedConstructor)
+        private static bool IsInvalidConstructor<TBuilderContext>(TypeInfo target, ref TBuilderContext context, SelectedConstructor selectedConstructor)
+            where TBuilderContext : IBuilderContext
         {
-            if (selectedConstructor.Constructor.GetParameters().Any(p => p.ParameterType.GetTypeInfo() == target))
+            if (selectedConstructor.Constructor.GetParameters().Any(p => Equals(p.ParameterType.GetTypeInfo(), target)))
             {
-                var policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type, 
-                                                                   context.BuildKey.Name, 
-                                                                   typeof(ILifetimePolicy));
+                var policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type,
+                    context.BuildKey.Name,
+                    typeof(ILifetimePolicy));
                 if (null == policy?.GetValue())
                     return true;
             }
@@ -132,68 +183,32 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             return false;
         }
 
-        private static Expression CreateThrowWithContext(DynamicBuildPlanGenerationContext buildContext, MethodInfo throwMethod)
+        private static string CreateErrorMessage(string format, Type type, MethodBase constructor)
         {
-            return Expression.Call(
-                                null,
-                                throwMethod,
-                                buildContext.ContextParameter);
+            var parameterDescriptions =
+                constructor.GetParameters()
+                    .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
+
+            return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
         }
 
-        private static Expression CreateThrowForNullExistingObjectWithInvalidConstructor(DynamicBuildPlanGenerationContext buildContext, string signature)
-        {
-            return Expression.Call(
-                                null,
-                                ThrowForNullExistingObjectWithInvalidConstructorMethod,
-                                buildContext.ContextParameter,
-                                Expression.Constant(signature, typeof(string)));
-        }
-
-        private static Expression CreateThrowForReferenceItselfMethodConstructor(DynamicBuildPlanGenerationContext buildContext, string signature)
-        {
-            return Expression.Call(
-                                null,
-                                ThrowForReferenceItselfConstructorMethod,
-                                buildContext.ContextParameter,
-                                Expression.Constant(signature, typeof(string)));
-        }
-
-        private IEnumerable<Expression> CreateNewBuildupSequence(DynamicBuildPlanGenerationContext buildContext, SelectedConstructor selectedConstructor, string signature)
-        {
-            var parameterExpressions = BuildConstructionParameterExpressions(buildContext, selectedConstructor, signature);
-            var newItemExpression = Expression.Variable(selectedConstructor.Constructor.DeclaringType, "newItem");
-
-            yield return Expression.Call(null,
-                                        SetCurrentOperationToInvokingConstructorMethod,
-                                        Expression.Constant(signature),
-                                        buildContext.ContextParameter,
-                                        Expression.Constant(selectedConstructor.Constructor.DeclaringType));
-
-            yield return Expression.Assign(
-                            buildContext.GetExistingObjectExpression(),
-                            Expression.Convert(
-                                Expression.New(selectedConstructor.Constructor, parameterExpressions),
-                                typeof(object)));
-
-            yield return buildContext.GetClearCurrentOperationExpression();
-        }
-
-        private IEnumerable<Expression> BuildConstructionParameterExpressions(DynamicBuildPlanGenerationContext buildContext, SelectedConstructor selectedConstructor, string constructorSignature)
+        private IEnumerable<Expression> BuildConstructionParameterExpressions<TBuilderContext>(DynamicBuildPlanGenerationContext buildContext, SelectedConstructor selectedConstructor)
+            where TBuilderContext : IBuilderContext
         {
             int i = 0;
             var constructionParameters = selectedConstructor.Constructor.GetParameters();
 
             foreach (IResolverPolicy parameterResolver in selectedConstructor.GetParameterResolvers())
             {
-                yield return buildContext.CreateParameterExpression(
-                                parameterResolver,
-                                constructionParameters[i].ParameterType,
-                                Expression.Call(null,
-                                                SetCurrentOperationToResolvingParameterMethod,
-                                                Expression.Constant(constructionParameters[i].Name, typeof(string)),
-                                                Expression.Constant(constructorSignature),
-                                                buildContext.ContextParameter,
-                                                Expression.Constant(selectedConstructor.Constructor.DeclaringType)));
+                yield return buildContext.CreateParameterExpression<TBuilderContext>(
+                    parameterResolver,
+                    constructionParameters[i].ParameterType,
+                    Expression.Assign(
+                        BuilderContextExpression<TBuilderContext>.CurrentOperation,
+                        Expression.New(
+                            ConstructorArgumentResolveOperationCtor, 
+                            Expression.Constant(selectedConstructor.Constructor.DeclaringType), 
+                            Expression.Constant(constructionParameters[i].Name, typeof(string)))));
                 i++;
             }
         }
@@ -203,7 +218,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         /// if the current object is such.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        public static void SetPerBuildSingleton(IBuilderContext context)
+        public static void SetPerBuildSingleton<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
             var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
             context.Policies.Set(context.OriginalBuildKey.Type,
@@ -211,163 +227,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                                  typeof(ILifetimePolicy), perBuildLifetime);
         }
 
-        /// <summary>
-        /// Build up the string that will represent the constructor signature
-        /// in any exception message.
-        /// </summary>
-        /// <param name="constructor"></param>
-        /// <returns></returns>
-        public static string CreateSignatureString(ConstructorInfo constructor)
-        {
-            string typeName = (constructor ?? throw new ArgumentNullException(nameof(constructor))).DeclaringType.FullName;
-            ParameterInfo[] parameters = constructor.GetParameters();
-            string[] parameterDescriptions = new string[parameters.Length];
-            for (int i = 0; i < parameters.Length; ++i)
-            {
-                parameterDescriptions[i] = string.Format(CultureInfo.CurrentCulture,
-                    "{0} {1}",
-                    parameters[i].ParameterType.FullName,
-                    parameters[i].Name);
-            }
-
-            return string.Format(CultureInfo.CurrentCulture,
-                "{0}({1})",
-                typeName,
-                string.Join(", ", parameterDescriptions));
-        }
-
-        // Verify the type we're trying to build is actually constructable -
-        // CLR primitive types like string and int aren't.
-        private static void GuardTypeIsNonPrimitive(IBuilderContext context)
-        {
-            var typeToBuild = context.BuildKey.Type;
-            if (!typeToBuild.GetTypeInfo().IsInterface)
-            {
-                if (ReferenceEquals(typeToBuild, typeof(string)))
-                {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            CultureInfo.CurrentCulture,
-                            Constants.TypeIsNotConstructable,
-                            typeToBuild.GetTypeInfo().Name));
-                }
-            }
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to store the current operation in the build context.
-        /// </summary>
-        public static void SetCurrentOperationToResolvingParameter(string parameterName, string constructorSignature, IBuilderContext context, Type type)
-        {
-            context.CurrentOperation = new ConstructorArgumentResolveOperation(type, constructorSignature, parameterName);
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to store the current operation in the build context.
-        /// </summary>
-        public static void SetCurrentOperationToInvokingConstructor(string constructorSignature, IBuilderContext context, Type type)
-        {
-            context.CurrentOperation = new InvokingConstructorOperation(type, constructorSignature);
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to throw an exception if
-        /// no existing object is present, but the user is attempting to build
-        /// an interface (usually due to the lack of a type mapping).
-        /// </summary>
-        /// <param name="context">The <see cref="IBuilderContext"/> currently being
-        /// used for the build of this object.</param>
-        public static void ThrowForAttemptingToConstructInterface(IBuilderContext context)
-        {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.CannotConstructInterface,
-                    context.BuildKey.Type), 
-                new InvalidRegistrationException());
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to throw an exception if
-        /// no existing object is present, but the user is attempting to build
-        /// an abstract class (usually due to the lack of a type mapping).
-        /// </summary>
-        /// <param name="context">The <see cref="IBuilderContext"/> currently being
-        /// used for the build of this object.</param>
-        public static void ThrowForAttemptingToConstructAbstractClass(IBuilderContext context)
-        {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.CannotConstructAbstractClass, 
-                    context.BuildKey.Type), 
-                new InvalidRegistrationException());
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to throw an exception if
-        /// no existing object is present, but the user is attempting to build
-        /// an delegate other than Func{T} or Func{IEnumerable{T}}.
-        /// </summary>
-        /// <param name="context">The <see cref="IBuilderContext"/> currently being
-        /// used for the build of this object.</param>
-        public static void ThrowForAttemptingToConstructDelegate(IBuilderContext context)
-        {
-            throw new InvalidOperationException(
-                string.Format(
-                    CultureInfo.CurrentCulture, Constants.CannotConstructDelegate, 
-                    context.BuildKey.Type), 
-                new InvalidRegistrationException());
-        }
-
-        public class InvalidRegistrationException : Exception
-        {
-            
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to throw an exception if
-        /// a dependency cannot be resolved.
-        /// </summary>
-        /// <param name="context">The <see cref="IBuilderContext"/> currently being
-        /// used for the build of this object.</param>
-        public static void ThrowForNullExistingObject(IBuilderContext context)
-        {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.NoConstructorFound,
-                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type.GetTypeInfo().Name));
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to throw an exception if
-        /// a dependency cannot be resolved because of an invalid constructor.
-        /// </summary>
-        /// <param name="context">The <see cref="IBuilderContext"/> currently being
-        /// used for the build of this object.</param>
-        /// <param name="signature">The signature of the invalid constructor.</param>
-        public static void ThrowForNullExistingObjectWithInvalidConstructor(IBuilderContext context, string signature)
-        {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.SelectedConstructorHasRefParameters,
-                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type.GetTypeInfo().Name,
-                    signature));
-        }
-
-
-        /// <summary>
-        /// A helper method used by the generated IL to throw an exception if
-        /// a dependency cannot be resolved because of an invalid constructor.
-        /// </summary>
-        /// <param name="context">The <see cref="IBuilderContext"/> currently being
-        /// used for the build of this object.</param>
-        /// <param name="signature">The signature of the invalid constructor.</param>
-        public static void ThrowForReferenceItselfConstructor(IBuilderContext context, string signature)
-        {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.SelectedConstructorHasRefItself,
-                    (context ?? throw new ArgumentNullException(nameof(context))).BuildKey.Type.GetTypeInfo().Name,
-                    signature));
-        }
+        #endregion
     }
 }

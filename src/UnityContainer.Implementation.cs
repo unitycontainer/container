@@ -69,7 +69,6 @@ namespace Unity
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<IBuilderContext, object> BuildUpPipeline;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<INamedType, IPolicySet> Register;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal GetPolicyDelegate GetPolicy;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal SetPolicyDelegate SetPolicy;
@@ -109,14 +108,12 @@ namespace Unity
             _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
             _isTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
 
-            BuildUpPipeline = ThrowingBuildUp;
             GetRegistration = GetOrAdd;
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
 
-            // TODO: Initialize disposables 
             _lifetimeContainer.Add(_strategies);
             _lifetimeContainer.Add(_buildPlanStrategies);
 
@@ -143,7 +140,7 @@ namespace Unity
             Set(null, null, GetDefaultPolicies());
             Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
-            Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy(_context.Policies));
+            Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
 
             // Register this instance
             RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
@@ -173,7 +170,6 @@ namespace Unity
             _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
             _isTypeExplicitlyRegistered = _parent._isTypeExplicitlyRegistered;
 
-            BuildUpPipeline = _parent.BuildUpPipeline;
             GetRegistration = _parent.GetRegistration;
             Register = CreateAndSetOrUpdate;
             GetPolicy = parent.GetPolicy;

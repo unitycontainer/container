@@ -97,7 +97,7 @@ namespace Unity.Tests.v5.Container
         {
             private int delayMS = 500;
 
-            public override void PreBuildUp(IBuilderContext context)
+            public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
             {
                 Thread.Sleep(this.delayMS);
                 this.delayMS = this.delayMS == 0 ? 500 : 0;
@@ -110,7 +110,7 @@ namespace Unity.Tests.v5.Container
         {
             private bool shouldThrow = true;
 
-            public override void PreBuildUp(IBuilderContext context)
+            public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
             {
                 if (this.shouldThrow)
                 {

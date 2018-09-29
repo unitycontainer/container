@@ -1,28 +1,23 @@
-﻿
-
+﻿using System;
 using Unity.Builder;
+using Unity.Delegates;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="context"></param>
-    public delegate void DynamicBuildPlanMethod(IBuilderContext context);
 
     /// <summary>
     /// 
     /// </summary>
     public class DynamicMethodBuildPlan : IBuildPlanPolicy
     {
-        private readonly DynamicBuildPlanMethod _buildMethod;
+        private readonly Delegate _buildMethod;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="buildMethod"></param>
-        public DynamicMethodBuildPlan(DynamicBuildPlanMethod buildMethod)
+        public DynamicMethodBuildPlan(Delegate buildMethod)
         {
             _buildMethod = buildMethod;
         }
@@ -31,9 +26,10 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// 
         /// </summary>
         /// <param name="context"></param>
-        public void BuildUp(IBuilderContext context)
+        public void BuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            _buildMethod(context);
+            ((ResolveDelegate<TBuilderContext>)_buildMethod).Invoke(ref context);
         }
     }
 }

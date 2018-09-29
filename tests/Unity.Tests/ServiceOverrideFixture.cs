@@ -90,25 +90,6 @@ namespace Unity.Tests.v5
         }
 
         [TestMethod]
-        public void ParameterOverrideMatchesWhenCurrentOperationIsResolvingMatchingParameter()
-        {
-            var context = new MockBuilderContext
-            {
-                CurrentOperation = new ConstructorArgumentResolveOperation(typeof(SimpleTestObject), "int x", "x")
-            };
-
-            var overrider = new ParameterOverride("x", 42);
-
-            var resolver = overrider.GetResolver(context, typeof(int));
-
-            Assert.IsNotNull(resolver);
-            AssertExtensions.IsInstanceOfType(resolver, typeof(LiteralValueDependencyResolverPolicy));
-
-            var result = (int)resolver.Resolve(context);
-            Assert.AreEqual(42, result);
-        }
-
-        [TestMethod]
         public void ParameterOverrideCanResolveOverride()
         {
             var container = new UnityContainer()

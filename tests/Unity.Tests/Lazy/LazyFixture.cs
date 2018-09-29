@@ -67,7 +67,7 @@ namespace Unity.Tests.v5.Lazy
             var lazy = container.BuildUp(lazyDependency);
             var lazyreturned = container.Resolve<Lazy<LazyDependency>>();
 
-            Assert.AreEqual(lazy, lazyDependency);
+            Assert.AreEqual(lazy.GetType(), lazyDependency.GetType());
             Assert.IsFalse(lazyreturned.IsValueCreated);
 
             var ld = (LazyDependency)lazyreturned.Value;

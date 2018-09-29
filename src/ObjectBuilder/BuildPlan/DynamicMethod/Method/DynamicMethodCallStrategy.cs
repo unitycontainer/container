@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,6 +8,7 @@ using Unity.Builder.Operation;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
+using Unity.Expressions;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
@@ -20,19 +20,15 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
     /// </summary>
     public class DynamicMethodCallStrategy : BuilderStrategy
     {
-        private static readonly MethodInfo SetCurrentOperationToResolvingParameterMethod;
-        private static readonly MethodInfo SetCurrentOperationToInvokingMethodInfo;
+        #region Fields
 
-        static DynamicMethodCallStrategy()
-        {
-            var info = typeof(DynamicMethodCallStrategy).GetTypeInfo();
+        private static readonly ConstructorInfo MethodArgumentResolveOperationCtor =
+            typeof(MethodArgumentResolveOperation).GetTypeInfo().DeclaredConstructors.First();
 
-            SetCurrentOperationToResolvingParameterMethod =
-                info.GetDeclaredMethod(nameof(SetCurrentOperationToResolvingParameter));
+        #endregion
 
-            SetCurrentOperationToInvokingMethodInfo =
-                info.GetDeclaredMethod(nameof(SetCurrentOperationToInvokingMethod));
-        }
+
+        #region BuilderStrategy
 
         /// <summary>
         /// Called during the chain of responsibility for a build operation. The
@@ -40,128 +36,64 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
-            var dynamicBuildContext = (DynamicBuildPlanGenerationContext)(context ?? throw new ArgumentNullException(nameof(context))).Existing;
-
+            var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
             var selector = context.Policies.GetPolicy<IMethodSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            bool shouldClearOperation = false;
-
-            foreach (SelectedMethod method in selector.SelectMethods(context))
+            foreach (var method in selector.SelectMethods(ref context))
             {
-                shouldClearOperation = true;
+                var methodInfo = method.Method;
+                var parameters = methodInfo.GetParameters();
 
-                string signatureString = GetMethodSignature(method.Method);
-
-                GuardMethodIsNotOpenGeneric(method.Method);
-                GuardMethodHasNoOutParams(method.Method);
-                GuardMethodHasNoRefParams(method.Method);
+                if (methodInfo.IsGenericMethodDefinition ||
+                    parameters.Any(param => param.IsOut  || param.ParameterType.IsByRef))
+                {
+                    var format = methodInfo.IsGenericMethodDefinition
+                        ? Constants.CannotInjectOpenGenericMethod
+                        : Constants.CannotInjectMethodWithOutParam;
+                             
+                    throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
+                            format, methodInfo.DeclaringType.GetTypeInfo().Name, methodInfo.Name));
+                }
 
                 dynamicBuildContext.AddToBuildPlan(
                     Expression.Block(
-                        Expression.Call(null, SetCurrentOperationToInvokingMethodInfo, Expression.Constant(signatureString), dynamicBuildContext.ContextParameter),
                         Expression.Call(
                             Expression.Convert(
-                                dynamicBuildContext.GetExistingObjectExpression(),
+                                BuilderContextExpression<TBuilderContext>.Existing,
                                 dynamicBuildContext.TypeToBuild),
                             method.Method,
-                            BuildMethodParameterExpressions(dynamicBuildContext, method, signatureString))));
-            }
-
-            // Clear the current operation
-            if (shouldClearOperation)
-            {
-                dynamicBuildContext.AddToBuildPlan(dynamicBuildContext.GetClearCurrentOperationExpression());
+                            BuildMethodParameterExpressions<TBuilderContext>(dynamicBuildContext, method, parameters))));
             }
         }
 
-        private IEnumerable<Expression> BuildMethodParameterExpressions(DynamicBuildPlanGenerationContext context, SelectedMethod method, string methodSignature)
+        #endregion
+
+
+        #region Implementation
+
+        private IEnumerable<Expression> BuildMethodParameterExpressions<TBuilderContext>(DynamicBuildPlanGenerationContext context, 
+            SelectedMethod method, ParameterInfo[] methodParameters)
+            where TBuilderContext : IBuilderContext
         {
             int i = 0;
-            var methodParameters = method.Method.GetParameters();
+            var typeExpression = Expression.Constant(context.TypeToBuild);
 
-            foreach (IResolverPolicy parameterResolver in method.GetParameterResolvers())
+            foreach (var parameterResolver in method.GetParameterResolvers())
             {
-                yield return context.CreateParameterExpression(
+                var nameExpression = Expression.Constant(methodParameters[i].Name, typeof(string));
+
+                yield return context.CreateParameterExpression<TBuilderContext>(
                                 parameterResolver,
                                 methodParameters[i].ParameterType,
-                                Expression.Call(null,
-                                    SetCurrentOperationToResolvingParameterMethod,
-                                    Expression.Constant(methodParameters[i].Name, typeof(string)),
-                                    Expression.Constant(methodSignature),
-                                    context.ContextParameter));
+                                Expression.Assign(
+                                    BuilderContextExpression<TBuilderContext>.CurrentOperation,
+                                    Expression.New(MethodArgumentResolveOperationCtor, typeExpression, nameExpression)));
                 i++;
             }
         }
 
-        private static void GuardMethodIsNotOpenGeneric(MethodInfo method)
-        {
-            if (method.IsGenericMethodDefinition)
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectOpenGenericMethod, method);
-            }
-        }
-
-        private static void GuardMethodHasNoOutParams(MethodInfo method)
-        {
-            if (method.GetParameters().Any(param => param.IsOut))
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithOutParam, method);
-            }
-        }
-
-        private static void GuardMethodHasNoRefParams(MethodInfo method)
-        {
-            if (method.GetParameters().Any(param => param.ParameterType.IsByRef))
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithOutParam, method);
-            }
-        }
-
-        private static void ThrowIllegalInjectionMethod(string format, MethodInfo method)
-        {
-            throw new IllegalInjectionMethodException(
-                string.Format(CultureInfo.CurrentCulture,
-                    format,
-                    method.DeclaringType.GetTypeInfo().Name,
-                    method.Name));
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to store the current operation in the build context.
-        /// </summary>
-        public static void SetCurrentOperationToResolvingParameter(string parameterName, string methodSignature, IBuilderContext context)
-        {
-            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new MethodArgumentResolveOperation(
-                context.BuildKey.Type,
-                methodSignature, parameterName);
-        }
-
-        /// <summary>
-        /// A helper method used by the generated IL to store the current operation in the build context.
-        /// </summary>
-        public static void SetCurrentOperationToInvokingMethod(string methodSignature, IBuilderContext context)
-        {
-            (context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation = new InvokingMethodOperation(context.BuildKey.Type, methodSignature);
-        }
-
-        private static string GetMethodSignature(MethodBase method)
-        {
-            string methodName = method.Name;
-            ParameterInfo[] parameterInfos = method.GetParameters();
-            string[] parameterDescriptions = new string[parameterInfos.Length];
-
-            for (int i = 0; i < parameterInfos.Length; ++i)
-            {
-                parameterDescriptions[i] = parameterInfos[i].ParameterType.FullName + " " +
-                    parameterInfos[i].Name;
-            }
-
-            return string.Format(CultureInfo.CurrentCulture,
-                "{0}({1})",
-                methodName,
-                string.Join(", ", parameterDescriptions));
-        }
+        #endregion
     }
 }
