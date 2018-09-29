@@ -1,9 +1,5 @@
-﻿
-
-using System;
-using Unity.Builder;
-using Unity.Builder.Operation;
-using Unity.Injection;
+﻿using System;
+using System.Reflection;
 using Unity.Policy;
 
 namespace Unity.Resolution
@@ -33,8 +29,7 @@ namespace Unity.Resolution
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
         public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
         {
-            if (context.CurrentOperation is ResolvingPropertyValueOperation currentOperation
-                && currentOperation.PropertyName == Name)
+            if (context.CurrentOperation is PropertyInfo info && info.Name == Name)
             {
                 return Value.GetResolverPolicy(dependencyType);
             }

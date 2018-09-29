@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
 
@@ -35,13 +36,17 @@ namespace Unity.Resolution
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
         public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
         {
-            if (context.CurrentOperation is BuildOperation operation &&
-                operation.TypeBeingConstructed == _targetType)
+            switch (context.CurrentOperation)
             {
-                return _innerOverride.GetResolver(ref context, dependencyType);
-            }
+                case PropertyInfo property when property.DeclaringType == _targetType:
+                    return _innerOverride.GetResolver(ref context, dependencyType);
 
-            return null;
+                case ParameterInfo parameter when parameter.Member.DeclaringType == _targetType:
+                    return _innerOverride.GetResolver(ref context, dependencyType);
+
+                default:
+                    return null;
+            }
         }
     }
 

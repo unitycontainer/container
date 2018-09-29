@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Builder.Operation;
+using System.Reflection;
 using Unity.Policy;
 
 namespace Unity.Resolution
@@ -31,8 +31,8 @@ namespace Unity.Resolution
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
         public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
         {
-            if (context.CurrentOperation is ParameterResolveOperation currentOperation &&
-                currentOperation.ParameterName == Name)
+            if (context.CurrentOperation is ParameterInfo parameter &&
+                parameter.Name == Name)
             {
                 return Value.GetResolverPolicy(dependencyType);
             }
