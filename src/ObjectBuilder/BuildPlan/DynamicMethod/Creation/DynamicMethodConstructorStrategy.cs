@@ -198,7 +198,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             int i = 0;
             var constructionParameters = selectedConstructor.Constructor.GetParameters();
 
-            foreach (IResolverPolicy parameterResolver in selectedConstructor.GetParameterResolvers())
+            foreach (var parameterResolver in selectedConstructor.GetParameterResolvers())
             {
                 yield return buildContext.CreateParameterExpression<TBuilderContext>(
                     parameterResolver,
