@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -40,6 +38,7 @@ namespace Unity.Exceptions
         /// <param name="innerException">The actual exception that caused the failure of the build.</param>
         /// <param name="context">The build context representing the failed operation.</param>
         /// <param name="format">Custom format message</param>
+        // TODO: TBuilderContext
         public ResolutionFailedException(Type typeRequested, string nameRequested, Exception innerException, 
                                          IBuilderContext context, string format = Constants.ResolutionFailed)
             : base(CreateMessage(typeRequested, nameRequested, innerException, context, format), innerException)
@@ -71,7 +70,7 @@ namespace Unity.Exceptions
                 CultureInfo.CurrentCulture, format,
                 typeRequested ?? throw new ArgumentNullException(nameof(typeRequested)),
                 FormatName(nameRequested),
-                ExceptionReason(context ?? throw  new ArgumentNullException(nameof(context))),
+                ExceptionReason(ref context),
                 innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException",
                 innerException?.Message);
             builder.AppendLine();
@@ -127,18 +126,20 @@ namespace Unity.Exceptions
             return string.IsNullOrEmpty(name) ? "(none)" : name;
         }
 
-        private static string ExceptionReason(IBuilderContext context)
+        private static string ExceptionReason<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            var deepestContext = context;
-            while (deepestContext.ChildContext != null)
-            {
-                deepestContext = deepestContext.ChildContext;
-            }
+            // TODO: where TBuilderContext : IBuilderContext
+            //ref var deepestContext = ref context;
+            //while (deepestContext.ChildContext != null)
+            //{
+            //    deepestContext = deepestContext.ChildContext;
+            //}
 
-            if (deepestContext.CurrentOperation != null)
-            {
-                return deepestContext.CurrentOperation.ToString();
-            }
+            //if (deepestContext.CurrentOperation != null)
+            //{
+            //    return deepestContext.CurrentOperation.ToString();
+            //}
             return Constants.NoOperationExceptionReason;
         }
     }

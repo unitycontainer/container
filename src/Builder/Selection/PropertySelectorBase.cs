@@ -21,10 +21,11 @@ namespace Unity.Builder.Selection
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public virtual IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context)
+        public virtual IEnumerable<SelectedProperty> SelectProperties<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
             Type t = context.BuildKey.Type;
-
+            var list = new List<SelectedProperty>();
             foreach (PropertyInfo prop in t.GetPropertiesHierarchical().Where(p => p.CanWrite))
             {
                 var propertyMethod = prop.GetSetMethod(true) ?? prop.GetGetMethod(true);
@@ -38,9 +39,11 @@ namespace Unity.Builder.Selection
                 if (prop.GetIndexParameters().Length == 0 &&
                    prop.IsDefined(typeof(TResolutionAttribute), false))
                 {
-                    yield return CreateSelectedProperty(prop);
+                    list.Add(CreateSelectedProperty(prop));
                 }
             }
+
+            return list;
         }
 
         private SelectedProperty CreateSelectedProperty(PropertyInfo property)

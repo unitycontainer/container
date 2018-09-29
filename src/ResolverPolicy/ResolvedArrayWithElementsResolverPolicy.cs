@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
@@ -14,9 +12,14 @@ namespace Unity.ResolverPolicy
     /// </summary>
     public class ResolvedArrayWithElementsResolverPolicy : IResolverPolicy
     {
-        private delegate object Resolver(IBuilderContext context, IResolverPolicy[] elementPolicies);
-        private readonly Resolver _resolver;
+        private static readonly MethodInfo ResolverMethodInfo
+                = typeof(ResolvedArrayWithElementsResolverPolicy)
+                    .GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
+
+        private delegate object ResolverArrayDelegate<TBuilderContext>(ref TBuilderContext context, IResolverPolicy[] elementPolicies) where TBuilderContext : IBuilderContext;
         private readonly IResolverPolicy[] _elementPolicies;
+        private readonly Type _type;
+        private object _value;
 
         /// <summary>
         /// Create an instance of <see cref="ResolvedArrayWithElementsResolverPolicy"/>
@@ -27,13 +30,7 @@ namespace Unity.ResolverPolicy
         /// <param name="elementPolicies">The resolver policies to use when populating an array.</param>
         public ResolvedArrayWithElementsResolverPolicy(Type elementType, params IResolverPolicy[] elementPolicies)
         {
-
-            var resolverMethodInfo
-                = typeof(ResolvedArrayWithElementsResolverPolicy)
-                    .GetTypeInfo().GetDeclaredMethod(nameof(DoResolve))
-                        .MakeGenericMethod(elementType ?? throw new ArgumentNullException(nameof(elementType)));
-
-            _resolver = (Resolver)resolverMethodInfo.CreateDelegate(typeof(Resolver));
+            _type = elementType;
             _elementPolicies = elementPolicies;
         }
 
@@ -42,18 +39,30 @@ namespace Unity.ResolverPolicy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>An array populated with the results of resolving the resolver policies.</returns>
-        public object Resolve(IBuilderContext context)
+        public object Resolve<TBuilderContext>(ref TBuilderContext context) 
+            where TBuilderContext : IBuilderContext
         {
-            return _resolver(context ?? throw new ArgumentNullException(nameof(context)), _elementPolicies);
+            if (null == _value)
+            {
+                var resolver = (ResolverArrayDelegate<TBuilderContext>)ResolverMethodInfo
+                    .MakeGenericMethod(typeof(TBuilderContext), _type)
+                    .CreateDelegate(typeof(ResolverArrayDelegate<TBuilderContext>));
+
+                _value = resolver(ref context, _elementPolicies);
+            }
+
+
+            return _value;
         }
 
-        private static object DoResolve<T>(IBuilderContext context, IResolverPolicy[] elementPolicies)
+        private static object DoResolve<TBuilderContext, T>(ref TBuilderContext context, IResolverPolicy[] elementPolicies)
+            where TBuilderContext : IBuilderContext
         {
             T[] result = new T[elementPolicies.Length];
 
             for (int i = 0; i < elementPolicies.Length; i++)
             {
-                result[i] = (T)elementPolicies[i].Resolve(context);
+                result[i] = (T)elementPolicies[i].Resolve(ref context);
             }
 
             return result;

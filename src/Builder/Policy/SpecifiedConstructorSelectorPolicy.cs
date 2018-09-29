@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Unity.Builder.Selection;
 using Unity.Injection;
@@ -37,13 +36,12 @@ namespace Unity.Builder.Policy
         /// </summary>
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
-        public SelectedConstructor SelectConstructor(IBuilderContext context)
+        public SelectedConstructor SelectConstructor<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
             SelectedConstructor result;
 
-            var typeInfo = (context ?? throw new ArgumentNullException(nameof(context))).BuildKey
-                                                                                        .Type
-                                                                                        .GetTypeInfo();
+            var typeInfo = context.BuildKey.Type.GetTypeInfo();
             var methodHasOpenGenericParameters = _ctor.GetParameters()
                                                       .Select(p => p.ParameterType.GetTypeInfo())
                                                       .Any(i => i.IsGenericType && i.ContainsGenericParameters);

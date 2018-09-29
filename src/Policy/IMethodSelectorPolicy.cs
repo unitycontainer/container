@@ -18,6 +18,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context);
+        IEnumerable<SelectedMethod> SelectMethods<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext;
     }
 }

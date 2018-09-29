@@ -36,8 +36,10 @@ namespace Unity.Builder.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public IEnumerable<SelectedMethod> SelectMethods(IBuilderContext context)
+        public IEnumerable<SelectedMethod> SelectMethods<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
+            var list = new List<SelectedMethod>();
             foreach (Tuple<MethodInfo, IEnumerable<InjectionParameterValue>> method in _methods)
             {
                 Type typeToBuild = context.BuildKey.Type;
@@ -62,8 +64,10 @@ namespace Unity.Builder.Policy
 
                 AddParameterResolvers(typeToBuild, method.Item2, selectedMethod);
 
-                yield return selectedMethod;
+                list.Add(selectedMethod);
             }
+
+            return list;
         }
 
         private static void AddParameterResolvers(Type typeToBuild,

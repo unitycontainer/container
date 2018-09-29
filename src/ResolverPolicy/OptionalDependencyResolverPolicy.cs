@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
@@ -61,11 +59,12 @@ namespace Unity.ResolverPolicy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        public object Resolve(IBuilderContext context)
+        public object Resolve<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
             try
             {
-                return (context ?? throw new ArgumentNullException(nameof(context))).NewBuildUp(DependencyType, Name);
+                return context.NewBuildUp(DependencyType, Name);
             }
             catch (Exception)
             {

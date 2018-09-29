@@ -1,5 +1,4 @@
-﻿
-using Unity.Registration;
+﻿using Unity.Registration;
 
 namespace Unity.Builder.Strategy
 {
@@ -19,7 +18,8 @@ namespace Unity.Builder.Strategy
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
         /// <returns>Returns intermediate value or policy</returns>
-        public virtual void PreBuildUp(IBuilderContext context)
+        public virtual void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
         }
 
@@ -29,7 +29,8 @@ namespace Unity.Builder.Strategy
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public virtual void PostBuildUp(IBuilderContext context)
+        public virtual void PostBuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
         }
 

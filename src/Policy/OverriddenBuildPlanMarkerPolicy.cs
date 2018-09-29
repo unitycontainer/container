@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using Unity.Builder;
 
 namespace Unity.Policy
@@ -12,7 +10,8 @@ namespace Unity.Policy
         /// in the existing type if passed in.
         /// </summary>
         /// <param name="context">Context used to build up the object.</param>
-        public void BuildUp(IBuilderContext context)
+        public void BuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
             throw new InvalidOperationException(Constants.MarkerBuildPlanInvoked);
         }

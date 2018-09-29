@@ -35,9 +35,11 @@ namespace Unity.Policy
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public IEnumerable<SelectedProperty> SelectProperties(IBuilderContext context)
+        public IEnumerable<SelectedProperty> SelectProperties<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
             Type typeToBuild = context.BuildKey.Type;
+            var list = new List<SelectedProperty>();
             foreach (Tuple<PropertyInfo, InjectionParameterValue> pair in _propertiesAndValues)
             {
                 var currentProperty = pair.Item1;
@@ -50,8 +52,10 @@ namespace Unity.Policy
                     currentProperty = context.BuildKey.Type.GetTypeInfo().GetDeclaredProperty(currentProperty.Name);
                 }
 
-                yield return new SelectedProperty(currentProperty, pair.Item2.GetResolverPolicy(typeToBuild));
+                list.Add(new SelectedProperty(currentProperty, pair.Item2.GetResolverPolicy(typeToBuild)));
             }
+
+            return list;
         }
     }
 }
