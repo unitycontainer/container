@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Operation;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
@@ -20,14 +19,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
     /// </summary>
     public class DynamicMethodCallStrategy : BuilderStrategy
     {
-        #region Fields
-
-        private static readonly ConstructorInfo MethodArgumentResolveOperationCtor =
-            typeof(MethodArgumentResolveOperation).GetTypeInfo().DeclaredConstructors.First();
-
-        #endregion
-
-
         #region BuilderStrategy
 
         /// <summary>
@@ -78,18 +69,15 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
             where TBuilderContext : IBuilderContext
         {
             int i = 0;
-            var typeExpression = Expression.Constant(context.TypeToBuild);
 
             foreach (var parameterResolver in method.GetParameterResolvers())
             {
-                var nameExpression = Expression.Constant(methodParameters[i].Name, typeof(string));
-
                 yield return context.CreateParameterExpression<TBuilderContext>(
                                 parameterResolver,
                                 methodParameters[i].ParameterType,
                                 Expression.Assign(
                                     BuilderContextExpression<TBuilderContext>.CurrentOperation,
-                                    Expression.New(MethodArgumentResolveOperationCtor, typeExpression, nameExpression)));
+                                    Expression.Constant(methodParameters[i].Member, typeof(object))));
                 i++;
             }
         }

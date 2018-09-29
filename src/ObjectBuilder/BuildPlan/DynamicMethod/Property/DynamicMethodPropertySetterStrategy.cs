@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder.Operation;
 using Unity.Builder.Strategy;
 using Unity.Expressions;
 using Unity.Policy;
@@ -16,17 +14,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
     /// </summary>
     public class DynamicMethodPropertySetterStrategy : BuilderStrategy
     {
-        #region Fields
-
-        private static readonly ConstructorInfo ResolvingPropertyValueOperationCtor = 
-            typeof(ResolvingPropertyValueOperation).GetTypeInfo().DeclaredConstructors.First();
-
-        private static readonly ConstructorInfo SettingPropertyOperationCtor =
-            typeof(SettingPropertyOperation).GetTypeInfo().DeclaredConstructors.First();
-
-        #endregion
-
-
         #region BuilderStrategy
 
         /// <summary>
@@ -39,28 +26,23 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
             var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            foreach (var property in selector.SelectProperties(ref context))
+            foreach (var selectedProperty in selector.SelectProperties(ref context))
             {
-                var propertyNameExpression = Expression.Constant(property.Property.Name);
-                var resolvedObjectParameter = Expression.Parameter(property.Property.PropertyType);
+                var propertyInfoExpression = Expression.Constant(selectedProperty.Property);
+                var resolvedObjectParameter = Expression.Parameter(selectedProperty.Property.PropertyType);
 
                 dynamicBuildContext.AddToBuildPlan(
                     Expression.Block(
                         new[] { resolvedObjectParameter },
-                        Expression.Assign(
-                            BuilderContextExpression<TBuilderContext>.CurrentOperation,
-                            Expression.New(ResolvingPropertyValueOperationCtor, typeExpression, propertyNameExpression)),
+                        Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, propertyInfoExpression),
                         Expression.Assign(
                             resolvedObjectParameter,
-                            dynamicBuildContext.GetResolveDependencyExpression<TBuilderContext>(property.Property.PropertyType, property.Resolver)),
-                        Expression.Assign(
-                            BuilderContextExpression<TBuilderContext>.CurrentOperation,
-                            Expression.New(SettingPropertyOperationCtor, typeExpression, propertyNameExpression)),
+                            dynamicBuildContext.GetResolveDependencyExpression<TBuilderContext>(selectedProperty.Property.PropertyType, selectedProperty.Resolver)),
                         Expression.Call(
                             Expression.Convert(
                                 BuilderContextExpression<TBuilderContext>.Existing,
                                 dynamicBuildContext.TypeToBuild),
-                            GetValidatedPropertySetter(property.Property),
+                            GetValidatedPropertySetter(selectedProperty.Property),
                             resolvedObjectParameter)));
             }
 
