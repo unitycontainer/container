@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,23 +27,22 @@ namespace Unity.Container
         /// <summary>
         /// Execute this strategy chain against the given context to build up.
         /// </summary>
-        /// <param name="builderContext">Context for the build processes.</param>
+        /// <param name="context">Context for the build processes.</param>
         /// <returns>The build up object</returns>
-        public void BuildUp(IBuilderContext builderContext)
+        public void BuildUp<TBuilderContext>(ref TBuilderContext context) where TBuilderContext : IBuilderContext
         {
-            var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
             var i = -1;
 
             try
             {
                 while (!context.BuildComplete && ++i < _strategies.Length)
                 {
-                    _strategies[i].PreBuildUp(context);
+                    _strategies[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    _strategies[i].PostBuildUp(context);
+                    _strategies[i].PostBuildUp(ref context);
                 }
             }
             catch (Exception)

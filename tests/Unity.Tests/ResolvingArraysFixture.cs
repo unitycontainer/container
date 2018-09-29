@@ -150,7 +150,8 @@ namespace Unity.Tests.v5
                 this.resolverPolicy = resolverPolicy;
             }
 
-            public SelectedConstructor SelectConstructor(IBuilderContext context)
+            public SelectedConstructor SelectConstructor<TBuilderContext>(ref TBuilderContext context)
+                where TBuilderContext : IBuilderContext
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
                 var selectedConstructor = new SelectedConstructor(ctr);
@@ -184,7 +185,7 @@ namespace Unity.Tests.v5
             this.container = container;
         }
 
-        public override void PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
             if ((NamedTypeBuildKey)context.BuildKey == NamedTypeBuildKey.Make<IUnityContainer>())
             {

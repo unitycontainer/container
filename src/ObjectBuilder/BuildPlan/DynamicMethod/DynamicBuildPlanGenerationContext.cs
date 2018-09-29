@@ -1,12 +1,13 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Delegates;
+using Unity.Expressions;
 using Unity.Policy;
+using Unity.Builder.Selection;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
@@ -17,16 +18,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
     {
         private readonly Queue<Expression> _buildPlanExpressions;
 
-        private static readonly MethodInfo ResolveDependencyMethod =
-            typeof(IResolverPolicy).GetTypeInfo().GetDeclaredMethod(nameof(IResolverPolicy.Resolve));
-
-        private static readonly MethodInfo GetResolverMethod =
-            typeof(DynamicBuildPlanGenerationContext).GetTypeInfo()
-                                                     .GetDeclaredMethod(nameof(GetResolver));
-        private static readonly MemberInfo GetBuildContextExistingObjectProperty =
-            typeof(IBuilderContext).GetTypeInfo()
-                                   .DeclaredMembers
-                                   .First(m => m.Name == nameof(IBuilderContext.Existing));
         /// <summary>
         /// 
         /// </summary>
@@ -34,7 +25,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         public DynamicBuildPlanGenerationContext(Type typeToBuild)
         {
             TypeToBuild = typeToBuild;
-            ContextParameter = Expression.Parameter(typeof(IBuilderContext), "context");
             _buildPlanExpressions = new Queue<Expression>();
         }
 
@@ -42,11 +32,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// The type that is to be built with the dynamic build plan.
         /// </summary>
         public Type TypeToBuild { get; }
-
-        /// <summary>
-        /// The context parameter representing the <see cref="IBuilderContext"/> used when the build plan is executed.
-        /// </summary>
-        public ParameterExpression ContextParameter { get; }
 
         /// <summary>
         /// 
@@ -64,7 +49,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// <param name="parameterType"></param>
         /// <param name="setOperationExpression"></param>
         /// <returns></returns>
-        public Expression CreateParameterExpression(IResolverPolicy resolver, Type parameterType, Expression setOperationExpression)
+        public Expression CreateParameterExpression<TBuilderContext>(IResolverPolicy resolver, Type parameterType, Expression setOperationExpression)
+            where TBuilderContext : IBuilderContext
         {
             // The intent of this is to create a parameter resolving expression block. The following
             // pseudo code will hopefully make it clearer as to what we're trying to accomplish (of course actual code
@@ -81,81 +67,63 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             return
                 Expression.Block(
                     new[] { savedOperationExpression, resolvedObjectExpression },
-                    SaveCurrentOperationExpression(savedOperationExpression),
+                    Expression.Assign(savedOperationExpression, BuilderContextExpression<TBuilderContext>.CurrentOperation),
                     setOperationExpression,
-                    Expression.Assign(
-                        resolvedObjectExpression,
-                        GetResolveDependencyExpression(parameterType, resolver)),
-                    RestoreCurrentOperationExpression(savedOperationExpression),
-                    resolvedObjectExpression);
+                    Expression.Assign(resolvedObjectExpression, GetResolveDependencyExpression<TBuilderContext>(parameterType, resolver)),
+                    Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, savedOperationExpression),
+                    resolvedObjectExpression
+                    );
         }
 
-        internal Expression GetExistingObjectExpression()
+        internal Expression GetResolveDependencyExpression<TBuilderContext>(Type dependencyType, IResolverPolicy resolver)
+            where TBuilderContext : IBuilderContext
         {
-            return Expression.MakeMemberAccess(ContextParameter,
-                                                GetBuildContextExistingObjectProperty);
-        }
+            var resolveDependencyMethod =
+                typeof(IResolverPolicy).GetTypeInfo().GetDeclaredMethod(nameof(IResolverPolicy.Resolve))
+                    .MakeGenericMethod(typeof(TBuilderContext));
 
-        internal Expression GetClearCurrentOperationExpression()
-        {
-            return Expression.Assign(
-                               Expression.Property(ContextParameter, typeof(IBuilderContext).GetTypeInfo().GetDeclaredProperty("CurrentOperation")),
-                               Expression.Constant(null));
-        }
+            var getResolverMethod =
+                    typeof(DynamicBuildPlanGenerationContext).GetTypeInfo()
+                        .GetDeclaredMethod(nameof(GetResolver))
+                        .MakeGenericMethod(typeof(TBuilderContext));
 
-        internal Expression GetResolveDependencyExpression(Type dependencyType, IResolverPolicy resolver)
-        {
             return Expression.Convert(
-                           Expression.Call(
-                               Expression.Call(null,
-                                               GetResolverMethod,
-                                               ContextParameter,
-                                               Expression.Constant(dependencyType, typeof(Type)),
-                                               Expression.Constant(resolver, typeof(IResolverPolicy))),
-                               ResolveDependencyMethod,
-                               ContextParameter),
-                           dependencyType);
+                Expression.Call(
+                    Expression.Call(null,
+                        getResolverMethod,
+                        BuilderContextExpression<TBuilderContext>.Context,
+                        Expression.Constant(dependencyType, typeof(Type)),
+                        Expression.Constant(resolver, typeof(IResolverPolicy))),
+                    resolveDependencyMethod,
+                    BuilderContextExpression<TBuilderContext>.Context),
+                dependencyType);
         }
 
-        internal DynamicBuildPlanMethod GetBuildMethod()
+        internal ResolveDelegate<TBuilderContext> GetBuildMethod<TBuilderContext>()
+            where TBuilderContext : IBuilderContext
         {
-            var planDelegate = (Func<IBuilderContext, object>)
-                Expression.Lambda(
-                    Expression.Block(
-                        _buildPlanExpressions.Concat(new[] { GetExistingObjectExpression() })),
-                        ContextParameter)
-                .Compile();
+            var block = Expression.Block(
+                _buildPlanExpressions.Concat(new[] { BuilderContextExpression<TBuilderContext>.Existing }));
 
-            return context =>
+            var lambda = Expression.Lambda<ResolveDelegate<TBuilderContext>>(block,
+                BuilderContextExpression<TBuilderContext>.Context);
+
+            var planDelegate = lambda.Compile();
+
+            return (ref TBuilderContext context) =>
+            {
+                try
                 {
-                    try
-                    {
-                        context.Existing = planDelegate(context);
-                    }
-                    catch (TargetInvocationException e)
-                    {
-                        if (e.InnerException != null) throw e.InnerException;
-                        throw;
-                    }
-                };
-        }
+                    context.Existing = planDelegate(ref context);
+                }
+                catch (TargetInvocationException e)
+                {
+                    if (e.InnerException != null) throw e.InnerException;
+                    throw;
+                }
 
-        private Expression RestoreCurrentOperationExpression(ParameterExpression savedOperationExpression)
-        {
-            return Expression.Assign(
-                Expression.MakeMemberAccess(
-                    ContextParameter,
-                    typeof(IBuilderContext).GetTypeInfo().GetDeclaredProperty("CurrentOperation")),
-                    savedOperationExpression);
-        }
-
-        private Expression SaveCurrentOperationExpression(ParameterExpression saveExpression)
-        {
-            return Expression.Assign(
-                saveExpression,
-                Expression.MakeMemberAccess(
-                    ContextParameter,
-                    typeof(IBuilderContext).GetTypeInfo().GetDeclaredProperty("CurrentOperation")));
+                return context.Existing;
+            };
         }
 
         /// <summary>
@@ -165,9 +133,10 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// <param name="dependencyType">Type of the dependency being resolved.</param>
         /// <param name="resolver">The configured resolver.</param>
         /// <returns>The found dependency resolver.</returns>
-        public static IResolverPolicy GetResolver(IBuilderContext context, Type dependencyType, IResolverPolicy resolver)
+        public static IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType, IResolverPolicy resolver)
+            where TBuilderContext : IBuilderContext
         {
-            var overridden = (context ?? throw new ArgumentNullException(nameof(context))).GetOverriddenResolver(dependencyType);
+            var overridden = context.GetOverriddenResolver(dependencyType);
             return overridden ?? resolver;
         }
     }

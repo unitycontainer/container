@@ -24,7 +24,7 @@ namespace Unity.Strategies
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
             var plan = context.Registration.Get<IBuildPlanPolicy>() ?? (IBuildPlanPolicy)(
                        context.Policies.Get(context.BuildKey.Type, string.Empty, typeof(IBuildPlanPolicy)) ?? 
@@ -36,16 +36,17 @@ namespace Unity.Strategies
             {
                 var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? CheckIfOpenGeneric(context.Registration) ??
                     GetPolicy<IBuildPlanCreatorPolicy>(context.Policies, context.BuildKey);
+
                 if (planCreator != null)
                 {
-                    plan = planCreator.CreatePlan(context, context.BuildKey);
+                    plan = planCreator.CreatePlan(ref context, context.BuildKey);
                     context.Registration.Set(typeof(IBuildPlanPolicy), plan);
                 }
                 else
                     throw new ResolutionFailedException(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, null, context);
             }
 
-            plan?.BuildUp(context);
+            plan?.BuildUp(ref context);
         }
 
         #endregion

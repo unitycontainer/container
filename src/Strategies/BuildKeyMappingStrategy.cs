@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Delegates;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Policy.Mapping;
@@ -22,7 +23,7 @@ namespace Unity.Strategies
         /// and if found maps the build key for the current operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
             if (context.OriginalBuildKey is ContainerRegistration registration && 
                 registration.RegisteredType == registration.MappedToType)
@@ -35,30 +36,22 @@ namespace Unity.Strategies
                                           : null);
             if (null == policy) return;
 
-            context.BuildKey = policy.Map(context.BuildKey, context);
+            context.BuildKey = policy.Map(context.BuildKey, ref context);
 
             if (!policy.RequireBuild && ((UnityContainer)context.Container).RegistrationExists(context.BuildKey.Type, context.BuildKey.Name))
             {
                 var type = context.BuildKey.Type;
                 var name = context.BuildKey.Name;
-                var existing = context.Existing;
 
                 context.Registration.Set(typeof(IBuildPlanPolicy), 
-                    new DynamicMethodBuildPlan(c => 
-                    {
-                        ((BuilderContext)c).ChildContext = new BuilderContext(c, type, name);
-                        ((BuilderContext)c.ChildContext).BuildUp();
+                    new DynamicMethodBuildPlan((ResolveDelegate<TBuilderContext>) ResolveDelegate));
 
-                        c.Existing = c.ChildContext.Existing;
-                        c.BuildComplete = null != existing;
-
-                        ((BuilderContext)c).ChildContext = null;
-                    }));
+                object ResolveDelegate(ref TBuilderContext c) => c.Existing = c.NewBuildUp(type, name);
             }
         }
 
 
-        public override void PostBuildUp(IBuilderContext context)
+        public override void PostBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
             if (context.Registration is InternalRegistration registration && 
                 null != registration.BuildChain &&

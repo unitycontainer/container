@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Exceptions;
@@ -39,6 +40,7 @@ namespace Unity.Builder
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
+            TypeInfo = BuildKey.Type.GetTypeInfo();
             Policies = new Storage.PolicyList(this);
 
             _ownsOverrides = true;
@@ -55,6 +57,7 @@ namespace Unity.Builder
             ParentContext = original;
             OriginalBuildKey = original.OriginalBuildKey;
             BuildKey = original.BuildKey;
+            TypeInfo = BuildKey.Type.GetTypeInfo();
             Registration = original.Registration;
             Policies = original.Policies;
             Existing = existing;
@@ -75,6 +78,7 @@ namespace Unity.Builder
             Registration = registration;
             OriginalBuildKey = (INamedType)Registration;
             BuildKey = OriginalBuildKey;
+            TypeInfo = BuildKey.Type.GetTypeInfo();
         }
 
         internal BuilderContext(IBuilderContext original, Type type, string name)
@@ -92,14 +96,27 @@ namespace Unity.Builder
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
+            TypeInfo = BuildKey.Type.GetTypeInfo();
         }
+
+        #endregion
+
+
+        #region IBuildContext
+
+        public IUnityContainer Container => _container;
+
+        public Type Type => BuildKey.Type;
+
+        public string Name => BuildKey.Name;
+
+        public TypeInfo TypeInfo { get; }
 
         #endregion
 
 
         #region IBuilderContext
 
-        public IUnityContainer Container => _container;
 
         public IStrategyChain Strategies => _chain;
 
@@ -146,7 +163,8 @@ namespace Unity.Builder
 
         public IResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
-            return _resolverOverrides?.GetResolver(this, dependencyType);
+            var context = this;
+            return _resolverOverrides?.GetResolver(ref context, dependencyType);
         }
 
         #endregion
@@ -158,17 +176,17 @@ namespace Unity.Builder
         {
             var i = -1;
             var chain = ((InternalRegistration)Registration).BuildChain;
-
+            var context = this;
             try
             {
                 while (!BuildComplete && ++i < chain.Count)
                 {
-                    chain[i].PreBuildUp(this);
+                    chain[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(this);
+                    chain[i].PostBuildUp(ref context);
                 }
             }
             catch (Exception)
@@ -180,32 +198,33 @@ namespace Unity.Builder
             return Existing;
         }
 
-        public object NewBuildUp(InternalRegistration registration)
+        public object NewBuildUp(INamedType namedType)
         {
-            ChildContext = new BuilderContext(this, registration);
+            InternalRegistration registration = (InternalRegistration) namedType;
+            var context = new BuilderContext(this, registration);
+            ChildContext = context;
 
             var i = -1;
             var chain = registration.BuildChain;
-
             try
             {
-                while (!ChildContext.BuildComplete && ++i < chain.Count)
+                while (!context.BuildComplete && ++i < chain.Count)
                 {
-                    chain[i].PreBuildUp(ChildContext);
+                    chain[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ChildContext);
+                    chain[i].PostBuildUp(ref context);
                 }
             }
             catch (Exception)
             {
-                ChildContext.RequiresRecovery?.Recover();
+                context.RequiresRecovery?.Recover();
                 throw;
             }
 
-            var result = ChildContext.Existing;
+            var result = context.Existing;
             ChildContext = null;
 
             return result;
@@ -213,31 +232,31 @@ namespace Unity.Builder
 
         public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
         {
-            ChildContext = new BuilderContext(this, type, name);
+            var context = new BuilderContext(this, type, name);
+            ChildContext = context;
             childCustomizationBlock?.Invoke(ChildContext);
 
             var i = -1;
-            var chain = ((InternalRegistration)ChildContext.Registration).BuildChain;
-
+            var chain = ((InternalRegistration)context.Registration).BuildChain;
             try
             {
-                while (!ChildContext.BuildComplete && ++i < chain.Count)
+                while (!context.BuildComplete && ++i < chain.Count)
                 {
-                    chain[i].PreBuildUp(ChildContext);
+                    chain[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ChildContext);
+                    chain[i].PostBuildUp(ref context);
                 }
             }
             catch (Exception)
             {
-                ChildContext.RequiresRecovery?.Recover();
+                context.RequiresRecovery?.Recover();
                 throw;
             }
 
-            var result = ChildContext.Existing;
+            var result = context.Existing;
             ChildContext = null;
 
             return result;

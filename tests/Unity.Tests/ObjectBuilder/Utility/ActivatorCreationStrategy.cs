@@ -12,7 +12,7 @@ namespace Unity.Tests.v5.ObjectBuilder.Utility
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PreBuildUp(IBuilderContext context)
+        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
             if (context.Existing == null)
             {
