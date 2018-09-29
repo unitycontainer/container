@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Operation;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
@@ -26,8 +24,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
 
         private static readonly TypeInfo TypeInfo = typeof(DynamicMethodConstructorStrategy).GetTypeInfo();
         private static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
-        private static readonly ConstructorInfo ConstructorArgumentResolveOperationCtor =
-            typeof(ConstructorArgumentResolveOperation).GetTypeInfo().DeclaredConstructors.First();
         private static readonly MethodInfo StringFormat = typeof(string).GetTypeInfo() 
                                                                         .DeclaredMethods
                                                                         .First(m =>
@@ -91,60 +87,79 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         {
             // Validate type can be constructed
 
-            if (context.TypeInfo.IsInterface) return Expression.Throw(
-                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                    Expression.Call(
-                        StringFormat,
-                        Expression.Constant(Constants.CannotConstructInterface),
-                        BuildContextExpression<TBuilderContext>.Type),
-                    InvalidRegistrationExpression));
+            if (context.TypeInfo.IsInterface)
+            {
+                return Expression.Throw(
+                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.CannotConstructInterface),
+                            BuildContextExpression<TBuilderContext>.Type),
+                        InvalidRegistrationExpression));
+            }
 
-            if (context.TypeInfo.IsAbstract) return Expression.Throw(
-                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                    Expression.Call(
-                        StringFormat,
-                        Expression.Constant(Constants.CannotConstructAbstractClass),
-                        BuildContextExpression<TBuilderContext>.Type),
-                    InvalidRegistrationExpression));
+            if (context.TypeInfo.IsAbstract)
+            {
+                return Expression.Throw(
+                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.CannotConstructAbstractClass),
+                            BuildContextExpression<TBuilderContext>.Type),
+                        InvalidRegistrationExpression));
+            }
 
-            if (context.TypeInfo.IsSubclassOf(typeof(Delegate))) return Expression.Throw(
-                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                    Expression.Call(
-                        StringFormat,
-                        Expression.Constant(Constants.CannotConstructDelegate),
-                        BuildContextExpression<TBuilderContext>.Type),
-                    InvalidRegistrationExpression));
+            if (context.TypeInfo.IsSubclassOf(typeof(Delegate)))
+            {
+                return Expression.Throw(
+                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.CannotConstructDelegate),
+                            BuildContextExpression<TBuilderContext>.Type),
+                        InvalidRegistrationExpression));
+            }
 
-            if (context.Type == typeof(string)) return Expression.Throw(
-                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                    Expression.Call(
-                        StringFormat,
-                        Expression.Constant(Constants.TypeIsNotConstructable),
-                        BuildContextExpression<TBuilderContext>.Type),
-                    InvalidRegistrationExpression));
+            if (context.Type == typeof(string))
+            {
+                return Expression.Throw(
+                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.TypeIsNotConstructable),
+                            BuildContextExpression<TBuilderContext>.Type),
+                        InvalidRegistrationExpression));
+            }
 
-            IConstructorSelectorPolicy selector =
-                context.Policies.GetPolicy<IConstructorSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
+            var selector = context.Policies.GetPolicy<IConstructorSelectorPolicy>(
+                context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            if (null == selector) return Expression.Throw(
-                Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                    Expression.Call(
-                        StringFormat,
-                        Expression.Constant("No appropriate constructor selector is registered for type {0}."),
-                        BuildContextExpression<TBuilderContext>.Type),
-                    InvalidRegistrationExpression));
+            if (null == selector)
+            {
+                return Expression.Throw(
+                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant("No appropriate constructor selector is registered for type {0}."),
+                            BuildContextExpression<TBuilderContext>.Type),
+                        InvalidRegistrationExpression));
+            }
 
-            SelectedConstructor selectedConstructor = selector.SelectConstructor(ref context);
+            var selectedConstructor = selector.SelectConstructor(ref context);
 
-            if (selectedConstructor == null) return Expression.Throw(
+            if (selectedConstructor == null)
+            {
+                return Expression.Throw(
                     Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.NoConstructorFound),
                             BuildContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
+            }
 
-            if (selectedConstructor.Constructor.GetParameters().Any(pi => pi.ParameterType.IsByRef))
+            var parameters = selectedConstructor.Constructor.GetParameters();
+            if (parameters.Any(pi => pi.ParameterType.IsByRef))
             {
                 return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -152,7 +167,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression)));
             }
 
-            if (IsInvalidConstructor(context.TypeInfo, ref context, selectedConstructor))
+            if (IsInvalidConstructor(context.TypeInfo, ref context, parameters))
             {
                 return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -160,18 +175,17 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression)));
             }
 
-            var parameterExpressions = BuildConstructionParameterExpressions<TBuilderContext>(buildContext, selectedConstructor);
+            var parameterExpressions = BuildConstructionParameterExpressions<TBuilderContext>(buildContext, selectedConstructor, parameters);
 
-            return Expression.Assign(
-                BuilderContextExpression<TBuilderContext>.Existing,
+            return Expression.Assign(BuilderContextExpression<TBuilderContext>.Existing,
                 Expression.Convert(Expression.New(selectedConstructor.Constructor, parameterExpressions), typeof(object))
             );
         }
 
-        private static bool IsInvalidConstructor<TBuilderContext>(TypeInfo target, ref TBuilderContext context, SelectedConstructor selectedConstructor)
+        private static bool IsInvalidConstructor<TBuilderContext>(TypeInfo target, ref TBuilderContext context, ParameterInfo[] parameters)
             where TBuilderContext : IBuilderContext
         {
-            if (selectedConstructor.Constructor.GetParameters().Any(p => Equals(p.ParameterType.GetTypeInfo(), target)))
+            if (parameters.Any(p => Equals(p.ParameterType.GetTypeInfo(), target)))
             {
                 var policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type,
                     context.BuildKey.Name,
@@ -192,23 +206,19 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
         }
 
-        private IEnumerable<Expression> BuildConstructionParameterExpressions<TBuilderContext>(DynamicBuildPlanGenerationContext buildContext, SelectedConstructor selectedConstructor)
-            where TBuilderContext : IBuilderContext
+        private IEnumerable<Expression> BuildConstructionParameterExpressions<TBuilderContext>(DynamicBuildPlanGenerationContext buildContext, 
+            SelectedMemberWithParameters selectedConstructor, ParameterInfo[] parameters) where TBuilderContext : IBuilderContext
         {
-            int i = 0;
-            var constructionParameters = selectedConstructor.Constructor.GetParameters();
+            var i = 0;
 
             foreach (var parameterResolver in selectedConstructor.GetParameterResolvers())
             {
+                var parameter = parameters[i];
                 yield return buildContext.CreateParameterExpression<TBuilderContext>(
                     parameterResolver,
-                    constructionParameters[i].ParameterType,
-                    Expression.Assign(
-                        BuilderContextExpression<TBuilderContext>.CurrentOperation,
-                        Expression.New(
-                            ConstructorArgumentResolveOperationCtor, 
-                            Expression.Constant(selectedConstructor.Constructor.DeclaringType), 
-                            Expression.Constant(constructionParameters[i].Name, typeof(string)))));
+                    parameter.ParameterType,
+                    Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation,
+                        Expression.Constant(parameter, typeof(object))));
                 i++;
             }
         }
