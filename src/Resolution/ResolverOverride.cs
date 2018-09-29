@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
@@ -33,7 +31,8 @@ namespace Unity.Resolution
         /// <param name="context">Current build context.</param>
         /// <param name="dependencyType">Type of dependency desired.</param>
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public abstract IResolverPolicy GetResolver(IBuilderContext context, Type dependencyType);
+        public abstract IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
+            where TBuilderContext : IBuilderContext;
 
         /// <summary>
         /// Wrap this resolver in one that verifies the type of the object being built.

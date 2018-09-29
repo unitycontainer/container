@@ -35,7 +35,7 @@ namespace Unity.Resolution
         /// <param name="context">Current build context.</param>
         /// <param name="dependencyType">Type of dependency desired.</param>
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IResolverPolicy GetResolver(IBuilderContext context, Type dependencyType)
+        public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
         {
             IResolverPolicy result = null;
             if (dependencyType == _typeToConstruct)

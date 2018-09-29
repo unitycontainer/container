@@ -13,6 +13,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        object Resolve(IBuilderContext context);
+        object Resolve<TBuilderContext>(ref TBuilderContext context) 
+            where TBuilderContext : IBuilderContext;
     }
 }

@@ -17,12 +17,11 @@ namespace Unity.Builder.Operation
         /// Initializes a new instance of the <see cref="ConstructorArgumentResolveOperation"/> class.
         /// </summary>
         /// <param name="typeBeingConstructed">The type that is being constructed.</param>
-        /// <param name="methodSignature">A string representing the method being called.</param>
         /// <param name="parameterName">Parameter being resolved.</param>
-        public MethodArgumentResolveOperation(Type typeBeingConstructed, string methodSignature, string parameterName)
+        public MethodArgumentResolveOperation(Type typeBeingConstructed, string parameterName)
             : base(typeBeingConstructed, parameterName)
         {
-            MethodSignature = methodSignature;
+            MethodSignature = null;
         }
 
         /// <summary>

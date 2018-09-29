@@ -1,6 +1,4 @@
-﻿
-
-using Unity.Builder;
+﻿using Unity.Builder;
 
 namespace Unity.Policy
 {
@@ -16,6 +14,7 @@ namespace Unity.Policy
         /// <param name="context">Current build context.</param>
         /// <param name="buildKey">Current build key.</param>
         /// <returns>The build plan.</returns>
-        IBuildPlanPolicy CreatePlan(IBuilderContext context, INamedType buildKey);
+        IBuildPlanPolicy CreatePlan<TBuilderContext>(ref TBuilderContext context, INamedType buildKey)
+            where TBuilderContext : IBuilderContext;
     }
 }

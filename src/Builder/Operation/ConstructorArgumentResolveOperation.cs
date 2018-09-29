@@ -12,18 +12,15 @@ namespace Unity.Builder.Operation
     /// </summary>
     public class ConstructorArgumentResolveOperation : ParameterResolveOperation
     {
-        private readonly string _constructorSignature;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorArgumentResolveOperation"/> class.
         /// </summary>
         /// <param name="typeBeingConstructed">The type that is being constructed.</param>
         /// <param name="constructorSignature">A string representing the constructor being called.</param>
         /// <param name="parameterName">Parameter being resolved.</param>
-        public ConstructorArgumentResolveOperation(Type typeBeingConstructed, string constructorSignature, string parameterName)
+        public ConstructorArgumentResolveOperation(Type typeBeingConstructed, string parameterName)
             : base(typeBeingConstructed, parameterName)
         {
-            _constructorSignature = constructorSignature;
         }
 
         /// <summary>
@@ -34,12 +31,7 @@ namespace Unity.Builder.Operation
         {
             return string.Format(CultureInfo.CurrentCulture,
                 Constants.ConstructorArgumentResolveOperation,
-                ParameterName, _constructorSignature);
+                ParameterName, null);
         }
-
-        /// <summary>
-        /// String describing the constructor being set up.
-        /// </summary>
-        public string ConstructorSignature => _constructorSignature;
     }
 }

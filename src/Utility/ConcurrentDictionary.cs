@@ -1876,7 +1876,7 @@ namespace System.Collections.Concurrent
         {
             Assert(key != null);
 
-            return key;// TODO: Environment.GetResourceString(key);
+            return key;
         }
 
         /// <summary>

@@ -66,9 +66,10 @@ namespace Unity.Injection
 
         #region IBuildPlanPolicy
 
-        public void BuildUp(IBuilderContext context)
+        public void BuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            if ((context ?? throw new ArgumentNullException(nameof(context))).Existing == null)
+            if (context.Existing == null)
             {
                 context.Existing = _factoryFunc(context.Container, context.BuildKey.Type, context.BuildKey.Name);
                 context.SetPerBuildSingleton();

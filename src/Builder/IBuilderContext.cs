@@ -1,7 +1,7 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Unity.Build;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -13,15 +13,15 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    public interface IBuilderContext
+    public interface IBuilderContext : IBuildContext
     {
         /// <summary>
-        /// Gets Reference to container.
+        /// <see cref="TypeInfo"/> of the <see cref="Type"/> that is being built.
         /// </summary>
-        /// <returns>
-        /// Interface for the hosting container
-        /// </returns>
-        IUnityContainer Container { get; }
+        /// <remarks>This is a convenience property used to optimize allocating
+        /// and discarding <see cref="TypeInfo"/>. This instance is cashed and
+        /// reused throughout the build.</remarks>
+        TypeInfo TypeInfo { get; }
 
         /// <summary>
         /// Gets the head of the strategy chain.
@@ -82,14 +82,6 @@ namespace Unity.Builder
         IPolicyList Policies { get; }
 
         /// <summary>
-        /// The current object being built up or torn down.
-        /// </summary>
-        /// <value>
-        /// The current object being manipulated by the build operation. May
-        /// be null if the object hasn't been created yet.</value>
-        object Existing { get; set; }
-
-        /// <summary>
         /// Flag indicating if the build operation should continue.
         /// </summary>
         /// <value>true means that building should not call any more
@@ -136,6 +128,9 @@ namespace Unity.Builder
         /// the opportunity to customize the context for the build process.</param>
         /// <returns>Resolved object</returns>
         object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null);
+
+        object NewBuildUp(INamedType registration);
+
     }
 
     /// <summary>
@@ -145,23 +140,11 @@ namespace Unity.Builder
     public static class BuilderContextExtensions
     {
         /// <summary>
-        /// Add a set of <see cref="ResolverOverride"/>s to the context, specified as a 
-        /// variable argument list.
-        /// </summary>
-        /// <param name="context">Context to add overrides to.</param>
-        /// <param name="overrides">The overrides.</param>
-        public static void AddResolverOverrides(this IBuilderContext context, params ResolverOverride[] overrides)
-        {
-            (context ?? throw new ArgumentNullException(nameof(context)))
-                .AddResolverOverrides(overrides);
-        }
-
-
-        /// <summary>
         /// A helper method used by the generated IL to set up a PerResolveLifetimeManager lifetime manager
         /// if the current object is such.
         /// </summary>
         /// <param name="context">Current build context.</param>
+        // TODO: IBuilderContext
         public static void SetPerBuildSingleton(this IBuilderContext context)
         {
             var lifetime = (context ?? throw new ArgumentNullException(nameof(context)))

@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using Unity.Builder;
 using Unity.Policy;
 
@@ -32,17 +30,15 @@ namespace Unity.Resolution
         /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
         /// for the given desired dependency.
         /// </summary>
-        /// <param name="builderContext">Current build context.</param>
+        /// <param name="context">Current build context.</param>
         /// <param name="dependencyType">Type of dependency desired.</param>
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IResolverPolicy GetResolver(IBuilderContext builderContext, Type dependencyType)
+        public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
         {
-            var context = builderContext ?? throw new ArgumentNullException(nameof(builderContext));
-
-            if (context.CurrentOperation is BuildOperation operation && 
+            if (context.CurrentOperation is BuildOperation operation &&
                 operation.TypeBeingConstructed == _targetType)
             {
-                return _innerOverride.GetResolver(context, dependencyType);
+                return _innerOverride.GetResolver(ref context, dependencyType);
             }
 
             return null;

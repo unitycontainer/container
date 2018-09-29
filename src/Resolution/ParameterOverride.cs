@@ -1,9 +1,5 @@
-﻿
-
-using System;
-using Unity.Builder;
+﻿using System;
 using Unity.Builder.Operation;
-using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Resolution
@@ -33,9 +29,9 @@ namespace Unity.Resolution
         /// <param name="context">Current build context.</param>
         /// <param name="dependencyType">Type of dependency desired.</param>
         /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IResolverPolicy GetResolver(IBuilderContext context, Type dependencyType)
+        public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
         {
-            if ((context ?? throw new ArgumentNullException(nameof(context))).CurrentOperation is ParameterResolveOperation currentOperation &&
+            if (context.CurrentOperation is ParameterResolveOperation currentOperation &&
                 currentOperation.ParameterName == Name)
             {
                 return Value.GetResolverPolicy(dependencyType);

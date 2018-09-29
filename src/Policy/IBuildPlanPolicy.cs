@@ -1,8 +1,4 @@
-﻿
-
-
-using System;
-using Unity.Builder;
+﻿using Unity.Builder;
 
 namespace Unity.Policy
 {
@@ -18,7 +14,8 @@ namespace Unity.Policy
         /// in the existing type if passed in.
         /// </summary>
         /// <param name="context">Context used to build up the object.</param>
-        void BuildUp(IBuilderContext context);
+        void BuildUp<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext;
     }
 
     public static class BuildPlanPolicyExtensions
@@ -30,9 +27,10 @@ namespace Unity.Policy
         /// <param name="policy"></param>
         /// <param name="context">Context for the build process.</param>
         /// <returns>The build up object</returns>
-        public static object ExecuteBuildUp(this IBuildPlanPolicy policy, IBuilderContext context)
+        public static object ExecuteBuildUp<TBuilderContext>(this IBuildPlanPolicy policy, ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            policy.BuildUp(context ?? throw new ArgumentNullException(nameof(context)));
+            policy.BuildUp(ref context);
             return context.Existing;
         }
 
