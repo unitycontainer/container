@@ -3,10 +3,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
-using Unity.Builder.Policy;
+using Unity.Build;
+using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Storage;
 using Unity.Utility;
 
 namespace Unity.Injection
@@ -16,10 +16,21 @@ namespace Unity.Injection
     /// for a constructor, so that the container can
     /// be configured to call this constructor.
     /// </summary>
-    public class InjectionConstructor : InjectionMember
+    public class InjectionConstructor : InjectionMember, 
+                                        IConstructorSelectorPolicy
     {
+        #region Fields
+
         private readonly InjectionParameterValue[] _data;
         private readonly Type[] _types;
+        private ConstructorInfo _constructor;
+        private InjectionParameterValue[] _parameterValues;
+
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Create a new instance of <see cref="InjectionConstructor"/> that looks
@@ -52,6 +63,11 @@ namespace Unity.Injection
                 .ToArray();
         }
 
+        #endregion
+
+
+        #region InjectionMember
+
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
@@ -60,75 +76,82 @@ namespace Unity.Injection
         /// <param name="implementationType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
+        public override void AddPolicies<T>(Type serviceType, Type implementationType, string name, ref T policies)
         {
-            var policy = null != _data  ? ConstructorByArguments(implementationType, _data) :
-                         null != _types ? ConstructorByType(implementationType, _types)     :
-                                          DefaultConstructor(implementationType);
+            var typeToCreate = implementationType;
+            var constructors = typeToCreate.GetTypeInfo()
+                                           .DeclaredConstructors
+                                           .Where(c => c.IsStatic == false && c.IsPublic);
+            if (null != _data)
+            {
+                _constructor = constructors.FirstOrDefault(info => _data.Matches(info.GetParameters().Select(p => p.ParameterType))) ??
+                       throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor,
+                               typeToCreate.FullName, string.Join(", ", _data.Select(p => p.ParameterTypeName).ToArray())));
 
-            policies.Set(serviceType, name, typeof(IConstructorSelectorPolicy), policy);
+                _parameterValues = _data;
+            }
+            else if (null != _types)
+            {
+                _constructor = constructors.FirstOrDefault(info => info.GetParameters().ParametersMatch(_types)) ??
+                       throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                           Constants.NoSuchConstructor, typeToCreate.FullName, string.Join(", ", _types.Select(t => t.Name))));
+
+                _parameterValues = _constructor.GetParameters().Select(ToResolvedParameter).ToArray();
+            }
+            else
+            {
+                _constructor = constructors.FirstOrDefault(info => 0 == info.GetParameters().Length) ??
+                       throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                           Constants.NoSuchConstructor, typeToCreate.FullName, string.Empty));
+
+                _parameterValues = new InjectionParameterValue[0];
+            }
+
+            policies.Set(serviceType, name, typeof(IConstructorSelectorPolicy), this);
         }
 
         public override bool BuildRequired => true;
 
-        private SpecifiedConstructorSelectorPolicy DefaultConstructor(Type typeToCreate)
+        #endregion
+
+
+        #region IConstructorSelectorPolicy
+
+        object IConstructorSelectorPolicy.SelectConstructor<TContext>(ref TContext context)
         {
-            foreach (var ctor in typeToCreate.GetTypeInfo()
-                                             .DeclaredConstructors
-                                             .Where(c => c.IsStatic == false && c.IsPublic))
+            SelectedConstructor result;
+
+            var typeInfo = context.Type.GetTypeInfo();
+            var methodHasOpenGenericParameters = _constructor.GetParameters()
+                .Select(p => p.ParameterType.GetTypeInfo())
+                .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+
+            var ctorTypeInfo = _constructor.DeclaringType.GetTypeInfo();
+
+            if (!methodHasOpenGenericParameters && !(ctorTypeInfo.IsGenericType && ctorTypeInfo.ContainsGenericParameters))
             {
-                if (!ctor.GetParameters().Select(p => p.ParameterType).Any())
-                {
-                    return new SpecifiedConstructorSelectorPolicy(ctor, new InjectionParameterValue[0]);
-                }
+                result = new SelectedConstructor(_constructor);
+            }
+            else
+            {
+                var closedCtorParameterTypes = _constructor.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
+                var constructor = typeInfo.DeclaredConstructors.Single(c => !c.IsStatic && c.GetParameters().ParametersMatch(closedCtorParameterTypes));
+                result = new SelectedConstructor(constructor);
             }
 
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.NoSuchConstructor,
-                    typeToCreate.FullName, string.Empty));
-        }
-
-
-        private SpecifiedConstructorSelectorPolicy ConstructorByArguments(Type typeToCreate, InjectionParameterValue[] data)
-        {
-            foreach (var ctor in typeToCreate.GetTypeInfo()
-                .DeclaredConstructors
-                .Where(c => c.IsStatic == false && c.IsPublic))
+            foreach (var parameterValue in _parameterValues)
             {
-                if (_data.Matches(ctor.GetParameters().Select(p => p.ParameterType)))
-                {
-                    return new SpecifiedConstructorSelectorPolicy(ctor, data); 
-                }
+                var resolver = parameterValue.GetResolverPolicy(context.Type);
+                result.AddParameterResolver(resolver);
             }
 
-            string signature = string.Join(", ", data.Select(p => p.ParameterTypeName).ToArray());
-
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    Constants.NoSuchConstructor,
-                    typeToCreate.FullName,
-                    signature));
+            return result;
         }
 
-        private SpecifiedConstructorSelectorPolicy ConstructorByType(Type typeToCreate, Type[] types)
-        {
-            foreach (var ctor in typeToCreate.GetTypeInfo()
-                                             .DeclaredConstructors
-                                             .Where(c => c.IsStatic == false && c.IsPublic))
-            {
-                var parameters = ctor.GetParameters();
-                if (parameters.ParametersMatch(types))
-                {
-                    return new SpecifiedConstructorSelectorPolicy(ctor, parameters.Select(ToResolvedParameter)
-                                                                                  .ToArray());
-                }
-            }
+        #endregion
 
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor, 
-                typeToCreate.FullName, string.Join(", ", _types.Select(t => t.Name))));
-        }
+
+        #region Implementation
 
         private InjectionParameterValue ToResolvedParameter(ParameterInfo parameter)
         {
@@ -136,5 +159,7 @@ namespace Unity.Injection
                                                                            .OfType<DependencyAttribute>()
                                                                            .FirstOrDefault()?.Name);
         }
+
+        #endregion
     }
 }

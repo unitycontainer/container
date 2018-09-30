@@ -1,7 +1,4 @@
-﻿
-
-using System;
-using Unity.Policy;
+﻿using System;
 using Unity.Storage;
 
 namespace Unity.Registration
@@ -16,23 +13,13 @@ namespace Unity.Registration
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
-        /// <param name="typeToCreate">Type to register.</param>
-        /// <param name="policies">Policy list to add policies to.</param>
-        public void AddPolicies(Type typeToCreate, IPolicyList policies)
-        {
-            AddPolicies(null, typeToCreate, null, policies);
-        }
-
-        /// <summary>
-        /// Add policies to the <paramref name="policies"/> to configure the
-        /// container to call this constructor with the appropriate parameter values.
-        /// </summary>
         /// <param name="serviceType">Type of interface being registered. If no interface,
         /// this will be null.</param>
         /// <param name="implementationType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public abstract void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies);
+        public abstract void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
+            where TPolicyList : IPolicyList;
 
         /// <summary>
         /// This injection member instructs engine, when type mapping is present, 
@@ -46,7 +33,7 @@ namespace Unity.Registration
         /// Line 3: container.RegisterType{IOtherService, OtherService}(new InjectionConstructor(container));
         /// 
         /// It is expected that IService resolves instance registered on line 1. But when IOtherService is resolved 
-        /// it requires differen constructor so it should be built instead.
+        /// it requires different constructor so it should be built instead.
         /// </remarks>
         public virtual bool BuildRequired { get; }
     }

@@ -2,7 +2,6 @@
 using Unity.Builder;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Storage;
 
 namespace Unity.Injection
 {
@@ -57,7 +56,7 @@ namespace Unity.Injection
         /// This parameter is ignored in this implementation.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
+        public override void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
         {
             policies.Set(serviceType, name, typeof(IBuildPlanPolicy), this);
         }
