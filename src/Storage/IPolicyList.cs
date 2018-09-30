@@ -1,6 +1,6 @@
 using System;
 
-namespace Unity.Policy
+namespace Unity.Storage
 {
     /// <summary>
     /// A custom collection over <see cref="Object"/> objects.
@@ -13,7 +13,6 @@ namespace Unity.Policy
         /// <param name="type">Type of the registration</param>
         /// <param name="name">Name of the registration</param>
         /// <param name="policyInterface">Type of policy to retrieve</param>
-        /// <param name="list">Reference to owner IList holding reference to the policy</param>
         /// <returns>Instance of the policy or null if none found</returns>
         object Get(Type type, string name, Type policyInterface);
 
