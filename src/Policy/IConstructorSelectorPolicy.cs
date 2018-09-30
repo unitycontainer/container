@@ -3,10 +3,10 @@
 namespace Unity.Policy
 {
     /// <summary>
-    /// A <see cref="IBuilderPolicy"/> that, when implemented,
+    /// A policy that, when implemented,
     /// will determine which constructor to call from the build plan.
     /// </summary>
-    public interface IConstructorSelectorPolicy : IBuilderPolicy
+    public interface IConstructorSelectorPolicy 
     {
         /// <summary>
         /// Choose the constructor to call for the given type.

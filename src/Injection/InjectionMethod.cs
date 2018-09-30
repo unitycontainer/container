@@ -1,11 +1,8 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Builder.Policy;
 using Unity.Policy;
 using Unity.Registration;
@@ -43,7 +40,7 @@ namespace Unity.Injection
         /// <param name="implementationType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
+        public override void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
         {
             MethodInfo methodInfo = FindMethod(implementationType);
             ValidateMethodCanBeInjected(methodInfo, implementationType);
