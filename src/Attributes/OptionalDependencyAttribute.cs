@@ -1,8 +1,4 @@
-﻿
-
-using System;
-using Unity.Policy;
-using Unity.ResolverPolicy;
+﻿using System;
 
 namespace Unity.Attributes
 {
@@ -18,9 +14,7 @@ namespace Unity.Attributes
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object.
         /// </summary>
         public OptionalDependencyAttribute()
-            : this(null)
-        {
-        }
+            : base(null) { }
 
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object that
@@ -28,26 +22,6 @@ namespace Unity.Attributes
         /// </summary>
         /// <param name="name">Name of the dependency.</param>
         public OptionalDependencyAttribute(string name)
-        {
-            Name = name;
-        }
-
-        /// <summary>
-        /// Name of the dependency.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// Create an instance of <see cref="IResolverPolicy"/> that
-        /// will be used to get the value for the member this attribute is
-        /// applied to.
-        /// </summary>
-        /// <param name="typeToResolve">Type of parameter or property that
-        /// this attribute is decoration.</param>
-        /// <returns>The resolver object.</returns>
-        public override IResolverPolicy CreateResolver(Type typeToResolve)
-        {
-            return new OptionalDependencyResolverPolicy(typeToResolve, Name);
-        }
+            : base(name) { }
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Reflection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
