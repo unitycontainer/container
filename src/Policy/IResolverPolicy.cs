@@ -1,4 +1,4 @@
-﻿using Unity.Builder;
+﻿using Unity.Build;
 
 namespace Unity.Policy
 {
@@ -13,7 +13,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        object Resolve<TBuilderContext>(ref TBuilderContext context) 
-            where TBuilderContext : IBuilderContext;
+        object Resolve<TContext>(ref TContext context) 
+            where TContext : IBuildContext;
     }
 }

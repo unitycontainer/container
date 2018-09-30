@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Policy;
 
@@ -28,10 +29,10 @@ namespace Unity.ResolverPolicy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        public object Resolve<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public object Resolve<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
-            return context.NewBuildUp(Type, Name);
+            return context.Resolve(Type, Name);
         }
 
         /// <summary>
