@@ -8,6 +8,7 @@ using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.ConstructorInvoke;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Strategies
 {
