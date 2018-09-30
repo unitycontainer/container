@@ -1,7 +1,4 @@
-﻿
-
-using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
 using Unity.ObjectBuilder.BuildPlan.Selection;
@@ -24,13 +21,18 @@ namespace Unity.ObjectBuilder.Policies
         /// <returns>The resolver object.</returns>
         protected override IResolverPolicy CreateResolver(ParameterInfo parameter)
         {
-            var attributes = (parameter ?? throw new ArgumentNullException(nameof(parameter))).GetCustomAttributes(false)
-                .OfType<DependencyResolutionAttribute>()
-                .ToList();
+            var attributes = parameter.GetCustomAttributes(false)
+                                      .OfType<DependencyResolutionAttribute>()
+                                      .ToArray();
 
-            if (attributes.Count > 0)
+            if (attributes.Length > 0)
             {
-                return attributes[0].CreateResolver(parameter.ParameterType);
+                // Since this attribute is defined with MultipleUse = false, the compiler will
+                // enforce at most one. So we don't need to check for more.
+                var attr = attributes[0];
+                return attr is OptionalDependencyAttribute dependencyAttribute
+                    ? (IResolverPolicy) new OptionalDependencyResolverPolicy(parameter.ParameterType, dependencyAttribute.Name)
+                    : new NamedTypeDependencyResolverPolicy(parameter.ParameterType, attr.Name);
             }
 
             return new NamedTypeDependencyResolverPolicy(parameter.ParameterType, null);
