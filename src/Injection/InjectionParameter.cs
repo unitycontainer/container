@@ -1,8 +1,6 @@
-﻿
-
-using System;
+﻿using System;
+using Unity.Builder;
 using Unity.Policy;
-using Unity.ResolverPolicy;
 
 namespace Unity.Injection
 {
@@ -11,7 +9,7 @@ namespace Unity.Injection
     /// the required <see cref="IResolverPolicy"/>
     /// when the container is configured.
     /// </summary>
-    public class InjectionParameter : TypedInjectionValue
+    public class InjectionParameter : TypedInjectionValue, IResolverPolicy
     {
         /// <summary>
         /// Create an instance of <see cref="InjectionParameter"/> that stores
@@ -50,7 +48,12 @@ namespace Unity.Injection
         /// <returns>The <see cref="IResolverPolicy"/>.</returns>
         public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
         {
-            return new LiteralValueDependencyResolverPolicy(Value);
+            return this;
+        }
+
+        public object Resolve<TBuilderContext>(ref TBuilderContext context) where TBuilderContext : IBuilderContext
+        {
+            return Value;
         }
     }
 
