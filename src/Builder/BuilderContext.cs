@@ -119,6 +119,48 @@ namespace Unity.Builder
 
         public object Resolve(Type type, string name) => NewBuildUp(type, name);
 
+        public object Resolve(PropertyInfo property, string name)
+        {
+            var context = this;
+            var backup = CurrentOperation;
+
+            CurrentOperation = property;
+
+            //for (var index = _overrides.Length - 1; index >= 0; --index)
+            //{
+            //    var resolver = _overrides[index].GetResolver(ref context, property.PropertyType);
+            //    if (resolver != null)
+            //    {
+            //        return resolver.Resolve(ref context);
+            //    }
+            //}
+
+            CurrentOperation = backup;
+
+            return Resolve(property.PropertyType, name);
+        }
+
+        public object Resolve(ParameterInfo parameter, string name)
+        {
+            var context = this;
+            var backup = CurrentOperation;
+
+            CurrentOperation = parameter;
+
+            //for (var index = _overrides.Length - 1; index >= 0; --index)
+            //{
+            //    var resolver = _overrides[index].GetResolver(ref context, parameter.ParameterType);
+            //    if (resolver != null)
+            //    {
+            //        return resolver.Resolve(ref context);
+            //    }
+            //}
+
+            CurrentOperation = backup;
+
+            return Resolve(parameter.ParameterType, name);
+        }
+
         #endregion
 
 
