@@ -1,8 +1,5 @@
-﻿
-
-using System.Collections.Generic;
-using Unity.Builder;
-using Unity.Builder.Selection;
+﻿using System.Collections.Generic;
+using Unity.Build;
 
 namespace Unity.Policy
 {
@@ -18,7 +15,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        IEnumerable<SelectedMethod> SelectMethods<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext;
+        IEnumerable<object> SelectMethods<TContext>(ref TContext context)
+            where TContext : IBuildContext;
     }
 }

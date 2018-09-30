@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Unity.Builder;
+using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Injection;
-using Unity.Storage;
 
 namespace Unity.Policy
 {
@@ -17,13 +16,6 @@ namespace Unity.Policy
         private readonly List<Tuple<PropertyInfo, InjectionParameterValue>> _propertiesAndValues =
             new List<Tuple<PropertyInfo, InjectionParameterValue>>();
 
-        /// <summary>
-        /// Add a property that will be par of the set returned when the 
-        /// <see cref="SelectProperties(IBuilderContext, IPolicyList)"/> is called.
-        /// </summary>
-        /// <param name="property">The property to set.</param>
-        /// <param name="value"><see cref="InjectionParameterValue"/> object describing
-        /// how to create the value to inject.</param>
         public void AddPropertyAndValue(PropertyInfo property, InjectionParameterValue value)
         {
             _propertiesAndValues.Add(new Tuple<PropertyInfo, InjectionParameterValue>(property, value));
@@ -36,10 +28,10 @@ namespace Unity.Policy
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public IEnumerable<SelectedProperty> SelectProperties<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public IEnumerable<object> SelectProperties<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
-            Type typeToBuild = context.BuildKey.Type;
+            Type typeToBuild = context.Type;
             var list = new List<SelectedProperty>();
             foreach (Tuple<PropertyInfo, InjectionParameterValue> pair in _propertiesAndValues)
             {
@@ -50,7 +42,7 @@ namespace Unity.Policy
                 // for the current closed generic.
                 if (info.IsGenericType && info.ContainsGenericParameters)
                 {
-                    currentProperty = context.BuildKey.Type.GetTypeInfo().GetDeclaredProperty(currentProperty.Name);
+                    currentProperty = context.Type.GetTypeInfo().GetDeclaredProperty(currentProperty.Name);
                 }
 
                 list.Add(new SelectedProperty(currentProperty, pair.Item2.GetResolverPolicy(typeToBuild)));
