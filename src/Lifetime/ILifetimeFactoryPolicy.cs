@@ -11,7 +11,7 @@ namespace Unity.Lifetime
     /// Used by the LifetimeStrategy when instantiating open
     /// generic types.
     /// </summary>
-    public interface ILifetimeFactoryPolicy : IBuilderPolicy
+    public interface ILifetimeFactoryPolicy 
     {
         /// <summary>
         /// Create a new instance of <see cref="ILifetimePolicy"/>.

@@ -7,7 +7,7 @@ namespace Unity.Policy
     /// An <see cref="IBuilderPolicy"/> that returns a sequence
     /// of properties that should be injected for the given type.
     /// </summary>
-    public interface IPropertySelectorPolicy : IBuilderPolicy
+    public interface IPropertySelectorPolicy 
     {
         /// <summary>
         /// Returns sequence of properties on the given type that

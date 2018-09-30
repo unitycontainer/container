@@ -6,7 +6,7 @@ namespace Unity.Policy
     /// A <see cref="IBuilderPolicy"/> that can create and return an <see cref="IBuildPlanPolicy"/>
     /// for the given build key.
     /// </summary>
-    public interface IBuildPlanCreatorPolicy : IBuilderPolicy
+    public interface IBuildPlanCreatorPolicy 
     {
         /// <summary>
         /// Create a build plan using the given context and build key.

@@ -8,7 +8,7 @@ namespace Unity.Policy
     /// types and return a sequence of <see cref="System.Reflection.MethodInfo"/> objects
     /// that should be called as part of building the object.
     /// </summary>
-    public interface IMethodSelectorPolicy : IBuilderPolicy
+    public interface IMethodSelectorPolicy 
     {
         /// <summary>
         /// Return the sequence of methods to call while building the target object.
