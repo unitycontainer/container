@@ -16,6 +16,51 @@ namespace Unity.Strategies
     /// </summary>
     public class BuildKeyMappingStrategy : BuilderStrategy
     {
+        #region Registration and Analysis
+
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        {
+            switch (namedType)
+            {
+                case ContainerRegistration registration:
+                    return AnaliseStaticRegistration(registration, injectionMembers);
+
+                case InternalRegistration registration:
+                    return AnaliseDynamicRegistration(registration);
+
+                default:
+                    return false;
+            }
+        }
+
+        private bool AnaliseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
+        {
+            // Validate input  
+            if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
+
+            // Require Re-Resolve if no injectors specified
+            var buildRequired = registration.LifetimeManager is IRequireBuildUpPolicy ||
+                                (injectionMembers?.Any(m => m.BuildRequired) ?? false);
+
+            // Set mapping policy
+            var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
+                         registration.MappedToType.GetTypeInfo().IsGenericTypeDefinition
+                ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired)
+                : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired);
+            registration.Set(typeof(IBuildKeyMappingPolicy), policy);
+
+            return true;
+        }
+
+        private bool AnaliseDynamicRegistration(InternalRegistration registration)
+        {
+            return null != registration.Type && registration.Type.GetTypeInfo().IsGenericType;
+        }
+
+
+        #endregion
+
+
         #region Build
 
         /// <summary>
@@ -71,51 +116,6 @@ namespace Unity.Strategies
             }
         }
         
-        #endregion
-
-
-        #region Registration and Analysis
-
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
-        {
-            switch (namedType)
-            {
-                case ContainerRegistration registration:
-                    return AnaliseStaticRegistration(registration, injectionMembers);
-
-                case InternalRegistration registration:
-                    return AnaliseDynamicRegistration(registration);
-
-                default:
-                    return false;
-            }
-        }
-
-        private bool AnaliseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
-        {
-            // Validate input  
-            if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
-
-            // Require Re-Resolve if no injectors specified
-            var buildRequired = registration.LifetimeManager is IRequireBuildUpPolicy ||
-                (injectionMembers?.Any(m => m.BuildRequired) ?? false);
-
-            // Set mapping policy
-            var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
-                         registration.MappedToType.GetTypeInfo().IsGenericTypeDefinition
-                       ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired)
-                       : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired);
-            registration.Set(typeof(IBuildKeyMappingPolicy), policy);
-
-            return true;
-        }
-
-        private bool AnaliseDynamicRegistration(InternalRegistration registration)
-        {
-            return null != registration.Type && registration.Type.GetTypeInfo().IsGenericType;
-        }
-
-
         #endregion
     }
 }
