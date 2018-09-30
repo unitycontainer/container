@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Build;
+using Unity.Builder;
 using Unity.Delegates;
 
 namespace Unity.Expressions
@@ -14,14 +15,14 @@ namespace Unity.Expressions
 
             var contextRefType =
                 typeof(ResolveDelegate<TContext>).GetTypeInfo()
-                    .GetDeclaredMethod("Invoke")
-                    .GetParameters()[0]
-                    .ParameterType;
+                                                 .GetDeclaredMethod("Invoke")
+                                                 .GetParameters()[0]
+                                                 .ParameterType;
 
             Context   = Expression.Parameter(contextRefType, "context");
+            Type      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(INamedType.Type)));
+            Name      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(INamedType.Name)));
             Container = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Container)));
-            Type      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Type)));
-            Name      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Name)));
             Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Existing)));
         }
 
