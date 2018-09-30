@@ -84,13 +84,12 @@ namespace Unity.Injection
 
         private static SpecifiedPropertiesSelectorPolicy GetSelectorPolicy(IPolicyList policies, Type typeToInject, string name)
         {
-            NamedTypeBuildKey key = new NamedTypeBuildKey(typeToInject, name);
             IPropertySelectorPolicy selector = 
                 (IPropertySelectorPolicy)policies.Get(typeToInject, name, typeof(IPropertySelectorPolicy));
             if (!(selector is SpecifiedPropertiesSelectorPolicy))
             {
                 selector = new SpecifiedPropertiesSelectorPolicy();
-                policies.Set(key.Type, key.Name, typeof(IPropertySelectorPolicy), selector);
+                policies.Set(typeToInject, name, typeof(IPropertySelectorPolicy), selector);
             }
             return (SpecifiedPropertiesSelectorPolicy)selector;
         }
