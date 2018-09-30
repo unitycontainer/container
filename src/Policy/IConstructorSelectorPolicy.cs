@@ -1,5 +1,4 @@
-﻿using Unity.Builder;
-using Unity.Builder.Selection;
+﻿using Unity.Build;
 
 namespace Unity.Policy
 {
@@ -14,7 +13,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
-        SelectedConstructor SelectConstructor<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext;
+        object SelectConstructor<TContext>(ref TContext context)
+            where TContext : IBuildContext;
     }
 }
