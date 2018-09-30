@@ -35,7 +35,10 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
             {
                 // Since this attribute is defined with MultipleUse = false, the compiler will
                 // enforce at most one. So we don't need to check for more.
-                return attrs[0].CreateResolver(parameter.ParameterType);
+                var attr = attrs[0];
+                return attr is DependencyAttribute dependencyAttribute
+                    ? (IResolverPolicy) new OptionalDependencyResolverPolicy(parameter.ParameterType, dependencyAttribute.Name)
+                    : new NamedTypeDependencyResolverPolicy(parameter.ParameterType, attr.Name);
             }
 
             // No attribute, just go back to the container for the default for that type.
