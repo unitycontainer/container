@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
+using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Utility;
@@ -23,10 +23,10 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public virtual IEnumerable<SelectedMethod> SelectMethods<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public virtual IEnumerable<object> SelectMethods<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
-            Type t = context.BuildKey.Type;
+            Type t = context.Type;
             var list = new List<SelectedMethod>();
             var candidateMethods = t.GetMethodsHierarchical()
                                     .Where(m => m.IsStatic == false && m.IsPublic);
@@ -44,10 +44,10 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
 
         private SelectedMethod CreateSelectedMethod(MethodInfo method)
         {
-            var result = new Builder.Selection.SelectedMethod(method);
+            var result = new SelectedMethod(method);
             foreach (ParameterInfo parameter in method.GetParameters())
             {
-                result.AddParameterResolver(this.CreateResolver(parameter));
+                result.AddParameterResolver(CreateResolver(parameter));
             }
 
             return result;

@@ -6,7 +6,6 @@ using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Storage;
-using Unity.Strategy;
 
 namespace Unity
 {

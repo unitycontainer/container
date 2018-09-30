@@ -32,7 +32,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
             var selector = context.Policies.GetPolicy<IMethodSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            foreach (var method in selector.SelectMethods(ref context))
+            foreach (var method in selector.SelectMethods(ref context).Cast<SelectedMethod>())
             {
                 var methodInfo = method.Method;
                 var parameters = methodInfo.GetParameters();

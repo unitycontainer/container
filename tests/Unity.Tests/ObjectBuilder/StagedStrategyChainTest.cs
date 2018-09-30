@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Storage;
-using Unity.Strategy;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.ObjectBuilder
