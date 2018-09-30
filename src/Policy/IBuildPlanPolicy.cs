@@ -7,7 +7,7 @@ namespace Unity.Policy
     /// or fill in a given existing one. It encapsulates all the information
     /// gathered by the strategies to construct a particular object.
     /// </summary>
-    public interface IBuildPlanPolicy : IBuilderPolicy
+    public interface IBuildPlanPolicy 
     {
         /// <summary>
         /// Creates an instance of this build plan's type, or fills

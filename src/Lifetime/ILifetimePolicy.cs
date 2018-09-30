@@ -9,7 +9,7 @@ namespace Unity.Lifetime
     /// persisted and recovered from an external store. Used to implement
     /// things like singletons and per-http-request lifetime.
     /// </summary>
-    public interface ILifetimePolicy : IBuilderPolicy
+    public interface ILifetimePolicy 
     {
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.

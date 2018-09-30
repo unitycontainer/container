@@ -6,7 +6,7 @@ namespace Unity.Policy
     /// <summary>
     /// Represents a builder policy for mapping build keys.
     /// </summary>
-    public interface IBuildKeyMappingPolicy : IBuilderPolicy
+    public interface IBuildKeyMappingPolicy 
     {
         /// <summary>
         /// Maps the build key.

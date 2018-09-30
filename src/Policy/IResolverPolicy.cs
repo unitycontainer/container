@@ -6,7 +6,7 @@ namespace Unity.Policy
     /// A strategy that is used at build plan execution time
     /// to resolve a dependent value.
     /// </summary>
-    public interface IResolverPolicy : IBuilderPolicy
+    public interface IResolverPolicy 
     {
         /// <summary>
         /// GetOrDefault the value
