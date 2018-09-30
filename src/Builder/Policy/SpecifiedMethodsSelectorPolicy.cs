@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Injection;
 using Unity.Policy;
@@ -20,7 +21,8 @@ namespace Unity.Builder.Policy
 
         /// <summary>
         /// Add the given method and parameter collection to the list of methods
-        /// that will be returned when the selector's <see cref="IMethodSelectorPolicy.SelectMethods"/>
+        /// that will be returned when the selector's
+        /// <see cref="IMethodSelectorPolicy.SelectMethods{TContext}"/>
         /// method is called.
         /// </summary>
         /// <param name="method">Method to call.</param>
@@ -36,13 +38,13 @@ namespace Unity.Builder.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public IEnumerable<SelectedMethod> SelectMethods<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public IEnumerable<object> SelectMethods<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
             var list = new List<SelectedMethod>();
             foreach (Tuple<MethodInfo, IEnumerable<InjectionParameterValue>> method in _methods)
             {
-                Type typeToBuild = context.BuildKey.Type;
+                Type typeToBuild = context.Type;
                 SelectedMethod selectedMethod;
                 var info = method.Item1.DeclaringType.GetTypeInfo();
                 var methodHasOpenGenericParameters = method.Item1.GetParameters()

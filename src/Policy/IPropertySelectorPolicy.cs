@@ -1,8 +1,5 @@
-﻿
-
-using System.Collections.Generic;
-using Unity.Builder;
-using Unity.Builder.Selection;
+﻿using System.Collections.Generic;
+using Unity.Build;
 
 namespace Unity.Policy
 {
@@ -19,7 +16,7 @@ namespace Unity.Policy
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="System.Reflection.PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        IEnumerable<SelectedProperty> SelectProperties<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext;
+        IEnumerable<object> SelectProperties<TContext>(ref TContext context)
+            where TContext : IBuildContext;
     }
 }

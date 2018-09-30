@@ -1,10 +1,7 @@
-﻿
-
-using System.Collections.Generic;
-using Unity.Builder.Strategy;
+﻿using System.Collections.Generic;
 using Unity.Policy;
 
-namespace Unity.Strategy
+namespace Unity.Builder.Strategy
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.
