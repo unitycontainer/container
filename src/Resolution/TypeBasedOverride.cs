@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.Resolution
