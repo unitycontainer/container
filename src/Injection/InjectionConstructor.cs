@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
-using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Registration;
@@ -21,7 +20,6 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly InjectionParameterValue[] _data;
         private readonly Type[] _types;
         private ConstructorInfo _constructor;
         private InjectionParameterValue[] _parameterValues;
@@ -58,7 +56,7 @@ namespace Unity.Injection
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         public InjectionConstructor(params object[] parameterValues)
         {
-            _data = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
+            _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
                 .Select(InjectionParameterValue.ToParameter)
                 .ToArray();
         }
@@ -82,13 +80,11 @@ namespace Unity.Injection
             var constructors = typeToCreate.GetTypeInfo()
                                            .DeclaredConstructors
                                            .Where(c => c.IsStatic == false && c.IsPublic);
-            if (null != _data)
+            if (null != _parameterValues)
             {
-                _constructor = constructors.FirstOrDefault(info => _data.Matches(info.GetParameters().Select(p => p.ParameterType))) ??
+                _constructor = constructors.FirstOrDefault(info => _parameterValues.Matches(info.GetParameters().Select(p => p.ParameterType))) ??
                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor,
-                               typeToCreate.FullName, string.Join(", ", _data.Select(p => p.ParameterTypeName).ToArray())));
-
-                _parameterValues = _data;
+                               typeToCreate.FullName, string.Join(", ", _parameterValues.Select(p => p.ParameterTypeName).ToArray())));
             }
             else if (null != _types)
             {
