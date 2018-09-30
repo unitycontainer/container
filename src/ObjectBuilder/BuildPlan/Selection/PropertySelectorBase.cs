@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
+using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Utility;
 
-namespace Unity.Builder.Selection
+namespace Unity.ObjectBuilder.BuildPlan.Selection
 {
     /// <summary>
     /// Base class that provides an implementation of <see cref="IPropertySelectorPolicy"/>
@@ -21,10 +23,10 @@ namespace Unity.Builder.Selection
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public virtual IEnumerable<SelectedProperty> SelectProperties<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public virtual IEnumerable<object> SelectProperties<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
-            Type t = context.BuildKey.Type;
+            Type t = context.Type;
             var list = new List<SelectedProperty>();
             foreach (PropertyInfo prop in t.GetPropertiesHierarchical().Where(p => p.CanWrite))
             {
@@ -48,7 +50,7 @@ namespace Unity.Builder.Selection
 
         private SelectedProperty CreateSelectedProperty(PropertyInfo property)
         {
-            IResolverPolicy resolver = this.CreateResolver(property);
+            IResolverPolicy resolver = CreateResolver(property);
             return new SelectedProperty(property, resolver);
         }
 

@@ -7,7 +7,6 @@ using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Storage;
 using Unity.Strategies;
-using Unity.Strategy;
 
 namespace Unity.Tests.v5.TestDoubles
 {

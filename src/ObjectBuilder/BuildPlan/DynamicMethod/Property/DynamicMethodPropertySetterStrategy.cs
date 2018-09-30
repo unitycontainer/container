@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Expressions;
 using Unity.Policy;
@@ -22,11 +24,10 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
-            var typeExpression = Expression.Constant(context.Type);
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
             var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            foreach (var selectedProperty in selector.SelectProperties(ref context))
+            foreach (var selectedProperty in selector.SelectProperties(ref context).Cast<SelectedProperty>())
             {
                 var propertyInfoExpression = Expression.Constant(selectedProperty.Property);
                 var resolvedObjectParameter = Expression.Parameter(selectedProperty.Property.PropertyType);
