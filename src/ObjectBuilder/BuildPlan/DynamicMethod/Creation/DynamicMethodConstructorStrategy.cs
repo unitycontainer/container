@@ -145,7 +145,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression));
             }
 
-            var selectedConstructor = selector.SelectConstructor(ref context);
+            var selectedConstructor = (SelectedConstructor)selector.SelectConstructor(ref context);
 
             if (selectedConstructor == null)
             {

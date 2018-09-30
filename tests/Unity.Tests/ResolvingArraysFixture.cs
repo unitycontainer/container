@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
@@ -150,8 +151,8 @@ namespace Unity.Tests.v5
                 this.resolverPolicy = resolverPolicy;
             }
 
-            public SelectedConstructor SelectConstructor<TBuilderContext>(ref TBuilderContext context)
-                where TBuilderContext : IBuilderContext
+            public object SelectConstructor<TContext>(ref TContext context)
+                where TContext : IBuildContext
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
                 var selectedConstructor = new SelectedConstructor(ctr);
