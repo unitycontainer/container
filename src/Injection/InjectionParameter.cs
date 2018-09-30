@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Builder;
+using Unity.Build;
 using Unity.Policy;
 
 namespace Unity.Injection
@@ -51,7 +51,8 @@ namespace Unity.Injection
             return this;
         }
 
-        public object Resolve<TBuilderContext>(ref TBuilderContext context) where TBuilderContext : IBuilderContext
+        public object Resolve<TContext>(ref TContext context) 
+            where TContext : IBuildContext
         {
             return Value;
         }

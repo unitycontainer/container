@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Policy;
 
@@ -16,7 +17,7 @@ namespace Unity.ResolverPolicy
                 = typeof(ResolvedArrayWithElementsResolverPolicy)
                     .GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
 
-        private delegate object ResolverArrayDelegate<TBuilderContext>(ref TBuilderContext context, IResolverPolicy[] elementPolicies) where TBuilderContext : IBuilderContext;
+        private delegate object ResolverArrayDelegate<TContext>(ref TContext context, IResolverPolicy[] elementPolicies) where TContext : IBuildContext;
         private readonly IResolverPolicy[] _elementPolicies;
         private readonly Type _type;
         private object _value;
@@ -39,14 +40,14 @@ namespace Unity.ResolverPolicy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>An array populated with the results of resolving the resolver policies.</returns>
-        public object Resolve<TBuilderContext>(ref TBuilderContext context) 
-            where TBuilderContext : IBuilderContext
+        public object Resolve<TContext>(ref TContext context) 
+            where TContext : IBuildContext
         {
             if (null == _value)
             {
-                var resolver = (ResolverArrayDelegate<TBuilderContext>)ResolverMethodInfo
-                    .MakeGenericMethod(typeof(TBuilderContext), _type)
-                    .CreateDelegate(typeof(ResolverArrayDelegate<TBuilderContext>));
+                var resolver = (ResolverArrayDelegate<TContext>)ResolverMethodInfo
+                    .MakeGenericMethod(typeof(TContext), _type)
+                    .CreateDelegate(typeof(ResolverArrayDelegate<TContext>));
 
                 _value = resolver(ref context, _elementPolicies);
             }
