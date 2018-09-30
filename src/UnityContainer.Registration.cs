@@ -81,7 +81,7 @@ namespace Unity
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies(registration.RegisteredType, registration.MappedToType, 
-                                       registration.Name, context);
+                                       registration.Name, ref context);
                 }
             }
 

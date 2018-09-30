@@ -9,6 +9,7 @@ using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
 using Unity.Expressions;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -145,17 +146,28 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression));
             }
 
-            var selectedConstructor = (SelectedConstructor)selector.SelectConstructor(ref context);
-
-            if (selectedConstructor == null)
+            SelectedConstructor selectedConstructor;
+            switch (selector.SelectConstructor(ref context))
             {
-                return Expression.Throw(
-                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                        Expression.Call(
-                            StringFormat,
-                            Expression.Constant(Constants.NoConstructorFound),
-                            BuildContextExpression<TBuilderContext>.Type),
-                        InvalidRegistrationExpression));
+                case ConstructorInfo info:
+                    selectedConstructor = new SelectedConstructor(info);
+                    break;
+
+                //case InjectionConstructor injectionConstructor:
+                //    selectedConstructor = new SelectedConstructor(injectionConstructor);
+                //    break;
+
+                case SelectedConstructor selectedCtor:
+                    selectedConstructor = selectedCtor;
+                    break;
+
+                default:
+                    return Expression.Throw(
+                        Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                            Expression.Call(StringFormat,
+                                Expression.Constant(Constants.NoConstructorFound),
+                                BuildContextExpression<TBuilderContext>.Type),
+                            InvalidRegistrationExpression));
             }
 
             var parameters = selectedConstructor.Constructor.GetParameters();
