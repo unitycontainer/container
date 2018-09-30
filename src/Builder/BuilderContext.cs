@@ -17,7 +17,7 @@ namespace Unity.Builder
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Resolving: {OriginalBuildKey.Type},  Name: {OriginalBuildKey.Name}")]
-    public class BuilderContext : IBuilderContext, IPolicyList
+    public class BuilderContext : IBuilderContext
     {
         #region Fields
 
@@ -102,27 +102,33 @@ namespace Unity.Builder
         #endregion
 
 
-        #region IBuildContext
-
-        public IUnityContainer Container => _container;
+        #region INamedType
 
         public Type Type => BuildKey.Type;
 
         public string Name => BuildKey.Name;
 
-        public TypeInfo TypeInfo { get; }
+        #endregion
+
+
+        #region IBuildContext
+
+        public IUnityContainer Container => _container;
+
+        public object Existing { get; set; }
+
+        public object Resolve(Type type, string name) => NewBuildUp(type, name);
 
         #endregion
 
 
         #region IBuilderContext
 
+        public TypeInfo TypeInfo { get; }
 
         public IStrategyChain Strategies => _chain;
 
         public INamedType BuildKey { get; set; }
-
-        public object Existing { get; set; }
 
         public ILifetimeContainer Lifetime => _container._lifetimeContainer;
 
