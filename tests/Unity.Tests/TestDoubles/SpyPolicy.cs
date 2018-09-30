@@ -6,7 +6,7 @@ namespace Unity.Tests.v5.TestDoubles
     /// A sample policy that gets used by the SpyStrategy
     /// if present to mark execution.
     /// </summary>
-    internal class SpyPolicy : IBuilderPolicy
+    internal class SpyPolicy 
     {
         private bool wasSpiedOn;
 

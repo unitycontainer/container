@@ -14,7 +14,7 @@ namespace Unity.Tests.v5.TestDoubles
     {
         private BuilderStrategy strategy;
         private UnityBuildStage stage;
-        private IBuilderPolicy policy;
+        private object policy;
         private Type policyType;
 
         public SpyExtension(BuilderStrategy strategy, UnityBuildStage stage)
@@ -23,7 +23,7 @@ namespace Unity.Tests.v5.TestDoubles
             this.stage = stage;
         }
 
-        public SpyExtension(BuilderStrategy strategy, UnityBuildStage stage, IBuilderPolicy policy, Type policyType)
+        public SpyExtension(BuilderStrategy strategy, UnityBuildStage stage, object policy, Type policyType)
         {
             this.strategy = strategy;
             this.stage = stage;
