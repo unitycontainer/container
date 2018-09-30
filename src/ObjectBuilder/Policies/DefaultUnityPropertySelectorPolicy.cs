@@ -1,12 +1,9 @@
-﻿
-
-using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
 using Unity.Builder.Selection;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 
 namespace Unity.ObjectBuilder.Policies
 {
@@ -24,15 +21,13 @@ namespace Unity.ObjectBuilder.Policies
         /// <returns>The resolver object.</returns>
         protected override IResolverPolicy CreateResolver(PropertyInfo property)
         {
-            var attributes =
-                (property ?? throw new ArgumentNullException(nameof(property))).GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
-                .OfType<DependencyResolutionAttribute>()
-                .ToList();
+            var attribute = property.GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
+                                    .OfType<DependencyResolutionAttribute>()
+                                    .First();
 
-            // We must have one of these, otherwise this method would never have been called.
-            Debug.Assert(attributes.Count == 1);
-
-            return attributes[0].CreateResolver(property.PropertyType);
+            return attribute is OptionalDependencyAttribute dependencyAttribute
+                ? (IResolverPolicy)new OptionalDependencyResolverPolicy(property.PropertyType, dependencyAttribute.Name)
+                : new NamedTypeDependencyResolverPolicy(property.PropertyType, attribute.Name);
         }
     }
 }

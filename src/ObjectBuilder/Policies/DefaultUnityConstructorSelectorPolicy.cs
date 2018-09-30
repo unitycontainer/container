@@ -1,13 +1,11 @@
-﻿
-
-using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
+using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 
-namespace Unity.ObjectBuilder.BuildPlan.Selection
+namespace Unity.ObjectBuilder.Policies
 {
     /// <summary>
     /// An implementation of <see cref="IConstructorSelectorPolicy"/> that is
@@ -28,15 +26,15 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         protected override IResolverPolicy CreateResolver(ParameterInfo parameter)
         {
             // Resolve all DependencyAttributes on this parameter, if any
-            var attrs = (parameter ?? throw new ArgumentNullException(nameof(parameter))).GetCustomAttributes(false)
-                                                                                         .OfType<DependencyResolutionAttribute>()
-                                                                                         .ToArray();
-            if (attrs.Length > 0)
+            var attributes = parameter.GetCustomAttributes(false)
+                                      .OfType<DependencyResolutionAttribute>()
+                                      .ToArray();
+            if (attributes.Length > 0)
             {
                 // Since this attribute is defined with MultipleUse = false, the compiler will
                 // enforce at most one. So we don't need to check for more.
-                var attr = attrs[0];
-                return attr is DependencyAttribute dependencyAttribute
+                var attr = attributes[0];
+                return attr is OptionalDependencyAttribute dependencyAttribute
                     ? (IResolverPolicy) new OptionalDependencyResolverPolicy(parameter.ParameterType, dependencyAttribute.Name)
                     : new NamedTypeDependencyResolverPolicy(parameter.ParameterType, attr.Name);
             }
