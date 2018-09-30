@@ -104,12 +104,6 @@ namespace Unity.Builder
         /// The parent build context.
         /// </summary>
         IBuilderContext ParentContext { get; }
-        
-        /// <summary>
-        /// Add a new set of resolver override objects to the current build operation.
-        /// </summary>
-        /// <param name="newOverrides"><see cref="ResolverOverride"/> objects to add.</param>
-        void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides);
 
         /// <summary>
         /// GetOrDefault a <see cref="IResolverPolicy"/> object for the given <paramref name="dependencyType"/>
