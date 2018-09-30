@@ -310,7 +310,7 @@ namespace Unity.Builder
 
         }
 
-        void Set(Type type, string name, Type policyInterface, IBuilderPolicy policy)
+        void Set(Type type, string name, Type policyInterface, object policy)
         {
             if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
                 _container.SetPolicy(type, name, policyInterface, policy);
