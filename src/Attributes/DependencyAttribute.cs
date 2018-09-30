@@ -1,8 +1,4 @@
-﻿
-
-using System;
-using Unity.Policy;
-using Unity.ResolverPolicy;
+﻿using System;
 
 namespace Unity.Attributes
 {
@@ -21,33 +17,13 @@ namespace Unity.Attributes
         /// Create an instance of <see cref="DependencyAttribute"/> with no name.
         /// </summary>
         public DependencyAttribute()
-            : this(null) { }
+            : base(null) { }
 
         /// <summary>
         /// Create an instance of <see cref="DependencyAttribute"/> with the given name.
         /// </summary>
         /// <param name="name">Name to use when resolving this dependency.</param>
         public DependencyAttribute(string name)
-        {
-            Name = name;
-        }
-
-        /// <summary>
-        /// The name specified in the constructor.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// Create an instance of <see cref="IResolverPolicy"/> that
-        /// will be used to get the value for the member this attribute is
-        /// applied to.
-        /// </summary>
-        /// <param name="typeToResolve">Type of parameter or property that
-        /// this attribute is decoration.</param>
-        /// <returns>The resolver object.</returns>
-        public override IResolverPolicy CreateResolver(Type typeToResolve)
-        {
-            return new NamedTypeDependencyResolverPolicy(typeToResolve, Name);
-        }
+            : base(name) { }
     }
 }

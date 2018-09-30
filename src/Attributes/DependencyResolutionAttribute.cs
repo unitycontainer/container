@@ -1,7 +1,4 @@
-﻿
-
-using System;
-using Unity.Policy;
+﻿using System;
 
 namespace Unity.Attributes
 {
@@ -12,14 +9,14 @@ namespace Unity.Attributes
     /// </summary>
     public abstract class DependencyResolutionAttribute : Attribute
     {
+        protected DependencyResolutionAttribute(string name)
+        {
+            Name = name;
+        }
+
         /// <summary>
-        /// Create an instance of <see cref="IResolverPolicy"/> that
-        /// will be used to get the value for the member this attribute is
-        /// applied to.
+        /// The name specified in the constructor.
         /// </summary>
-        /// <param name="typeToResolve">Type of parameter or property that
-        /// this attribute is decoration.</param>
-        /// <returns>The resolver object.</returns>
-        public abstract IResolverPolicy CreateResolver(Type typeToResolve);
+        public string Name { get; }
     }
 }
