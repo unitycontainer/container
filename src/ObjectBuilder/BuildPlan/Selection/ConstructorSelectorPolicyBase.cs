@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
+using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Policy;
 
@@ -21,10 +21,10 @@ namespace Unity.ObjectBuilder.BuildPlan.Selection
         /// </summary>
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
-        public SelectedConstructor SelectConstructor<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public object SelectConstructor<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
-            Type typeToConstruct = context.BuildKey.Type;
+            Type typeToConstruct = context.Type;
             ConstructorInfo ctor = FindInjectionConstructor(typeToConstruct) ?? FindLongestConstructor(typeToConstruct);
             if (ctor != null)
             {
