@@ -6,6 +6,7 @@ using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Strategies
 {
