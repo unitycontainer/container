@@ -1,6 +1,4 @@
-﻿
-
-using Unity.Builder;
+﻿using Unity.Build;
 using Unity.Policy;
 
 namespace Unity.ResolverPolicy
@@ -28,8 +26,8 @@ namespace Unity.ResolverPolicy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        public object Resolve<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public object Resolve<TContext>(ref TContext context)
+            where TContext : IBuildContext
         {
             return _dependencyValue;
         }
