@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Build;
 using Unity.Builder;
@@ -9,6 +10,35 @@ namespace Unity.Expressions
     public class BuildContextExpression<TContext>
         where TContext : IBuildContext
     {
+        #region Fields
+
+        private static readonly MethodInfo ResolvePropertyMethod =
+            typeof(IBuildContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+
+                    return 2 == parameters.Length &&
+                           typeof(PropertyInfo) == parameters[0].ParameterType;
+                });
+
+        private static readonly MethodInfo ResolveParameterMethod =
+            typeof(IBuildContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+
+                    return 2 == parameters.Length &&
+                           typeof(ParameterInfo) == parameters[0].ParameterType;
+                });
+
+        #endregion
+
+
+        #region Constructor
+
         static BuildContextExpression()
         {
             var typeInfo = typeof(TContext).GetTypeInfo();
@@ -26,8 +56,10 @@ namespace Unity.Expressions
             Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Existing)));
         }
 
+        #endregion
 
-        #region Public Members
+
+        #region Properties
 
         public static readonly ParameterExpression Context;
 
@@ -41,5 +73,31 @@ namespace Unity.Expressions
 
         #endregion
 
+
+        #region Methods
+
+        public static Expression Resolve(PropertyInfo property, string name)
+        {
+            return Expression.Convert(
+                Expression.Call(
+                    Context,
+                    ResolvePropertyMethod,
+                    Expression.Constant(property, typeof(PropertyInfo)),
+                    Expression.Constant(name, typeof(string))), 
+                property.PropertyType);
+        }
+
+        public static Expression Resolve(ParameterInfo parameter, string name)
+        {
+            return Expression.Convert(
+                Expression.Call(
+                    Context,
+                    ResolveParameterMethod,
+                    Expression.Constant(parameter, typeof(ParameterInfo)),
+                    Expression.Constant(name, typeof(string))),
+                parameter.ParameterType);
+        }
+
+        #endregion
     }
 }
