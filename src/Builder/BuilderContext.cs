@@ -22,9 +22,8 @@ namespace Unity.Builder
         #region Fields
 
         private readonly IStrategyChain _chain;
-        private CompositeResolverOverride _resolverOverrides;
-        private bool _ownsOverrides;
-        UnityContainer _container;
+        private readonly ResolverOverride[] _resolverOverrides;
+        readonly UnityContainer _container;
 
         #endregion
 
@@ -41,13 +40,10 @@ namespace Unity.Builder
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
             TypeInfo = BuildKey.Type.GetTypeInfo();
-            Policies = new Storage.PolicyList(this);
+            Policies = new PolicyList(this);
 
-            _ownsOverrides = true;
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
-            {
-                _resolverOverrides = new CompositeResolverOverride(resolverOverrides);
-            }
+                _resolverOverrides = resolverOverrides;
         }
 
         public BuilderContext(IBuilderContext original, IEnumerable<BuilderStrategy> chain, object existing)
@@ -61,7 +57,6 @@ namespace Unity.Builder
             Registration = original.Registration;
             Policies = original.Policies;
             Existing = existing;
-            _ownsOverrides = true;
         }
 
         internal BuilderContext(IBuilderContext original, InternalRegistration registration)
@@ -71,7 +66,6 @@ namespace Unity.Builder
             _container = parent._container;
             _chain = parent._chain;
             _resolverOverrides = parent._resolverOverrides;
-            _ownsOverrides = false;
             ParentContext = original;
             Existing = null;
             Policies = parent.Policies;
@@ -89,7 +83,6 @@ namespace Unity.Builder
             _container = parent._container;
             _chain = parent._chain;
             _resolverOverrides = parent._resolverOverrides;
-            _ownsOverrides = false;
             ParentContext = original;
             Existing = null;
             Policies = parent.Policies;
@@ -121,42 +114,42 @@ namespace Unity.Builder
 
         public object Resolve(PropertyInfo property, string name)
         {
-            var context = this;
-            var backup = CurrentOperation;
+            //var context = this;
+            //var backup = CurrentOperation;
 
-            CurrentOperation = property;
+            //CurrentOperation = property;
 
-            //for (var index = _overrides.Length - 1; index >= 0; --index)
-            //{
-            //    var resolver = _overrides[index].GetResolver(ref context, property.PropertyType);
-            //    if (resolver != null)
-            //    {
-            //        return resolver.Resolve(ref context);
-            //    }
-            //}
+            ////for (var index = _overrides.Length - 1; index >= 0; --index)
+            ////{
+            ////    var resolver = _overrides[index].GetResolver(ref context, property.PropertyType);
+            ////    if (resolver != null)
+            ////    {
+            ////        return resolver.Resolve(ref context);
+            ////    }
+            ////}
 
-            CurrentOperation = backup;
+            //CurrentOperation = backup;
 
             return Resolve(property.PropertyType, name);
         }
 
         public object Resolve(ParameterInfo parameter, string name)
         {
-            var context = this;
-            var backup = CurrentOperation;
+            //var context = this;
+            //var backup = CurrentOperation;
 
-            CurrentOperation = parameter;
+            //CurrentOperation = parameter;
 
-            //for (var index = _overrides.Length - 1; index >= 0; --index)
-            //{
-            //    var resolver = _overrides[index].GetResolver(ref context, parameter.ParameterType);
-            //    if (resolver != null)
-            //    {
-            //        return resolver.Resolve(ref context);
-            //    }
-            //}
+            ////for (var index = _overrides.Length - 1; index >= 0; --index)
+            ////{
+            ////    var resolver = _overrides[index].GetResolver(ref context, parameter.ParameterType);
+            ////    if (resolver != null)
+            ////    {
+            ////        return resolver.Resolve(ref context);
+            ////    }
+            ////}
 
-            CurrentOperation = backup;
+            //CurrentOperation = backup;
 
             return Resolve(parameter.ParameterType, name);
         }
@@ -178,7 +171,7 @@ namespace Unity.Builder
 
         public IPolicySet Registration { get; }
 
-        public IPolicyList Policies { get; private set; }
+        public IPolicyList Policies { get; }
 
         public IRequiresRecovery RequiresRecovery { get; set; }
 
@@ -188,31 +181,25 @@ namespace Unity.Builder
 
         public IBuilderContext ChildContext { get; internal set; }
 
-        public IBuilderContext ParentContext { get; private set; }
+        public IBuilderContext ParentContext { get; }
 
         public IPolicyList PersistentPolicies => this;
 
-        public void AddResolverOverrides(IEnumerable<ResolverOverride> newOverrides)
-        {
-            if (null == _resolverOverrides)
-            {
-                _resolverOverrides = new CompositeResolverOverride();
-            }
-            else if (!_ownsOverrides)
-            {
-                var sharedOverrides = _resolverOverrides;
-                _resolverOverrides = new CompositeResolverOverride();
-                _resolverOverrides.AddRange(sharedOverrides);
-                _ownsOverrides = true;
-            }
-
-            _resolverOverrides.AddRange(newOverrides);
-        }
-
         public IResolverPolicy GetOverriddenResolver(Type dependencyType)
         {
+            if (null == _resolverOverrides) return null;
+
             var context = this;
-            return _resolverOverrides?.GetResolver(ref context, dependencyType);
+            for (int index = _resolverOverrides.Length - 1; index >= 0; --index)
+            {
+                var resolver = _resolverOverrides[index].GetResolver(ref context, dependencyType);
+                if (resolver != null)
+                {
+                    return resolver;
+                }
+            }
+
+            return null;
         }
 
         #endregion
