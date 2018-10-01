@@ -12,25 +12,25 @@ namespace Unity.Expressions
     {
         #region Fields
 
-        private static readonly MethodInfo ResolvePropertyMethod =
+        protected static readonly MethodInfo ResolvePropertyMethod =
             typeof(IBuildContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(IBuildContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
 
-                    return 2 == parameters.Length &&
+                    return 2 <= parameters.Length &&
                            typeof(PropertyInfo) == parameters[0].ParameterType;
                 });
 
-        private static readonly MethodInfo ResolveParameterMethod =
+        protected static readonly MethodInfo ResolveParameterMethod =
             typeof(IBuildContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(IBuildContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
 
-                    return 2 == parameters.Length &&
+                    return 2 <= parameters.Length &&
                            typeof(ParameterInfo) == parameters[0].ParameterType;
                 });
 
@@ -76,7 +76,7 @@ namespace Unity.Expressions
 
         #region Methods
 
-        public static Expression Resolve(PropertyInfo property, string name)
+        public static Expression Resolve(PropertyInfo property, string name, ResolveDelegate<TContext> resolver)
         {
             return Expression.Convert(
                 Expression.Call(
@@ -87,7 +87,7 @@ namespace Unity.Expressions
                 property.PropertyType);
         }
 
-        public static Expression Resolve(ParameterInfo parameter, string name)
+        public static Expression Resolve(ParameterInfo parameter, string name, ResolveDelegate<TContext> resolver)
         {
             return Expression.Convert(
                 Expression.Call(
