@@ -268,6 +268,11 @@ namespace Unity
         {
             _strategyChain = new StrategyChain(_strategies);
             _buildChain = _strategies.ToArray();
+
+            if (null != _parent)
+            {
+                SetupChildContainerBehaviors();
+            }
         }
 
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
