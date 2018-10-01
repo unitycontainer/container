@@ -72,32 +72,5 @@ namespace Unity.Expressions
         public static readonly MemberExpression Existing;
 
         #endregion
-
-
-        #region Methods
-
-        public static Expression Resolve(PropertyInfo property, string name, ResolveDelegate<TContext> resolver)
-        {
-            return Expression.Convert(
-                Expression.Call(
-                    Context,
-                    ResolvePropertyMethod,
-                    Expression.Constant(property, typeof(PropertyInfo)),
-                    Expression.Constant(name, typeof(string))), 
-                property.PropertyType);
-        }
-
-        public static Expression Resolve(ParameterInfo parameter, string name, ResolveDelegate<TContext> resolver)
-        {
-            return Expression.Convert(
-                Expression.Call(
-                    Context,
-                    ResolveParameterMethod,
-                    Expression.Constant(parameter, typeof(ParameterInfo)),
-                    Expression.Constant(name, typeof(string))),
-                parameter.ParameterType);
-        }
-
-        #endregion
     }
 }
