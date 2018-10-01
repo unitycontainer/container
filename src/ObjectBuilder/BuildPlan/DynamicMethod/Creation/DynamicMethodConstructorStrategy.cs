@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,7 +8,6 @@ using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
 using Unity.Expressions;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -61,11 +59,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             DynamicBuildPlanGenerationContext buildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
             buildContext.AddToBuildPlan(
-                Expression.IfThen(
-                    Expression.Equal(
-                        BuilderContextExpression<TBuilderContext>.Existing,
-                        Expression.Constant(null)),
-                    ValidateConstructedType(ref context) ??
+                Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)), 
+                    ValidateConstructedType(ref context) ?? 
                     CreateInstanceBuildupExpression(ref context)));
 
             var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy));
@@ -134,6 +129,29 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             return null;
         }
 
+        private Expression ValidateSelectedConstructor<TBuilderContext>(ref TBuilderContext context, ConstructorInfo ctor)
+            where TBuilderContext : IBuilderContext
+        {
+            var parameters = ctor.GetParameters();
+            if (parameters.Any(pi => pi.ParameterType.IsByRef))
+            {
+                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, context.Type, ctor)),
+                        InvalidRegistrationExpression)));
+            }
+
+            if (IsInvalidConstructor(context.TypeInfo, ref context, parameters))
+            {
+                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefItself, context.Type, ctor)),
+                        InvalidRegistrationExpression)));
+            }
+
+            return null;
+        }
+
         private Expression CreateInstanceBuildupExpression<TBuilderContext>(ref TBuilderContext context)
             where TBuilderContext : IBuilderContext
         {
@@ -151,24 +169,31 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression));
             }
 
-            //IEnumerable<Expression> parameterExpressions = null;
-
-            SelectedConstructor selectedConstructor;
             switch (selector.SelectConstructor(ref context))
             {
-                case ConstructorInfo info:
-                    //parameterExpressions = BuilderContextExpression<TBuilderContext>.GetParameters(info);
-                    selectedConstructor = new SelectedConstructor(info);
-                    break;
-
                 //case InjectionConstructor injectionConstructor:
-                //    selectedConstructor = new SelectedConstructor(injectionConstructor);
-                //    break;
+                //    return ValidateSelectedConstructor(ref context, info) ??
+                //           Expression.New(info, BuilderContextExpression<TBuilderContext>.GetParameters(info));
 
-                case SelectedConstructor selectedCtor:
-                    selectedConstructor = selectedCtor;
-                    break;
+                case ConstructorInfo info:
+                    return ValidateSelectedConstructor(ref context, info) ??
+                           Expression.Assign(
+                               BuilderContextExpression<TBuilderContext>.Existing, 
+                               Expression.Convert(
+                                   Expression.New(
+                                       info, 
+                                       BuilderContextExpression<TBuilderContext>.GetParameters(info)), 
+                                   typeof(object)));
 
+                case SelectedConstructor selected:
+                    return ValidateSelectedConstructor(ref context, selected.Constructor) ??
+                           Expression.Assign(
+                               BuilderContextExpression<TBuilderContext>.Existing, 
+                               Expression.Convert(
+                                   Expression.New(
+                                       selected.Constructor, 
+                                       BuilderContextExpression<TBuilderContext>.GetParameters(selected)),
+                                   typeof(object)));
                 default:
                     return Expression.Throw(
                         Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -177,29 +202,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                                 BuildContextExpression<TBuilderContext>.Type),
                             InvalidRegistrationExpression));
             }
-
-            var parameters = selectedConstructor.Constructor.GetParameters();
-            if (parameters.Any(pi => pi.ParameterType.IsByRef))
-            {
-                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
-                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, context.Type, selectedConstructor.Constructor)),
-                        InvalidRegistrationExpression)));
-            }
-
-            if (IsInvalidConstructor(context.TypeInfo, ref context, parameters))
-            {
-                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
-                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefItself, context.Type, selectedConstructor.Constructor)),
-                        InvalidRegistrationExpression)));
-            }
-
-            var parameterExpressions = BuildConstructionParameterExpressions<TBuilderContext>(selectedConstructor, parameters);
-
-            return Expression.Assign(BuilderContextExpression<TBuilderContext>.Existing,
-                Expression.Convert(Expression.New(selectedConstructor.Constructor, parameterExpressions), typeof(object))
-            );
         }
 
         private static bool IsInvalidConstructor<TBuilderContext>(TypeInfo target, ref TBuilderContext context, ParameterInfo[] parameters)
@@ -224,18 +226,6 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                     .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
 
             return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
-        }
-
-        private IEnumerable<Expression> BuildConstructionParameterExpressions<TBuilderContext>(
-            SelectedMemberWithParameters selectedConstructor, ParameterInfo[] parameters) where TBuilderContext : IBuilderContext
-        {
-            var i = 0;
-
-            foreach (var parameterResolver in selectedConstructor.GetParameterResolvers())
-            {
-                yield return BuilderContextExpression<TBuilderContext>.Resolve(parameters[i], null, parameterResolver);
-                i++;
-            }
         }
 
         /// <summary>

@@ -5,9 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
 using Unity.Build;
-using Unity.Builder.Selection;
 using Unity.Policy;
-using Unity.ResolverPolicy;
 
 namespace Unity.ObjectBuilder.Policies
 {
@@ -25,26 +23,8 @@ namespace Unity.ObjectBuilder.Policies
         public object SelectConstructor<TContext>(ref TContext context)
             where TContext : IBuildContext
         {
-            Type typeToConstruct = context.Type;
-            ConstructorInfo ctor = FindInjectionConstructor(typeToConstruct) ?? FindLongestConstructor(typeToConstruct);
-            if (ctor != null)
-            {
-                return CreateSelectedConstructor(ctor);
-            }
-
-            return null;
-        }
-
-        private SelectedConstructor CreateSelectedConstructor(ConstructorInfo ctor)
-        {
-            var result = new SelectedConstructor(ctor);
-
-            foreach (ParameterInfo param in ctor.GetParameters())
-            {
-                result.AddParameterResolver(CreateResolver(param));
-            }
-
-            return result;
+            return FindInjectionConstructor(context.Type) ?? 
+                   FindLongestConstructor(context.Type);
         }
 
         private static ConstructorInfo FindInjectionConstructor(Type typeToConstruct)
@@ -118,38 +98,6 @@ namespace Unity.ObjectBuilder.Policies
             {
                 return (y ?? throw new ArgumentNullException(nameof(y))).GetParameters().Length - (x ?? throw new ArgumentNullException(nameof(x))).GetParameters().Length;
             }
-        }
-
-        /// <summary>
-        /// Create a <see cref="IResolverPolicy"/> instance for the given
-        /// <see cref="ParameterInfo"/>.
-        /// </summary>
-        /// <remarks>
-        /// This implementation looks for the Unity <see cref="DependencyAttribute"/> on the
-        /// parameter and uses it to create an instance of <see cref="NamedTypeDependencyResolverPolicy"/>
-        /// for this parameter.</remarks>
-        /// <param name="parameter">Parameter to create the resolver for.</param>
-        /// <returns>The resolver object.</returns>
-        protected IResolverPolicy CreateResolver(ParameterInfo parameter)
-        {
-            // Resolve all DependencyAttributes on this parameter, if any
-            var attributes = parameter.GetCustomAttributes(false)
-                                      .OfType<DependencyResolutionAttribute>()
-                                      .ToArray();
-            if (attributes.Length > 0)
-            {
-                // Since this attribute is defined with MultipleUse = false, the compiler will
-                // enforce at most one. So we don't need to check for more.
-                var attr = attributes[0];
-                return attr is OptionalDependencyAttribute dependencyAttribute
-                    ? (IResolverPolicy) new OptionalDependencyResolverPolicy(parameter.ParameterType, dependencyAttribute.Name)
-                    : null == attr.Name 
-                        ? null 
-                        : new NamedTypeDependencyResolverPolicy(parameter.ParameterType, attr.Name);
-            }
-
-            // No attribute, just go back to the container for the default for that type.
-            return null;
         }
     }
 }
