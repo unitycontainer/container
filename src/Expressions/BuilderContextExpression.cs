@@ -38,26 +38,26 @@ namespace Unity.Expressions
 
         public static Expression Resolve(SelectedProperty property, string name)
         {
-            throw new NotImplementedException();
-            //return Expression.Convert(
-            //    Expression.Call(
-            //        Context,
-            //        ResolvePropertyMethod,
-            //        Expression.Constant(property, typeof(PropertyInfo)),
-            //        Expression.Constant(name, typeof(string))),
-            //    property.PropertyType);
+            return Expression.Convert(
+                Expression.Call(
+                    Context,
+                    ResolvePropertyMethod,
+                    Expression.Constant(property.Property, typeof(PropertyInfo)),
+                    Expression.Constant(name, typeof(string)),
+                    Expression.Constant(property.Resolver) ),
+                property.Property.PropertyType);
         }
 
-        public static Expression Resolve(IResolverPolicy resolver, ParameterInfo parameter, string name)
+        public static Expression Resolve(ParameterInfo parameter, string name, IResolverPolicy resolver)
         {
-            throw new NotImplementedException();
-            //return Expression.Convert(
-            //    Expression.Call(
-            //        Context,
-            //        ResolveParameterMethod,
-            //        Expression.Constant(parameter, typeof(ParameterInfo)),
-            //        Expression.Constant(name, typeof(string))),
-            //    parameter.ParameterType);
+            return Expression.Convert(
+                Expression.Call(
+                    Context,
+                    ResolveParameterMethod,
+                    Expression.Constant(parameter, typeof(ParameterInfo)),
+                    Expression.Constant(name, typeof(string)),
+                    Expression.Constant(resolver)),
+                parameter.ParameterType);
         }
 
         #endregion

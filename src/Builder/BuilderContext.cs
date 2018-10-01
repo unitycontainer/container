@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder.Strategy;
 using Unity.Container;
+using Unity.Delegates;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -112,46 +114,54 @@ namespace Unity.Builder
 
         public object Resolve(Type type, string name) => NewBuildUp(type, name);
 
-        public object Resolve(PropertyInfo property, string name)
+        public object Resolve(PropertyInfo property, string name, IResolverPolicy resolver = null)
         {
-            //var context = this;
-            //var backup = CurrentOperation;
+            var context = this;
 
-            //CurrentOperation = property;
+            if (null != _resolverOverrides)
+            {
+                var backup = CurrentOperation;
+                CurrentOperation = property;
+                for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
+                {
+                    var res = _resolverOverrides[index].GetResolver(ref context, property.PropertyType);
+                    if (res != null)
+                    {
+                        return res.Resolve(ref context);
+                    }
+                }
 
-            ////for (var index = _overrides.Length - 1; index >= 0; --index)
-            ////{
-            ////    var resolver = _overrides[index].GetResolver(ref context, property.PropertyType);
-            ////    if (resolver != null)
-            ////    {
-            ////        return resolver.Resolve(ref context);
-            ////    }
-            ////}
+                CurrentOperation = backup;
+            }
 
-            //CurrentOperation = backup;
-
-            return Resolve(property.PropertyType, name);
+            return null != resolver 
+                ? resolver.Resolve(ref context) 
+                : Resolve(property.PropertyType, name);
         }
 
-        public object Resolve(ParameterInfo parameter, string name)
+        public object Resolve(ParameterInfo parameter, string name, IResolverPolicy resolver = null)
         {
-            //var context = this;
-            //var backup = CurrentOperation;
+            var context = this;
 
-            //CurrentOperation = parameter;
+            if (null != _resolverOverrides)
+            {
+                var backup = CurrentOperation;
+                CurrentOperation = parameter;
+                for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
+                {
+                    var res = _resolverOverrides[index].GetResolver(ref context, parameter.ParameterType);
+                    if (res != null)
+                    {
+                        return res.Resolve(ref context);
+                    }
+                }
 
-            ////for (var index = _overrides.Length - 1; index >= 0; --index)
-            ////{
-            ////    var resolver = _overrides[index].GetResolver(ref context, parameter.ParameterType);
-            ////    if (resolver != null)
-            ////    {
-            ////        return resolver.Resolve(ref context);
-            ////    }
-            ////}
+                CurrentOperation = backup;
+            }
 
-            //CurrentOperation = backup;
-
-            return Resolve(parameter.ParameterType, name);
+            return null != resolver
+                ? resolver.Resolve(ref context)
+                : Resolve(parameter.ParameterType, name);
         }
 
         #endregion

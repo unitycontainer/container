@@ -187,7 +187,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression)));
             }
 
-            var parameterExpressions = BuildConstructionParameterExpressions<TBuilderContext>(buildContext, selectedConstructor, parameters);
+            var parameterExpressions = BuildConstructionParameterExpressions<TBuilderContext>(selectedConstructor, parameters);
 
             return Expression.Assign(BuilderContextExpression<TBuilderContext>.Existing,
                 Expression.Convert(Expression.New(selectedConstructor.Constructor, parameterExpressions), typeof(object))
@@ -218,19 +218,14 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
         }
 
-        private IEnumerable<Expression> BuildConstructionParameterExpressions<TBuilderContext>(DynamicBuildPlanGenerationContext buildContext, 
+        private IEnumerable<Expression> BuildConstructionParameterExpressions<TBuilderContext>(
             SelectedMemberWithParameters selectedConstructor, ParameterInfo[] parameters) where TBuilderContext : IBuilderContext
         {
             var i = 0;
 
             foreach (var parameterResolver in selectedConstructor.GetParameterResolvers())
             {
-                var parameter = parameters[i];
-                yield return buildContext.CreateParameterExpression<TBuilderContext>(
-                    parameterResolver,
-                    parameter.ParameterType,
-                    Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation,
-                        Expression.Constant(parameter, typeof(object))));
+                yield return BuilderContextExpression<TBuilderContext>.Resolve(parameters[i], null, parameterResolver);
                 i++;
             }
         }
