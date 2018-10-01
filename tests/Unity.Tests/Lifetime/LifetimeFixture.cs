@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Lifetime;
 using Unity.Tests.TestObjects;
@@ -26,6 +27,41 @@ namespace Unity.Tests.v5.Lifetime
             A obj1 = uc.Resolve<A>("hello");
             
             Assert.AreNotSame(obj, obj1);
+        }
+
+        [TestMethod]
+        public void CheckSingletonWithDependencies()
+        {
+            var uc = new UnityContainer();
+
+            uc.RegisterType<ObjectWithOneDependency>(new ContainerControlledLifetimeManager());
+
+            var result1 = uc.Resolve<ObjectWithOneDependency>();
+            var result2 = uc.Resolve<ObjectWithOneDependency>();
+
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsNotNull(result1.InnerObject);
+            Assert.IsNotNull(result2.InnerObject);
+            Assert.AreSame(result1, result2);
+        }
+
+        [TestMethod]
+        public void CheckSingletonAsDependencies()
+        {
+            var uc = new UnityContainer();
+
+            uc.RegisterType<ObjectWithOneDependency>(new ContainerControlledLifetimeManager());
+
+            var result1 = uc.Resolve<ObjectWithTwoConstructorDependencies>();
+            var result2 = uc.Resolve<ObjectWithTwoConstructorDependencies>();
+
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsNotNull(result1.OneDep);
+            Assert.IsNotNull(result2.OneDep);
+            Assert.AreNotSame(result1, result2);
+            Assert.AreSame(result1.OneDep, result2.OneDep);
         }
 
         /// <summary>
