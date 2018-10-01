@@ -53,6 +53,6 @@ namespace Unity.Builder.Selection
         /// <summary>
         /// The member info stored.
         /// </summary>
-        protected TMemberInfoType MemberInfo { get; }
+        public TMemberInfoType MemberInfo { get; }
     }
 }
