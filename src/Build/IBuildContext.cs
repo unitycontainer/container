@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Build
@@ -28,10 +29,8 @@ namespace Unity.Build
         /// <returns></returns>
         object Resolve(Type type, string name);
 
+        object Resolve(PropertyInfo property, string name, IResolverPolicy resolver = null);
 
-        object Resolve(PropertyInfo property, string name);
-
-
-        object Resolve(ParameterInfo parameter, string name);
+        object Resolve(ParameterInfo parameter, string name, IResolverPolicy resolver = null);
     }
 }
