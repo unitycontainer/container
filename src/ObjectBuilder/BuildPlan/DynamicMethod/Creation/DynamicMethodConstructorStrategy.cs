@@ -65,7 +65,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                     Expression.Equal(
                         BuilderContextExpression<TBuilderContext>.Existing,
                         Expression.Constant(null)),
-                    CreateInstanceBuildupExpression(buildContext, ref context)));
+                    ValidateConstructedType(ref context) ??
+                    CreateInstanceBuildupExpression(ref context)));
 
             var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy));
             if (policy is PerResolveLifetimeManager)
@@ -83,11 +84,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
 
         #region Implementation
 
-        internal Expression CreateInstanceBuildupExpression<TBuilderContext>(DynamicBuildPlanGenerationContext buildContext, ref TBuilderContext context)
+        private Expression ValidateConstructedType<TBuilderContext>(ref TBuilderContext context)
             where TBuilderContext : IBuilderContext
         {
-            // Validate type can be constructed
-
             if (context.TypeInfo.IsInterface)
             {
                 return Expression.Throw(
@@ -132,6 +131,12 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression));
             }
 
+            return null;
+        }
+
+        private Expression CreateInstanceBuildupExpression<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
+        {
             var selector = context.Policies.GetPolicy<IConstructorSelectorPolicy>(
                 context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
@@ -146,10 +151,13 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         InvalidRegistrationExpression));
             }
 
+            //IEnumerable<Expression> parameterExpressions = null;
+
             SelectedConstructor selectedConstructor;
             switch (selector.SelectConstructor(ref context))
             {
                 case ConstructorInfo info:
+                    //parameterExpressions = BuilderContextExpression<TBuilderContext>.GetParameters(info);
                     selectedConstructor = new SelectedConstructor(info);
                     break;
 

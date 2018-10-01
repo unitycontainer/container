@@ -1,9 +1,12 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Attributes;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
+using Unity.ResolverPolicy;
 
 namespace Unity.Expressions
 {
@@ -56,9 +59,28 @@ namespace Unity.Expressions
                     ResolveParameterMethod,
                     Expression.Constant(parameter, typeof(ParameterInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(resolver)),
+                    Expression.Constant(resolver, typeof(IResolverPolicy))),
                 parameter.ParameterType);
         }
+
+        public static IEnumerable<Expression> GetParameters(MethodBase methodBase)
+        {
+            foreach (var parameter in methodBase.GetParameters())
+            {
+                // Resolve all DependencyAttributes on this parameter, if any
+                var attribute = parameter.GetCustomAttributes(false)
+                    .OfType<DependencyResolutionAttribute>()
+                    .FirstOrDefault();
+
+                if (null == attribute)
+                    yield return Resolve(parameter, null, null);
+                else
+                    yield return attribute is OptionalDependencyAttribute
+                        ? Resolve(parameter, attribute.Name, new OptionalDependencyResolverPolicy(parameter.ParameterType, attribute.Name))
+                        : Resolve(parameter, attribute.Name, null);
+            }
+        }
+
 
         #endregion
     }
