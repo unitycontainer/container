@@ -55,7 +55,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
                                 BuilderContextExpression<TBuilderContext>.Existing,
                                 dynamicBuildContext.TypeToBuild),
                             method.Method,
-                            BuildMethodParameterExpressions<TBuilderContext>(dynamicBuildContext, method, parameters))));
+                            BuildMethodParameterExpressions<TBuilderContext>(method, parameters))));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
 
         #region Implementation
 
-        private IEnumerable<Expression> BuildMethodParameterExpressions<TBuilderContext>(DynamicBuildPlanGenerationContext context, 
+        private IEnumerable<Expression> BuildMethodParameterExpressions<TBuilderContext>( 
             SelectedMethod method, ParameterInfo[] methodParameters)
             where TBuilderContext : IBuilderContext
         {
@@ -72,12 +72,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
 
             foreach (var parameterResolver in method.GetParameterResolvers())
             {
-                yield return context.CreateParameterExpression<TBuilderContext>(
-                                parameterResolver,
-                                methodParameters[i].ParameterType,
-                                Expression.Assign(
-                                    BuilderContextExpression<TBuilderContext>.CurrentOperation,
-                                    Expression.Constant(methodParameters[i].Member, typeof(object))));
+                yield return BuilderContextExpression<TBuilderContext>.Resolve(methodParameters[i], null, parameterResolver);
+
                 i++;
             }
         }

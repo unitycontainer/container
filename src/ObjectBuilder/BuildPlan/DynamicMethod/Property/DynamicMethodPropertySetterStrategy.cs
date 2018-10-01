@@ -38,7 +38,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
                         Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, propertyInfoExpression),
                         Expression.Assign(
                             resolvedObjectParameter,
-                            dynamicBuildContext.GetResolveDependencyExpression<TBuilderContext>(selectedProperty.Property.PropertyType, selectedProperty.Resolver)),
+                            BuilderContextExpression<TBuilderContext>.Resolve(selectedProperty, context.OriginalBuildKey.Name)),
                         Expression.Call(
                             Expression.Convert(
                                 BuilderContextExpression<TBuilderContext>.Existing,
