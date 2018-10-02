@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
+using Unity.Delegates;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.ConstructorInvoke;
@@ -27,27 +28,47 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
-            var plan = context.Registration.Get<IBuildPlanPolicy>() ?? (IBuildPlanPolicy)(
-                       context.Policies.Get(context.BuildKey.Type, string.Empty, typeof(IBuildPlanPolicy)) ?? 
-                       GetGeneric(context.Policies, typeof(IBuildPlanPolicy), 
-                                                    context.OriginalBuildKey, 
-                                                    context.OriginalBuildKey.Type));
-
-            if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
+            var resolver = context.Registration.Get<ResolveDelegate<TBuilderContext>>();
+            if (null == resolver)
             {
-                var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? CheckIfOpenGeneric(context.Registration) ??
-                    GetPolicy<IBuildPlanCreatorPolicy>(context.Policies, context.BuildKey);
+                // Legacy support
+                var plan = context.Registration.Get<IBuildPlanPolicy>() ?? 
+                           (IBuildPlanPolicy)(
+                               context.Policies.Get(context.BuildKey.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
+                               GetGeneric(context.Policies, typeof(IBuildPlanPolicy),
+                                   context.OriginalBuildKey,
+                                   context.OriginalBuildKey.Type));
 
-                if (planCreator != null)
+                if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
                 {
-                    plan = planCreator.CreatePlan(ref context, context.BuildKey);
-                    context.Registration.Set(typeof(IBuildPlanPolicy), plan);
-                }
-                else
-                    throw new ResolutionFailedException(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, null, context);
-            }
+                    var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? CheckIfOpenGeneric(context.Registration) ??
+                                      GetPolicy<IBuildPlanCreatorPolicy>(context.Policies, context.BuildKey);
 
-            plan?.BuildUp(ref context);
+                    if (planCreator != null)
+                    {
+                        //if (plan is IResolverPolicy policy)
+                        //{
+                        //    resolver = policy.Resolve;
+                        //    context.Registration.Set(typeof(ResolveDelegate<TBuilderContext>), resolver);
+                        //}
+                        //else
+                        //{
+                        //    plan = planCreator.CreatePlan(ref context, context.BuildKey);
+                        //    context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+                        //}
+                        plan = planCreator.CreatePlan(ref context, context.BuildKey);
+                        context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+                    }
+                    else
+                        throw new ResolutionFailedException(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, null, context);
+                }
+
+                plan?.BuildUp(ref context);
+            }
+            else
+            {
+                context.Existing = resolver(ref context);
+            }
         }
 
         #endregion
