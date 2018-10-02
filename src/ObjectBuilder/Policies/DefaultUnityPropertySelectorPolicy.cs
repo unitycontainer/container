@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
-using Unity.Builder.Selection;
 using Unity.ObjectBuilder.BuildPlan.Selection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
