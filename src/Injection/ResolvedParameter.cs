@@ -1,7 +1,7 @@
-﻿
-
-using System;
+﻿using System;
 using System.Reflection;
+using Unity.Build;
+using Unity.Delegates;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
@@ -13,9 +13,17 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
-    public class ResolvedParameter : TypedInjectionValue
+    public class ResolvedParameter : TypedInjectionValue, 
+                                     IResolverFactory<ParameterInfo>
     {
+        #region Fields
+
         private readonly string _name;
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Construct a new <see cref="ResolvedParameter"/> that
@@ -39,6 +47,11 @@ namespace Unity.Injection
             _name = name;
         }
 
+        #endregion
+
+
+        #region TypedInjectionValue
+
         /// <summary>
         /// Return a <see cref="IResolverPolicy"/> instance that will
         /// return this types value for the parameter.
@@ -48,22 +61,45 @@ namespace Unity.Injection
         /// <returns>The <see cref="IResolverPolicy"/>.</returns>
         public override IResolverPolicy GetResolverPolicy(Type type)
         {
-            var typeToBuild = type ?? throw new ArgumentNullException(nameof(type));
-            if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter)
-            {
-                Type arrayType = ParameterType.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
-                return new NamedTypeDependencyResolverPolicy(arrayType, _name);
-            }
-
             var info = ParameterType.GetTypeInfo();
-            if (info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
+            var typeToBuild = type ?? throw new ArgumentNullException(nameof(type));
+            if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
             {
-                return new NamedTypeDependencyResolverPolicy(
-                    ParameterType.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments), _name);
+                var arrayType = ParameterType.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
+                return new NamedTypeDependencyResolverPolicy(arrayType, _name);
             }
 
             return new NamedTypeDependencyResolverPolicy(ParameterType, _name);
         }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            var info = ParameterType.GetTypeInfo();
+
+            if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
+            {
+                var parameterType = ParameterType.GetClosedParameterType(type.GetTypeInfo().GenericTypeArguments);
+                return (ref TContext c) => c.Resolve(parameterType, _name);
+            }
+
+            return (ref TContext c) => c.Resolve(ParameterType, _name);
+        }
+
+        #endregion
+
+
+        #region IResolverFactory
+
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
+            where TContext : IBuildContext
+        {
+            throw new NotImplementedException();
+        }
+
+
+        #endregion
     }
 
     /// <summary>

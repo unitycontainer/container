@@ -1,7 +1,7 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Unity.Build;
+using Unity.Delegates;
 using Unity.Policy;
 
 namespace Unity.Injection
@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class InjectionParameterValue
+    public abstract class InjectionParameterValue : IResolverFactory
     {
         protected InjectionParameterValue(object value = null)
         {
@@ -46,6 +46,16 @@ namespace Unity.Injection
         /// to resolve open generic parameters.</param>
         /// <returns>The <see cref="IResolverPolicy"/>.</returns>
         public abstract IResolverPolicy GetResolverPolicy(Type typeToBuild);
+
+
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IBuildContext
+        {
+            return Value is IResolverFactory factory 
+                ? factory.GetResolver<TContext>(type) 
+                : (ref TContext c) => Value;
+        }
+
 
         /// <summary>
         /// Convert the given set of arbitrary values to a sequence of InjectionParameterValue

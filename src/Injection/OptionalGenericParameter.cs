@@ -1,6 +1,7 @@
 ﻿
 
 using System;
+using Unity.Delegates;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 
@@ -31,6 +32,11 @@ namespace Unity.Injection
         public OptionalGenericParameter(string genericParameterName, string resolutionKey)
             : base(genericParameterName, resolutionKey)
         { }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Return a <see cref="IResolverPolicy"/> instance that will

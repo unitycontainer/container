@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Delegates;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
@@ -35,6 +36,11 @@ namespace Unity.Injection
             : base(type, null)
         {
             _name = name;
+        }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

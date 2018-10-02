@@ -1,6 +1,6 @@
 ﻿using System;
-using Unity.Builder;
-using Unity.Injection;
+using Unity.Build;
+using Unity.Delegates;
 using Unity.Policy;
 
 namespace Unity.Resolution
@@ -9,30 +9,38 @@ namespace Unity.Resolution
     /// Base class for all override objects passed in the
     /// <see cref="IUnityContainer.Resolve"/> method.
     /// </summary>
-    public abstract class ResolverOverride
+    public abstract class ResolverOverride : IResolverFactory
     {
-        protected ResolverOverride() { }
+        #region Fields
+
+        protected Type Target;
+        protected readonly Type   Type;
+        protected readonly string Name;
+        protected readonly object Value;
+
+        #endregion
+
+
+        #region Constructors
 
         protected ResolverOverride(string name, object value)
         {
             Name = name;
-            Value = null == value ? null : InjectionParameterValue.ToParameter(value);
+            Value = value;
         }
 
-        public virtual string Name { get; }
+        protected ResolverOverride(Type target, Type type, string name, object value)
+        {
+            Target = target;
+            Type = type;
+            Name = name;
+            Value = value;
+        }
+
+        #endregion
 
 
-        public virtual InjectionParameterValue Value { get; }
-
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
-        /// for the given desired dependency.
-        /// </summary>
-        /// <param name="context">Current build context.</param>
-        /// <param name="dependencyType">Type of dependency desired.</param>
-        /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public abstract IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
-            where TBuilderContext : IBuilderContext;
+        #region Type Based Override
 
         /// <summary>
         /// Wrap this resolver in one that verifies the type of the object being built.
@@ -42,24 +50,43 @@ namespace Unity.Resolution
         /// <returns>The new override.</returns>
         public ResolverOverride OnType<T>()
         {
-            return new TypeBasedOverride<T>(this);
+            Target = typeof(T);
+            return this;
         }
 
         /// <summary>
         /// Wrap this resolver in one that verifies the type of the object being built.
         /// This allows you to narrow any override down to a specific type easily.
         /// </summary>
-        /// <param name="typeToOverride">Type to constrain the override to.</param>
+        /// <param name="targetType">Type to constrain the override to.</param>
         /// <returns>The new override.</returns>
-        public ResolverOverride OnType(Type typeToOverride)
+        public ResolverOverride OnType(Type targetType)
         {
-            return new TypeBasedOverride(typeToOverride, this);
+            Target = targetType;
+            return this;
         }
 
+        #endregion
+
+
+        #region IResolverFactory
+
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IBuildContext
+        {
+            return Value is IResolverFactory factory
+                ? factory.GetResolver<TContext>(type)
+                : (ref TContext c) => Value;
+        }
+
+        #endregion
+
+
+        #region Object
 
         public override int GetHashCode()
         {
-            return ((Value?.Value?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^  GetType().GetHashCode();
+            return ((Value?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^  GetType().GetHashCode();
 
         }
 
@@ -78,5 +105,6 @@ namespace Unity.Resolution
             return !(left == right);
         }
 
+        #endregion
     }
 }

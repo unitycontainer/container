@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Policy;
 
 namespace Unity.Resolution
 {
@@ -8,32 +7,50 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> that lets you override
     /// the value for a specified property.
     /// </summary>
-    public class PropertyOverride : ResolverOverride
+    public class PropertyOverride : ResolverOverride,
+                                    IEquatable<PropertyInfo>
     {
+        #region Constructors
+
         /// <summary>
         /// Create an instance of <see cref="PropertyOverride"/>.
         /// </summary>
         /// <param name="propertyName">The property name.</param>
-        /// <param name="propertyValue">Value to use for the property.</param>
+        /// <param name="propertyValue">InjectionParameterValue to use for the property.</param>
         public PropertyOverride(string propertyName, object propertyValue)
             : base(propertyName, propertyValue ?? throw new ArgumentNullException(nameof(propertyValue)))
         {
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
-        /// for the given desired dependency.
-        /// </summary>
-        /// <param name="context">Current build context.</param>
-        /// <param name="dependencyType">Type of dependency desired.</param>
-        /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
+        #endregion
+
+
+        #region IEquatable
+
+        public override int GetHashCode()
         {
-            if (context.CurrentOperation is PropertyInfo info && info.Name == Name)
-            {
-                return Value.GetResolverPolicy(dependencyType);
-            }
-            return null;
+            return base.GetHashCode();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is PropertyInfo info)
+            {
+                return (null == Target || info.DeclaringType == Target) &&
+                       (null == Type   || info.PropertyType == Type) &&
+                       (null == Name   || info.Name == Name);
+            }
+
+            return base.Equals(obj);
+        }
+
+        public bool Equals(PropertyInfo other)
+        {
+            return (null == Target || other.DeclaringType == Target) &&
+                   (null == Type   || other.PropertyType == Type) &&
+                   (null == Name   || other.Name == Name);
+        }
+
+        #endregion
     }
 }

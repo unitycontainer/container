@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Delegates;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
@@ -58,6 +59,11 @@ namespace Unity.Injection
                             pv.ParameterTypeName));
                 }
             }
+        }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

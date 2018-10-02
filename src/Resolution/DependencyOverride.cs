@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Policy;
+using System.Reflection;
 
 namespace Unity.Resolution
 {
@@ -8,38 +8,75 @@ namespace Unity.Resolution
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride
+    public class DependencyOverride : ResolverOverride,
+                                      IEquatable<ParameterInfo>,
+                                      IEquatable<PropertyInfo>
     {
-        private readonly Type _typeToConstruct;
+        #region Constructors
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
         /// the given type with the given value.
         /// </summary>
         /// <param name="typeToConstruct">Type of the dependency.</param>
-        /// <param name="dependencyValue">Value to use.</param>
+        /// <param name="dependencyValue">InjectionParameterValue to use.</param>
         public DependencyOverride(Type typeToConstruct, object dependencyValue)
-            : base(null, dependencyValue)
+            : base(null, typeToConstruct, null, dependencyValue)
+        {}
+
+        public DependencyOverride(string name, object dependencyValue)
+            : base(null, null, name, dependencyValue)
+        { }
+
+        public DependencyOverride(Type target, Type type, string name, object value)
+            : base(target, type, name, value)
         {
-            _typeToConstruct = typeToConstruct;
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
-        /// for the given desired dependency.
-        /// </summary>
-        /// <param name="context">Current build context.</param>
-        /// <param name="dependencyType">Type of dependency desired.</param>
-        /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
+        #endregion
+
+
+        #region IEquatable
+
+        public override int GetHashCode()
         {
-            IResolverPolicy result = null;
-            if (dependencyType == _typeToConstruct)
-            {
-                result = Value.GetResolverPolicy(dependencyType);
-            }
-            return result;
+            return base.GetHashCode();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is PropertyInfo property)
+            {
+                return (null == Target || property.DeclaringType == Target) &&
+                       (null == Type   || property.PropertyType == Type) &&
+                       (null == Name   || property.Name == Name);
+            }
+
+            if (obj is ParameterInfo parameter)
+            {
+                return (null == Target || parameter.Member.DeclaringType == Target) &&
+                       (null == Type   || parameter.ParameterType == Type) &&
+                       (null == Name   || parameter.Name == Name);
+            }
+
+            return base.Equals(obj);
+        }
+
+        public bool Equals(PropertyInfo other)
+        {
+            return (null == Target || other.DeclaringType == Target) &&
+                   (null == Type   || other.PropertyType == Type) &&
+                   (null == Name   || other.Name == Name);
+        }
+
+        public bool Equals(ParameterInfo other)
+        {
+            return (null == Target || other.Member.DeclaringType == Target) &&
+                   (null == Type   || other.ParameterType == Type) &&
+                   (null == Name   || other.Name == Name);
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -54,7 +91,7 @@ namespace Unity.Resolution
         /// override the given dependency, and pass the given value.
         /// </summary>
         public DependencyOverride(object dependencyValue)
-            : base(typeof(T), dependencyValue)
+            : base(null, typeof(T), null, dependencyValue)
         {
         }
     }

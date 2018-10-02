@@ -34,7 +34,7 @@ namespace Unity.Lifetime
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             _currentSetValue(newValue, container);
-            _currentSetValue = (o, c) => throw new InvalidOperationException("Value of ContainerControlledLifetimeManager can only be set once");
+            _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
             _currentGetValue = SynchronizedGetValue;
         }
         
