@@ -174,6 +174,7 @@ namespace Unity.Tests.v5
             Assert.AreEqual(50, instance.Inner.LogLevel);
         }
 
+#pragma warning disable 618
         [TestMethod]
         public void CreatingATypeOverrideForANullTypeThrows()
         {
@@ -191,6 +192,7 @@ namespace Unity.Tests.v5
                     new TypeBasedOverride(typeof(object), null);
                 });
         }
+#pragma warning restore 618
 
         public class SimpleTestObject
         {

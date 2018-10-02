@@ -297,7 +297,7 @@ namespace Unity.Tests.v5.Generics
     {
     }
 
-    // Value type used for testing nesting
+    // InjectionParameterValue type used for testing nesting
     public struct Customer
     {
     }

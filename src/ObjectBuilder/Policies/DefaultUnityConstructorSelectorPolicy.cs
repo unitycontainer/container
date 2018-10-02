@@ -92,7 +92,7 @@ namespace Unity.ObjectBuilder.Policies
             /// <param name="y">The second object to compare.</param>
             /// <param name="x">The first object to compare.</param>
             /// <returns>
-            /// Value Condition Less than zero is less than y. Zero equals y. Greater than zero is greater than y.
+            /// InjectionParameterValue Condition Less than zero is less than y. Zero equals y. Greater than zero is greater than y.
             /// </returns>
             public int Compare(ConstructorInfo x, ConstructorInfo y)
             {

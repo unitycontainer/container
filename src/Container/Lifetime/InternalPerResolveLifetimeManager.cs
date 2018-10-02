@@ -18,7 +18,7 @@ namespace Unity.Container.Lifetime
         /// This Lifetime manager is intended only for internal use, which is why the
         /// normal <see cref="LifetimeManager.SetValue"/> method is not used here.
         /// </summary>
-        /// <param name="value">Value to store.</param>
+        /// <param name="value">InjectionParameterValue to store.</param>
         public InternalPerResolveLifetimeManager(object value)
         {
             base.value = value;

@@ -120,12 +120,18 @@ namespace Unity.Builder
             {
                 var backup = CurrentOperation;
                 CurrentOperation = property;
+
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
-                    var res = _resolverOverrides[index].GetResolver(ref context, property.PropertyType);
-                    if (res != null)
+                    var resolverOverride = _resolverOverrides[index];
+
+                    if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                     {
-                        return res.Resolve(ref context);
+                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
+                        if (null != resolveDelegate)
+                        {
+                            return resolveDelegate(ref context);
+                        }
                     }
                 }
 
@@ -147,10 +153,15 @@ namespace Unity.Builder
                 CurrentOperation = parameter;
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
-                    var res = _resolverOverrides[index].GetResolver(ref context, parameter.ParameterType);
-                    if (res != null)
+                    var resolverOverride = _resolverOverrides[index];
+
+                    if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
-                        return res.Resolve(ref context);
+                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
+                        if (null != resolveDelegate)
+                        {
+                            return resolveDelegate(ref context);
+                        }
                     }
                 }
 
@@ -192,23 +203,6 @@ namespace Unity.Builder
         public IBuilderContext ParentContext { get; }
 
         public IPolicyList PersistentPolicies => this;
-
-        public IResolverPolicy GetOverriddenResolver(Type dependencyType)
-        {
-            if (null == _resolverOverrides) return null;
-
-            var context = this;
-            for (int index = _resolverOverrides.Length - 1; index >= 0; --index)
-            {
-                var resolver = _resolverOverrides[index].GetResolver(ref context, dependencyType);
-                if (resolver != null)
-                {
-                    return resolver;
-                }
-            }
-
-            return null;
-        }
 
         #endregion
 
