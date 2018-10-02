@@ -6,10 +6,6 @@ using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
-
-    /// <summary>
-    /// 
-    /// </summary>
     public class DynamicMethodBuildPlan : IBuildPlanPolicy, IResolverPolicy
     {
         private readonly Delegate _buildMethod;

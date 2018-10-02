@@ -22,13 +22,16 @@ namespace Unity.Expressions
             CurrentOperation = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.CurrentOperation)));
 
             TypeInfo = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.TypeInfo)));
+            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.Existing)));
         }
 
         #endregion
 
 
         #region Public Properties
-                                                                                                       
+
+        public static readonly MemberExpression Existing;
+
         public static readonly MemberExpression CurrentOperation;
 
         public static readonly MemberExpression TypeInfo;

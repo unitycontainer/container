@@ -135,7 +135,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             var parameters = ctor.GetParameters();
             if (parameters.Any(pi => pi.ParameterType.IsByRef))
             {
-                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                return Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                         Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, context.Type, ctor)),
                         InvalidRegistrationExpression)));
@@ -143,7 +143,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
 
             if (IsInvalidConstructor(context.TypeInfo, ref context, parameters))
             {
-                return Expression.IfThen(Expression.Equal(BuildContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                return Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                         Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefItself, context.Type, ctor)),
                         InvalidRegistrationExpression)));
