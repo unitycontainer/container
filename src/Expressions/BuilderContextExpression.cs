@@ -50,7 +50,7 @@ namespace Unity.Expressions
                     ResolvePropertyMethod,
                     Expression.Constant(property.Property, typeof(PropertyInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(property.Resolver) ),
+                    Expression.Constant(property.Resolver, typeof(IResolverPolicy)) ),
                 property.Property.PropertyType);
         }
 
