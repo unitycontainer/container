@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Build;
+using Unity.Delegates;
 using Unity.Policy;
 
 namespace Unity.Injection
@@ -16,7 +17,7 @@ namespace Unity.Injection
         /// the given value, using the runtime type of that value as the
         /// type of the parameter.
         /// </summary>
-        /// <param name="parameterValue">Value to be injected for this parameter.</param>
+        /// <param name="parameterValue">InjectionParameterValue to be injected for this parameter.</param>
         public InjectionParameter(object parameterValue)
             : this(GetParameterType(parameterValue), parameterValue)
         {
@@ -27,7 +28,7 @@ namespace Unity.Injection
         /// the given value, associated with the given type.
         /// </summary>
         /// <param name="parameterType">Type of the parameter.</param>
-        /// <param name="parameterValue">Value of the parameter</param>
+        /// <param name="parameterValue">InjectionParameterValue of the parameter</param>
         public InjectionParameter(Type parameterType, object parameterValue)
             : base(parameterType, parameterValue)
         {
@@ -68,7 +69,7 @@ namespace Unity.Injection
         /// <summary>
         /// Create a new <see cref="InjectionParameter{TParameter}"/>.
         /// </summary>
-        /// <param name="parameterValue">Value for the parameter.</param>
+        /// <param name="parameterValue">InjectionParameterValue for the parameter.</param>
         public InjectionParameter(TParameter parameterValue)
             : base(typeof(TParameter), parameterValue)
         {

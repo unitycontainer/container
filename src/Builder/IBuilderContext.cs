@@ -106,14 +106,6 @@ namespace Unity.Builder
         IBuilderContext ParentContext { get; }
 
         /// <summary>
-        /// GetOrDefault a <see cref="IResolverPolicy"/> object for the given <paramref name="dependencyType"/>
-        /// or null if that dependency hasn't been overridden.
-        /// </summary>
-        /// <param name="dependencyType">Type of the dependency.</param>
-        /// <returns>Resolver to use, or null if no override matches for the current operation.</returns>
-        IResolverPolicy GetOverriddenResolver(Type dependencyType);
-
-        /// <summary>
         /// A method to do a new buildup operation on an existing context.
         /// </summary>
         /// <param name="type">Type of to build</param>
@@ -172,7 +164,7 @@ namespace Unity.Builder
         /// This Lifetime manager is intended only for internal use, which is why the
         /// normal <see cref="LifetimeManager.SetValue"/> method is not used here.
         /// </summary>
-        /// <param name="value">Value to store.</param>
+        /// <param name="value">InjectionParameterValue to store.</param>
         public InternalPerResolveLifetimeManager(object value)
         {
             base.value = value;

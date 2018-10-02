@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Policy;
 
 namespace Unity.Resolution
 {
@@ -8,36 +7,54 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> class that lets you
     /// override a named parameter passed to a constructor.
     /// </summary>
-    public class ParameterOverride : ResolverOverride
+    public class ParameterOverride : ResolverOverride,
+                                     IEquatable<ParameterInfo>
     {
+        #region Constructors
+
         /// <summary>
         /// Construct a new <see cref="ParameterOverride"/> object that will
         /// override the given named constructor parameter, and pass the given
         /// value.
         /// </summary>
         /// <param name="parameterName">Name of the constructor parameter.</param>
-        /// <param name="parameterValue">Value to pass for the constructor.</param>
+        /// <param name="parameterValue">InjectionParameterValue to pass for the constructor.</param>
         public ParameterOverride(string parameterName, object parameterValue)
             : base(parameterName, parameterValue ?? throw new ArgumentNullException(nameof(parameterValue)))
         {
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> that can be used to give a value
-        /// for the given desired dependency.
-        /// </summary>
-        /// <param name="context">Current build context.</param>
-        /// <param name="dependencyType">Type of dependency desired.</param>
-        /// <returns>a <see cref="IResolverPolicy"/> object if this override applies, null if not.</returns>
-        public override IResolverPolicy GetResolver<TBuilderContext>(ref TBuilderContext context, Type dependencyType)
+        #endregion
+
+
+        #region IEquatable
+
+
+        public override int GetHashCode()
         {
-            if (context.CurrentOperation is ParameterInfo parameter &&
-                parameter.Name == Name)
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is ParameterInfo info)
             {
-                return Value.GetResolverPolicy(dependencyType);
+                return (null == Target || info.Member.DeclaringType == Target) &&
+                       (null == Type   || info.ParameterType == Type) &&
+                       (null == Name   || info.Name == Name);
             }
 
-            return null;
+            return base.Equals(other);
         }
+
+        public bool Equals(ParameterInfo other)
+        {
+            return (null == Target || other.Member.DeclaringType == Target) &&
+                   (null == Type   || other.ParameterType == Type) &&
+                   (null == Name   || other.Name == Name);
+        }
+
+
+        #endregion
     }
 }

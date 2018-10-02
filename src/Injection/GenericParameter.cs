@@ -1,6 +1,5 @@
-﻿
-
-using System;
+﻿using System;
+using Unity.Delegates;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 
@@ -41,6 +40,11 @@ namespace Unity.Injection
         protected override IResolverPolicy DoGetResolverPolicy(Type typeToResolve, string resolutionKey)
         {
             return new NamedTypeDependencyResolverPolicy(typeToResolve, resolutionKey);
+        }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            throw new NotImplementedException();
         }
     }
 }

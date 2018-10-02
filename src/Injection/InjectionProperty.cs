@@ -36,7 +36,7 @@ namespace Unity.Injection
         /// method.
         /// </summary>
         /// <param name="propertyName">Name of property to inject.</param>
-        /// <param name="propertyValue">Value for property.</param>
+        /// <param name="propertyValue">InjectionParameterValue for property.</param>
         public InjectionProperty(string propertyName, object propertyValue)
         {
             _propertyName = propertyName;

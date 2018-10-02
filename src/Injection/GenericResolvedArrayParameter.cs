@@ -8,6 +8,7 @@ using System.Reflection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
+using Unity.Delegates;
 
 namespace Unity.Injection
 {
@@ -108,6 +109,11 @@ namespace Unity.Injection
                     Constants.NoMatchingGenericArgument,
                     typeToBuild.GetTypeInfo().Name,
                     _genericParameterName));
+        }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            throw new NotImplementedException();
         }
     }
 }
