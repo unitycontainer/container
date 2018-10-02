@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Injection;
 using Unity.Lifetime;
 
 namespace Unity.Registration
@@ -39,19 +38,6 @@ namespace Unity.Registration
         /// <remarks>
         /// This property will be null if this registration is for an open generic.</remarks>
         public LifetimeManager LifetimeManager => (LifetimeManager)Value;
-
-        #endregion
-
-
-        #region IPolicySet
-
-        public override void Set(Type policyInterface, object policy)
-        {
-            if (policy is InjectionFactory && (MappedToType != RegisteredType))
-                throw new InvalidOperationException("Registration where both MappedToType and InjectionFactory are set is not supported");
-
-            base.Set(policyInterface, policy);
-        }
 
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Delegates;
 using Unity.Policy;
@@ -9,7 +10,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
     /// <summary>
     /// 
     /// </summary>
-    public class DynamicMethodBuildPlan : IBuildPlanPolicy
+    public class DynamicMethodBuildPlan : IBuildPlanPolicy, IResolverPolicy
     {
         private readonly Delegate _buildMethod;
 
@@ -29,7 +30,14 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         public void BuildUp<TBuilderContext>(ref TBuilderContext context)
             where TBuilderContext : IBuilderContext
         {
-            ((ResolveDelegate<TBuilderContext>)_buildMethod).Invoke(ref context);
+            context.Existing = ((ResolveDelegate<TBuilderContext>)_buildMethod).Invoke(ref context);
+
+        }
+
+        public object Resolve<TContext>(ref TContext context) 
+            where TContext : IBuildContext
+        {
+            return ((ResolveDelegate<TContext>)_buildMethod).Invoke(ref context);
         }
     }
 }

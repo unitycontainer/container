@@ -75,8 +75,9 @@ namespace Unity
                 var context = new RegistrationContext(this, registration);
                 foreach (var member in injectionMembers)
                 {
-                    member.AddPolicies(registration.RegisteredType, registration.MappedToType, 
-                                       registration.Name, ref context);
+                    member.AddPolicies<BuilderContext, RegistrationContext>(
+                        registration.RegisteredType, registration.MappedToType, 
+                        registration.Name, ref context);
                 }
             }
 
