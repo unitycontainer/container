@@ -53,7 +53,6 @@ namespace Unity.Expressions
             Type      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(INamedType.Type)));
             Name      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(INamedType.Name)));
             Container = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Container)));
-            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Existing)));
         }
 
         #endregion
@@ -68,8 +67,6 @@ namespace Unity.Expressions
         public static readonly MemberExpression Type;
 
         public static readonly MemberExpression Name;
-
-        public static readonly MemberExpression Existing;
 
         #endregion
     }

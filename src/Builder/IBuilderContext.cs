@@ -65,14 +65,6 @@ namespace Unity.Builder
         IRequiresRecovery RequiresRecovery { get; set; }
 
         /// <summary>
-        /// The set of policies that were passed into this context.
-        /// </summary>
-        /// <remarks>This returns the policies passed into the context.
-        /// Policies added here will remain after buildup completes.</remarks>
-        /// <value>The persistent policies for the current context.</value>
-        IPolicyList PersistentPolicies { get; }
-
-        /// <summary>
         /// Gets the policies for the current context. 
         /// </summary>
         /// <remarks>Any policies added to this object are transient
@@ -81,6 +73,14 @@ namespace Unity.Builder
         /// The policies for the current context.
         /// </value>
         IPolicyList Policies { get; }
+
+        /// <summary>
+        /// The current object being built up or resolved.
+        /// </summary>
+        /// <value>
+        /// The current object being manipulated by the build operation. May
+        /// be null if the object hasn't been created yet.</value>
+        object Existing { get; set; }
 
         /// <summary>
         /// Flag indicating if the build operation should continue.
