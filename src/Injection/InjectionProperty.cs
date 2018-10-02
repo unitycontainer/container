@@ -47,25 +47,25 @@ namespace Unity.Injection
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
-        /// <param name="serviceType">Interface being registered, ignored in this implementation.</param>
-        /// <param name="implementationType">Type to register.</param>
+        /// <param name="registeredType">Interface being registered, ignored in this implementation.</param>
+        /// <param name="mappedToType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
+        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
             var propInfo =
-                (implementationType ?? throw new ArgumentNullException(nameof(implementationType))).GetPropertiesHierarchical()
+                (mappedToType ?? throw new ArgumentNullException(nameof(mappedToType))).GetPropertiesHierarchical()
                         .FirstOrDefault(p => p.Name == _propertyName &&
                                               !p.GetSetMethod(true).IsStatic);
 
-            GuardPropertyExists(propInfo, implementationType, _propertyName);
+            GuardPropertyExists(propInfo, mappedToType, _propertyName);
             GuardPropertyIsSettable(propInfo);
             GuardPropertyIsNotIndexer(propInfo);
             InitializeParameterValue(propInfo);
             GuardPropertyValueIsCompatible(propInfo, _parameterValue);
 
             SpecifiedPropertiesSelectorPolicy selector =
-                GetSelectorPolicy(policies, serviceType, name);
+                GetSelectorPolicy(policies, registeredType, name);
 
             selector.AddPropertyAndValue(propInfo, _parameterValue);
         }

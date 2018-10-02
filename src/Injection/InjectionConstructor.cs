@@ -3,9 +3,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Attributes;
+using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 using Unity.Utility;
 
 namespace Unity.Injection
@@ -70,13 +72,13 @@ namespace Unity.Injection
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
-        /// <param name="serviceType">Interface registered, ignored in this implementation.</param>
-        /// <param name="implementationType">Type to register.</param>
+        /// <param name="registeredType">Interface registered, ignored in this implementation.</param>
+        /// <param name="mappedToType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<T>(Type serviceType, Type implementationType, string name, ref T policies)
+        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            var typeToCreate = implementationType;
+            var typeToCreate = mappedToType;
             var constructors = typeToCreate.GetTypeInfo()
                                            .DeclaredConstructors
                                            .Where(c => c.IsStatic == false && c.IsPublic);
@@ -103,7 +105,7 @@ namespace Unity.Injection
                 _parameterValues = new InjectionParameterValue[0];
             }
 
-            policies.Set(serviceType, name, typeof(IConstructorSelectorPolicy), this);
+            policies.Set(registeredType, name, typeof(IConstructorSelectorPolicy), this);
         }
 
         public override bool BuildRequired => true;
