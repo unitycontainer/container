@@ -8,6 +8,7 @@ using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Override
 {
+#pragma warning disable 618
     /// <summary>
     /// Summary description for TypeBasedOverrideFixture
     /// </summary>
@@ -136,14 +137,11 @@ namespace Unity.Tests.v5.Override
             PropertyOverride overrideProp = new PropertyOverride("PropertyToInject", "TestOverrideProp");
             TypeBasedOverride typeOverrideConstructor = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideParam);
             TypeBasedOverride typeOverrideProp = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideProp);
-            CompositeResolverOverride compositeOverride = new CompositeResolverOverride();
-            compositeOverride.Add(typeOverrideConstructor);
-            compositeOverride.Add(typeOverrideProp);
 
             IUnityContainer container = new UnityContainer();
 
             container.RegisterType<TypeToUndergoeTypeBasedInject1>().RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), new InjectionProperty("PropertyToInject", "DefaultValue"));
-            var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(compositeOverride);
+            var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
             TypeToInject3ForTypeOverride overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
 
             Assert.AreEqual<int>(222, overriddenProperty.Value);
@@ -213,4 +211,5 @@ namespace Unity.Tests.v5.Override
             AssertHelper.ThrowsException<ArgumentNullException>(() => new ParameterOverride("injectedObject", overrideValue));
         }
     }
+#pragma warning restore 618
 }
