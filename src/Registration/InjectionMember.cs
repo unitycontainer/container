@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Build;
 using Unity.Storage;
 
 namespace Unity.Registration
@@ -13,13 +14,15 @@ namespace Unity.Registration
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
-        /// <param name="serviceType">Type of interface being registered. If no interface,
+        /// <param name="registeredType">Type of interface being registered. If no interface,
         /// this will be null.</param>
-        /// <param name="implementationType">Type of concrete type being registered.</param>
+        /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public abstract void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
-            where TPolicyList : IPolicyList;
+        public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+            where TContext : IBuildContext
+            where TPolicyList : IPolicyList
+        { }
 
         /// <summary>
         /// This injection member instructs engine, when type mapping is present, 

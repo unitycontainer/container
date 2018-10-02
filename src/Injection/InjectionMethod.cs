@@ -36,17 +36,17 @@ namespace Unity.Injection
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
-        /// <param name="serviceType">Type of interface registered, ignored in this implementation.</param>
-        /// <param name="implementationType">Type to register.</param>
+        /// <param name="registeredType">Type of interface registered, ignored in this implementation.</param>
+        /// <param name="mappedToType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
+        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            MethodInfo methodInfo = FindMethod(implementationType);
-            ValidateMethodCanBeInjected(methodInfo, implementationType);
+            MethodInfo methodInfo = FindMethod(mappedToType);
+            ValidateMethodCanBeInjected(methodInfo, mappedToType);
 
             SpecifiedMethodsSelectorPolicy selector =
-                GetSelectorPolicy(policies, serviceType, name);
+                GetSelectorPolicy(policies, registeredType, name);
             selector.AddMethodAndParameters(methodInfo, _methodParameters);
         }
 

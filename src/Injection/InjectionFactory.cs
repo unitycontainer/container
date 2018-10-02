@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Builder;
-using Unity.Policy;
+using Unity.Delegates;
+using Unity.Lifetime;
 using Unity.Registration;
 
 namespace Unity.Injection
@@ -10,7 +11,7 @@ namespace Unity.Injection
     /// will use to create the object.
     /// </summary>
     /// <remarks>This factory allow using predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types.</remarks>
-    public class InjectionFactory : InjectionMember, IInjectionFactory, IBuildPlanPolicy
+    public class InjectionFactory : InjectionMember, IInjectionFactory
     {
         #region Fields
 
@@ -50,28 +51,34 @@ namespace Unity.Injection
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
-        /// <param name="serviceType">Type of interface being registered. If no interface,
+        /// <param name="registeredType">Type of interface being registered. If no interface,
         /// this will be null. This parameter is ignored in this implementation.</param>
-        /// <param name="implementationType">Type of concrete type being registered.</param>
+        /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TPolicyList>(Type serviceType, Type implementationType, string name, ref TPolicyList policies)
+        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            policies.Set(serviceType, name, typeof(IBuildPlanPolicy), this);
-        }
+            if (null != mappedToType && mappedToType != registeredType)
+                throw new InvalidOperationException(
+                    "Registration where both MappedToType and InjectionFactory are set is not supported");
 
-        #endregion
-
-
-        #region IBuildPlanPolicy
-
-        public void BuildUp<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
-        {
-            if (context.Existing == null)
+            var lifetime = policies.Get(registeredType, name, typeof(ILifetimePolicy));
+            if (lifetime is PerResolveLifetimeManager)
             {
-                context.Existing = _factoryFunc(context.Container, context.BuildKey.Type, context.BuildKey.Name);
-                context.SetPerBuildSingleton();
+                policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
+                    (ResolveDelegate<TContext>)((ref TContext context) =>
+                    {
+                        var result = _factoryFunc(context.Container, context.Type, context.Name);
+                        var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
+                        context.Set(context.Type, context.Name, typeof(ILifetimePolicy), perBuildLifetime);
+                        return result;
+                    }));
+            }
+            else
+            {
+                policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
+                    (ResolveDelegate<TContext>)((ref TContext context) =>
+                        _factoryFunc(context.Container, context.Type, context.Name)));
             }
         }
 
