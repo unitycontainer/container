@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Build;
-using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.ResolverPolicy
