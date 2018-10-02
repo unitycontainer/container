@@ -46,18 +46,12 @@ namespace Unity.Strategies
 
                     if (planCreator != null)
                     {
-                        //if (plan is IResolverPolicy policy)
-                        //{
-                        //    resolver = policy.Resolve;
-                        //    context.Registration.Set(typeof(ResolveDelegate<TBuilderContext>), resolver);
-                        //}
-                        //else
-                        //{
-                        //    plan = planCreator.CreatePlan(ref context, context.BuildKey);
-                        //    context.Registration.Set(typeof(IBuildPlanPolicy), plan);
-                        //}
                         plan = planCreator.CreatePlan(ref context, context.BuildKey);
-                        context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+
+                        if (plan is IResolverPolicy policy)
+                            context.Registration.Set(typeof(ResolveDelegate<TBuilderContext>), (ResolveDelegate<TBuilderContext>)policy.Resolve);
+                        else
+                            context.Registration.Set(typeof(IBuildPlanPolicy), plan);
                     }
                     else
                         throw new ResolutionFailedException(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, null, context);
