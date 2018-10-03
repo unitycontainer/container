@@ -9,10 +9,4 @@ namespace Unity.Policy
         ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IBuildContext;
     }
-
-    public interface IResolverFactory<in TInfo>
-    {
-        ResolveDelegate<TContext> GetResolver<TContext>(TInfo info) 
-            where TContext : IBuildContext;
-    }
 }
