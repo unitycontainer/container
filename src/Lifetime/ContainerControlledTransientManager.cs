@@ -1,6 +1,7 @@
+using Unity.Lifetime;
 using System;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// A special lifetime manager which works like <see cref="TransienLifetimeManager"/>,

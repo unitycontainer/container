@@ -1,9 +1,8 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Unity.Lifetime;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// A <see cref="LifetimeManager"/> that holds the instances given to it, 

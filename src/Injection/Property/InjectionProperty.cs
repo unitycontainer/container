@@ -3,11 +3,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
-using Unity.Registration;
+using Unity.Injection;
 using Unity.Storage;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// This class stores information about which properties to inject,

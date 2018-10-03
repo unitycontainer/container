@@ -1,16 +1,15 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Delegates;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that stores a type, and generates a 

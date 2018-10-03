@@ -1,7 +1,7 @@
 ﻿using System;
-using Unity.Builder;
+using Unity.Lifetime;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// Base class for Lifetime managers - classes that control how

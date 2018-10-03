@@ -1,8 +1,7 @@
-﻿
-
+﻿using Unity.Lifetime;
 using Unity.Policy;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// This is a custom lifetime manager that acts like <see cref="TransientLifetimeManager"/>,

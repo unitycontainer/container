@@ -3,9 +3,10 @@ using System.Reflection;
 using Unity.Delegates;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Injection;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that stores a name and type, and generates a 

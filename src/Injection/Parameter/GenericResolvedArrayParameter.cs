@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,8 +7,9 @@ using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 using Unity.Delegates;
+using Unity.Injection;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that lets you specify that

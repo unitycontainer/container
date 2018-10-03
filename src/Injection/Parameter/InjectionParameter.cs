@@ -1,9 +1,9 @@
 ﻿using System;
 using Unity.Build;
-using Unity.Delegates;
+using Unity.Injection;
 using Unity.Policy;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that holds on to the given value and provides

@@ -1,8 +1,7 @@
-﻿
-
+﻿using Unity.Lifetime;
 using System;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// A <see cref="LifetimeManager"/> that holds a weak reference to
