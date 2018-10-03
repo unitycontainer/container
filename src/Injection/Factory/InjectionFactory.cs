@@ -1,9 +1,9 @@
 ﻿using System;
 using Unity.Delegates;
+using Unity.Factory;
 using Unity.Lifetime;
-using Unity.Registration;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that lets you specify a factory method the container
@@ -88,14 +88,6 @@ namespace Unity.Injection
 
         internal sealed class InternalPerResolveLifetimeManager : PerResolveLifetimeManager
         {
-            /// <summary>
-            /// Construct a new <see cref="PerResolveLifetimeManager"/> object that stores the
-            /// give value. This value will be returned by <see cref="LifetimeManager.GetValue"/>
-            /// but is not stored in the lifetime manager, nor is the value disposed.
-            /// This Lifetime manager is intended only for internal use, which is why the
-            /// normal <see cref="LifetimeManager.SetValue"/> method is not used here.
-            /// </summary>
-            /// <param name="obj">InjectionParameterValue to store.</param>
             public InternalPerResolveLifetimeManager(object obj)
             {
                 value = obj;

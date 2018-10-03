@@ -3,7 +3,7 @@ using Unity.Build;
 using Unity.Delegates;
 using Unity.Policy;
 
-namespace Unity.Resolution
+namespace Unity
 {
     /// <summary>
     /// Base class for all override objects passed in the
@@ -16,25 +16,22 @@ namespace Unity.Resolution
         protected Type Target;
         protected readonly Type   Type;
         protected readonly string Name;
-        protected readonly object Value;
 
         #endregion
 
 
         #region Constructors
 
-        protected ResolverOverride(string name, object value)
+        protected ResolverOverride(string name)
         {
             Name = name;
-            Value = value;
         }
 
-        protected ResolverOverride(Type target, Type type, string name, object value)
+        protected ResolverOverride(Type target, Type type, string name)
         {
             Target = target;
             Type = type;
             Name = name;
-            Value = value;
         }
 
         #endregion
@@ -74,9 +71,9 @@ namespace Unity.Resolution
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IBuildContext
         {
-            return Value is IResolverFactory factory
-                ? factory.GetResolver<TContext>(type)
-                : (ref TContext c) => Value;
+            return this is IResolverPolicy policy
+                ? (ResolveDelegate<TContext>)policy.Resolve
+                : throw new InvalidCastException("Derived type does not implement IResolverPolicy");
         }
 
         #endregion
@@ -86,7 +83,7 @@ namespace Unity.Resolution
 
         public override int GetHashCode()
         {
-            return ((Value?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^  GetType().GetHashCode();
+            return ((Target?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^  GetType().GetHashCode();
 
         }
 

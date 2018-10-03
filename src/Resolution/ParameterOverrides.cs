@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Unity.Resolution
+namespace Unity
 {
     /// <summary>
     /// A convenience form of <see cref="ParameterOverride"/> that lets you

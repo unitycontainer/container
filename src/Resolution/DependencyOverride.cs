@@ -1,17 +1,27 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Build;
+using Unity.Policy;
 
-namespace Unity.Resolution
+namespace Unity
 {
     /// <summary>
     /// A <see cref="ResolverOverride"/> class that overrides
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride,
+    public class DependencyOverride : ResolverOverride, 
                                       IEquatable<ParameterInfo>,
-                                      IEquatable<PropertyInfo>
+                                      IEquatable<PropertyInfo>,
+                                      IResolverPolicy
     {
+        #region Fields
+
+        protected readonly object Value;
+
+        #endregion
+
+
         #region Constructors
 
         /// <summary>
@@ -21,16 +31,21 @@ namespace Unity.Resolution
         /// <param name="typeToConstruct">Type of the dependency.</param>
         /// <param name="dependencyValue">InjectionParameterValue to use.</param>
         public DependencyOverride(Type typeToConstruct, object dependencyValue)
-            : base(null, typeToConstruct, null, dependencyValue)
-        {}
+            : base(null, typeToConstruct, null)
+        {
+            Value = dependencyValue;
+        }
 
         public DependencyOverride(string name, object dependencyValue)
-            : base(null, null, name, dependencyValue)
-        { }
+            : base(null, null, name)
+        {
+            Value = dependencyValue;
+        }
 
         public DependencyOverride(Type target, Type type, string name, object value)
-            : base(target, type, name, value)
+            : base(target, type, name)
         {
+            Value = value;
         }
 
         #endregion
@@ -74,6 +89,26 @@ namespace Unity.Resolution
             return (null == Target || other.Member.DeclaringType == Target) &&
                    (null == Type   || other.ParameterType == Type) &&
                    (null == Name   || other.Name == Name);
+        }
+
+        #endregion
+
+
+        #region IResolverPolicy
+
+        public object Resolve<TContext>(ref TContext context) 
+            where TContext : IBuildContext
+        {
+            if (Value is IResolverPolicy policy)
+                return policy.Resolve(ref context);
+
+            if (Value is IResolverFactory factory)
+            {
+                var resolveDelegate = factory.GetResolver<TContext>(Type);
+                return resolveDelegate(ref context);
+            }
+
+            return Value;
         }
 
         #endregion

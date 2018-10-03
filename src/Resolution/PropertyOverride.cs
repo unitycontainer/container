@@ -1,15 +1,25 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Build;
+using Unity.Policy;
 
-namespace Unity.Resolution
+namespace Unity
 {
     /// <summary>
     /// A <see cref="ResolverOverride"/> that lets you override
     /// the value for a specified property.
     /// </summary>
     public class PropertyOverride : ResolverOverride,
-                                    IEquatable<PropertyInfo>
+                                    IEquatable<PropertyInfo>,
+                                    IResolverPolicy
     {
+        #region Fields
+
+        protected readonly object Value;
+
+        #endregion
+
+        
         #region Constructors
 
         /// <summary>
@@ -18,8 +28,9 @@ namespace Unity.Resolution
         /// <param name="propertyName">The property name.</param>
         /// <param name="propertyValue">InjectionParameterValue to use for the property.</param>
         public PropertyOverride(string propertyName, object propertyValue)
-            : base(propertyName, propertyValue ?? throw new ArgumentNullException(nameof(propertyValue)))
+            : base(propertyName)
         {
+            Value = propertyValue ?? throw new ArgumentNullException(nameof(propertyValue));
         }
 
         #endregion
@@ -49,6 +60,26 @@ namespace Unity.Resolution
             return (null == Target || other.DeclaringType == Target) &&
                    (null == Type   || other.PropertyType == Type) &&
                    (null == Name   || other.Name == Name);
+        }
+
+        #endregion
+
+
+        #region IResolverPolicy
+
+        public object Resolve<TContext>(ref TContext context)
+            where TContext : IBuildContext
+        {
+            if (Value is IResolverPolicy policy)
+                return policy.Resolve(ref context);
+
+            if (Value is IResolverFactory factory)
+            {
+                var resolveDelegate = factory.GetResolver<TContext>(Type);
+                return resolveDelegate(ref context);
+            }
+
+            return Value;
         }
 
         #endregion
