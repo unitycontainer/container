@@ -1,6 +1,4 @@
-﻿
-
-using Unity.Attributes;
+﻿using Unity;
 
 namespace Microsoft.Practices.Unity.Tests.TestObjects
 {

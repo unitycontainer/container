@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Attributes;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.TestObjects

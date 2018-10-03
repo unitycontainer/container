@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Attributes;
-using Unity.Injection;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Injection

@@ -1,7 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Unity.Attributes;
-using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Container
 {

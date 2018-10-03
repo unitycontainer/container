@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Unity.Attributes;
 using Unity.Exceptions;
 using Unity.Tests.v5.TestSupport;
 

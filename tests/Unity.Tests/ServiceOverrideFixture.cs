@@ -101,40 +101,6 @@ namespace Unity.Tests.v5
         }
 
         [TestMethod]
-        public void CanOverridePropertyValue()
-        {
-            var container = new UnityContainer()
-                .RegisterType<ObjectTakingASomething>(
-                    new InjectionConstructor(),
-                    new InjectionProperty("MySomething"))
-                .RegisterType<ISomething, Something1>()
-                .RegisterType<ISomething, Something2>("other");
-
-            var result = container.Resolve<ObjectTakingASomething>(
-                new PropertyOverride("MySomething", new ResolvedParameter<ISomething>("other")).OnType<ObjectTakingASomething>());
-
-            Assert.IsNotNull(result.MySomething);
-            AssertExtensions.IsInstanceOfType(result.MySomething, typeof(Something2));
-        }
-
-        [TestMethod]
-        public void PropertyValueOverrideForTypeDifferentThanResolvedTypeIsIgnored()
-        {
-            var container = new UnityContainer()
-                .RegisterType<ObjectTakingASomething>(
-                    new InjectionConstructor(),
-                    new InjectionProperty("MySomething"))
-                .RegisterType<ISomething, Something1>()
-                .RegisterType<ISomething, Something2>("other");
-
-            var result = container.Resolve<ObjectTakingASomething>(
-                new PropertyOverride("MySomething", new ResolvedParameter<ISomething>("other")).OnType<ObjectThatDependsOnSimpleObject>());
-
-            Assert.IsNotNull(result.MySomething);
-            AssertExtensions.IsInstanceOfType(result.MySomething, typeof(Something1));
-        }
-
-        [TestMethod]
         public void CanOverridePropertyValueWithNullWithExplicitInjectionParameter()
         {
             var container = new UnityContainer()

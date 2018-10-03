@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Attributes;
 using Unity.Exceptions;
-using Unity.Injection;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Generics

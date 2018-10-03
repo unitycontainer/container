@@ -1,8 +1,4 @@
-﻿
-
-using System;
-using Microsoft.Practices.Unity;
-using Unity.Attributes;
+﻿using System;
 
 namespace Unity.Tests.TestObjects
 {

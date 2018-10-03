@@ -1,10 +1,7 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Attributes;
 using Unity.Exceptions;
-using Unity.Injection;
-using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Issues
 {

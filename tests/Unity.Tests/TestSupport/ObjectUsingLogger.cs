@@ -1,6 +1,4 @@
-﻿using Unity.Attributes;
-
-namespace Unity.Tests.v5.TestSupport
+﻿namespace Unity.Tests.v5.TestSupport
 {
     public class ObjectUsingLogger
     {
