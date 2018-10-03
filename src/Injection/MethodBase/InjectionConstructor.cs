@@ -2,13 +2,12 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Attributes;
 using Unity.Builder.Selection;
 using Unity.Policy;
-using Unity.Registration;
+using Unity.Injection;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that holds the collection of information

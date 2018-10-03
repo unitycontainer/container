@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Attributes
+namespace Unity
 {
     /// <summary>
     /// An <see cref="DependencyResolutionAttribute"/> used to mark a dependency

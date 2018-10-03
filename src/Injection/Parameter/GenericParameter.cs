@@ -1,9 +1,10 @@
 ﻿using System;
 using Unity.Delegates;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that lets you specify that

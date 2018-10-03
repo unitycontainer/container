@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Attributes
+namespace Unity
 {
     /// <summary>
     /// This attribute is used to mark properties and parameters as targets for injection.

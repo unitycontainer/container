@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Attributes
+namespace Unity
 {
     /// <summary>
     /// Base class for attributes that can be placed on parameters

@@ -1,6 +1,7 @@
 ﻿using System;
+using Unity.Lifetime;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// A <see cref="LifetimeManager"/> that is unique for all the children containers.

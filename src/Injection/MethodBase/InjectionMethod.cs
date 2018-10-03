@@ -5,11 +5,11 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder.Policy;
 using Unity.Policy;
-using Unity.Registration;
+using Unity.Injection;
 using Unity.Storage;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// An <see cref="InjectionMember"/> that configures the

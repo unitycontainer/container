@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Attributes
+namespace Unity
 {
     /// <summary>
     /// This attribute is used to indicate which constructor to choose when

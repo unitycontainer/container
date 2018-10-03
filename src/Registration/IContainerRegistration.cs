@@ -1,7 +1,4 @@
-﻿
-
-using System;
-using Unity.Lifetime;
+﻿using System;
 
 namespace Unity.Registration
 {
