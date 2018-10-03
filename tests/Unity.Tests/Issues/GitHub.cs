@@ -38,8 +38,8 @@ namespace Unity.Tests.v5.Issues
             var ch1 = ioc.CreateChildContainer();
             var ch2 = ioc.CreateChildContainer();
 
-            var value1 = ch1.Resolve<IFoo>(new Resolution.ParameterOverride("view", str1).OnType<Foo>());
-            var value2 = ch2.Resolve<IFoo>(new Resolution.ParameterOverride("view", str2).OnType<Foo>());
+            var value1 = ch1.Resolve<IFoo>(new ParameterOverride("view", str1).OnType<Foo>());
+            var value2 = ch2.Resolve<IFoo>(new ParameterOverride("view", str2).OnType<Foo>());
 
             Assert.IsNotNull(value1);
             Assert.IsNotNull(value2);
