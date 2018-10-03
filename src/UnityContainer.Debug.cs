@@ -10,7 +10,6 @@ namespace Unity
     [DebuggerTypeProxy(typeof(UnityContainerDebugProxy))]
     public partial class UnityContainer
     {
-
         private string DebugName()
         {
             var types = (_registrations?.Keys ?? Enumerable.Empty<Type>())
@@ -31,9 +30,13 @@ namespace Unity
             public UnityContainerDebugProxy(UnityContainer container)
             {
                 _container = container;
+                ID = container.GetHashCode().ToString();
             }
 
+            public string ID { get; }
+
             public IEnumerable<IContainerRegistration> Registrations => _container.Registrations;
+
         }
     }
 }
