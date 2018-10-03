@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Lifetime;
 using Unity.Registration;
-using Unity.Resolution;
+
+// ReSharper disable once CheckNamespace
 
 namespace Unity
 {

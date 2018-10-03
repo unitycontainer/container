@@ -1,11 +1,8 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Registration;
-using Unity.Resolution;
 
 namespace Unity
 {

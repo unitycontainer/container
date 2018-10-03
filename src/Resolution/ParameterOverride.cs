@@ -1,15 +1,25 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Build;
+using Unity.Policy;
 
-namespace Unity.Resolution
+namespace Unity
 {
     /// <summary>
     /// A <see cref="ResolverOverride"/> class that lets you
     /// override a named parameter passed to a constructor.
     /// </summary>
     public class ParameterOverride : ResolverOverride,
-                                     IEquatable<ParameterInfo>
+                                     IEquatable<ParameterInfo>,
+                                     IResolverPolicy
     {
+        #region Fields
+
+        protected readonly object Value;
+
+        #endregion
+
+
         #region Constructors
 
         /// <summary>
@@ -20,8 +30,9 @@ namespace Unity.Resolution
         /// <param name="parameterName">Name of the constructor parameter.</param>
         /// <param name="parameterValue">InjectionParameterValue to pass for the constructor.</param>
         public ParameterOverride(string parameterName, object parameterValue)
-            : base(parameterName, parameterValue ?? throw new ArgumentNullException(nameof(parameterValue)))
+            : base(parameterName)
         {
+            Value = parameterValue ?? throw new ArgumentNullException(nameof(parameterValue));
         }
 
         #endregion
@@ -54,6 +65,26 @@ namespace Unity.Resolution
                    (null == Name   || other.Name == Name);
         }
 
+
+        #endregion
+
+
+        #region IResolverPolicy
+
+        public object Resolve<TContext>(ref TContext context)
+            where TContext : IBuildContext
+        {
+            if (Value is IResolverPolicy policy)
+                return policy.Resolve(ref context);
+
+            if (Value is IResolverFactory factory)
+            {
+                var resolveDelegate = factory.GetResolver<TContext>(Type);
+                return resolveDelegate(ref context);
+            }
+
+            return Value;
+        }
 
         #endregion
     }
