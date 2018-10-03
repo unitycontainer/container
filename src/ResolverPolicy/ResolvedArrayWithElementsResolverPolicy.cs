@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Build;
-using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.ResolverPolicy
@@ -56,8 +55,8 @@ namespace Unity.ResolverPolicy
             return _value;
         }
 
-        private static object DoResolve<TBuilderContext, T>(ref TBuilderContext context, IResolverPolicy[] elementPolicies)
-            where TBuilderContext : IBuilderContext
+        private static object DoResolve<TContext, T>(ref TContext context, IResolverPolicy[] elementPolicies)
+            where TContext : IBuildContext
         {
             T[] result = new T[elementPolicies.Length];
 
