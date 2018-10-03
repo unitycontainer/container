@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Builder;
 using Unity.Delegates;
 using Unity.Lifetime;
 using Unity.Registration;
@@ -79,6 +78,28 @@ namespace Unity.Injection
                 policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
                     (ResolveDelegate<TContext>)((ref TContext context) =>
                         _factoryFunc(context.Container, context.Type, context.Name)));
+            }
+        }
+
+        #endregion
+
+
+        #region Nested Types
+
+        internal sealed class InternalPerResolveLifetimeManager : PerResolveLifetimeManager
+        {
+            /// <summary>
+            /// Construct a new <see cref="PerResolveLifetimeManager"/> object that stores the
+            /// give value. This value will be returned by <see cref="LifetimeManager.GetValue"/>
+            /// but is not stored in the lifetime manager, nor is the value disposed.
+            /// This Lifetime manager is intended only for internal use, which is why the
+            /// normal <see cref="LifetimeManager.SetValue"/> method is not used here.
+            /// </summary>
+            /// <param name="obj">InjectionParameterValue to store.</param>
+            public InternalPerResolveLifetimeManager(object obj)
+            {
+                value = obj;
+                InUse = true;
             }
         }
 
