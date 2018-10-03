@@ -52,7 +52,7 @@ namespace Unity.Strategies
                             context.Registration.Set(typeof(IBuildPlanPolicy), plan);
                     }
                     else
-                        throw new ResolutionFailedException(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, null, context);
+                        throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy", null);
                 }
 
                 plan?.BuildUp(ref context);

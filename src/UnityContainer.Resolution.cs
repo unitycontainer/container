@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Unity.Builder;
 using Unity.Exceptions;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
-using static Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation.DynamicMethodConstructorStrategy;
 
 namespace Unity
 {
@@ -52,7 +51,10 @@ namespace Unity
             {
                 context.RequiresRecovery?.Recover();
                 throw new ResolutionFailedException(context.OriginalBuildKey.Type,
-                    context.OriginalBuildKey.Name, ex, context);
+                    context.OriginalBuildKey.Name,
+                    CreateMessage(context.OriginalBuildKey.Type,
+                        context.OriginalBuildKey.Name,
+                        ex, context), ex);
             }
 
             return context.Existing;
@@ -283,5 +285,93 @@ namespace Unity
         }
 
         #endregion
+
+
+        #region Exceptions
+
+        public static string CreateMessage(Type typeRequested, string nameRequested, Exception innerException,
+                                            IBuilderContext context, string format = Constants.ResolutionFailed)
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine($"Resolution of the dependency failed for type = '{typeRequested}', name = '{FormatName(nameRequested)}'.");
+            builder.AppendLine($"Exception occurred while: {ExceptionReason(context)}.");
+            builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
+            builder.AppendLine("-----------------------------------------------");
+            builder.AppendLine("At the time of the exception, the container was: ");
+
+            AddContextDetails(builder, context, 1);
+
+            var message = builder.ToString();
+            return message;
+        }
+
+        private static void AddContextDetails(StringBuilder builder, IBuilderContext context, int depth)
+        {
+            if (context != null)
+            {
+                var indentation = new string(' ', depth * 2);
+                var key = context.BuildKey;
+                var originalKey = context.OriginalBuildKey;
+
+                builder.Append(indentation);
+
+                builder.Append(Equals(key, originalKey)
+                    ? $"Resolving {key.Type},{FormatName(key.Name)}"
+                    : $"Resolving {key.Type},{FormatName(key.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
+
+                builder.AppendLine();
+
+                if (context.CurrentOperation != null)
+                {
+                    builder.Append(indentation);
+                    builder.Append(OperationError(context.CurrentOperation.GetType()));
+                    builder.AppendLine();
+                }
+
+                AddContextDetails(builder, context.ChildContext, depth + 1);
+            }
+        }
+
+        private static string FormatName(string name)
+        {
+            return string.IsNullOrEmpty(name) ? "(none)" : name;
+        }
+
+        private static string ExceptionReason(IBuilderContext context)
+        {
+            var deepestContext = context;
+
+            // Find deepest child
+            while (deepestContext.ChildContext != null)
+            {
+                deepestContext = deepestContext.ChildContext;
+            }
+
+            // Backtrack to last known operation
+            while (deepestContext != context && null == deepestContext.CurrentOperation)
+            {
+                deepestContext = deepestContext.ParentContext;
+            }
+
+            return deepestContext.CurrentOperation != null
+                ? OperationError(deepestContext.CurrentOperation)
+                : Constants.NoOperationExceptionReason;
+        }
+
+        private static string OperationError(object operation)
+        {
+            switch (operation)
+            {
+                case ConstructorInfo ctor:
+                    return $"Calling constructor {ctor}";
+
+                default:
+                    return operation.ToString();
+            }
+        }
+
+        #endregion
+
     }
 }
