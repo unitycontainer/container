@@ -10,14 +10,22 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ContainerRegistration(Type registeredType, string name, Type mappedTo, LifetimeManager lifetimeManager)
+        public ContainerRegistration(Type registeredType, string name, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
             : base(registeredType ?? mappedTo, string.IsNullOrEmpty(name) ? null : name)
         {
             MappedToType = mappedTo;
             Key = typeof(ILifetimePolicy);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
+            InjectionMembers = injectionMembers;
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        public InjectionMember[] InjectionMembers { get; }
 
         #endregion
 
