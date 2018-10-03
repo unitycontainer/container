@@ -30,7 +30,7 @@ namespace Unity.Resolution
         /// <param name="targetType">Type to check for.</param>
         /// <param name="innerOverride">Inner override to check after type matches.</param>
         public TypeBasedOverride(Type targetType, ResolverOverride innerOverride)
-            : base(targetType, null, null, null)
+            : base(targetType, null, null)
         {
             _innerOverride = (innerOverride ?? throw new ArgumentNullException(nameof(innerOverride)))
                 .OnType(targetType ?? throw new ArgumentNullException(nameof(targetType)));

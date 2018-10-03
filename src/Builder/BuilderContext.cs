@@ -116,17 +116,26 @@ namespace Unity.Builder
         {
             var context = this;
 
+            // Process overrides if any
             if (null != _resolverOverrides)
             {
                 var backup = CurrentOperation;
                 CurrentOperation = property;
-
+                // Check for property overrides
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
                     var resolverOverride = _resolverOverrides[index];
-
+                    
+                    // Check if this parameter is overridden
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                     {
+                        // Check if itself is a resolver 
+                        if (resolverOverride is IResolverPolicy resolverPolicy)
+                        {
+                            return resolverPolicy.Resolve(ref context);
+                        }
+
+                        // Try to create resolver
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                         if (null != resolveDelegate)
                         {
@@ -138,6 +147,7 @@ namespace Unity.Builder
                 CurrentOperation = backup;
             }
 
+            // Resolve from injectors or container
             return null != resolver 
                 ? resolver.Resolve(ref context) 
                 : Resolve(property.PropertyType, name);
@@ -147,16 +157,27 @@ namespace Unity.Builder
         {
             var context = this;
 
+            // Process overrides if any
             if (null != _resolverOverrides)
             {
                 var backup = CurrentOperation;
                 CurrentOperation = parameter;
+
+                // Check if this parameter is overridden
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
                     var resolverOverride = _resolverOverrides[index];
-
+                    
+                    // If matches with current parameter
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
+                        // Check if itself is a resolver 
+                        if (resolverOverride is IResolverPolicy resolverPolicy)
+                        {
+                            return resolverPolicy.Resolve(ref context);
+                        }
+
+                        // Try to create resolver
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                         if (null != resolveDelegate)
                         {
@@ -168,6 +189,7 @@ namespace Unity.Builder
                 CurrentOperation = backup;
             }
 
+            // Resolve from injectors or container
             return null != resolver
                 ? resolver.Resolve(ref context)
                 : Resolve(parameter.ParameterType, name);

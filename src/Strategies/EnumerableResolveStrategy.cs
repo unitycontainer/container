@@ -5,7 +5,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Delegates;
-using Unity.Injection;
+using Unity.Factory;
 using Unity.Policy;
 using Unity.Registration;
 
