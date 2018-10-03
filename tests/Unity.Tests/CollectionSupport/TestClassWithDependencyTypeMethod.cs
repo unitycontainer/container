@@ -1,5 +1,3 @@
-using Unity.Attributes;
-
 namespace Unity.Tests.v5.CollectionSupport
 {
     public class TestClassWithDependencyTypeMethod

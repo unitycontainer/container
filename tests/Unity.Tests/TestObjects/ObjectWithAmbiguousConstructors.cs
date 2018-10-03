@@ -1,7 +1,4 @@
-﻿
-
-using System;
-using Unity.Attributes;
+﻿using System;
 
 namespace Unity.Tests.TestObjects
 {

@@ -25,7 +25,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
         public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
-            var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
+
+            var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, 
+                                                                               context.OriginalBuildKey.Name);
 
             foreach (var selectedProperty in selector.SelectProperties(ref context).Cast<SelectedProperty>())
             {

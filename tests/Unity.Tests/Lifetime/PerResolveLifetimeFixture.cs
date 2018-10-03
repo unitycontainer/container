@@ -1,7 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Attributes;
-using Unity.Injection;
-using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Lifetime
 {

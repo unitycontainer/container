@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Unity.Specification</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

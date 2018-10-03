@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Attributes;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
