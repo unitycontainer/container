@@ -8,7 +8,7 @@ namespace Unity.Registration
     /// Base class for objects that can be used to configure what
     /// class members get injected by the container.
     /// </summary>
-    public abstract class IInjectionMember
+    public abstract class InjectionMember
     {
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the

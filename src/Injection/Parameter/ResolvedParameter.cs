@@ -13,8 +13,7 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
-    public class ResolvedParameter : TypedInjectionValue, 
-                                     IResolverFactory<ParameterInfo>
+    public class ResolvedParameter : TypedInjectionValue
     {
         #region Fields
 
@@ -86,18 +85,6 @@ namespace Unity.Injection
 
             return (ref TContext c) => c.Resolve(ParameterType, _name);
         }
-
-        #endregion
-
-
-        #region IResolverFactory
-
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
-            where TContext : IBuildContext
-        {
-            throw new NotImplementedException();
-        }
-
 
         #endregion
     }
