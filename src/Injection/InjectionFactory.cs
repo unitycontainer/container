@@ -51,8 +51,9 @@ namespace Unity.Injection
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
         /// <param name="serviceType">Type of interface being registered. If no interface,
-        /// this will be null. This parameter is ignored in this implementation.</param>
-        /// <param name="implementationType">Type of concrete type being registered.</param>
+        /// this will be null.</param>
+        /// <param name="implementationType">Type of concrete type being registered.
+        /// This parameter is ignored in this implementation.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
