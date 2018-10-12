@@ -1,44 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Selection;
-using Unity.Policy;
 using Unity.ResolverPolicy;
 
 namespace Unity.Expressions
 {
+    [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
     class BuilderContextExpression<TBuilderContext> : BuildContextExpression<TBuilderContext>
         where TBuilderContext : IBuilderContext
     {
-        #region Fields
-
-        protected static readonly MethodInfo ResolvePropertyMethod =
-            typeof(IBuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuilderContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-
-                    return 2 <= parameters.Length &&
-                           typeof(PropertyInfo) == parameters[0].ParameterType;
-                });
-
-        protected static readonly MethodInfo ResolveParameterMethod =
-            typeof(IBuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuilderContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-
-                    return 2 <= parameters.Length &&
-                           typeof(ParameterInfo) == parameters[0].ParameterType;
-                });
-
-        #endregion
-
-
         #region Constructor
 
         static BuilderContextExpression()
@@ -67,30 +41,6 @@ namespace Unity.Expressions
 
 
         #region Methods
-
-        public static Expression Resolve(PropertyInfo property, string name, object value)
-        {
-            return Expression.Convert(
-                Expression.Call(
-                    Context,
-                    ResolvePropertyMethod,
-                    Expression.Constant(property, typeof(PropertyInfo)),
-                    Expression.Constant(name, typeof(string)),
-                    Expression.Constant(value, typeof(object)) ),
-                property.PropertyType);
-        }
-
-        public static Expression Resolve(ParameterInfo parameter, string name, object resolver)
-        {
-            return Expression.Convert(
-                Expression.Call(
-                    Context,
-                    ResolveParameterMethod,
-                    Expression.Constant(parameter, typeof(ParameterInfo)),
-                    Expression.Constant(name, typeof(string)),
-                    Expression.Constant(resolver, typeof(object))),
-                parameter.ParameterType);
-        }
 
         public static IEnumerable<Expression> GetParameters(MethodBase methodBase)
         {
