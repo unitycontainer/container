@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
+using Unity.Build;
+using Unity.Delegates;
 using Unity.Policy;
 using Unity.Utility;
 
@@ -72,34 +74,21 @@ namespace Unity.Injection
             return t.IsArray && t.GetElementType().GetTypeInfo().IsGenericParameter && t.GetElementType().GetTypeInfo().Name == _genericParameterName;
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
-            GuardTypeToBuildIsGeneric(typeToBuild);
-            GuardTypeToBuildHasMatchingGenericParameter(typeToBuild);
-            Type typeToResolve = typeToBuild.GetNamedGenericParameter(_genericParameterName);
+            GuardTypeToBuildIsGeneric(type);
+            GuardTypeToBuildHasMatchingGenericParameter(type);
+            Type typeToResolve = type.GetNamedGenericParameter(_genericParameterName);
             if (_isArray)
             {
                 typeToResolve = typeToResolve.MakeArrayType();
             }
 
-            return DoGetResolverPolicy(typeToResolve, _resolutionKey);
+            return GetResolver<TContext>(typeToResolve, _resolutionKey);
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToResolve">The actual type to resolve.</param>
-        /// <param name="resolutionKey">The resolution key.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        protected abstract IResolverPolicy DoGetResolverPolicy(Type typeToResolve, string resolutionKey);
+        protected abstract ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey) 
+            where TContext : IBuildContext;
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)
         {

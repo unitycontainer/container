@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Extension;
-using Unity.Lifetime;
+using Unity.Injection;
 using Unity.Registration;
 
 namespace Unity

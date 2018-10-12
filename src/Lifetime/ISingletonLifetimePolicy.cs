@@ -1,4 +1,6 @@
-﻿namespace Unity.Lifetime
+﻿using Unity.Policy;
+
+namespace Unity.Lifetime
 {
 
     /// <summary>

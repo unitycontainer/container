@@ -1,8 +1,6 @@
 ﻿using System;
 using Unity.Delegates;
 using Unity.Injection;
-using Unity.Policy;
-using Unity.ResolverPolicy;
 
 namespace Unity
 {
@@ -32,21 +30,19 @@ namespace Unity
             : base(genericParameterName, resolutionKey)
         { }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToResolve">The actual type to resolve.</param>
-        /// <param name="resolutionKey">The resolution key.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        protected override IResolverPolicy DoGetResolverPolicy(Type typeToResolve, string resolutionKey)
-        {
-            return new OptionalDependencyResolverPolicy(typeToResolve, resolutionKey);
+            return (ref TContext context) =>
+            {
+                try
+                {
+                    return context.Resolve(type, resolutionKey);
+                }
+                catch
+                {
+                    return null;
+                }
+            };
         }
     }
 }

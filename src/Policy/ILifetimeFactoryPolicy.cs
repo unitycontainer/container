@@ -1,10 +1,7 @@
-﻿
+﻿using System;
+using Unity.Lifetime;
 
-using System;
-using Unity.Builder;
-using Unity.Policy;
-
-namespace Unity.Lifetime
+namespace Unity.Policy
 {
     /// <summary>
     /// A builder policy used to create lifetime policy instances.

@@ -2,21 +2,32 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
+using Unity.Factory;
 using Unity.Policy;
-using Unity.Injection;
-using Unity.Storage;
 using Unity.Utility;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : InjectionMember
+    public class InjectionProperty : InjectionMember,
+                                     IEquatable<PropertyInfo>,
+                                     IResolverPolicy
     {
-        private readonly string _propertyName;
-        private InjectionParameterValue _parameterValue;
+        #region Fields
+
+        protected object Value;
+        protected PropertyInfo Info;
+        protected readonly string Name;
+
+        #endregion
+
+
+        #region Constructors
+
 
         /// <summary>
         /// Configure the container to inject the given property name,
@@ -25,7 +36,8 @@ namespace Unity
         /// <param name="propertyName">Name of the property to inject.</param>
         public InjectionProperty(string propertyName)
         {
-            _propertyName = propertyName;
+            Name = propertyName;
+            Value = this;
         }
 
         /// <summary>
@@ -39,9 +51,14 @@ namespace Unity
         /// <param name="propertyValue">InjectionParameterValue for property.</param>
         public InjectionProperty(string propertyName, object propertyValue)
         {
-            _propertyName = propertyName;
-            _parameterValue = InjectionParameterValue.ToParameter(propertyValue);
+            Name = propertyName;
+            Value = propertyValue;
         }
+
+        #endregion
+
+
+        #region InjectionMember
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -53,45 +70,75 @@ namespace Unity
         /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            var propInfo =
+            Info =
                 (mappedToType ?? throw new ArgumentNullException(nameof(mappedToType))).GetPropertiesHierarchical()
-                        .FirstOrDefault(p => p.Name == _propertyName &&
+                        .FirstOrDefault(p => p.Name == Name &&
                                               !p.GetSetMethod(true).IsStatic);
 
-            GuardPropertyExists(propInfo, mappedToType, _propertyName);
-            GuardPropertyIsSettable(propInfo);
-            GuardPropertyIsNotIndexer(propInfo);
-            InitializeParameterValue(propInfo);
-            GuardPropertyValueIsCompatible(propInfo, _parameterValue);
-
-            SpecifiedPropertiesSelectorPolicy selector =
-                GetSelectorPolicy(policies, registeredType, name);
-
-            selector.AddPropertyAndValue(propInfo, _parameterValue);
+            GuardPropertyExists(Info, mappedToType, Name);
+            GuardPropertyIsSettable(Info);
+            GuardPropertyIsNotIndexer(Info);
+            //InitializeParameterValue(propInfo);
+            //GuardPropertyValueIsCompatible(propInfo, Value);
         }
 
         public override bool BuildRequired => true;
 
-        private InjectionParameterValue InitializeParameterValue(PropertyInfo propInfo)
+        #endregion
+
+
+        #region IEquatable
+
+        public override int GetHashCode()
         {
-            if (_parameterValue == null)
-            {
-                _parameterValue = new ResolvedParameter(propInfo.PropertyType);
-            }
-            return _parameterValue;
+            return base.GetHashCode();
         }
 
-        private static SpecifiedPropertiesSelectorPolicy GetSelectorPolicy(IPolicyList policies, Type typeToInject, string name)
+        public override bool Equals(object obj)
         {
-            IPropertySelectorPolicy selector = 
-                (IPropertySelectorPolicy)policies.Get(typeToInject, name, typeof(IPropertySelectorPolicy));
-            if (!(selector is SpecifiedPropertiesSelectorPolicy))
+            if (obj is PropertyInfo other)
             {
-                selector = new SpecifiedPropertiesSelectorPolicy();
-                policies.Set(typeToInject, name, typeof(IPropertySelectorPolicy), selector);
+                return other.Name == Name;
             }
-            return (SpecifiedPropertiesSelectorPolicy)selector;
+
+            return false;
         }
+
+        public bool Equals(PropertyInfo other)
+        {
+#if NETSTANDARD1_0
+            return other.Name == Name;
+#else
+            return other?.MetadataToken == Info.MetadataToken;
+#endif
+        }
+
+        #endregion
+
+
+        #region IResolverPolicy
+
+
+        public object Resolve<TContext>(ref TContext context) where TContext : IBuildContext
+        {
+            if (ReferenceEquals(Value, this))
+            {
+                Value = new ResolvedParameter(Info.PropertyType);
+            }
+
+            if (Value is IResolverPolicy policy)
+                return policy.Resolve(ref context);
+
+            if (Value is IResolverFactory factory)
+            {
+                var resolveDelegate = factory.GetResolver<TContext>(context.Type);
+                return resolveDelegate(ref context);
+            }
+
+            return Value;
+        }
+
+        #endregion
 
         private static void GuardPropertyExists(PropertyInfo propInfo, Type typeToCreate, string propertyName)
         {

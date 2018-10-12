@@ -2,8 +2,6 @@
 using System.Reflection;
 using Unity.Delegates;
 using Unity.Injection;
-using Unity.Policy;
-using Unity.ResolverPolicy;
 using Unity.Utility;
 
 namespace Unity
@@ -41,26 +39,22 @@ namespace Unity
 
         public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
-        {
             var info = ParameterType.GetTypeInfo();
             var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)
                 ? ParameterType
-                : ParameterType.GetClosedParameterType(
-                    (typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild))).GetTypeInfo()
-                    .GenericTypeArguments);
-
-            return new OptionalDependencyResolverPolicy(typeToResolve, _name);
+                : ParameterType.GetClosedParameterType(type.GetTypeInfo()
+                                                           .GenericTypeArguments);
+            return (ref TContext c) =>
+            {
+                try
+                {
+                    return c.Resolve(typeToResolve, _name);
+                }
+                catch
+                {
+                    return null;
+                }
+            };
         }
     }
 

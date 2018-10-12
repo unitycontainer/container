@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.Build;
 using Unity.Delegates;
+using Unity.Factory;
 using Unity.Policy;
 
 namespace Unity.Injection
@@ -13,10 +15,14 @@ namespace Unity.Injection
     /// </summary>
     public abstract class InjectionParameterValue : IResolverFactory
     {
+        #region Constructors
+
         protected InjectionParameterValue(object value = null)
         {
             Value = value;
         }
+
+        #endregion
 
         public object Value { get; }
 
@@ -38,15 +44,6 @@ namespace Unity.Injection
         /// false if not.</returns>
         public abstract bool MatchesType(Type t);
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public abstract IResolverPolicy GetResolverPolicy(Type typeToBuild);
-
 
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IBuildContext
@@ -54,6 +51,21 @@ namespace Unity.Injection
             return Value is IResolverFactory factory 
                 ? factory.GetResolver<TContext>(type) 
                 : (ref TContext c) => Value;
+        }
+
+        protected static object ResolveValue<TContext>(ref TContext context, object value)
+            where TContext : IBuildContext
+        {
+            switch (value)
+            {
+                case ResolveDelegate<TContext> resolver:
+                    return resolver(ref context);
+
+                case IResolverPolicy policy:
+                    return policy.Resolve(ref context);
+            }
+
+            return value;
         }
 
 

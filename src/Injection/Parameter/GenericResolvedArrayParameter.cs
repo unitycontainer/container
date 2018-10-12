@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
-using Unity.Policy;
-using Unity.ResolverPolicy;
-using Unity.Utility;
+using Unity.Build;
 using Unity.Delegates;
+using Unity.Factory;
 using Unity.Injection;
+using Unity.Policy;
+using Unity.Utility;
 
 namespace Unity
 {
@@ -18,8 +18,13 @@ namespace Unity
     /// </summary>
     public class GenericResolvedArrayParameter : InjectionParameterValue
     {
+        private readonly object[] _values;
         private readonly string _genericParameterName;
-        private readonly List<InjectionParameterValue> _elementValues = new List<InjectionParameterValue>();
+
+        private static readonly MethodInfo ResolverMethod =
+            typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
+        private delegate object Resolver<TContext>(ref TContext context, object[] values) 
+            where TContext : IBuildContext;
 
         /// <summary>
         /// Create a new <see cref="GenericResolvedArrayParameter"/> instance that specifies
@@ -31,7 +36,7 @@ namespace Unity
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
         {
             _genericParameterName = genericParameterName ?? throw new ArgumentNullException(nameof(genericParameterName));
-            _elementValues.AddRange(ToParameters(elementValues));
+            _values = elementValues;
         }
 
         /// <summary>
@@ -44,7 +49,7 @@ namespace Unity
         /// Test to see if this parameter value has a matching type for the given type.
         /// </summary>
         /// <param name="type">Type to check.</param>
-        /// <returns>True if this parameter value is compatible with type <paramref name="t"/>,
+        /// <returns>True if this parameter value is compatible with type <paramref name="type"/>,
         /// false if not.</returns>
         /// <remarks>A type is considered compatible if it is an array type of rank one
         /// and its element type is a generic type parameter with a name matching this generic
@@ -62,22 +67,6 @@ namespace Unity
             return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == _genericParameterName;
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
-        {
-            GuardTypeToBuildIsGeneric(typeToBuild);
-            GuardTypeToBuildHasMatchingGenericParameter(typeToBuild);
-
-            Type typeToResolve = typeToBuild.GetNamedGenericParameter(_genericParameterName);
-            var elementPolicies = _elementValues.Select(pv => pv.GetResolverPolicy(typeToBuild)).ToArray();
-            return new ResolvedArrayWithElementsResolverPolicy(typeToResolve, elementPolicies);
-        }
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)
         {
@@ -112,7 +101,42 @@ namespace Unity
 
         public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
-            throw new NotImplementedException();
+            GuardTypeToBuildIsGeneric(type);
+            GuardTypeToBuildHasMatchingGenericParameter(type);
+
+            var typeToResolve = type.GetNamedGenericParameter(_genericParameterName);
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), typeToResolve)
+                                                                   .CreateDelegate(typeof(Resolver<TContext>));
+            var values = _values.Select(value =>
+            {
+                switch (value)
+                {
+                    case IResolverFactory factory:
+                        return factory.GetResolver<TContext>(type);
+
+                    case Type _ when typeof(Type) != typeToResolve:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(typeToResolve, null));
+
+                    default:
+                        return value;
+                }
+
+            }).ToArray();
+
+            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
+        }
+
+        private static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
+            where TContext : IBuildContext
+        {
+            var result = new TElement[values.Length];
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                result[i] = (TElement)ResolveValue(ref context, values[i]);
+            }
+
+            return result;
         }
     }
 }

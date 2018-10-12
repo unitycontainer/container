@@ -40,18 +40,6 @@ namespace Unity
             return (parameterValue ?? throw new ArgumentNullException(nameof(parameterValue))).GetType();
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
-        {
-            return this;
-        }
-
         public object Resolve<TContext>(ref TContext context) 
             where TContext : IBuildContext
         {
