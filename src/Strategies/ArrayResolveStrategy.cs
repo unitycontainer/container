@@ -7,6 +7,7 @@ using Unity.Delegates;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Strategies
 {

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Registration
@@ -17,7 +16,6 @@ namespace Unity.Registration
         #region Fields
 
         private readonly int _hash;
-        private IPolicySet _factory;
 
         #endregion
 
@@ -51,18 +49,7 @@ namespace Unity.Registration
 
         public bool EnableOptimization { get; set; } = true;
 
-        public IPolicySet Factory
-        {
-            get => _factory;
-            set
-            {
-                _factory = value;
-                InjectionMembers = ((InternalRegistration)_factory)?.InjectionMembers;
-            }
-        }
-
-        // TODO: Requires optimization
-        public InjectionMember[] InjectionMembers { get; protected set; }
+        public InjectionMember[] InjectionMembers { get; set; }
 
         #endregion
 

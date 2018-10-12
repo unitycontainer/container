@@ -9,6 +9,7 @@ using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Policy.Mapping;
 using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Strategies
 {

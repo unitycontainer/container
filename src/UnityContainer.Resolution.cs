@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using Unity.Builder;
 using Unity.Exceptions;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
 
@@ -62,11 +61,13 @@ namespace Unity
 
         private IPolicySet CreateRegistration(Type type, string name)
         {
+
             var registration = new InternalRegistration(type, name);
 
             if (type.GetTypeInfo().IsGenericType)
             {
-                registration.Factory = _get(type.GetGenericTypeDefinition(), name);
+                var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name);
+                registration.InjectionMembers = factory?.InjectionMembers;
             }
 
             registration.BuildChain = GetBuilders(registration);
@@ -172,12 +173,9 @@ namespace Unity
 
         private static MiniHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
         {
-            MiniHashSet<InternalRegistration> set;
-
-            if (null != container._parent)
-                set = GetNamedRegistrations(container._parent, type);
-            else
-                set = new MiniHashSet<InternalRegistration>();
+            var set = null != container._parent 
+                ? GetNamedRegistrations(container._parent, type) 
+                : new MiniHashSet<InternalRegistration>();
 
             if (null == container._registrations) return set;
 
