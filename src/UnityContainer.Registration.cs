@@ -7,6 +7,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Events;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
@@ -53,7 +54,7 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = (lifetimeManager is ISingletonLifetimePolicy) ? _root : this;
-            var registration = new ContainerRegistration(typeFrom, name, typeTo, lifetimeManager);
+            var registration = new ContainerRegistration(typeFrom, name, typeTo, lifetimeManager, injectionMembers);
 
             // Add or replace existing 
             var previous = container.Register(registration);

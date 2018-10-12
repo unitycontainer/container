@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder.Strategy;
 using Unity.Container;
+using Unity.Delegates;
 using Unity.Exceptions;
+using Unity.Factory;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
@@ -111,7 +114,7 @@ namespace Unity.Builder
 
         public object Resolve(Type type, string name) => NewBuildUp(type, name);
 
-        public object Resolve(PropertyInfo property, string name, IResolverPolicy resolver = null)
+        public object Resolve(PropertyInfo property, string name, object value)
         {
             var context = this;
 
@@ -128,13 +131,13 @@ namespace Unity.Builder
                     // Check if this parameter is overridden
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                     {
-                        // Check if itself is a resolver 
+                        // Check if itself is a value 
                         if (resolverOverride is IResolverPolicy resolverPolicy)
                         {
                             return resolverPolicy.Resolve(ref context);
                         }
 
-                        // Try to create resolver
+                        // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                         if (null != resolveDelegate)
                         {
@@ -146,13 +149,28 @@ namespace Unity.Builder
                 CurrentOperation = backup;
             }
 
-            // Resolve from injectors or container
-            return null != resolver 
-                ? resolver.Resolve(ref context) 
-                : Resolve(property.PropertyType, name);
+            // Resolve from injectors
+            switch (value)
+            {
+                case ResolveDelegate<BuilderContext> resolver:
+                    return resolver(ref context);
+
+                case IResolverPolicy policy:
+                    return policy.Resolve(ref context);
+
+                case IResolverFactory factory:
+                    var method = factory.GetResolver<BuilderContext>(Type);
+                    return method?.Invoke(ref context) ?? throw new InvalidOperationException("Unable to create value");
+
+                case object obj:
+                    return obj;
+            }
+
+            // Resolve from container
+            return Resolve(property.PropertyType, name);
         }
 
-        public object Resolve(ParameterInfo parameter, string name, IResolverPolicy resolver = null)
+        public object Resolve(ParameterInfo parameter, string name, object value)
         {
             var context = this;
 
@@ -170,13 +188,13 @@ namespace Unity.Builder
                     // If matches with current parameter
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
-                        // Check if itself is a resolver 
+                        // Check if itself is a value 
                         if (resolverOverride is IResolverPolicy resolverPolicy)
                         {
                             return resolverPolicy.Resolve(ref context);
                         }
 
-                        // Try to create resolver
+                        // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                         if (null != resolveDelegate)
                         {
@@ -188,10 +206,25 @@ namespace Unity.Builder
                 CurrentOperation = backup;
             }
 
-            // Resolve from injectors or container
-            return null != resolver
-                ? resolver.Resolve(ref context)
-                : Resolve(parameter.ParameterType, name);
+            // Resolve from injectors
+            switch (value)
+            {
+                case ResolveDelegate<BuilderContext> resolver:
+                    return resolver(ref context);
+
+                case IResolverPolicy policy:
+                    return policy.Resolve(ref context);
+
+                case IResolverFactory factory:
+                    var method = factory.GetResolver<BuilderContext>(Type);
+                    return method?.Invoke(ref context) ?? throw new InvalidOperationException("Unable to create value");
+
+                case object obj:
+                    return obj;
+            }
+
+            // Resolve from container
+            return Resolve(parameter.ParameterType, name);
         }
 
         #endregion

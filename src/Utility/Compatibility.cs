@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 #if NET40
 namespace System.Reflection
@@ -147,16 +148,62 @@ namespace System.Reflection
 
 namespace Unity
 {
+    using System;
+    using System.Collections.Generic;
     using System.Reflection;
 
 
     internal static class Compatibility
     {
+
+        public static MethodInfo[] Get_Methods(this Type info, params object[] options)
+        {
+            IEnumerable<MethodInfo> GetMethodsHierarchical(Type type)
+            {
+                if (type == null)
+                {
+                    return Enumerable.Empty<MethodInfo>();
+                }
+
+                if (type == typeof(object))
+                {
+                    return type.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic);
+                }
+
+                return type.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic)
+                    .Concat(GetMethodsHierarchical(type.GetTypeInfo().BaseType));
+            }
+
+            return GetMethodsHierarchical(info).ToArray();
+        }
+
+
 #if NETSTANDARD1_0
-        public static System.Reflection.ConstructorInfo[] GetConstructors(this System.Type type)
+        public static ConstructorInfo[] GetConstructors(this Type type)
         {
             var ctors = type.GetTypeInfo().DeclaredConstructors;
             return ctors is ConstructorInfo[] array ? array : ctors.ToArray();
+        }
+
+        public static MethodInfo[] GetMethods(this Type info, object options)
+        {
+            IEnumerable<MethodInfo> GetMethodsHierarchical(Type type)
+            {
+                if (type == null)
+                {
+                    return Enumerable.Empty<MethodInfo>();
+                }
+
+                if (type == typeof(object))
+                {
+                    return type.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic);
+                }
+
+                return type.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic)
+                    .Concat(GetMethodsHierarchical(type.GetTypeInfo().BaseType));
+            }
+
+            return GetMethodsHierarchical(info).ToArray();
         }
 #endif
 
@@ -199,4 +246,27 @@ namespace Unity
         }
 #endif
     }
+
+#if NETSTANDARD1_0
+
+    [Flags]
+    public enum BindingFlags
+    {
+        Default = 0,
+        IgnoreCase = 1,
+        DeclaredOnly = 2,
+        Instance = 4,
+        Static = 8,
+        Public = 16,
+        NonPublic = 32,
+        FlattenHierarchy = 64,
+        InvokeMethod = 256,
+        CreateInstance = 512,
+        GetField = 1024,
+        SetField = 2048,
+        GetProperty = 4096,
+        SetProperty = 8192
+    }
+#endif
+
 }

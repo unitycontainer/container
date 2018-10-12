@@ -3,7 +3,9 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Strategies
@@ -34,8 +36,10 @@ namespace Unity.Strategies
             {
                 if (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
                 {
+                    // TODO: Switch to Factory
                     policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(),
-                                                          context.BuildKey.Name, typeof(ILifetimePolicy));
+                                                                   context.BuildKey.Name, 
+                                                                   typeof(ILifetimePolicy));
                     if (policy is ILifetimeFactoryPolicy factoryPolicy)
                     {
                         lock (_genericLifetimeManagerLock)

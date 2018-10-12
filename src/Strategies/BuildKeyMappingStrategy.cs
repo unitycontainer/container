@@ -4,6 +4,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Delegates;
+using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Policy.Mapping;
