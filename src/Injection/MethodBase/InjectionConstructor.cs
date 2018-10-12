@@ -23,6 +23,7 @@ namespace Unity.Injection
         #region Fields
 
         private readonly Type[] _types;
+        private readonly object[] _data;
         private ConstructorInfo _constructor;
         private InjectionParameterValue[] _parameterValues;
 
@@ -58,6 +59,16 @@ namespace Unity.Injection
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         public InjectionConstructor(params object[] parameterValues)
         {
+            _data = parameterValues;
+            _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
+                .Select(InjectionParameterValue.ToParameter)
+                .ToArray();
+        }
+
+        public InjectionConstructor(ConstructorInfo info, params object[] parameterValues)
+        {
+            _constructor = info;
+            _data = parameterValues;
             _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
                 .Select(InjectionParameterValue.ToParameter)
                 .ToArray();
@@ -111,10 +122,10 @@ namespace Unity.Injection
 
         public override bool BuildRequired => true;
 
-        #endregion
+#endregion
 
 
-        #region IExpressionFactory
+#region IExpressionFactory
 
         public NewExpression GetExpression<TContext>(Type type) 
             where TContext : IBuildContext
@@ -124,10 +135,10 @@ namespace Unity.Injection
             return Expression.New(_constructor);
         }
 
-        #endregion
+#endregion
 
 
-        #region IConstructorSelectorPolicy
+#region IConstructorSelectorPolicy
 
         public object SelectConstructor<TContext>(ref TContext context) 
             where TContext : IBuildContext
@@ -161,20 +172,20 @@ namespace Unity.Injection
             return result;
         }
 
-        #endregion
+#endregion
 
 
-        #region Cast To ConstructorInfo
+#region Cast To ConstructorInfo
 
         public static explicit operator ConstructorInfo(InjectionConstructor ctor)
         {
             return ctor._constructor;
         }
 
-        #endregion
+#endregion
 
 
-        #region Implementation
+#region Implementation
 
         private InjectionParameterValue ToResolvedParameter(ParameterInfo parameter)
         {
@@ -183,6 +194,6 @@ namespace Unity.Injection
                                                                            .FirstOrDefault()?.Name);
         }
 
-        #endregion
+#endregion
     }
 }
