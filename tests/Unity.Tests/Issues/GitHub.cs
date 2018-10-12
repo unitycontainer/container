@@ -58,6 +58,22 @@ namespace Unity.Tests.v5.Issues
         }
 
         [TestMethod]
+        public void unitycontainer_container_108_with_some_preexisting_registration()
+        {
+            var ioc = new UnityContainer();
+            var child = ioc.CreateChildContainer();
+            var spyStrategy = new TestDoubles.SpyStrategy();
+            child.RegisterType<IService, EmailService>();
+
+            child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+
+            child.Resolve<IService>();
+            child.Resolve<EmailService>();
+
+            Assert.AreEqual(typeof(EmailService), spyStrategy.BuildKey.Type);
+        }
+
+        [TestMethod]
         public void unitycontainer_container_108_for_dependencies()
         {
             var child = new UnityContainer().CreateChildContainer();
