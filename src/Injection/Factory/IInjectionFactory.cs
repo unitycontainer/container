@@ -1,4 +1,4 @@
-﻿namespace Unity.Factory
+﻿namespace Unity.Injection
 {
     public interface IInjectionFactory
     {

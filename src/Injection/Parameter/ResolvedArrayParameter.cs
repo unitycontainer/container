@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
 using Unity.Delegates;
+using Unity.Factory;
 using Unity.Injection;
 using Unity.Policy;
-using Unity.ResolverPolicy;
 using Unity.Utility;
 
 namespace Unity
@@ -19,7 +20,12 @@ namespace Unity
     public class ResolvedArrayParameter : TypedInjectionValue
     {
         private readonly Type _elementType;
+        private readonly object[] _values;
         private readonly List<InjectionParameterValue> _elementValues = new List<InjectionParameterValue>();
+        private static readonly MethodInfo ResolverMethod =
+            typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
+        private delegate object Resolver<TContext>(ref TContext context, object[] values)
+            where TContext : IBuildContext;
 
         /// <summary>
         /// Construct a new <see cref="ResolvedArrayParameter"/> that
@@ -45,6 +51,8 @@ namespace Unity
             : base(arrayParameterType, null)
         {
             _elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
+            _values = elementValues;
+
             _elementValues.AddRange(ToParameters(elementValues ?? throw new ArgumentNullException(nameof(elementValues))));
             foreach (InjectionParameterValue pv in _elementValues)
             {
@@ -62,25 +70,42 @@ namespace Unity
 
         public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
-            throw new NotImplementedException();
+            var elementType = !_elementType.IsArray ? _elementType
+                : _elementType.GetArrayParameterType(type.GetTypeInfo().GenericTypeArguments);
+
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
+                .CreateDelegate(typeof(Resolver<TContext>));
+
+            var values = _values.Select(value =>
+            {
+                switch (value)
+                {
+                    case IResolverFactory factory:
+                        return factory.GetResolver<TContext>(type);
+
+                    case Type _ when typeof(Type) != elementType:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+
+                    default:
+                        return value;
+                }
+
+            }).ToArray();
+
+            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
         }
 
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="typeToBuild">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public override IResolverPolicy GetResolverPolicy(Type typeToBuild)
+        private static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
+            where TContext : IBuildContext
         {
-            var elementType = !_elementType.IsArray ? _elementType 
-                : _elementType.GetArrayParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
+            var result = new TElement[values.Length];
 
-            var elementPolicies = _elementValues.Select(pv => pv.GetResolverPolicy(typeToBuild))
-                                                .ToArray();
+            for (var i = 0; i < values.Length; i++)
+            {
+                result[i] = (TElement)ResolveValue(ref context, values[i]);
+            }
 
-            return new ResolvedArrayWithElementsResolverPolicy(elementType, elementPolicies);
+            return result;
         }
     }
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Delegates;
-using Unity.Policy;
-using Unity.ResolverPolicy;
 using Unity.Injection;
 using Unity.Utility;
 
@@ -50,27 +48,6 @@ namespace Unity
 
 
         #region TypedInjectionValue
-
-        /// <summary>
-        /// Return a <see cref="IResolverPolicy"/> instance that will
-        /// return this types value for the parameter.
-        /// </summary>
-        /// <param name="type">Type that contains the member that needs this parameter. Used
-        /// to resolve open generic parameters.</param>
-        /// <returns>The <see cref="IResolverPolicy"/>.</returns>
-        public override IResolverPolicy GetResolverPolicy(Type type)
-        {
-            var info = ParameterType.GetTypeInfo();
-            var typeToBuild = type ?? throw new ArgumentNullException(nameof(type));
-            if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
-            {
-                var arrayType = ParameterType.GetClosedParameterType(typeToBuild.GetTypeInfo().GenericTypeArguments);
-                return new NamedTypeDependencyResolverPolicy(arrayType, _name);
-            }
-
-            return new NamedTypeDependencyResolverPolicy(ParameterType, _name);
-        }
 
         public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {

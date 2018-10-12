@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Build;
+using Unity.Factory;
 using Unity.Policy;
 
 namespace Unity
@@ -46,20 +47,16 @@ namespace Unity
         public override bool Equals(object obj)
         {
             if (obj is PropertyInfo info)
-            {
-                return (null == Target || info.DeclaringType == Target) &&
-                       (null == Type   || info.PropertyType == Type) &&
-                       (null == Name   || info.Name == Name);
-            }
+                return Equals(info);
 
             return base.Equals(obj);
         }
 
         public bool Equals(PropertyInfo other)
         {
-            return (null == Target || other.DeclaringType == Target) &&
-                   (null == Type   || other.PropertyType == Type) &&
-                   (null == Name   || other.Name == Name);
+            return (null == Target || other?.DeclaringType == Target) &&
+                   (null == Type   || other?.PropertyType == Type) &&
+                   (null == Name   || other?.Name == Name);
         }
 
         #endregion

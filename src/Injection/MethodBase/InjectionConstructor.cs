@@ -2,12 +2,12 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Policy;
-using Unity.Injection;
 using Unity.Utility;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// A class that holds the collection of information
@@ -112,7 +112,8 @@ namespace Unity
 
         #region IConstructorSelectorPolicy
 
-        object IConstructorSelectorPolicy.SelectConstructor<TContext>(ref TContext context)
+        public object SelectConstructor<TContext>(ref TContext context) 
+            where TContext : IBuildContext
         {
             SelectedConstructor result;
 
@@ -136,11 +137,21 @@ namespace Unity
 
             foreach (var parameterValue in _parameterValues)
             {
-                var resolver = parameterValue.GetResolverPolicy(context.Type);
+                var resolver = parameterValue.GetResolver<TContext>(context.Type);
                 result.AddParameterResolver(resolver);
             }
 
             return result;
+        }
+
+        #endregion
+
+
+        #region Cast To ConstructorInfo
+
+        public static explicit operator ConstructorInfo(InjectionConstructor ctor)
+        {
+            return ctor._constructor;
         }
 
         #endregion

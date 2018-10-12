@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Build;
+using Unity.Factory;
 using Unity.Policy;
 
 namespace Unity
@@ -60,35 +61,31 @@ namespace Unity
 
         public override bool Equals(object obj)
         {
-            if (obj is PropertyInfo property)
+            switch (obj)
             {
-                return (null == Target || property.DeclaringType == Target) &&
-                       (null == Type   || property.PropertyType == Type) &&
-                       (null == Name   || property.Name == Name);
-            }
+                case PropertyInfo property:
+                    return Equals(property);
 
-            if (obj is ParameterInfo parameter)
-            {
-                return (null == Target || parameter.Member.DeclaringType == Target) &&
-                       (null == Type   || parameter.ParameterType == Type) &&
-                       (null == Name   || parameter.Name == Name);
-            }
+                case ParameterInfo parameter:
+                    return Equals(parameter);
 
-            return base.Equals(obj);
+                default:
+                    return base.Equals(obj);
+            }
         }
 
         public bool Equals(PropertyInfo other)
         {
-            return (null == Target || other.DeclaringType == Target) &&
-                   (null == Type   || other.PropertyType == Type) &&
-                   (null == Name   || other.Name == Name);
+            return (null == Target || other?.DeclaringType == Target) &&
+                   (null == Type   || other?.PropertyType == Type) &&
+                   (null == Name   || other?.Name == Name);
         }
 
         public bool Equals(ParameterInfo other)
         {
-            return (null == Target || other.Member.DeclaringType == Target) &&
-                   (null == Type   || other.ParameterType == Type) &&
-                   (null == Name   || other.Name == Name);
+            return (null == Target || other?.Member.DeclaringType == Target) &&
+                   (null == Type   || other?.ParameterType == Type) &&
+                   (null == Name   || other?.Name == Name);
         }
 
         #endregion

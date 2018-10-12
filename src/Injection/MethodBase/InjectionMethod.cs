@@ -3,22 +3,30 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder.Policy;
-using Unity.Policy;
-using Unity.Injection;
-using Unity.Storage;
 using Unity.Utility;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// An <see cref="InjectionMember"/> that configures the
     /// container to call a method as part of buildup.
     /// </summary>
-    public class InjectionMethod : InjectionMember
+    public class InjectionMethod : InjectionMember, 
+                                   IMemberWithParameters<MethodInfo>,
+                                   IEquatable<MethodInfo>
     {
+        #region Fields
+
+        private MethodInfo _info;
+        private Type[] _parameterTypes;
         private readonly string _methodName;
-        private readonly List<InjectionParameterValue> _methodParameters;
+        private readonly object[] _methodParameters;
+        private readonly List<InjectionParameterValue> _injectionParameterValues;
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Create a new <see cref="InjectionMethod"/> instance which will configure
@@ -29,8 +37,17 @@ namespace Unity
         public InjectionMethod(string methodName, params object[] methodParameters)
         {
             _methodName = methodName;
-            _methodParameters = InjectionParameterValue.ToParameters(methodParameters).ToList();
+            _methodParameters = methodParameters;
+            _injectionParameterValues = InjectionParameterValue.ToParameters(methodParameters).ToList();
         }
+
+        #endregion
+
+
+        public object[] GetResolvers() => _injectionParameterValues.Cast<object>().ToArray();
+
+
+        #region InjectionMember
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -42,15 +59,151 @@ namespace Unity
         /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            MethodInfo methodInfo = FindMethod(mappedToType);
-            ValidateMethodCanBeInjected(methodInfo, mappedToType);
+            var type = mappedToType ?? registeredType;
 
-            SpecifiedMethodsSelectorPolicy selector =
-                GetSelectorPolicy(policies, registeredType, name);
-            selector.AddMethodAndParameters(methodInfo, _methodParameters);
+            foreach (var method in type.GetMethodsHierarchical())
+            {
+                if (MethodNameMatches(method, _methodName))
+                {
+                    if (_injectionParameterValues.Matches(method.GetParameters().Select(p => p.ParameterType)))
+                    {
+                        _info = method;
+                        _parameterTypes = method.GetParameters()
+                                                .Select(p => p.ParameterType)
+                                                .ToArray();
+                    }
+                }
+            }
+
+
+            //if (methodInfo == null)
+            //{
+            //    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+            //        Constants.NoSuchMethod, implementationType.GetTypeInfo().Name,
+            //        _methodName, string.Join(", ", _methodParameters.Select(mp => mp.ParameterTypeName))));
+            //}
+
+            //if (methodInfo.IsStatic)
+            //{
+            //    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+            //        Constants.CannotInjectStaticMethod, implementationType.GetTypeInfo().Name,
+            //        _methodName, string.Join(", ", _methodParameters.Select(mp => mp.ParameterTypeName))));
+            //}
+
+            //if (methodInfo.IsGenericMethodDefinition)
+            //{
+            //    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+            //        Constants.CannotInjectGenericMethod, implementationType.GetTypeInfo().Name,
+            //        _methodName, string.Join(", ", _methodParameters.Select(mp => mp.ParameterTypeName))));
+            //}
+
+            //if (methodInfo.GetParameters().Any(param => param.IsOut))
+            //{
+            //    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+            //        Constants.CannotInjectMethodWithOutParams, implementationType.GetTypeInfo().Name,
+            //        _methodName, string.Join(", ", _methodParameters.Select(mp => mp.ParameterTypeName))));
+            //}
+
+            //if (methodInfo.GetParameters().Any(param => param.ParameterType.IsByRef))
+            //{
+            //    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+            //        Constants.CannotInjectMethodWithRefParams, implementationType.GetTypeInfo().Name,
+            //        _methodName, string.Join(", ", _methodParameters.Select(mp => mp.ParameterTypeName))));
+            //}
+
+
+            // TODO: if (methodInfo.IsGenericMethodDefinition ||
+            //    parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
+
+            if (_info == null) ThrowIllegalInjectionMethod(Constants.NoSuchMethod, type);
+            if (_info.IsStatic) ThrowIllegalInjectionMethod(Constants.CannotInjectStaticMethod, type);
+            if (_info.IsGenericMethodDefinition) ThrowIllegalInjectionMethod(Constants.CannotInjectGenericMethod, type);
+            if (_info.GetParameters().Any(param => param.IsOut)) ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithOutParams, type);
+            if (_info.GetParameters().Any(param => param.ParameterType.IsByRef)) ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithRefParams, type);
         }
 
         public override bool BuildRequired => true;
+
+        #endregion
+
+
+        #region IMemberWithParameters<MethodInfo>
+
+
+        public MethodInfo MemberInfo(Type type)
+        {
+            var info = _info.DeclaringType.GetTypeInfo();
+            var methodHasOpenGenericParameters = _info.GetParameters()
+                                                      .Select(p => p.ParameterType.GetTypeInfo())
+                                                      .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+
+            if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
+            {
+                return _info;
+            }
+
+            var closedMethodParameterTypes = _info
+                .GetClosedParameterTypes(type.GetTypeInfo().GenericTypeArguments);
+
+            return type.GetMethodsHierarchical()
+                       .Single(m => m.Name.Equals(_info.Name) &&
+                                    m.GetParameters().ParametersMatch(closedMethodParameterTypes));
+        }
+
+        public object[] GetParameters()
+        {
+            return _methodParameters;
+        }
+
+        #endregion
+
+
+        #region IEquatable
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MethodInfo other)
+                return Equals(other);
+
+            return base.Equals(obj);
+        }
+
+        public bool Equals(MethodInfo other)
+        {
+#if NETSTANDARD1_0
+            var parameters = other.GetParameters();
+            var parameterTypes = other.GetParameters()
+                .Select(p => p.ParameterType);
+
+            return other.Name == _methodName &&
+            _parameterTypes.SequenceEqual(parameterTypes);
+#else
+            var parameterTypes = other.GetParameters()
+                                      .Select(p => p.ParameterType);
+
+            return other.Name == _methodName && other.MetadataToken == _info.MetadataToken;
+#endif
+        }
+
+        #endregion
+
+
+        #region Cast To MethodInfo
+
+        public static explicit operator MethodInfo(InjectionMethod method)
+        {
+            return method._info;
+        }
+
+#endregion
+
+
+#region Implementation
 
         /// <summary>
         /// A small function to handle name matching. You can override this
@@ -64,89 +217,16 @@ namespace Unity
             return (targetMethod ?? throw new ArgumentNullException(nameof(targetMethod))).Name == nameToMatch;
         }
 
-        private MethodInfo FindMethod(Type typeToCreate)
-        {
-            foreach (MethodInfo method in typeToCreate.GetMethodsHierarchical())
-            {
-                if (MethodNameMatches(method, _methodName))
-                {
-                    if (_methodParameters.Matches(method.GetParameters().Select(p => p.ParameterType)))
-                    {
-                        return method;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private void ValidateMethodCanBeInjected(MethodInfo method, Type typeToCreate)
-        {
-            GuardMethodNotNull(method, typeToCreate);
-            GuardMethodNotStatic(method, typeToCreate);
-            GuardMethodNotGeneric(method, typeToCreate);
-            GuardMethodHasNoOutParams(method, typeToCreate);
-            GuardMethodHasNoRefParams(method, typeToCreate);
-        }
-
-        private void GuardMethodNotNull(MethodInfo info, Type typeToCreate)
-        {
-            if (info == null)
-            {
-                ThrowIllegalInjectionMethod(Constants.NoSuchMethod, typeToCreate);
-            }
-        }
-
-        private void GuardMethodNotStatic(MethodInfo info, Type typeToCreate)
-        {
-            if (info.IsStatic)
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectStaticMethod, typeToCreate);
-            }
-        }
-
-        private void GuardMethodNotGeneric(MethodInfo info, Type typeToCreate)
-        {
-            if (info.IsGenericMethodDefinition)
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectGenericMethod, typeToCreate);
-            }
-        }
-
-        private void GuardMethodHasNoOutParams(MethodInfo info, Type typeToCreate)
-        {
-            if (info.GetParameters().Any(param => param.IsOut))
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithOutParams, typeToCreate);
-            }
-        }
-
-        private void GuardMethodHasNoRefParams(MethodInfo info, Type typeToCreate)
-        {
-            if (info.GetParameters().Any(param => param.ParameterType.IsByRef))
-            {
-                ThrowIllegalInjectionMethod(Constants.CannotInjectMethodWithRefParams, typeToCreate);
-            }
-        }
-
-        private void ThrowIllegalInjectionMethod(string message, Type typeToCreate)
+        private void ThrowIllegalInjectionMethod(string message, Type type)
         {
             throw new InvalidOperationException(
                 string.Format(CultureInfo.CurrentCulture,
                     message,
-                    typeToCreate.GetTypeInfo().Name,
+                    type.GetTypeInfo().Name,
                     _methodName,
-                    string.Join(", ", _methodParameters.Select(mp => mp.ParameterTypeName))));
+                    string.Join(", ", _injectionParameterValues.Select(mp => mp.ParameterTypeName))));
         }
 
-        private static SpecifiedMethodsSelectorPolicy GetSelectorPolicy(IPolicyList policies, Type typeToCreate, string name)
-        {
-            var selector = policies.Get(typeToCreate, name, typeof(IMethodSelectorPolicy));
-            if (!(selector is SpecifiedMethodsSelectorPolicy))
-            {
-                selector = new SpecifiedMethodsSelectorPolicy();
-                policies.Set(typeToCreate, name, typeof(IMethodSelectorPolicy), selector);
-            }
-            return (SpecifiedMethodsSelectorPolicy)selector;
-        }
+#endregion
     }
 }

@@ -10,33 +10,6 @@ namespace Unity.Expressions
     public class BuildContextExpression<TContext>
         where TContext : IBuildContext
     {
-        #region Fields
-
-        protected static readonly MethodInfo ResolvePropertyMethod =
-            typeof(IBuildContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-
-                    return 2 <= parameters.Length &&
-                           typeof(PropertyInfo) == parameters[0].ParameterType;
-                });
-
-        protected static readonly MethodInfo ResolveParameterMethod =
-            typeof(IBuildContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-
-                    return 2 <= parameters.Length &&
-                           typeof(ParameterInfo) == parameters[0].ParameterType;
-                });
-
-        #endregion
-
-
         #region Constructor
 
         static BuildContextExpression()

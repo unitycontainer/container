@@ -1,7 +1,4 @@
-﻿
-
-using System.Collections.Generic;
-using Unity.Policy;
+﻿using System.Collections.Generic;
 
 namespace Unity.Builder.Selection
 {
@@ -11,14 +8,14 @@ namespace Unity.Builder.Selection
     /// </summary>
     public class SelectedMemberWithParameters
     {
-        private readonly List<IResolverPolicy> _parameterResolvers = new List<IResolverPolicy>();
+        private readonly List<object> _parameterResolvers = new List<object>();
 
         /// <summary>
         /// Adds the parameter resolver. Resolvers are assumed
         /// to be in the order of the parameters to the member.
         /// </summary>
         /// <param name="newResolver">The new resolver.</param>
-        public void AddParameterResolver(IResolverPolicy newResolver)
+        public void AddParameterResolver(object newResolver)
         {
             _parameterResolvers.Add(newResolver);
         }
@@ -27,7 +24,7 @@ namespace Unity.Builder.Selection
         /// Gets the parameter resolvers.
         /// </summary>
         /// <returns>An array with the parameter resolvers.</returns>
-        public IResolverPolicy[] GetParameterResolvers()
+        public object[] GetParameterResolvers()
         {
             return _parameterResolvers.ToArray();
         }

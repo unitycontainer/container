@@ -1,9 +1,8 @@
 ﻿using System;
 using Unity.Delegates;
-using Unity.Factory;
-using Unity.Lifetime;
+using Unity.Policy;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// A class that lets you specify a factory method the container
