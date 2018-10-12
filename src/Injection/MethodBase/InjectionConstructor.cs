@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Build;
 using Unity.Builder.Selection;
+using Unity.Factory;
 using Unity.Policy;
 using Unity.Utility;
 
@@ -15,6 +17,7 @@ namespace Unity.Injection
     /// be configured to call this constructor.
     /// </summary>
     public class InjectionConstructor : InjectionMember, 
+                                        IExpressionFactory<NewExpression>,
                                         IConstructorSelectorPolicy
     {
         #region Fields
@@ -103,9 +106,23 @@ namespace Unity.Injection
             }
 
             policies.Set(registeredType, name, typeof(IConstructorSelectorPolicy), this);
+            policies.Set(registeredType, name, typeof(IExpressionFactory<NewExpression>), this);
         }
 
         public override bool BuildRequired => true;
+
+        #endregion
+
+
+        #region IExpressionFactory
+
+        public NewExpression GetExpression<TContext>(Type type) 
+            where TContext : IBuildContext
+        {
+
+
+            return Expression.New(_constructor);
+        }
 
         #endregion
 

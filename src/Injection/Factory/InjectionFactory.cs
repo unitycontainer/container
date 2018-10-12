@@ -43,7 +43,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IInjectionFactory
+        #region InjectionMember
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
