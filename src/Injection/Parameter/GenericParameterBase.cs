@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Reflection;
 using Unity.Build;
 using Unity.Delegates;
-using Unity.Policy;
 using Unity.Utility;
 
 namespace Unity.Injection

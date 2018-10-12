@@ -5,11 +5,9 @@ using System.Reflection;
 using Unity.Build;
 using Unity.Delegates;
 using Unity.Factory;
-using Unity.Injection;
-using Unity.Policy;
 using Unity.Utility;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that lets you specify that

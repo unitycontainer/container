@@ -176,17 +176,19 @@ namespace Unity.Injection
         public bool Equals(MethodInfo other)
         {
 #if NETSTANDARD1_0
-            var parameters = other.GetParameters();
-            var parameterTypes = other.GetParameters()
-                .Select(p => p.ParameterType);
+            if (other.Name != _methodName) return false;
 
-            return other.Name == _methodName &&
-            _parameterTypes.SequenceEqual(parameterTypes);
-#else
             var parameterTypes = other.GetParameters()
                                       .Select(p => p.ParameterType);
 
-            return other.Name == _methodName && other.MetadataToken == _info.MetadataToken;
+            if (_info.ContainsGenericParameters)
+            {
+                return _parameterTypes.Length == parameterTypes.Count();
+            }
+
+            return _parameterTypes.SequenceEqual(parameterTypes);
+#else
+            return other?.MetadataToken == _info.MetadataToken;
 #endif
         }
 

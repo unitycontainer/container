@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Delegates;
-using Unity.Injection;
 using Unity.Utility;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that can be passed to
