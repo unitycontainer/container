@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Delegates;
-using Unity.Injection;
 using Unity.Utility;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// A class that stores a name and type, and generates a 

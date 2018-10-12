@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Storage;
 
@@ -18,5 +19,9 @@ namespace Unity.Build
         /// <param name="name">Name of registration</param>
         /// <returns></returns>
         object Resolve(Type type, string name);
+
+        object Resolve(PropertyInfo property, string name, object value);
+
+        object Resolve(ParameterInfo parameter, string name, object value);
     }
 }

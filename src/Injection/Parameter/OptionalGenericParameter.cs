@@ -1,8 +1,7 @@
 ﻿using System;
 using Unity.Delegates;
-using Unity.Injection;
 
-namespace Unity
+namespace Unity.Injection
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that lets you specify that
