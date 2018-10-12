@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Build;
+using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 
@@ -23,35 +24,64 @@ namespace Unity.ObjectBuilder.Policies
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public virtual IEnumerable<object> SelectProperties<TContext>(ref TContext context)
-            where TContext : IBuildContext
+        public virtual IEnumerable<object> SelectProperties<TBuilderContext>(ref TBuilderContext context)
+            where TBuilderContext : IBuilderContext
         {
-            Type t = context.Type;
-            var list = new List<SelectedProperty>();
-            foreach (PropertyInfo prop in t.GetPropertiesHierarchical().Where(p => p.CanWrite))
-            {
-                var propertyMethod = prop.GetSetMethod(true) ?? prop.GetGetMethod(true);
-                if (propertyMethod.IsStatic)
-                {
-                    // Skip static properties. In the previous implementation the reflection query took care of this.
-                    continue;
-                }
+            var properties = context.Type
+                                    .GetPropertiesHierarchical()
+                                    .Where(p => p.CanWrite);
 
-                // Ignore indexers and return properties marked with the attribute
-                if (prop.GetIndexParameters().Length == 0 &&
-                    prop.IsDefined(typeof(DependencyResolutionAttribute), false))
-                {
-                    list.Add(CreateSelectedProperty(prop));
-                }
-            }
+            var injectionMembers = 
+                context.Registration is InternalRegistration registration && null != registration.InjectionMembers 
+                    ? registration.InjectionMembers 
+                    : null;
 
-            return list;
+            return null != injectionMembers
+                ? SelectInjectedProperties(properties, injectionMembers.OfType<IEquatable<PropertyInfo>>()
+                                                                       .ToArray())
+                : SelectAttributedProperties(properties);
         }
 
-        private SelectedProperty CreateSelectedProperty(PropertyInfo property)
+        private IEnumerable<object> SelectAttributedProperties(IEnumerable<PropertyInfo> properties)
         {
-            IResolverPolicy resolver = CreateResolver(property);
-            return new SelectedProperty(property, resolver);
+            foreach (var property in properties)
+            {
+                var propertyMethod = property.GetSetMethod(true) ??
+                                     property.GetGetMethod(true);
+
+                // Skip static properties and indexers. 
+                if (propertyMethod.IsStatic ||
+                    property.GetIndexParameters().Length != 0) continue;
+
+                // Return properties marked with the attribute
+                if (property.IsDefined(typeof(DependencyResolutionAttribute), false))
+                {
+                    yield return new SelectedProperty(property, CreateResolver(property));
+                }
+            }
+        }
+
+        private IEnumerable<object> SelectInjectedProperties(IEnumerable<PropertyInfo> properties, 
+            IEquatable<PropertyInfo>[] injectionMembers)
+        {
+            foreach (var property in properties)
+            {
+                var propertyMethod = property.GetSetMethod(true) ??
+                                     property.GetGetMethod(true);
+
+                // Skip static properties and indexers. 
+                if (propertyMethod.IsStatic ||
+                    property.GetIndexParameters().Length != 0) continue;
+
+                var injector = injectionMembers.Where(member => member.Equals(property))
+                                               .Select(member => new SelectedProperty(property, member))
+                                               .FirstOrDefault() 
+                               ?? (property.IsDefined(typeof(DependencyResolutionAttribute), false)
+                                   ? new SelectedProperty(property, CreateResolver(property)) 
+                                   : null);
+
+                if (null != injector) yield return injector;
+            }
         }
 
 

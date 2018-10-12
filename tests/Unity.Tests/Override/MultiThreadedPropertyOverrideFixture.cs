@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
-using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity.Tests.v5.Override
 {
@@ -19,14 +17,16 @@ namespace Unity.Tests.v5.Override
         [TestMethod]
         public void CanOverrideWithPerThreadLifetimeManagerWithDifferentOverridesInDifferenThreads()
         {
-            TypeToInjectForPropertyOverride1 defaultObject = new TypeToInjectForPropertyOverride1(123);
+            var defaultObject = new TypeToInjectForPropertyOverride1(123);
 
-            container.RegisterType<SubjectType1ToInjectForPropertyOverride>(new PerThreadLifetimeManager(), new InjectionProperty("InjectedObject", defaultObject));
+            container.RegisterType<SubjectType1ToInjectForPropertyOverride>(
+                new PerThreadLifetimeManager(), 
+                new InjectionProperty(nameof(SubjectType1ToInjectForPropertyOverride.InjectedObject), defaultObject));
 
-            ThreadStart threadStartDefault = new ThreadStart(ResolveWithDefault);
-            ThreadStart threadStartOverride1 = new ThreadStart(ResolveWithOverride1);
-            ThreadStart threadStartOverride2 = new ThreadStart(ResolveWithOverride2);
-            Thread[] threadList = new Thread[3];
+            var threadStartDefault = new ThreadStart(ResolveWithDefault);
+            var threadStartOverride1 = new ThreadStart(ResolveWithOverride1);
+            var threadStartOverride2 = new ThreadStart(ResolveWithOverride2);
+            var threadList = new Thread[3];
 
             threadList[0] = new Thread(threadStartDefault);
             threadList[1] = new Thread(threadStartOverride1);
@@ -82,7 +82,8 @@ namespace Unity.Tests.v5.Override
             for (int i = 0; i < iterationCount; i++)
             {
                 TypeToInjectForPropertyOverride2 overrideObject = new TypeToInjectForPropertyOverride2(222);
-                var result = container.Resolve<SubjectType1ToInjectForPropertyOverride>(new PropertyOverride("InjectedObject", overrideObject));
+                var result = container.Resolve<SubjectType1ToInjectForPropertyOverride>(
+                    new PropertyOverride(nameof(SubjectType1ToInjectForPropertyOverride.InjectedObject), overrideObject));
                 override1InjectedObjectList.Add(result);
             }
         }
@@ -92,7 +93,8 @@ namespace Unity.Tests.v5.Override
             for (int i = 0; i < iterationCount; i++)
             {
                 TypeToInjectForPropertyOverride3 overrideObject = new TypeToInjectForPropertyOverride3(333);
-                var result = container.Resolve<SubjectType1ToInjectForPropertyOverride>(new PropertyOverride("InjectedObject", overrideObject));
+                var result = container.Resolve<SubjectType1ToInjectForPropertyOverride>(
+                    new PropertyOverride(nameof(SubjectType1ToInjectForPropertyOverride.InjectedObject), overrideObject));
                 override2InjectedObjectList.Add(result);
             }
         }

@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using Unity.Exceptions;
-using Unity.Tests.TestObjects;
+using Unity.Injection;
 
 namespace Unity.Tests.v5.Issues
 {

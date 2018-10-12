@@ -116,5 +116,9 @@ namespace Unity.Builder
 
         object NewBuildUp(INamedType registration);
 
+        object Resolve(PropertyInfo property, string name, object value);
+
+        object Resolve(ParameterInfo parameter, string name, object value);
+
     }
 }

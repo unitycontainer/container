@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,6 +9,7 @@ using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Expressions;
+using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
@@ -32,10 +34,29 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
             var selector = context.Policies.GetPolicy<IMethodSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
 
-            foreach (var method in selector.SelectMethods(ref context).Cast<SelectedMethod>())
+            foreach (var selection in selector.SelectMethods(ref context))
             {
-                var methodInfo = method.Method;
-                var parameters = methodInfo.GetParameters();
+                MethodInfo methodInfo;
+                ParameterInfo[] parameters;
+                object[] resolvers;
+
+                switch (selection)
+                {
+                    case SelectedMethod selectedMethod:
+                        methodInfo = selectedMethod.Method;
+                        parameters = methodInfo.GetParameters();
+                        resolvers = selectedMethod.GetResolvers();
+                        break;
+
+                    case IMemberWithParameters<MethodInfo> injectionMethod:
+                        methodInfo = injectionMethod.MemberInfo(context.Type);
+                        parameters = methodInfo.GetParameters();
+                        resolvers = injectionMethod.GetParameters();
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
 
                 if (methodInfo.IsGenericMethodDefinition ||
                     parameters.Any(param => param.IsOut  || param.ParameterType.IsByRef))
@@ -43,9 +64,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
                     var format = methodInfo.IsGenericMethodDefinition
                         ? Constants.CannotInjectOpenGenericMethod
                         : Constants.CannotInjectMethodWithOutParam;
-                             
+
                     throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
-                            format, methodInfo.DeclaringType.GetTypeInfo().Name, methodInfo.Name));
+                        format, methodInfo.DeclaringType.GetTypeInfo().Name, methodInfo.Name));
                 }
 
                 dynamicBuildContext.AddToBuildPlan(
@@ -54,8 +75,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
                             Expression.Convert(
                                 BuilderContextExpression<TBuilderContext>.Existing,
                                 dynamicBuildContext.TypeToBuild),
-                            method.Method,
-                            BuildMethodParameterExpressions<TBuilderContext>(method, parameters))));
+                            methodInfo,
+                            BuildMethodParameterExpressions<TBuilderContext>(parameters, resolvers))));
+
             }
         }
 
@@ -64,17 +86,20 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
 
         #region Implementation
 
-        private IEnumerable<Expression> BuildMethodParameterExpressions<TBuilderContext>( 
-            SelectedMethod method, ParameterInfo[] methodParameters)
+        private IEnumerable<Expression> BuildMethodParameterExpressions<TBuilderContext>(ParameterInfo[] parameters, object[] resolvers)
             where TBuilderContext : IBuilderContext
         {
-            int i = 0;
-
-            foreach (var parameterResolver in method.GetParameterResolvers())
+            for (var i = 0; i < parameters.Length; i++)
             {
-                yield return BuilderContextExpression<TBuilderContext>.Resolve(methodParameters[i], null, parameterResolver);
+                var parameter = parameters[i];
 
-                i++;
+                // Resolve all DependencyAttributes on this parameter, if any
+                var attribute = parameter.GetCustomAttributes(false)
+                    .OfType<DependencyResolutionAttribute>()
+                    .FirstOrDefault();
+
+                yield return 
+                    BuilderContextExpression<TBuilderContext>.Resolve(parameter, attribute?.Name, resolvers[i]);
             }
         }
 

@@ -12,6 +12,33 @@ namespace Unity.Expressions
     class BuilderContextExpression<TBuilderContext> : BuildContextExpression<TBuilderContext>
         where TBuilderContext : IBuilderContext
     {
+        #region Fields
+
+        protected static readonly MethodInfo ResolvePropertyMethod =
+            typeof(IBuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IBuilderContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+
+                    return 2 <= parameters.Length &&
+                           typeof(PropertyInfo) == parameters[0].ParameterType;
+                });
+
+        protected static readonly MethodInfo ResolveParameterMethod =
+            typeof(IBuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IBuilderContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+
+                    return 2 <= parameters.Length &&
+                           typeof(ParameterInfo) == parameters[0].ParameterType;
+                });
+
+        #endregion
+
+
         #region Constructor
 
         static BuilderContextExpression()
@@ -41,19 +68,19 @@ namespace Unity.Expressions
 
         #region Methods
 
-        public static Expression Resolve(SelectedProperty property, string name)
+        public static Expression Resolve(PropertyInfo property, string name, object value)
         {
             return Expression.Convert(
                 Expression.Call(
                     Context,
                     ResolvePropertyMethod,
-                    Expression.Constant(property.Property, typeof(PropertyInfo)),
+                    Expression.Constant(property, typeof(PropertyInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(property.Resolver, typeof(IResolverPolicy)) ),
-                property.Property.PropertyType);
+                    Expression.Constant(value, typeof(object)) ),
+                property.PropertyType);
         }
 
-        public static Expression Resolve(ParameterInfo parameter, string name, IResolverPolicy resolver)
+        public static Expression Resolve(ParameterInfo parameter, string name, object resolver)
         {
             return Expression.Convert(
                 Expression.Call(
@@ -61,7 +88,7 @@ namespace Unity.Expressions
                     ResolveParameterMethod,
                     Expression.Constant(parameter, typeof(ParameterInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(resolver, typeof(IResolverPolicy))),
+                    Expression.Constant(resolver, typeof(object))),
                 parameter.ParameterType);
         }
 

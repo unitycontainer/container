@@ -57,8 +57,8 @@ namespace Unity.Tests.v5.Injection
                 .RegisterType<TypeWithArrayConstructorParameter>(
                 new InjectionConstructor(
                     new ResolvedArrayParameter<ILogger>(
-                        new ResolvedParameter<ILogger>("log1"),
-                        typeof(ILogger),
+                        new ResolvedParameter<ILogger>("log1"), 
+                        typeof(ILogger), 
                         logger2)))
                 .RegisterType<ILogger, MockLogger>()
                 .RegisterType<ILogger, SpecialLogger>("log1");

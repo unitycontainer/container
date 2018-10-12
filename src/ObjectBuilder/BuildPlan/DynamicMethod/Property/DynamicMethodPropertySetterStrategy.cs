@@ -40,7 +40,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
                         Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, propertyInfoExpression),
                         Expression.Assign(
                             resolvedObjectParameter,
-                            BuilderContextExpression<TBuilderContext>.Resolve(selectedProperty, context.OriginalBuildKey.Name)),
+                            BuilderContextExpression<TBuilderContext>.Resolve(selectedProperty.Property, context.OriginalBuildKey.Name, selectedProperty.Resolver)),
                         Expression.Call(
                             Expression.Convert(
                                 BuilderContextExpression<TBuilderContext>.Existing,

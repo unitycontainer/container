@@ -63,6 +63,12 @@ namespace Unity
         private IPolicySet CreateRegistration(Type type, string name)
         {
             var registration = new InternalRegistration(type, name);
+
+            if (type.GetTypeInfo().IsGenericType)
+            {
+                registration.Factory = _get(type.GetGenericTypeDefinition(), name);
+            }
+
             registration.BuildChain = GetBuilders(registration);
             return registration;
         }

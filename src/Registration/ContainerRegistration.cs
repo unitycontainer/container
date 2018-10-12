@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Lifetime;
+using Unity.Injection;
+using Unity.Policy;
 
 namespace Unity.Registration
 {
@@ -19,13 +20,6 @@ namespace Unity.Registration
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
         }
-
-        #endregion
-
-
-        #region Public Members
-
-        public InjectionMember[] InjectionMembers { get; }
 
         #endregion
 
