@@ -251,6 +251,7 @@ namespace Unity
         private void SetupChildContainerBehaviors()
         {
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
+
             Register = AddOrUpdate;
             GetPolicy = Get;
             SetPolicy = Set;
@@ -269,7 +270,7 @@ namespace Unity
             _strategyChain = new StrategyChain(_strategies);
             _buildChain = _strategies.ToArray();
 
-            if (null != _parent)
+            if (null != _parent && null == _registrations)
             {
                 SetupChildContainerBehaviors();
             }
