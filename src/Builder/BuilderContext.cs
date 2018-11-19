@@ -39,7 +39,6 @@ namespace Unity.Builder
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
-            Policies = new Storage.PolicyList(this);
 
             _ownsOverrides = true;
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
@@ -56,7 +55,7 @@ namespace Unity.Builder
             OriginalBuildKey = original.OriginalBuildKey;
             BuildKey = original.BuildKey;
             Registration = original.Registration;
-            Policies = original.Policies;
+            _policies = original.Policies;
             Existing = existing;
             _ownsOverrides = true;
         }
@@ -71,7 +70,7 @@ namespace Unity.Builder
             _ownsOverrides = false;
             ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
+            _policies = parent.Policies;
             Registration = registration;
             OriginalBuildKey = (INamedType)Registration;
             BuildKey = OriginalBuildKey;
@@ -88,7 +87,7 @@ namespace Unity.Builder
             _ownsOverrides = false;
             ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
+            _policies = parent.Policies;
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
@@ -113,7 +112,8 @@ namespace Unity.Builder
 
         public IPolicySet Registration { get; }
 
-        public IPolicyList Policies { get; private set; }
+        private IPolicyList _policies;
+        public IPolicyList Policies => _policies ?? (_policies = new Storage.PolicyList(this));
 
         public IRequiresRecovery RequiresRecovery { get; set; }
 
