@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Container;
@@ -382,9 +381,10 @@ namespace Unity
 
             if (null != _extensions)
             {
-                foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
-                                                              .ToList())
+                foreach (var extention in _extensions)
                 {
+                    if(!(extention is IDisposable disposable)) continue;
+
                     try
                     {
                         disposable.Dispose();
