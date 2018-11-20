@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Lifetime;
 
 namespace Unity.Container.Lifetime
@@ -18,6 +17,8 @@ namespace Unity.Container.Lifetime
     /// </remarks>
     public class LifetimeContainer : ILifetimeContainer
     {
+        private static readonly IDisposable[] EmptyDisposables = new IDisposable[0];
+
         private readonly List<object> _items = new List<object>();
 
         public LifetimeContainer(IUnityContainer owner = null)
@@ -85,7 +86,7 @@ namespace Unity.Container.Lifetime
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this); 
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -102,33 +103,63 @@ namespace Unity.Container.Lifetime
 
             lock (_items)
             {
-                disposables = _items.OfType<IDisposable>()
-                                    .Distinct()
-                                    .Reverse()
-                                    .ToArray();
-                _items.Clear();
+                if (_items.Count == 0)
+                    disposables = EmptyDisposables;
+                else
+                {
+                    disposables = new IDisposable[_items.Count];
+                    for (var i = 0; i < _items.Count; i++)
+                    {
+                        //filter all non disposables
+                        if (!(_items[i] is IDisposable disposable)) continue;
+
+                        var alreadyAdded = false;
+                        for (var j = 0; j < i; j++)
+                        {
+                            if (!Equals(disposables[j], disposable)) continue;
+
+                            alreadyAdded = true;
+                            break;
+                        }
+
+                        if (!alreadyAdded)
+                            disposables[_items.Count - i - 1] = disposable;
+                    }
+
+                    _items.Clear();
+                }
             }
 
+            if (disposables.Length == 0)
+                return;
 
-            var exceptions = new List<Exception>();
+            List<Exception> exceptions = null;
             foreach (var disposable in disposables)
             {
+                if (disposable == null)
+                    continue;
+
                 try
                 {
                     disposable.Dispose();
                 }
                 catch (Exception e)
                 {
+                    if (exceptions == null)
+                        exceptions = new List<Exception>();
+
                     exceptions.Add(e);
                 }
             }
 
+            if (exceptions == null)
+                return;
 
             if (exceptions.Count == 1)
             {
-                throw exceptions.First();
+                throw exceptions[0];
             }
-            else if (exceptions.Count > 1)
+            if (exceptions.Count > 1)
             {
                 throw new AggregateException(exceptions);
             }
@@ -142,7 +173,10 @@ namespace Unity.Container.Lifetime
         /// </returns>
         public IEnumerator<object> GetEnumerator()
         {
-            return _items.GetEnumerator();
+            lock (_items)
+            {
+                return _items.GetEnumerator();
+            }
         }
 
         /// <summary>

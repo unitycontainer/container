@@ -356,9 +356,10 @@ namespace Unity
 
             if (null != _extensions)
             {
-                foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
-                                                              .ToList())
+                foreach (var extention in _extensions)
                 {
+                    if(!(extention is IDisposable disposable)) continue;
+
                     try
                     {
                         disposable.Dispose();
