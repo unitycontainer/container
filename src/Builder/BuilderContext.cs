@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Delegates;
@@ -42,7 +41,6 @@ namespace Unity.Builder
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
             TypeInfo = BuildKey.Type.GetTypeInfo();
-            Policies = new PolicyList(this);
 
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
                 _resolverOverrides = resolverOverrides;
@@ -57,7 +55,7 @@ namespace Unity.Builder
             BuildKey = original.BuildKey;
             TypeInfo = BuildKey.Type.GetTypeInfo();
             Registration = original.Registration;
-            Policies = original.Policies;
+            _policies = original.Policies;
             Existing = existing;
         }
 
@@ -70,7 +68,7 @@ namespace Unity.Builder
             _resolverOverrides = parent._resolverOverrides;
             ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
+            _policies = parent.Policies;
             Registration = registration;
             OriginalBuildKey = (INamedType)Registration;
             BuildKey = OriginalBuildKey;
@@ -87,7 +85,7 @@ namespace Unity.Builder
             _resolverOverrides = parent._resolverOverrides;
             ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
+            _policies = parent.Policies;
             Registration = registration;
             OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
@@ -244,7 +242,8 @@ namespace Unity.Builder
 
         public IPolicySet Registration { get; }
 
-        public IPolicyList Policies { get; }
+        private IPolicyList _policies;
+        public IPolicyList Policies => _policies ?? (_policies = new PolicyList(this));
 
         public IRequiresRecovery RequiresRecovery { get; set; }
 
