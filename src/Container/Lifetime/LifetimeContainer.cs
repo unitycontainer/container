@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Lifetime;
@@ -105,27 +103,14 @@ namespace Unity.Container.Lifetime
             {
                 if (_items.Count == 0)
                     disposables = EmptyDisposables;
+                else if (_items.Count < 20)
+                {
+                    disposables = FindDisposablesWithCycling(_items);
+                    _items.Clear();
+                }
                 else
                 {
-                    disposables = new IDisposable[_items.Count];
-                    for (var i = 0; i < _items.Count; i++)
-                    {
-                        //filter all non disposables
-                        if (!(_items[i] is IDisposable disposable)) continue;
-
-                        var alreadyAdded = false;
-                        for (var j = 0; j < i; j++)
-                        {
-                            if (!Equals(disposables[j], disposable)) continue;
-
-                            alreadyAdded = true;
-                            break;
-                        }
-
-                        if (!alreadyAdded)
-                            disposables[_items.Count - i - 1] = disposable;
-                    }
-
+                    disposables = FindDisposablesWithHash(_items);
                     _items.Clear();
                 }
             }
@@ -163,6 +148,49 @@ namespace Unity.Container.Lifetime
             {
                 throw new AggregateException(exceptions);
             }
+        }
+
+        private static IDisposable[] FindDisposablesWithCycling(List<object> items)
+        {
+            var disposables = new IDisposable[items.Count];
+            for (var i = 0; i < items.Count; i++)
+            {
+                //filter all non disposables
+                if (!(items[i] is IDisposable disposable)) continue;
+
+                var alreadyAdded = false;
+                for (var j = 0; j < i; j++)
+                {
+                    if (!Equals(disposables[j], disposable)) continue;
+
+                    alreadyAdded = true;
+                    break;
+                }
+
+                if (!alreadyAdded)
+                    disposables[items.Count - i - 1] = disposable;
+            }
+
+            return disposables;
+        }
+
+        private static IDisposable[] FindDisposablesWithHash(List<object> items)
+        {
+            var disposables = new IDisposable[items.Count];
+            var checkedItems = new HashSet<object>();
+            for (var i = 0; i < items.Count; i++)
+            {
+                //filter all non disposables
+                if (!(items[i] is IDisposable disposable)) continue;
+
+                //already added
+                if (checkedItems.Contains(disposable)) continue;
+
+                disposables[items.Count - i - 1] = disposable;
+                checkedItems.Add(disposable);
+            }
+
+            return disposables;
         }
 
         /// <summary>
