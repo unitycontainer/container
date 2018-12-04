@@ -6,7 +6,7 @@ using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan.Activator
+namespace Unity.ObjectBuilder.BuildPlan.ConstructorInvoke
 {
     public class ConstructorInvokeBuildPlan : IBuildPlanPolicy
     {
