@@ -1,6 +1,4 @@
-﻿using Unity.Lifetime;
-
-namespace Unity.Container.Lifetime
+﻿namespace Unity.Container.Lifetime
 {
     /// <summary>
     /// Internal container lifetime manager. 

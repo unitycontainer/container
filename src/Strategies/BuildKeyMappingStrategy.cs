@@ -25,17 +25,17 @@ namespace Unity.Strategies
             switch (namedType)
             {
                 case ContainerRegistration registration:
-                    return AnaliseStaticRegistration(registration, injectionMembers);
+                    return AnalyseStaticRegistration(registration, injectionMembers);
 
                 case InternalRegistration registration:
-                    return AnaliseDynamicRegistration(registration);
+                    return AnalyseDynamicRegistration(registration);
 
                 default:
                     return false;
             }
         }
 
-        private bool AnaliseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
+        private bool AnalyseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
         {
             // Validate input  
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
@@ -54,7 +54,7 @@ namespace Unity.Strategies
             return true;
         }
 
-        private bool AnaliseDynamicRegistration(InternalRegistration registration)
+        private static bool AnalyseDynamicRegistration(InternalRegistration registration)
         {
             return null != registration.Type && registration.Type.GetTypeInfo().IsGenericType;
         }

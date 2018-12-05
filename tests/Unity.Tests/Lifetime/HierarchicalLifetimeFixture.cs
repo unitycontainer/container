@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Lifetime
 {

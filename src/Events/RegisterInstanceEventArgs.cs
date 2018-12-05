@@ -2,7 +2,6 @@
 
 using System;
 using Unity.Extension;
-using Unity.Lifetime;
 
 namespace Unity.Events
 {
@@ -49,7 +48,7 @@ namespace Unity.Events
         public object Instance { get; }
 
         /// <summary>
-        /// <see cref="Lifetime.LifetimeManager"/> that controls ownership of
+        /// <see cref="Unity.LifetimeManager"/> that controls ownership of
         /// this instance.
         /// </summary>
         public LifetimeManager LifetimeManager { get; }

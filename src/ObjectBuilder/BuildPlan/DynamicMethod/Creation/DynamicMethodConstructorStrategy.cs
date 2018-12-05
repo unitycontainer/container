@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
