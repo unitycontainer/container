@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Injection;
 
 namespace Unity.Tests.v5.Generics
 {
@@ -196,7 +195,7 @@ namespace Unity.Tests.v5.Generics
         public class ServiceB<T> : IService<T> { }
 
         [TestMethod]
-        [ExpectedException(typeof(Exceptions.ResolutionFailedException))]
+        [ExpectedException(typeof(ResolutionFailedException))]
         public void FailedResolveAllTest()
         {
             var container = new UnityContainer();
@@ -208,7 +207,7 @@ namespace Unity.Tests.v5.Generics
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exceptions.ResolutionFailedException))]
+        [ExpectedException(typeof(ResolutionFailedException))]
         public void FailedResolveEnumerableTest()
         {
             var container = new UnityContainer();

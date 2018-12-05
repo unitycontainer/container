@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Delegates;
-using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
 
@@ -43,7 +41,7 @@ namespace Unity.Strategies
             if (namedType is ContainerRegistration containerRegistration)
             {
                 if (containerRegistration.RegisteredType != containerRegistration.MappedToType ||
-                    null != injectionMembers && injectionMembers.Any(i => i is IInjectionFactory))
+                    null != injectionMembers && injectionMembers.Any(i => i is InjectionFactory))
                     return false;
             }
 
@@ -59,7 +57,7 @@ namespace Unity.Strategies
 
         public override void PreBuildUp<TContext>(ref TContext context)
         {
-            var plan = context.Registration.Get<ResolveDelegate<TContext>>();
+            var plan = context.Registration.Get<BuildDelegate<TContext>>();
             if (plan == null)
             {
                 var typeArgument = context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First();
@@ -73,12 +71,12 @@ namespace Unity.Strategies
                 }
                 else
                 {
-                    plan = (ResolveDelegate<TContext>)
+                    plan = (BuildDelegate<TContext>)
                         _resolveMethod.MakeGenericMethod(typeof(TContext), typeArgument)
-                                      .CreateDelegate(typeof(ResolveDelegate<TContext>));
+                                      .CreateDelegate(typeof(BuildDelegate<TContext>));
                 }
 
-                context.Registration.Set(typeof(ResolveDelegate<TContext>), plan);
+                context.Registration.Set(typeof(BuildDelegate<TContext>), plan);
             }
 
             context.Existing = plan(ref context);

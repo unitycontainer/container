@@ -4,11 +4,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Build;
 using Unity.Builder;
+using Unity.Builder.Expressions;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
-using Unity.Expressions;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation

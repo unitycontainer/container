@@ -3,7 +3,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
-using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 
@@ -62,16 +61,15 @@ namespace Unity.Strategies
                 else return;
             }
 
+            if (policy is IRequiresRecovery recoveryPolicy)
+                context.RequiresRecovery = recoveryPolicy;
+
             var existing = policy.GetValue(context.Lifetime);
             if (existing != null)
             {
                 context.Existing = existing;
                 context.BuildComplete = true;
-                return;
             }
-
-            if (policy is IRequiresRecovery recoveryPolicy)
-                context.RequiresRecovery = recoveryPolicy;
         }
 
         public override void PostBuildUp<TBuilderContext>(ref TBuilderContext context)

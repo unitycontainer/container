@@ -1,6 +1,4 @@
-﻿using Unity.Injection;
-
-namespace Unity.Builder.Strategy
+﻿namespace Unity.Builder.Strategy
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder;
-using Unity.Delegates;
-using Unity.Expressions;
+using Unity.Builder.Expressions;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
@@ -40,13 +40,13 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             _buildPlanExpressions.Enqueue(expression);
         }
 
-        internal ResolveDelegate<TBuilderContext> GetBuildMethod<TBuilderContext>()
+        internal BuildDelegate<TBuilderContext> GetBuildMethod<TBuilderContext>()
             where TBuilderContext : IBuilderContext
         {
             var block = Expression.Block(
                 _buildPlanExpressions.Concat(new[] { BuilderContextExpression<TBuilderContext>.Existing }));
 
-            var lambda = Expression.Lambda<ResolveDelegate<TBuilderContext>>(block,
+            var lambda = Expression.Lambda<BuildDelegate<TBuilderContext>>(block,
                 BuilderContextExpression<TBuilderContext>.Context);
 
             var planDelegate = lambda.Compile();

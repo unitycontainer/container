@@ -4,11 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Build;
-using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.ResolverPolicy;
 
-namespace Unity.Expressions
+namespace Unity.Builder.Expressions
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
     class BuilderContextExpression<TBuilderContext> : BuildContextExpression<TBuilderContext>
