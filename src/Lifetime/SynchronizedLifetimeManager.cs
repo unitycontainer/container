@@ -2,7 +2,7 @@
 using System.Threading;
 using Unity.Exceptions;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// Base class for Lifetime managers which need to synchronize calls to

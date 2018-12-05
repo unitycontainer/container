@@ -1,6 +1,4 @@
-﻿using Unity.Lifetime;
-
-namespace Unity.Policy
+﻿namespace Unity.Policy
 {
     /// <summary>
     /// A policy that controls how instances are

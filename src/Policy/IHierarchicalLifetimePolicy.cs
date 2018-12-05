@@ -1,6 +1,4 @@
-﻿using Unity.Policy;
-
-namespace Unity.Lifetime
+﻿namespace Unity.Policy
 {
     public interface IHierarchicalLifetimePolicy : ILifetimePolicy
     {

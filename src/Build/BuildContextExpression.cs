@@ -3,11 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder;
 using Unity.Delegates;
 
-namespace Unity.Expressions
+namespace Unity.Build
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
     public class BuildContextExpression<TContext>
