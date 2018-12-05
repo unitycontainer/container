@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Injection;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Generics

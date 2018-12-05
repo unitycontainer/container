@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Unity.Injection;
 
 namespace Unity.Tests.v5.CollectionSupport
 {

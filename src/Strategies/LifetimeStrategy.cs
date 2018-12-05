@@ -3,7 +3,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
-using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 

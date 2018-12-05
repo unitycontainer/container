@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Registration

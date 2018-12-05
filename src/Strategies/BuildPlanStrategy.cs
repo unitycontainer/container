@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Delegates;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.ConstructorInvoke;
@@ -28,7 +28,7 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
         {
-            var resolver = context.Registration.Get<ResolveDelegate<TBuilderContext>>();
+            var resolver = context.Registration.Get<BuildDelegate<TBuilderContext>>();
             if (null == resolver)
             {
                 // Legacy support
@@ -49,7 +49,7 @@ namespace Unity.Strategies
                         plan = planCreator.CreatePlan(ref context, context.BuildKey);
 
                         if (plan is IResolverPolicy policy)
-                            context.Registration.Set(typeof(ResolveDelegate<TBuilderContext>), (ResolveDelegate<TBuilderContext>)policy.Resolve);
+                            context.Registration.Set(typeof(BuildDelegate<TBuilderContext>), (BuildDelegate<TBuilderContext>)policy.Resolve);
                         else
                             context.Registration.Set(typeof(IBuildPlanPolicy), plan);
                     }

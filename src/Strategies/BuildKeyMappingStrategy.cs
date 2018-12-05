@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Delegates;
-using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Policy.Mapping;
@@ -91,7 +90,7 @@ namespace Unity.Strategies
                 var name = context.BuildKey.Name;
 
                 context.Registration.Set(typeof(IBuildPlanPolicy), 
-                    new DynamicMethodBuildPlan((ResolveDelegate<TBuilderContext>) ResolveDelegate));
+                    new DynamicMethodBuildPlan((BuildDelegate<TBuilderContext>) ResolveDelegate));
 
                 object ResolveDelegate(ref TBuilderContext c) => c.Existing = c.NewBuildUp(type, name);
             }

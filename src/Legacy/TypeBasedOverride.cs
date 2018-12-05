@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Delegates;
+using Unity.Build;
 
 namespace Unity.Resolution
 {
@@ -41,7 +41,7 @@ namespace Unity.Resolution
 
         #region ResolverOverride
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
         {
             return _innerOverride.GetResolver<TContext>(type);
         }

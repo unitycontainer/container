@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Unity.Injection;
 using Unity.Resolution;
 using Unity.Tests.v5.TestSupport;
 

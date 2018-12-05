@@ -5,11 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Builder.Expressions;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
-using Unity.Expressions;
-using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method

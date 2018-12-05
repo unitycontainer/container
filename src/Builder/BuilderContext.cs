@@ -5,7 +5,6 @@ using System.Reflection;
 using Unity.Build;
 using Unity.Builder.Strategy;
 using Unity.Container;
-using Unity.Delegates;
 using Unity.Exceptions;
 using Unity.Factory;
 using Unity.Policy;
@@ -151,7 +150,7 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case ResolveDelegate<BuilderContext> resolver:
+                case BuildDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
                 case IResolverPolicy policy:
@@ -208,7 +207,7 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case ResolveDelegate<BuilderContext> resolver:
+                case BuildDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
                 case IResolverPolicy policy:
