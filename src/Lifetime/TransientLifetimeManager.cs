@@ -1,6 +1,4 @@
-﻿using Unity.Lifetime;
-
-namespace Unity
+﻿namespace Unity
 {
     /// <summary>
     /// An <see cref="LifetimeManager"/> implementation that does nothing,

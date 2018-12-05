@@ -1,9 +1,7 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Unity.Lifetime
+namespace Unity
 {
     /// <summary>
     /// Represents a lifetime container.

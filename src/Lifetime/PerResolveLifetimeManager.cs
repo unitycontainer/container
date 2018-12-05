@@ -1,5 +1,4 @@
-﻿using Unity.Lifetime;
-using Unity.Policy;
+﻿using Unity.Policy;
 
 namespace Unity
 {
