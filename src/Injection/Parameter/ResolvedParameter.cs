@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Delegates;
+using Unity.Build;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that stores a name and type, and generates a 
@@ -48,7 +48,7 @@ namespace Unity.Injection
 
         #region TypedInjectionValue
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
         {
             var info = ParameterType.GetTypeInfo();
 

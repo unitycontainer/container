@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Build;
-using Unity.Delegates;
 using Unity.Factory;
 using Unity.Policy;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// Base type for objects that are used to configure parameters for
@@ -44,7 +43,7 @@ namespace Unity.Injection
         public abstract bool MatchesType(Type t);
 
 
-        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public virtual BuildDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IBuildContext
         {
             return Value is IResolverFactory factory 
@@ -57,7 +56,7 @@ namespace Unity.Injection
         {
             switch (value)
             {
-                case ResolveDelegate<TContext> resolver:
+                case BuildDelegate<TContext> resolver:
                     return resolver(ref context);
 
                 case IResolverPolicy policy:

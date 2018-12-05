@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Delegates;
 
 namespace Unity.Build
 {
@@ -52,7 +51,7 @@ namespace Unity.Build
             var typeInfo = typeof(TContext).GetTypeInfo();
 
             var contextRefType =
-                typeof(ResolveDelegate<TContext>).GetTypeInfo()
+                typeof(BuildDelegate<TContext>).GetTypeInfo()
                                                  .GetDeclaredMethod("Invoke")
                                                  .GetParameters()[0]
                                                  .ParameterType;

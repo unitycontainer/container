@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Unity.Exceptions
+namespace Unity
 {
     /// <summary>
     /// The exception thrown by the Unity container when

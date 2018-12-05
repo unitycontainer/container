@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Builder
+namespace Unity
 {
     /// <summary>
     /// Basic information about registered type
@@ -13,7 +13,7 @@ namespace Unity.Builder
         Type Type { get; }
 
         /// <summary>
-        /// Name the registered type. Null for default registration.
+        /// Name of the registered type. Null for default registrations.
         /// </summary>
         string Name { get; }
     }

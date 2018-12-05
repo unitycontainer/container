@@ -4,11 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Build;
-using Unity.Delegates;
 using Unity.Factory;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that stores a type, and generates a 
@@ -66,7 +65,7 @@ namespace Unity.Injection
             }
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
         {
             var elementType = !_elementType.IsArray ? _elementType
                 : _elementType.GetArrayParameterType(type.GetTypeInfo().GenericTypeArguments);
@@ -82,7 +81,7 @@ namespace Unity.Injection
                         return factory.GetResolver<TContext>(type);
 
                     case Type _ when typeof(Type) != elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+                        return (BuildDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
 
                     default:
                         return value;
