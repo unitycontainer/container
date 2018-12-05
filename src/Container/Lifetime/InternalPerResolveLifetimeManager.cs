@@ -1,7 +1,5 @@
 ﻿
 
-using Unity.Lifetime;
-
 namespace Unity.Container.Lifetime
 {
     /// <summary>

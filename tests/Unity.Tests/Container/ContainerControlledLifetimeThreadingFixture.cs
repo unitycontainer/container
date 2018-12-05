@@ -4,7 +4,6 @@ using System.Threading;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
-using Unity.Lifetime;
 using Unity.Tests.v5.TestDoubles;
 
 namespace Unity.Tests.v5.Container

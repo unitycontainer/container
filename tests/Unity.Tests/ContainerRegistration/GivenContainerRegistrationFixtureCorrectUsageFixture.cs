@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using Unity.Injection;
-using Unity.Lifetime;
 
 namespace Unity.Tests.v5.ContainerRegistration
 {

@@ -3,7 +3,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
 using Unity.Delegates;
-using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 
 namespace Unity.Policy.BuildPlanCreator

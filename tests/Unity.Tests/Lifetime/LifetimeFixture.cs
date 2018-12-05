@@ -1,6 +1,5 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Lifetime;
 using Unity.Tests.TestObjects;
 using Unity.Tests.v5.Container;
 

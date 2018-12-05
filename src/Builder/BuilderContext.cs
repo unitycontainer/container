@@ -8,7 +8,6 @@ using Unity.Container;
 using Unity.Delegates;
 using Unity.Exceptions;
 using Unity.Factory;
-using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;

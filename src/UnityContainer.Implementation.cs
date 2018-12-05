@@ -11,7 +11,6 @@ using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;

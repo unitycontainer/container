@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Lifetime;
 using Unity.Tests.v5.Generics;
 
 namespace Unity.Tests.v5.Lifetime
