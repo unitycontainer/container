@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Injection
+namespace Unity
 {
     public interface IMemberWithParameters<out TMemberInfo>
     {

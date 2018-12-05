@@ -3,11 +3,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Build;
-using Unity.Delegates;
 using Unity.Factory;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that lets you specify that
@@ -97,7 +96,7 @@ namespace Unity.Injection
                     _genericParameterName));
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
         {
             GuardTypeToBuildIsGeneric(type);
             GuardTypeToBuildHasMatchingGenericParameter(type);
@@ -113,7 +112,7 @@ namespace Unity.Injection
                         return factory.GetResolver<TContext>(type);
 
                     case Type _ when typeof(Type) != typeToResolve:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(typeToResolve, null));
+                        return (BuildDelegate<TContext>)((ref TContext context) => context.Resolve(typeToResolve, null));
 
                     default:
                         return value;

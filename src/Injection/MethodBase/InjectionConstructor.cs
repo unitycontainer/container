@@ -9,7 +9,7 @@ using Unity.Factory;
 using Unity.Policy;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that holds the collection of information

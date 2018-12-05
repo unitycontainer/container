@@ -1,15 +1,15 @@
 ﻿using System;
-using Unity.Delegates;
+using Unity.Build;
 using Unity.Policy;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A class that lets you specify a factory method the container
     /// will use to create the object.
     /// </summary>
     /// <remarks>This factory allow using predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types.</remarks>
-    public class InjectionFactory : InjectionMember, IInjectionFactory
+    public class InjectionFactory : InjectionMember
     {
         #region Fields
 
@@ -63,8 +63,8 @@ namespace Unity.Injection
             var lifetime = policies.Get(registeredType, name, typeof(ILifetimePolicy));
             if (lifetime is PerResolveLifetimeManager)
             {
-                policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
-                    (ResolveDelegate<TContext>)((ref TContext context) =>
+                policies.Set(registeredType, name, typeof(BuildDelegate<TContext>),
+                    (BuildDelegate<TContext>)((ref TContext context) =>
                     {
                         var result = _factoryFunc(context.Container, context.Type, context.Name);
                         var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
@@ -74,8 +74,8 @@ namespace Unity.Injection
             }
             else
             {
-                policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
-                    (ResolveDelegate<TContext>)((ref TContext context) =>
+                policies.Set(registeredType, name, typeof(BuildDelegate<TContext>),
+                    (BuildDelegate<TContext>)((ref TContext context) =>
                         _factoryFunc(context.Container, context.Type, context.Name)));
             }
         }

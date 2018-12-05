@@ -2,10 +2,9 @@
 using System.Globalization;
 using System.Reflection;
 using Unity.Build;
-using Unity.Delegates;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// Base class for <see cref="InjectionParameterValue"/> subclasses that let you specify that
@@ -73,7 +72,7 @@ namespace Unity.Injection
             return t.IsArray && t.GetElementType().GetTypeInfo().IsGenericParameter && t.GetElementType().GetTypeInfo().Name == _genericParameterName;
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
         {
             GuardTypeToBuildIsGeneric(type);
             GuardTypeToBuildHasMatchingGenericParameter(type);
@@ -86,7 +85,7 @@ namespace Unity.Injection
             return GetResolver<TContext>(typeToResolve, _resolutionKey);
         }
 
-        protected abstract ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey) 
+        protected abstract BuildDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey) 
             where TContext : IBuildContext;
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)

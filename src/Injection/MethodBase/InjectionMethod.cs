@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// An <see cref="InjectionMember"/> that configures the

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Delegates;
+using Unity.Build;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that can be passed to
@@ -36,7 +36,7 @@ namespace Unity.Injection
             _name = name;
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
         {
             var info = ParameterType.GetTypeInfo();
             var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)

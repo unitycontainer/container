@@ -1,7 +1,7 @@
 ﻿using System;
-using Unity.Delegates;
+using Unity.Build;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// A <see cref="InjectionParameterValue"/> that lets you specify that
@@ -29,7 +29,7 @@ namespace Unity.Injection
             : base(genericParameterName, resolutionKey)
         { }
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
+        protected override BuildDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
         {
             return (ref TContext context) =>
             {

@@ -2,7 +2,7 @@
 using Unity.Build;
 using Unity.Storage;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// Base class for objects that can be used to configure what

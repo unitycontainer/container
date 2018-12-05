@@ -7,7 +7,7 @@ using Unity.Factory;
 using Unity.Policy;
 using Unity.Utility;
 
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// This class stores information about which properties to inject,
