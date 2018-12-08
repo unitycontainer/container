@@ -75,8 +75,9 @@ namespace Unity
             else
             {
                 policies.Set(registeredType, name, typeof(BuildDelegate<TContext>),
-                    (BuildDelegate<TContext>)((ref TContext context) =>
-                        _factoryFunc(context.Container, context.Type, context.Name)));
+                    (BuildDelegate<TContext>)((ref TContext c) =>
+                        _factoryFunc(c.Container, c.Type, c.Name) ?? 
+                        throw new InvalidOperationException("Injection Factory must return valid object or throw an exception")));
             }
         }
 
