@@ -36,6 +36,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Dependency\**" />
+    <EmbeddedResource Remove="Dependency\**" />
+    <None Remove="Dependency\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Unity.Abstractions.csproj.DotSettings" />
   </ItemGroup>
   

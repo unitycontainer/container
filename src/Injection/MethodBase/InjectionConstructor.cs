@@ -6,7 +6,6 @@ using System.Reflection;
 using Unity.Build;
 using Unity.Builder.Selection;
 using Unity.Factory;
-using Unity.Policy;
 using Unity.Utility;
 
 namespace Unity
@@ -16,9 +15,8 @@ namespace Unity
     /// for a constructor, so that the container can
     /// be configured to call this constructor.
     /// </summary>
-    public class InjectionConstructor : InjectionMember, 
-                                        IExpressionFactory<NewExpression>,
-                                        IConstructorSelectorPolicy
+    public class InjectionConstructor : InjectionMember,
+                                        IExpressionFactory<NewExpression>
     {
         #region Fields
 
@@ -116,18 +114,17 @@ namespace Unity
                 _parameterValues = new InjectionParameterValue[0];
             }
 
-            policies.Set(registeredType, name, typeof(IConstructorSelectorPolicy), this);
             policies.Set(registeredType, name, typeof(IExpressionFactory<NewExpression>), this);
         }
 
         public override bool BuildRequired => true;
 
-#endregion
+        #endregion
 
 
-#region IExpressionFactory
+        #region IExpressionFactory
 
-        public NewExpression GetExpression<TContext>(Type type) 
+        public NewExpression GetExpression<TContext>(Type type)
             where TContext : IBuildContext
         {
 
@@ -135,12 +132,12 @@ namespace Unity
             return Expression.New(_constructor);
         }
 
-#endregion
+        #endregion
 
 
-#region IConstructorSelectorPolicy
+        #region IConstructorSelectorPolicy
 
-        public object SelectConstructor<TContext>(ref TContext context) 
+        public SelectedConstructor SelectConstructor<TContext>(ref TContext context)
             where TContext : IBuildContext
         {
             SelectedConstructor result;
@@ -172,20 +169,20 @@ namespace Unity
             return result;
         }
 
-#endregion
+        #endregion
 
 
-#region Cast To ConstructorInfo
+        #region Cast To ConstructorInfo
 
         public static explicit operator ConstructorInfo(InjectionConstructor ctor)
         {
             return ctor._constructor;
         }
 
-#endregion
+        #endregion
 
 
-#region Implementation
+        #region Implementation
 
         private InjectionParameterValue ToResolvedParameter(ParameterInfo parameter)
         {
@@ -194,6 +191,6 @@ namespace Unity
                                                                            .FirstOrDefault()?.Name);
         }
 
-#endregion
+        #endregion
     }
 }
