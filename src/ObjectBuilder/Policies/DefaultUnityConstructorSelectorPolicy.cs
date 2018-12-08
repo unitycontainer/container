@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Build;
+using Unity.Builder;
 using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.ObjectBuilder.Policies
 {
@@ -20,13 +21,30 @@ namespace Unity.ObjectBuilder.Policies
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
         public object SelectConstructor<TContext>(ref TContext context)
-            where TContext : IBuildContext
+            where TContext : IBuilderContext
         {
-            return FindInjectionConstructor(context.Type) ?? 
+            // TODO: Requires allocation optimization
+            return FindInjectionConstructor(context.Type, ((InternalRegistration)context.Registration).InjectionMembers) ?? 
+                   FindAttributedConstructor(context.Type) ??
                    FindLongestConstructor(context.Type);
         }
 
-        private static ConstructorInfo FindInjectionConstructor(Type typeToConstruct)
+        private static object FindInjectionConstructor(Type typeToConstruct, InjectionMember[] injectionMembers)
+        {
+            if (null == injectionMembers) return null;
+
+            foreach (var member in injectionMembers.OfType<InjectionConstructor>())
+            {
+                if (member.Equals(typeToConstruct))
+                {
+                    return member;
+                }
+            }
+
+            return null;
+        }
+
+        private static object FindAttributedConstructor(Type typeToConstruct)
         {
             var constructors = typeToConstruct.GetTypeInfo()
                                               .DeclaredConstructors
@@ -51,7 +69,7 @@ namespace Unity.ObjectBuilder.Policies
             }
         }
 
-        private static ConstructorInfo FindLongestConstructor(Type typeToConstruct)
+        private static object FindLongestConstructor(Type typeToConstruct)
         {
             ConstructorInfo[] constructors = typeToConstruct.GetTypeInfo()
                                                             .DeclaredConstructors
@@ -69,7 +87,7 @@ namespace Unity.ObjectBuilder.Policies
                     return constructors[0];
 
                 default:
-                    int paramLength = constructors[0].GetParameters().Length;
+                    var paramLength = constructors[0].GetParameters().Length;
                     if (constructors[1].GetParameters().Length == paramLength)
                     {
                         throw new InvalidOperationException(

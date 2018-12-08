@@ -51,13 +51,8 @@ namespace Unity
             }
 
             // Create registration and add to appropriate storage
-            var container = (lifetimeManager is ISingletonLifetimePolicy) ? _root : this;
+            var container = lifetimeManager is ISingletonLifetimePolicy ? _root : this;
             var registration = new ContainerRegistration(typeFrom, name, typeTo, lifetimeManager, injectionMembers);
-
-            if (lifetimeManager is SingletonLifetimeManager || lifetimeManager is ContainerControlledLifetimeManager)
-            {
-                registration.Set(typeof(IBuildPlanPolicy), new ObjectBuilder.BuildPlan.ConstructorInvoke.ConstructorInvokeBuildPlan());
-            }
 
             // Add or replace existing 
             var previous = container.Register(registration);

@@ -1,16 +1,11 @@
-﻿using System;
+﻿using Microsoft.Practices.Unity.Tests.TestObjects;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Practices.Unity.Tests.TestObjects;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity;
-using Unity.Attributes;
 using Unity.Builder;
 using Unity.Builder.Strategy;
-using Unity.Exceptions;
 using Unity.Extension;
-using Unity.Injection;
-using Unity.Lifetime;
 using Unity.Tests.v5.TestObjects;
 using Unity.Tests.v5.TestSupport;
 
@@ -84,16 +79,6 @@ namespace Unity.Tests.v5
             var container = new UnityContainer();
 
             var obj = container.Resolve<ObjectWithTwoProperties>();
-
-            obj.Validate();
-        }
-
-        [TestMethod]
-        public void ShouldSkipIndexers()
-        {
-            var container = new UnityContainer();
-
-            var obj = container.Resolve<ObjectWithIndexer>();
 
             obj.Validate();
         }
@@ -600,7 +585,7 @@ namespace Unity.Tests.v5
 
             public class GarbageCollectingStrategy : BuilderStrategy
             {
-                public override void PreBuildUp(IBuilderContext context)
+                public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
                 {
                     GC.Collect();
                 }

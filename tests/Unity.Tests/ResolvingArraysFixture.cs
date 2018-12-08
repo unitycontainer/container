@@ -152,7 +152,7 @@ namespace Unity.Tests.v5
             }
 
             public object SelectConstructor<TContext>(ref TContext context)
-                where TContext : IBuildContext
+                where TContext : IBuilderContext
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
                 var selectedConstructor = new SelectedConstructor(ctr);
