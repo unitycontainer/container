@@ -10,13 +10,6 @@ namespace Unity
     /// </summary>
     public abstract class InjectionMember : IEquatable<Type>
     {
-        #region Fields
-
-        private Type _targetType;
-
-        #endregion
-
-
         #region Constructors
 
         protected InjectionMember()
@@ -26,7 +19,7 @@ namespace Unity
 
         protected InjectionMember(Type targetType)
         {
-            _targetType = targetType;
+            TargetType = targetType;
         }
 
         #endregion
@@ -34,15 +27,17 @@ namespace Unity
 
         #region Targeted Type 
 
+        protected Type TargetType { get; private set; }
+
         public virtual InjectionMember OnType<T>()
         {
-            _targetType = typeof(T);
+            TargetType = typeof(T);
             return this;
         }
 
         public virtual InjectionMember OnType(Type targetType)
         {
-            _targetType = targetType;
+            TargetType = targetType;
             return this;
         }
 
@@ -51,27 +46,23 @@ namespace Unity
 
         #region IEquatable<Type>
 
-        public virtual bool Equals(Type other)
-        {
-            return null  == _targetType ||
-                   other == _targetType;
-        }
+        public virtual bool Equals(Type other) => null == TargetType || other == TargetType;
 
         #endregion
 
 
         #region
 
-            /// <summary>
-            /// Add policies to the <paramref name="policies"/> to configure the
-            /// container to call this constructor with the appropriate parameter values.
-            /// </summary>
-            /// <param name="registeredType">Type of interface being registered. If no interface,
-            /// this will be null.</param>
-            /// <param name="mappedToType">Type of concrete type being registered.</param>
-            /// <param name="name">Name used to resolve the type object.</param>
-            /// <param name="policies">Policy list to add policies to.</param>
-            public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+        /// <summary>
+        /// Add policies to the <paramref name="policies"/> to configure the
+        /// container to call this constructor with the appropriate parameter values.
+        /// </summary>
+        /// <param name="registeredType">Type of interface being registered. If no interface,
+        /// this will be null.</param>
+        /// <param name="mappedToType">Type of concrete type being registered.</param>
+        /// <param name="name">Name used to resolve the type object.</param>
+        /// <param name="policies">Policy list to add policies to.</param>
+        public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
                 where TContext : IBuildContext
                 where TPolicyList : IPolicyList
             {

@@ -14,8 +14,8 @@ namespace Unity
     /// An <see cref="InjectionMember"/> that configures the
     /// container to call a method as part of buildup.
     /// </summary>
-    public class InjectionMethod : InjectionMember, 
-                                   IMemberWithParameters<MethodInfo>,
+    public class InjectionMethod : InjectionMember,
+                                   IMethodBaseMember<MethodInfo>,
                                    IEquatable<MethodInfo>
     {
         #region Fields
@@ -131,10 +131,10 @@ namespace Unity
         #endregion
 
 
-        #region IMemberWithParameters<MethodInfo>
+        #region IMethodBaseMember<MethodInfo>
 
 
-        public MethodInfo MemberInfo(Type type)
+        public MethodInfo GetInfo(Type type)
         {
             var info = _info.DeclaringType.GetTypeInfo();
             var methodHasOpenGenericParameters = _info.GetParameters()
@@ -206,10 +206,10 @@ namespace Unity
             return method._info;
         }
 
-#endregion
+        #endregion
 
 
-#region Implementation
+        #region Implementation
 
         /// <summary>
         /// A small function to handle name matching. You can override this
@@ -233,6 +233,6 @@ namespace Unity
                     string.Join(", ", _injectionParameterValues.Select(mp => mp.ParameterTypeName))));
         }
 
-#endregion
+        #endregion
     }
 }

@@ -15,14 +15,13 @@ namespace Unity
     /// for a constructor, so that the container can
     /// be configured to call this constructor.
     /// </summary>
-    public class InjectionConstructor : InjectionMember,
+    public class InjectionConstructor : MethodBaseMember<ConstructorInfo>,
                                         IExpressionFactory<NewExpression>
     {
         #region Fields
 
         private readonly Type[] _types;
-        private readonly object[] _data;
-        private ConstructorInfo _constructor;
+        private readonly object[] _parameters;
         private InjectionParameterValue[] _parameterValues;
 
 
@@ -57,7 +56,7 @@ namespace Unity
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         public InjectionConstructor(params object[] parameterValues)
         {
-            _data = parameterValues;
+            _parameters = parameterValues;
             _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
                 .Select(InjectionParameterValue.ToParameter)
                 .ToArray();
@@ -65,8 +64,8 @@ namespace Unity
 
         public InjectionConstructor(ConstructorInfo info, params object[] parameterValues)
         {
-            _constructor = info;
-            _data = parameterValues;
+            Info = info;
+            _parameters = parameterValues;
             _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
                 .Select(InjectionParameterValue.ToParameter)
                 .ToArray();
@@ -76,6 +75,41 @@ namespace Unity
 
 
         #region InjectionMember
+
+        public override InjectionMember OnType<T>() => OnType(typeof(T));
+
+        public override InjectionMember OnType(Type targetType)
+        {
+            var typeToCreate = targetType;
+            var constructors = typeToCreate.GetTypeInfo()
+                .DeclaredConstructors
+                .Where(c => c.IsStatic == false && c.IsPublic);
+            if (null != _parameterValues)
+            {
+                Info = constructors.FirstOrDefault(info => _parameterValues.Matches(info.GetParameters().Select(p => p.ParameterType))) ??
+                               throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor,
+                                   typeToCreate.FullName, string.Join(", ", _parameterValues.Select(p => p.ParameterTypeName).ToArray())));
+            }
+            else if (null != _types)
+            {
+                Info = constructors.FirstOrDefault(info => info.GetParameters().ParametersMatch(_types)) ??
+                               throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                                   Constants.NoSuchConstructor, typeToCreate.FullName, string.Join(", ", _types.Select(t => t.Name))));
+
+                _parameterValues = Info.GetParameters().Select(ToResolvedParameter).ToArray();
+            }
+            else
+            {
+                Info = constructors.FirstOrDefault(info => 0 == info.GetParameters().Length) ??
+                               throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                                   Constants.NoSuchConstructor, typeToCreate.FullName, string.Empty));
+
+                _parameterValues = new InjectionParameterValue[0];
+            }
+
+            return this;
+        }
+
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -87,34 +121,7 @@ namespace Unity
         /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            var typeToCreate = mappedToType;
-            var constructors = typeToCreate.GetTypeInfo()
-                                           .DeclaredConstructors
-                                           .Where(c => c.IsStatic == false && c.IsPublic);
-            if (null != _parameterValues)
-            {
-                _constructor = constructors.FirstOrDefault(info => _parameterValues.Matches(info.GetParameters().Select(p => p.ParameterType))) ??
-                       throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor,
-                               typeToCreate.FullName, string.Join(", ", _parameterValues.Select(p => p.ParameterTypeName).ToArray())));
-            }
-            else if (null != _types)
-            {
-                _constructor = constructors.FirstOrDefault(info => info.GetParameters().ParametersMatch(_types)) ??
-                       throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                           Constants.NoSuchConstructor, typeToCreate.FullName, string.Join(", ", _types.Select(t => t.Name))));
-
-                _parameterValues = _constructor.GetParameters().Select(ToResolvedParameter).ToArray();
-            }
-            else
-            {
-                _constructor = constructors.FirstOrDefault(info => 0 == info.GetParameters().Length) ??
-                       throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                           Constants.NoSuchConstructor, typeToCreate.FullName, string.Empty));
-
-                _parameterValues = new InjectionParameterValue[0];
-            }
-
-            policies.Set(registeredType, name, typeof(IExpressionFactory<NewExpression>), this);
+            OnType(mappedToType);
         }
 
         public override bool BuildRequired => true;
@@ -127,9 +134,7 @@ namespace Unity
         public NewExpression GetExpression<TContext>(Type type)
             where TContext : IBuildContext
         {
-
-
-            return Expression.New(_constructor);
+            return Expression.New(Info);
         }
 
         #endregion
@@ -143,19 +148,19 @@ namespace Unity
             SelectedConstructor result;
 
             var typeInfo = context.Type.GetTypeInfo();
-            var methodHasOpenGenericParameters = _constructor.GetParameters()
+            var methodHasOpenGenericParameters = Info.GetParameters()
                 .Select(p => p.ParameterType.GetTypeInfo())
                 .Any(i => i.IsGenericType && i.ContainsGenericParameters);
 
-            var ctorTypeInfo = _constructor.DeclaringType.GetTypeInfo();
+            var ctorTypeInfo = Info.DeclaringType.GetTypeInfo();
 
             if (!methodHasOpenGenericParameters && !(ctorTypeInfo.IsGenericType && ctorTypeInfo.ContainsGenericParameters))
             {
-                result = new SelectedConstructor(_constructor);
+                result = new SelectedConstructor(Info);
             }
             else
             {
-                var closedCtorParameterTypes = _constructor.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
+                var closedCtorParameterTypes = Info.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
                 var constructor = typeInfo.DeclaredConstructors.Single(c => !c.IsStatic && c.GetParameters().ParametersMatch(closedCtorParameterTypes));
                 result = new SelectedConstructor(constructor);
             }
@@ -176,7 +181,7 @@ namespace Unity
 
         public static explicit operator ConstructorInfo(InjectionConstructor ctor)
         {
-            return ctor._constructor;
+            return ctor.Info;
         }
 
         #endregion
