@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Builder.Strategy;
 using Unity.Extension;
 using Unity.Policy;
+using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Tests.v5.TestSupport;
 
@@ -127,9 +127,9 @@ namespace Unity.Tests.v5
 
         private class InjectedObjectConfigurationExtension : UnityContainerExtension
         {
-            private readonly IResolverPolicy resolverPolicy;
+            private readonly IResolver resolverPolicy;
 
-            public InjectedObjectConfigurationExtension(IResolverPolicy resolverPolicy)
+            public InjectedObjectConfigurationExtension(IResolver resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }
@@ -144,9 +144,9 @@ namespace Unity.Tests.v5
 
         private class InjectedObjectSelectorPolicy : IConstructorSelectorPolicy
         {
-            private readonly IResolverPolicy resolverPolicy;
+            private readonly IResolver resolverPolicy;
 
-            public InjectedObjectSelectorPolicy(IResolverPolicy resolverPolicy)
+            public InjectedObjectSelectorPolicy(IResolver resolverPolicy)
             {
                 this.resolverPolicy = resolverPolicy;
             }

@@ -1,15 +1,15 @@
 ﻿using System;
-using Unity.Build;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IResolverPolicy"/> that stores a
+    /// An implementation of <see cref="IResolver"/> that stores a
     /// type and name, and at resolution time puts them together into a
     /// <see cref="NamedTypeBuildKey"/>.
     /// </summary>
-    public class NamedTypeDependencyResolverPolicy : IResolverPolicy
+    public class NamedTypeDependencyResolverPolicy : IResolver
     {
         /// <summary>
         /// Create an instance of <see cref="NamedTypeDependencyResolverPolicy"/>
@@ -29,7 +29,7 @@ namespace Unity.ResolverPolicy
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
         public object Resolve<TContext>(ref TContext context)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             return context.Resolve(Type, Name);
         }

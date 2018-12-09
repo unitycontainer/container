@@ -1,6 +1,6 @@
 ﻿using System;
-using Unity.Build;
 using Unity.Builder;
+using Unity.Resolution;
 
 namespace Unity.Policy.Mapping
 {
@@ -40,7 +40,7 @@ namespace Unity.Policy.Mapping
         /// if writing a more sophisticated mapping, unused in this implementation.</param>
         /// <returns>The new build key.</returns>
         public INamedType Map<TContext>(INamedType buildKey, ref TContext context) 
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             return this;
         }

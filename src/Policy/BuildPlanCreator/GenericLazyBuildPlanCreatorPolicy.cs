@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder;
 using Unity.Container.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
+using Unity.Resolution;
 
 namespace Unity.Policy.BuildPlanCreator
 {
@@ -29,7 +29,7 @@ namespace Unity.Policy.BuildPlanCreator
             var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
             var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(typeof(TBuilderContext), itemType);
 
-            return new DynamicMethodBuildPlan(lazyMethod.CreateDelegate(typeof(BuildDelegate<TBuilderContext>)));
+            return new DynamicMethodBuildPlan(lazyMethod.CreateDelegate(typeof(ResolveDelegate<TBuilderContext>)));
         }
 
         #endregion

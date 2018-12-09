@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Policy;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Builder
@@ -11,7 +11,7 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    public interface IBuilderContext : IBuildContext
+    public interface IBuilderContext : IResolveContext
     {
         /// <summary>
         /// <see cref="TypeInfo"/> of the <see cref="Type"/> that is being built.

@@ -4,14 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder.Selection;
+using Unity.Resolution;
 using Unity.ResolverPolicy;
 
 namespace Unity.Builder.Expressions
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    class BuilderContextExpression<TBuilderContext> : BuildContextExpression<TBuilderContext>
+    class BuilderContextExpression<TBuilderContext> : ResolveContextExpression<TBuilderContext>
         where TBuilderContext : IBuilderContext
     {
         #region Constructor

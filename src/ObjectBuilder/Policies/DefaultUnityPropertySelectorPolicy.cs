@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 
@@ -86,19 +87,19 @@ namespace Unity.ObjectBuilder.Policies
 
 
         /// <summary>
-        /// Create a <see cref="IResolverPolicy"/> for the given
+        /// Create a <see cref="IResolver"/> for the given
         /// property.
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected IResolverPolicy CreateResolver(PropertyInfo property)
+        protected IResolver CreateResolver(PropertyInfo property)
         {
             var attribute = property.GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
                                     .OfType<DependencyResolutionAttribute>()
                                     .First();
 
             return attribute is OptionalDependencyAttribute dependencyAttribute
-                ? (IResolverPolicy)new OptionalDependencyResolverPolicy(property.PropertyType, dependencyAttribute.Name)
+                ? (IResolver)new OptionalDependencyResolverPolicy(property.PropertyType, dependencyAttribute.Name)
                 : null != attribute.Name 
                     ? new NamedTypeDependencyResolverPolicy(property.PropertyType, attribute.Name) 
                     : null;

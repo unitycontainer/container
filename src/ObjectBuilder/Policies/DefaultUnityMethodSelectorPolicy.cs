@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 
@@ -71,12 +72,12 @@ namespace Unity.ObjectBuilder.Policies
         }
 
         /// <summary>
-        /// Create a <see cref="IResolverPolicy"/> instance for the given
+        /// Create a <see cref="IResolver"/> instance for the given
         /// <see cref="ParameterInfo"/>.
         /// </summary>
         /// <param name="parameter">Parameter to create the resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected IResolverPolicy CreateResolver(ParameterInfo parameter)
+        protected IResolver CreateResolver(ParameterInfo parameter)
         {
             var attributes = parameter.GetCustomAttributes(false)
                                       .OfType<DependencyResolutionAttribute>()
@@ -88,7 +89,7 @@ namespace Unity.ObjectBuilder.Policies
                 // enforce at most one. So we don't need to check for more.
                 var attr = attributes[0];
                 return attr is OptionalDependencyAttribute dependencyAttribute
-                    ? (IResolverPolicy) new OptionalDependencyResolverPolicy(parameter.ParameterType, dependencyAttribute.Name)
+                    ? (IResolver) new OptionalDependencyResolverPolicy(parameter.ParameterType, dependencyAttribute.Name)
                     : null != attr.Name 
                         ? new NamedTypeDependencyResolverPolicy(parameter.ParameterType, attr.Name)
                         : null;

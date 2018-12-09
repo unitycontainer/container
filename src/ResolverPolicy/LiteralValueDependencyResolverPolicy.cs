@@ -1,13 +1,13 @@
-﻿using Unity.Build;
-using Unity.Policy;
+﻿using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// A <see cref="IResolverPolicy"/> implementation that returns
+    /// A <see cref="IResolver"/> implementation that returns
     /// the value set in the constructor.
     /// </summary>
-    public class LiteralValueDependencyResolverPolicy : IResolverPolicy
+    public class LiteralValueDependencyResolverPolicy : IResolver
     {
         private readonly object _dependencyValue;
 
@@ -27,7 +27,7 @@ namespace Unity.ResolverPolicy
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
         public object Resolve<TContext>(ref TContext context)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             return _dependencyValue;
         }

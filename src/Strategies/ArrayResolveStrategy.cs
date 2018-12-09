@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Strategies
@@ -55,7 +55,7 @@ namespace Unity.Strategies
 
         public override void PreBuildUp<TContext>(ref TContext context)
         {
-            var plan = context.Registration.Get<BuildDelegate<TContext>>();
+            var plan = context.Registration.Get<ResolveDelegate<TContext>>();
             if (plan == null)
             {
                 var typeArgument = context.OriginalBuildKey.Type.GetElementType();
@@ -70,12 +70,12 @@ namespace Unity.Strategies
                 }
                 else
                 {
-                    plan = (BuildDelegate<TContext>)_resolveMethod
+                    plan = (ResolveDelegate<TContext>)_resolveMethod
                         .MakeGenericMethod(typeof(TContext), typeArgument)
-                        .CreateDelegate(typeof(BuildDelegate<TContext>));
+                        .CreateDelegate(typeof(ResolveDelegate<TContext>));
                 }
 
-                context.Registration.Set(typeof(BuildDelegate<TContext>), plan);
+                context.Registration.Set(typeof(ResolveDelegate<TContext>), plan);
             }
 
             context.Existing = plan(ref context);

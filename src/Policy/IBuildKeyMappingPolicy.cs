@@ -1,5 +1,5 @@
-﻿using Unity.Build;
-using Unity.Builder;
+﻿using Unity.Builder;
+using Unity.Resolution;
 
 namespace Unity.Policy
 {
@@ -17,7 +17,7 @@ namespace Unity.Policy
         /// (called when getting container registrations).</param>
         /// <returns>The new build key.</returns>
         INamedType Map<TContext>(INamedType buildKey, ref TContext context) 
-            where TContext : IBuildContext;
+            where TContext : IResolveContext;
 
         /// <summary>
         /// Instructs engine to resolve type rather than build it

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using Unity.Build;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// A <see cref="IResolverPolicy"/> that will attempt to
+    /// A <see cref="IResolver"/> that will attempt to
     /// resolve a value, and return null if it cannot rather than throwing.
     /// </summary>
-    public class OptionalDependencyResolverPolicy : IResolverPolicy
+    public class OptionalDependencyResolverPolicy : IResolver
     {
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyResolverPolicy"/> object
@@ -60,7 +60,7 @@ namespace Unity.ResolverPolicy
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
         public object Resolve<TContext>(ref TContext context)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             try
             {

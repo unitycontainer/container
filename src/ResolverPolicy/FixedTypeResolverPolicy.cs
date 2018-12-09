@@ -1,16 +1,16 @@
 ﻿using System;
-using Unity.Build;
 using Unity.Builder;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IResolverPolicy"/> that
+    /// An implementation of <see cref="IResolver"/> that
     /// calls back into the build chain to build up the dependency, passing
     /// a type given at compile time as its build key.
     /// </summary>
-    public class FixedTypeResolverPolicy : IResolverPolicy
+    public class FixedTypeResolverPolicy : IResolver
     {
         private readonly NamedTypeBuildKey _keyToBuild;
 
@@ -31,7 +31,7 @@ namespace Unity.ResolverPolicy
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
         public object Resolve<TContext>(ref TContext context)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             return context.Resolve(_keyToBuild.Type, _keyToBuild.Name);
         }

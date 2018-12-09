@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder;
 using Unity.Builder.Expressions;
 using Unity.Builder.Selection;
@@ -10,6 +9,7 @@ using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
 {
@@ -89,7 +89,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructInterface),
-                            BuildContextExpression<TBuilderContext>.Type),
+                            ResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -100,7 +100,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructAbstractClass),
-                            BuildContextExpression<TBuilderContext>.Type),
+                            ResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -111,7 +111,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructDelegate),
-                            BuildContextExpression<TBuilderContext>.Type),
+                            ResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -122,7 +122,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.TypeIsNotConstructable),
-                            BuildContextExpression<TBuilderContext>.Type),
+                            ResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -165,7 +165,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant("No appropriate constructor selector is registered for type {0}."),
-                            BuildContextExpression<TBuilderContext>.Type),
+                            ResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -206,7 +206,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                             Expression.Call(StringFormat,
                                 Expression.Constant(Constants.NoConstructorFound),
-                                BuildContextExpression<TBuilderContext>.Type),
+                                ResolveContextExpression<TBuilderContext>.Type),
                             InvalidRegistrationExpression));
             }
         }

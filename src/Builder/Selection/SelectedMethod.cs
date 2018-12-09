@@ -2,13 +2,14 @@
 
 using System.Reflection;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Builder.Selection
 {
     /// <summary>
     /// Objects of this type are the return value from <see cref="IMethodSelectorPolicy.SelectMethods"/>.
     /// It encapsulates the desired <see cref="MethodInfo"/> with the string keys
-    /// needed to look up the <see cref="IResolverPolicy"/> for each
+    /// needed to look up the <see cref="IResolver"/> for each
     /// parameter.
     /// </summary>
     public class SelectedMethod : SelectedMemberWithParameters<MethodInfo>

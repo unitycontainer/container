@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Exceptions;
 using Unity.Factory;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Builder
@@ -104,7 +104,7 @@ namespace Unity.Builder
         #endregion
 
 
-        #region IBuildContext
+        #region IResolveContext
 
         public IUnityContainer Container => _container;
 
@@ -130,7 +130,7 @@ namespace Unity.Builder
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                     {
                         // Check if itself is a value 
-                        if (resolverOverride is IResolverPolicy resolverPolicy)
+                        if (resolverOverride is IResolver resolverPolicy)
                         {
                             return resolverPolicy.Resolve(ref context);
                         }
@@ -150,10 +150,10 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case BuildDelegate<BuilderContext> resolver:
+                case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
-                case IResolverPolicy policy:
+                case IResolver policy:
                     return policy.Resolve(ref context);
 
                 case IResolverFactory factory:
@@ -187,7 +187,7 @@ namespace Unity.Builder
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
                         // Check if itself is a value 
-                        if (resolverOverride is IResolverPolicy resolverPolicy)
+                        if (resolverOverride is IResolver resolverPolicy)
                         {
                             return resolverPolicy.Resolve(ref context);
                         }
@@ -207,10 +207,10 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case BuildDelegate<BuilderContext> resolver:
+                case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
-                case IResolverPolicy policy:
+                case IResolver policy:
                     return policy.Resolve(ref context);
 
                 case IResolverFactory factory:

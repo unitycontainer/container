@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using Unity.Build;
 using Unity.Builder;
+using Unity.Resolution;
 
 namespace Unity.Policy.Mapping
 {
@@ -49,7 +49,7 @@ namespace Unity.Policy.Mapping
         /// if writing a more sophisticated mapping.</param>
         /// <returns>The new build key.</returns>
         public INamedType Map<TContext>(INamedType buildKey, ref TContext context)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             var targetTypeInfo = buildKey.Type.GetTypeInfo();
             if (targetTypeInfo.IsGenericTypeDefinition)
