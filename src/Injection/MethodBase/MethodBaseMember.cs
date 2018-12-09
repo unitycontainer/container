@@ -9,6 +9,7 @@ namespace Unity
     {
         #region Fields
 
+
         
         #endregion
 
@@ -19,8 +20,8 @@ namespace Unity
             protected set;
         }
 
-        //public abstract TMemberInfo GetInfo(Type type);
+        public abstract TMemberInfo GetInfo(Type type);
 
-        public virtual object[] GetParameters() => null;
+        public abstract object[] GetParameters();
     }
 }

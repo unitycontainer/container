@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Build;
-using Unity.Builder.Selection;
 using Unity.Factory;
 using Unity.Utility;
 
@@ -110,15 +109,6 @@ namespace Unity
             return this;
         }
 
-
-        /// <summary>
-        /// Add policies to the <paramref name="policies"/> to configure the
-        /// container to call this constructor with the appropriate parameter values.
-        /// </summary>
-        /// <param name="registeredType">Interface registered, ignored in this implementation.</param>
-        /// <param name="mappedToType">Type to register.</param>
-        /// <param name="name">Name used to resolve the type object.</param>
-        /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
             OnType(mappedToType);
@@ -129,25 +119,11 @@ namespace Unity
         #endregion
 
 
-        #region IExpressionFactory
+        #region MethodBaseMember
 
-        public NewExpression GetExpression<TContext>(Type type)
-            where TContext : IBuildContext
+        public override ConstructorInfo GetInfo(Type type)
         {
-            return Expression.New(Info);
-        }
-
-        #endregion
-
-
-        #region IConstructorSelectorPolicy
-
-        public SelectedConstructor SelectConstructor<TContext>(ref TContext context)
-            where TContext : IBuildContext
-        {
-            SelectedConstructor result;
-
-            var typeInfo = context.Type.GetTypeInfo();
+            var typeInfo = type.GetTypeInfo();
             var methodHasOpenGenericParameters = Info.GetParameters()
                 .Select(p => p.ParameterType.GetTypeInfo())
                 .Any(i => i.IsGenericType && i.ContainsGenericParameters);
@@ -155,23 +131,27 @@ namespace Unity
             var ctorTypeInfo = Info.DeclaringType.GetTypeInfo();
 
             if (!methodHasOpenGenericParameters && !(ctorTypeInfo.IsGenericType && ctorTypeInfo.ContainsGenericParameters))
-            {
-                result = new SelectedConstructor(Info);
-            }
-            else
-            {
-                var closedCtorParameterTypes = Info.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
-                var constructor = typeInfo.DeclaredConstructors.Single(c => !c.IsStatic && c.GetParameters().ParametersMatch(closedCtorParameterTypes));
-                result = new SelectedConstructor(constructor);
-            }
+                return  Info;
 
-            foreach (var parameterValue in _parameterValues)
-            {
-                var resolver = parameterValue.GetResolver<TContext>(context.Type);
-                result.AddParameterResolver(resolver);
-            }
+            var closedCtorParameterTypes = Info.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
+            return typeInfo.DeclaredConstructors.Single(c => !c.IsStatic && c.GetParameters().ParametersMatch(closedCtorParameterTypes));
+        }
 
-            return result;
+        public override object[] GetParameters()
+        {
+            return _parameterValues;
+        }
+
+        #endregion
+
+
+
+        #region IExpressionFactory
+
+        public NewExpression GetExpression<TContext>(Type type)
+            where TContext : IBuildContext
+        {
+            return Expression.New(Info);
         }
 
         #endregion
