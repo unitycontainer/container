@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -11,8 +10,7 @@ namespace Unity
     /// except that in the presence of child containers, each child gets it's own instance
     /// of the object, instead of sharing one in the common parent.
     /// </summary>
-    public class HierarchicalLifetimeManager : SynchronizedLifetimeManager, 
-                                               IHierarchicalLifetimePolicy
+    public class HierarchicalLifetimeManager : SynchronizedLifetimeManager
     {
         #region Fields
 

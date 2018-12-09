@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Factory;
 using Unity.Resolution;
 using Unity.Utility;
 
@@ -14,8 +13,7 @@ namespace Unity
     /// for a constructor, so that the container can
     /// be configured to call this constructor.
     /// </summary>
-    public class InjectionConstructor : MethodBaseMember<ConstructorInfo>,
-                                        IExpressionFactory<NewExpression>
+    public class InjectionConstructor : MethodBaseMember<ConstructorInfo>
     {
         #region Fields
 

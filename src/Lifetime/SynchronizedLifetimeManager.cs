@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Unity.Exceptions;
 
 namespace Unity
 {
@@ -20,7 +19,7 @@ namespace Unity
     /// </para>
     /// </remarks>
     /// <see cref="LifetimeManager"/>
-    public abstract class SynchronizedLifetimeManager : LifetimeManager, IRequiresRecovery, IDisposable
+    public abstract class SynchronizedLifetimeManager : LifetimeManager, IDisposable
 
     {
         #region Fields

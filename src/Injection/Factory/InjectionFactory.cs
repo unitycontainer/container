@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
@@ -60,7 +59,7 @@ namespace Unity
                 throw new InvalidOperationException(
                     "Registration where both MappedToType and InjectionFactory are set is not supported");
 
-            var lifetime = policies.Get(registeredType, name, typeof(ILifetimePolicy));
+            var lifetime = policies.Get(registeredType, name, typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
                 policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
@@ -68,7 +67,7 @@ namespace Unity
                     {
                         var result = _factoryFunc(context.Container, context.Type, context.Name);
                         var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
-                        context.Set(context.Type, context.Name, typeof(ILifetimePolicy), perBuildLifetime);
+                        context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
                         return result;
                     }));
             }

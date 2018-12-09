@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Registration
+namespace Unity
 {
     /// <summary>
     /// Information about the types registered in a container.
@@ -18,8 +18,7 @@ namespace Unity.Registration
         string Name { get; }
 
         /// <summary>
-        /// The type that this registration is mapped to. If no type mapping was done, the
-        /// <see cref="INamedType.RegisteredType"/> property and this one will have the same value.
+        /// The type that this registration is mapped to. 
         /// </summary>
         Type MappedToType { get; }
 

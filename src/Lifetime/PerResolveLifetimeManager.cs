@@ -1,5 +1,4 @@
-﻿using Unity.Policy;
-
+﻿
 namespace Unity
 {
     /// <summary>
@@ -7,7 +6,7 @@ namespace Unity
     /// but also provides a signal to the default build plan, marking the type so that
     /// instances are reused across the build up object graph.
     /// </summary>
-    public class PerResolveLifetimeManager : LifetimeManager, IRequireBuildUpPolicy
+    public class PerResolveLifetimeManager : LifetimeManager
     {
         protected object value;
 

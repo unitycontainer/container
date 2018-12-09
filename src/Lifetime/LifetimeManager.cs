@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -7,12 +6,12 @@ namespace Unity
     /// Base class for Lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager : ILifetimePolicy, ILifetimeFactoryPolicy
+    public abstract class LifetimeManager
     {
         public virtual bool InUse { get; set; }
 
 
-        #region ILifetimePolicy Members
+        #region LifetimeManager Members
 
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.
@@ -39,7 +38,7 @@ namespace Unity
 
         #region ILifetimeFactoryPolicy
 
-        public ILifetimePolicy CreateLifetimePolicy()
+        public LifetimeManager CreateLifetimePolicy()
         {
             return OnCreateLifetimeManager();
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -8,8 +7,7 @@ namespace Unity
     /// When the <see cref="ContainerControlledLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
     /// </summary>
-    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager,
-                                                      IContainerLifetimePolicy
+    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager
     {
         #region Fields
 

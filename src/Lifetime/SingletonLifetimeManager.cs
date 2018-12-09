@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -8,8 +7,7 @@ namespace Unity
     /// When the <see cref="SingletonLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
     /// </summary>
-    public class SingletonLifetimeManager : SynchronizedLifetimeManager,
-                                            ISingletonLifetimePolicy
+    public class SingletonLifetimeManager : SynchronizedLifetimeManager
     {
         #region Fields
 

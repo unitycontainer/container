@@ -7,7 +7,8 @@ using System.Reflection;
 namespace Unity.Resolution
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    public class ResolveContextExpression<TContext>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public class IResolveContextExpression<TContext>
         where TContext : IResolveContext
     {
         #region Fields
@@ -45,7 +46,7 @@ namespace Unity.Resolution
         
         #region Constructor
 
-        static ResolveContextExpression()
+        static IResolveContextExpression()
         {
             var typeInfo = typeof(TContext).GetTypeInfo();
 

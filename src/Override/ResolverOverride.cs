@@ -1,6 +1,4 @@
 ﻿using System;
-using Unity.Factory;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
