@@ -46,8 +46,6 @@ namespace Unity.Registration
 
         public virtual IList<BuilderStrategy> BuildChain { get; set; }
 
-        public bool EnableOptimization { get; set; } = true;
-
         public InjectionMember[] InjectionMembers { get; set; }
 
         #endregion

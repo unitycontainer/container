@@ -11,7 +11,7 @@ using Unity.ResolverPolicy;
 namespace Unity.Builder.Expressions
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    class BuilderContextExpression<TBuilderContext> : ResolveContextExpression<TBuilderContext>
+    class BuilderContextExpression<TBuilderContext> : IResolveContextExpression<TBuilderContext>
         where TBuilderContext : IBuilderContext
     {
         #region Constructor

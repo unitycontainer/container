@@ -135,7 +135,7 @@ namespace Unity
 
             // Default Policies
             Set(null, null, GetDefaultPolicies());
-            Set(typeof(Func<>), string.Empty, typeof(ILifetimePolicy), new PerResolveLifetimeManager());
+            Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
             Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
 

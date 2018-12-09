@@ -39,7 +39,7 @@ namespace Unity.Strategies
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
 
             // Require Re-Resolve if no injectors specified
-            var buildRequired = registration.LifetimeManager is IRequireBuildUpPolicy ||
+            var buildRequired = registration.LifetimeManager is PerResolveLifetimeManager ||
                                 (injectionMembers?.Any(m => m.BuildRequired) ?? false);
 
             // Set mapping policy
@@ -76,8 +76,8 @@ namespace Unity.Strategies
                 
             IBuildKeyMappingPolicy policy = context.Registration.Get<IBuildKeyMappingPolicy>() 
                                           ?? (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType 
-                                          ? context.Policies.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type.GetGenericTypeDefinition(), 
-                                                                                         context.OriginalBuildKey.Name) 
+                                          ? (IBuildKeyMappingPolicy)context.Policies.Get(context.OriginalBuildKey.Type.GetGenericTypeDefinition(), 
+                                                                                         context.OriginalBuildKey.Name, typeof(IBuildKeyMappingPolicy)) 
                                           : null);
             if (null == policy) return;
 

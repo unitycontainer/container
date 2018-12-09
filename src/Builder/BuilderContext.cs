@@ -5,8 +5,6 @@ using System.Reflection;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Exceptions;
-using Unity.Factory;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -244,7 +242,7 @@ namespace Unity.Builder
 
         public IPolicyList Policies { get; }
 
-        public IRequiresRecovery RequiresRecovery { get; set; }
+        public SynchronizedLifetimeManager RequiresRecovery { get; set; }
 
         public bool BuildComplete { get; set; }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Policy;
 
 namespace Unity.Registration
 {
@@ -14,7 +13,7 @@ namespace Unity.Registration
             : base(registeredType ?? mappedTo, string.IsNullOrEmpty(name) ? null : name)
         {
             MappedToType = mappedTo;
-            Key = typeof(ILifetimePolicy);
+            Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;

@@ -59,7 +59,7 @@ namespace Unity.Builder
         /// <summary>
         /// Reference to Lifetime manager which requires recovery
         /// </summary>
-        IRequiresRecovery RequiresRecovery { get; set; }
+        SynchronizedLifetimeManager RequiresRecovery { get; set; }
 
         /// <summary>
         /// Gets the policies for the current context. 

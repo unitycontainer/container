@@ -63,7 +63,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                     ValidateConstructedType(ref context) ?? 
                     CreateInstanceBuildupExpression(ref context)));
 
-            var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(ILifetimePolicy));
+            var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(LifetimeManager));
             if (policy is PerResolveLifetimeManager)
             {
                 // TODO: Optimize
@@ -89,7 +89,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructInterface),
-                            ResolveContextExpression<TBuilderContext>.Type),
+                            IResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -100,7 +100,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructAbstractClass),
-                            ResolveContextExpression<TBuilderContext>.Type),
+                            IResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -111,7 +111,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructDelegate),
-                            ResolveContextExpression<TBuilderContext>.Type),
+                            IResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -122,7 +122,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.TypeIsNotConstructable),
-                            ResolveContextExpression<TBuilderContext>.Type),
+                            IResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -165,7 +165,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.Call(
                             StringFormat,
                             Expression.Constant("No appropriate constructor selector is registered for type {0}."),
-                            ResolveContextExpression<TBuilderContext>.Type),
+                            IResolveContextExpression<TBuilderContext>.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -206,7 +206,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
                         Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                             Expression.Call(StringFormat,
                                 Expression.Constant(Constants.NoConstructorFound),
-                                ResolveContextExpression<TBuilderContext>.Type),
+                                IResolveContextExpression<TBuilderContext>.Type),
                             InvalidRegistrationExpression));
             }
         }
@@ -216,9 +216,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
         {
             if (parameters.Any(p => Equals(p.ParameterType.GetTypeInfo(), target)))
             {
-                var policy = (ILifetimePolicy)context.Policies.Get(context.BuildKey.Type,
+                var policy = (LifetimeManager)context.Policies.Get(context.BuildKey.Type,
                     context.BuildKey.Name,
-                    typeof(ILifetimePolicy));
+                    typeof(LifetimeManager));
                 if (null == policy?.GetValue())
                     return true;
             }
@@ -246,7 +246,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
             context.Policies.Set(context.OriginalBuildKey.Type,
                                  context.OriginalBuildKey.Name,
-                                 typeof(ILifetimePolicy), perBuildLifetime);
+                                 typeof(LifetimeManager), perBuildLifetime);
         }
 
         #endregion
