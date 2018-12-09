@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Build;
 using Unity.Factory;
 using Unity.Policy;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Utility;
 
@@ -16,7 +16,7 @@ namespace Unity
     /// </summary>
     public class InjectionProperty : InjectionMember,
                                      IEquatable<PropertyInfo>,
-                                     IResolverPolicy
+                                     IResolver
     {
         #region Fields
 
@@ -121,14 +121,14 @@ namespace Unity
         #region IResolverPolicy
 
 
-        public object Resolve<TContext>(ref TContext context) where TContext : IBuildContext
+        public object Resolve<TContext>(ref TContext context) where TContext : IResolveContext
         {
             if (ReferenceEquals(Value, this))
             {
                 Value = new ResolvedParameter(Info.PropertyType);
             }
 
-            if (Value is IResolverPolicy policy)
+            if (Value is IResolver policy)
                 return policy.Resolve(ref context);
 
             if (Value is IResolverFactory factory)

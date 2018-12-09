@@ -1,7 +1,7 @@
 ﻿using System;
-using Unity.Build;
 using Unity.Factory;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -68,11 +68,11 @@ namespace Unity
 
         #region IResolverFactory
 
-        public virtual BuildDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IBuildContext
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
-            return this is IResolverPolicy policy
-                ? (BuildDelegate<TContext>)policy.Resolve
+            return this is IResolver policy
+                ? (ResolveDelegate<TContext>)policy.Resolve
                 : throw new InvalidCastException("Derived type does not implement IResolverPolicy");
         }
 

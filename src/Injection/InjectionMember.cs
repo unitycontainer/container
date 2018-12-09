@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Build;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
@@ -63,7 +63,7 @@ namespace Unity
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
         public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
-                where TContext : IBuildContext
+                where TContext : IResolveContext
                 where TPolicyList : IPolicyList
             {
             }

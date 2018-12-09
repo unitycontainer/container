@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Build;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -29,7 +29,7 @@ namespace Unity
             : base(genericParameterName, resolutionKey)
         { }
 
-        protected override BuildDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
         {
             return (ref TContext context) =>
             {

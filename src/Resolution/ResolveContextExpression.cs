@@ -4,23 +4,23 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Unity.Build
+namespace Unity.Resolution
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    public class BuildContextExpression<TContext>
-        where TContext : IBuildContext
+    public class ResolveContextExpression<TContext>
+        where TContext : IResolveContext
     {
         #region Fields
 
         protected static readonly MethodInfo ResolveMethod =
-            typeof(IBuildContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
+            typeof(IResolveContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IResolveContext.Resolve))
                 .First(m => 2 == m.GetParameters().Length);
 
 
         protected static readonly MethodInfo ResolvePropertyMethod =
-            typeof(IBuildContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
+            typeof(IResolveContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IResolveContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
@@ -30,8 +30,8 @@ namespace Unity.Build
                 });
 
         protected static readonly MethodInfo ResolveParameterMethod =
-            typeof(IBuildContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(IBuildContext.Resolve))
+            typeof(IResolveContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IResolveContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
@@ -45,12 +45,12 @@ namespace Unity.Build
         
         #region Constructor
 
-        static BuildContextExpression()
+        static ResolveContextExpression()
         {
             var typeInfo = typeof(TContext).GetTypeInfo();
 
             var contextRefType =
-                typeof(BuildDelegate<TContext>).GetTypeInfo()
+                typeof(ResolveDelegate<TContext>).GetTypeInfo()
                                                  .GetDeclaredMethod("Invoke")
                                                  .GetParameters()[0]
                                                  .ParameterType;
@@ -58,7 +58,7 @@ namespace Unity.Build
             Context   = Expression.Parameter(contextRefType, "context");
             Type      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(INamedType.Type)));
             Name      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(INamedType.Name)));
-            Container = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuildContext.Container)));
+            Container = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IResolveContext.Container)));
         }
 
         #endregion

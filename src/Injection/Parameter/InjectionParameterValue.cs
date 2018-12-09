@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Build;
 using Unity.Factory;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -43,8 +43,8 @@ namespace Unity
         public abstract bool MatchesType(Type t);
 
 
-        public virtual BuildDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IBuildContext
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
             return Value is IResolverFactory factory 
                 ? factory.GetResolver<TContext>(type) 
@@ -52,14 +52,14 @@ namespace Unity
         }
 
         protected static object ResolveValue<TContext>(ref TContext context, object value)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             switch (value)
             {
-                case BuildDelegate<TContext> resolver:
+                case ResolveDelegate<TContext> resolver:
                     return resolver(ref context);
 
-                case IResolverPolicy policy:
+                case IResolver policy:
                     return policy.Resolve(ref context);
             }
 

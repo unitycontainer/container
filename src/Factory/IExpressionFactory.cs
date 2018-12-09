@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Unity.Build;
+using Unity.Resolution;
 
 namespace Unity.Factory
 {
@@ -8,6 +8,6 @@ namespace Unity.Factory
         where TExpression : Expression
     {
         TExpression GetExpression<TContext>(Type type)
-            where TContext : IBuildContext;
+            where TContext : IResolveContext;
     }
 }

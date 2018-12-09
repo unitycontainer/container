@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Build;
 using Unity.Factory;
+using Unity.Policy;
+using Unity.Resolution;
 using Unity.Utility;
 
 namespace Unity
@@ -22,7 +23,7 @@ namespace Unity
         private static readonly MethodInfo ResolverMethod =
             typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
         private delegate object Resolver<TContext>(ref TContext context, object[] values)
-            where TContext : IBuildContext;
+            where TContext : IResolveContext;
 
         /// <summary>
         /// Construct a new <see cref="ResolvedArrayParameter"/> that
@@ -65,7 +66,7 @@ namespace Unity
             }
         }
 
-        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
             var elementType = !_elementType.IsArray ? _elementType
                 : _elementType.GetArrayParameterType(type.GetTypeInfo().GenericTypeArguments);
@@ -81,7 +82,7 @@ namespace Unity
                         return factory.GetResolver<TContext>(type);
 
                     case Type _ when typeof(Type) != elementType:
-                        return (BuildDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
 
                     default:
                         return value;
@@ -93,7 +94,7 @@ namespace Unity
         }
 
         private static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             var result = new TElement[values.Length];
 

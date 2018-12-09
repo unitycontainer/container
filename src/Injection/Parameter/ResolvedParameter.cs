@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Build;
+using Unity.Resolution;
 using Unity.Utility;
 
 namespace Unity
@@ -48,7 +48,7 @@ namespace Unity
 
         #region TypedInjectionValue
 
-        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
             var info = ParameterType.GetTypeInfo();
 

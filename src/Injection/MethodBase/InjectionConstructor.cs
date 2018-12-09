@@ -3,8 +3,8 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Build;
 using Unity.Factory;
+using Unity.Resolution;
 using Unity.Utility;
 
 namespace Unity
@@ -149,7 +149,7 @@ namespace Unity
         #region IExpressionFactory
 
         public NewExpression GetExpression<TContext>(Type type)
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             return Expression.New(Info);
         }

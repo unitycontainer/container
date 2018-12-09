@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Build;
 using Unity.Factory;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -14,7 +14,7 @@ namespace Unity
     public class DependencyOverride : ResolverOverride, 
                                       IEquatable<ParameterInfo>,
                                       IEquatable<PropertyInfo>,
-                                      IResolverPolicy
+                                      IResolver
     {
         #region Fields
 
@@ -94,9 +94,9 @@ namespace Unity
         #region IResolverPolicy
 
         public object Resolve<TContext>(ref TContext context) 
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
-            if (Value is IResolverPolicy policy)
+            if (Value is IResolver policy)
                 return policy.Resolve(ref context);
 
             if (Value is IResolverFactory factory)

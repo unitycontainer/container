@@ -2,9 +2,9 @@
 using System.Reflection;
 using Unity.Storage;
 
-namespace Unity.Build
+namespace Unity.Resolution
 {
-    public interface IBuildContext : INamedType, IPolicyList
+    public interface IResolveContext : INamedType, IPolicyList
     {
         /// <summary>Reference to container.</summary>
         /// <remarks>Reference to the container used to execute this build. </remarks>

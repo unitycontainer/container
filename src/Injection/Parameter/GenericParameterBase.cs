@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using Unity.Build;
+using Unity.Resolution;
 using Unity.Utility;
 
 namespace Unity
@@ -72,7 +72,7 @@ namespace Unity
             return t.IsArray && t.GetElementType().GetTypeInfo().IsGenericParameter && t.GetElementType().GetTypeInfo().Name == _genericParameterName;
         }
 
-        public override BuildDelegate<TContext> GetResolver<TContext>(Type type)
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
         {
             GuardTypeToBuildIsGeneric(type);
             GuardTypeToBuildHasMatchingGenericParameter(type);
@@ -85,8 +85,8 @@ namespace Unity
             return GetResolver<TContext>(typeToResolve, _resolutionKey);
         }
 
-        protected abstract BuildDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey) 
-            where TContext : IBuildContext;
+        protected abstract ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey) 
+            where TContext : IResolveContext;
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)
         {

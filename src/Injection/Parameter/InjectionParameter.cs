@@ -1,15 +1,15 @@
 ﻿using System;
-using Unity.Build;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity
 {
     /// <summary>
     /// A class that holds on to the given value and provides
-    /// the required <see cref="IResolverPolicy"/>
+    /// the required <see cref="IResolver"/>
     /// when the container is configured.
     /// </summary>
-    public class InjectionParameter : TypedInjectionValue, IResolverPolicy
+    public class InjectionParameter : TypedInjectionValue, IResolver
     {
         /// <summary>
         /// Create an instance of <see cref="InjectionParameter"/> that stores
@@ -40,7 +40,7 @@ namespace Unity
         }
 
         public object Resolve<TContext>(ref TContext context) 
-            where TContext : IBuildContext
+            where TContext : IResolveContext
         {
             return Value;
         }
