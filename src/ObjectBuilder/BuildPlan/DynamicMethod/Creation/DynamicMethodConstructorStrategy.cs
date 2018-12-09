@@ -172,7 +172,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
             switch (selector.SelectConstructor(ref context))
             {
                 case InjectionConstructor injectionConstructor:
-                    var selectConstructor = injectionConstructor.SelectConstructor(ref context);
+                    // TODO: Remove SelectedConstructor
+                    var selectConstructor = new SelectedConstructor(injectionConstructor.GetInfo(context.Type), injectionConstructor.GetParameters());
                     return ValidateSelectedConstructor(ref context, selectConstructor.Constructor) ??
                            Expression.Assign(
                                BuilderContextExpression<TBuilderContext>.Existing,
