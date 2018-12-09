@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -60,6 +61,24 @@ namespace Unity.Builder.Expressions
             }
         }
 
+        public static IEnumerable<Expression> GetParameters(ConstructorInfo info, object[] values)
+        {
+            var parameters = info.GetParameters();
+
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+
+                // Resolve all DependencyAttributes on this parameter, if any
+                var attribute = parameter.GetCustomAttributes(false)
+                    .OfType<DependencyResolutionAttribute>()
+                    .FirstOrDefault();
+
+                yield return Resolve(parameter, attribute?.Name, values[i]);
+            }
+        }
+
+
         public static IEnumerable<Expression> GetParameters<TInfo>(SelectedMemberWithParameters<TInfo> member)
             where TInfo : MethodBase
         {
@@ -92,7 +111,6 @@ namespace Unity.Builder.Expressions
                     yield return Resolve(parameter, attribute?.Name, null);
                 }
             }
-
         }
 
         #endregion

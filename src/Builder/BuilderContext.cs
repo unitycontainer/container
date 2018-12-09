@@ -215,7 +215,7 @@ namespace Unity.Builder
 
                 case IResolverFactory factory:
                     var method = factory.GetResolver<BuilderContext>(Type);
-                    return method?.Invoke(ref context) ?? throw new InvalidOperationException("Unable to create value");
+                    return method?.Invoke(ref context);
 
                 case object obj:
                     return obj;
