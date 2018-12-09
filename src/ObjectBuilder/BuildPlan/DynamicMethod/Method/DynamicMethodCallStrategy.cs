@@ -47,8 +47,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
                         resolvers = selectedMethod.GetResolvers();
                         break;
 
-                    case IMemberWithParameters<MethodInfo> injectionMethod:
-                        methodInfo = injectionMethod.MemberInfo(context.Type);
+                    case IMethodBaseMember<MethodInfo> injectionMethod:
+                        methodInfo = injectionMethod.GetInfo(context.Type);
                         parameters = methodInfo.GetParameters();
                         resolvers = injectionMethod.GetParameters();
                         break;
