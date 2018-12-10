@@ -1,5 +1,5 @@
 ﻿
-namespace Unity.Utility
+namespace Unity
 {
     internal static class Constants
     {

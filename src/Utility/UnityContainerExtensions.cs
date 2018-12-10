@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-// ReSharper disable once CheckNamespace
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity
 {

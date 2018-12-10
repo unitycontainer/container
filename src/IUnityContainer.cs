@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Extension;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity
 {
