@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Resolution.Lazy;
+using Unity.Specification.Injection.Methods;
 
-namespace Resolution
+namespace Injection
 {
     [TestClass]
-    public class Lazy : SpecificationTests
+    public class Methods : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

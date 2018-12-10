@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder.Strategy;
+using Unity.Injection;
 using Unity.Registration;
 
 namespace Unity.Strategies

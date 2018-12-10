@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.Tests.v5.Override
 {

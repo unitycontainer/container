@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
+using Unity.Injection;
 
 namespace Unity.Builder.Selection
 {

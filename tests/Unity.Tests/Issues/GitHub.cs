@@ -4,6 +4,8 @@ using System;
 using System.Diagnostics;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Injection;
+using Unity.Resolution;
 using Unity.Tests.TestObjects;
 
 namespace Unity.Tests.v5.Issues

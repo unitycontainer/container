@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Injection;
 
 namespace Unity.Registration
 {

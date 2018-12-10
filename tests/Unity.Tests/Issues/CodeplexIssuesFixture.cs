@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Injection;
 
 namespace Unity.Tests.v5.Issues
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
+using Unity.Injection;
 
 namespace Unity.Tests.v5
 {

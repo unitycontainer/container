@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 
