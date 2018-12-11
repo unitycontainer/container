@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,7 +19,6 @@ namespace Unity.Injection
         #region Fields
 
         private readonly Type[] _types;
-        private readonly object[] _parameters;
         private InjectionParameterValue[] _parameterValues;
 
 
@@ -41,6 +41,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="types">The types of the parameters of the constructor.</param>
         public InjectionConstructor(params Type[] types)
+            : base(types)
         {
             _types = types ?? throw new ArgumentNullException(nameof(types));
         }
@@ -52,17 +53,17 @@ namespace Unity.Injection
         /// <param name="parameterValues">The values for the parameters, that will
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         public InjectionConstructor(params object[] parameterValues)
+            : base(parameterValues)
         {
-            _parameters = parameterValues;
             _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
                 .Select(InjectionParameterValue.ToParameter)
                 .ToArray();
         }
 
         public InjectionConstructor(ConstructorInfo info, params object[] parameterValues)
+            : base(parameterValues)
         {
             Info = info;
-            _parameters = parameterValues;
             _parameterValues = (parameterValues ?? throw new ArgumentNullException(nameof(parameterValues)))
                 .Select(InjectionParameterValue.ToParameter)
                 .ToArray();
@@ -72,8 +73,6 @@ namespace Unity.Injection
 
 
         #region InjectionMember
-
-        public override InjectionMember OnType<T>() => OnType(typeof(T));
 
         public override InjectionMember OnType(Type targetType)
         {
@@ -138,6 +137,21 @@ namespace Unity.Injection
         public override object[] GetParameters()
         {
             return _parameterValues;
+        }
+
+        public override bool Equals(ConstructorInfo other)
+        {
+#if NETSTANDARD1_0
+            return true; // TODO: Implement properly
+#else
+            return other?.MetadataToken == Info.MetadataToken;
+#endif
+        }
+
+        protected override IEnumerable<ConstructorInfo> DeclaredMembers(TypeInfo info)
+        {
+            return info.DeclaredConstructors
+                       .Where(c => c.IsStatic == false && c.IsPublic);
         }
 
         #endregion

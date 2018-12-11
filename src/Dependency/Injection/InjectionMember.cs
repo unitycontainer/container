@@ -29,11 +29,7 @@ namespace Unity.Injection
 
         protected Type TargetType { get; private set; }
 
-        public virtual InjectionMember OnType<T>()
-        {
-            TargetType = typeof(T);
-            return this;
-        }
+        public virtual InjectionMember OnType<T>() => OnType(typeof(T));
 
         public virtual InjectionMember OnType(Type targetType)
         {

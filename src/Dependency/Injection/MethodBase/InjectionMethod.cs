@@ -11,8 +11,7 @@ namespace Unity.Injection
     /// An <see cref="InjectionMember"/> that configures the
     /// container to call a method as part of buildup.
     /// </summary>
-    public class InjectionMethod : MethodBaseMember<MethodInfo>,
-                                   IEquatable<MethodInfo>
+    public class InjectionMethod : MethodBaseMember<MethodInfo>
     {
         #region Fields
 
@@ -60,7 +59,8 @@ namespace Unity.Injection
         {
             var type = mappedToType ?? registeredType;
 
-            foreach (var method in type.GetMethodsHierarchical())
+            // TODO: Optimize
+            foreach (var method in DeclaredMembers(type.GetTypeInfo()))
             {
                 if (MethodNameMatches(method, _methodName))
                 {
@@ -74,7 +74,6 @@ namespace Unity.Injection
                 }
             }
 
-            // TODO: Optimize
 
             //if (methodInfo == null)
             //{
@@ -127,8 +126,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IMethodBaseMember<MethodInfo>
-
+        #region MethodBaseMember
 
         public override MethodInfo GetInfo(Type type)
         {
@@ -155,25 +153,7 @@ namespace Unity.Injection
             return _methodParameters;
         }
 
-        #endregion
-
-
-        #region IEquatable
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is MethodInfo other)
-                return Equals(other);
-
-            return base.Equals(obj);
-        }
-
-        public bool Equals(MethodInfo other)
+        public override bool Equals(MethodInfo other)
         {
 #if NETSTANDARD1_0
             if (other.Name != _methodName) return false;
@@ -192,6 +172,21 @@ namespace Unity.Injection
 #endif
         }
 
+        protected override IEnumerable<MethodInfo> DeclaredMembers(TypeInfo info)
+        {
+            if (null == info) return Enumerable.Empty<MethodInfo>();
+
+            if (typeof(object) == info.DeclaringType)
+            {
+                return info.DeclaredMethods.Where(m => !m.IsStatic)
+                           .Where(m => _methodName == m.Name);
+            }
+
+            return info.DeclaredMethods.Where(m => !m.IsStatic)
+                       .Concat(DeclaredMembers(info.BaseType?.GetTypeInfo()))
+                       .Where(m => _methodName == m.Name);
+        }
+
         #endregion
 
 
@@ -206,6 +201,7 @@ namespace Unity.Injection
 
 
         #region Implementation
+
 
         /// <summary>
         /// A small function to handle name matching. You can override this
