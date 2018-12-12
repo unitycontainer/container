@@ -8,47 +8,8 @@ namespace Unity.Injection
     /// Base class for objects that can be used to configure what
     /// class members get injected by the container.
     /// </summary>
-    public abstract class InjectionMember : IEquatable<Type>
+    public abstract class InjectionMember
     {
-        #region Constructors
-
-        protected InjectionMember()
-        {
-                
-        }
-
-        protected InjectionMember(Type targetType)
-        {
-            TargetType = targetType;
-        }
-
-        #endregion
-
-
-        #region Targeted Type 
-
-        protected Type TargetType { get; private set; }
-
-        public virtual InjectionMember OnType<T>() => OnType(typeof(T));
-
-        public virtual InjectionMember OnType(Type targetType)
-        {
-            TargetType = targetType;
-            return this;
-        }
-
-        #endregion
-
-
-        #region IEquatable<Type>
-
-        public virtual bool Equals(Type other) => null == TargetType || other == TargetType;
-
-        #endregion
-
-
-        #region
-
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
@@ -61,25 +22,23 @@ namespace Unity.Injection
         public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
                 where TContext : IResolveContext
                 where TPolicyList : IPolicyList
-            {
-            }
+        {
+        }
 
-            /// <summary>
-            /// This injection member instructs engine, when type mapping is present, 
-            /// to build type instead of resolving it
-            /// </summary>
-            /// <remarks>
-            /// When types registered like this:
-            /// 
-            /// Line 1: container.RegisterType{OtherService}(new ContainerControlledLifetimeManager());  
-            /// Line 2: container.RegisterType{IService, OtherService}();
-            /// Line 3: container.RegisterType{IOtherService, OtherService}(new InjectionConstructor(container));
-            /// 
-            /// It is expected that IService resolves instance registered on line 1. But when IOtherService is resolved 
-            /// it requires different constructor so it should be built instead.
-            /// </remarks>
-            public virtual bool BuildRequired { get; }
-
-        #endregion
+        /// <summary>
+        /// This injection member instructs engine, when type mapping is present, 
+        /// to build type instead of resolving it
+        /// </summary>
+        /// <remarks>
+        /// When types registered like this:
+        /// 
+        /// Line 1: container.RegisterType{OtherService}(new ContainerControlledLifetimeManager());  
+        /// Line 2: container.RegisterType{IService, OtherService}();
+        /// Line 3: container.RegisterType{IOtherService, OtherService}(new InjectionConstructor(container));
+        /// 
+        /// It is expected that IService resolves instance registered on line 1. But when IOtherService is resolved 
+        /// it requires different constructor so it should be built instead.
+        /// </remarks>
+        public virtual bool BuildRequired { get; }
     }
 }

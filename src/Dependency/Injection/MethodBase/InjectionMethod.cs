@@ -20,6 +20,7 @@ namespace Unity.Injection
         private readonly string _methodName;
         private readonly object[] _methodParameters;
         private readonly List<InjectionParameterValue> _injectionParameterValues;
+        protected override string Designation { get; } = "method";
 
         #endregion
 

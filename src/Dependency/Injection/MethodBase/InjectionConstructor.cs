@@ -18,9 +18,8 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly Type[] _types;
         private InjectionParameterValue[] _parameterValues;
-
+        protected override string Designation { get; } = "constructor";
 
         #endregion
 
@@ -43,7 +42,6 @@ namespace Unity.Injection
         public InjectionConstructor(params Type[] types)
             : base(types)
         {
-            _types = types ?? throw new ArgumentNullException(nameof(types));
         }
 
         /// <summary>
@@ -74,43 +72,6 @@ namespace Unity.Injection
 
         #region InjectionMember
 
-        public override InjectionMember OnType(Type targetType)
-        {
-            var typeToCreate = targetType;
-            var constructors = typeToCreate.GetTypeInfo()
-                .DeclaredConstructors
-                .Where(c => c.IsStatic == false && c.IsPublic);
-            if (null != _parameterValues)
-            {
-                Info = constructors.FirstOrDefault(info => _parameterValues.Matches(info.GetParameters().Select(p => p.ParameterType))) ??
-                               throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Constants.NoSuchConstructor,
-                                   typeToCreate.FullName, string.Join(", ", _parameterValues.Select(p => p.ParameterTypeName).ToArray())));
-            }
-            else if (null != _types)
-            {
-                Info = constructors.FirstOrDefault(info => info.GetParameters().ParametersMatch(_types)) ??
-                               throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                                   Constants.NoSuchConstructor, typeToCreate.FullName, string.Join(", ", _types.Select(t => t.Name))));
-
-                _parameterValues = Info.GetParameters().Select(ToResolvedParameter).ToArray();
-            }
-            else
-            {
-                Info = constructors.FirstOrDefault(info => 0 == info.GetParameters().Length) ??
-                               throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                                   Constants.NoSuchConstructor, typeToCreate.FullName, string.Empty));
-
-                _parameterValues = new InjectionParameterValue[0];
-            }
-
-            return this;
-        }
-
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
-        {
-            OnType(mappedToType);
-        }
-
         public override bool BuildRequired => true;
 
         #endregion
@@ -134,11 +95,6 @@ namespace Unity.Injection
             return typeInfo.DeclaredConstructors.Single(c => !c.IsStatic && c.GetParameters().ParametersMatch(closedCtorParameterTypes));
         }
 
-        public override object[] GetParameters()
-        {
-            return _parameterValues;
-        }
-
         public override bool Equals(ConstructorInfo other)
         {
 #if NETSTANDARD1_0
@@ -157,7 +113,6 @@ namespace Unity.Injection
         #endregion
 
 
-
         #region IExpressionFactory
 
         public NewExpression GetExpression<TContext>(Type type)
@@ -174,18 +129,6 @@ namespace Unity.Injection
         public static explicit operator ConstructorInfo(InjectionConstructor ctor)
         {
             return ctor.Info;
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private InjectionParameterValue ToResolvedParameter(ParameterInfo parameter)
-        {
-            return new ResolvedParameter(parameter.ParameterType, parameter.GetCustomAttributes(false)
-                                                                           .OfType<DependencyAttribute>()
-                                                                           .FirstOrDefault()?.Name);
         }
 
         #endregion

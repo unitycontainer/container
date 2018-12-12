@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Unity.Injection
 {
+    public delegate bool MatchPredicate(object[] arguments, ParameterInfo[] parameters);
+
     public abstract class MethodBaseMember<TMemberInfo> : InjectionMember, IEquatable<TMemberInfo>
                                       where TMemberInfo : MethodBase
     {
         #region Fields
 
-        private readonly object[] _parameters;
+        private readonly object[] _arguments;
+        protected abstract string Designation { get; }
 
         #endregion
 
 
         #region Constructors
 
-        protected MethodBaseMember(params object[] parameters)
+        protected MethodBaseMember(params object[] arguments)
         {
-            _parameters = parameters;
+            _arguments = arguments ?? new object[0];
         }
 
         #endregion
@@ -35,7 +37,7 @@ namespace Unity.Injection
 
         public abstract TMemberInfo GetInfo(Type type);
 
-        public abstract object[] GetParameters();
+        public virtual object[] GetParameters() => _arguments;
 
         #endregion
 
@@ -51,17 +53,33 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            if (null == Info) return;
-            OnType(mappedToType ?? registeredType ?? throw new ArgumentNullException(nameof(registeredType)));
-        }
+            var typeInfo = mappedToType.GetTypeInfo();
+            var predicate = 0 == _arguments.Length
+                ? (MatchPredicate)((_, parameters) => 0 == parameters.Length)
+                : /* policies.Get<MatchPredicate>() ?? */MatchArgumentsToParameters;
 
-        public override InjectionMember OnType(Type targetType)
-        {
-            var info = targetType?.GetTypeInfo() ?? throw new ArgumentNullException(nameof(targetType));
-            var matches = DeclaredMembers(info).Where(ParametersMatch)
-                                               .ToArray();
+            foreach (var member in DeclaredMembers(typeInfo))
+            {
+                if (!predicate(_arguments, member.GetParameters())) continue;
+                //var parameters = ParametersFromArguments(_arguments, member.GetParameters());
+                //if (null == parameters) continue;
 
-            return base.OnType(targetType);
+                if (null != Info)
+                {
+                    var signature = "xxx";//string.Join(", ", _arguments?.Select(t => t.Name) ?? );
+                    var message = $"The type {mappedToType.FullName} does not have a {Designation} that takes these parameters ({signature}).";
+                    throw new InvalidOperationException(message);
+                }
+
+                Info = member;
+            }
+
+            if (null == Info)
+            {
+                var signature = "xxx";//string.Join(", ", _arguments?.Select(t => t.Name) ?? );
+                var message = $"The type {mappedToType.FullName} does not have a {Designation} that takes these parameters ({signature}).";
+                throw new InvalidOperationException(message);
+            }
         }
 
         #endregion
@@ -69,27 +87,12 @@ namespace Unity.Injection
 
         #region Type matching
 
-        protected virtual bool Matches(ParameterInfo[] parameters)
-        {
-            // TODO: optimize
-            if ((_parameters?.Length ?? 0) != parameters.Length) return false;
-
-            for (var i = 0; i < (_parameters?.Length ?? 0); i++)
-            {
-                if (Matches(_parameters?[i], parameters[i].ParameterType))
-                    continue;
-
-                return false;
-            }
-
-            return true;
-        }
-
         protected virtual bool Matches(object parameter, Type match)
         {
             switch (parameter)
             {
-                case InjectionParameter injectionParameter:
+                // TODO: Replace with IEquatable
+                case InjectionParameterValue injectionParameter:
                     return injectionParameter.MatchesType(match);
 
                 case Type type:
@@ -145,12 +148,28 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected abstract IEnumerable<TMemberInfo> DeclaredMembers(TypeInfo info);
-
-        protected virtual bool ParametersMatch(MethodBase info)
+        protected virtual object[] ParametersFromArguments(object[] arguments, ParameterInfo[] parameters)
         {
-            return Matches(info.GetParameters());
+            return null;
         }
+
+        protected virtual bool MatchArgumentsToParameters(object[] arguments, ParameterInfo[] parameters)
+        {
+            // TODO: optimize
+            if ((_arguments?.Length ?? 0) != parameters.Length) return false;
+
+            for (var i = 0; i < (_arguments?.Length ?? 0); i++)
+            {
+                if (Matches(_arguments?[i], parameters[i].ParameterType))
+                    continue;
+
+                return false;
+            }
+
+            return true;
+        }
+
+        protected abstract IEnumerable<TMemberInfo> DeclaredMembers(TypeInfo info);
 
         #endregion
     }
