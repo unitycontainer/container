@@ -5,7 +5,7 @@ using Unity.Injection;
 
 namespace Unity
 {
-    public static partial class Execute
+    public static partial class Invoke
     {
         #region Factory
 
