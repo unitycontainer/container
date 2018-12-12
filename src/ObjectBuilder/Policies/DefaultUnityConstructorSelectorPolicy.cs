@@ -34,12 +34,10 @@ namespace Unity.ObjectBuilder.Policies
         {
             if (null == injectionMembers) return null;
 
-            foreach (var member in injectionMembers.OfType<InjectionConstructor>())
+            foreach (var member in injectionMembers)
             {
-                if (member.Equals(typeToConstruct))
-                {
+                if (member is InjectionConstructor)
                     return member;
-                }
             }
 
             return null;

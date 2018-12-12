@@ -24,8 +24,10 @@ namespace Unity.Builder.Selection
         }
 
         public SelectedConstructor(ConstructorInfo info, object[] parameters)
-            : base(info, parameters.Cast<InjectionParameterValue>()
-                                   .Select(p => p.GetResolver<BuilderContext>(info.DeclaringType)))
+            : base(info, parameters.Select(p => 
+                p is InjectionParameterValue ipv 
+                    ? ipv.GetResolver<BuilderContext>(info.DeclaringType) 
+                    : p))
         {
         }
 

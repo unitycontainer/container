@@ -215,6 +215,10 @@ namespace Unity.Builder
                     var method = factory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
 
+                case Type type:     // TODO: Requires evaluation
+                    if (typeof(Type) == parameter.ParameterType) return type;
+                    break;
+                    
                 case object obj:
                     return obj;
             }
