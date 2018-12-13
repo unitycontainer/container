@@ -10,7 +10,7 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ContainerRegistration(Type registeredType, string name, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ContainerRegistration(Type registeredType, string name, Type mappedTo, LifetimeManager lifetimeManager, IInjectionMember[] injectionMembers = null)
             : base(registeredType ?? mappedTo, string.IsNullOrEmpty(name) ? null : name)
         {
             MappedToType = mappedTo;

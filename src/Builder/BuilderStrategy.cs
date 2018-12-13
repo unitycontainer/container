@@ -45,7 +45,7 @@ namespace Unity.Builder.Strategy
         /// <param name="container">Reference to hosting container</param>
         /// <param name="registration">Reference to registration</param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RequiredToBuildType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        public virtual bool RequiredToBuildType(IUnityContainer container, INamedType registration, params IInjectionMember[] injectionMembers)
         {
             return true;
         }

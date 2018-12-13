@@ -30,7 +30,7 @@ namespace Unity.ObjectBuilder.Policies
                    FindLongestConstructor(context.Type);
         }
 
-        private static object FindInjectionConstructor(Type typeToConstruct, InjectionMember[] injectionMembers)
+        private static object FindInjectionConstructor(Type typeToConstruct, IInjectionMember[] injectionMembers)
         {
             if (null == injectionMembers) return null;
 

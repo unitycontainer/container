@@ -63,7 +63,7 @@ namespace Unity.Extension
 
         /// <summary>
         /// This event is raised when the 
-        /// <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, InjectionMember[])"/> 
+        /// <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, IInjectionMember[])"/> 
         /// method, or one of its overloads, is called.
         /// </summary>
         public abstract event EventHandler<RegisterEventArgs> Registering;
