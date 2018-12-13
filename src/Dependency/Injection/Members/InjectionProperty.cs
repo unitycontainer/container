@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Utility;
 
 namespace Unity.Injection
@@ -11,7 +12,7 @@ namespace Unity.Injection
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : InjectionMember,
+    public class InjectionProperty : IInjectionMember,
                                      IEquatable<PropertyInfo>,
                                      IResolver
     {
@@ -56,7 +57,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region InjectionMember
+        #region IInjectionMember
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -66,7 +67,9 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+        public void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+            where TContext : IResolveContext
+            where TPolicyList : IPolicyList
         {
             Info =
                 (mappedToType ?? throw new ArgumentNullException(nameof(mappedToType))).GetPropertiesHierarchical()
@@ -81,7 +84,7 @@ namespace Unity.Injection
             // TODO: Optimize
         }
 
-        public override bool BuildRequired => true;
+        public bool BuildRequired => true;
 
         #endregion
 

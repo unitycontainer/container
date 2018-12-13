@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Injection
 {
     public delegate bool MatchPredicate(object[] arguments, ParameterInfo[] parameters);
 
-    public abstract class MethodBaseMember<TMemberInfo> : InjectionMember, IEquatable<TMemberInfo>
+    public abstract class MethodBaseMember<TMemberInfo> : IInjectionMember, IEquatable<TMemberInfo>
                                       where TMemberInfo : MethodBase
     {
         #region Fields
@@ -35,6 +37,7 @@ namespace Unity.Injection
             protected set;
         }
 
+
         public abstract TMemberInfo GetInfo(Type type);
 
         public virtual object[] GetParameters() => _arguments;
@@ -49,9 +52,13 @@ namespace Unity.Injection
         #endregion
 
 
-        #region InjectionMember
+        #region IInjectionMember
 
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+        public virtual bool BuildRequired => false;
+
+        public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+            where TContext : IResolveContext
+            where TPolicyList : IPolicyList
         {
             var typeInfo = mappedToType.GetTypeInfo();
             var predicate = 0 == _arguments.Length

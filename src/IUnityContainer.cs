@@ -23,7 +23,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects. Can be null.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, params IInjectionMember[] injectionMembers);
 
         /// <summary>
         /// Register an instance with the container.

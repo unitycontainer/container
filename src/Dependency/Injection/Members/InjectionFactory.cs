@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Injection
 {
@@ -8,7 +9,7 @@ namespace Unity.Injection
     /// will use to create the object.
     /// </summary>
     /// <remarks>This factory allow using predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types.</remarks>
-    public class InjectionFactory : InjectionMember
+    public class InjectionFactory : IInjectionMember
     {
         #region Fields
 
@@ -43,7 +44,9 @@ namespace Unity.Injection
         #endregion
 
 
-        #region InjectionMember
+        #region IInjectionMember
+
+        public bool BuildRequired => false;
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -54,7 +57,9 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+        public void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies) 
+            where TContext : IResolveContext
+            where TPolicyList : IPolicyList
         {
             // TODO: Requires allocation optimization
 

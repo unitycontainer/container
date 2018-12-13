@@ -24,26 +24,26 @@ namespace Unity
 
         #region Dependency
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency(Type type, object value) => new InjectionDependency(type, value);
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency<TTarget>(object value)   => new InjectionDependency(typeof(TTarget), value);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Dependency(Type type, object value) => new InjectionDependency(type, value);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Dependency<TTarget>(object value)   => new InjectionDependency(typeof(TTarget), value);
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency(string name, object value) => new InjectionDependency(name, value);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Dependency(string name, object value) => new InjectionDependency(name, value);
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency(Type type, string name, object value) => new InjectionDependency(type, name, value);
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency<TTarget>(string name, object value)   => new InjectionDependency(typeof(TTarget), name, value);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Dependency(Type type, string name, object value) => new InjectionDependency(type, name, value);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Dependency<TTarget>(string name, object value)   => new InjectionDependency(typeof(TTarget), name, value);
 
         #endregion
 
 
         #region Property
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(string name, object value) => new InjectionProperty(name, value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property(string name, object value) => new InjectionProperty(name, value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(Type type, object value) => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property(Type type, object value) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property<TTarget>(object value) => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property<TTarget>(object value) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(PropertyInfo info, object value) => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property(PropertyInfo info, object value) => throw new NotImplementedException();
 
         #endregion
     }

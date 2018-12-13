@@ -8,7 +8,7 @@ using Unity.Utility;
 namespace Unity.Injection
 {
     /// <summary>
-    /// An <see cref="InjectionMember"/> that configures the
+    /// An <see cref="IInjectionMember"/> that configures the
     /// container to call a method as part of buildup.
     /// </summary>
     public class InjectionMethod : MethodBaseMember<MethodInfo>
@@ -46,7 +46,7 @@ namespace Unity.Injection
         public object[] GetResolvers() => _injectionParameterValues.Cast<object>().ToArray();
 
 
-        #region InjectionMember
+        #region IInjectionMember
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
