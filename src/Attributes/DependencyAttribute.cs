@@ -10,7 +10,7 @@ namespace Unity
     /// it's not needed unless you want to specify additional information to control how
     /// the parameter is resolved.
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Field)]
     public sealed class DependencyAttribute : DependencyResolutionAttribute
     {
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Policy;
 
 namespace Unity.Resolution
 {
@@ -9,7 +10,7 @@ namespace Unity.Resolution
     /// </summary>
     public class ParameterOverride : ResolverOverride,
                                      IEquatable<ParameterInfo>,
-                                     IResolver
+                                     IResolve
     {
         #region Fields
 
@@ -68,7 +69,7 @@ namespace Unity.Resolution
         public object Resolve<TContext>(ref TContext context)
             where TContext : IResolveContext
         {
-            if (Value is IResolver policy)
+            if (Value is IResolve policy)
                 return policy.Resolve(ref context);
 
             if (Value is IResolverFactory factory)

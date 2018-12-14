@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Utility;
@@ -14,7 +15,7 @@ namespace Unity.Injection
     /// </summary>
     public class InjectionProperty : IInjectionMember,
                                      IEquatable<PropertyInfo>,
-                                     IResolver
+                                     IResolve
     {
         #region Fields
 
@@ -128,7 +129,7 @@ namespace Unity.Injection
                 Value = new ResolvedParameter(Info.PropertyType);
             }
 
-            if (Value is IResolver policy)
+            if (Value is IResolve policy)
                 return policy.Resolve(ref context);
 
             if (Value is IResolverFactory factory)

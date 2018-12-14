@@ -1,11 +1,12 @@
-﻿
-namespace Unity.Resolution
+﻿using Unity.Resolution;
+
+namespace Unity.Policy
 {
     /// <summary>
     /// A strategy that is used at build plan execution time
     /// to resolve a dependent value.
     /// </summary>
-    public interface IResolver 
+    public interface IResolve 
     {
         /// <summary>
         /// GetOrDefault the value

@@ -1,14 +1,15 @@
 ﻿using System;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Injection
 {
     /// <summary>
     /// A class that holds on to the given value and provides
-    /// the required <see cref="IResolver"/>
+    /// the required <see cref="IResolve"/>
     /// when the container is configured.
     /// </summary>
-    public class InjectionParameter : TypedInjectionValue, IResolver
+    public class InjectionParameter : TypedInjectionValue, IResolve
     {
         /// <summary>
         /// Create an instance of <see cref="InjectionParameter"/> that stores

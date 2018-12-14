@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Policy;
 
 namespace Unity.Resolution
 {
@@ -68,7 +69,7 @@ namespace Unity.Resolution
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-            return this is IResolver policy
+            return this is IResolve policy
                 ? (ResolveDelegate<TContext>)policy.Resolve
                 : throw new InvalidCastException("Derived type does not implement IResolverPolicy");
         }

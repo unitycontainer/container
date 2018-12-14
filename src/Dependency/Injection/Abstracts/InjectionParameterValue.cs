@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -57,7 +58,7 @@ namespace Unity.Injection
                 case ResolveDelegate<TContext> resolver:
                     return resolver(ref context);
 
-                case IResolver policy:
+                case IResolve policy:
                     return policy.Resolve(ref context);
             }
 
