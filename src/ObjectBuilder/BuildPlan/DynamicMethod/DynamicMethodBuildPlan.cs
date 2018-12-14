@@ -5,7 +5,7 @@ using Unity.Resolution;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
-    public class DynamicMethodBuildPlan : IBuildPlanPolicy, IResolver
+    public class DynamicMethodBuildPlan : IBuildPlanPolicy, IResolve
     {
         private readonly Delegate _buildMethod;
 

@@ -4,19 +4,19 @@ using Unity.Resolution;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// A <see cref="IResolver"/> implementation that returns
+    /// A <see cref="IResolve"/> implementation that returns
     /// the value set in the constructor.
     /// </summary>
-    public class LiteralValueDependencyResolverPolicy : IResolver
+    public class LiteralValueDependencyResolvePolicy : IResolve
     {
         private readonly object _dependencyValue;
 
         /// <summary>
-        /// Create a new instance of <see cref="LiteralValueDependencyResolverPolicy"/>
+        /// Create a new instance of <see cref="LiteralValueDependencyResolvePolicy"/>
         /// which will return the given value when resolved.
         /// </summary>
         /// <param name="dependencyValue">The value to return.</param>
-        public LiteralValueDependencyResolverPolicy(object dependencyValue)
+        public LiteralValueDependencyResolvePolicy(object dependencyValue)
         {
             _dependencyValue = dependencyValue;
         }

@@ -57,12 +57,12 @@ namespace Unity.Tests.v5
                 .RegisterInstance<object>("o1", o1)
                 .RegisterInstance<object>("o2", o2);
 
-            ResolvedArrayWithElementsResolverPolicy resolver
-                = new ResolvedArrayWithElementsResolverPolicy(
+            ResolvedArrayWithElementsResolvePolicy resolve
+                = new ResolvedArrayWithElementsResolvePolicy(
                     typeof(object),
-                    new LiteralValueDependencyResolverPolicy(o1),
-                    new LiteralValueDependencyResolverPolicy(o3));
-            container.AddExtension(new InjectedObjectConfigurationExtension(resolver));
+                    new LiteralValueDependencyResolvePolicy(o1),
+                    new LiteralValueDependencyResolvePolicy(o3));
+            container.AddExtension(new InjectedObjectConfigurationExtension(resolve));
 
             object[] results = (object[])container.Resolve<InjectedObject>().InjectedValue;
 
@@ -84,12 +84,12 @@ namespace Unity.Tests.v5
                 .RegisterInstance<object>("o1", o1)
                 .RegisterInstance<object>("o2", o2);
 
-            ResolvedArrayWithElementsResolverPolicy resolver
-                = new ResolvedArrayWithElementsResolverPolicy(
+            ResolvedArrayWithElementsResolvePolicy resolve
+                = new ResolvedArrayWithElementsResolvePolicy(
                     typeof(object),
-                    new NamedTypeDependencyResolverPolicy(typeof(object), "o1"),
-                    new NamedTypeDependencyResolverPolicy(typeof(object), "o2"));
-            container.AddExtension(new InjectedObjectConfigurationExtension(resolver));
+                    new NamedTypeDependencyResolvePolicy(typeof(object), "o1"),
+                    new NamedTypeDependencyResolvePolicy(typeof(object), "o2"));
+            container.AddExtension(new InjectedObjectConfigurationExtension(resolve));
 
             object[] results = (object[])container.Resolve<InjectedObject>().InjectedValue;
 
@@ -110,12 +110,12 @@ namespace Unity.Tests.v5
                 .RegisterInstance<ILogger>("o1", o1)
                 .RegisterInstance<ILogger>("o2", o2);
 
-            ResolvedArrayWithElementsResolverPolicy resolver
-                = new ResolvedArrayWithElementsResolverPolicy(
+            ResolvedArrayWithElementsResolvePolicy resolve
+                = new ResolvedArrayWithElementsResolvePolicy(
                     typeof(ILogger),
-                    new NamedTypeDependencyResolverPolicy(typeof(ILogger), "o1"),
-                    new NamedTypeDependencyResolverPolicy(typeof(ILogger), "o2"));
-            container.AddExtension(new InjectedObjectConfigurationExtension(resolver));
+                    new NamedTypeDependencyResolvePolicy(typeof(ILogger), "o1"),
+                    new NamedTypeDependencyResolvePolicy(typeof(ILogger), "o2"));
+            container.AddExtension(new InjectedObjectConfigurationExtension(resolve));
 
             ILogger[] results = (ILogger[])container.Resolve<InjectedObject>().InjectedValue;
 
@@ -127,28 +127,28 @@ namespace Unity.Tests.v5
 
         private class InjectedObjectConfigurationExtension : UnityContainerExtension
         {
-            private readonly IResolver resolverPolicy;
+            private readonly IResolve _resolvePolicy;
 
-            public InjectedObjectConfigurationExtension(IResolver resolverPolicy)
+            public InjectedObjectConfigurationExtension(IResolve resolvePolicy)
             {
-                this.resolverPolicy = resolverPolicy;
+                this._resolvePolicy = resolvePolicy;
             }
 
             protected override void Initialize()
             {
                 Context.Policies.Set(typeof(InjectedObject), null, 
                                      typeof(IConstructorSelectorPolicy),
-                                     new InjectedObjectSelectorPolicy(this.resolverPolicy));
+                                     new InjectedObjectSelectorPolicy(this._resolvePolicy));
             }
         }
 
         private class InjectedObjectSelectorPolicy : IConstructorSelectorPolicy
         {
-            private readonly IResolver resolverPolicy;
+            private readonly IResolve _resolvePolicy;
 
-            public InjectedObjectSelectorPolicy(IResolver resolverPolicy)
+            public InjectedObjectSelectorPolicy(IResolve resolvePolicy)
             {
-                this.resolverPolicy = resolverPolicy;
+                this._resolvePolicy = resolvePolicy;
             }
 
             public object SelectConstructor<TContext>(ref TContext context)
@@ -156,7 +156,7 @@ namespace Unity.Tests.v5
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
                 var selectedConstructor = new SelectedConstructor(ctr);
-                selectedConstructor.AddParameterResolver(this.resolverPolicy);
+                selectedConstructor.AddParameterResolver(this._resolvePolicy);
 
                 return selectedConstructor;
             }

@@ -5,6 +5,7 @@ using System.Reflection;
 using Unity.Builder.Strategy;
 using Unity.Container;
 using Unity.Exceptions;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -128,7 +129,7 @@ namespace Unity.Builder
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                     {
                         // Check if itself is a value 
-                        if (resolverOverride is IResolver resolverPolicy)
+                        if (resolverOverride is IResolve resolverPolicy)
                         {
                             return resolverPolicy.Resolve(ref context);
                         }
@@ -151,7 +152,7 @@ namespace Unity.Builder
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
-                case IResolver policy:
+                case IResolve policy:
                     return policy.Resolve(ref context);
 
                 case IResolverFactory factory:
@@ -185,7 +186,7 @@ namespace Unity.Builder
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
                         // Check if itself is a value 
-                        if (resolverOverride is IResolver resolverPolicy)
+                        if (resolverOverride is IResolve resolverPolicy)
                         {
                             return resolverPolicy.Resolve(ref context);
                         }
@@ -203,12 +204,13 @@ namespace Unity.Builder
             }
 
             // Resolve from injectors
+            // TODO: Optimize via overrides
             switch (value)
             {
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
-                case IResolver policy:
+                case IResolve policy:
                     return policy.Resolve(ref context);
 
                 case IResolverFactory factory:
@@ -250,6 +252,7 @@ namespace Unity.Builder
 
         public bool BuildComplete { get; set; }
 
+        // TODO: Remove CurrentOperation
         public object CurrentOperation { get; set; }
 
         public IBuilderContext ChildContext { get; internal set; }

@@ -23,9 +23,9 @@ namespace Unity.Tests.v5.Injection
             //ResolvedParameter parameter = new ResolvedParameter<ILogger>();
             //IResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
 
-            //AssertExtensions.IsInstanceOfType(resolver, typeof(NamedTypeDependencyResolverPolicy));
-            //Assert.AreEqual(expectedType, ((NamedTypeDependencyResolverPolicy)resolver).Type);
-            //Assert.IsNull(((NamedTypeDependencyResolverPolicy)resolver).Name);
+            //AssertExtensions.IsInstanceOfType(resolver, typeof(NamedTypeDependencyResolvePolicy));
+            //Assert.AreEqual(expectedType, ((NamedTypeDependencyResolvePolicy)resolver).Type);
+            //Assert.IsNull(((NamedTypeDependencyResolvePolicy)resolver).Name);
         }
 
         // TODO: [TestMethod]
@@ -37,9 +37,9 @@ namespace Unity.Tests.v5.Injection
             //ResolvedParameter parameter = new ResolvedParameter(expectedType, name);
             //IResolverPolicy resolver = parameter.GetResolverPolicy(expectedType);
 
-            //AssertExtensions.IsInstanceOfType(resolver, typeof(NamedTypeDependencyResolverPolicy));
-            //Assert.AreEqual(expectedType, ((NamedTypeDependencyResolverPolicy)resolver).Type);
-            //Assert.AreEqual(name, ((NamedTypeDependencyResolverPolicy)resolver).Name);
+            //AssertExtensions.IsInstanceOfType(resolver, typeof(NamedTypeDependencyResolvePolicy));
+            //Assert.AreEqual(expectedType, ((NamedTypeDependencyResolvePolicy)resolver).Type);
+            //Assert.AreEqual(name, ((NamedTypeDependencyResolvePolicy)resolver).Name);
         }
 
         [TestMethod]

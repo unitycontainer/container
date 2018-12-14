@@ -6,11 +6,11 @@ using Unity.Resolution;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IResolver"/> that
+    /// An implementation of <see cref="IResolve"/> that
     /// calls back into the build chain to build up the dependency, passing
     /// a type given at compile time as its build key.
     /// </summary>
-    public class FixedTypeResolverPolicy : IResolver
+    public class FixedTypeResolvePolicy : IResolve
     {
         private readonly NamedTypeBuildKey _keyToBuild;
 
@@ -18,7 +18,7 @@ namespace Unity.ResolverPolicy
         /// Create a new instance storing the given type.
         /// </summary>
         /// <param name="typeToBuild">Type to resolve.</param>
-        public FixedTypeResolverPolicy(Type typeToBuild)
+        public FixedTypeResolvePolicy(Type typeToBuild)
         {
             _keyToBuild = new NamedTypeBuildKey(typeToBuild);
         }

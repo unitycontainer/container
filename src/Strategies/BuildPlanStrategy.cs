@@ -44,7 +44,7 @@ namespace Unity.Strategies
                     {
                         plan = planCreator.CreatePlan(ref context, context.BuildKey);
 
-                        if (plan is IResolver policy)
+                        if (plan is IResolve policy)
                             context.Registration.Set(typeof(ResolveDelegate<TBuilderContext>), (ResolveDelegate<TBuilderContext>)policy.Resolve);
                         else
                             context.Registration.Set(typeof(IBuildPlanPolicy), plan);

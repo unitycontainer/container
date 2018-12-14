@@ -87,21 +87,21 @@ namespace Unity.ObjectBuilder.Policies
 
 
         /// <summary>
-        /// Create a <see cref="IResolver"/> for the given
+        /// Create a <see cref="IResolve"/> for the given
         /// property.
         /// </summary>
         /// <param name="property">Property to create resolver for.</param>
         /// <returns>The resolver object.</returns>
-        protected IResolver CreateResolver(PropertyInfo property)
+        protected IResolve CreateResolver(PropertyInfo property)
         {
             var attribute = property.GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
                                     .OfType<DependencyResolutionAttribute>()
                                     .First();
 
             return attribute is OptionalDependencyAttribute dependencyAttribute
-                ? (IResolver)new OptionalDependencyResolverPolicy(property.PropertyType, dependencyAttribute.Name)
+                ? (IResolve)new OptionalDependencyResolvePolicy(property.PropertyType, dependencyAttribute.Name)
                 : null != attribute.Name 
-                    ? new NamedTypeDependencyResolverPolicy(property.PropertyType, attribute.Name) 
+                    ? new NamedTypeDependencyResolvePolicy(property.PropertyType, attribute.Name) 
                     : null;
         }
     }

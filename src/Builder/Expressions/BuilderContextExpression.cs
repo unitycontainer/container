@@ -55,7 +55,7 @@ namespace Unity.Builder.Expressions
                     yield return Resolve(parameter, null, null);
                 else
                     yield return attribute is OptionalDependencyAttribute
-                        ? Resolve(parameter, attribute.Name, new OptionalDependencyResolverPolicy(parameter.ParameterType, attribute.Name))
+                        ? Resolve(parameter, attribute.Name, new OptionalDependencyResolvePolicy(parameter.ParameterType, attribute.Name))
                         : Resolve(parameter, attribute.Name, null);
             }
         }

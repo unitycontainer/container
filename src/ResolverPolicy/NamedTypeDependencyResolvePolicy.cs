@@ -5,19 +5,19 @@ using Unity.Resolution;
 namespace Unity.ResolverPolicy
 {
     /// <summary>
-    /// An implementation of <see cref="IResolver"/> that stores a
+    /// An implementation of <see cref="IResolve"/> that stores a
     /// type and name, and at resolution time puts them together into a
     /// <see cref="NamedTypeBuildKey"/>.
     /// </summary>
-    public class NamedTypeDependencyResolverPolicy : IResolver
+    public class NamedTypeDependencyResolvePolicy : IResolve
     {
         /// <summary>
-        /// Create an instance of <see cref="NamedTypeDependencyResolverPolicy"/>
+        /// Create an instance of <see cref="NamedTypeDependencyResolvePolicy"/>
         /// with the given type and name.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="name">The name (may be null).</param>
-        public NamedTypeDependencyResolverPolicy(Type type, string name)
+        public NamedTypeDependencyResolvePolicy(Type type, string name)
         {
             Type = type;
             Name = name;
