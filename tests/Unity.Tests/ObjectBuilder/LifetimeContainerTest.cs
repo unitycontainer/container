@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Container.Lifetime;
+using Unity.Policy;
 
 namespace Unity.Tests.v5.ObjectBuilder
 {

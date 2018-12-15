@@ -172,15 +172,15 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
 
             switch (selector.SelectConstructor(ref context))
             {
-                case InjectionConstructor injectionConstructor:
-                    var constructorInfo = injectionConstructor.GetInfo(context.Type);
-                    return ValidateSelectedConstructor(ref context, constructorInfo) ??
+                case ISelect<ConstructorInfo, object[]> injectionConstructor:
+                    var (ctor, parameters) = injectionConstructor.Select(context.Type);
+                    return ValidateSelectedConstructor(ref context, ctor) ??
                            Expression.Assign(
                                BuilderContextExpression<TBuilderContext>.Existing,
                                Expression.Convert(
                                    Expression.New(
-                                       constructorInfo,
-                                       BuilderContextExpression<TBuilderContext>.GetParameters(constructorInfo, injectionConstructor.GetParameters())),
+                                       ctor,
+                                       BuilderContextExpression<TBuilderContext>.GetParameters(ctor, parameters)),
                                    typeof(object)));
 
                 case ConstructorInfo info:

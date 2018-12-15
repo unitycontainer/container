@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using Unity.Policy;
 
 namespace Unity.Tests.v5.TestSupport
 {

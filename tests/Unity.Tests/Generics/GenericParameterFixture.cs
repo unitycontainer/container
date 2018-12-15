@@ -54,37 +54,6 @@ namespace Unity.Tests.v5.Generics
             Assert.AreSame(named, result.InjectedValue);
         }
 
-        [TestMethod]
-        public void ResolvingOpenGenericWithConstructorParameterAmbiguityThrows()
-        {
-            var container = new UnityContainer();
-            container.RegisterType(
-                typeof(GenericTypeWithMultipleGenericTypeParameters<,>),
-                new InjectionConstructor(new GenericParameter("T", "instance")));
-            container.RegisterInstance("instance", "the string");
-
-            AssertExtensions.AssertException<ResolutionFailedException>(
-                () => container.Resolve<GenericTypeWithMultipleGenericTypeParameters<string, string>>(),
-                e => { });
-        }
-
-        [TestMethod]
-        public void ResolvingOpenGenericWithMethodAmbiguityThrows()
-        {
-            var container = new UnityContainer();
-            container.RegisterType(
-                typeof(GenericTypeWithMultipleGenericTypeParameters<,>),
-                new InjectionMethod("Set", new GenericParameter("T", "instance")));
-            container.RegisterInstance("instance", "the string");
-
-            //// equivalent to doing the following, which would be rejected by the compiler
-            //new GenericTypeWithMultipleGenericTypeParameters<string, string>().Set(container.Resolve<string>("instance"));
-
-            AssertExtensions.AssertException<ResolutionFailedException>(
-                () => container.Resolve<GenericTypeWithMultipleGenericTypeParameters<string, string>>(),
-                e => { });
-        }
-
         // Our various test objects
         public class ClassWithOneGenericParameter<T>
         {

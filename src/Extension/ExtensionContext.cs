@@ -3,6 +3,7 @@ using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Events;
 using Unity.Injection;
+using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Extension
@@ -22,9 +23,9 @@ namespace Unity.Extension
         public abstract IUnityContainer Container { get; }
 
         /// <summary>
-        /// The <see cref="ILifetimeContainer"/> that this container uses.
+        /// The <see cref="Unity.Lifetime.ILifetimeContainer"/> that this container uses.
         /// </summary>
-        /// <value>The <see cref="ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
+        /// <value>The <see cref="Unity.Lifetime.ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
         public abstract ILifetimeContainer Lifetime { get; }
 
         #endregion
@@ -63,7 +64,7 @@ namespace Unity.Extension
 
         /// <summary>
         /// This event is raised when the 
-        /// <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, IInjectionMember[])"/> 
+        /// <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, InjectionMember[])"/> 
         /// method, or one of its overloads, is called.
         /// </summary>
         public abstract event EventHandler<RegisterEventArgs> Registering;

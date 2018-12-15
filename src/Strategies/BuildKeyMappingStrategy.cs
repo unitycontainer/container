@@ -19,7 +19,7 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params IInjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
             switch (namedType)
             {
@@ -34,7 +34,7 @@ namespace Unity.Strategies
             }
         }
 
-        private bool AnalyseStaticRegistration(ContainerRegistration registration, params IInjectionMember[] injectionMembers)
+        private bool AnalyseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
         {
             // Validate input  
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;

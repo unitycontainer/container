@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder.Strategy;
 using Unity.Container;
-using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -377,36 +376,6 @@ namespace Unity.Builder
         }
 
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
-        {
-            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
-                _container.ClearPolicy(type, name, policyInterface);
-            else
-                Registration.Clear(policyInterface);
-        }
-
-        #endregion
-
-
-        #region Registration
-
-        object Get(Type type, string name, Type policyInterface)
-        {
-            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
-                return _container.GetPolicy(type, name, policyInterface);
-
-            return Registration.Get(policyInterface);
-
-        }
-
-        void Set(Type type, string name, Type policyInterface, object policy)
-        {
-            if (type != OriginalBuildKey.Type || name != OriginalBuildKey.Name)
-                _container.SetPolicy(type, name, policyInterface, policy);
-            else
-                Registration.Set(policyInterface, policy);
-        }
-
-        void Clear(Type type, string name, Type policyInterface)
         {
             if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 _container.ClearPolicy(type, name, policyInterface);

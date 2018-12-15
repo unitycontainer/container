@@ -2,6 +2,7 @@
 using System.Reflection;
 using Unity.Builder.Strategy;
 using Unity.Injection;
+using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Strategies
@@ -83,7 +84,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params IInjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
         {
             if (namedType is InternalRegistration registration)
             {

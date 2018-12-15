@@ -33,12 +33,6 @@
     <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'net40' ">
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>4.5.1</Version>
-    </PackageReference>
-  </ItemGroup>
-
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
@@ -46,6 +40,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netstandard'))">
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Unity.Abstractions.csproj.DotSettings" />
   </ItemGroup>
 
 
@@ -56,7 +54,6 @@
   <ItemGroup Condition="!Exists('$(UnityAbstractions)')">
     <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
   </ItemGroup>
-
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -69,5 +66,10 @@
     <DebugType>Full</DebugType>
   </PropertyGroup>
 
+
+
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.*" />
+  </ItemGroup>
 
 </Project>

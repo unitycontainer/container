@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Expressions;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod

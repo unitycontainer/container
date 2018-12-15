@@ -30,13 +30,13 @@ namespace Unity.ObjectBuilder.Policies
                    FindLongestConstructor(context.Type);
         }
 
-        private static object FindInjectionConstructor(Type typeToConstruct, IInjectionMember[] injectionMembers)
+        private static object FindInjectionConstructor(Type typeToConstruct, InjectionMember[] injectionMembers)
         {
             if (null == injectionMembers) return null;
 
             foreach (var member in injectionMembers)
             {
-                if (member is InjectionConstructor)
+                if (member is ISelect<ConstructorInfo, object[]>)
                     return member;
             }
 

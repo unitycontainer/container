@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder.Strategy;
-using Unity.Exceptions;
+using Unity;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
@@ -31,10 +31,10 @@ namespace Unity.Builder
         IStrategyChain Strategies { get; }
 
         /// <summary>
-        /// Gets the <see cref="ILifetimeContainer"/> associated with the build.
+        /// Gets the <see cref="Unity.Lifetime.ILifetimeContainer"/> associated with the build.
         /// </summary>
         /// <value>
-        /// The <see cref="ILifetimeContainer"/> associated with the build.
+        /// The <see cref="Unity.Lifetime.ILifetimeContainer"/> associated with the build.
         /// </value>
         ILifetimeContainer Lifetime { get; }
 

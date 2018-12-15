@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Unity.Builder;
 using Unity.Builder.Strategy;
 using Unity.Injection;
+using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Registration
@@ -47,7 +48,7 @@ namespace Unity.Registration
 
         public virtual IList<BuilderStrategy> BuildChain { get; set; }
 
-        public IInjectionMember[] InjectionMembers { get; set; }
+        public InjectionMember[] InjectionMembers { get; set; }
 
         #endregion
 
