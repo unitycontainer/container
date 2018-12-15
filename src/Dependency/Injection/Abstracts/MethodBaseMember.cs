@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using Unity.Resolution;
-using Unity.Storage;
+using Unity.Policy;
 
 namespace Unity.Injection
 {
     public delegate bool MatchPredicate(object[] arguments, ParameterInfo[] parameters);
 
-    public abstract class MethodBaseMember<TMemberInfo> : IInjectionMember, IEquatable<TMemberInfo>
+    public abstract class MethodBaseMember<TMemberInfo> : InjectionMember,
+                                                          ISelect<TMemberInfo, object[]>,
+                                                          IEquatable<TMemberInfo>
                                       where TMemberInfo : MethodBase
     {
         #region Fields
 
         private readonly object[] _arguments;
-        protected abstract string Designation { get; }
 
         #endregion
 
@@ -29,36 +30,16 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Public Members
+        #region Protected Members
 
-        public TMemberInfo Info
-        {
-            get;
-            protected set;
-        }
-
-
-        public abstract TMemberInfo GetInfo(Type type);
-
-        public virtual object[] GetParameters() => _arguments;
+        protected TMemberInfo MemberInfo;
 
         #endregion
 
 
-        #region IEquatable
+        #region InjectionMember
 
-        public abstract bool Equals(TMemberInfo other);
-
-        #endregion
-
-
-        #region IInjectionMember
-
-        public virtual bool BuildRequired => false;
-
-        public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
-            where TContext : IResolveContext
-            where TPolicyList : IPolicyList
+        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
             var typeInfo = mappedToType.GetTypeInfo();
             var predicate = 0 == _arguments.Length
@@ -71,22 +52,58 @@ namespace Unity.Injection
                 //var parameters = ParametersFromArguments(_arguments, member.GetParameters());
                 //if (null == parameters) continue;
 
-                if (null != Info)
+                if (null != MemberInfo)
                 {
                     var signature = "xxx";//string.Join(", ", _arguments?.Select(t => t.Name) ?? );
-                    var message = $"The type {mappedToType.FullName} does not have a {Designation} that takes these parameters ({signature}).";
+                    var message = $"The type {mappedToType.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
                     throw new InvalidOperationException(message);
                 }
 
-                Info = member;
+                MemberInfo = member;
             }
 
-            if (null == Info)
+            Validate(mappedToType);
+        }
+
+        #endregion
+
+
+        #region ISelect
+
+        public virtual (TMemberInfo, object[]) Select(Type type)
+        {
+            var methodHasOpenGenericParameters = MemberInfo.GetParameters()
+                                                     .Select(p => p.ParameterType.GetTypeInfo())
+                                                     .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+
+            var info = MemberInfo.DeclaringType.GetTypeInfo();
+            if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
+                return (MemberInfo, _arguments);
+
+#if NETSTANDARD1_0
+            var typeInfo = type.GetTypeInfo();
+            var parameterTypes = Info.GetClosedParameterTypes(typeInfo.GenericTypeArguments);
+            var member = DeclaredMembers(typeInfo).Single(m => m.Name.Equals(Info.Name) &&
+                                                               m.GetParameters().ParametersMatch(parameterTypes));
+#else
+            foreach (var member in DeclaredMembers(type.GetTypeInfo()))
             {
-                var signature = "xxx";//string.Join(", ", _arguments?.Select(t => t.Name) ?? );
-                var message = $"The type {mappedToType.FullName} does not have a {Designation} that takes these parameters ({signature}).";
-                throw new InvalidOperationException(message);
+                if (member.MetadataToken == MemberInfo.MetadataToken)
+                    return (member, _arguments);
             }
+#endif
+            // TODO: 5.9.0 Implement correct error message
+            throw new InvalidOperationException("No such member");
+        }
+
+        #endregion
+
+
+        #region IEquatable
+
+        public virtual bool Equals(TMemberInfo other)
+        {
+            return other?.MetadataToken == MemberInfo.MetadataToken;
         }
 
         #endregion
@@ -94,11 +111,27 @@ namespace Unity.Injection
 
         #region Type matching
 
+        protected virtual bool MatchArgumentsToParameters(object[] arguments, ParameterInfo[] parameters)
+        {
+            // TODO: optimize
+            if ((_arguments?.Length ?? 0) != parameters.Length) return false;
+
+            for (var i = 0; i < (_arguments?.Length ?? 0); i++)
+            {
+                if (Matches(_arguments?[i], parameters[i].ParameterType))
+                    continue;
+
+                return false;
+            }
+
+            return true;
+        }
+
         protected virtual bool Matches(object parameter, Type match)
         {
             switch (parameter)
             {
-                // TODO: Replace with IEquatable
+                // TODO: 5.9.0 Replace with IEquatable
                 case InjectionParameterValue injectionParameter:
                     return injectionParameter.MatchesType(match);
 
@@ -155,28 +188,17 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected virtual object[] ParametersFromArguments(object[] arguments, ParameterInfo[] parameters)
-        {
-            return null;
-        }
-
-        protected virtual bool MatchArgumentsToParameters(object[] arguments, ParameterInfo[] parameters)
-        {
-            // TODO: optimize
-            if ((_arguments?.Length ?? 0) != parameters.Length) return false;
-
-            for (var i = 0; i < (_arguments?.Length ?? 0); i++)
-            {
-                if (Matches(_arguments?[i], parameters[i].ParameterType))
-                    continue;
-
-                return false;
-            }
-
-            return true;
-        }
-
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(TypeInfo info);
+
+        protected virtual void Validate(Type type)
+        {
+            if (null != MemberInfo) return;
+
+            // TODO: 5.9.0 Implement correct error message
+            var signature = "xxx";//string.Join(", ", _arguments?.Select(t => t.Name) ?? );
+            var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
+            throw new InvalidOperationException(message);
+        }
 
         #endregion
     }

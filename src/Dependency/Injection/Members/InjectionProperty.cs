@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
 using Unity.Resolution;
-using Unity.Storage;
-using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -13,7 +12,7 @@ namespace Unity.Injection
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : IInjectionMember,
+    public class InjectionProperty : InjectionMember,
                                      IEquatable<PropertyInfo>,
                                      IResolve
     {
@@ -58,7 +57,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IInjectionMember
+        #region InjectionMember
 
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
@@ -68,12 +67,10 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type to register.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
-            where TContext : IResolveContext
-            where TPolicyList : IPolicyList
+        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
             Info =
-                (mappedToType ?? throw new ArgumentNullException(nameof(mappedToType))).GetPropertiesHierarchical()
+                GetPropertiesHierarchical(mappedToType)
                         .FirstOrDefault(p => p.Name == Name &&
                                               !p.GetSetMethod(true).IsStatic);
 
@@ -85,7 +82,7 @@ namespace Unity.Injection
             // TODO: Optimize
         }
 
-        public bool BuildRequired => true;
+        public override bool BuildRequired => true;
 
         #endregion
 
@@ -200,5 +197,22 @@ namespace Unity.Injection
             }
             return string.Format(CultureInfo.CurrentCulture, format, args);
         }
+
+        private static IEnumerable<PropertyInfo> GetPropertiesHierarchical(Type type)
+        {
+            if (type == null)
+            {
+                return Enumerable.Empty<PropertyInfo>();
+            }
+
+            if (type == typeof(object))
+            {
+                return type.GetTypeInfo().DeclaredProperties;
+            }
+
+            return type.GetTypeInfo().DeclaredProperties
+                .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
+        }
+
     }
 }

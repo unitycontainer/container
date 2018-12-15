@@ -1,7 +1,11 @@
 ﻿using Unity.Resolution;
 
+
 namespace Unity.Policy
 {
+    public delegate object ResolveDelegate<TContext>(ref TContext context) where TContext : IResolveContext;
+
+
     /// <summary>
     /// A strategy that is used at build plan execution time
     /// to resolve a dependent value.
@@ -17,3 +21,4 @@ namespace Unity.Policy
             where TContext : IResolveContext;
     }
 }
+

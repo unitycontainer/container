@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
+using Unity.Policy;
 using Unity.Resolution;
-using Unity.Utility;
 
 namespace Unity.Injection
 {
@@ -60,7 +60,7 @@ namespace Unity.Injection
         /// Test to see if this parameter value has a matching type for the given type.
         /// </summary>
         /// <param name="type">Type to check.</param>
-        /// <returns>True if this parameter value is compatible with type <paramref name="t"/>,
+        /// <returns>True if this parameter value is compatible with type <paramref name="type"/>,
         /// false if not.</returns>
         public override bool MatchesType(Type type)
         {
@@ -76,7 +76,7 @@ namespace Unity.Injection
         {
             GuardTypeToBuildIsGeneric(type);
             GuardTypeToBuildHasMatchingGenericParameter(type);
-            Type typeToResolve = type.GetNamedGenericParameter(_genericParameterName);
+            Type typeToResolve = GetNamedGenericParameter(type, _genericParameterName);
             if (_isArray)
             {
                 typeToResolve = typeToResolve.MakeArrayType();
@@ -118,5 +118,27 @@ namespace Unity.Injection
                     typeToBuild.GetTypeInfo().Name,
                     _genericParameterName));
         }
+
+        private static Type GetNamedGenericParameter(Type type, string parameterName)
+        {
+            TypeInfo openType = type.GetGenericTypeDefinition().GetTypeInfo();
+            Type result = null;
+            int index = -1;
+
+            foreach (var genericArgumentType in openType.GenericTypeParameters)
+            {
+                if (genericArgumentType.GetTypeInfo().Name == parameterName)
+                {
+                    index = genericArgumentType.GenericParameterPosition;
+                    break;
+                }
+            }
+            if (index != -1)
+            {
+                result = type.GetTypeInfo().GenericTypeArguments[index];
+            }
+            return result;
+        }
+
     }
 }

@@ -1,7 +1,6 @@
-﻿
-using System;
+﻿using System;
 
-namespace Unity
+namespace Unity.Policy
 {
     public interface ISelect<TInfo, TData>
     {

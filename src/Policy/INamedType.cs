@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity
+namespace Unity.Policy
 {
     /// <summary>
     /// Basic information about registered type

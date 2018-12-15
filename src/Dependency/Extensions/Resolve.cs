@@ -49,11 +49,11 @@ namespace Unity
 
         #region Property
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property(string name) => new InjectionProperty(name);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(string name) => new InjectionProperty(name);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property(Type type) => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(Type type) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IInjectionMember Property<TTarget>() => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property<TTarget>() => throw new NotImplementedException();
 
         #endregion
     }

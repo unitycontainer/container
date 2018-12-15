@@ -1,4 +1,6 @@
-﻿namespace Unity
+﻿using Unity.Policy;
+
+namespace Unity
 {
     /// <summary>
     /// An <see cref="LifetimeManager"/> implementation that does nothing,

@@ -1,6 +1,6 @@
 using System;
 
-namespace Unity.Storage
+namespace Unity.Policy
 {
     /// <summary>
     /// A custom collection over <see cref="Object"/> objects.
