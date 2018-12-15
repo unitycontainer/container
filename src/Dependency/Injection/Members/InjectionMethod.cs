@@ -36,40 +36,14 @@ namespace Unity.Injection
         #endregion
 
 
-        #region MethodBaseMember
+        #region Implementation
 
-        protected override void Validate(Type type)
+        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
-            base.Validate(type);
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+            if (null == type) return Enumerable.Empty<MethodInfo>();
 
-            // TODO: 5.9.0 Verify necessity 
-            if (MemberInfo.IsStatic) ThrowIllegalMember(Constants.CannotInjectStaticMethod, type);
-            if (MemberInfo.IsGenericMethodDefinition) ThrowIllegalMember(Constants.CannotInjectGenericMethod, type);
-            if (MemberInfo.GetParameters().Any(param => param.IsOut)) ThrowIllegalMember(Constants.CannotInjectMethodWithOutParams, type);
-            if (MemberInfo.GetParameters().Any(param => param.ParameterType.IsByRef)) ThrowIllegalMember(Constants.CannotInjectMethodWithRefParams, type);
-        }
-
-#if NETSTANDARD1_0
-        public override bool Equals(MethodInfo other)
-        {
-            if (other.Name != _methodName) return false;
-
-            var parameterTypes = other.GetParameters()
-                                      .Select(p => p.ParameterType);
-
-            if (Info.ContainsGenericParameters)
-            {
-                return _parameterTypes.Length == parameterTypes.Count();
-            }
-
-            return _parameterTypes.SequenceEqual(parameterTypes);
-        }
-#endif
-
-        protected override IEnumerable<MethodInfo> DeclaredMembers(TypeInfo info)
-        {
-            if (null == info) return Enumerable.Empty<MethodInfo>();
-
+            var info = type.GetTypeInfo();
             if (typeof(object) == info.DeclaringType)
             {
                 return info.DeclaredMethods.Where(m => !m.IsStatic)
@@ -77,14 +51,24 @@ namespace Unity.Injection
             }
 
             return info.DeclaredMethods.Where(m => !m.IsStatic)
-                       .Concat(DeclaredMembers(info.BaseType?.GetTypeInfo()))
+                       .Concat(DeclaredMembers(info.BaseType))
                        .Where(m => _methodName == m.Name);
+#else
+            return type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                       .Where(m => _methodName == m.Name);
+#endif
         }
 
-        #endregion
+        protected override void OnValidate(Type type)
+        {
+            base.OnValidate(type);
 
-
-        #region Implementation
+            // TODO: 5.9.0 Verify necessity 
+            if (MemberInfo.IsStatic) ThrowIllegalMember(Constants.CannotInjectStaticMethod, type);
+            if (MemberInfo.IsGenericMethodDefinition) ThrowIllegalMember(Constants.CannotInjectGenericMethod, type);
+            if (MemberInfo.GetParameters().Any(param => param.IsOut)) ThrowIllegalMember(Constants.CannotInjectMethodWithOutParams, type);
+            if (MemberInfo.GetParameters().Any(param => param.ParameterType.IsByRef)) ThrowIllegalMember(Constants.CannotInjectMethodWithRefParams, type);
+        }
 
         private void ThrowIllegalMember(string message, Type type)
         {
@@ -96,6 +80,31 @@ namespace Unity.Injection
                     // TODO: 5.9.0
                     "string.Join(", ", _injectionParameterValues.Select(mp => mp.ParameterTypeName))"));
         }
+
+        #endregion
+
+
+        #region Platform Compatibility
+
+#if NETSTANDARD1_0
+
+        public override bool Equals(MethodInfo other)
+        {
+            if (null == other || other.Name != _methodName) return false;
+
+            var parameterTypes = other.GetParameters()
+                                      .Select(p => p.ParameterType)
+                                      .ToArray();
+
+            if (MemberInfo.ContainsGenericParameters)
+                return Data.Length == parameterTypes.Length;
+
+            return MemberInfo.GetParameters()
+                             .Select(p => p.ParameterType)
+                             .SequenceEqual(parameterTypes);
+        }
+
+#endif
 
         #endregion
     }

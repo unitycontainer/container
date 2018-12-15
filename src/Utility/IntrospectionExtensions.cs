@@ -4,6 +4,7 @@ using System.Threading;
 namespace System.Reflection
 {
 #if NET40
+
     internal class TypeInfo 
     {
         private const BindingFlags DeclaredOnlyLookup = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
@@ -17,6 +18,8 @@ namespace System.Reflection
 
 
         public Assembly Assembly => _type.Assembly;
+
+        public bool IsArray => _type.IsArray;
 
         public bool IsGenericTypeDefinition => _type.IsGenericTypeDefinition;
 
@@ -45,6 +48,8 @@ namespace System.Reflection
         public bool IsValueType => _type.IsValueType;
 
         public bool ContainsGenericParameters => _type.ContainsGenericParameters;
+
+        public Type GetGenericTypeDefinition() => _type.GetGenericTypeDefinition();
 
     #region moved over from Type
 
@@ -227,3 +232,4 @@ namespace System.Reflection
 #endif
     }
 }
+

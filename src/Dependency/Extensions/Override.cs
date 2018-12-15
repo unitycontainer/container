@@ -6,10 +6,19 @@ namespace Unity
 {
     public static partial class Override
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ResolverOverride Property(string name, object value) => new PropertyOverride(name, value);
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ResolverOverride Property(string name, object value) => new PropertyOverride(name, value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ResolverOverride Parameter(string name, object value) => new ParameterOverride(name, value);
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ResolverOverride Parameter(string name, object value) => new ParameterOverride(name, value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ResolverOverride Dependency() => throw new NotImplementedException();
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ResolverOverride Dependency() => throw new NotImplementedException();
     }
 }

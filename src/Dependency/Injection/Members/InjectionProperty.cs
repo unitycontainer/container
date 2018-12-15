@@ -12,15 +12,13 @@ namespace Unity.Injection
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : InjectionMember,
-                                     IEquatable<PropertyInfo>,
+    public class InjectionProperty : InjectionMember<PropertyInfo, object>,
                                      IResolve
     {
         #region Fields
 
-        protected object Value;
-        protected PropertyInfo Info;
         protected readonly string Name;
+        private static readonly object Value = new object();
 
         #endregion
 
@@ -34,9 +32,9 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="propertyName">Name of the property to inject.</param>
         public InjectionProperty(string propertyName)
+            : base(Value)
         {
             Name = propertyName;
-            Value = this;
         }
 
         /// <summary>
@@ -49,9 +47,9 @@ namespace Unity.Injection
         /// <param name="propertyName">Name of property to inject.</param>
         /// <param name="propertyValue">InjectionParameterValue for property.</param>
         public InjectionProperty(string propertyName, object propertyValue)
+            : base(propertyValue)
         {
             Name = propertyName;
-            Value = propertyValue;
         }
 
         #endregion
@@ -59,59 +57,7 @@ namespace Unity.Injection
 
         #region InjectionMember
 
-        /// <summary>
-        /// Add policies to the <paramref name="policies"/> to configure the
-        /// container to call this constructor with the appropriate parameter values.
-        /// </summary>
-        /// <param name="registeredType">Interface being registered, ignored in this implementation.</param>
-        /// <param name="mappedToType">Type to register.</param>
-        /// <param name="name">Name used to resolve the type object.</param>
-        /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
-        {
-            Info =
-                GetPropertiesHierarchical(mappedToType)
-                        .FirstOrDefault(p => p.Name == Name &&
-                                              !p.GetSetMethod(true).IsStatic);
-
-            GuardPropertyExists(Info, mappedToType, Name);
-            GuardPropertyIsSettable(Info);
-            GuardPropertyIsNotIndexer(Info);
-            //InitializeParameterValue(propInfo);
-            //GuardPropertyValueIsCompatible(propInfo, Value);
-            // TODO: Optimize
-        }
-
         public override bool BuildRequired => true;
-
-        #endregion
-
-
-        #region IEquatable
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is PropertyInfo other)
-            {
-                return other.Name == Name;
-            }
-
-            return false;
-        }
-
-        public bool Equals(PropertyInfo other)
-        {
-#if NETSTANDARD1_0
-            return other.Name == Name;
-#else
-            return other?.MetadataToken == Info.MetadataToken;
-#endif
-        }
 
         #endregion
 
@@ -121,24 +67,74 @@ namespace Unity.Injection
 
         public object Resolve<TContext>(ref TContext context) where TContext : IResolveContext
         {
-            if (ReferenceEquals(Value, this))
+            if (ReferenceEquals(Data, Value))
             {
-                Value = new ResolvedParameter(Info.PropertyType);
+                Data = new ResolvedParameter(MemberInfo.PropertyType);
             }
 
-            if (Value is IResolve policy)
+            if (Data is IResolve policy)
                 return policy.Resolve(ref context);
 
-            if (Value is IResolverFactory factory)
+            if (Data is IResolverFactory factory)
             {
                 var resolveDelegate = factory.GetResolver<TContext>(context.Type);
                 return resolveDelegate(ref context);
             }
 
-            return Value;
+            return Data;
         }
 
         #endregion
+
+
+        #region Implementation
+
+        protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
+        {
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+            if (type == null)
+            {
+                return Enumerable.Empty<PropertyInfo>();
+            }
+
+            var info = type.GetTypeInfo();
+            if (type == typeof(object))
+            {
+                return info.DeclaredProperties; 
+            }
+
+            return info.DeclaredProperties
+                       .Concat(DeclaredMembers(type.GetTypeInfo().BaseType));
+#else
+            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+#endif
+        }
+
+        protected override bool MemberInfoMatch(PropertyInfo info, object data)
+        {
+#if NET40
+            return info.Name == Name && !info.GetSetMethod(true).IsStatic;
+#else
+            return info.Name == Name && info.CanWrite && !info.SetMethod.IsStatic;
+#endif
+        }
+
+        #endregion
+
+
+        #region Guards
+
+        protected override void OnValidate(Type type)
+        {
+            base.OnValidate(type);
+
+            // TODO: Optimize
+            GuardPropertyExists(MemberInfo, type, Name);
+            GuardPropertyIsSettable(MemberInfo);
+            GuardPropertyIsNotIndexer(MemberInfo);
+            //InitializeParameterValue(propMemberInfo);
+            //GuardPropertyValueIsCompatible(propMemberInfo, Value);
+        }
 
         private static void GuardPropertyExists(PropertyInfo propInfo, Type typeToCreate, string propertyName)
         {
@@ -214,5 +210,19 @@ namespace Unity.Injection
                 .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
         }
 
+        #endregion
+
+
+        #region Platform Compatibility
+
+
+#if NETSTANDARD1_0
+        public override bool Equals(PropertyInfo other)
+        {
+            return null != other && other.Name == Name;
+        }
+#endif
+
+        #endregion
     }
 }

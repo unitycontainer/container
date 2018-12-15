@@ -3,6 +3,7 @@ using Unity.Policy;
 
 namespace Unity.Injection
 {
+    /// <inheritdoc />
     /// <summary>
     /// A class that lets you specify a factory method the container
     /// will use to create the object.

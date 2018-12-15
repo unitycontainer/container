@@ -9,15 +9,37 @@ namespace Unity
     {
         #region Parameter
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionParameter Parameter(object value) => new InjectionParameter(value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionParameter Parameter(Type type, object value) => new InjectionParameter(type, value);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionParameter Parameter<TTarget>(object value) => new InjectionParameter(typeof(TTarget), value);
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionParameter Parameter(object value) => new InjectionParameter(value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionParameter Parameter(string name, object value) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionParameter Parameter(Type type, string name, object value) => throw new NotImplementedException();
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionParameter Parameter<TTarget>(string name, object value) => throw new NotImplementedException();
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionParameter Parameter(Type type, object value) => new InjectionParameter(type, value);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionParameter Parameter<TTarget>(object value) => new InjectionParameter(typeof(TTarget), value);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionParameter Parameter(string name, object value) => throw new NotImplementedException();
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionParameter Parameter(Type type, string name, object value) => throw new NotImplementedException();
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionParameter Parameter<TTarget>(string name, object value) => throw new NotImplementedException();
 
         #endregion
 
@@ -37,13 +59,25 @@ namespace Unity
 
         #region Property
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(string name, object value) => new InjectionProperty(name, value);
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Property(string name, object value) => new InjectionProperty(name, value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(Type type, object value) => throw new NotImplementedException();
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Property(Type type, object value) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property<TTarget>(object value) => throw new NotImplementedException();
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Property<TTarget>(object value) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Property(PropertyInfo info, object value) => throw new NotImplementedException();
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Property(PropertyInfo info, object value) => throw new NotImplementedException();
 
         #endregion
     }

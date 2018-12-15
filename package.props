@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp1.0;net47;net46;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.0;netcoreapp2.0;netcoreapp1.0;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
 
 </Project>

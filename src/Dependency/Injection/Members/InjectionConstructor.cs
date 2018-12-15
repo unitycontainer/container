@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -33,19 +34,18 @@ namespace Unity.Injection
         #endregion
 
 
-        #region InjectionMember
+        #region Implementation
 
         public override bool BuildRequired => true;
 
-        #endregion
-
-
-        #region MethodBaseMember
-
-        protected override IEnumerable<ConstructorInfo> DeclaredMembers(TypeInfo info)
+        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
-            return info.DeclaredConstructors
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+            return type.GetTypeInfo().DeclaredConstructors
                        .Where(c => c.IsStatic == false && c.IsPublic);
+#else
+            return type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+#endif
         }
 
         #endregion
