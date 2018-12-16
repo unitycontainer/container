@@ -6,7 +6,6 @@ using Unity.Builder;
 using Unity.Builder.Selection;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 
@@ -30,11 +29,28 @@ namespace Unity.ObjectBuilder.Policies
         {
             var properties = context.Type
                                     .GetPropertiesHierarchical()
-                                    .Where(p => p.CanWrite);
+#if NETSTANDARD1_0
+                                    .Where(p =>
+                                    {
+                                        if (!p.CanWrite) return false;
 
-            var injectionMembers = 
-                context.Registration is InternalRegistration registration && null != registration.InjectionMembers 
-                    ? registration.InjectionMembers 
+                                        var propertyMethod = p.GetSetMethod(true) ??
+                                                             p.GetGetMethod(true);
+
+                                        // Skip static properties and indexers. 
+                                        if (propertyMethod.IsStatic || p.GetIndexParameters().Length != 0)
+                                            return false;
+
+                                        return true;
+                                    })
+#else
+                                    .Where(p => p.CanWrite && !p.SetMethod.IsStatic && p.GetIndexParameters().Length == 0)
+#endif
+                                    .ToList();
+
+            var injectionMembers =
+                context.Registration is InternalRegistration registration && null != registration.InjectionMembers
+                    ? registration.InjectionMembers
                     : null;
 
             return null != injectionMembers
@@ -47,13 +63,6 @@ namespace Unity.ObjectBuilder.Policies
         {
             foreach (var property in properties)
             {
-                var propertyMethod = property.GetSetMethod(true) ??
-                                     property.GetGetMethod(true);
-
-                // Skip static properties and indexers. 
-                if (propertyMethod.IsStatic ||
-                    property.GetIndexParameters().Length != 0) continue;
-
                 // Return properties marked with the attribute
                 if (property.IsDefined(typeof(DependencyResolutionAttribute), false))
                 {
@@ -62,23 +71,16 @@ namespace Unity.ObjectBuilder.Policies
             }
         }
 
-        private IEnumerable<object> SelectInjectedProperties(IEnumerable<PropertyInfo> properties, 
+        private IEnumerable<object> SelectInjectedProperties(IEnumerable<PropertyInfo> properties,
             IEquatable<PropertyInfo>[] injectionMembers)
         {
             foreach (var property in properties)
             {
-                var propertyMethod = property.GetSetMethod(true) ??
-                                     property.GetGetMethod(true);
-
-                // Skip static properties and indexers. 
-                if (propertyMethod.IsStatic ||
-                    property.GetIndexParameters().Length != 0) continue;
-
                 var injector = injectionMembers.Where(member => member.Equals(property))
-                                               .Select(member => new SelectedProperty(property, member))
-                                               .FirstOrDefault() 
+                                               .Cast<object>() 
+                                               .FirstOrDefault()
                                ?? (property.IsDefined(typeof(DependencyResolutionAttribute), false)
-                                   ? new SelectedProperty(property, CreateResolver(property)) 
+                                   ? new SelectedProperty(property, CreateResolver(property))
                                    : null);
 
                 if (null != injector) yield return injector;
@@ -100,8 +102,8 @@ namespace Unity.ObjectBuilder.Policies
 
             return attribute is OptionalDependencyAttribute dependencyAttribute
                 ? (IResolve)new OptionalDependencyResolvePolicy(property.PropertyType, dependencyAttribute.Name)
-                : null != attribute.Name 
-                    ? new NamedTypeDependencyResolvePolicy(property.PropertyType, attribute.Name) 
+                : null != attribute.Name
+                    ? new NamedTypeDependencyResolvePolicy(property.PropertyType, attribute.Name)
                     : null;
         }
     }
