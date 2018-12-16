@@ -52,8 +52,16 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        protected InjectionMember(TData data)
+        protected InjectionMember(string name,TData data)
         {
+            Name = name;
+            Data = data;
+        }
+
+        protected InjectionMember(TMemberInfo info, TData data)
+        {
+            MemberInfo = info;
+            Name = info.Name;
             Data = data;
         }
 
@@ -62,9 +70,11 @@ namespace Unity.Injection
 
         #region Properties
 
-        protected TMemberInfo MemberInfo { get; set; }
-
         protected TData Data { get; set; }
+
+        protected string Name { get; }
+
+        protected TMemberInfo MemberInfo { get; set; }
 
         #endregion
 
@@ -73,9 +83,9 @@ namespace Unity.Injection
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-        protected virtual bool MemberInfoMatch(TMemberInfo info, TData data) => true;
+        protected virtual bool MatchMemberInfo(TMemberInfo info, TData data) => true;
 
-        protected virtual void OnValidate(Type type)
+        protected virtual void ValidateInjectionMember(Type type)
         {
             if (null != MemberInfo) return;
 
@@ -88,12 +98,9 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Interfaces
+        #region Interface Implementations
 
-        public virtual (TMemberInfo, TData) Select(Type type)
-        {
-            return (MemberInfo, Data);
-        }
+        public abstract (TMemberInfo, TData) Select(Type type);
 
         public virtual bool Equals(TMemberInfo other)
         {
@@ -107,13 +114,15 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Implementation
+        #region Overrides
+
+        public override bool BuildRequired => true;
 
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
             foreach (var member in DeclaredMembers(mappedToType))
             {
-                if (!MemberInfoMatch(member, Data))
+                if (!MatchMemberInfo(member, Data))
                     continue;
 
                 if (null != MemberInfo)
@@ -127,7 +136,7 @@ namespace Unity.Injection
                 MemberInfo = member;
             }
 
-            OnValidate(mappedToType);
+            ValidateInjectionMember(mappedToType);
         }
 
         #endregion

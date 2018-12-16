@@ -12,82 +12,63 @@ namespace Unity.Injection
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : InjectionMember<PropertyInfo, object>,
-                                     IResolve
+    public class InjectionProperty : MemberInfoMember<PropertyInfo>
     {
-        #region Fields
-
-        protected readonly string Name;
-        private static readonly object Value = new object();
-
-        #endregion
-
-
         #region Constructors
 
+        /// <summary>
+        /// Configure the container to inject the given property name,
+        /// using the value supplied.
+        /// </summary>
+        /// <param name="name">Name of property to inject.</param>
+        public InjectionProperty(string name)
+            : base(name, ResolvedValue)
+        {
+        }
 
         /// <summary>
         /// Configure the container to inject the given property name,
-        /// resolving the value via the container.
+        /// using the value supplied.
         /// </summary>
-        /// <param name="propertyName">Name of the property to inject.</param>
-        public InjectionProperty(string propertyName)
-            : base(Value)
+        /// <param name="name">Name of property to inject.</param>
+        /// <param name="value">InjectionParameterValue for property.</param>
+        public InjectionProperty(string name, object value)
+            : base(name, value)
         {
-            Name = propertyName;
         }
 
-        /// <summary>
-        /// Configure the container to inject the given property name,
-        /// using the value supplied. This value is converted to an
-        /// <see cref="InjectionParameterValue"/> object using the
-        /// rules defined by the <see cref="InjectionParameterValue.ToParameters"/>
-        /// method.
-        /// </summary>
-        /// <param name="propertyName">Name of property to inject.</param>
-        /// <param name="propertyValue">InjectionParameterValue for property.</param>
-        public InjectionProperty(string propertyName, object propertyValue)
-            : base(propertyValue)
+        protected InjectionProperty(PropertyInfo info, object value = null)
+            : base(info, value)
         {
-            Name = propertyName;
         }
+
 
         #endregion
 
 
-        #region InjectionMember
+        #region Overrides
 
-        public override bool BuildRequired => true;
-
-        #endregion
-
-
-        #region IResolverPolicy
-
-
-        public object Resolve<TContext>(ref TContext context) where TContext : IResolveContext
+        public override (PropertyInfo, object) Select(Type type)
         {
-            if (ReferenceEquals(Data, Value))
-            {
-                Data = new ResolvedParameter(MemberInfo.PropertyType);
-            }
+#if NETSTANDARD1_0 || NETCOREAPP1_0 
+            var declaringType = MemberInfo.DeclaringType.GetTypeInfo();
 
-            if (Data is IResolve policy)
-                return policy.Resolve(ref context);
+            if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
+                return base.Select(type);
 
-            if (Data is IResolverFactory factory)
-            {
-                var resolveDelegate = factory.GetResolver<TContext>(context.Type);
-                return resolveDelegate(ref context);
-            }
+            var info = type.GetTypeInfo().GetDeclaredProperty(MemberInfo.Name);
+#else
+            if ( MemberInfo.DeclaringType != null && 
+                !MemberInfo.DeclaringType.IsGenericType && 
+                !MemberInfo.DeclaringType.ContainsGenericParameters)
+                return base.Select(type);
 
-            return Data;
+            var info = type.GetProperty(MemberInfo.Name);
+#endif
+            return ReferenceEquals(Data, ResolvedValue)
+                ? (info, info)
+                : (info, Data);
         }
-
-        #endregion
-
-
-        #region Implementation
 
         protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
@@ -110,7 +91,7 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override bool MemberInfoMatch(PropertyInfo info, object data)
+        protected override bool MatchMemberInfo(PropertyInfo info, object data)
         {
 #if NET40
             return info.Name == Name && !info.GetSetMethod(true).IsStatic;
@@ -119,21 +100,21 @@ namespace Unity.Injection
 #endif
         }
 
-        #endregion
+#endregion
 
 
-        #region Guards
+#region Guards
 
-        protected override void OnValidate(Type type)
+        protected override void ValidateInjectionMember(Type type)
         {
-            base.OnValidate(type);
+            base.ValidateInjectionMember(type);
 
             // TODO: Optimize
             GuardPropertyExists(MemberInfo, type, Name);
             GuardPropertyIsSettable(MemberInfo);
             GuardPropertyIsNotIndexer(MemberInfo);
             //InitializeParameterValue(propMemberInfo);
-            //GuardPropertyValueIsCompatible(propMemberInfo, Value);
+            //GuardPropertyValueIsCompatible(propMemberInfo, _dummy);
         }
 
         private static void GuardPropertyExists(PropertyInfo propInfo, Type typeToCreate, string propertyName)
@@ -210,19 +191,6 @@ namespace Unity.Injection
                 .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
         }
 
-        #endregion
-
-
-        #region Platform Compatibility
-
-
-#if NETSTANDARD1_0
-        public override bool Equals(PropertyInfo other)
-        {
-            return null != other && other.Name == Name;
-        }
-#endif
-
-        #endregion
+#endregion
     }
 }

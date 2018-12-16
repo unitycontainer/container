@@ -18,15 +18,15 @@ namespace Unity.Injection
         /// Create a new instance of <see cref="InjectionConstructor"/> that looks
         /// for a constructor with the given set of parameters.
         /// </summary>
-        /// <param name="arguments">The values for the parameters, that will
-        /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
+        /// <param name="arguments">The values for the constructor's parameters, that will
+        /// be used to create objects.</param>
         public InjectionConstructor(params object[] arguments)
-            : base(arguments)
+            : base(Signature(arguments), arguments)
         {
         }
 
         public InjectionConstructor(ConstructorInfo info, params object[] arguments)
-            : base(arguments)
+            : base(Signature(arguments), arguments)
         {
             MemberInfo = info;
         }
@@ -34,9 +34,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Implementation
-
-        public override bool BuildRequired => true;
+        #region Overrides
 
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
