@@ -39,13 +39,19 @@ namespace Unity.Builder.Strategies
 
                 switch (selection)
                 {
+                    case MethodInfo info:
+                        methodInfo = info;
+                        parameters = info.GetParameters();
+                        resolvers = null;
+                        break;
+
                     case SelectedMethod selectedMethod:
                         methodInfo = selectedMethod.Method;
                         parameters = methodInfo.GetParameters();
                         resolvers = selectedMethod.GetResolvers();
                         break;
 
-                    case ISelect<MethodInfo,object[]> injectionMethod:
+                    case ISelect<MethodInfo, object[]> injectionMethod:
                         (methodInfo, resolvers) = injectionMethod.Select(context.Type);
                         parameters = methodInfo.GetParameters();
                         break;
@@ -54,6 +60,7 @@ namespace Unity.Builder.Strategies
                         throw new InvalidOperationException();
                 }
 
+                // TODO: Consolidate validation
                 if (methodInfo.IsGenericMethodDefinition ||
                     parameters.Any(param => param.IsOut  || param.ParameterType.IsByRef))
                 {
@@ -95,7 +102,7 @@ namespace Unity.Builder.Strategies
                     .FirstOrDefault();
 
                 yield return 
-                    BuilderContextExpression<TBuilderContext>.Resolve(parameter, attribute?.Name, resolvers[i]);
+                    BuilderContextExpression<TBuilderContext>.Resolve(parameter, attribute?.Name, resolvers?[i]);
             }
         }
 

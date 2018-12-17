@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Builder
 {
@@ -11,12 +12,24 @@ namespace Unity.Builder
     /// An implementation of <see cref="IConstructorSelectorPolicy"/> that is
     /// aware of the build keys used by the Unity container.
     /// </summary>
-    public class InvokedConstructorSelector : MemberSelectorPolicy<ConstructorInfo, object[]>, 
-                                                         IConstructorSelectorPolicy
+    public class InvokedConstructorSelector : MemberSelectorBase<ConstructorInfo, object[]>,
+                                              IConstructorSelectorPolicy
     {
         #region Fields
 
         private static readonly ConstructorLengthComparer ConstructorComparer = new ConstructorLengthComparer();
+
+        #endregion
+
+
+        #region Constructors
+
+        public InvokedConstructorSelector()
+            : base(new (Type type, Converter<ConstructorInfo, object> factory)[]
+                { (typeof(InjectionConstructorAttribute), info => info) })
+        {
+            
+        }
 
         #endregion
 
@@ -28,59 +41,51 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
-        public object SelectConstructor<TContext>(ref TContext context) 
-            where TContext : IBuilderContext 
-            => Select(ref context).FirstOrDefault();
-        
+        public object SelectConstructor<TContext>(ref TContext context)
+            where TContext : IBuilderContext
+        {
+            var members = DeclaredMembers(context.Type);
+
+            return new[]
+                {
+                    GetInjectionMembers(context.Type, ((InternalRegistration)context.Registration).InjectionMembers),
+                    GetAttributedMembers(context.Type, members)
+                }
+                .SelectMany(o => o)
+                .FirstOrDefault() 
+            ?? GetDefaultMember(context.Type, DeclaredMembers(context.Type));
+        }
+
 
         #endregion
 
 
         #region Overrides
 
-        protected override IEnumerable<object> GetAttributedMembers(Type type)
+        protected override ConstructorInfo[] DeclaredMembers(Type type)
         {
-            var constructors = type.GetTypeInfo()
-                                   .DeclaredConstructors
-                                   .Where(c => c.IsStatic == false && c.IsPublic &&
-                                               c.IsDefined(typeof(InjectionConstructorAttribute),
-                                                   true))
-                                   .ToArray();
-            switch (constructors.Length)
-            {
-                case 0:
-                    yield break;
-
-                case 1:
-                    yield return constructors[0];
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        string.Format(
-                            CultureInfo.CurrentCulture,
-                            Constants.MultipleInjectionConstructors,
-                            type.GetTypeInfo().Name));
-            }
+#if NETSTANDARD1_0
+            return type.GetTypeInfo()
+                       .DeclaredConstructors
+                       .Where(c => c.IsStatic == false && c.IsPublic)
+                       .ToArray();
+#else
+            return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public)
+                       .ToArray();
+#endif
         }
 
-        protected override IEnumerable<object> GetDefaultMember(Type type)
+        protected virtual object GetDefaultMember(Type type, ConstructorInfo[] constructors)
         {
-            ConstructorInfo[] constructors = type.GetTypeInfo()
-                                                 .DeclaredConstructors
-                                                 .Where(c => c.IsStatic == false && c.IsPublic)
-                                                 .ToArray();
-
             Array.Sort(constructors, ConstructorComparer);
 
             switch (constructors.Length)
             {
                 case 0:
-                    yield break;
+                    return null;
 
                 case 1:
-                    yield return constructors[0];
-                    break;
+                    return constructors[0];
 
                 default:
                     var paramLength = constructors[0].GetParameters().Length;
@@ -93,8 +98,7 @@ namespace Unity.Builder
                                 type.GetTypeInfo().Name,
                                 paramLength));
                     }
-                    yield return constructors[0];
-                    break;
+                    return constructors[0];
             }
         }
 

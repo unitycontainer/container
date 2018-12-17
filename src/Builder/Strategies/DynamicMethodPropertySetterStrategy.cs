@@ -34,17 +34,38 @@ namespace Unity.Builder.Strategies
 
                 switch (property)
                 {
-                    case SelectedProperty selectedProperty:
-                        var propertyInfoExpression = Expression.Constant(selectedProperty.Property);
-                        resolvedObjectParameter = Expression.Parameter(selectedProperty.Property.PropertyType);
+                    case PropertyInfo propertyInfo:
+                        resolvedObjectParameter = Expression.Parameter(propertyInfo.PropertyType);
 
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, propertyInfoExpression),
+                                Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(propertyInfo)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
-                                    BuilderContextExpression<TBuilderContext>.Resolve(selectedProperty.Property, context.OriginalBuildKey.Name, selectedProperty.Resolver)),
+                                    BuilderContextExpression<TBuilderContext>.Resolve(propertyInfo, 
+                                                                                      context.OriginalBuildKey.Name, 
+                                                                                      AttributeResolverFactory.CreateResolver(propertyInfo))),
+                                Expression.Call(
+                                    Expression.Convert(
+                                        BuilderContextExpression<TBuilderContext>.Existing,
+                                        dynamicBuildContext.TypeToBuild),
+                                    GetValidatedPropertySetter(propertyInfo),
+                                    resolvedObjectParameter)));
+                        break;
+
+                    case SelectedProperty selectedProperty:
+                        resolvedObjectParameter = Expression.Parameter(selectedProperty.Property.PropertyType);
+                                                                                                                                                            
+                        dynamicBuildContext.AddToBuildPlan(
+                            Expression.Block(
+                                new[] { resolvedObjectParameter },
+                                Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(selectedProperty.Property)),
+                                Expression.Assign(
+                                    resolvedObjectParameter,
+                                    BuilderContextExpression<TBuilderContext>.Resolve(selectedProperty.Property, 
+                                                                                      context.OriginalBuildKey.Name, 
+                                                                                      selectedProperty.Resolver)),
                                 Expression.Call(
                                     Expression.Convert(
                                         BuilderContextExpression<TBuilderContext>.Existing,
@@ -63,7 +84,9 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(info)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
-                                    BuilderContextExpression<TBuilderContext>.Resolve(info, context.OriginalBuildKey.Name, value)),
+                                    BuilderContextExpression<TBuilderContext>.Resolve(info, 
+                                                                                      context.OriginalBuildKey.Name, 
+                                                                                      value)),
                                 Expression.Call(
                                     Expression.Convert(
                                         BuilderContextExpression<TBuilderContext>.Existing,
