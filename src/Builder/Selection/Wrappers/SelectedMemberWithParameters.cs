@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Unity.Builder.Selection
+namespace Unity.Builder
 {
     /// <summary>
     /// Base class for return of selector policies that need
@@ -45,7 +46,8 @@ namespace Unity.Builder.Selection
     /// return a MemberInfo of some sort plus a list of parameter
     /// keys to look up the parameter resolvers.
     /// </summary>
-    public class SelectedMemberWithParameters<TMemberInfoType> : SelectedMemberWithParameters
+    public class SelectedMemberWithParameters<TMemberInfoType> : SelectedMemberWithParameters, 
+                                                                 IEquatable<TMemberInfoType>
     {
         /// <summary>
         /// Construct a new <see cref="SelectedMemberWithParameters{TMemberInfoType}"/>, storing
@@ -67,5 +69,39 @@ namespace Unity.Builder.Selection
         /// The member info stored.
         /// </summary>
         public TMemberInfoType MemberInfo { get; }
+
+
+
+
+        public bool Equals(TMemberInfoType other)
+        {
+            return MemberInfo?.Equals(other) ?? false;
+        }
+
+
+        #region Overrides
+
+        public override bool Equals(object obj)
+        {
+            switch (obj)
+            {
+                case TMemberInfoType info:
+                    return Equals(info);
+
+                case IEquatable<TMemberInfoType> equatable:
+                    return equatable.Equals(MemberInfo);
+
+                default:
+                    return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return MemberInfo?.GetHashCode() ?? 0;
+        }
+
+        #endregion
+
     }
 }

@@ -1,10 +1,9 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Unity.Builder.Strategy;
+using Unity.Builder;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Strategies

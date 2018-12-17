@@ -2,21 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Builder.Selection;
 using Unity.Policy;
-using Unity.Registration;
-using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Utility;
 
-namespace Unity.ObjectBuilder.Policies
+namespace Unity.Builder
 {
     /// <summary>
     /// An implementation of <see cref="IMethodSelectorPolicy"/> that is aware
     /// of the build keys used by the Unity container.
     /// </summary>
-    public class DefaultUnityMethodSelectorPolicy : IMethodSelectorPolicy
+    public class InvokedMethodsSelector : MemberSelectorPolicy<MethodInfo, object[]>, 
+                                                    IMethodSelectorPolicy
     {
         /// <summary>
         /// Return the sequence of methods to call while building the target object.
@@ -26,39 +23,20 @@ namespace Unity.ObjectBuilder.Policies
         public virtual IEnumerable<object> SelectMethods<TBuilderContext>(ref TBuilderContext context)
             where TBuilderContext : IBuilderContext
         {
-            var methods = context.Type.GetMethodsHierarchical()
-                                 .Where(m => m.IsStatic == false && m.IsPublic);
-
-            var injectionMembers =
-                context.Registration is InternalRegistration registration && null != registration.InjectionMembers
-                    ? registration.InjectionMembers
-                    : null;
-
-            return null != injectionMembers
-                ? SelectInjectedMethods(methods, injectionMembers.OfType<IEquatable<MethodInfo>>()
-                                                                 .ToArray())
-                : SelectAttributedMethods(methods);
+            return Select(ref context);
         }
 
-        private IEnumerable<object> SelectAttributedMethods(IEnumerable<MethodInfo> methods)
+
+        #region Overrides
+
+        protected override IEnumerable<object> GetAttributedMembers(Type type)
         {
-            return from method in methods
+            return from method in type.GetMethodsHierarchical().Where(m => m.IsStatic == false && m.IsPublic)
                    where method.IsDefined(typeof(InjectionMethodAttribute), false)
                    select CreateSelectedMethod(method);
         }
 
-        private IEnumerable<object> SelectInjectedMethods(IEnumerable<MethodInfo> methods, IEquatable<MethodInfo>[] injectionMembers)
-        {
-            foreach (var method in methods)
-            {
-                var injector = injectionMembers.FirstOrDefault(member => member.Equals(method)) 
-                               ?? (method.IsDefined(typeof(InjectionMethodAttribute), false) 
-                                   ? (object)CreateSelectedMethod(method) 
-                                   : null);
-
-                if (null != injector) yield return injector;
-            }
-        }
+        #endregion
 
         private SelectedMethod CreateSelectedMethod(MethodInfo method, object injector = null)
         {

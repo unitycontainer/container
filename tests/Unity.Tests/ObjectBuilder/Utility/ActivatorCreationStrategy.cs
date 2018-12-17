@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Builder;
-using Unity.Builder.Strategy;
 
 namespace Unity.Tests.v5.ObjectBuilder.Utility
 {

@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
-namespace Unity.Builder.Selection
+namespace Unity.Builder
 {
     /// <summary>
     /// Objects of this type are returned from
@@ -9,7 +10,7 @@ namespace Unity.Builder.Selection
     /// the property with the string key used to look up the resolver
     /// for this property's value.
     /// </summary>
-    public class SelectedProperty
+    public class SelectedProperty : IEquatable<PropertyInfo>
     {
         /// <summary>
         /// Create an instance of <see cref="SelectedProperty"/>
@@ -32,5 +33,35 @@ namespace Unity.Builder.Selection
         /// IResolverPolicy for this property
         /// </summary>
         public object Resolver { get; }
+
+        public bool Equals(PropertyInfo other)
+        {
+            return Property?.Equals(other) ?? false;
+        }
+
+
+        #region Overrides
+
+        public override bool Equals(object obj)
+        {
+            switch (obj)
+            {
+                case PropertyInfo info:
+                    return Equals(info);
+
+                case IEquatable<PropertyInfo> equatable:
+                    return equatable.Equals(Property);
+
+                default:
+                    return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Property?.GetHashCode() ?? 0;
+        }
+
+        #endregion
     }
 }

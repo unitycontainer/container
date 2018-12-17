@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Builder.Strategy;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;

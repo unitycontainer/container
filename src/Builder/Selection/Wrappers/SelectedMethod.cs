@@ -1,10 +1,7 @@
-﻿
-
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Policy;
-using Unity.Resolution;
 
-namespace Unity.Builder.Selection
+namespace Unity.Builder
 {
     /// <summary>
     /// Objects of this type are the return value from <see cref="IMethodSelectorPolicy.SelectMethods"/>.

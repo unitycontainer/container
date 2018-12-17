@@ -6,16 +6,12 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Strategy;
+using Unity.Builder.Strategies;
 using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property;
-using Unity.ObjectBuilder.Policies;
 using Unity.Policy;
 using Unity.Policy.BuildPlanCreator;
 using Unity.Registration;
@@ -124,9 +120,12 @@ namespace Unity
             _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
 
             // Build plan strategy chain
-            _buildPlanStrategies.Add(new DynamicMethodConstructorStrategy(), BuilderStage.Creation);
-            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Initialization);
-            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(), BuilderStage.Initialization);
+
+            // Constructor
+            _buildPlanStrategies.Add(new CompiledConstructorStrategy(),    BuilderStage.Creation);
+            _buildPlanStrategies.Add(new DynamicMethodFieldsSetterStrategy(),   BuilderStage.Fields);
+            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Properties);
+            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(),           BuilderStage.Methods);
 
             // Caches
             _strategyChain = new StrategyChain(_strategies);
@@ -193,9 +192,10 @@ namespace Unity
             var defaults = new InternalRegistration(null, null);
 
             defaults.Set(typeof(IBuildPlanCreatorPolicy), new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
-            defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelectorPolicy());
-            defaults.Set(typeof(IPropertySelectorPolicy), new DefaultUnityPropertySelectorPolicy());
-            defaults.Set(typeof(IMethodSelectorPolicy), new DefaultUnityMethodSelectorPolicy());
+            defaults.Set(typeof(IConstructorSelectorPolicy), new InvokedConstructorSelector());
+            defaults.Set(typeof(IFieldSelectorPolicy), new ImportedFieldsSelector());
+            defaults.Set(typeof(IPropertySelectorPolicy), new ImportedPropertiesSelector());
+            defaults.Set(typeof(IMethodSelectorPolicy), new InvokedMethodsSelector());
 
             return defaults;
         }

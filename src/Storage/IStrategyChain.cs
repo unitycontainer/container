@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Unity.Builder;
 
-namespace Unity.Builder.Strategy
+namespace Unity.Storage
 {
     /// <summary>
     /// Represents a chain of responsibility for builder strategies.

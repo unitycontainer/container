@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder.Strategy;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Policy.Mapping;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Strategies

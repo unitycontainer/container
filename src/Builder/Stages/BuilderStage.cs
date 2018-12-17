@@ -24,16 +24,30 @@ namespace Unity.Builder
         Creation,
 
         /// <summary>
-        /// Strategies in this stage work on created objects. Typical work done in this stage might
-        /// include setter injection and method calls.
+        /// Strategies in this stage work on created objects.
         /// </summary>
         Initialization,
+
+        /// <summary>
+        /// Strategies in this stage initialize fields.
+        /// </summary>
+        Fields,
+
+        /// <summary>
+        /// Strategies in this stage work initialize properties.
+        /// </summary>
+        Properties,
+
+        /// <summary>
+        /// Strategies in this stage do method calls.
+        /// </summary>
+        Methods,
 
         /// <summary>
         /// Strategies in this stage work on objects that are already initialized. Typical work done in
         /// this stage might include looking to see if the object implements some notification interface
         /// to discover when its initialization stage has been completed.
         /// </summary>
-        PostInitialization,
+        PostInitialization
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation;
+using Unity.Builder.Strategies;
 
 namespace Unity.Policy.BuildPlanCreator
 {
@@ -33,7 +33,7 @@ namespace Unity.Policy.BuildPlanCreator
 
                 context.Existing = resolveMethod;
 
-                DynamicMethodConstructorStrategy.SetPerBuildSingleton(ref context);
+                CompiledConstructorStrategy.SetPerBuildSingleton(ref context);
             }
         }
 

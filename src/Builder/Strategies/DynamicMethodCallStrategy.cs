@@ -4,22 +4,19 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Builder.Expressions;
-using Unity.Builder.Selection;
-using Unity.Builder.Strategy;
 using Unity.Exceptions;
-using Unity.Injection;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Method
+namespace Unity.Builder.Strategies
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that generates IL to call
     /// chosen methods (as specified by the current <see cref="IMethodSelectorPolicy"/>)
     /// as part of object build up.
     /// </summary>
-    public class DynamicMethodCallStrategy : BuilderStrategy
+    public class DynamicMethodCallStrategy : BuilderStrategy// CompiledStrategy<MethodInfo, object[]>
     {
         #region BuilderStrategy
 

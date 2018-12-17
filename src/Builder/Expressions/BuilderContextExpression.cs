@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder.Selection;
 using Unity.Resolution;
 using Unity.ResolverPolicy;
 

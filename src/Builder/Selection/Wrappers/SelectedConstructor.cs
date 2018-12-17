@@ -2,7 +2,7 @@
 using System.Reflection;
 using Unity.Injection;
 
-namespace Unity.Builder.Selection
+namespace Unity.Builder
 {
     /// <summary>
     /// Objects of this type are the return value from 

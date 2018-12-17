@@ -2,26 +2,24 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Builder.Expressions;
-using Unity.Builder.Selection;
-using Unity.Builder.Strategy;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Resolution;
 
-namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Creation
+namespace Unity.Builder.Strategies
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that emits IL to call constructors
     /// as part of creating a build plan.
     /// </summary>
-    public class DynamicMethodConstructorStrategy : BuilderStrategy
+    public class CompiledConstructorStrategy : CompiledStrategy<ConstructorInfo, object[]>
     {
         #region Static Fields
 
-        private static readonly TypeInfo TypeInfo = typeof(DynamicMethodConstructorStrategy).GetTypeInfo();
+        private static readonly TypeInfo TypeInfo = typeof(CompiledConstructorStrategy).GetTypeInfo();
         private static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
         private static readonly MethodInfo StringFormat = typeof(string).GetTypeInfo() 
                                                                         .DeclaredMethods

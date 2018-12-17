@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder.Expressions;
-using Unity.Builder.Selection;
-using Unity.Builder.Strategy;
 using Unity.Injection;
+using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 
-namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
+namespace Unity.Builder.Strategies
 {
     /// <summary>
     /// A <see cref="BuilderStrategy"/> that generates IL to resolve properties
     /// on an object being built.
     /// </summary>
-    public class DynamicMethodPropertySetterStrategy : BuilderStrategy
+    public class DynamicMethodPropertySetterStrategy : BuilderStrategy// CompiledStrategy<PropertyInfo, object>
     {
         #region BuilderStrategy
 
@@ -56,7 +54,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod.Property
                         break;
 
                     case InjectionProperty injectionProperty:
-                        var (info, value) = injectionProperty.Select(context.Type);
+                        var (info, value) = injectionProperty.OnSelect(context.Type);
                         resolvedObjectParameter = Expression.Parameter(info.PropertyType);
 
                         dynamicBuildContext.AddToBuildPlan(

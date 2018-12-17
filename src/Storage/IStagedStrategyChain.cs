@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace Unity.Builder.Strategy
+namespace Unity.Storage
 {
     /// <summary>
-    /// This interface defines a standard method to create multy staged strategy chain.
+    /// This interface defines a standard method to create multi staged strategy chain.
     /// </summary>
     /// <typeparam name="TStrategyType">The <see cref="System.Type"/> of strategy</typeparam>
     /// <typeparam name="TStageEnum">The stage enum</typeparam>
-    public interface IStagedStrategyChain<TStrategyType, TStageEnum> : IEnumerable<TStrategyType>
+    public interface IStagedStrategyChain<in TStrategyType, in TStageEnum>
     {
 
         /// <summary>

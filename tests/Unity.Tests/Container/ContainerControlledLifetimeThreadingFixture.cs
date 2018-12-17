@@ -2,7 +2,6 @@
 using System;
 using System.Threading;
 using Unity.Builder;
-using Unity.Builder.Strategy;
 using Unity.Exceptions;
 using Unity.Tests.v5.TestDoubles;
 

@@ -1,6 +1,7 @@
-﻿using Unity.Builder;
-using Unity.Builder.Strategy;
+﻿using System.Collections.Generic;
+using Unity.Builder;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 {
@@ -34,7 +35,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             var generatorContext =
                 new DynamicBuildPlanGenerationContext(buildKey.Type);
 
-            var planContext = new BuilderContext(context, _strategies, generatorContext);
+            var planContext = new BuilderContext(context, (IEnumerable<BuilderStrategy>)_strategies, generatorContext);
 
             planContext.Strategies.ExecuteBuildUp(ref planContext);
 

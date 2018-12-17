@@ -1,11 +1,8 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder.Strategy;
 
 namespace Unity.Storage
 {
@@ -14,7 +11,9 @@ namespace Unity.Storage
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"></typeparam>
-    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>, IDisposable
+    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>, 
+                                                                  IEnumerable<TStrategyType>,
+                                                                  IDisposable
     {
         #region Fields
 
@@ -95,25 +94,6 @@ namespace Unity.Storage
             lock (_lockObject)
             {
                 _stages[Convert.ToInt32(stage)].Add(strategy);
-                _cache = null;
-                Invalidated?.Invoke(this, new EventArgs());
-            }
-        }
-
-        /// <summary>
-        /// Clear the current strategy chain list.
-        /// </summary>
-        /// <remarks>
-        /// This will not clear the inner strategy chain if this instance was created with one.
-        /// </remarks>
-        public void Clear()
-        {
-            lock (_lockObject)
-            {
-                foreach (var list in _stages)
-                {
-                    ((List<BuilderStrategy>)list).Clear();
-                }
                 _cache = null;
                 Invalidated?.Invoke(this, new EventArgs());
             }
