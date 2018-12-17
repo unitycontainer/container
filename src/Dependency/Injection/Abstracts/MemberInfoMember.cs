@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Policy;
 
 namespace Unity.Injection
 {
@@ -32,7 +31,7 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (TMemberInfo, object) Select(Type type)
+        public override (TMemberInfo, object) OnSelect(Type type)
         {
             return ReferenceEquals(Data, ResolvedValue) 
                 ? (MemberInfo, MemberInfo) 
@@ -46,6 +45,5 @@ namespace Unity.Injection
         }
 #endif
         #endregion
-
     }
 }

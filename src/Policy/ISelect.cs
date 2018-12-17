@@ -2,8 +2,9 @@
 
 namespace Unity.Policy
 {
+
     public interface ISelect<TInfo, TData>
     {
-        (TInfo, TData) Select(Type type);
+        Converter<Type, (TInfo, TData)> Select { get; }
     }
 }
