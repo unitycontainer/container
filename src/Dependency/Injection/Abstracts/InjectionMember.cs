@@ -48,7 +48,6 @@ namespace Unity.Injection
 
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
-                                                                ISelect<TMemberInfo, TData>,
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
@@ -58,8 +57,6 @@ namespace Unity.Injection
         {
             Name = name;
             Data = data;
-
-            Select = OnSelect;
         }
 
         protected InjectionMember(TMemberInfo info, TData data)
@@ -67,9 +64,14 @@ namespace Unity.Injection
             MemberInfo = info;
             Name = info.Name;
             Data = data;
-
-            Select = OnSelect;
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        public abstract (TMemberInfo, TData) FromType(Type type);
 
         #endregion
 
@@ -87,8 +89,6 @@ namespace Unity.Injection
 
         #region Methods
 
-        public abstract (TMemberInfo, TData) OnSelect(Type type);
-
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
         protected virtual bool MatchMemberInfo(TMemberInfo info, TData data) => true;
@@ -98,7 +98,7 @@ namespace Unity.Injection
             if (null != MemberInfo) return;
 
             // TODO: 5.9.0 Implement correct error message
-            var signature = "xxx";//string.Join(", ", _arguments?.OnSelect(t => t.Name) ?? );
+            var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
             var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
             throw new InvalidOperationException(message);
         }
@@ -107,8 +107,6 @@ namespace Unity.Injection
 
 
         #region Interface Implementations
-
-        public Converter<Type, (TMemberInfo, TData)> Select { get; }
 
         public virtual bool Equals(TMemberInfo other)
         {
@@ -132,7 +130,7 @@ namespace Unity.Injection
                 if (null != MemberInfo)
                 {
                     // TODO: 5.9.0 Proper error message
-                    var signature = "xxx";//string.Join(", ", _arguments?.OnSelect(t => t.Name) ?? );
+                    var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
                     var message = $"The type {mappedToType.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
                     throw new InvalidOperationException(message);
                 }

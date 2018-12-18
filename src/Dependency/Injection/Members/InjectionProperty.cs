@@ -48,20 +48,20 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (PropertyInfo, object) OnSelect(Type type)
+        public override (PropertyInfo, object) FromType(Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
             var declaringType = MemberInfo.DeclaringType.GetTypeInfo();
 
             if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
-                return base.OnSelect(type);
+                return base.FromType(type);
 
             var info = type.GetTypeInfo().GetDeclaredProperty(MemberInfo.Name);
 #else
             if ( MemberInfo.DeclaringType != null && 
                 !MemberInfo.DeclaringType.IsGenericType && 
                 !MemberInfo.DeclaringType.ContainsGenericParameters)
-                return base.OnSelect(type);
+                return base.FromType(type);
 
             var info = type.GetProperty(MemberInfo.Name);
 #endif

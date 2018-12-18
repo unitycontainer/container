@@ -87,7 +87,7 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (TMemberInfo, object[]) OnSelect(Type type)
+        public override (TMemberInfo, object[]) FromType(Type type)
         {
             var methodHasOpenGenericParameters = MemberInfo.GetParameters()
                                                      .Select(p => p.ParameterType.GetTypeInfo())
@@ -155,7 +155,7 @@ namespace Unity.Injection
             // If nothing helps throw
 
             // TODO: 5.9.0 Implement correct error message
-            var signature = "xxx";//string.Join(", ", _arguments?.OnSelect(t => t.Name) ?? );
+            var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
             var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
             throw new InvalidOperationException(message);
 

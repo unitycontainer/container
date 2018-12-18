@@ -98,7 +98,7 @@ namespace Unity.Injection
                     message,
                     type.GetTypeInfo().Name,
                     // TODO: 5.9.0
-                    Name, "string.Join(", ", _injectionParameterValues.OnSelect(mp => mp.ParameterTypeName))"));
+                    Name, "string.Join(", ", _injectionParameterValues.FromType(mp => mp.ParameterTypeName))"));
         }
 
         #endregion

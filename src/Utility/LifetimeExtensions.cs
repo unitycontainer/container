@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unity
+﻿namespace Unity
 {
     public static partial class Lifetime
     {

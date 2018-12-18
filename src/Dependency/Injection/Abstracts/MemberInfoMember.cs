@@ -31,7 +31,7 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (TMemberInfo, object) OnSelect(Type type)
+        public override (TMemberInfo, object) FromType(Type type)
         {
             return ReferenceEquals(Data, ResolvedValue) 
                 ? (MemberInfo, MemberInfo) 
