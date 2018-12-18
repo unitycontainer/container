@@ -5,11 +5,8 @@ using Unity.Injection;
 namespace Unity.Builder
 {
     /// <summary>
-    /// Objects of this type are the return value from 
-    /// <see cref="Unity.Policy.IConstructorSelectorPolicy.SelectConstructor"/>.
-    /// It encapsulates the desired <see cref="ConstructorInfo"/> with the string keys
-    /// needed to look up the <see cref="IResolverPolicy"/> for each
-    /// parameter.
+    /// Objects of this type encapsulate <see cref="ConstructorInfo"/> and resolve
+    /// parameters.
     /// </summary>
     public class SelectedConstructor : SelectedMemberWithParameters<ConstructorInfo>
     {

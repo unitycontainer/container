@@ -22,7 +22,7 @@ namespace Unity.Storage
         private readonly StagedStrategyChain<TStrategyType, TStageEnum> _innerChain;
         private readonly IList<TStrategyType>[] _stages =  new IList<TStrategyType>[_size];
 
-        private IEnumerable<TStrategyType> _cache;
+        private TStrategyType[] _cache;
 
         #endregion
 
@@ -104,21 +104,45 @@ namespace Unity.Storage
 
         #region IEnumerable
 
-        public IEnumerator<TStrategyType> GetEnumerator()
+        public TStrategyType[] ToArray()
         {
             var cache = _cache;
-            if (null != cache) return cache.GetEnumerator();
+            if (null != cache) return cache;
 
             lock (_lockObject)
             {
                 if (null == _cache)
                 {
                     _cache = Enumerable.Range(0, _stages.Length)
-                                       .SelectMany(Enumerate)
-                                       .ToArray();
+                        .SelectMany(Enumerate)
+                        .ToArray();
                 }
 
-                return _cache.GetEnumerator();
+                cache = _cache;
+            }
+            return cache;
+        }
+
+        public IEnumerator<TStrategyType> GetEnumerator()
+        {
+            var cache = _cache;
+            if (null == cache)
+            {
+                lock (_lockObject)
+                {
+                    if (null == _cache)
+                    {
+                        _cache = Enumerable.Range(0, _stages.Length)
+                                           .SelectMany(Enumerate)
+                                           .ToArray();
+                    }
+                    cache = _cache;
+                }
+            }
+
+            foreach (var strategyType in cache)
+            {
+                yield return strategyType;
             }
         }
 

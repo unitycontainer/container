@@ -5,6 +5,7 @@ using System.Reflection;
 using Unity.Builder.Expressions;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Resolution;
@@ -45,12 +46,16 @@ namespace Unity.Builder.Strategies
         {
             // Verify the type we're trying to build is actually constructable -
             // CLR primitive types like string and int aren't.
-            if (!context.TypeInfo.IsInterface)
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (!context.Type.GetTypeInfo().IsInterface)
+#else
+            if (!context.Type.IsInterface)
+#endif
             {
-                if (context.Type == typeof(string))
+                    if (context.Type == typeof(string))
                 {
                     throw new InvalidOperationException(
-                        $"The type {context.TypeInfo.Name} cannot be constructed. You must configure the container to supply this value.");
+                        $"The type {context.Type.Name} cannot be constructed. You must configure the container to supply this value.");
                 }
             }
 
@@ -72,15 +77,20 @@ namespace Unity.Builder.Strategies
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Implementation
+#region Implementation
 
         private Expression ValidateConstructedType<TBuilderContext>(ref TBuilderContext context)
             where TBuilderContext : IBuilderContext
         {
-            if (context.TypeInfo.IsInterface)
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = context.Type.GetTypeInfo();
+            if (typeInfo.IsInterface)
+#else
+            if (context.Type.IsInterface)
+#endif
             {
                 return Expression.Throw(
                     Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -91,7 +101,11 @@ namespace Unity.Builder.Strategies
                         InvalidRegistrationExpression));
             }
 
-            if (context.TypeInfo.IsAbstract)
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeInfo.IsAbstract)
+#else
+            if (context.Type.IsAbstract)
+#endif
             {
                 return Expression.Throw(
                     Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -102,7 +116,11 @@ namespace Unity.Builder.Strategies
                         InvalidRegistrationExpression));
             }
 
-            if (context.TypeInfo.IsSubclassOf(typeof(Delegate)))
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeInfo.IsSubclassOf(typeof(Delegate)))
+#else
+            if (context.Type.IsSubclassOf(typeof(Delegate)))
+#endif
             {
                 return Expression.Throw(
                     Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -139,7 +157,7 @@ namespace Unity.Builder.Strategies
                         InvalidRegistrationExpression)));
             }
 
-            if (IsInvalidConstructor(context.TypeInfo, ref context, parameters))
+            if (IsInvalidConstructor(context.Type, ref context, parameters))
             {
                 return Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
@@ -169,15 +187,15 @@ namespace Unity.Builder.Strategies
 
             switch (selector.SelectConstructor(ref context))
             {
-                case ISelect<ConstructorInfo, object[]> injectionConstructor:
-                    var (ctor, parameters) = injectionConstructor.Select(context.Type);
+                case MethodBaseMember<ConstructorInfo> methodBaseMember:
+                    var (ctor, resolvers) = methodBaseMember.FromType(context.Type);
                     return ValidateSelectedConstructor(ref context, ctor) ??
                            Expression.Assign(
                                BuilderContextExpression<TBuilderContext>.Existing,
                                Expression.Convert(
                                    Expression.New(
                                        ctor,
-                                       BuilderContextExpression<TBuilderContext>.GetParameters(ctor, parameters)),
+                                       BuilderContextExpression<TBuilderContext>.GetParameters(ctor, resolvers)),
                                    typeof(object)));
 
                 case ConstructorInfo info:
@@ -209,13 +227,14 @@ namespace Unity.Builder.Strategies
             }
         }
 
-        private static bool IsInvalidConstructor<TBuilderContext>(TypeInfo target, ref TBuilderContext context, ParameterInfo[] parameters)
+        private static bool IsInvalidConstructor<TBuilderContext>(Type target, ref TBuilderContext context, ParameterInfo[] parameters)
             where TBuilderContext : IBuilderContext
         {
-            if (parameters.Any(p => Equals(p.ParameterType.GetTypeInfo(), target)))
+            if (parameters.Any(p => p.ParameterType == target))
             {
-                var policy = (LifetimeManager)context.Policies.Get(context.BuildKey.Type,
-                    context.BuildKey.Name,
+                var policy = (LifetimeManager)context.Policies.Get(
+                    context.Type,
+                    context.Name,
                     typeof(LifetimeManager));
                 if (null == policy?.GetValue())
                     return true;
@@ -247,6 +266,6 @@ namespace Unity.Builder.Strategies
                                  typeof(LifetimeManager), perBuildLifetime);
         }
 
-        #endregion
+#endregion
     }
 }

@@ -17,8 +17,8 @@ namespace Unity.Policy.BuildPlanCreator
         {
             if (context.Existing == null)
             {
-                Type typeToBuild = GetTypeToBuild(context.BuildKey.Type);
-                string nameToBuild = context.BuildKey.Name;
+                Type typeToBuild = GetTypeToBuild(context.Type);
+                string nameToBuild = context.Name;
 
                 Delegate resolveMethod;
 

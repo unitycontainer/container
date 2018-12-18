@@ -15,7 +15,7 @@ namespace Unity.Tests.v5.ObjectBuilder.Utility
         {
             if (context.Existing == null)
             {
-                context.Existing = Activator.CreateInstance(context.BuildKey.Type);
+                context.Existing = Activator.CreateInstance(context.Type);
             }
         }
     }

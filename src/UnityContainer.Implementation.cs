@@ -284,18 +284,11 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        private IList<BuilderStrategy> GetBuilders(InternalRegistration registration)
+        private BuilderStrategy[] GetBuilders(InternalRegistration registration)
         {
-            var chain = new List<BuilderStrategy>();
-            var strategies = _buildChain;
-
-            foreach (var strategy in strategies)
-            {
-                if (strategy.RequiredToBuildType(this, registration, null))
-                    chain.Add(strategy);
-            }
-
-            return chain;
+            return _buildChain.ToArray()
+                              .Where(strategy => strategy.RequiredToBuildType(this, registration, null))
+                              .ToArray();
         }
 
         [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]

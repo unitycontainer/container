@@ -81,16 +81,9 @@ namespace Unity
             }
 
             // Check what strategies to run
-            var chain = new List<BuilderStrategy>();
-            var strategies = _buildChain;
-            for (var i = 0; i < strategies.Length; i++)
-            {
-                var strategy = strategies[i];
-                if (strategy.RequiredToBuildType(this, registration, injectionMembers))
-                    chain.Add(strategy);
-            }
-            registration.BuildChain = chain.ToArray();
-
+            registration.BuildChain = _buildChain.ToArray()
+                                                 .Where(strategy => strategy.RequiredToBuildType(this, registration, injectionMembers))
+                                                 .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, 
                                                                       registration.MappedToType,
@@ -152,16 +145,9 @@ namespace Unity
                 container._lifetimeContainer.Add(manager);
 
             // Check what strategies to run
-            var chain = new List<BuilderStrategy>();
-            var strategies = _buildChain;
-            for (var i = 0; i < strategies.Length; i++)
-            {
-                var strategy = strategies[i];
-                if (strategy.RequiredToResolveInstance(this, registration))
-                    chain.Add(strategy);
-            }
-            registration.BuildChain = chain;
-
+            registration.BuildChain = _buildChain.ToArray()
+                                                 .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
+                                                 .ToArray();
             // Raise event
             container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registration.RegisteredType, instance,
                                                                    registration.Name, registration.LifetimeManager));

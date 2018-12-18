@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -21,7 +20,6 @@ namespace Unity.Builder.Expressions
 
             CurrentOperation = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.CurrentOperation)));
 
-            TypeInfo = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.TypeInfo)));
             Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.Existing)));
         }
 
@@ -33,8 +31,6 @@ namespace Unity.Builder.Expressions
         public static readonly MemberExpression Existing;
 
         public static readonly MemberExpression CurrentOperation;
-
-        public static readonly MemberExpression TypeInfo;
 
         #endregion
 

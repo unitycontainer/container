@@ -75,7 +75,7 @@ namespace Unity.Builder.Strategies
                         break;
 
                     case InjectionProperty injectionProperty:
-                        var (info, value) = injectionProperty.OnSelect(context.Type);
+                        var (info, value) = injectionProperty.FromType(context.Type);
                         resolvedObjectParameter = Expression.Parameter(info.PropertyType);
 
                         dynamicBuildContext.AddToBuildPlan(

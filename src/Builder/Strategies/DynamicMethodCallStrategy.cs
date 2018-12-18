@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder.Expressions;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 
@@ -51,8 +52,8 @@ namespace Unity.Builder.Strategies
                         resolvers = selectedMethod.GetResolvers();
                         break;
 
-                    case ISelect<MethodInfo, object[]> injectionMethod:
-                        (methodInfo, resolvers) = injectionMethod.Select(context.Type);
+                    case MethodBaseMember<MethodInfo> methodBaseMember:
+                        (methodInfo, resolvers) = methodBaseMember.FromType(context.Type);
                         parameters = methodInfo.GetParameters();
                         break;
 

@@ -26,10 +26,10 @@ namespace Unity
             // Verify arguments
             var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
-            var registration = GetRegistration(type, name);
+            var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext(this, (InternalRegistration)registration, null, resolverOverrides);
 
-            return ThrowingBuildUp(ref context);
+            return registration.BuildChain.ExecutePlan(ref context);
         }
 
         #endregion
@@ -59,10 +59,10 @@ namespace Unity
             var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
+            var registration = (InternalRegistration)GetRegistration(type, name);
+            var context = new BuilderContext(this, registration, existing, resolverOverrides);
 
-            var context = new BuilderContext(this, (InternalRegistration)GetRegistration(type, name), existing, resolverOverrides);
-
-            return ThrowingBuildUp(ref context);
+            return registration.BuildChain.ExecutePlan(ref context);
         }
 
 

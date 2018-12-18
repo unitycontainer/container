@@ -61,7 +61,7 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<ResolveDelegate<TContext>>();
             if (plan == null)
             {
-                var typeArgument = context.BuildKey.Type.GetTypeInfo().GenericTypeArguments.First();
+                var typeArgument = context.Type.GetTypeInfo().GenericTypeArguments.First();
                 var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
                 if (type != typeArgument)
                 {

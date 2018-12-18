@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using Unity.Policy;
+﻿using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -11,23 +9,6 @@ namespace Unity.Builder
     /// </summary>
     public interface IBuilderContext : IResolveContext
     {
-        /// <summary>
-        /// <see cref="TypeInfo"/> of the <see cref="Type"/> that is being built.
-        /// </summary>
-        /// <remarks>This is a convenience property used to optimize allocating
-        /// and discarding <see cref="TypeInfo"/>. This instance is cashed and
-        /// reused throughout the build.</remarks>
-        TypeInfo TypeInfo { get; }
-
-        /// <summary>
-        /// Gets the head of the strategy chain.
-        /// </summary>
-        /// <returns>
-        /// The strategy that's first in the chain; returns null if there are no
-        /// strategies in the chain.
-        /// </returns>
-        IStrategyChain Strategies { get; }
-
         /// <summary>
         /// Gets the <see cref="Unity.Lifetime.ILifetimeContainer"/> associated with the build.
         /// </summary>
@@ -99,19 +80,5 @@ namespace Unity.Builder
         /// The parent build context.
         /// </summary>
         IBuilderContext ParentContext { get; }
-
-        /// <summary>
-        /// A method to do a new buildup operation on an existing context.
-        /// </summary>
-        /// <param name="type">Type of to build</param>
-        /// <param name="name">Name of the type to build</param>
-        /// <param name="childCustomizationBlock">A delegate that takes a <see cref="IBuilderContext"/>. This
-        /// is invoked with the new child context before the build up process starts. This gives callers
-        /// the opportunity to customize the context for the build process.</param>
-        /// <returns>Resolved object</returns>
-        object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null);
-
-        object NewBuildUp(INamedType registration);
-
     }
 }

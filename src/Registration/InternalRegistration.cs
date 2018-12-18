@@ -45,7 +45,7 @@ namespace Unity.Registration
 
         #region Public Members
 
-        public virtual IList<BuilderStrategy> BuildChain { get; set; }
+        public virtual BuilderStrategy[] BuildChain { get; set; }
 
         public InjectionMember[] InjectionMembers { get; set; }
 

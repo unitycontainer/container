@@ -28,37 +28,6 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
-        private static object ThrowingBuildUp<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
-        {
-            var i = -1;
-            var chain = ((InternalRegistration)context.Registration).BuildChain;
-
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Count)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception ex)
-            {
-                context.RequiresRecovery?.Recover();
-                throw new ResolutionFailedException(context.OriginalBuildKey.Type,
-                    context.OriginalBuildKey.Name,
-                    CreateMessage(context.OriginalBuildKey.Type,
-                        context.OriginalBuildKey.Name,
-                        ex, context), ex);
-            }
-
-            return context.Existing;
-        }
-
         private IPolicySet CreateRegistration(Type type, string name)
         {
 
@@ -135,7 +104,7 @@ namespace Unity
             {
                 try
                 {
-                    list.Add((TElement)context.NewBuildUp(typeof(TElement), registration.Name));
+                    list.Add((TElement)context.Resolve(typeof(TElement), registration.Name));
                 }
                 catch (Policy.Mapping.MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (InvalidOperationException ex)
@@ -148,7 +117,7 @@ namespace Unity
             return list;
         }
 
-        private static IList<TElement> ResolveRegistrations<TContext, TElement>(ref TContext context, IList<InternalRegistration> registrations)
+        private static IList<TElement> ResolveRegistrations<TContext, TElement>(ref TContext context, IEnumerable<InternalRegistration> registrations)
             where TContext : IBuilderContext
         {
             var list = new List<TElement>();
@@ -157,9 +126,13 @@ namespace Unity
                 try
                 {
                     if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                        list.Add((TElement)context.NewBuildUp(typeof(TElement), registration.Name));
+                        list.Add((TElement)context.Resolve(typeof(TElement), registration.Name));
                     else
-                        list.Add((TElement)context.NewBuildUp(registration));
+                    {
+                        var childContext = new BuilderContext(context, registration);
+                        list.Add((TElement)registration.BuildChain.ExecutePlan(ref childContext));
+                    }
+
                 }
                 catch (ArgumentException ex)
                 {

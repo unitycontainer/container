@@ -34,8 +34,8 @@ namespace Unity.Strategies
                 if (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
                 {
                     // TODO: Switch to Factory
-                    policy = (LifetimeManager)context.Policies.Get(context.BuildKey.Type.GetGenericTypeDefinition(),
-                                                                   context.BuildKey.Name, 
+                    policy = (LifetimeManager)context.Policies.Get(context.Type.GetGenericTypeDefinition(),
+                                                                   context.Name, 
                                                                    typeof(LifetimeManager));
                     if (policy is LifetimeManager lifetimeManager)
                     {

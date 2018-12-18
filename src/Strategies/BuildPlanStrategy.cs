@@ -29,7 +29,7 @@ namespace Unity.Strategies
                 // Legacy support
                 var plan = context.Registration.Get<IBuildPlanPolicy>() ?? 
                            (IBuildPlanPolicy)(
-                               context.Policies.Get(context.BuildKey.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
+                               context.Policies.Get(context.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
                                GetGeneric(context.Policies, typeof(IBuildPlanPolicy),
                                    context.OriginalBuildKey,
                                    context.OriginalBuildKey.Type));

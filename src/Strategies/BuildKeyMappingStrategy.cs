@@ -83,15 +83,15 @@ namespace Unity.Strategies
 
             context.BuildKey = policy.Map(context.BuildKey, ref context);
 
-            if (!policy.RequireBuild && ((UnityContainer)context.Container).RegistrationExists(context.BuildKey.Type, context.BuildKey.Name))
+            if (!policy.RequireBuild && ((UnityContainer)context.Container).RegistrationExists(context.Type, context.Name))
             {
-                var type = context.BuildKey.Type;
-                var name = context.BuildKey.Name;
+                var type = context.Type;
+                var name = context.Name;
 
                 context.Registration.Set(typeof(IBuildPlanPolicy), 
                     new DynamicMethodBuildPlan((ResolveDelegate<TBuilderContext>) ResolveDelegate));
 
-                object ResolveDelegate(ref TBuilderContext c) => c.Existing = c.NewBuildUp(type, name);
+                object ResolveDelegate(ref TBuilderContext c) => c.Existing = c.Resolve(type, name);
             }
         }
 
@@ -105,14 +105,14 @@ namespace Unity.Strategies
                 var chain = new List<BuilderStrategy>();
                 var strategies = registration.BuildChain;
 
-                for (var i = 0; i < strategies.Count; i++)
+                for (var i = 0; i < strategies.Length; i++)
                 {
                     var strategy = strategies[i];
                     if (!(strategy is BuildKeyMappingStrategy))
                         chain.Add(strategy);
                 }
 
-                registration.BuildChain = chain;
+                registration.BuildChain = chain.ToArray();
             }
         }
         

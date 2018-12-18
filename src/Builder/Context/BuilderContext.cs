@@ -34,9 +34,7 @@ namespace Unity.Builder
 
             Existing = existing;
             Registration = registration;
-            OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
-            TypeInfo = BuildKey.Type.GetTypeInfo();
             Policies = new PolicyList(this);
 
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
@@ -48,12 +46,24 @@ namespace Unity.Builder
             _container = ((BuilderContext)original)._container;
             _chain = new StrategyChain(chain);
             ParentContext = original;
-            OriginalBuildKey = original.OriginalBuildKey;
             BuildKey = original.BuildKey;
-            TypeInfo = BuildKey.Type.GetTypeInfo();
             Registration = original.Registration;
             Policies = original.Policies;
             Existing = existing;
+        }
+
+        internal BuilderContext(ref IBuilderContext original, InternalRegistration registration)
+        {
+            var parent = (BuilderContext)original;
+
+            _container = parent._container;
+            _chain = parent._chain;
+            _resolverOverrides = parent._resolverOverrides;
+            ParentContext = original;
+            Existing = null;
+            Policies = parent.Policies;
+            Registration = registration;
+            BuildKey = OriginalBuildKey;
         }
 
         internal BuilderContext(IBuilderContext original, InternalRegistration registration)
@@ -67,9 +77,7 @@ namespace Unity.Builder
             Existing = null;
             Policies = parent.Policies;
             Registration = registration;
-            OriginalBuildKey = (INamedType)Registration;
             BuildKey = OriginalBuildKey;
-            TypeInfo = BuildKey.Type.GetTypeInfo();
         }
 
         internal BuilderContext(IBuilderContext original, Type type, string name)
@@ -84,9 +92,7 @@ namespace Unity.Builder
             Existing = null;
             Policies = parent.Policies;
             Registration = registration;
-            OriginalBuildKey = registration;
             BuildKey = OriginalBuildKey;
-            TypeInfo = BuildKey.Type.GetTypeInfo();
         }
 
         #endregion
@@ -107,7 +113,37 @@ namespace Unity.Builder
 
         public object Existing { get; set; }
 
-        public object Resolve(Type type, string name) => NewBuildUp(type, name);
+        public object Resolve(Type type, string name)
+        {
+            var context = new BuilderContext(this, type, name);
+            ChildContext = context;
+
+            var i = -1;
+            var chain = ((InternalRegistration)context.Registration).BuildChain;
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Length)
+                {
+                    chain[i].PreBuildUp(ref context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ref context);
+                }
+            }
+            catch (Exception)
+            {
+                context.RequiresRecovery?.Recover();
+                throw;
+            }
+
+            var result = context.Existing;
+
+            ChildContext = null;
+
+            return result;
+        }
 
         public object Resolve(PropertyInfo property, string name, object value)
         {
@@ -235,15 +271,11 @@ namespace Unity.Builder
 
         #region IBuilderContext
 
-        public TypeInfo TypeInfo { get; }
-
-        public IStrategyChain Strategies => _chain;
-
         public INamedType BuildKey { get; set; }
 
         public ILifetimeContainer Lifetime => _container._lifetimeContainer;
 
-        public INamedType OriginalBuildKey { get; }
+        public INamedType OriginalBuildKey => (INamedType) Registration;
 
         public IPolicySet Registration { get; }
 
@@ -259,103 +291,6 @@ namespace Unity.Builder
         public IBuilderContext ChildContext { get; internal set; }
 
         public IBuilderContext ParentContext { get; }
-
-        public IPolicyList PersistentPolicies => this;
-
-        #endregion
-
-        
-        #region Build
-
-        public object BuildUp()
-        {
-            var i = -1;
-            var chain = ((InternalRegistration)Registration).BuildChain;
-            var context = this;
-            try
-            {
-                while (!BuildComplete && ++i < chain.Count)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception)
-            {
-                RequiresRecovery?.Recover();
-                throw;
-            }
-
-            return Existing;
-        }
-
-        public object NewBuildUp(INamedType namedType)
-        {
-            InternalRegistration registration = (InternalRegistration) namedType;
-            var context = new BuilderContext(this, registration);
-            ChildContext = context;
-
-            var i = -1;
-            var chain = registration.BuildChain;
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Count)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception)
-            {
-                context.RequiresRecovery?.Recover();
-                throw;
-            }
-
-            var result = context.Existing;
-            ChildContext = null;
-
-            return result;
-        }
-
-        public object NewBuildUp(Type type, string name, Action<IBuilderContext> childCustomizationBlock = null)
-        {
-            var context = new BuilderContext(this, type, name);
-            ChildContext = context;
-            childCustomizationBlock?.Invoke(ChildContext);
-
-            var i = -1;
-            var chain = ((InternalRegistration)context.Registration).BuildChain;
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Count)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception)
-            {
-                context.RequiresRecovery?.Recover();
-                throw;
-            }
-
-            var result = context.Existing;
-            ChildContext = null;
-
-            return result;
-        }
 
         #endregion
 
