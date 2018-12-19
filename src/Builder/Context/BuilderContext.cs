@@ -74,23 +74,6 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Public Members
-
-        public ILifetimeContainer Lifetime { get; }
-
-        public INamedType Registration { get; }
-
-        public SynchronizedLifetimeManager RequiresRecovery { get; set; }
-
-        public bool BuildComplete { get; set; }
-
-        public BuilderContext ChildContext { get; internal set; }
-
-        public BuilderContext ParentContext { get; }
-
-        #endregion
-
-
         #region IResolveContext
 
         public IUnityContainer Container => Lifetime.Container;
@@ -222,6 +205,23 @@ namespace Unity.Builder
             // Resolve from container
             return Resolve(parameter.ParameterType, name);
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        public readonly ILifetimeContainer Lifetime;
+
+        public readonly INamedType Registration;
+
+        public SynchronizedLifetimeManager RequiresRecovery;
+
+        public bool BuildComplete;
+
+        public BuilderContext ChildContext;
+
+        public readonly BuilderContext ParentContext;
 
         #endregion
 
