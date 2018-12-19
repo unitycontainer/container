@@ -282,23 +282,16 @@ namespace Unity
             if (context != null)
             {
                 var indentation = new string(' ', depth * 2);
-                var key = context.BuildKey;
                 var originalKey = context.OriginalBuildKey;
 
                 builder.Append(indentation);
 
-                builder.Append(Equals(key, originalKey)
-                    ? $"Resolving {key.Type},{FormatName(key.Name)}"
-                    : $"Resolving {key.Type},{FormatName(key.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
+                builder.Append(context.Type == context.OriginalBuildKey.Type
+                    ? $"Resolving {context.Type},{FormatName(context.Name)}"
+                    : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
 
                 builder.AppendLine();
 
-                if (context.CurrentOperation != null)
-                {
-                    builder.Append(indentation);
-                    builder.Append(OperationError(context.CurrentOperation.GetType()));
-                    builder.AppendLine();
-                }
 
                 // TODO: 5.9.0 ReEnable
                 //AddContextDetails(builder, context.ChildContext, depth + 1);
@@ -321,14 +314,8 @@ namespace Unity
             }
 
             // Backtrack to last known operation
-            while (deepestContext != context && null == deepestContext.CurrentOperation)
-            {
-                deepestContext = deepestContext.ParentContext;
-            }
 
-            return deepestContext.CurrentOperation != null
-                ? OperationError(deepestContext.CurrentOperation)
-                : Constants.NoOperationExceptionReason;
+            return Constants.NoOperationExceptionReason;
         }
 
         private static string OperationError(object operation)

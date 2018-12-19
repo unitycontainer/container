@@ -10,8 +10,15 @@ namespace Unity.Policy.Mapping
     /// An implementation of <see cref="IBuildKeyMappingPolicy"/> that can map
     /// generic types.
     /// </summary>
-    public class GenericTypeBuildKeyMappingPolicy : NamedTypeBase, IBuildKeyMappingPolicy
+    public class GenericTypeBuildKeyMappingPolicy : IBuildKeyMappingPolicy
     {
+        #region Fields
+
+        private readonly Type _type;
+
+        #endregion
+
+
         #region Constructors
 
         /// <summary>
@@ -20,20 +27,10 @@ namespace Unity.Policy.Mapping
         /// </summary>
         /// <param name="type">Type mapped to</param>
         /// <param name="name">Name</param>
-        public GenericTypeBuildKeyMappingPolicy(Type type, string name, bool build)
-            : base(type, name)
+        public GenericTypeBuildKeyMappingPolicy(Type type, bool build)
         {
             RequireBuild = build;
-        }
-
-        /// <summary>
-        /// Create a new <see cref="GenericTypeBuildKeyMappingPolicy"/> instance
-        /// that will map generic types.
-        /// </summary>
-        /// <param name="destinationKey">Build key to map to. This must be or contain an open generic type.</param>
-        public GenericTypeBuildKeyMappingPolicy(INamedType destinationKey)
-            : base(destinationKey.Type, destinationKey.Name)
-        {
+            _type = type;
         }
 
         #endregion
@@ -44,31 +41,28 @@ namespace Unity.Policy.Mapping
         /// <summary>
         /// Maps the build key.
         /// </summary>
-        /// <param name="buildKey">The build key to map.</param>
         /// <param name="context">Current build context. Used for contextual information
         /// if writing a more sophisticated mapping.</param>
         /// <returns>The new build key.</returns>
-        public INamedType Map<TContext>(INamedType buildKey, ref TContext context)
-            where TContext : IResolveContext
+        public Type Map(ref BuilderContext context)
         {
-            var targetTypeInfo = buildKey.Type.GetTypeInfo();
+            var targetTypeInfo = context.Type.GetTypeInfo();
             if (targetTypeInfo.IsGenericTypeDefinition)
             {
                 // No need to perform a mapping - the source type is an open generic
-                return this;
+                return _type;
             }
 
-            if (targetTypeInfo.GenericTypeArguments.Length != Type.GetTypeInfo().GenericTypeParameters.Length)
+            if (targetTypeInfo.GenericTypeArguments.Length != _type.GetTypeInfo().GenericTypeParameters.Length)
             {
+                // TODO: Add proper error message
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                                                           Constants.MustHaveSameNumberOfGenericArguments,
-                                                          buildKey.Type.Name, Type.Name),
-                                            nameof(buildKey.Type));
+                                                           context.Type.Name, ""),
+                                            nameof(context.Type));
             }
 
-            Type[] genericArguments = targetTypeInfo.GenericTypeArguments;
-            Type resultType = MakeGenericTypeOrThrow(genericArguments);
-            return new NamedTypeBuildKey(resultType, Name);
+            return MakeGenericTypeOrThrow(targetTypeInfo.GenericTypeArguments);
         }
 
         /// <summary>
@@ -80,7 +74,7 @@ namespace Unity.Policy.Mapping
         {
             try
             {
-                return Type.MakeGenericType(genericArguments);
+                return _type.MakeGenericType(genericArguments);
             }
             catch (ArgumentException ae)
             {

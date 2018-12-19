@@ -17,7 +17,6 @@ namespace Unity.Builder.Expressions
         {
             var typeInfo = typeof(BuilderContext).GetTypeInfo();
 
-            CurrentOperation = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.CurrentOperation)));
 
             Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.Existing)));
         }
@@ -28,8 +27,6 @@ namespace Unity.Builder.Expressions
         #region Public Properties
 
         public static readonly MemberExpression Existing;
-
-        public static readonly MemberExpression CurrentOperation;
 
         #endregion
 

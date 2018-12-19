@@ -27,8 +27,8 @@ namespace Unity.Strategies
         public override void PreBuildUp(ref BuilderContext context)
         {
             LifetimeManager policy = (LifetimeManager)context.Policies.Get(context.OriginalBuildKey.Type, 
-                                                                  context.OriginalBuildKey.Name, 
-                                                                  typeof(LifetimeManager));
+                                                                           context.OriginalBuildKey.Name, 
+                                                                           typeof(LifetimeManager));
             if (null == policy)
             {
                 if (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)

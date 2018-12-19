@@ -23,7 +23,7 @@ namespace Unity.Strategies
             switch (namedType)
             {
                 case ContainerRegistration registration:
-                    return AnalyseStaticRegistration(registration, injectionMembers);
+                    return AnalyzeStaticRegistration(registration, injectionMembers);
 
                 case InternalRegistration registration:
                     return AnalyseDynamicRegistration(registration);
@@ -33,7 +33,7 @@ namespace Unity.Strategies
             }
         }
 
-        private bool AnalyseStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
+        private bool AnalyzeStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
         {
             // Validate input  
             if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
@@ -45,8 +45,8 @@ namespace Unity.Strategies
             // Set mapping policy
             var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
                          registration.MappedToType.GetTypeInfo().IsGenericTypeDefinition
-                ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired)
-                : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, registration.Name, buildRequired);
+                ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, buildRequired)
+                : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, buildRequired);
             registration.Set(typeof(IBuildKeyMappingPolicy), policy);
 
             return true;
@@ -81,7 +81,7 @@ namespace Unity.Strategies
                                           : null);
             if (null == policy) return;
 
-            context.BuildKey = policy.Map(context.BuildKey, ref context);
+            context.Type = policy.Map(ref context);
 
             if (!policy.RequireBuild && ((UnityContainer)context.Container).RegistrationExists(context.Type, context.Name))
             {

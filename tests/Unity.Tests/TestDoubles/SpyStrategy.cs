@@ -4,19 +4,17 @@ using Unity.Policy;
 namespace Unity.Tests.v5.TestDoubles
 {
     /// <summary>
-    /// A small noop strategy that lets us check afterwards to
+    /// A small snoop strategy that lets us check afterwards to
     /// see if it ran in the strategy chain.
     /// </summary>
     internal class SpyStrategy : BuilderStrategy
     {
-        private object buildKey = null;
         private object existing = null;
         private bool buildUpWasCalled = false;
 
         public override void PreBuildUp(ref BuilderContext context)
         {
             this.buildUpWasCalled = true;
-            this.buildKey = context.BuildKey;
             this.existing = context.Existing;
 
             this.UpdateSpyPolicy(ref context);
@@ -25,11 +23,6 @@ namespace Unity.Tests.v5.TestDoubles
         public override void PostBuildUp(ref BuilderContext context)
         {
             this.existing = context.Existing;
-        }
-
-        public object BuildKey
-        {
-            get { return this.buildKey; }
         }
 
         public object Existing
@@ -44,9 +37,8 @@ namespace Unity.Tests.v5.TestDoubles
 
         private void UpdateSpyPolicy(ref BuilderContext context)
         {
-            SpyPolicy policy = (SpyPolicy)context.Policies
-                                                 .GetOrDefault(typeof(SpyPolicy), 
-                                                         context.BuildKey);
+            SpyPolicy policy = context.Policies.Get<SpyPolicy>(null, null);
+
             if (policy != null)
             {
                 policy.WasSpiedOn = true;

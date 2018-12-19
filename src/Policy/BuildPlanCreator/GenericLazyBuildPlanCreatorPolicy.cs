@@ -23,7 +23,7 @@ namespace Unity.Policy.BuildPlanCreator
 
         #region IBuildPlanCreatorPolicy
 
-        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, INamedType buildKey)
+        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, Type type, string name)
         {
             var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
             var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(itemType);
@@ -42,7 +42,9 @@ namespace Unity.Policy.BuildPlanCreator
             var name = context.Name;
             context.Existing = new Lazy<T>(() => container.Resolve<T>(name));
 
-            var lifetime = context.Policies.GetOrDefault(typeof(LifetimeManager), context.OriginalBuildKey);
+            var lifetime = context.Policies.GetPolicy<LifetimeManager>(
+                context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
+
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);

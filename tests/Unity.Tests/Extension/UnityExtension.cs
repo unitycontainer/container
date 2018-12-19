@@ -71,8 +71,9 @@ namespace Unity.Tests.v5.Extension
         {
             SpyStrategy spy = new SpyStrategy();
             SpyPolicy spyPolicy = new SpyPolicy();
-            SpyExtension extension =
-                new SpyExtension(spy, UnityBuildStage.PostInitialization, spyPolicy, typeof(SpyPolicy));
+
+            SpyExtension extension = new SpyExtension(spy, UnityBuildStage.PostInitialization, spyPolicy, typeof(SpyPolicy));
+
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);
             container.Resolve<object>();

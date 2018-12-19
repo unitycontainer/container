@@ -27,33 +27,26 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// Construct a build plan.
         /// </summary>
         /// <param name="context">The current build context.</param>
-        /// <param name="buildKey">The current build key.</param>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
         /// <returns>The created build plan.</returns>
-        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, INamedType buildKey)
+        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, Type type, string name)
         {
-            var generatorContext = new DynamicBuildPlanGenerationContext(buildKey.Type);
+            var generatorContext = new DynamicBuildPlanGenerationContext(type);
 
-            var planContext = new BuilderContext(context, _strategies, generatorContext);
+            var planContext = new BuilderContext(context, generatorContext);
 
             var i = -1;
             var chain = _strategies.ToArray();
 
-            try
+            while (!context.BuildComplete && ++i < chain.Length)
             {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref planContext);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref planContext);
-                }
+                chain[i].PreBuildUp(ref planContext);
             }
-            catch (Exception)
+
+            while (--i >= 0)
             {
-                context.RequiresRecovery?.Recover();
-                throw;
+                chain[i].PostBuildUp(ref planContext);
             }
 
             return new DynamicMethodBuildPlan(generatorContext.GetBuildMethod());

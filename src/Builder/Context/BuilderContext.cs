@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Policy;
@@ -18,7 +17,6 @@ namespace Unity.Builder
         #region Fields
 
         private readonly ResolverOverride[] _resolverOverrides;
-        readonly UnityContainer _container;
 
         #endregion
 
@@ -27,65 +25,65 @@ namespace Unity.Builder
         public BuilderContext(UnityContainer container, InternalRegistration registration,
                               object existing, params ResolverOverride[] resolverOverrides)
         {
-            _container = container;
-
             Existing = existing;
-            Registration = registration;
-            BuildKey = OriginalBuildKey;
+            Lifetime = container._lifetimeContainer; 
             Policies = new PolicyList(this);
+            Registration = registration;
+            Type = registration.Type;
+            Name = registration.Name;
 
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
                 _resolverOverrides = resolverOverrides;
         }
 
-        public BuilderContext(BuilderContext original, IEnumerable<BuilderStrategy> chain, object existing)
+        public BuilderContext(BuilderContext original, object existing)
         {
-            _container = ((BuilderContext)original)._container;
-            ParentContext = original;
-            BuildKey = original.BuildKey;
-            Registration = original.Registration;
-            Policies = original.Policies;
             Existing = existing;
+            Lifetime = original.Lifetime;
+            Policies = original.Policies;
+            Registration = original.Registration;
+            Type = original.Type;
+            Name = original.Name;
+            ParentContext = original;
         }
 
         internal BuilderContext(ref BuilderContext original, InternalRegistration registration)
         {
-            var parent = (BuilderContext)original;
-
-            _container = parent._container;
-            _resolverOverrides = parent._resolverOverrides;
-            ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
+            Lifetime = original.Lifetime;
+            Policies = original.Policies;
             Registration = registration;
-            BuildKey = OriginalBuildKey;
+            Type = OriginalBuildKey.Type;
+            Name = OriginalBuildKey.Name;
+            ParentContext = original;
+
+            _resolverOverrides = original._resolverOverrides;
         }
 
         internal BuilderContext(BuilderContext original, InternalRegistration registration)
         {
-            var parent = (BuilderContext)original;
-
-            _container = parent._container;
-            _resolverOverrides = parent._resolverOverrides;
-            ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
+            Lifetime = original.Lifetime;
+            Policies = original.Policies;
             Registration = registration;
-            BuildKey = OriginalBuildKey;
+            Type = OriginalBuildKey.Type;
+            Name = OriginalBuildKey.Name;
+            ParentContext = original;
+
+            _resolverOverrides = original._resolverOverrides;
         }
 
         internal BuilderContext(BuilderContext original, Type type, string name)
         {
-            var parent = (BuilderContext)original;
-            var registration = (InternalRegistration)parent._container.GetRegistration(type, name);
-
-            _container = parent._container;
-            _resolverOverrides = parent._resolverOverrides;
-            ParentContext = original;
             Existing = null;
-            Policies = parent.Policies;
-            Registration = registration;
-            BuildKey = OriginalBuildKey;
+            Lifetime = original.Lifetime;
+            Policies = original.Policies;
+            Registration = (InternalRegistration)((UnityContainer)original.Container).GetRegistration(type, name);
+            ParentContext = original;
+            Type = OriginalBuildKey.Type;
+            Name = OriginalBuildKey.Name;
+
+            _resolverOverrides = original._resolverOverrides;
         }
 
         #endregion
@@ -93,16 +91,16 @@ namespace Unity.Builder
 
         #region INamedType
 
-        public Type Type => BuildKey.Type;
+        public Type Type { get; set; }
 
-        public string Name => BuildKey.Name;
+        public string Name { get; }
 
         #endregion
 
 
         #region IResolveContext
 
-        public IUnityContainer Container => _container;
+        public IUnityContainer Container => Lifetime.Container;
 
         public object Existing { get; set; }
 
@@ -145,8 +143,6 @@ namespace Unity.Builder
             // Process overrides if any
             if (null != _resolverOverrides)
             {
-                var backup = CurrentOperation;
-                CurrentOperation = property;
                 // Check for property overrides
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
@@ -169,8 +165,6 @@ namespace Unity.Builder
                         }
                     }
                 }
-
-                CurrentOperation = backup;
             }
 
             // Resolve from injectors
@@ -204,9 +198,6 @@ namespace Unity.Builder
             // Process overrides if any
             if (null != _resolverOverrides)
             {
-                var backup = CurrentOperation;
-                CurrentOperation = parameter;
-
                 // Check if this parameter is overridden
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
@@ -229,8 +220,6 @@ namespace Unity.Builder
                         }
                     }
                 }
-
-                CurrentOperation = backup;
             }
 
             // Resolve from injectors
@@ -264,9 +253,8 @@ namespace Unity.Builder
 
         #region IBuilderContext
 
-        public INamedType BuildKey { get; set; }
 
-        public ILifetimeContainer Lifetime => _container._lifetimeContainer;
+        public ILifetimeContainer Lifetime { get; }
 
         public INamedType OriginalBuildKey => (INamedType) Registration;
 
@@ -277,9 +265,6 @@ namespace Unity.Builder
         public SynchronizedLifetimeManager RequiresRecovery { get; set; }
 
         public bool BuildComplete { get; set; }
-
-        // TODO: Remove CurrentOperation
-        public object CurrentOperation { get; set; }
 
         public BuilderContext ChildContext { get; internal set; }
 
@@ -293,7 +278,7 @@ namespace Unity.Builder
         object IPolicyList.Get(Type type, string name, Type policyInterface)
         {
             if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
-                return _container.GetPolicy(type, name, policyInterface);
+                return ((UnityContainer)Container).GetPolicy(type, name, policyInterface);
 
             var result = Registration.Get(policyInterface);
 
@@ -308,7 +293,7 @@ namespace Unity.Builder
         void IPolicyList.Clear(Type type, string name, Type policyInterface)
         {
             if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
-                _container.ClearPolicy(type, name, policyInterface);
+                ((UnityContainer)Container).ClearPolicy(type, name, policyInterface);
             else
                 Registration.Clear(policyInterface);
         }

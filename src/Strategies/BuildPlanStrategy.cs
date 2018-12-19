@@ -31,17 +31,17 @@ namespace Unity.Strategies
                            (IBuildPlanPolicy)(
                                context.Policies.Get(context.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
                                GetGeneric(context.Policies, typeof(IBuildPlanPolicy),
-                                   context.OriginalBuildKey,
-                                   context.OriginalBuildKey.Type));
+                                   context.OriginalBuildKey.Type, context.OriginalBuildKey.Name));
 
                 if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
                 {
-                    var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? CheckIfOpenGeneric(context.Registration) ??
-                                      GetPolicy<IBuildPlanCreatorPolicy>(context.Policies, context.BuildKey);
+                    var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? 
+                                      CheckIfOpenGeneric(context.Registration) ??
+                                      GetPolicy<IBuildPlanCreatorPolicy>(context.Policies, context.Type, context.Name);
 
                     if (planCreator != null)
                     {
-                        plan = planCreator.CreatePlan(ref context, context.BuildKey);
+                        plan = planCreator.CreatePlan(ref context, context.Type, context.Name);
 
                         if (plan is IResolve policy)
                             context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
@@ -65,19 +65,19 @@ namespace Unity.Strategies
 
         #region Implementation
 
-        public static TPolicyInterface GetPolicy<TPolicyInterface>(IPolicyList list, INamedType buildKey)
+        public static TPolicyInterface GetPolicy<TPolicyInterface>(IPolicyList list, Type type, string name)
         {
-            return (TPolicyInterface)(GetGeneric(list, typeof(TPolicyInterface), buildKey, buildKey.Type) ??
+            return (TPolicyInterface)(GetGeneric(list, typeof(TPolicyInterface), type, name) ??
                                       list.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
         }
 
-        private static object GetGeneric(IPolicyList list, Type policyInterface, INamedType buildKey, Type buildType)
+        private static object GetGeneric(IPolicyList list, Type policyInterface, Type type, string name)
         {
             // Check if generic
-            if (buildType.GetTypeInfo().IsGenericType)
+            if (type.GetTypeInfo().IsGenericType)
             {
-                var newType = buildType.GetGenericTypeDefinition();
-                return list.Get(newType, buildKey.Name, policyInterface) ??
+                var newType = type.GetGenericTypeDefinition();
+                return list.Get(newType, name, policyInterface) ??
                        list.Get(newType, string.Empty, policyInterface);
             }
 

@@ -40,7 +40,6 @@ namespace Unity.Builder.Strategies
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(propertyInfo)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(propertyInfo, 
@@ -60,7 +59,6 @@ namespace Unity.Builder.Strategies
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(selectedProperty.Property)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(selectedProperty.Property, 
@@ -81,7 +79,6 @@ namespace Unity.Builder.Strategies
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(info)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(info, 
@@ -99,8 +96,6 @@ namespace Unity.Builder.Strategies
                         throw new InvalidOperationException("Unknown type of property");
                 }
             }
-
-            dynamicBuildContext.AddToBuildPlan(Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(null)));
         }
 
         #endregion
