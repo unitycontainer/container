@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Builder;
 using Unity.Injection;
@@ -58,7 +57,7 @@ namespace Unity.Registration
         {
             for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
             {
-                if (ReferenceEquals(node.Key, policyInterface))
+                if (node.Key == policyInterface)
                     return node.Value;
             }
 
@@ -90,7 +89,7 @@ namespace Unity.Registration
 
             for (node = this; node != null; node = node.Next)
             {
-                if (ReferenceEquals(node.Key, policyInterface))
+                if (node.Key == policyInterface)
                 {
                     if (null == last)
                     {
@@ -108,13 +107,6 @@ namespace Unity.Registration
 
                 last = node;
             }
-        }
-
-        public virtual void ClearAll()
-        {
-            Key = null;
-            Value = null;
-            Next = null;
         }
 
         #endregion

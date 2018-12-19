@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace Unity.Storage
 {
-    [DebuggerDisplay("Node:  Key={Key},    InjectionParameterValue={Value}")]
+    [DebuggerDisplay("Node:  Key={Key},  Value={Value}")]
     public class LinkedNode<TKey, TValue>
     {
         public TKey Key;
