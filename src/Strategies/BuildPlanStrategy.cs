@@ -23,20 +23,20 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(ref BuilderContext context)
         {
-            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>();
+            var resolver = ((IPolicySet)context.Registration).Get<ResolveDelegate<BuilderContext>>();
             if (null == resolver)
             {
                 // Legacy support
-                var plan = context.Registration.Get<IBuildPlanPolicy>() ?? 
+                var plan = ((IPolicySet)context.Registration).Get<IBuildPlanPolicy>() ?? 
                            (IBuildPlanPolicy)(
                                context.Get<IBuildPlanPolicy>(context.Type, string.Empty) ??
                                GetGeneric(ref context, typeof(IBuildPlanPolicy),
-                                   context.OriginalBuildKey.Type, context.OriginalBuildKey.Name));
+                                   context.Registration.Type, context.Registration.Name));
 
                 if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
                 {
-                    var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? 
-                                      CheckIfOpenGeneric(context.Registration) ??
+                    var planCreator = ((IPolicySet)context.Registration).Get<IBuildPlanCreatorPolicy>() ?? 
+                                      CheckIfOpenGeneric((IPolicySet)context.Registration) ??
                                       GetPolicy<IBuildPlanCreatorPolicy>(ref context, context.Type, context.Name);
 
                     if (planCreator != null)
@@ -44,9 +44,9 @@ namespace Unity.Strategies
                         plan = planCreator.CreatePlan(ref context, context.Type, context.Name);
 
                         if (plan is IResolve policy)
-                            context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
+                            ((IPolicySet)context.Registration).Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
                         else
-                            context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+                            ((IPolicySet)context.Registration).Set(typeof(IBuildPlanPolicy), plan);
                     }
                     else
                         throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy");

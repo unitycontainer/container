@@ -4,6 +4,7 @@ using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Strategies
 {
@@ -26,27 +27,24 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(ref BuilderContext context)
         {
-            LifetimeManager policy = (LifetimeManager)context.Policies.Get(context.OriginalBuildKey.Type, 
-                                                                           context.OriginalBuildKey.Name, 
-                                                                           typeof(LifetimeManager));
+            LifetimeManager policy = context.Get<LifetimeManager>(context.Registration.Type, 
+                                                                  context.Registration.Name);
             if (null == policy)
             {
-                if (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType)
+                if (context.Registration.Type.GetTypeInfo().IsGenericType)
                 {
-                    // TODO: Switch to Factory
-                    policy = (LifetimeManager)context.Policies.Get(context.Type.GetGenericTypeDefinition(),
-                                                                   context.Name, 
-                                                                   typeof(LifetimeManager));
+                    policy = context.Get<LifetimeManager>(context.Type.GetGenericTypeDefinition(),
+                                                          context.Name);
                     if (policy is LifetimeManager lifetimeManager)
                     {
                         lock (_genericLifetimeManagerLock)
                         {
                             // check whether the policy for closed-generic has been added since first checked
-                            policy = (LifetimeManager)context.Registration.Get(typeof(LifetimeManager));
+                            policy = (LifetimeManager)((IPolicySet)context.Registration).Get(typeof(LifetimeManager));
                             if (null == policy)
                             {
                                 policy = lifetimeManager.CreateLifetimePolicy();
-                                context.Registration.Set(typeof(LifetimeManager), policy);
+                                ((IPolicySet)context.Registration).Set(typeof(LifetimeManager), policy);
 
                                 if (policy is IDisposable)
                                 {
@@ -73,9 +71,8 @@ namespace Unity.Strategies
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            var lifetimePolicy = (LifetimeManager)context.Policies.Get(context.OriginalBuildKey.Type, 
-                                                                       context.OriginalBuildKey.Name, 
-                                                                       typeof(LifetimeManager));
+            var lifetimePolicy = context.Get<LifetimeManager>(context.Registration.Type, 
+                                                              context.Registration.Name);
             lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
         }
 

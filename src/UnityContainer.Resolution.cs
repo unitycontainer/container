@@ -282,11 +282,11 @@ namespace Unity
             if (context != null)
             {
                 var indentation = new string(' ', depth * 2);
-                var originalKey = context.OriginalBuildKey;
+                var originalKey = context.Registration;
 
                 builder.Append(indentation);
 
-                builder.Append(context.Type == context.OriginalBuildKey.Type
+                builder.Append(context.Type == context.Registration.Type
                     ? $"Resolving {context.Type},{FormatName(context.Name)}"
                     : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
 

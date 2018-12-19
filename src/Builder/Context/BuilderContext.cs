@@ -11,12 +11,13 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-    [DebuggerDisplay("Resolving: {OriginalBuildKey.Type},  Name: {OriginalBuildKey.Name}")]
+    [DebuggerDisplay("Resolving: {Registration.Type},  Name: {Registration.Name}")]
     public class BuilderContext : IResolveContext
     {
         #region Fields
 
         private readonly ResolverOverride[] _resolverOverrides;
+        private readonly IPolicyList _list;
 
         #endregion
 
@@ -27,11 +28,11 @@ namespace Unity.Builder
         {
             Existing = existing;
             Lifetime = container._lifetimeContainer; 
-            Policies = new PolicyList(this);
             Registration = registration;
             Type = registration.Type;
             Name = registration.Name;
 
+            _list = new PolicyList();
             if (null != resolverOverrides && 0 < resolverOverrides.Length)
                 _resolverOverrides = resolverOverrides;
         }
@@ -40,23 +41,24 @@ namespace Unity.Builder
         {
             Existing = existing;
             Lifetime = original.Lifetime;
-            Policies = original.Policies;
             Registration = original.Registration;
             Type = original.Type;
             Name = original.Name;
             ParentContext = original;
+
+            _list = original._list;
         }
 
         public BuilderContext(BuilderContext original, InternalRegistration registration)
         {
             Existing = null;
             Lifetime = original.Lifetime;
-            Policies = original.Policies;
             Registration = registration;
-            Type = OriginalBuildKey.Type;
-            Name = OriginalBuildKey.Name;
+            Type = Registration.Type;
+            Name = Registration.Name;
             ParentContext = original;
 
+            _list = original._list;
             _resolverOverrides = original._resolverOverrides;
         }
 
@@ -72,6 +74,23 @@ namespace Unity.Builder
         #endregion
 
 
+        #region Public Members
+
+        public ILifetimeContainer Lifetime { get; }
+
+        public INamedType Registration { get; }
+
+        public SynchronizedLifetimeManager RequiresRecovery { get; set; }
+
+        public bool BuildComplete { get; set; }
+
+        public BuilderContext ChildContext { get; internal set; }
+
+        public BuilderContext ParentContext { get; }
+
+        #endregion
+
+
         #region IResolveContext
 
         public IUnityContainer Container => Lifetime.Container;
@@ -80,7 +99,7 @@ namespace Unity.Builder
 
         public object Resolve(Type type, string name)
         {
-            var registration = (InternalRegistration) ((UnityContainer) Container).GetRegistration(type, name);
+            var registration = (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name);
             var context = new BuilderContext(this, registration);
 
             ChildContext = context;
@@ -103,7 +122,7 @@ namespace Unity.Builder
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
                     var resolverOverride = _resolverOverrides[index];
-                    
+
                     // Check if this parameter is overridden
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                     {
@@ -158,7 +177,7 @@ namespace Unity.Builder
                 for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
                 {
                     var resolverOverride = _resolverOverrides[index];
-                    
+
                     // If matches with current parameter
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
@@ -195,7 +214,7 @@ namespace Unity.Builder
                 case Type type:     // TODO: Requires evaluation
                     if (typeof(Type) == parameter.ParameterType) return type;
                     break;
-                    
+
                 case object obj:
                     return obj;
             }
@@ -207,50 +226,24 @@ namespace Unity.Builder
         #endregion
 
 
-        #region IBuilderContext
-
-        public ILifetimeContainer Lifetime { get; }
-
-        public INamedType OriginalBuildKey => (INamedType) Registration;
-
-        public IPolicySet Registration { get; }
-
-        public IPolicyList Policies { get; }
-
-        public SynchronizedLifetimeManager RequiresRecovery { get; set; }
-
-        public bool BuildComplete { get; set; }
-
-        public BuilderContext ChildContext { get; internal set; }
-
-        public BuilderContext ParentContext { get; }
-
-        #endregion
-
-
-        #region  : Policies
+        #region  Policies
 
         public object Get(Type type, string name, Type policyInterface)
         {
-            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
-                return ((UnityContainer)Container).GetPolicy(type, name, policyInterface);
-
-            var result = Registration.Get(policyInterface);
-
-            return result;
+            return _list.Get(type, name, policyInterface) ?? 
+                   (type != Registration.Type || name != Registration.Name
+                       ? ((UnityContainer) Container).GetPolicy(type, name, policyInterface)
+                       : ((IPolicySet)Registration).Get(policyInterface));
         }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
         {
-            Policies.Set(type, name, policyInterface, policy);
+            _list.Set(type, name, policyInterface, policy);
         }
 
         public void Clear(Type type, string name, Type policyInterface)
         {
-            if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
-                ((UnityContainer)Container).ClearPolicy(type, name, policyInterface);
-            else
-                Registration.Clear(policyInterface);
+            _list.Clear(type, name, policyInterface);
         }
 
         #endregion

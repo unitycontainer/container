@@ -70,14 +70,14 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(ref BuilderContext context)
         {
-            if (context.OriginalBuildKey is ContainerRegistration registration && 
+            if (context.Registration is ContainerRegistration registration && 
                 registration.RegisteredType == registration.MappedToType)
                 return;
                 
-            IBuildKeyMappingPolicy policy = context.Registration.Get<IBuildKeyMappingPolicy>() 
-                                          ?? (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType 
-                                          ? context.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type.GetGenericTypeDefinition(), 
-                                                                                context.OriginalBuildKey.Name) 
+            IBuildKeyMappingPolicy policy = ((IPolicySet)context.Registration).Get<IBuildKeyMappingPolicy>() 
+                                          ?? (context.Registration.Type.GetTypeInfo().IsGenericType 
+                                          ? context.Get<IBuildKeyMappingPolicy>(context.Registration.Type.GetGenericTypeDefinition(), 
+                                                                                context.Registration.Name) 
                                           : null);
             if (null == policy) return;
 
@@ -88,7 +88,7 @@ namespace Unity.Strategies
                 var type = context.Type;
                 var name = context.Name;
 
-                context.Registration.Set(typeof(IBuildPlanPolicy), 
+                ((IPolicySet)context.Registration).Set(typeof(IBuildPlanPolicy), 
                     new DynamicMethodBuildPlan((ResolveDelegate<BuilderContext>) ResolveDelegate));
 
                 object ResolveDelegate(ref BuilderContext c) => c.Existing = c.Resolve(type, name);
@@ -98,9 +98,9 @@ namespace Unity.Strategies
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            if (context.Registration is InternalRegistration registration && 
+            if (((IPolicySet)context.Registration) is InternalRegistration registration && 
                 null != registration.BuildChain &&
-                null != context.Registration.Get<IBuildPlanPolicy>())
+                null != ((IPolicySet)context.Registration).Get<IBuildPlanPolicy>())
             {
                 var chain = new List<BuilderStrategy>();
                 var strategies = registration.BuildChain;

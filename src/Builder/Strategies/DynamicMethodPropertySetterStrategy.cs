@@ -25,8 +25,8 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = context.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, 
-                                                                      context.OriginalBuildKey.Name);
+            var selector = context.GetPolicy<IPropertySelectorPolicy>(context.Registration.Type, 
+                                                                      context.Registration.Name);
 
             foreach (var property in selector.SelectProperties(ref context))
             {
@@ -43,7 +43,7 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(propertyInfo, 
-                                                                     context.OriginalBuildKey.Name, 
+                                                                     context.Registration.Name, 
                                                                      AttributeResolverFactory.CreateResolver(propertyInfo))),
                                 Expression.Call(
                                     Expression.Convert(
@@ -62,7 +62,7 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(selectedProperty.Property, 
-                                                                     context.OriginalBuildKey.Name, 
+                                                                     context.Registration.Name, 
                                                                      selectedProperty.Resolver)),
                                 Expression.Call(
                                     Expression.Convert(
@@ -82,7 +82,7 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(info, 
-                                                                     context.OriginalBuildKey.Name, 
+                                                                     context.Registration.Name, 
                                                                      value)),
                                 Expression.Call(
                                     Expression.Convert(

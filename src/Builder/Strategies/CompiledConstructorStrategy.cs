@@ -67,7 +67,7 @@ namespace Unity.Builder.Strategies
                     ValidateConstructedType(ref context) ??
                     CreateInstanceBuildupExpression(ref context)));
 
-            var policy = context.Get<LifetimeManager>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
+            var policy = context.Get<LifetimeManager>(context.Registration.Type, context.Registration.Name);
             if (policy is PerResolveLifetimeManager)
             {
                 buildContext.AddToBuildPlan(
@@ -167,7 +167,7 @@ namespace Unity.Builder.Strategies
         private Expression CreateInstanceBuildupExpression(ref BuilderContext context)
         {
             var selector = context.GetPolicy<IConstructorSelectorPolicy>(
-                context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
+                context.Registration.Type, context.Registration.Name);
 
             if (null == selector)
             {
@@ -251,7 +251,7 @@ namespace Unity.Builder.Strategies
         public static void SetPerBuildSingleton(ref BuilderContext context)
         {
             var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-            context.Set<LifetimeManager>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, perBuildLifetime);
+            context.Set<LifetimeManager>(context.Registration.Type, context.Registration.Name, perBuildLifetime);
         }
 
         #endregion

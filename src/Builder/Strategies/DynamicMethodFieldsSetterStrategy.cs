@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
+﻿using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 
 namespace Unity.Builder.Strategies
@@ -12,8 +11,8 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = context.GetPolicy<IFieldSelectorPolicy>(context.OriginalBuildKey.Type,
-                context.OriginalBuildKey.Name);
+            var selector = context.GetPolicy<IFieldSelectorPolicy>(context.Registration.Type,
+                context.Registration.Name);
 
         }
 
