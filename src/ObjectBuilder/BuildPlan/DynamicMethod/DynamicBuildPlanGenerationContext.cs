@@ -41,18 +41,17 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             _buildPlanExpressions.Enqueue(expression);
         }
 
-        internal ResolveDelegate<TBuilderContext> GetBuildMethod<TBuilderContext>()
-            where TBuilderContext : IBuilderContext
+        internal ResolveDelegate<BuilderContext> GetBuildMethod()
         {
             var block = Expression.Block(
-                _buildPlanExpressions.Concat(new[] { BuilderContextExpression<TBuilderContext>.Existing }));
+                _buildPlanExpressions.Concat(new[] { BuilderContextExpression.Existing }));
 
-            var lambda = Expression.Lambda<ResolveDelegate<TBuilderContext>>(block,
-                BuilderContextExpression<TBuilderContext>.Context);
+            var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(block,
+                BuilderContextExpression.Context);
 
             var planDelegate = lambda.Compile();
 
-            return (ref TBuilderContext context) =>
+            return (ref BuilderContext context) =>
             {
                 try
                 {

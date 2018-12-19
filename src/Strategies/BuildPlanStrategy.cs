@@ -21,9 +21,9 @@ namespace Unity.Strategies
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
-            var resolver = context.Registration.Get<ResolveDelegate<TBuilderContext>>();
+            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (null == resolver)
             {
                 // Legacy support
@@ -44,7 +44,7 @@ namespace Unity.Strategies
                         plan = planCreator.CreatePlan(ref context, context.BuildKey);
 
                         if (plan is IResolve policy)
-                            context.Registration.Set(typeof(ResolveDelegate<TBuilderContext>), (ResolveDelegate<TBuilderContext>)policy.Resolve);
+                            context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
                         else
                             context.Registration.Set(typeof(IBuildPlanPolicy), plan);
                     }

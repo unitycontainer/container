@@ -53,9 +53,9 @@ namespace Unity.Strategies
 
         #region Build
 
-        public override void PreBuildUp<TContext>(ref TContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
-            var plan = context.Registration.Get<ResolveDelegate<TContext>>();
+            var plan = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (plan == null)
             {
                 var typeArgument = context.OriginalBuildKey.Type.GetElementType();
@@ -63,19 +63,19 @@ namespace Unity.Strategies
 
                 if (type != typeArgument)
                 {
-                    var method = (ResolveArrayDelegate<TContext>)_resolveGenericMethod
-                        .MakeGenericMethod(typeof(TContext), typeArgument)
-                        .CreateDelegate(typeof(ResolveArrayDelegate<TContext>));
-                    plan = (ref TContext c) => method(ref c, type);
+                    var method = (ResolveArrayDelegate)_resolveGenericMethod
+                        .MakeGenericMethod(typeArgument)
+                        .CreateDelegate(typeof(ResolveArrayDelegate));
+                    plan = (ref BuilderContext c) => method(ref c, type);
                 }
                 else
                 {
-                    plan = (ResolveDelegate<TContext>)_resolveMethod
-                        .MakeGenericMethod(typeof(TContext), typeArgument)
-                        .CreateDelegate(typeof(ResolveDelegate<TContext>));
+                    plan = (ResolveDelegate<BuilderContext>)_resolveMethod
+                        .MakeGenericMethod(typeArgument)
+                        .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
                 }
 
-                context.Registration.Set(typeof(ResolveDelegate<TContext>), plan);
+                context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), plan);
             }
 
             context.Existing = plan(ref context);
@@ -87,8 +87,7 @@ namespace Unity.Strategies
 
         #region Nested Types
 
-        private delegate object ResolveArrayDelegate<TContext>(ref TContext context, Type type)
-            where TContext : IBuilderContext;
+        private delegate object ResolveArrayDelegate(ref BuilderContext context, Type type);
 
         #endregion
     }

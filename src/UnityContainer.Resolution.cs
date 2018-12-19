@@ -55,49 +55,44 @@ namespace Unity
 
         #region Resolving Collections
 
-        internal static object ResolveArray<TContext, TElement>(ref TContext context)
-            where TContext : IBuilderContext
+        internal static object ResolveArray<TElement>(ref BuilderContext context)
         {
             var container = (UnityContainer)context.Container;
             var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(TElement));
 
-            return ResolveRegistrations<TContext, TElement>(ref context, registrations).ToArray();
+            return ResolveRegistrations<TElement>(ref context, registrations).ToArray();
         }
 
-        internal static object ResolveGenericArray<TContext, TElement>(ref TContext context, Type type)
-            where TContext : IBuilderContext
+        internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
         {
             var set = new MiniHashSet<InternalRegistration>();
             var container = (UnityContainer)context.Container;
             GetNamedRegistrations(container, typeof(TElement), set);
             GetNamedRegistrations(container, type, set);
 
-            return ResolveGenericRegistrations<TContext, TElement>(ref context, set).ToArray();
+            return ResolveGenericRegistrations<TElement>(ref context, set).ToArray();
         }
 
-        internal static object ResolveEnumerable<TContext, TElement>(ref TContext context)
-            where TContext : IBuilderContext
+        internal static object ResolveEnumerable<TElement>(ref BuilderContext context)
         {
             var container = (UnityContainer)context.Container;
             var registrations = (IList<InternalRegistration>)GetExplicitRegistrations(container, typeof(TElement));
 
-            return ResolveRegistrations<TContext, TElement>(ref context, registrations);
+            return ResolveRegistrations<TElement>(ref context, registrations);
         }
 
-        internal static object ResolveGenericEnumerable<TContext, TElement>(ref TContext context, Type type)
-            where TContext : IBuilderContext
+        internal static object ResolveGenericEnumerable<TElement>(ref BuilderContext context, Type type)
         {
             var set = new MiniHashSet<InternalRegistration>();
             var container = (UnityContainer)context.Container;
             GetExplicitRegistrations(container, typeof(TElement), set);
             GetExplicitRegistrations(container, type, set);
 
-            return ResolveGenericRegistrations<TContext, TElement>(ref context, set);
+            return ResolveGenericRegistrations<TElement>(ref context, set);
         }
 
 
-        private static IList<TElement> ResolveGenericRegistrations<TContext, TElement>(ref TContext context, IEnumerable<InternalRegistration> registrations)
-            where TContext : IBuilderContext
+        private static IList<TElement> ResolveGenericRegistrations<TElement>(ref BuilderContext context, IEnumerable<InternalRegistration> registrations)
         {
             var list = new List<TElement>();
             foreach (var registration in registrations)
@@ -117,8 +112,7 @@ namespace Unity
             return list;
         }
 
-        private static IList<TElement> ResolveRegistrations<TContext, TElement>(ref TContext context, IEnumerable<InternalRegistration> registrations)
-            where TContext : IBuilderContext
+        private static IList<TElement> ResolveRegistrations<TElement>(ref BuilderContext context, IEnumerable<InternalRegistration> registrations)
         {
             var list = new List<TElement>();
             foreach (var registration in registrations)
@@ -267,23 +261,23 @@ namespace Unity
         #region Exceptions
 
         public static string CreateMessage(Type typeRequested, string nameRequested, Exception innerException,
-                                            IBuilderContext context, string format = Constants.ResolutionFailed)
+                                            ref BuilderContext context, string format = Constants.ResolutionFailed)
         {
             var builder = new StringBuilder();
 
             builder.AppendLine($"Resolution of the dependency failed for type = '{typeRequested}', name = '{FormatName(nameRequested)}'.");
-            builder.AppendLine($"Exception occurred while: {ExceptionReason(context)}.");
+            builder.AppendLine($"Exception occurred while: {ExceptionReason(ref context)}.");
             builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
             builder.AppendLine("-----------------------------------------------");
             builder.AppendLine("At the time of the exception, the container was: ");
 
-            AddContextDetails(builder, context, 1);
+            AddContextDetails(builder, ref context, 1);
 
             var message = builder.ToString();
             return message;
         }
 
-        private static void AddContextDetails(StringBuilder builder, IBuilderContext context, int depth)
+        private static void AddContextDetails(StringBuilder builder, ref BuilderContext context, int depth)
         {
             if (context != null)
             {
@@ -306,7 +300,8 @@ namespace Unity
                     builder.AppendLine();
                 }
 
-                AddContextDetails(builder, context.ChildContext, depth + 1);
+                // TODO: 5.9.0 ReEnable
+                //AddContextDetails(builder, context.ChildContext, depth + 1);
             }
         }
 
@@ -315,7 +310,7 @@ namespace Unity
             return string.IsNullOrEmpty(name) ? "(none)" : name;
         }
 
-        private static string ExceptionReason(IBuilderContext context)
+        private static string ExceptionReason(ref BuilderContext context)
         {
             var deepestContext = context;
 

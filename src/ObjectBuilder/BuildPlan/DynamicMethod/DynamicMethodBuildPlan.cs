@@ -22,10 +22,9 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// 
         /// </summary>
         /// <param name="context"></param>
-        public void BuildUp<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public void BuildUp(ref BuilderContext context)
         {
-            context.Existing = ((ResolveDelegate<TBuilderContext>)_buildMethod).Invoke(ref context);
+            context.Existing = ((ResolveDelegate<BuilderContext>)_buildMethod).Invoke(ref context);
 
         }
 

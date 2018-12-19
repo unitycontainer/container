@@ -8,7 +8,7 @@ namespace Unity.Builder.Strategies
     {
         #region BuilderStrategy
 
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 

@@ -9,12 +9,12 @@ namespace Unity.Builder
     public class ImportedFieldsSelector : MemberSelectorBase<FieldInfo, object>, 
                                           IFieldSelectorPolicy
     {
-        public IEnumerable<object> SelectFields<TBuilderContext>(ref TBuilderContext context) where TBuilderContext : IBuilderContext
+        public IEnumerable<object> SelectFields(ref BuilderContext context) 
         {
             return Enumerable.Empty<object>();
         }
 
-        public override IEnumerable<object> Select<TContext>(ref TContext context)
+        public override IEnumerable<object> Select(ref BuilderContext context)
         {
             return Enumerable.Empty<object>();
         }

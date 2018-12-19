@@ -23,8 +23,7 @@ namespace Unity.Builder
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public IEnumerable<object> SelectProperties<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext 
+        public IEnumerable<object> SelectProperties(ref BuilderContext context)
             => Select(ref context); 
 
         #endregion

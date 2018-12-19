@@ -6,7 +6,6 @@ using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Strategies
@@ -56,28 +55,28 @@ namespace Unity.Strategies
 
         #region Build
 
-        public override void PreBuildUp<TContext>(ref TContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
-            var plan = context.Registration.Get<ResolveDelegate<TContext>>();
+            var plan = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (plan == null)
             {
                 var typeArgument = context.Type.GetTypeInfo().GenericTypeArguments.First();
                 var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
                 if (type != typeArgument)
                 {
-                    var method = (ResolveEnumerableDelegate<TContext>)_resolveGenericMethod
-                        .MakeGenericMethod(typeof(TContext), typeArgument)
-                        .CreateDelegate(typeof(ResolveEnumerableDelegate<TContext>));
-                    plan = (ref TContext c) => method(ref c, type);
+                    var method = (ResolveEnumerableDelegate)_resolveGenericMethod
+                        .MakeGenericMethod(typeArgument)
+                        .CreateDelegate(typeof(ResolveEnumerableDelegate));
+                    plan = (ref BuilderContext c) => method(ref c, type);
                 }
                 else
                 {
-                    plan = (ResolveDelegate<TContext>)
-                        _resolveMethod.MakeGenericMethod(typeof(TContext), typeArgument)
-                                      .CreateDelegate(typeof(ResolveDelegate<TContext>));
+                    plan = (ResolveDelegate<BuilderContext>)
+                        _resolveMethod.MakeGenericMethod(typeArgument)
+                                      .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
                 }
 
-                context.Registration.Set(typeof(ResolveDelegate<TContext>), plan);
+                context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), plan);
             }
 
             context.Existing = plan(ref context);
@@ -89,8 +88,7 @@ namespace Unity.Strategies
 
         #region Nested Types
 
-        private delegate object ResolveEnumerableDelegate<TContext>(ref TContext context, Type type)
-            where TContext : IBuilderContext;
+        private delegate object ResolveEnumerableDelegate(ref BuilderContext context, Type type);
 
         #endregion
     }

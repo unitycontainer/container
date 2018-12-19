@@ -21,7 +21,7 @@ namespace Unity.Builder.Strategies
         /// Called during the chain of responsibility for a build operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
@@ -40,15 +40,15 @@ namespace Unity.Builder.Strategies
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(propertyInfo)),
+                                Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(propertyInfo)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
-                                    BuilderContextExpression<TBuilderContext>.Resolve(propertyInfo, 
-                                                                                      context.OriginalBuildKey.Name, 
-                                                                                      AttributeResolverFactory.CreateResolver(propertyInfo))),
+                                    BuilderContextExpression.Resolve(propertyInfo, 
+                                                                     context.OriginalBuildKey.Name, 
+                                                                     AttributeResolverFactory.CreateResolver(propertyInfo))),
                                 Expression.Call(
                                     Expression.Convert(
-                                        BuilderContextExpression<TBuilderContext>.Existing,
+                                        BuilderContextExpression.Existing,
                                         dynamicBuildContext.TypeToBuild),
                                     GetValidatedPropertySetter(propertyInfo),
                                     resolvedObjectParameter)));
@@ -60,15 +60,15 @@ namespace Unity.Builder.Strategies
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(selectedProperty.Property)),
+                                Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(selectedProperty.Property)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
-                                    BuilderContextExpression<TBuilderContext>.Resolve(selectedProperty.Property, 
-                                                                                      context.OriginalBuildKey.Name, 
-                                                                                      selectedProperty.Resolver)),
+                                    BuilderContextExpression.Resolve(selectedProperty.Property, 
+                                                                     context.OriginalBuildKey.Name, 
+                                                                     selectedProperty.Resolver)),
                                 Expression.Call(
                                     Expression.Convert(
-                                        BuilderContextExpression<TBuilderContext>.Existing,
+                                        BuilderContextExpression.Existing,
                                         dynamicBuildContext.TypeToBuild),
                                     GetValidatedPropertySetter(selectedProperty.Property),
                                     resolvedObjectParameter)));
@@ -81,15 +81,15 @@ namespace Unity.Builder.Strategies
                         dynamicBuildContext.AddToBuildPlan(
                             Expression.Block(
                                 new[] { resolvedObjectParameter },
-                                Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(info)),
+                                Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(info)),
                                 Expression.Assign(
                                     resolvedObjectParameter,
-                                    BuilderContextExpression<TBuilderContext>.Resolve(info, 
-                                                                                      context.OriginalBuildKey.Name, 
-                                                                                      value)),
+                                    BuilderContextExpression.Resolve(info, 
+                                                                     context.OriginalBuildKey.Name, 
+                                                                     value)),
                                 Expression.Call(
                                     Expression.Convert(
-                                        BuilderContextExpression<TBuilderContext>.Existing,
+                                        BuilderContextExpression.Existing,
                                         dynamicBuildContext.TypeToBuild),
                                     GetValidatedPropertySetter(info),
                                     resolvedObjectParameter)));
@@ -100,7 +100,7 @@ namespace Unity.Builder.Strategies
                 }
             }
 
-            dynamicBuildContext.AddToBuildPlan(Expression.Assign(BuilderContextExpression<TBuilderContext>.CurrentOperation, Expression.Constant(null)));
+            dynamicBuildContext.AddToBuildPlan(Expression.Assign(BuilderContextExpression.CurrentOperation, Expression.Constant(null)));
         }
 
         #endregion

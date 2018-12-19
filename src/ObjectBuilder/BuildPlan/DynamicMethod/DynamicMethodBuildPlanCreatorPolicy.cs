@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Unity.Builder;
 using Unity.Policy;
 using Unity.Storage;
@@ -31,8 +29,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// <param name="context">The current build context.</param>
         /// <param name="buildKey">The current build key.</param>
         /// <returns>The created build plan.</returns>
-        public IBuildPlanPolicy CreatePlan<TBuilderContext>(ref TBuilderContext context, INamedType buildKey)
-            where TBuilderContext : IBuilderContext
+        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, INamedType buildKey)
         {
             var generatorContext = new DynamicBuildPlanGenerationContext(buildKey.Type);
 
@@ -59,7 +56,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
                 throw;
             }
 
-            return new DynamicMethodBuildPlan(generatorContext.GetBuildMethod<TBuilderContext>());
+            return new DynamicMethodBuildPlan(generatorContext.GetBuildMethod());
         }
     }
 }

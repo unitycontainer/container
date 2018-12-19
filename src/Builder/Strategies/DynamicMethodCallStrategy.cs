@@ -27,7 +27,7 @@ namespace Unity.Builder.Strategies
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
             var selector = context.Policies.GetPolicy<IMethodSelectorPolicy>(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
@@ -77,11 +77,10 @@ namespace Unity.Builder.Strategies
                     Expression.Block(
                         Expression.Call(
                             Expression.Convert(
-                                BuilderContextExpression<TBuilderContext>.Existing,
+                                BuilderContextExpression.Existing,
                                 dynamicBuildContext.TypeToBuild),
                             methodInfo,
-                            BuildMethodParameterExpressions<TBuilderContext>(parameters, resolvers))));
-
+                            BuildMethodParameterExpressions(parameters, resolvers))));
             }
         }
 
@@ -90,8 +89,7 @@ namespace Unity.Builder.Strategies
 
         #region Implementation
 
-        private IEnumerable<Expression> BuildMethodParameterExpressions<TBuilderContext>(ParameterInfo[] parameters, object[] resolvers)
-            where TBuilderContext : IBuilderContext
+        private IEnumerable<Expression> BuildMethodParameterExpressions(ParameterInfo[] parameters, object[] resolvers)
         {
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -103,7 +101,7 @@ namespace Unity.Builder.Strategies
                     .FirstOrDefault();
 
                 yield return 
-                    BuilderContextExpression<TBuilderContext>.Resolve(parameter, attribute?.Name, resolvers?[i]);
+                    BuilderContextExpression.Resolve(parameter, attribute?.Name, resolvers?[i]);
             }
         }
 

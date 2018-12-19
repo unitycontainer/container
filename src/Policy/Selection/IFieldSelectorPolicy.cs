@@ -16,7 +16,6 @@ namespace Unity.Policy
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="System.Reflection.FieldInfo"/> objects
         /// that contain the properties to set.</returns>
-        IEnumerable<object> SelectFields<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext;
+        IEnumerable<object> SelectFields(ref BuilderContext context);
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Container;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -14,11 +13,10 @@ namespace Unity.Builder
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Resolving: {OriginalBuildKey.Type},  Name: {OriginalBuildKey.Name}")]
-    public class BuilderContext : IBuilderContext
+    public class BuilderContext : IResolveContext
     {
         #region Fields
 
-        private readonly IStrategyChain _chain;
         private readonly ResolverOverride[] _resolverOverrides;
         readonly UnityContainer _container;
 
@@ -30,7 +28,6 @@ namespace Unity.Builder
                               object existing, params ResolverOverride[] resolverOverrides)
         {
             _container = container;
-            _chain = _container._strategyChain;
 
             Existing = existing;
             Registration = registration;
@@ -41,10 +38,9 @@ namespace Unity.Builder
                 _resolverOverrides = resolverOverrides;
         }
 
-        public BuilderContext(IBuilderContext original, IEnumerable<BuilderStrategy> chain, object existing)
+        public BuilderContext(BuilderContext original, IEnumerable<BuilderStrategy> chain, object existing)
         {
             _container = ((BuilderContext)original)._container;
-            _chain = new StrategyChain(chain);
             ParentContext = original;
             BuildKey = original.BuildKey;
             Registration = original.Registration;
@@ -52,12 +48,11 @@ namespace Unity.Builder
             Existing = existing;
         }
 
-        internal BuilderContext(ref IBuilderContext original, InternalRegistration registration)
+        internal BuilderContext(ref BuilderContext original, InternalRegistration registration)
         {
             var parent = (BuilderContext)original;
 
             _container = parent._container;
-            _chain = parent._chain;
             _resolverOverrides = parent._resolverOverrides;
             ParentContext = original;
             Existing = null;
@@ -66,12 +61,11 @@ namespace Unity.Builder
             BuildKey = OriginalBuildKey;
         }
 
-        internal BuilderContext(IBuilderContext original, InternalRegistration registration)
+        internal BuilderContext(BuilderContext original, InternalRegistration registration)
         {
             var parent = (BuilderContext)original;
 
             _container = parent._container;
-            _chain = parent._chain;
             _resolverOverrides = parent._resolverOverrides;
             ParentContext = original;
             Existing = null;
@@ -80,13 +74,12 @@ namespace Unity.Builder
             BuildKey = OriginalBuildKey;
         }
 
-        internal BuilderContext(IBuilderContext original, Type type, string name)
+        internal BuilderContext(BuilderContext original, Type type, string name)
         {
             var parent = (BuilderContext)original;
             var registration = (InternalRegistration)parent._container.GetRegistration(type, name);
 
             _container = parent._container;
-            _chain = parent._chain;
             _resolverOverrides = parent._resolverOverrides;
             ParentContext = original;
             Existing = null;
@@ -288,9 +281,9 @@ namespace Unity.Builder
         // TODO: Remove CurrentOperation
         public object CurrentOperation { get; set; }
 
-        public IBuilderContext ChildContext { get; internal set; }
+        public BuilderContext ChildContext { get; internal set; }
 
-        public IBuilderContext ParentContext { get; }
+        public BuilderContext ParentContext { get; }
 
         #endregion
 

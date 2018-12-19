@@ -8,7 +8,6 @@ using Unity.Exceptions;
 using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
-using Unity.Resolution;
 
 namespace Unity.Builder.Strategies
 {
@@ -20,9 +19,8 @@ namespace Unity.Builder.Strategies
     {
         #region Static Fields
 
-        private static readonly TypeInfo TypeInfo = typeof(CompiledConstructorStrategy).GetTypeInfo();
         private static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
-        private static readonly MethodInfo StringFormat = typeof(string).GetTypeInfo() 
+        private static readonly MethodInfo StringFormat = typeof(string).GetTypeInfo()
                                                                         .DeclaredMethods
                                                                         .First(m =>
                                                                         {
@@ -31,6 +29,9 @@ namespace Unity.Builder.Strategies
                                                                                    m.GetParameters().Length == 2 &&
                                                                                    typeof(object) == parameters[1].ParameterType;
                                                                         });
+
+        private static readonly MethodInfo SetPerBuildSingletonMethod = typeof(CompiledConstructorStrategy)
+            .GetTypeInfo().GetDeclaredMethod(nameof(SetPerBuildSingleton));
 
         #endregion
 
@@ -42,7 +43,7 @@ namespace Unity.Builder.Strategies
         /// </summary>
         /// <remarks>Existing object is an instance of <see cref="DynamicBuildPlanGenerationContext"/>.</remarks>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             // Verify the type we're trying to build is actually constructable -
             // CLR primitive types like string and int aren't.
@@ -52,7 +53,7 @@ namespace Unity.Builder.Strategies
             if (!context.Type.IsInterface)
 #endif
             {
-                    if (context.Type == typeof(string))
+                if (context.Type == typeof(string))
                 {
                     throw new InvalidOperationException(
                         $"The type {context.Type.Name} cannot be constructed. You must configure the container to supply this value.");
@@ -62,28 +63,24 @@ namespace Unity.Builder.Strategies
             DynamicBuildPlanGenerationContext buildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
             buildContext.AddToBuildPlan(
-                Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)), 
-                    ValidateConstructedType(ref context) ?? 
+                Expression.IfThen(Expression.Equal(BuilderContextExpression.Existing, Expression.Constant(null)),
+                    ValidateConstructedType(ref context) ??
                     CreateInstanceBuildupExpression(ref context)));
 
             var policy = context.Policies.Get(context.OriginalBuildKey.Type, context.OriginalBuildKey.Name, typeof(LifetimeManager));
             if (policy is PerResolveLifetimeManager)
             {
-                // TODO: Optimize
-                var setPerBuildSingletonMethod = TypeInfo.GetDeclaredMethod(nameof(SetPerBuildSingleton)).MakeGenericMethod(typeof(TBuilderContext));
-
                 buildContext.AddToBuildPlan(
-                    Expression.Call(null, setPerBuildSingletonMethod, BuilderContextExpression<TBuilderContext>.Context));
+                    Expression.Call(null, SetPerBuildSingletonMethod, BuilderContextExpression.Context));
             }
         }
 
-#endregion
+        #endregion
 
 
-#region Implementation
+        #region Implementation
 
-        private Expression ValidateConstructedType<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        private Expression ValidateConstructedType(ref BuilderContext context)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = context.Type.GetTypeInfo();
@@ -97,7 +94,7 @@ namespace Unity.Builder.Strategies
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructInterface),
-                            IResolveContextExpression<TBuilderContext>.Type),
+                            BuilderContextExpression.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -112,7 +109,7 @@ namespace Unity.Builder.Strategies
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructAbstractClass),
-                            IResolveContextExpression<TBuilderContext>.Type),
+                            BuilderContextExpression.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -127,7 +124,7 @@ namespace Unity.Builder.Strategies
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructDelegate),
-                            IResolveContextExpression<TBuilderContext>.Type),
+                            BuilderContextExpression.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -138,20 +135,19 @@ namespace Unity.Builder.Strategies
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.TypeIsNotConstructable),
-                            IResolveContextExpression<TBuilderContext>.Type),
+                            BuilderContextExpression.Type),
                         InvalidRegistrationExpression));
             }
 
             return null;
         }
 
-        private Expression ValidateSelectedConstructor<TBuilderContext>(ref TBuilderContext context, ConstructorInfo ctor)
-            where TBuilderContext : IBuilderContext
+        private Expression ValidateSelectedConstructor(ref BuilderContext context, ConstructorInfo ctor)
         {
             var parameters = ctor.GetParameters();
             if (parameters.Any(pi => pi.ParameterType.IsByRef))
             {
-                return Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                return Expression.IfThen(Expression.Equal(BuilderContextExpression.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                         Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, context.Type, ctor)),
                         InvalidRegistrationExpression)));
@@ -159,7 +155,7 @@ namespace Unity.Builder.Strategies
 
             if (IsInvalidConstructor(context.Type, ref context, parameters))
             {
-                return Expression.IfThen(Expression.Equal(BuilderContextExpression<TBuilderContext>.Existing, Expression.Constant(null)),
+                return Expression.IfThen(Expression.Equal(BuilderContextExpression.Existing, Expression.Constant(null)),
                     Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                         Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefItself, context.Type, ctor)),
                         InvalidRegistrationExpression)));
@@ -168,8 +164,7 @@ namespace Unity.Builder.Strategies
             return null;
         }
 
-        private Expression CreateInstanceBuildupExpression<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        private Expression CreateInstanceBuildupExpression(ref BuilderContext context)
         {
             var selector = context.Policies.GetPolicy<IConstructorSelectorPolicy>(
                 context.OriginalBuildKey.Type, context.OriginalBuildKey.Name);
@@ -181,7 +176,7 @@ namespace Unity.Builder.Strategies
                         Expression.Call(
                             StringFormat,
                             Expression.Constant("No appropriate constructor selector is registered for type {0}."),
-                            IResolveContextExpression<TBuilderContext>.Type),
+                            BuilderContextExpression.Type),
                         InvalidRegistrationExpression));
             }
 
@@ -191,44 +186,43 @@ namespace Unity.Builder.Strategies
                     var (ctor, resolvers) = methodBaseMember.FromType(context.Type);
                     return ValidateSelectedConstructor(ref context, ctor) ??
                            Expression.Assign(
-                               BuilderContextExpression<TBuilderContext>.Existing,
+                               BuilderContextExpression.Existing,
                                Expression.Convert(
                                    Expression.New(
                                        ctor,
-                                       BuilderContextExpression<TBuilderContext>.GetParameters(ctor, resolvers)),
+                                       BuilderContextExpression.GetParameters(ctor, resolvers)),
                                    typeof(object)));
 
                 case ConstructorInfo info:
                     return ValidateSelectedConstructor(ref context, info) ??
                            Expression.Assign(
-                               BuilderContextExpression<TBuilderContext>.Existing, 
+                               BuilderContextExpression.Existing,
                                Expression.Convert(
                                    Expression.New(
-                                       info, 
-                                       BuilderContextExpression<TBuilderContext>.GetParameters(info)), 
+                                       info,
+                                       BuilderContextExpression.GetParameters(info)),
                                    typeof(object)));
 
                 case SelectedConstructor selected:
                     return ValidateSelectedConstructor(ref context, selected.Constructor) ??
                            Expression.Assign(
-                               BuilderContextExpression<TBuilderContext>.Existing, 
+                               BuilderContextExpression.Existing,
                                Expression.Convert(
                                    Expression.New(
-                                       selected.Constructor, 
-                                       BuilderContextExpression<TBuilderContext>.GetParameters(selected)),
+                                       selected.Constructor,
+                                       BuilderContextExpression.GetParameters(selected)),
                                    typeof(object)));
                 default:
                     return Expression.Throw(
                         Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                             Expression.Call(StringFormat,
                                 Expression.Constant(Constants.NoConstructorFound),
-                                IResolveContextExpression<TBuilderContext>.Type),
+                                BuilderContextExpression.Type),
                             InvalidRegistrationExpression));
             }
         }
 
-        private static bool IsInvalidConstructor<TBuilderContext>(Type target, ref TBuilderContext context, ParameterInfo[] parameters)
-            where TBuilderContext : IBuilderContext
+        private static bool IsInvalidConstructor(Type target, ref BuilderContext context, ParameterInfo[] parameters)
         {
             if (parameters.Any(p => p.ParameterType == target))
             {
@@ -257,8 +251,7 @@ namespace Unity.Builder.Strategies
         /// if the current object is such.
         /// </summary>
         /// <param name="context">Current build context.</param>
-        public static void SetPerBuildSingleton<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public static void SetPerBuildSingleton(ref BuilderContext context)
         {
             var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
             context.Policies.Set(context.OriginalBuildKey.Type,
@@ -266,6 +259,6 @@ namespace Unity.Builder.Strategies
                                  typeof(LifetimeManager), perBuildLifetime);
         }
 
-#endregion
+        #endregion
     }
 }

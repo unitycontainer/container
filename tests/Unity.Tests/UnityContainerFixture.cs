@@ -585,7 +585,7 @@ namespace Unity.Tests.v5
 
             public class GarbageCollectingStrategy : BuilderStrategy
             {
-                public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+                public override void PreBuildUp(ref BuilderContext context)
                 {
                     GC.Collect();
                 }

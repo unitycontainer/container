@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Strategies;
-using Unity.Container;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
@@ -57,7 +56,6 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         // Caches
-        internal IStrategyChain _strategyChain;
         internal BuilderStrategy[] _buildChain;
 
         // Methods
@@ -128,7 +126,6 @@ namespace Unity
             _buildPlanStrategies.Add(new DynamicMethodCallStrategy(),           BuilderStage.Methods);
 
             // Caches
-            _strategyChain = new StrategyChain(_strategies);
             _buildChain = _strategies.ToArray();
             _strategies.Invalidated += OnStrategiesChanged;
 
@@ -175,7 +172,6 @@ namespace Unity
             // Strategies
             _strategies = _parent._strategies;
             _buildPlanStrategies = _parent._buildPlanStrategies;
-            _strategyChain = _parent._strategyChain;
             _buildChain = _parent._buildChain;
 
             // Caches
@@ -246,7 +242,6 @@ namespace Unity
 
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
-            _strategyChain = new StrategyChain(_strategies);
             _buildChain = _strategies.ToArray();
 
             if (null != _parent && null == _registrations)

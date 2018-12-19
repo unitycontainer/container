@@ -9,29 +9,22 @@ namespace Unity.Tests.v5.TestDoubles
     /// </summary>
     internal class SpyStrategy : BuilderStrategy
     {
-        private IBuilderContext context = null;
         private object buildKey = null;
         private object existing = null;
         private bool buildUpWasCalled = false;
 
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             this.buildUpWasCalled = true;
-            this.context = context;
             this.buildKey = context.BuildKey;
             this.existing = context.Existing;
 
             this.UpdateSpyPolicy(ref context);
         }
 
-        public override void PostBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PostBuildUp(ref BuilderContext context)
         {
             this.existing = context.Existing;
-        }
-
-        public IBuilderContext Context
-        {
-            get { return this.context; }
         }
 
         public object BuildKey
@@ -49,8 +42,7 @@ namespace Unity.Tests.v5.TestDoubles
             get { return this.buildUpWasCalled; }
         }
 
-        private void UpdateSpyPolicy<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        private void UpdateSpyPolicy(ref BuilderContext context)
         {
             SpyPolicy policy = (SpyPolicy)context.Policies
                                                  .GetOrDefault(typeof(SpyPolicy), 

@@ -10,7 +10,7 @@ namespace Unity.Tests.v5.ObjectBuilder
     [TestClass]
     public class StagedStrategyChainTest
     {
-        private static void AssertOrder(IStrategyChain chain,
+        private static void AssertOrder(IEnumerable<BuilderStrategy> chain,
                                 params FakeStrategy[] strategies)
         {
             List<BuilderStrategy> strategiesInChain = new List<BuilderStrategy>(chain);
@@ -27,7 +27,7 @@ namespace Unity.Tests.v5.ObjectBuilder
             innerChain.Add(innerStrategy, FakeStage.Stage1);
             outerChain.Add(outerStrategy, FakeStage.Stage1);
 
-            IStrategyChain chain = new StrategyChain(outerChain);
+            var chain = outerChain.ToArray();
 
             AssertOrder(chain, innerStrategy, outerStrategy);
         }
@@ -46,7 +46,7 @@ namespace Unity.Tests.v5.ObjectBuilder
             outerChain.Add(outerStage1, FakeStage.Stage1);
             outerChain.Add(outerStage2, FakeStage.Stage2);
 
-            IStrategyChain chain = new StrategyChain(outerChain);
+            var chain = outerChain.ToArray();
 
             AssertOrder(chain, innerStage1, outerStage1, innerStage2, outerStage2);
         }
@@ -65,7 +65,7 @@ namespace Unity.Tests.v5.ObjectBuilder
             outerChain.Add(outerStrategy, FakeStage.Stage1);
             superChain.Add(superStrategy, FakeStage.Stage1);
 
-            IStrategyChain chain = new StrategyChain(superChain);
+            var chain = superChain.ToArray();
 
             AssertOrder(chain, innerStrategy, outerStrategy, superStrategy);
         }

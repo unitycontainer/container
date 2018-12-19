@@ -68,7 +68,7 @@ namespace Unity.Strategies
         /// and if found maps the build key for the current operation.
         /// </summary>
         /// <param name="context">The context for the operation.</param>
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             if (context.OriginalBuildKey is ContainerRegistration registration && 
                 registration.RegisteredType == registration.MappedToType)
@@ -89,14 +89,14 @@ namespace Unity.Strategies
                 var name = context.Name;
 
                 context.Registration.Set(typeof(IBuildPlanPolicy), 
-                    new DynamicMethodBuildPlan((ResolveDelegate<TBuilderContext>) ResolveDelegate));
+                    new DynamicMethodBuildPlan((ResolveDelegate<BuilderContext>) ResolveDelegate));
 
-                object ResolveDelegate(ref TBuilderContext c) => c.Existing = c.Resolve(type, name);
+                object ResolveDelegate(ref BuilderContext c) => c.Existing = c.Resolve(type, name);
             }
         }
 
 
-        public override void PostBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PostBuildUp(ref BuilderContext context)
         {
             if (context.Registration is InternalRegistration registration && 
                 null != registration.BuildChain &&

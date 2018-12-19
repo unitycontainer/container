@@ -42,17 +42,6 @@ namespace Unity.Builder
         #endregion
 
 
-        #region IEnumerable<Expression>
-
-        public virtual IEnumerator<Expression> Create<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
         #region IStagedStrategyChain
 
         public void Add(Converter<Type, (TMemberInfo, TData)> strategy, SelectionStage stage)

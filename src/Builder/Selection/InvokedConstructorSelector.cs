@@ -41,8 +41,7 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
-        public object SelectConstructor<TContext>(ref TContext context)
-            where TContext : IBuilderContext
+        public object SelectConstructor(ref BuilderContext context)
         {
             var members = DeclaredMembers(context.Type);
 

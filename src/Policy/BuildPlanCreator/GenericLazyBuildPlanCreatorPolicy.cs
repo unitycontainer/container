@@ -3,7 +3,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
-using Unity.Resolution;
 
 namespace Unity.Policy.BuildPlanCreator
 {
@@ -24,12 +23,12 @@ namespace Unity.Policy.BuildPlanCreator
 
         #region IBuildPlanCreatorPolicy
 
-        public IBuildPlanPolicy CreatePlan<TBuilderContext>(ref TBuilderContext context, INamedType buildKey) where TBuilderContext : IBuilderContext
+        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, INamedType buildKey)
         {
             var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
-            var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(typeof(TBuilderContext), itemType);
+            var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(itemType);
 
-            return new DynamicMethodBuildPlan(lazyMethod.CreateDelegate(typeof(ResolveDelegate<TBuilderContext>)));
+            return new DynamicMethodBuildPlan(lazyMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>)));
         }
 
         #endregion
@@ -37,8 +36,7 @@ namespace Unity.Policy.BuildPlanCreator
 
         #region Implementation
 
-        private static object BuildResolveLazy<TContext, T>(ref TContext context)
-            where TContext : IBuilderContext
+        private static object BuildResolveLazy<T>(ref BuilderContext context)
         {
             var container = context.Container;
             var name = context.Name;

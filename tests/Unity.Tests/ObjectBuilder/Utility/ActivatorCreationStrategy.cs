@@ -11,7 +11,7 @@ namespace Unity.Tests.v5.ObjectBuilder.Utility
         /// forward direction.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             if (context.Existing == null)
             {

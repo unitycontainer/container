@@ -32,8 +32,7 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public virtual IEnumerable<object> SelectMethods<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public virtual IEnumerable<object> SelectMethods(ref BuilderContext context)
         {
             return Select(ref context);
         }

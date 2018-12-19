@@ -19,8 +19,7 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
         /// <returns>Returns intermediate value or policy</returns>
-        public virtual void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public virtual void PreBuildUp(ref BuilderContext context)
         {
         }
 
@@ -30,8 +29,7 @@ namespace Unity.Builder
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public virtual void PostBuildUp<TBuilderContext>(ref TBuilderContext context)
-            where TBuilderContext : IBuilderContext
+        public virtual void PostBuildUp(ref BuilderContext context)
         {
         }
 
@@ -45,6 +43,7 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="container">Reference to hosting container</param>
         /// <param name="registration">Reference to registration</param>
+        /// <param name="injectionMembers"></param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
         public virtual bool RequiredToBuildType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
         {
@@ -52,9 +51,9 @@ namespace Unity.Builder
         }
 
         /// <summary>
-        /// Analyses registered type
+        /// Analyzes registered type
         /// </summary>
-        /// <param name="container">Reference to hositng container</param>
+        /// <param name="container">Reference to hosting container</param>
         /// <param name="registration">Reference to registration</param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
         public virtual bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)

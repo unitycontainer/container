@@ -9,18 +9,17 @@ using Unity.ResolverPolicy;
 namespace Unity.Builder.Expressions
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    class BuilderContextExpression<TBuilderContext> : IResolveContextExpression<TBuilderContext>
-        where TBuilderContext : IBuilderContext
+    class BuilderContextExpression : IResolveContextExpression<BuilderContext>
     {
         #region Constructor
 
         static BuilderContextExpression()
         {
-            var typeInfo = typeof(TBuilderContext).GetTypeInfo();
+            var typeInfo = typeof(BuilderContext).GetTypeInfo();
 
-            CurrentOperation = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.CurrentOperation)));
+            CurrentOperation = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.CurrentOperation)));
 
-            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IBuilderContext.Existing)));
+            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.Existing)));
         }
 
         #endregion

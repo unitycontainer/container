@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Policy;
-using Unity.Resolution;
 using Unity.ResolverPolicy;
 using Unity.Tests.v5.TestSupport;
 
@@ -149,8 +148,7 @@ namespace Unity.Tests.v5
                 this._resolvePolicy = resolvePolicy;
             }
 
-            public object SelectConstructor<TContext>(ref TContext context)
-                where TContext : IBuilderContext
+            public object SelectConstructor(ref BuilderContext context)
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
                 var selectedConstructor = new SelectedConstructor(ctr);
@@ -184,7 +182,7 @@ namespace Unity.Tests.v5
             this.container = container;
         }
 
-        public override void PreBuildUp<TBuilderContext>(ref TBuilderContext context)
+        public override void PreBuildUp(ref BuilderContext context)
         {
             if ((NamedTypeBuildKey)context.BuildKey == NamedTypeBuildKey.Make<IUnityContainer>())
             {

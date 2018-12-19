@@ -47,8 +47,7 @@ namespace Unity.Builder
             _resolverFactories = factories;
         }
 
-        public virtual IEnumerable<object> Select<TContext>(ref TContext context)
-            where TContext : IBuilderContext
+        public virtual IEnumerable<object> Select(ref BuilderContext context)
         {
             var members = DeclaredMembers(context.Type);
 
