@@ -11,7 +11,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
     /// </summary>
     public class DynamicMethodBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
     {
-        private readonly StagedStrategyChain<BuilderStrategy, BuilderStage> _strategies;
+        private BuilderStrategy[] _strategies;
 
         /// <summary>
         /// Construct a <see cref="DynamicMethodBuildPlanCreatorPolicy"/> that
@@ -20,7 +20,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         /// <param name="strategies">The strategy chain.</param>
         public DynamicMethodBuildPlanCreatorPolicy(StagedStrategyChain<BuilderStrategy, BuilderStage> strategies)
         {
-            _strategies = strategies;
+            strategies.Invalidated += (s, e) => _strategies = strategies.ToArray();
+            _strategies = strategies.ToArray();
         }
 
         /// <summary>
@@ -36,18 +37,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
 
             var planContext = new BuilderContext(context, generatorContext);
 
-            var i = -1;
-            var chain = _strategies.ToArray();
-
-            while (!context.BuildComplete && ++i < chain.Length)
-            {
-                chain[i].PreBuildUp(ref planContext);
-            }
-
-            while (--i >= 0)
-            {
-                chain[i].PostBuildUp(ref planContext);
-            }
+            _strategies.ExecutePlan(ref planContext);
 
             return new DynamicMethodBuildPlan(generatorContext.GetBuildMethod());
         }

@@ -27,9 +27,9 @@ namespace Unity
             var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             var registration = (InternalRegistration)GetRegistration(type, name);
-            var context = new BuilderContext(this, (InternalRegistration)registration, null, resolverOverrides);
+            var context = new BuilderContext(this, registration, null, resolverOverrides);
 
-            return registration.BuildChain.ExecutePlan(ref context);
+            return registration.BuildChain.ExecuteThrowingPlan(ref context);
         }
 
         #endregion
@@ -62,7 +62,7 @@ namespace Unity
             var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext(this, registration, existing, resolverOverrides);
 
-            return registration.BuildChain.ExecutePlan(ref context);
+            return registration.BuildChain.ExecuteThrowingPlan(ref context);
         }
 
 

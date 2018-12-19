@@ -124,7 +124,7 @@ namespace Unity
                     else
                     {
                         var childContext = new BuilderContext(context, registration);
-                        list.Add((TElement)registration.BuildChain.ExecutePlan(ref childContext));
+                        list.Add((TElement)registration.BuildChain.ExecuteThrowingPlan(ref childContext));
                     }
 
                 }

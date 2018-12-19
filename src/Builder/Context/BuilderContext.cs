@@ -73,19 +73,6 @@ namespace Unity.Builder
             _resolverOverrides = original._resolverOverrides;
         }
 
-        internal BuilderContext(BuilderContext original, Type type, string name)
-        {
-            Existing = null;
-            Lifetime = original.Lifetime;
-            Policies = original.Policies;
-            Registration = (InternalRegistration)((UnityContainer)original.Container).GetRegistration(type, name);
-            ParentContext = original;
-            Type = OriginalBuildKey.Type;
-            Name = OriginalBuildKey.Name;
-
-            _resolverOverrides = original._resolverOverrides;
-        }
-
         #endregion
 
 
@@ -106,30 +93,12 @@ namespace Unity.Builder
 
         public object Resolve(Type type, string name)
         {
-            var context = new BuilderContext(this, type, name);
+            var registration = (InternalRegistration) ((UnityContainer) Container).GetRegistration(type, name);
+            var context = new BuilderContext(this, registration);
+
             ChildContext = context;
 
-            var i = -1;
-            var chain = ((InternalRegistration)context.Registration).BuildChain;
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception)
-            {
-                context.RequiresRecovery?.Recover();
-                throw;
-            }
-
-            var result = context.Existing;
+            var result = registration.BuildChain.ExecuteReThrowingPlan(ref context);
 
             ChildContext = null;
 
