@@ -25,8 +25,8 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = context.Policies.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, 
-                                                                               context.OriginalBuildKey.Name);
+            var selector = context.GetPolicy<IPropertySelectorPolicy>(context.OriginalBuildKey.Type, 
+                                                                      context.OriginalBuildKey.Name);
 
             foreach (var property in selector.SelectProperties(ref context))
             {

@@ -12,7 +12,7 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = context.Policies.GetPolicy<IFieldSelectorPolicy>(context.OriginalBuildKey.Type,
+            var selector = context.GetPolicy<IFieldSelectorPolicy>(context.OriginalBuildKey.Type,
                 context.OriginalBuildKey.Name);
 
         }

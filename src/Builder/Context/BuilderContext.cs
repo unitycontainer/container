@@ -47,20 +47,7 @@ namespace Unity.Builder
             ParentContext = original;
         }
 
-        internal BuilderContext(ref BuilderContext original, InternalRegistration registration)
-        {
-            Existing = null;
-            Lifetime = original.Lifetime;
-            Policies = original.Policies;
-            Registration = registration;
-            Type = OriginalBuildKey.Type;
-            Name = OriginalBuildKey.Name;
-            ParentContext = original;
-
-            _resolverOverrides = original._resolverOverrides;
-        }
-
-        internal BuilderContext(BuilderContext original, InternalRegistration registration)
+        public BuilderContext(BuilderContext original, InternalRegistration registration)
         {
             Existing = null;
             Lifetime = original.Lifetime;
@@ -222,7 +209,6 @@ namespace Unity.Builder
 
         #region IBuilderContext
 
-
         public ILifetimeContainer Lifetime { get; }
 
         public INamedType OriginalBuildKey => (INamedType) Registration;
@@ -244,7 +230,7 @@ namespace Unity.Builder
 
         #region  : Policies
 
-        object IPolicyList.Get(Type type, string name, Type policyInterface)
+        public object Get(Type type, string name, Type policyInterface)
         {
             if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 return ((UnityContainer)Container).GetPolicy(type, name, policyInterface);
@@ -254,12 +240,12 @@ namespace Unity.Builder
             return result;
         }
 
-        void IPolicyList.Set(Type type, string name, Type policyInterface, object policy)
+        public void Set(Type type, string name, Type policyInterface, object policy)
         {
             Policies.Set(type, name, policyInterface, policy);
         }
 
-        void IPolicyList.Clear(Type type, string name, Type policyInterface)
+        public void Clear(Type type, string name, Type policyInterface)
         {
             if (!ReferenceEquals(type, OriginalBuildKey.Type) || name != OriginalBuildKey.Name)
                 ((UnityContainer)Container).ClearPolicy(type, name, policyInterface);

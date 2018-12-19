@@ -76,8 +76,8 @@ namespace Unity.Strategies
                 
             IBuildKeyMappingPolicy policy = context.Registration.Get<IBuildKeyMappingPolicy>() 
                                           ?? (context.OriginalBuildKey.Type.GetTypeInfo().IsGenericType 
-                                          ? (IBuildKeyMappingPolicy)context.Policies.Get(context.OriginalBuildKey.Type.GetGenericTypeDefinition(), 
-                                                                                         context.OriginalBuildKey.Name, typeof(IBuildKeyMappingPolicy)) 
+                                          ? context.Get<IBuildKeyMappingPolicy>(context.OriginalBuildKey.Type.GetGenericTypeDefinition(), 
+                                                                                context.OriginalBuildKey.Name) 
                                           : null);
             if (null == policy) return;
 
