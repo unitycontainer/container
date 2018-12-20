@@ -27,10 +27,14 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(ref BuilderContext context)
         {
-            var policy = context.Registration is ContainerRegistration registration 
-                ? registration.LifetimeManager 
-                : context.Get<LifetimeManager>(context.Registration.Type, 
-                                               context.Registration.Name);
+            LifetimeManager policy = null;
+
+            if (context.Registration is ContainerRegistration registration)
+                policy = registration.LifetimeManager;
+
+            if (null == policy || policy is PerResolveLifetimeManager)
+                policy = context.Get<LifetimeManager>(context.Registration.Type, 
+                                                      context.Registration.Name);
             if (null == policy)
             {
                 if (context.Registration.Type.GetTypeInfo().IsGenericType)
