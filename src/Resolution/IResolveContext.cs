@@ -19,6 +19,8 @@ namespace Unity.Resolution
         /// <returns></returns>
         object Resolve(Type type, string name);
 
+        object Resolve(FieldInfo field, string name, object value);
+
         object Resolve(PropertyInfo property, string name, object value);
 
         object Resolve(ParameterInfo parameter, string name, object value);
