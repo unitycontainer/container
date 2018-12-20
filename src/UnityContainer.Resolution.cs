@@ -122,11 +122,7 @@ namespace Unity
                     if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
                         list.Add((TElement)context.Resolve(typeof(TElement), registration.Name));
                     else
-                    {
-                        var childContext = new BuilderContext(context, registration);
-                        list.Add((TElement)registration.BuildChain.ExecuteThrowingPlan(ref childContext));
-                    }
-
+                        list.Add((TElement)context.Resolve(registration));
                 }
                 catch (ArgumentException ex)
                 {
@@ -279,23 +275,20 @@ namespace Unity
 
         private static void AddContextDetails(StringBuilder builder, ref BuilderContext context, int depth)
         {
-            if (context != null)
-            {
-                var indentation = new string(' ', depth * 2);
-                var originalKey = context.Registration;
+            var indentation = new string(' ', depth * 2);
+            var originalKey = context.Registration;
 
-                builder.Append(indentation);
+            builder.Append(indentation);
 
-                builder.Append(context.Type == context.Registration.Type
-                    ? $"Resolving {context.Type},{FormatName(context.Name)}"
-                    : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
+            builder.Append(context.Type == context.Registration.Type
+                ? $"Resolving {context.Type},{FormatName(context.Name)}"
+                : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
 
-                builder.AppendLine();
+            builder.AppendLine();
 
 
-                // TODO: 5.9.0 ReEnable
-                //AddContextDetails(builder, context.ChildContext, depth + 1);
-            }
+            // TODO: 5.9.0 ReEnable
+            //AddContextDetails(builder, context.ChildContext, depth + 1);
         }
 
         private static string FormatName(string name)
@@ -305,13 +298,13 @@ namespace Unity
 
         private static string ExceptionReason(ref BuilderContext context)
         {
-            var deepestContext = context;
+            //var deepestContext = context;
 
-            // Find deepest child
-            while (deepestContext.ChildContext != null)
-            {
-                deepestContext = deepestContext.ChildContext;
-            }
+            //// Find deepest child
+            //while (deepestContext.ChildContext != null)
+            //{
+            //    deepestContext = deepestContext.ChildContext;
+            //}
 
             // Backtrack to last known operation
 

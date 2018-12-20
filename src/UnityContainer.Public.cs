@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -27,7 +29,15 @@ namespace Unity
             var name = string.IsNullOrEmpty(nameToBuild) ? null : nameToBuild;
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             var registration = (InternalRegistration)GetRegistration(type, name);
-            var context = new BuilderContext(this, registration, null, resolverOverrides);
+
+            var context = new BuilderContext
+            {
+                Lifetime = _lifetimeContainer,
+                Registration = registration,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
+                ResolverOverrides = resolverOverrides,
+                _list = new PolicyList()
+            };
 
             return registration.BuildChain.ExecuteThrowingPlan(ref context);
         }
@@ -60,7 +70,15 @@ namespace Unity
             var type = typeToBuild ?? throw new ArgumentNullException(nameof(typeToBuild));
             if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
             var registration = (InternalRegistration)GetRegistration(type, name);
-            var context = new BuilderContext(this, registration, existing, resolverOverrides);
+            var context = new BuilderContext
+            {
+                Existing = existing,
+                Lifetime = _lifetimeContainer,
+                Registration = registration,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
+                ResolverOverrides = resolverOverrides,
+                _list = new PolicyList()
+            };
 
             return registration.BuildChain.ExecuteThrowingPlan(ref context);
         }

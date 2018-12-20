@@ -12,55 +12,12 @@ namespace Unity.Builder
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Resolving: {Registration.Type},  Name: {Registration.Name}")]
-    public class BuilderContext : IResolveContext
+    public struct BuilderContext : IResolveContext
     {
         #region Fields
 
-        private readonly ResolverOverride[] _resolverOverrides;
-        private readonly IPolicyList _list;
-
-        #endregion
-
-        #region Constructors
-
-        public BuilderContext(UnityContainer container, InternalRegistration registration,
-                              object existing, params ResolverOverride[] resolverOverrides)
-        {
-            Existing = existing;
-            Lifetime = container._lifetimeContainer; 
-            Registration = registration;
-            Type = registration.Type;
-            Name = registration.Name;
-
-            _list = new PolicyList();
-            if (null != resolverOverrides && 0 < resolverOverrides.Length)
-                _resolverOverrides = resolverOverrides;
-        }
-
-        public BuilderContext(BuilderContext original, object existing)
-        {
-            Existing = existing;
-            Lifetime = original.Lifetime;
-            Registration = original.Registration;
-            Type = original.Type;
-            Name = original.Name;
-            ParentContext = original;
-
-            _list = original._list;
-        }
-
-        public BuilderContext(BuilderContext original, InternalRegistration registration)
-        {
-            Existing = null;
-            Lifetime = original.Lifetime;
-            Registration = registration;
-            Type = Registration.Type;
-            Name = Registration.Name;
-            ParentContext = original;
-
-            _list = original._list;
-            _resolverOverrides = original._resolverOverrides;
-        }
+        public ResolverOverride[] ResolverOverrides;
+        public IPolicyList _list;
 
         #endregion
 
@@ -69,7 +26,7 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string Name { get; }
+        public string Name => Registration.Name;
 
         #endregion
 
@@ -80,16 +37,26 @@ namespace Unity.Builder
 
         public object Existing { get; set; }
 
-        public object Resolve(Type type, string name)
-        {
-            var registration = (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name);
-            var context = new BuilderContext(this, registration);
+        public object Resolve(Type type, string name) =>
+            Resolve((InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
 
-            ChildContext = context;
+        public object Resolve(InternalRegistration registration)
+        {
+            var context = new BuilderContext
+            {
+                Lifetime = Lifetime,
+                Registration = registration,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
+
+                _list = _list,
+                ResolverOverrides = ResolverOverrides,
+            };
+
+            // ChildContext = context;
 
             var result = registration.BuildChain.ExecuteReThrowingPlan(ref context);
 
-            ChildContext = null;
+            // ChildContext = null;
 
             return result;
         }
@@ -99,12 +66,12 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != _resolverOverrides)
+            if (null != ResolverOverrides)
             {
                 // Check for property overrides
-                for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
+                for (var index = ResolverOverrides.Length - 1; index >= 0; --index)
                 {
-                    var resolverOverride = _resolverOverrides[index];
+                    var resolverOverride = ResolverOverrides[index];
 
                     // Check if this parameter is overridden
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
@@ -154,12 +121,12 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != _resolverOverrides)
+            if (null != ResolverOverrides)
             {
                 // Check if this parameter is overridden
-                for (var index = _resolverOverrides.Length - 1; index >= 0; --index)
+                for (var index = ResolverOverrides.Length - 1; index >= 0; --index)
                 {
-                    var resolverOverride = _resolverOverrides[index];
+                    var resolverOverride = ResolverOverrides[index];
 
                     // If matches with current parameter
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
@@ -211,17 +178,19 @@ namespace Unity.Builder
 
         #region Public Members
 
-        public readonly ILifetimeContainer Lifetime;
+        public ILifetimeContainer Lifetime;
 
-        public readonly INamedType Registration;
+        public INamedType Registration;
 
         public SynchronizedLifetimeManager RequiresRecovery;
 
         public bool BuildComplete;
 
-        public BuilderContext ChildContext;
+        //public IntPtr RefThis; 
 
-        public readonly BuilderContext ParentContext;
+        //public object ChildContext;
+
+        //public IntPtr ParentContext { get; private set; }
 
         #endregion
 
@@ -230,9 +199,9 @@ namespace Unity.Builder
 
         public object Get(Type type, string name, Type policyInterface)
         {
-            return _list.Get(type, name, policyInterface) ?? 
+            return _list.Get(type, name, policyInterface) ??
                    (type != Registration.Type || name != Registration.Name
-                       ? ((UnityContainer) Container).GetPolicy(type, name, policyInterface)
+                       ? ((UnityContainer)Container).GetPolicy(type, name, policyInterface)
                        : ((IPolicySet)Registration).Get(policyInterface));
         }
 

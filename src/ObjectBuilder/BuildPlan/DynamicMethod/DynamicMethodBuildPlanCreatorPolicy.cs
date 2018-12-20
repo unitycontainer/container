@@ -35,9 +35,17 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         {
             var generatorContext = new DynamicBuildPlanGenerationContext(type);
 
-            var planContext = new BuilderContext(context, generatorContext);
+            var planContext = new BuilderContext
+            {
+                Existing = generatorContext,
+                Lifetime = context.Lifetime,
+                Registration = context.Registration,
+                Type = context.Type,
 
-            _strategies.ExecutePlan(ref planContext);
+                _list = context._list
+            };
+
+            var plan = _strategies.ExecutePlan(ref planContext);
 
             return new DynamicMethodBuildPlan(generatorContext.GetBuildMethod());
         }
