@@ -22,6 +22,9 @@ namespace Runner.Tests
         }
 
         [Benchmark]
+        public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
+
+        [Benchmark]
         public object Container() => _container.Resolve(typeof(IUnityContainer), null);
 
         [Benchmark]

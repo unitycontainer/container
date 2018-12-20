@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Unity.Exceptions;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Container
@@ -9,6 +8,15 @@ namespace Unity.Tests.v5.Container
     [TestClass]
     public class ContainerBasicFixture
     {
+        [TestMethod]
+        public void ResovleIUnityContainer()
+        {
+            UnityContainer uc1 = new UnityContainer();
+
+            Assert.IsNotNull(uc1.Resolve<IUnityContainer>());
+        }
+
+
         [TestMethod]
         public void ResolveRegistered()
         {

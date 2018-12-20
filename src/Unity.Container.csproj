@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Unity.Abstractions.csproj.DotSettings" />
+    <None Remove="Unity.Container.csproj.DotSettings" />
   </ItemGroup>
 
 

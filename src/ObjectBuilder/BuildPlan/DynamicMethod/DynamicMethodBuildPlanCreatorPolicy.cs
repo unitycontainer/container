@@ -42,7 +42,7 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
                 Registration = context.Registration,
                 Type = context.Type,
 
-                _list = context._list
+                list = context.list
             };
 
             var plan = _strategies.ExecutePlan(ref planContext);

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
@@ -32,11 +31,11 @@ namespace Unity
 
             var context = new BuilderContext
             {
-                Lifetime = _lifetimeContainer,
+                ResolverOverrides = null != resolverOverrides && 0 == resolverOverrides.Length ? null : resolverOverrides,
                 Registration = registration,
+                Lifetime = _lifetimeContainer,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
-                ResolverOverrides = resolverOverrides,
-                _list = new PolicyList()
+                list = new PolicyList()
             };
 
             return registration.BuildChain.ExecuteThrowingPlan(ref context);
@@ -72,12 +71,12 @@ namespace Unity
             var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext
             {
-                Existing = existing,
-                Lifetime = _lifetimeContainer,
+                ResolverOverrides = null != resolverOverrides && 0 == resolverOverrides.Length ? null : resolverOverrides,
                 Registration = registration,
+                Lifetime = _lifetimeContainer,
+                Existing = existing,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
-                ResolverOverrides = resolverOverrides,
-                _list = new PolicyList()
+                list = new PolicyList()
             };
 
             return registration.BuildChain.ExecuteThrowingPlan(ref context);
