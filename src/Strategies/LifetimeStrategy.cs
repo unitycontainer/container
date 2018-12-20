@@ -77,9 +77,16 @@ namespace Unity.Strategies
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            var lifetimePolicy = context.Get<LifetimeManager>(context.Registration.Type, 
-                                                              context.Registration.Name);
-            lifetimePolicy?.SetValue(context.Existing, context.Lifetime);
+            LifetimeManager policy = null;
+
+            if (context.Registration is ContainerRegistration registration)
+                policy = registration.LifetimeManager;
+
+            if (null == policy || policy is PerResolveLifetimeManager)
+                policy = context.Get<LifetimeManager>(context.Registration.Type,
+                                                      context.Registration.Name);
+
+            policy?.SetValue(context.Existing, context.Lifetime);
         }
 
         #endregion
