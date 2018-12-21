@@ -33,6 +33,8 @@ namespace Unity
             {
                 ResolverOverrides = null != resolverOverrides && 0 == resolverOverrides.Length ? null : resolverOverrides,
                 Registration = registration,
+                RegistrationType = type,
+                RegistrationName = name,
                 Lifetime = _lifetimeContainer,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
                 list = new PolicyList()
@@ -73,6 +75,8 @@ namespace Unity
             {
                 ResolverOverrides = null != resolverOverrides && 0 == resolverOverrides.Length ? null : resolverOverrides,
                 Registration = registration,
+                RegistrationType = type,
+                RegistrationName = name,
                 Lifetime = _lifetimeContainer,
                 Existing = existing,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,

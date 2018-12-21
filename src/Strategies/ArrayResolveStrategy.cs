@@ -35,17 +35,16 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
-            if (namedType is ContainerRegistration containerRegistration)
+            if (registration is ContainerRegistration containerRegistration)
             {
                 if (containerRegistration.RegisteredType != containerRegistration.MappedToType ||
                     null != injectionMembers && injectionMembers.Any(i => i is InjectionFactory))
                     return false;
             }
 
-            return namedType is InternalRegistration registration && null != registration.Type &&
-                   registration.Type.IsArray && registration.Type.GetArrayRank() == 1;
+            return null != registration.Type && registration.Type.IsArray && registration.Type.GetArrayRank() == 1;
         }
 
         #endregion

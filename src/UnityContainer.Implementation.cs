@@ -60,7 +60,7 @@ namespace Unity
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<INamedType, IPolicySet> Register;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<InternalRegistration, IPolicySet> Register;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal GetPolicyDelegate GetPolicy;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal SetPolicyDelegate SetPolicy;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal ClearPolicyDelegate ClearPolicy;
@@ -212,7 +212,7 @@ namespace Unity
             Set(type, name, policyInterface, policy);
         }
 
-        private IPolicySet CreateAndSetOrUpdate(INamedType registration)
+        private IPolicySet CreateAndSetOrUpdate(InternalRegistration registration)
         {
             lock (GetRegistration)
             {

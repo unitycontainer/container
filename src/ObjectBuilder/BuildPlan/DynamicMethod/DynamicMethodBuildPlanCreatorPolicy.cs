@@ -39,6 +39,8 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
             {
                 Existing = generatorContext,
                 Lifetime = context.Lifetime,
+                RegistrationType = context.RegistrationType,
+                RegistrationName = context.RegistrationName,
                 Registration = context.Registration,
                 Type = context.Type,
 

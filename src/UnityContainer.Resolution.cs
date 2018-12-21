@@ -119,10 +119,11 @@ namespace Unity
             {
                 try
                 {
+                    var type = typeof(TElement);
                     if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                        list.Add((TElement)context.Resolve(typeof(TElement), registration.Name));
+                        list.Add((TElement)context.Resolve(type, registration.Name));
                     else
-                        list.Add((TElement)context.Resolve(registration));
+                        list.Add((TElement)context.Resolve(type, registration.Name,registration));
                 }
                 catch (ArgumentException ex)
                 {

@@ -43,15 +43,17 @@ namespace Unity.Builder
 
         public object Existing { get; set; }
 
-        public object Resolve(Type type, string name) => Resolve((InternalRegistration)
-                ((UnityContainer)Container).GetRegistration(type, name));
+        public object Resolve(Type type, string name) => Resolve(type, name, 
+            (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
 
-        public object Resolve(InternalRegistration registration)
+        public object Resolve(Type type, string name, InternalRegistration registration)
         {
             var context = new BuilderContext
             {
                 Lifetime = Lifetime,
                 Registration = registration,
+                RegistrationType = type,
+                RegistrationName = name,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
 
                 list = list,
@@ -234,9 +236,9 @@ namespace Unity.Builder
 
         #region Registration
 
-        public Type RegistrationType => ((INamedType)Registration).Type;
+        public Type RegistrationType { get; set; }
 
-        public string RegistrationName => ((INamedType)Registration).Name;
+        public string RegistrationName { get; set; }
 
         public IPolicySet Registration { get; set; }
 

@@ -18,19 +18,11 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
-            switch (namedType)
-            {
-                case ContainerRegistration registration:
-                    return AnalyzeStaticRegistration(registration, injectionMembers);
-
-                case InternalRegistration registration:
-                    return AnalyseDynamicRegistration(registration);
-
-                default:
-                    return false;
-            }
+            return (registration is ContainerRegistration containerRegistration) 
+                ? AnalyzeStaticRegistration(containerRegistration, injectionMembers)
+                : AnalyseDynamicRegistration(registration);
         }
 
         private bool AnalyzeStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)

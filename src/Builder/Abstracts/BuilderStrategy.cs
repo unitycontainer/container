@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Builder
 {
@@ -47,7 +47,7 @@ namespace Unity.Builder
         /// <param name="registration">Reference to registration</param>
         /// <param name="injectionMembers"></param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RequiredToBuildType(IUnityContainer container, INamedType registration, params InjectionMember[] injectionMembers)
+        public virtual bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             return true;
         }
@@ -58,7 +58,7 @@ namespace Unity.Builder
         /// <param name="container">Reference to hosting container</param>
         /// <param name="registration">Reference to registration</param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
+        public virtual bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration)
         {
             return false;
         }

@@ -338,7 +338,7 @@ namespace Unity
 
         #region Registration manipulation
 
-        private IPolicySet AddOrUpdate(INamedType registration)
+        private IPolicySet AddOrUpdate(InternalRegistration registration)
         {
             var collisions = 0;
             var hashCode = (registration.Type?.GetHashCode() ?? 0) & 0x7FFFFFFF;

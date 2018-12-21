@@ -96,29 +96,26 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, INamedType namedType, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
-            if (namedType is InternalRegistration registration)
+            var policy = registration.Get(typeof(LifetimeManager));
+            if (null != policy)
             {
-                var policy = registration.Get(typeof(LifetimeManager));
-                if (null != policy)
-                {
-                    return policy is TransientLifetimeManager ? false : true;
-                }
+                return policy is TransientLifetimeManager ? false : true;
+            }
 
-                // Dynamic registration
-                if (!(registration is ContainerRegistration) &&
-                    null != registration.Type &&
-                    registration.Type.GetTypeInfo().IsGenericType)
-                {
-                    return true;
-                }
+            // Dynamic registration
+            if (!(registration is ContainerRegistration) &&
+                null != registration.Type &&
+                registration.Type.GetTypeInfo().IsGenericType)
+            {
+                return true;
             }
 
             return false;
         }
 
-        public override bool RequiredToResolveInstance(IUnityContainer container, INamedType registration)
+        public override bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration)
         {
             return true;
         }
