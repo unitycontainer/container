@@ -71,6 +71,16 @@ namespace Unity.Storage
         #endregion
 
 
+        #region Public Members
+
+        public RegistrationSet ToRegistrationSet(RegistrationSet seed)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
         #region IRegistry
 
         public TValue this[TKey key]
@@ -140,19 +150,20 @@ namespace Unity.Storage
             var targetBucket = hashCode % Buckets.Length;
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
-                var entry = Entries[i];
-                if (entry.HashCode != hashCode || Equals(entry.Key, key)) continue;
+                ref var candidate = ref Entries[i];
+                if (candidate.HashCode != hashCode || Equals(candidate.Key, key)) continue;
 
-                return Entries[i].Value;
+                return candidate.Value;
             }
 
             var value = factory();
-            Entries[Count].HashCode = hashCode;
-            Entries[Count].Next = Buckets[targetBucket];
-            Entries[Count].Key = key;
-            Entries[Count].Value = value;
-            Buckets[targetBucket] = Count;
-            Count++;
+            ref var entry = ref Entries[Count];
+            Buckets[targetBucket] = Count++;
+
+            entry.HashCode = hashCode;
+            entry.Next = Buckets[targetBucket];
+            entry.Key = key;
+            entry.Value = value;
 
             return value;
         }
@@ -163,20 +174,20 @@ namespace Unity.Storage
             var targetBucket = hashCode % Buckets.Length;
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
-                var entry = Entries[i];
-                if (entry.HashCode != hashCode || Equals(entry.Key, key)) continue;
+                ref var candidate = ref Entries[i];
+                if (candidate.HashCode != hashCode || Equals(candidate.Key, key)) continue;
 
-                var old = Entries[i].Value;
-                Entries[i].Value = value;
+                var old = candidate.Value;
+                candidate.Value = value;
                 return old;
             }
 
-            Entries[Count].HashCode = hashCode;
-            Entries[Count].Next = Buckets[targetBucket];
-            Entries[Count].Key = key;
-            Entries[Count].Value = value;
-            Buckets[targetBucket] = Count;
-            Count++;
+            ref var entry = ref Entries[Count];
+            entry.HashCode = hashCode;
+            entry.Next = Buckets[targetBucket];
+            entry.Key = key;
+            entry.Value = value;
+            Buckets[targetBucket] = Count++;
 
             return default(TValue);
         }

@@ -140,6 +140,8 @@ namespace Unity
         {
             get
             {
+                //var set = GetRegistrationSet(this);
+
                 var types = GetRegisteredTypes(this);
                 foreach (var type in types)
                 {
@@ -149,6 +151,21 @@ namespace Unity
                 }
             }
         }
+
+
+        private static RegistrationSet GetRegistrationSet(UnityContainer container)
+        {
+            lock (container._syncRoot)
+            {
+                var set = null != container._parent
+                    ? GetRegistrationSet(container._parent)
+                    : new RegistrationSet();
+
+                return null == container._registrations ? set
+                    : container._registrations.ToRegistrationSet(set);
+            }
+        }
+
 
         #endregion
 

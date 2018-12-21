@@ -79,7 +79,7 @@ namespace Unity.Storage
         #region ReverseHashSet methods
 
         /// <summary>
-        /// Add item to this HashSet. Later value replaces previosly set value
+        /// Add item to this HashSet. Later value replaces previously set value
         /// </summary>
         /// <param name="item"></param>
         public void Add(T item)
@@ -90,9 +90,10 @@ namespace Unity.Storage
 
             for (int i = _buckets[bucket]; --i >= 0; i = _slots[i].Next)
             {
-                if (_slots[i].HashCode == hashCode && Equals(_slots[i].Value, item))
+                ref var candidate = ref _slots[i];
+                if (candidate.HashCode == hashCode && Equals(candidate.Value, item))
                 {
-                    _slots[i].Value = item;
+                    candidate.Value = item;
                     return;
                 }
                 collisionCount++;
@@ -104,9 +105,10 @@ namespace Unity.Storage
                 bucket = hashCode % _buckets.Length;
             }
 
-            _slots[_count].HashCode = hashCode;
-            _slots[_count].Value = item;
-            _slots[_count].Next = _buckets[bucket];
+            ref var slot = ref _slots[_count];
+            slot.HashCode = hashCode;
+            slot.Value = item;
+            slot.Next = _buckets[bucket];
             _count++;
             _buckets[bucket] = _count;
         }
@@ -115,10 +117,11 @@ namespace Unity.Storage
         {
             for (var i = 0; i < _count; i++)
             {
+                ref var slot = ref _slots[_count];
+                slot.HashCode = 0;
+                slot.Value = default(T);
+                slot.Next = 0;
                 _buckets[i] = 0;
-                _slots[_count].HashCode = 0;
-                _slots[_count].Value = default(T);
-                _slots[_count].Next = 0;
             }
 
             _count = 0;

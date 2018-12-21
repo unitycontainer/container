@@ -7,9 +7,9 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
+
 
 namespace Unity
 {
@@ -18,7 +18,7 @@ namespace Unity
         #region Constants
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ContainerInitialCapacity = 37;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]  private const int ListToHashCutoverPoint = 8;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ListToHashCutoverPoint = 8;
 
         #endregion
 
@@ -39,12 +39,17 @@ namespace Unity
         public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             // Validate input
-            if (string.Empty == name) name = null; 
+            if (string.Empty == name) name = null;
             if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
-            if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance; 
+            if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
             if (lifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
                                     !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
+#else
+            if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
+                                    !typeFrom.IsAssignableFrom( typeTo))
+#endif
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                     Constants.TypesAreNotAssignable, typeFrom, typeTo), nameof(typeFrom));
@@ -56,7 +61,7 @@ namespace Unity
 
             // Add or replace existing 
             var previous = container.Register(registration);
-            if (previous is ContainerRegistration old && 
+            if (previous is ContainerRegistration old &&
                 old.LifetimeManager is IDisposable disposable)
             {
                 // Dispose replaced lifetime manager
@@ -75,7 +80,7 @@ namespace Unity
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies<BuilderContext, RegistrationContext>(
-                        registration.RegisteredType, registration.MappedToType, 
+                        registration.RegisteredType, registration.MappedToType,
                         registration.Name, ref context);
                 }
             }
@@ -85,9 +90,9 @@ namespace Unity
                                                  .Where(strategy => strategy.RequiredToBuildType(this, registration, injectionMembers))
                                                  .ToArray();
             // Raise event
-            container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType, 
+            container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType,
                                                                       registration.MappedToType,
-                                                                      registration.Name, 
+                                                                      registration.Name,
                                                                       registration.LifetimeManager));
             return this;
         }
@@ -159,7 +164,7 @@ namespace Unity
 
         #region Check Registration
 
-        public bool IsRegistered(Type type, string name) => 
+        public bool IsRegistered(Type type, string name) =>
             ReferenceEquals(string.Empty, name) ? _isTypeExplicitlyRegistered(type)
                                                 : _isExplicitlyRegistered(type, name);
 
@@ -169,13 +174,14 @@ namespace Unity
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode ||
+                    candidate.Key != type)
                 {
                     continue;
                 }
 
-                var registry = _registrations.Entries[i].Value;
+                var registry = candidate.Value;
                 return registry?[name] is IContainerRegistration ||
                        (_parent?.IsRegistered(type, name) ?? false);
             }
@@ -189,16 +195,17 @@ namespace Unity
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode ||
+                    candidate.Key != type)
                 {
                     continue;
                 }
 
-                return _registrations.Entries[i].Value
+                return candidate.Value
                            .Values
                            .Any(v => v is IContainerRegistration) ||
-                       (_parent?._isTypeExplicitlyRegistered(type) ?? false); 
+                       (_parent?._isTypeExplicitlyRegistered(type) ?? false);
             }
 
             return _parent?._isTypeExplicitlyRegistered(type) ?? false;
@@ -217,13 +224,14 @@ namespace Unity
                 var targetBucket = hashCode % container._registrations.Buckets.Length;
                 for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
                 {
-                    if (container._registrations.Entries[i].HashCode != hashCode ||
-                        container._registrations.Entries[i].Key != type)
+                    ref var candidate = ref container._registrations.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key != type)
                     {
                         continue;
                     }
 
-                    var registry = container._registrations.Entries[i].Value;
+                    var registry = candidate.Value;
 
                     if (null != registry[name]) return true;
                     if (null == defaultRegistration) defaultRegistration = registry[string.Empty];
@@ -234,10 +242,16 @@ namespace Unity
             if (null != defaultRegistration) return true;
             if (null != noNameRegistration) return true;
 
+#if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
             if (!info.IsGenericType) return false;
 
             type = info.GetGenericTypeDefinition();
+#else
+            if (!type.IsGenericType) return false;
+
+            type = type.GetGenericTypeDefinition();
+#endif
             hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             for (var container = this; null != container; container = container._parent)
             {
@@ -246,13 +260,14 @@ namespace Unity
                 var targetBucket = hashCode % container._registrations.Buckets.Length;
                 for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
                 {
-                    if (container._registrations.Entries[i].HashCode != hashCode ||
-                        container._registrations.Entries[i].Key != type)
+                    ref var candidate = ref container._registrations.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key != type)
                     {
                         continue;
                     }
 
-                    var registry = container._registrations.Entries[i].Value;
+                    var registry = candidate.Value;
 
                     if (null != registry[name]) return true;
                     if (null == defaultRegistration) defaultRegistration = registry[string.Empty];
@@ -272,7 +287,7 @@ namespace Unity
 
         private ISet<Type> GetRegisteredTypes(UnityContainer container)
         {
-            var set = null == container._parent ? new HashSet<Type>() 
+            var set = null == container._parent ? new HashSet<Type>()
                                                 : GetRegisteredTypes(container._parent);
 
             if (null == container._registrations) return set;
@@ -293,14 +308,14 @@ namespace Unity
 
             if (null != container._parent)
                 set = (MiniHashSet<IContainerRegistration>)GetRegisteredType(container._parent, type);
-            else 
+            else
                 set = new MiniHashSet<IContainerRegistration>();
 
             if (null == container._registrations) return set;
 
             var section = container.Get(type)?.Values;
             if (null == section) return set;
-            
+
             foreach (var namedType in section)
             {
                 if (namedType is IContainerRegistration registration)
@@ -321,13 +336,14 @@ namespace Unity
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode ||
+                    candidate.Key != type)
                 {
                     continue;
                 }
 
-                return _registrations.Entries[i].Value;
+                return candidate.Value;
             }
 
             return null;
@@ -347,14 +363,15 @@ namespace Unity
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != registration.Type)
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key != registration.Type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = _registrations.Entries[i].Value;
+                    var existing = candidate.Value;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry<string, IPolicySet> registry
@@ -364,7 +381,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.SetOrReplace(registration.Name, (IPolicySet)registration);
+                    return existing.SetOrReplace(registration.Name, registration);
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
@@ -373,12 +390,12 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = registration.Type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(registration.Name, (IPolicySet)registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
+                ref var entry = ref _registrations.Entries[_registrations.Count];
+                entry.HashCode = hashCode;
+                entry.Next = _registrations.Buckets[targetBucket];
+                entry.Key = registration.Type;
+                entry.Value = new LinkedRegistry(registration.Name, registration);
+                _registrations.Buckets[targetBucket] = _registrations.Count++;
 
                 return null;
             }
@@ -392,35 +409,34 @@ namespace Unity
 
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode || candidate.Key != type)
                 {
                     continue;
                 }
 
-                var policy = _registrations.Entries[i].Value?[name];
-                if (null != policy) return policy; 
+                var policy = candidate.Value?[name];
+                if (null != policy) return policy;
             }
 
             lock (_syncRoot)
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Key != type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = _registrations.Entries[i].Value;
+                    var existing = candidate.Value;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry<string, IPolicySet> registry
                                  ? new HashRegistry<string, IPolicySet>(registry)
                                  : new HashRegistry<string, IPolicySet>(LinkedRegistry.ListToHashCutoverPoint * 2,
                                                                                        (LinkedRegistry)existing);
-
                         _registrations.Entries[i].Value = existing;
                     }
 
@@ -434,12 +450,12 @@ namespace Unity
                 }
 
                 var registration = CreateRegistration(type, name);
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
+                ref var entry = ref _registrations.Entries[_registrations.Count];
+                entry.HashCode = hashCode;
+                entry.Next = _registrations.Buckets[targetBucket];
+                entry.Key = type;
+                entry.Value = new LinkedRegistry(name, registration);
+                _registrations.Buckets[targetBucket] = _registrations.Count++;
                 return registration;
             }
         }
@@ -456,13 +472,13 @@ namespace Unity
                 targetBucket = hashCode % _registrations.Buckets.Length;
                 for (var j = _registrations.Buckets[targetBucket]; j >= 0; j = _registrations.Entries[j].Next)
                 {
-                    if (_registrations.Entries[j].HashCode != hashCode ||
-                        _registrations.Entries[j].Key != definition)
+                    ref var candidate = ref _registrations.Entries[j];
+                    if (candidate.HashCode != hashCode || candidate.Key != definition)
                     {
                         continue;
                     }
 
-                    if (null != _registrations.Entries[j].Value?[name]) break;
+                    if (null != candidate.Value?[name]) break;
 
                     return _parent._getGenericRegistration(type, name, definition);
                 }
@@ -475,14 +491,14 @@ namespace Unity
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Key != type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = _registrations.Entries[i].Value;
+                    var existing = candidate.Value;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry<string, IPolicySet> registry
@@ -503,12 +519,12 @@ namespace Unity
                 }
 
                 var registration = CreateRegistration(type, name);
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
+                ref var entry = ref _registrations.Entries[_registrations.Count];
+                entry.HashCode = hashCode;
+                entry.Next = _registrations.Buckets[targetBucket];
+                entry.Key = type;
+                entry.Value = new LinkedRegistry(name, registration);
+                _registrations.Buckets[targetBucket] = _registrations.Count++;
                 return registration;
             }
 
@@ -521,13 +537,13 @@ namespace Unity
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode || candidate.Key != type)
                 {
                     continue;
                 }
 
-                return _registrations.Entries[i].Value?[name];
+                return candidate.Value?[name];
             }
 
             return null;
@@ -542,14 +558,14 @@ namespace Unity
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Key != type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = _registrations.Entries[i].Value;
+                    var existing = candidate.Value;
                     if (existing.RequireToGrow)
                     {
                         existing = existing is HashRegistry<string, IPolicySet> registry
@@ -570,12 +586,12 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, value);
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
+                ref var entry = ref _registrations.Entries[_registrations.Count];
+                entry.HashCode = hashCode;
+                entry.Next = _registrations.Buckets[targetBucket];
+                entry.Key = type;
+                entry.Value = new LinkedRegistry(name, value);
+                _registrations.Buckets[targetBucket] = _registrations.Count++;
             }
         }
 
@@ -591,13 +607,13 @@ namespace Unity
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode || candidate.Key != type)
                 {
                     continue;
                 }
 
-                policy = _registrations.Entries[i].Value?[name]?.Get(policyInterface);
+                policy = candidate.Value?[name]?.Get(policyInterface);
                 break;
             }
 
@@ -613,14 +629,14 @@ namespace Unity
             {
                 for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
                 {
-                    if (_registrations.Entries[i].HashCode != hashCode ||
-                        _registrations.Entries[i].Key != type)
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Key != type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = _registrations.Entries[i].Value;
+                    var existing = candidate.Value;
                     var policySet = existing[name];
                     if (null != policySet)
                     {
@@ -649,12 +665,12 @@ namespace Unity
                 }
 
                 var registration = CreateRegistration(type, name, policyInterface, policy);
-                _registrations.Entries[_registrations.Count].HashCode = hashCode;
-                _registrations.Entries[_registrations.Count].Next = _registrations.Buckets[targetBucket];
-                _registrations.Entries[_registrations.Count].Key = type;
-                _registrations.Entries[_registrations.Count].Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count;
-                _registrations.Count++;
+                ref var entry = ref _registrations.Entries[_registrations.Count];
+                entry.HashCode = hashCode;
+                entry.Next = _registrations.Buckets[targetBucket];
+                entry.Key = type;
+                entry.Value = new LinkedRegistry(name, registration);
+                _registrations.Buckets[targetBucket] = _registrations.Count++;
             }
         }
 
@@ -664,13 +680,13 @@ namespace Unity
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
             {
-                if (_registrations.Entries[i].HashCode != hashCode ||
-                    _registrations.Entries[i].Key != type)
+                ref var candidate = ref _registrations.Entries[i];
+                if (candidate.HashCode != hashCode || candidate.Key != type)
                 {
                     continue;
                 }
 
-                _registrations.Entries[i].Value?[name]?.Clear(policyInterface);
+                candidate.Value?[name]?.Clear(policyInterface);
                 return;
             }
         }

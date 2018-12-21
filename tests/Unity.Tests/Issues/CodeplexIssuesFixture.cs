@@ -103,23 +103,6 @@ namespace Unity.Tests.v5.Issues
             Assert.AreEqual(expected, result);
         }
 
-        // http://unity.codeplex.com/WorkItem/View.aspx?WorkItemId=6053
-        [TestMethod]
-        public void ResolveAllWithChildDoesNotRepeatOverriddenRegistrations()
-        {
-            var parent = new UnityContainer()
-                .RegisterInstance("str1", "string1")
-                .RegisterInstance("str2", "string2");
-
-            var child = parent.CreateChildContainer()
-                .RegisterInstance("str2", "string20")
-                .RegisterInstance("str3", "string30");
-
-            var result = child.ResolveAll<string>();
-
-            CollectionAssert.AreEquivalent(new[] { "string1", "string20", "string30" }, result.ToArray());
-        }
-
         // http://unity.codeplex.com/WorkItem/View.aspx?WorkItemId=6997
         [TestMethod]
         public void IsRegisteredReturnsCorrectValue()
