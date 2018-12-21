@@ -33,24 +33,25 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = context.Get<LifetimeManager>(context.Registration.Type, 
-                                                      context.Registration.Name);
+                policy = (LifetimeManager)context.Get(context.RegistrationType, 
+                                                      context.RegistrationName, 
+                                                      typeof(LifetimeManager));
             if (null == policy)
             {
-                if (context.Registration.Type.GetTypeInfo().IsGenericType)
+                if (context.RegistrationType.GetTypeInfo().IsGenericType)
                 {
-                    policy = context.Get<LifetimeManager>(context.Type.GetGenericTypeDefinition(),
-                                                          context.Name);
+                    policy = (LifetimeManager)context.Get(context.Type.GetGenericTypeDefinition(),
+                                                          context.Name, typeof(LifetimeManager));
                     if (policy is LifetimeManager lifetimeManager)
                     {
                         lock (_genericLifetimeManagerLock)
                         {
                             // check whether the policy for closed-generic has been added since first checked
-                            policy = (LifetimeManager)((IPolicySet)context.Registration).Get(typeof(LifetimeManager));
+                            policy = (LifetimeManager)context.Registration.Get(typeof(LifetimeManager));
                             if (null == policy)
                             {
                                 policy = lifetimeManager.CreateLifetimePolicy();
-                                ((IPolicySet)context.Registration).Set(typeof(LifetimeManager), policy);
+                                context.Registration.Set(typeof(LifetimeManager), policy);
 
                                 if (policy is IDisposable)
                                 {
@@ -83,8 +84,9 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = context.Get<LifetimeManager>(context.Registration.Type,
-                                                      context.Registration.Name);
+                policy = (LifetimeManager)context.Get(context.RegistrationType,
+                                                      context.RegistrationName, 
+                                                      typeof(LifetimeManager));
 
             policy?.SetValue(context.Existing, context.Lifetime);
         }

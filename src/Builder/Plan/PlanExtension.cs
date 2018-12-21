@@ -41,8 +41,8 @@ namespace Unity.Builder
             {
                 context.RequiresRecovery?.Recover();
                 // TODO: 5.9.0 Add proper error message
-                throw new ResolutionFailedException(context.Registration.Type,
-                    context.Registration.Name,
+                throw new ResolutionFailedException(context.RegistrationType,
+                    context.RegistrationName,
                     "", ex);
             }
 

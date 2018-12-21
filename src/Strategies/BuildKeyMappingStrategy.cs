@@ -74,10 +74,10 @@ namespace Unity.Strategies
                 registration.RegisteredType == registration.MappedToType)
                 return;
                 
-            IBuildKeyMappingPolicy policy = ((IPolicySet)context.Registration).Get<IBuildKeyMappingPolicy>() 
-                                          ?? (context.Registration.Type.GetTypeInfo().IsGenericType 
-                                          ? context.Get<IBuildKeyMappingPolicy>(context.Registration.Type.GetGenericTypeDefinition(), 
-                                                                                context.Registration.Name) 
+            IBuildKeyMappingPolicy policy = context.Registration.Get<IBuildKeyMappingPolicy>() 
+                                          ?? (context.RegistrationType.GetTypeInfo().IsGenericType 
+                                          ? (IBuildKeyMappingPolicy)context.Get(context.RegistrationType.GetGenericTypeDefinition(), 
+                                                                                context.RegistrationName, typeof(IBuildKeyMappingPolicy)) 
                                           : null);
             if (null == policy) return;
 
@@ -88,7 +88,7 @@ namespace Unity.Strategies
                 var type = context.Type;
                 var name = context.Name;
 
-                ((IPolicySet)context.Registration).Set(typeof(IBuildPlanPolicy), 
+                context.Registration.Set(typeof(IBuildPlanPolicy), 
                     new DynamicMethodBuildPlan((ResolveDelegate<BuilderContext>) ResolveDelegate));
 
                 object ResolveDelegate(ref BuilderContext c) => c.Existing = c.Resolve(type, name);
@@ -98,9 +98,9 @@ namespace Unity.Strategies
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            if (((IPolicySet)context.Registration) is InternalRegistration registration && 
+            if (context.Registration is InternalRegistration registration && 
                 null != registration.BuildChain &&
-                null != ((IPolicySet)context.Registration).Get<IBuildPlanPolicy>())
+                null != context.Registration.Get<IBuildPlanPolicy>())
             {
                 var chain = new List<BuilderStrategy>();
                 var strategies = registration.BuildChain;

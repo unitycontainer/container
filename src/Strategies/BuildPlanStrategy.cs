@@ -23,30 +23,31 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(ref BuilderContext context)
         {
-            var resolver = ((IPolicySet)context.Registration).Get<ResolveDelegate<BuilderContext>>();
+            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (null == resolver)
             {
                 // Legacy support
-                var plan = ((IPolicySet)context.Registration).Get<IBuildPlanPolicy>() ?? 
+                // TODO: Verify and optimize getting default
+                var plan = context.Registration.Get<IBuildPlanPolicy>() ?? 
                            (IBuildPlanPolicy)(
-                               context.Get<IBuildPlanPolicy>(context.Type, string.Empty) ??
+                               context.Get(context.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
                                GetGeneric(ref context, typeof(IBuildPlanPolicy),
-                                   context.Registration.Type, context.Registration.Name));
+                                   context.RegistrationType, context.RegistrationName));
 
                 if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
                 {
-                    var planCreator = ((IPolicySet)context.Registration).Get<IBuildPlanCreatorPolicy>() ?? 
-                                      CheckIfOpenGeneric((IPolicySet)context.Registration) ??
-                                      GetPolicy<IBuildPlanCreatorPolicy>(ref context, context.Type, context.Name);
+                    var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? 
+                                      CheckIfOpenGeneric(context.Registration) ??
+                                      Get_Policy<IBuildPlanCreatorPolicy>(ref context, context.Type, context.Name);
 
                     if (planCreator != null)
                     {
                         plan = planCreator.CreatePlan(ref context, context.Type, context.Name);
 
                         if (plan is IResolve policy)
-                            ((IPolicySet)context.Registration).Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
+                            context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
                         else
-                            ((IPolicySet)context.Registration).Set(typeof(IBuildPlanPolicy), plan);
+                            context.Registration.Set(typeof(IBuildPlanPolicy), plan);
                     }
                     else
                         throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy");
@@ -65,16 +66,20 @@ namespace Unity.Strategies
 
         #region Implementation
 
-        public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
+        protected static TPolicyInterface Get_Policy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
         {
             return (TPolicyInterface)(GetGeneric(ref context, typeof(TPolicyInterface), type, name) ??
                                       context.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
         }
 
-        private static object GetGeneric(ref BuilderContext context, Type policyInterface, Type type, string name)
+        protected static object GetGeneric(ref BuilderContext context, Type policyInterface, Type type, string name)
         {
             // Check if generic
+#if NETCOREAPP1_0 || NETSTANDARD1_0
             if (type.GetTypeInfo().IsGenericType)
+#else
+            if (type.IsGenericType)
+#endif
             {
                 var newType = type.GetGenericTypeDefinition();
                 return context.Get(newType, name, policyInterface) ??
@@ -84,12 +89,16 @@ namespace Unity.Strategies
             return null;
         }
 
-        private static IBuildPlanCreatorPolicy CheckIfOpenGeneric(IPolicySet namedType)
+        protected static IBuildPlanCreatorPolicy CheckIfOpenGeneric(IPolicySet namedType)
         {
-            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) && 
+            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) &&
+#if NETCOREAPP1_0 || NETSTANDARD1_0
                 null != registration.Type && registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+#else
+                null != registration.Type && registration.Type.IsGenericTypeDefinition)
+#endif
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, 
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                     Constants.CannotResolveOpenGenericType, registration.Type.FullName));
             }
 

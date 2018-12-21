@@ -25,8 +25,8 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = context.GetPolicy<IPropertySelectorPolicy>(context.Registration.Type, 
-                                                                      context.Registration.Name);
+            var selector = GetPolicy<IPropertySelectorPolicy>(ref context, 
+                context.RegistrationType, context.RegistrationName);
 
             foreach (var property in selector.SelectProperties(ref context))
             {
@@ -43,7 +43,7 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(propertyInfo, 
-                                                                     context.Registration.Name, 
+                                                                     context.RegistrationName, 
                                                                      AttributeResolverFactory.CreateResolver(propertyInfo))),
                                 Expression.Call(
                                     Expression.Convert(
@@ -62,7 +62,7 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(selectedProperty.Property, 
-                                                                     context.Registration.Name, 
+                                                                     context.RegistrationName, 
                                                                      selectedProperty.Resolver)),
                                 Expression.Call(
                                     Expression.Convert(
@@ -82,7 +82,7 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(info, 
-                                                                     context.Registration.Name, 
+                                                                     context.RegistrationName, 
                                                                      value)),
                                 Expression.Call(
                                     Expression.Convert(

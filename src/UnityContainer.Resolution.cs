@@ -276,13 +276,12 @@ namespace Unity
         private static void AddContextDetails(StringBuilder builder, ref BuilderContext context, int depth)
         {
             var indentation = new string(' ', depth * 2);
-            var originalKey = context.Registration;
 
             builder.Append(indentation);
 
-            builder.Append(context.Type == context.Registration.Type
+            builder.Append(context.Type == context.RegistrationType
                 ? $"Resolving {context.Type},{FormatName(context.Name)}"
-                : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {originalKey.Type}, {FormatName(originalKey.Name)})");
+                : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {context.RegistrationType}, {FormatName(context.RegistrationName)})");
 
             builder.AppendLine();
 

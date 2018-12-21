@@ -42,14 +42,14 @@ namespace Unity.Policy.BuildPlanCreator
             var name = context.Name;
             context.Existing = new Lazy<T>(() => container.Resolve<T>(name));
 
-            var lifetime = context.GetPolicy<LifetimeManager>(
-                context.Registration.Type, context.Registration.Name);
+            var lifetime = BuilderStrategy.GetPolicy<LifetimeManager>(ref context,
+                context.RegistrationType, context.RegistrationName);
 
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-                context.Set<LifetimeManager>(
-                    context.Registration.Type, context.Registration.Name, perBuildLifetime);
+                context.Set(context.RegistrationType, context.RegistrationName, 
+                    typeof(LifetimeManager), perBuildLifetime);
             }
 
             return context.Existing;

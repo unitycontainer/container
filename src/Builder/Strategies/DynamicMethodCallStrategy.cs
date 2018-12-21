@@ -30,7 +30,8 @@ namespace Unity.Builder.Strategies
         public override void PreBuildUp(ref BuilderContext context)
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
-            var selector = context.GetPolicy<IMethodSelectorPolicy>(context.Registration.Type, context.Registration.Name);
+            var selector = GetPolicy<IMethodSelectorPolicy>(ref context, 
+                context.RegistrationType, context.RegistrationName);
 
             foreach (var selection in selector.SelectMethods(ref context))
             {

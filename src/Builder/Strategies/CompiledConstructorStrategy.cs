@@ -67,7 +67,9 @@ namespace Unity.Builder.Strategies
                     ValidateConstructedType(ref context) ??
                     CreateInstanceBuildupExpression(ref context)));
 
-            var policy = context.Get<LifetimeManager>(context.Registration.Type, context.Registration.Name);
+            var policy = (LifetimeManager)context.Get(context.RegistrationType, 
+                                                      context.RegistrationName, 
+                                                      typeof(LifetimeManager));
             if (policy is PerResolveLifetimeManager)
             {
                 buildContext.AddToBuildPlan(
@@ -166,8 +168,8 @@ namespace Unity.Builder.Strategies
 
         private Expression CreateInstanceBuildupExpression(ref BuilderContext context)
         {
-            var selector = context.GetPolicy<IConstructorSelectorPolicy>(
-                context.Registration.Type, context.Registration.Name);
+            var selector = GetPolicy<IConstructorSelectorPolicy>(ref context,
+                context.RegistrationType, context.RegistrationName);
 
             if (null == selector)
             {
@@ -226,7 +228,7 @@ namespace Unity.Builder.Strategies
         {
             if (parameters.Any(p => p.ParameterType == target))
             {
-                var policy = context.Get<LifetimeManager>(context.Type, context.Name);
+                var policy = (LifetimeManager)context.Get(context.Type, context.Name, typeof(LifetimeManager));
                 if (null == policy?.GetValue())
                     return true;
             }
@@ -251,7 +253,7 @@ namespace Unity.Builder.Strategies
         public static void SetPerBuildSingleton(ref BuilderContext context)
         {
             var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-            context.Set<LifetimeManager>(context.Registration.Type, context.Registration.Name, perBuildLifetime);
+            context.Set(context.RegistrationType, context.RegistrationName, typeof(LifetimeManager), perBuildLifetime);
         }
 
         #endregion

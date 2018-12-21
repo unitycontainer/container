@@ -12,8 +12,6 @@ namespace Unity.Builder
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
-#if !NETSTANDARD1_0 && !NETCOREAPP1_0 && !NETCOREAPP2_0
-#endif
     [SecuritySafeCritical]
     [DebuggerDisplay("Resolving: {Registration.Type},  Name: {Registration.Name}")]
     public struct BuilderContext : IResolveContext
@@ -26,16 +24,20 @@ namespace Unity.Builder
         #endregion
 
 
-        #region INamedType
+        #region Public Members
 
-        public Type Type { get; set; }
+        public ILifetimeContainer Lifetime;
 
-        public string Name => Registration.Name;
+        public SynchronizedLifetimeManager RequiresRecovery;
+
+        public bool BuildComplete;
+
+        public Type DeclaringType { get; private set; }
 
         #endregion
 
 
-        #region IResolveContext
+        #region ResolveContext
 
         public IUnityContainer Container => Lifetime.Container;
 
@@ -54,7 +56,7 @@ namespace Unity.Builder
 
                 list = list,
                 ResolverOverrides = ResolverOverrides,
-                Parent = Registration
+                DeclaringType = RegistrationType
             };
 
             return registration.BuildChain.ExecuteReThrowingPlan(ref context);
@@ -230,29 +232,29 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Public Members
+        #region Registration
 
-        public ILifetimeContainer Lifetime;
+        public Type RegistrationType => ((INamedType)Registration).Type;
 
-        public INamedType Registration;
+        public string RegistrationName => ((INamedType)Registration).Name;
 
-        public SynchronizedLifetimeManager RequiresRecovery;
-
-        public bool BuildComplete;
-
-        public INamedType Parent { get; private set; } 
+        public IPolicySet Registration { get; set; }
 
         #endregion
 
 
-        #region  Policies
+        #region Build
+
+        public Type Type { get; set; }
+
+        public string Name => RegistrationName;
 
         public object Get(Type type, string name, Type policyInterface)
         {
             return list.Get(type, name, policyInterface) ??
-                   (type != Registration.Type || name != Registration.Name
+                   (type != RegistrationType || name != RegistrationName
                        ? ((UnityContainer)Container).GetPolicy(type, name, policyInterface)
-                       : ((IPolicySet)Registration).Get(policyInterface));
+                       : Registration.Get(policyInterface));
         }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
@@ -264,7 +266,7 @@ namespace Unity.Builder
         {
             list.Clear(type, name, policyInterface);
         }
-
+       
         #endregion
     }
 }

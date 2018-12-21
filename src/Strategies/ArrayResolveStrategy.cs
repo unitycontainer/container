@@ -55,10 +55,10 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(ref BuilderContext context)
         {
-            var plan = ((IPolicySet)context.Registration).Get<ResolveDelegate<BuilderContext>>();
+            var plan = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (plan == null)
             {
-                var typeArgument = context.Registration.Type.GetElementType();
+                var typeArgument = context.RegistrationType.GetElementType();
                 var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
 
                 if (type != typeArgument)
@@ -75,7 +75,7 @@ namespace Unity.Strategies
                         .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
                 }
 
-                ((IPolicySet)context.Registration).Set(typeof(ResolveDelegate<BuilderContext>), plan);
+                context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), plan);
             }
 
             context.Existing = plan(ref context);

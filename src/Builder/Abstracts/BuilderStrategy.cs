@@ -1,4 +1,6 @@
-﻿using Unity.Injection;
+﻿using System;
+using System.Reflection;
+using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Builder
@@ -60,6 +62,44 @@ namespace Unity.Builder
         {
             return false;
         }
+
+        #endregion
+
+
+        #region Implementation
+
+        public static TPolicyInterface GetPolicyOrDefault<TPolicyInterface>(ref BuilderContext context, Type type, string name)
+        {
+            return (TPolicyInterface)(GetNamedPolicy(ref context, type, name) ??
+                                      GetNamedPolicy(ref context, type, string.Empty));
+
+            object GetNamedPolicy(ref BuilderContext c, Type t, string n)
+            {
+                return (c.Get(t, n, typeof(TPolicyInterface)) ?? (
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                    t.GetTypeInfo().IsGenericType
+#else
+                    t.IsGenericType
+#endif
+                    ? c.Get(t.GetGenericTypeDefinition(), n, typeof(TPolicyInterface)) ?? c.Get(null, null, typeof(TPolicyInterface))
+                    : c.Get(null, null, typeof(TPolicyInterface))));
+            }
+        }
+
+
+        public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
+        {
+            return (TPolicyInterface)
+            (context.Get(type, name, typeof(TPolicyInterface)) ?? (
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                type.GetTypeInfo().IsGenericType
+#else
+                type.IsGenericType
+#endif
+                ? context.Get(type.GetGenericTypeDefinition(), name, typeof(TPolicyInterface)) ?? context.Get(null, null, typeof(TPolicyInterface))
+                : context.Get(null, null, typeof(TPolicyInterface))));
+        }
+
 
         #endregion
     }

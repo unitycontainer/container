@@ -11,8 +11,8 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = context.GetPolicy<IFieldSelectorPolicy>(context.Registration.Type,
-                context.Registration.Name);
+            var selector = GetPolicy<IFieldSelectorPolicy>(ref context, 
+                context.RegistrationType, context.RegistrationName);
 
         }
 

@@ -37,7 +37,7 @@ namespace Unity.Tests.v5.TestDoubles
 
         private void UpdateSpyPolicy(ref BuilderContext context)
         {
-            SpyPolicy policy = context.Get<SpyPolicy>(null, null);
+            SpyPolicy policy = (SpyPolicy)context.Get(null, null, typeof(SpyPolicy));
 
             if (policy != null)
             {
