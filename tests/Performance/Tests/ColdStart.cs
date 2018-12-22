@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Runner.Setup;
 using System.Collections.Generic;
+using System.Linq;
 using Unity;
 
 namespace Runner.Tests
@@ -41,6 +42,10 @@ namespace Runner.Tests
 
         [Benchmark]
         public object Enumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
+
+
+        [Benchmark]
+        public object Registrations() => _container.Registrations.ToArray();
     }
 
     public interface IService { }

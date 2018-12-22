@@ -71,16 +71,6 @@ namespace Unity.Storage
         #endregion
 
 
-        #region Public Members
-
-        public RegistrationSet ToRegistrationSet(RegistrationSet seed)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
         #region IRegistry
 
         public TValue this[TKey key]

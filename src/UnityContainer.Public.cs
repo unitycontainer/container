@@ -140,8 +140,6 @@ namespace Unity
         {
             get
             {
-                //var set = GetRegistrationSet(this);
-
                 var types = GetRegisteredTypes(this);
                 foreach (var type in types)
                 {
@@ -155,15 +153,44 @@ namespace Unity
 
         private static RegistrationSet GetRegistrationSet(UnityContainer container)
         {
-            lock (container._syncRoot)
-            {
-                var set = null != container._parent
-                    ? GetRegistrationSet(container._parent)
-                    : new RegistrationSet();
+            var seed = null != container._parent
+                ? GetRegistrationSet(container._parent)
+                : new RegistrationSet();
+                
+            if (null == container._registrations) return seed;
 
-                return null == container._registrations ? set
-                    : container._registrations.ToRegistrationSet(set);
+            var length = container._registrations.Count;
+            var entries = container._registrations.Entries;
+
+            for (var i = 0; i < length; i++)
+            {
+                ref var entry = ref entries[i];
+                var registry = entry.Value;
+
+                switch (registry)
+                {
+                    case LinkedRegistry linkedRegistry:
+                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                            if (node.Value is ContainerRegistration) seed.Add(entry.Key, node.Key, node.Value);
+
+                        break;
+
+                    case HashRegistry<string, IPolicySet> hashRegistry:
+                        var count = hashRegistry.Count;
+                        var nodes = hashRegistry.Entries;
+                        for (var j = 0; j < count; j++)
+                        {
+                            ref var refNode = ref nodes[j];
+                            if (refNode.Value is ContainerRegistration) seed.Add(entry.Key, refNode.Key, refNode.Value);
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Unknown type of registry");
+                }
             }
+
+            return seed;
         }
 
 

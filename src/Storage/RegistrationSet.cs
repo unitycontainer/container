@@ -1,16 +1,18 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Utility;
 
 namespace Unity.Storage
 {
-    public class RegistrationSet 
+    public class RegistrationSet : IEnumerable<IContainerRegistration> 
     {
         #region Fields
 
         private const int InitialCapacity = 11;
         private int[] _buckets;
         private Entry[] _entries;
-        public int Count;
+        private int Count;
 
         #endregion
 
@@ -67,6 +69,9 @@ namespace Unity.Storage
 
         #endregion
 
+
+        #region Implementation
+
         private void IncreaseCapacity()
         {
             int newSize = HashHelpers.ExpandPrime(Count * 2);
@@ -86,10 +91,47 @@ namespace Unity.Storage
             _buckets = newBuckets;
         }
 
+        public IEnumerator<IContainerRegistration> GetEnumerator()
+        {
+            for (var i = 0; i < Count; i++)
+            {
+                var pilicySet = (Registration.ContainerRegistration)_entries[i].Registration;
+                ContainerRegistration registration = new ContainerRegistration
+                {
+                    RegisteredType  = _entries[i].Type,
+                    Name            = _entries[i].Name,
+                    MappedToType    = pilicySet.MappedToType,
+                    LifetimeManager = pilicySet.LifetimeManager,
+                };
+
+                yield return registration;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
 
         #region Nested Types
 
-        public struct Entry
+
+        private struct ContainerRegistration : IContainerRegistration
+        {
+            public Type RegisteredType { get; internal set; }
+
+            public string Name { get; internal set; }
+
+            public Type MappedToType { get; internal set; }
+
+            public LifetimeManager LifetimeManager { get; internal set; }
+        }
+
+
+        private struct Entry
         {
             public int HashCode;
             public int Next;
