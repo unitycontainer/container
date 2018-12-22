@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Unity.Registration;
 using Unity.Utility;
 
 namespace Unity.Storage
 {
+    [DebuggerDisplay("IEnumerable<IContainerRegistration> ({Count}) ")]
+    [DebuggerTypeProxy(typeof(RegistrationSetDebugProxy))]
     public class RegistrationSet : IEnumerable<IContainerRegistration> 
     {
         #region Fields
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private const int InitialCapacity = 11;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private int[] _buckets;
         private Entry[] _entries;
         private int Count;
@@ -34,11 +40,10 @@ namespace Unity.Storage
 
         public void Add(Type type, string name, ContainerRegistration registration)
         {
-            var hashCode = (type, name).GetHashCode() & 0x7FFFFFFF;
+            var hashCode = GetHashCode(type, name);
             var bucket = hashCode % _buckets.Length;
             var collisionCount = 0;
-            var index = _buckets[bucket];
-            for (int i = index; --i >= 0; i = _entries[i].Next)
+            for (var i = _buckets[bucket]; i >= 0; i = _entries[i].Next)
             {
                 ref var entry = ref _entries[i];
                 if (entry.HashCode == hashCode && entry.RegisteredType == type)
@@ -66,14 +71,18 @@ namespace Unity.Storage
             newEntry.Name = name;
             newEntry.MappedToType = registration.MappedToType;
             newEntry.LifetimeManager = registration.LifetimeManager;
-            newEntry.Next = index;
+            newEntry.Next = _buckets[bucket];
         }
-
 
         #endregion
 
 
         #region Implementation
+
+        public int GetHashCode(Type type, string name = null)
+        {
+            return ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)) & 0x7FFFFFFF; ;
+        }
 
         private void IncreaseCapacity()
         {
@@ -112,6 +121,7 @@ namespace Unity.Storage
 
         #region Nested Types
 
+        [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
         private struct Entry : IContainerRegistration
         {
             internal int HashCode;
@@ -125,6 +135,24 @@ namespace Unity.Storage
 
             public string Name { get; internal set; }
         }
+
+        private class RegistrationSetDebugProxy  
+        {
+            private readonly RegistrationSet _set;
+
+            public RegistrationSetDebugProxy(RegistrationSet set)
+            {
+                _set = set;
+            }
+
+            public int Count => _set.Count;
+
+            public IContainerRegistration[] Entries => _set._entries
+                                                           .Cast<IContainerRegistration>()
+                                                           .Take(_set.Count)
+                                                           .ToArray();
+        }
+
 
         #endregion
     }

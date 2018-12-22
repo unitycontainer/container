@@ -156,7 +156,7 @@ namespace Unity
             var seed = null != container._parent
                 ? GetRegistrationSet(container._parent)
                 : new RegistrationSet();
-                
+
             if (null == container._registrations) return seed;
 
             var length = container._registrations.Count;
