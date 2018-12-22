@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Utility;
 
 namespace Unity.Storage
 {
+    [DebuggerDisplay("HashRegistry ({Count}) ")]
     internal class HashRegistry<TKey, TValue> : IRegistry<TKey, TValue>
     {
         #region Constants
@@ -187,6 +189,7 @@ namespace Unity.Storage
 
         #region Nested Types
 
+        [DebuggerDisplay("Key='{Key}'   Value='{Value}'   Hash='{HashCode}'")]
         public struct Entry
         {
             public int HashCode;

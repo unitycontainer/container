@@ -285,6 +285,64 @@ namespace Unity
 
         #region Registrations Collection
 
+        private static RegistrationSet GetRegistrations(UnityContainer container)
+        {
+            var seed = null != container._parent
+                ? GetRegistrations(container._parent)
+                : new RegistrationSet();
+
+            if (null == container._registrations) return seed;
+
+            var length = container._registrations.Count;
+            var entries = container._registrations.Entries;
+
+            for (var i = null == container._parent ? GetStartIndex() : 0; i < length; i++)
+            {
+                ref var entry = ref entries[i];
+                var registry = entry.Value;
+
+                switch (registry)
+                {
+                    case LinkedRegistry linkedRegistry:
+                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                        {
+                            if (node.Value is ContainerRegistration containerRegistration)
+                                seed.Add(entry.Key, node.Key, containerRegistration);
+                        }
+                        break;
+
+                    case HashRegistry<string, IPolicySet> hashRegistry:
+                        var count = hashRegistry.Count;
+                        var nodes = hashRegistry.Entries;
+                        for (var j = 0; j < count; j++)
+                        {
+                            ref var refNode = ref nodes[j];
+                            if (refNode.Value is ContainerRegistration containerRegistration)
+                                seed.Add(entry.Key, refNode.Key, containerRegistration);
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Unknown type of registry");
+                }
+            }
+
+            return seed;
+
+            int GetStartIndex()
+            {
+                int start = -1;
+                while (++start < length)
+                {
+                    if (typeof(IUnityContainer) != container._registrations.Entries[start].Key)
+                        continue;
+                    return start;
+                }
+
+                return 0;
+            }
+        }
+
         private ISet<Type> GetRegisteredTypes(UnityContainer container)
         {
             var set = null == container._parent ? new HashSet<Type>()
@@ -297,29 +355,6 @@ namespace Unity
             {
                 if (null == type) continue;
                 set.Add(type);
-            }
-
-            return set;
-        }
-
-        private IEnumerable<IContainerRegistration> GetRegisteredType(UnityContainer container, Type type)
-        {
-            MiniHashSet<IContainerRegistration> set;
-
-            if (null != container._parent)
-                set = (MiniHashSet<IContainerRegistration>)GetRegisteredType(container._parent, type);
-            else
-                set = new MiniHashSet<IContainerRegistration>();
-
-            if (null == container._registrations) return set;
-
-            var section = container.Get(type)?.Values;
-            if (null == section) return set;
-
-            foreach (var namedType in section)
-            {
-                if (namedType is IContainerRegistration registration)
-                    set.Add(registration);
             }
 
             return set;

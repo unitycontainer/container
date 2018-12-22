@@ -55,24 +55,6 @@ namespace Unity
 
         #region Resolving Collections
 
-        internal static object ResolveArray<TElement>(ref BuilderContext context)
-        {
-            var container = (UnityContainer)context.Container;
-            var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(TElement));
-
-            return ResolveRegistrations<TElement>(ref context, registrations).ToArray();
-        }
-
-        internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
-        {
-            var set = new MiniHashSet<InternalRegistration>();
-            var container = (UnityContainer)context.Container;
-            GetNamedRegistrations(container, typeof(TElement), set);
-            GetNamedRegistrations(container, type, set);
-
-            return ResolveGenericRegistrations<TElement>(ref context, set).ToArray();
-        }
-
         internal static object ResolveEnumerable<TElement>(ref BuilderContext context)
         {
             var container = (UnityContainer)context.Container;
@@ -91,6 +73,23 @@ namespace Unity
             return ResolveGenericRegistrations<TElement>(ref context, set);
         }
 
+        internal static object ResolveArray<TElement>(ref BuilderContext context)
+        {
+            var container = (UnityContainer)context.Container;
+            var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(TElement));
+
+            return ResolveRegistrations<TElement>(ref context, registrations).ToArray();
+        }
+
+        internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
+        {
+            var set = new MiniHashSet<InternalRegistration>();
+            var container = (UnityContainer)context.Container;
+            GetNamedRegistrations(container, typeof(TElement), set);
+            GetNamedRegistrations(container, type, set);
+
+            return ResolveGenericRegistrations<TElement>(ref context, set).ToArray();
+        }
 
         private static IList<TElement> ResolveGenericRegistrations<TElement>(ref BuilderContext context, IEnumerable<InternalRegistration> registrations)
         {

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Unity.Storage
 {
 
+    [DebuggerDisplay("LinkedRegistry ({_count}) ")]
     internal class LinkedRegistry : LinkedNode<string, IPolicySet>, 
                                     IRegistry<string, IPolicySet>
     {

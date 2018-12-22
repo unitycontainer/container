@@ -2,6 +2,8 @@
 
 namespace Unity.Utility
 {
+    // TODO: Consolidate with HashHelpers
+
     public static class Prime
     {
         public static readonly int[] Numbers = {

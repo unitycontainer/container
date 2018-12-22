@@ -136,65 +136,7 @@ namespace Unity
         /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
         /// of the container.
         /// </summary>
-        public IEnumerable<IContainerRegistration> Registrations => GetRegistrationSet(this);
-        //{
-        //    get
-        //    {
-        //        var types = GetRegisteredTypes(this);
-        //        foreach (var type in types)
-        //        {
-        //            var registrations = GetRegisteredType(this, type);
-        //            foreach (var registration in registrations)
-        //                yield return registration;
-        //        }
-        //    }
-        //}
-
-
-        private static RegistrationSet GetRegistrationSet(UnityContainer container)
-        {
-            var seed = null != container._parent
-                ? GetRegistrationSet(container._parent)
-                : new RegistrationSet();
-
-            if (null == container._registrations) return seed;
-
-            var length = container._registrations.Count;
-            var entries = container._registrations.Entries;
-
-            for (var i = 0; i < length; i++)
-            {
-                ref var entry = ref entries[i];
-                var registry = entry.Value;
-
-                switch (registry)
-                {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                            if (node.Value is ContainerRegistration containerRegistration)
-                                seed.Add(entry.Key, node.Key, containerRegistration);
-
-                        break;
-
-                    case HashRegistry<string, IPolicySet> hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration)
-                                seed.Add(entry.Key, refNode.Key, containerRegistration);
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
-                }
-            }
-
-            return seed;
-        }
-
+        public IEnumerable<IContainerRegistration> Registrations => GetRegistrations(this);
 
         #endregion
 
