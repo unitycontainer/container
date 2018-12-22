@@ -136,19 +136,19 @@ namespace Unity
         /// GetOrDefault a sequence of <see cref="IContainerRegistration"/> that describe the current state
         /// of the container.
         /// </summary>
-        public IEnumerable<IContainerRegistration> Registrations
-        {
-            get
-            {
-                var types = GetRegisteredTypes(this);
-                foreach (var type in types)
-                {
-                    var registrations = GetRegisteredType(this, type);
-                    foreach (var registration in registrations)
-                        yield return registration;
-                }
-            }
-        }
+        public IEnumerable<IContainerRegistration> Registrations => GetRegistrationSet(this);
+        //{
+        //    get
+        //    {
+        //        var types = GetRegisteredTypes(this);
+        //        foreach (var type in types)
+        //        {
+        //            var registrations = GetRegisteredType(this, type);
+        //            foreach (var registration in registrations)
+        //                yield return registration;
+        //        }
+        //    }
+        //}
 
 
         private static RegistrationSet GetRegistrationSet(UnityContainer container)
@@ -171,7 +171,8 @@ namespace Unity
                 {
                     case LinkedRegistry linkedRegistry:
                         for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                            if (node.Value is ContainerRegistration) seed.Add(entry.Key, node.Key, node.Value);
+                            if (node.Value is ContainerRegistration containerRegistration)
+                                seed.Add(entry.Key, node.Key, containerRegistration);
 
                         break;
 
@@ -181,7 +182,8 @@ namespace Unity
                         for (var j = 0; j < count; j++)
                         {
                             ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration) seed.Add(entry.Key, refNode.Key, refNode.Value);
+                            if (refNode.Value is ContainerRegistration containerRegistration)
+                                seed.Add(entry.Key, refNode.Key, containerRegistration);
                         }
                         break;
 

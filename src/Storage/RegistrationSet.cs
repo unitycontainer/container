@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Registration;
 using Unity.Utility;
 
 namespace Unity.Storage
@@ -31,7 +32,7 @@ namespace Unity.Storage
 
         #region Public Members
 
-        public void Add(Type type, string name, IPolicySet registration)
+        public void Add(Type type, string name, ContainerRegistration registration)
         {
             var hashCode = (type, name).GetHashCode() & 0x7FFFFFFF;
             var bucket = hashCode % _buckets.Length;
@@ -40,11 +41,12 @@ namespace Unity.Storage
             for (int i = index; --i >= 0; i = _entries[i].Next)
             {
                 ref var entry = ref _entries[i];
-                if (entry.HashCode == hashCode && entry.Type == type)
+                if (entry.HashCode == hashCode && entry.RegisteredType == type)
                 {
-                    entry.Type = type;
+                    entry.RegisteredType = type;
                     entry.Name = name;
-                    entry.Registration = registration;
+                    entry.MappedToType = registration.MappedToType;
+                    entry.LifetimeManager = registration.LifetimeManager;
                     return;
                 }
                 collisionCount++;
@@ -60,9 +62,10 @@ namespace Unity.Storage
             _buckets[bucket] = Count++;
 
             newEntry.HashCode = hashCode;
-            newEntry.Type = type;
+            newEntry.RegisteredType = type;
             newEntry.Name = name;
-            newEntry.Registration = registration;
+            newEntry.MappedToType = registration.MappedToType;
+            newEntry.LifetimeManager = registration.LifetimeManager;
             newEntry.Next = index;
         }
 
@@ -95,16 +98,7 @@ namespace Unity.Storage
         {
             for (var i = 0; i < Count; i++)
             {
-                var pilicySet = (Registration.ContainerRegistration)_entries[i].Registration;
-                ContainerRegistration registration = new ContainerRegistration
-                {
-                    RegisteredType  = _entries[i].Type,
-                    Name            = _entries[i].Name,
-                    MappedToType    = pilicySet.MappedToType,
-                    LifetimeManager = pilicySet.LifetimeManager,
-                };
-
-                yield return registration;
+                yield return _entries[i];
             }
         }
 
@@ -118,26 +112,18 @@ namespace Unity.Storage
 
         #region Nested Types
 
-
-        private struct ContainerRegistration : IContainerRegistration
+        private struct Entry : IContainerRegistration
         {
-            public Type RegisteredType { get; internal set; }
+            internal int HashCode;
+            internal int Next;
 
-            public string Name { get; internal set; }
+            public Type RegisteredType { get; internal set; }
 
             public Type MappedToType { get; internal set; }
 
             public LifetimeManager LifetimeManager { get; internal set; }
-        }
 
-
-        private struct Entry
-        {
-            public int HashCode;
-            public int Next;
-            public Type Type;
-            public string Name;
-            public IPolicySet Registration;
+            public string Name { get; internal set; }
         }
 
         #endregion
