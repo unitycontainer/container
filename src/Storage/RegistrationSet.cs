@@ -20,6 +20,8 @@ namespace Unity.Storage
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private int[] _buckets;
 
+        private Entry[] _entries;
+
         #endregion
 
 
@@ -28,7 +30,7 @@ namespace Unity.Storage
         public RegistrationSet()
         {
             _buckets = new int[InitialCapacity];
-            Entries = new Entry[InitialCapacity];
+            _entries = new Entry[InitialCapacity];
         }
 
         #endregion
@@ -36,7 +38,10 @@ namespace Unity.Storage
 
         #region Public Members
 
-        public Entry[] Entries { get; private set; }
+        public ref Entry this[int index]
+        {
+            get => ref _entries[index];
+        }
 
         public int Count { get; private set; }
 
@@ -45,9 +50,9 @@ namespace Unity.Storage
             var hashCode = ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)) & 0x7FFFFFFF; 
             var bucket = hashCode % _buckets.Length;
             var collisionCount = 0;
-            for (int i = _buckets[bucket]; --i >= 0; i = Entries[i].Next)
+            for (int i = _buckets[bucket]; --i >= 0; i = _entries[i].Next)
             {
-                ref var entry = ref Entries[i];
+                ref var entry = ref _entries[i];
                 if (entry.HashCode == hashCode && entry.RegisteredType == type)
                 {
                     entry.RegisteredType = type;
@@ -58,13 +63,13 @@ namespace Unity.Storage
                 collisionCount++;
             }
 
-            if (Count == Entries.Length || 6 < collisionCount)
+            if (Count == _entries.Length || 6 < collisionCount)
             {
                 IncreaseCapacity();
                 bucket = hashCode % _buckets.Length;
             }
 
-            ref var newEntry = ref Entries[Count++];
+            ref var newEntry = ref _entries[Count++];
 
             newEntry.HashCode = hashCode;
             newEntry.RegisteredType = type;
@@ -84,7 +89,7 @@ namespace Unity.Storage
             int newSize = HashHelpers.ExpandPrime(Count * 2);
 
             var newSlots = new Entry[newSize];
-            Array.Copy(Entries, newSlots, Count);
+            Array.Copy(_entries, newSlots, Count);
 
             var newBuckets = new int[newSize];
             for (var i = 0; i < Count; i++)
@@ -94,7 +99,7 @@ namespace Unity.Storage
                 newBuckets[bucket] = i + 1;
             }
 
-            Entries = newSlots;
+            _entries = newSlots;
             _buckets = newBuckets;
         }
 
@@ -102,7 +107,7 @@ namespace Unity.Storage
         {
             for (var i = 0; i < Count; i++)
             {
-                yield return Entries[i];
+                yield return _entries[i];
             }
         }
 
@@ -170,7 +175,7 @@ namespace Unity.Storage
 
             public int Count => _set.Count;
 
-            public IContainerRegistration[] Entries => _set.Entries
+            public IContainerRegistration[] Entries => _set._entries
                                                            .Cast<IContainerRegistration>()
                                                            .Take(_set.Count)
                                                            .ToArray();

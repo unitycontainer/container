@@ -287,9 +287,8 @@ namespace Unity
 
         private static RegistrationSet GetRegistrations(UnityContainer container)
         {
-            var seed = null != container._parent
-                ? GetRegistrations(container._parent)
-                : new RegistrationSet();
+            var seed = null != container._parent ? GetRegistrations(container._parent)
+                                                 : new RegistrationSet();
 
             if (null == container._registrations) return seed;
 
@@ -343,21 +342,86 @@ namespace Unity
             }
         }
 
-        private ISet<Type> GetRegisteredTypes(UnityContainer container)
+        private static RegistrationSet GetRegistrations(UnityContainer container, params Type[] types)
         {
-            var set = null == container._parent ? new HashSet<Type>()
-                                                : GetRegisteredTypes(container._parent);
+            var seed = null != container._parent ? GetRegistrations(container._parent, types)
+                                                 : new RegistrationSet();
 
-            if (null == container._registrations) return set;
+            if (null == container._registrations) return seed;
 
-            var types = container._registrations.Keys;
             foreach (var type in types)
             {
-                if (null == type) continue;
-                set.Add(type);
+                var registry = container.Get(type);
+                if (null == registry?.Values) continue;
+
+                switch (registry)
+                {
+                    case LinkedRegistry linkedRegistry:
+                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                        {
+                            if (node.Value is ContainerRegistration containerRegistration)
+                                seed.Add(type, node.Key, containerRegistration);
+                        }
+                        break;
+
+                    case HashRegistry<string, IPolicySet> hashRegistry:
+                        var count = hashRegistry.Count;
+                        var nodes = hashRegistry.Entries;
+                        for (var j = 0; j < count; j++)
+                        {
+                            ref var refNode = ref nodes[j];
+                            if (refNode.Value is ContainerRegistration containerRegistration)
+                                seed.Add(type, refNode.Key, containerRegistration);
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Unknown type of registry");
+                }
             }
 
-            return set;
+            return seed;
+        }
+
+        private static RegistrationSet GetNamedRegistrations(UnityContainer container, params Type[] types)
+        {
+            var seed = null != container._parent ? GetNamedRegistrations(container._parent, types)
+                                                 : new RegistrationSet();
+
+            if (null == container._registrations) return seed;
+
+            foreach (var type in types)
+            {
+                var registry = container.Get(type);
+                if (null == registry?.Values) continue;
+
+                switch (registry)
+                {
+                    case LinkedRegistry linkedRegistry:
+                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                        {
+                            if (node.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(node.Key))
+                                seed.Add(type, node.Key, containerRegistration);
+                        }
+                        break;
+
+                    case HashRegistry<string, IPolicySet> hashRegistry:
+                        var count = hashRegistry.Count;
+                        var nodes = hashRegistry.Entries;
+                        for (var j = 0; j < count; j++)
+                        {
+                            ref var refNode = ref nodes[j];
+                            if (refNode.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(refNode.Key))
+                                seed.Add(type, refNode.Key, containerRegistration);
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Unknown type of registry");
+                }
+            }
+
+            return seed;
         }
 
         #endregion

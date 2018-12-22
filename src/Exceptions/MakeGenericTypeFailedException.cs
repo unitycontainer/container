@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Policy.Mapping
+namespace Unity.Exceptions
 {
     internal class MakeGenericTypeFailedException : Exception
     {

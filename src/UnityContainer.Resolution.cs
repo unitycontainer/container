@@ -57,198 +57,97 @@ namespace Unity
 
         internal static object ResolveEnumerable<TElement>(ref BuilderContext context)
         {
-            var container = (UnityContainer)context.Container;
-            var registrations = (IList<InternalRegistration>)GetExplicitRegistrations(container, typeof(TElement));
+            var type = typeof(TElement);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+#else
+            var generic = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+#endif
+            var set = generic == type ? GetRegistrations((UnityContainer)context.Container, type)
+                                      : GetRegistrations((UnityContainer)context.Container, type, generic);
 
-            return ResolveRegistrations<TElement>(ref context, registrations);
-        }
-
-        internal static object ResolveGenericEnumerable<TElement>(ref BuilderContext context, Type type)
-        {
-            var set = new MiniHashSet<InternalRegistration>();
-            var container = (UnityContainer)context.Container;
-            GetExplicitRegistrations(container, typeof(TElement), set);
-            GetExplicitRegistrations(container, type, set);
-
-            return ResolveGenericRegistrations<TElement>(ref context, set);
+            return ResolveRegistrations<TElement>(ref context, set);
         }
 
         internal static object ResolveArray<TElement>(ref BuilderContext context)
         {
-            var container = (UnityContainer)context.Container;
-            var registrations = (IList<InternalRegistration>)GetNamedRegistrations(container, typeof(TElement));
-
-            return ResolveRegistrations<TElement>(ref context, registrations).ToArray();
+            var type = typeof(TElement);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
+#else
+            var generic = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+#endif
+            var set = generic == type ? GetNamedRegistrations((UnityContainer)context.Container, type)
+                                      : GetNamedRegistrations((UnityContainer)context.Container, type, generic);
+            return ResolveRegistrations<TElement>(ref context, set).ToArray();
         }
 
-        internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
+        private static IList<TElement> ResolveRegistrations<TElement>(ref BuilderContext context, RegistrationSet registrations)
         {
-            var set = new MiniHashSet<InternalRegistration>();
-            var container = (UnityContainer)context.Container;
-            GetNamedRegistrations(container, typeof(TElement), set);
-            GetNamedRegistrations(container, type, set);
-
-            return ResolveGenericRegistrations<TElement>(ref context, set).ToArray();
-        }
-
-        private static IList<TElement> ResolveGenericRegistrations<TElement>(ref BuilderContext context, IEnumerable<InternalRegistration> registrations)
-        {
+            var type = typeof(TElement);
             var list = new List<TElement>();
-            foreach (var registration in registrations)
+            for (var i = 0; i < registrations.Count; i++)
             {
+                ref var entry = ref registrations[i];
                 try
                 {
-                    list.Add((TElement)context.Resolve(typeof(TElement), registration.Name));
-                }
-                catch (Policy.Mapping.MakeGenericTypeFailedException) { /* Ignore */ }
-                catch (InvalidOperationException ex)
-                {
-                    if (!(ex.InnerException is InvalidRegistrationException))
-                        throw;
-                }
-            }
-
-            return list;
-        }
-
-        private static IList<TElement> ResolveRegistrations<TElement>(ref BuilderContext context, IEnumerable<InternalRegistration> registrations)
-        {
-            var list = new List<TElement>();
-            foreach (var registration in registrations)
-            {
-                try
-                {
-                    var type = typeof(TElement);
-                    if (registration.Type.GetTypeInfo().IsGenericTypeDefinition)
-                        list.Add((TElement)context.Resolve(type, registration.Name));
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    if (entry.RegisteredType.GetTypeInfo().IsGenericTypeDefinition)
+#else
+                    if (entry.RegisteredType.IsGenericTypeDefinition)
+#endif
+                        list.Add((TElement)context.Resolve(type, entry.Name));
                     else
-                        list.Add((TElement)context.Resolve(type, registration.Name,registration));
+                        list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
                 }
                 catch (ArgumentException ex)
                 {
                     if (!(ex.InnerException is TypeLoadException))
                         throw;
+                    // TODO: Check if required and why
                 }
             }
 
             return list;
         }
 
-        private static MiniHashSet<InternalRegistration> GetNamedRegistrations(UnityContainer container, Type type)
+        #endregion
+
+
+        #region Resolving Generic Collections
+
+        internal static object ResolveGenericEnumerable<TElement>(ref BuilderContext context, Type type)
         {
-            var set = null != container._parent 
-                ? GetNamedRegistrations(container._parent, type) 
-                : new MiniHashSet<InternalRegistration>();
-
-            if (null == container._registrations) return set;
-
-            var registrations = container.Get(type);
-            if (null != registrations && null != registrations.Values)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration &&
-                        !string.IsNullOrEmpty(registration.Name))
-                        set.Add((InternalRegistration)registration);
-                }
-            }
-
-            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
-
-            if (generic != type)
-            {
-                registrations = container.Get(generic);
-                if (null != registrations && null != registrations.Values)
-                {
-                    var registry = registrations.Values;
-                    foreach (var entry in registry)
-                    {
-                        if (entry is IContainerRegistration registration &&
-                            !string.IsNullOrEmpty(registration.Name))
-                            set.Add((InternalRegistration)registration);
-                    }
-                }
-            }
-
-            return set;
+            var set = GetRegistrations((UnityContainer)context.Container, typeof(TElement), type);
+            return ResolveGenericRegistrations<TElement>(ref context, set);
         }
 
-        private static void GetNamedRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
+        internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
         {
-            if (null != container._parent)
-                GetNamedRegistrations(container._parent, type, set);
-
-            if (null == container._registrations) return;
-
-            var registrations = container.Get(type);
-            if (registrations?.Values != null)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration &&
-                        !string.IsNullOrEmpty(registration.Name))
-                        set.Add((InternalRegistration)registration);
-                }
-            }
+            var set = GetNamedRegistrations((UnityContainer)context.Container, typeof(TElement), type);
+            return ResolveGenericRegistrations<TElement>(ref context, set).ToArray();
         }
 
-        private static MiniHashSet<InternalRegistration> GetExplicitRegistrations(UnityContainer container, Type type)
+        private static IList<TElement> ResolveGenericRegistrations<TElement>(ref BuilderContext context, RegistrationSet registrations)
         {
-            var set = null != container._parent
-                ? GetExplicitRegistrations(container._parent, type)
-                : new MiniHashSet<InternalRegistration>();
-
-            if (null == container._registrations) return set;
-
-            var registrations = container.Get(type);
-            if (registrations?.Values != null)
+            var list = new List<TElement>();
+            for (var i = 0; i < registrations.Count; i++)
             {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
+                ref var entry = ref registrations[i];
+                try
                 {
-                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
-                        set.Add((InternalRegistration)registration);
+                    list.Add((TElement)context.Resolve(typeof(TElement), entry.Name));
+                }
+                catch (MakeGenericTypeFailedException) { /* Ignore */ }
+                catch (InvalidOperationException ex)
+                {
+                    if (!(ex.InnerException is InvalidRegistrationException))
+                        throw;
+                    // TODO: Check if required and why
                 }
             }
 
-            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
-
-            if (generic != type)
-            {
-                registrations = container.Get(generic);
-                if (registrations?.Values != null)
-                {
-                    var registry = registrations.Values;
-                    foreach (var entry in registry)
-                    {
-                        if (entry is IContainerRegistration registration && string.Empty != registration.Name)
-                            set.Add((InternalRegistration)registration);
-                    }
-                }
-            }
-
-            return set;
-        }
-
-        private static void GetExplicitRegistrations(UnityContainer container, Type type, MiniHashSet<InternalRegistration> set)
-        {
-            if (null != container._parent)
-                GetExplicitRegistrations(container._parent, type, set);
-
-            if (null == container._registrations) return;
-
-            var registrations = container.Get(type);
-            if (registrations?.Values != null)
-            {
-                var registry = registrations.Values;
-                foreach (var entry in registry)
-                {
-                    if (entry is IContainerRegistration registration && string.Empty != registration.Name)
-                        set.Add((InternalRegistration)registration);
-                }
-            }
+            return list;
         }
 
         #endregion
