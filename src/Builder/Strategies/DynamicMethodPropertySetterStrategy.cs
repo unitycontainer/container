@@ -43,8 +43,8 @@ namespace Unity.Builder.Strategies
                                 Expression.Assign(
                                     resolvedObjectParameter,
                                     BuilderContextExpression.Resolve(propertyInfo, 
-                                                                     context.RegistrationName, 
-                                                                     AttributeResolverFactory.CreateResolver(propertyInfo))),
+                                                                     context.RegistrationName,
+                                                                     propertyInfo.GetResolver())),
                                 Expression.Call(
                                     Expression.Convert(
                                         BuilderContextExpression.Existing,

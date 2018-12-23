@@ -5,12 +5,14 @@ using Unity.ResolverPolicy;
 
 namespace Unity.Builder
 {
-    // TODO: 5.9.0 Consolidate with other implementations
-    public static class AttributeResolverFactory
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class ResolversExtension
     {
-        public static object CreateResolver(FieldInfo info) => null;
+        public static object GetResolver(this FieldInfo info) => null;
 
-        public static object CreateResolver(PropertyInfo property)
+        public static object GetResolver(this PropertyInfo property)
         {
             var attribute = property.GetCustomAttributes(typeof(DependencyResolutionAttribute), false)
                                     .OfType<DependencyResolutionAttribute>()
@@ -23,6 +25,6 @@ namespace Unity.Builder
                     : null;
         }
 
-        public static object CreateResolver(ParameterInfo info) => null;
+        public static object GetResolver(this ParameterInfo info) => null;
     }
 }

@@ -9,12 +9,9 @@ namespace Unity.Registration
 {
     [DebuggerDisplay("InternalRegistration:  Type={Type?.Name},    Name={Name}")]
     public class InternalRegistration : LinkedNode<Type, object>,
-                                        IPolicySet,
-                                        INamedType
+                                        IPolicySet
     {
         #region Fields
-
-        private readonly int _hash;
 
         #endregion
 
@@ -25,8 +22,6 @@ namespace Unity.Registration
         {
             Name = name;
             Type = type;
-
-            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
 
         public InternalRegistration(Type type, string name, Type policyInterface, object policy)
@@ -35,8 +30,6 @@ namespace Unity.Registration
             Type = type;
             Key = policyInterface;
             Value = policy;
-
-            _hash = (Type?.GetHashCode() ?? 0 + 37) ^ (Name?.GetHashCode() ?? 0 + 17);
         }
 
         #endregion
@@ -121,23 +114,6 @@ namespace Unity.Registration
         public Type Type { get; }
 
         public string Name { get; }
-
-        public override bool Equals(object obj)
-        {
-            return obj is INamedType registration &&
-                   ReferenceEquals(Type, registration.Type) &&
-                   Name == registration.Name;
-        }
-
-        public override int GetHashCode()
-        {
-            return _hash;
-        }
-
-        public static implicit operator NamedTypeBuildKey(InternalRegistration namedType)
-        {
-            return new NamedTypeBuildKey(namedType.Type, namedType.Name);
-        }
 
         #endregion
     }

@@ -8,7 +8,7 @@ using Unity.Registration;
 
 namespace Unity.Builder
 {
-    public abstract class MemberSelectorBase<TMemberInfo, TData>
+    public abstract partial class MemberSelectorBase<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
     {
         #region Fields

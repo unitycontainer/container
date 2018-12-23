@@ -5,8 +5,7 @@ using Unity.Injection;
 namespace Unity.Registration
 {
     [DebuggerDisplay("ContainerRegistration: Type={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
-    public class ContainerRegistration : InternalRegistration, 
-                                         IContainerRegistration
+    public class ContainerRegistration : InternalRegistration
     {
         #region Constructors
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -59,8 +58,11 @@ namespace Unity
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
             var registration = new ContainerRegistration(typeFrom, name, typeTo, lifetimeManager, injectionMembers);
 
+            var registeredType = typeFrom ?? typeTo;
+            var mappedToType = typeTo;
+
             // Add or replace existing 
-            var previous = container.Register(registration);
+            var previous = container.Register(registeredType, name, registration);
             if (previous is ContainerRegistration old &&
                 old.LifetimeManager is IDisposable disposable)
             {
@@ -70,18 +72,18 @@ namespace Unity
             }
 
             // If Disposable add to container's lifetime
-            if (registration.LifetimeManager is IDisposable manager)
+            if (lifetimeManager is IDisposable manager)
                 container._lifetimeContainer.Add(manager);
 
             // Add Injection Members
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
-                var context = new RegistrationContext(this, registration);
+                var context = new RegistrationContext(this, registeredType, name, registration);
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies<BuilderContext, RegistrationContext>(
-                        registration.RegisteredType, registration.MappedToType,
-                        registration.Name, ref context);
+                        registeredType, mappedToType,
+                        name, ref context);
                 }
             }
 
@@ -90,10 +92,10 @@ namespace Unity
                                                  .Where(strategy => strategy.RequiredToBuildType(this, registration, injectionMembers))
                                                  .ToArray();
             // Raise event
-            container.Registering?.Invoke(this, new RegisterEventArgs(registration.RegisteredType,
-                                                                      registration.MappedToType,
-                                                                      registration.Name,
-                                                                      registration.LifetimeManager));
+            container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
+                                                                      mappedToType,
+                                                                      name,
+                                                                      lifetimeManager));
             return this;
         }
 
@@ -126,17 +128,19 @@ namespace Unity
             if (string.Empty == name) name = null;
             if (null == instance) throw new ArgumentNullException(nameof(instance));
 
-            var type = instance.GetType();
+
+            var mappedToType = instance.GetType();
+            var typeFrom = registeredType ?? mappedToType;
             var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
             if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
             lifetime.SetValue(instance, _lifetimeContainer);
 
             // Create registration and add to appropriate storage
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(registeredType ?? type, name, type, lifetime);
+            var registration = new ContainerRegistration(typeFrom, name, mappedToType, lifetime);
 
             // Add or replace existing 
-            var previous = container.Register(registration);
+            var previous = container.Register(typeFrom, name, registration);
             if (previous is ContainerRegistration old &&
                 old.LifetimeManager is IDisposable disposable)
             {
@@ -146,7 +150,7 @@ namespace Unity
             }
 
             // If Disposable add to container's lifetime
-            if (registration.LifetimeManager is IDisposable manager)
+            if (lifetimeManager is IDisposable manager)
                 container._lifetimeContainer.Add(manager);
 
             // Check what strategies to run
@@ -154,8 +158,8 @@ namespace Unity
                                                  .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
                                                  .ToArray();
             // Raise event
-            container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registration.RegisteredType, instance,
-                                                                   registration.Name, registration.LifetimeManager));
+            container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(typeFrom, instance,
+                                                                   name, lifetimeManager));
             return this;
         }
 
@@ -182,7 +186,7 @@ namespace Unity
                 }
 
                 var registry = candidate.Value;
-                return registry?[name] is IContainerRegistration ||
+                return registry?[name] is ContainerRegistration ||
                        (_parent?.IsRegistered(type, name) ?? false);
             }
 
@@ -204,7 +208,7 @@ namespace Unity
 
                 return candidate.Value
                            .Values
-                           .Any(v => v is IContainerRegistration) ||
+                           .Any(v => v is ContainerRegistration) ||
                        (_parent?._isTypeExplicitlyRegistered(type) ?? false);
             }
 
@@ -453,10 +457,10 @@ namespace Unity
 
         #region Registration manipulation
 
-        private IPolicySet AddOrUpdate(InternalRegistration registration)
+        private IPolicySet AddOrUpdate(Type type, string name, InternalRegistration registration)
         {
             var collisions = 0;
-            var hashCode = (registration.Type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
             lock (_syncRoot)
             {
@@ -464,7 +468,7 @@ namespace Unity
                 {
                     ref var candidate = ref _registrations.Entries[i];
                     if (candidate.HashCode != hashCode ||
-                        candidate.Key != registration.Type)
+                        candidate.Key != type)
                     {
                         collisions++;
                         continue;
@@ -480,7 +484,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.SetOrReplace(registration.Name, registration);
+                    return existing.SetOrReplace(name, registration);
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
@@ -492,8 +496,8 @@ namespace Unity
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = registration.Type;
-                entry.Value = new LinkedRegistry(registration.Name, registration);
+                entry.Key = type;
+                entry.Value = new LinkedRegistry(name, registration);
                 _registrations.Buckets[targetBucket] = _registrations.Count++;
 
                 return null;

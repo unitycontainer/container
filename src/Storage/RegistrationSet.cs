@@ -167,18 +167,20 @@ namespace Unity.Storage
         private class RegistrationSetDebugProxy  
         {
             private readonly RegistrationSet _set;
+            private readonly Lazy<IContainerRegistration[]> _registrations;
 
             public RegistrationSetDebugProxy(RegistrationSet set)
             {
                 _set = set;
+                _registrations = new Lazy<IContainerRegistration[]>(() => _set._entries
+                                                                              .Cast<IContainerRegistration>()
+                                                                              .Take(_set.Count)
+                                                                              .ToArray());
             }
 
             public int Count => _set.Count;
 
-            public IContainerRegistration[] Entries => _set._entries
-                                                           .Cast<IContainerRegistration>()
-                                                           .Take(_set.Count)
-                                                           .ToArray();
+            public IContainerRegistration[] Entries => _registrations.Value;
         }
 
         #endregion

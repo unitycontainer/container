@@ -60,7 +60,7 @@ namespace Unity
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<InternalRegistration, IPolicySet> Register;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, InternalRegistration, IPolicySet> Register;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal GetPolicyDelegate GetPolicy;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal SetPolicyDelegate SetPolicy;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal ClearPolicyDelegate ClearPolicy;
@@ -212,7 +212,7 @@ namespace Unity
             Set(type, name, policyInterface, policy);
         }
 
-        private IPolicySet CreateAndSetOrUpdate(InternalRegistration registration)
+        private IPolicySet CreateAndSetOrUpdate(Type type, string name, InternalRegistration registration)
         {
             lock (GetRegistration)
             {
@@ -220,7 +220,7 @@ namespace Unity
                     SetupChildContainerBehaviors();
             }
 
-            return AddOrUpdate(registration);
+            return AddOrUpdate(type, name, registration);
         }
 
         private void SetupChildContainerBehaviors()
@@ -389,11 +389,15 @@ namespace Unity
         {
             private readonly InternalRegistration _registration;
             private readonly UnityContainer _container;
+            private readonly Type _type;
+            private readonly string _name;
 
-            internal RegistrationContext(UnityContainer container, InternalRegistration registration)
+            internal RegistrationContext(UnityContainer container, Type type, string name, InternalRegistration registration)
             {
                 _registration = registration;
                 _container = container;
+                _type = type;
+                _name = name;
             }
 
 
@@ -401,7 +405,7 @@ namespace Unity
 
             public object Get(Type type, string name, Type policyInterface)
             {
-                if (_registration.Type != type || _registration.Name != name)
+                if (_type != type || _name != name)
                     return _container.GetPolicy(type, name, policyInterface);
 
                 return _registration.Get(policyInterface);
@@ -410,7 +414,7 @@ namespace Unity
 
             public void Set(Type type, string name, Type policyInterface, object policy)
             {
-                if (_registration.Type != type || _registration.Name != name)
+                if (_type != type || _name != name)
                     _container.SetPolicy(type, name, policyInterface, policy);
                 else
                     _registration.Set(policyInterface, policy);
@@ -418,7 +422,7 @@ namespace Unity
 
             public void Clear(Type type, string name, Type policyInterface)
             {
-                if (_registration.Type != type || _registration.Name != name)
+                if (_type != type || _name != name)
                     _container.ClearPolicy(type, name, policyInterface);
                 else
                     _registration.Clear(policyInterface);

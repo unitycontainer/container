@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security;
+using Unity.Registration;
 
 namespace Unity
 {
@@ -14,7 +14,7 @@ namespace Unity
         {
             var types = (_registrations?.Keys ?? Enumerable.Empty<Type>())
                 .SelectMany(t => _registrations[t].Values)
-                .OfType<IContainerRegistration>()
+                .OfType<ContainerRegistration>()
                 .Count();
 
             if (null == _parent) return $"Container[{types}]";
