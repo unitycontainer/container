@@ -15,7 +15,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void CheckParentContOfChild()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             IUnityContainer ucchild = uc.CreateChildContainer();
     
             object obj = ucchild.Parent;
@@ -29,7 +29,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void CheckParentContOfParent()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             IUnityContainer ucchild = uc.CreateChildContainer();
             
             object obj = uc.Parent;
@@ -43,7 +43,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void ChildInheritsParentsConfiguration_RegisterTypeResolve()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ITestContainer, TestContainer>(new ContainerControlledLifetimeManager());
 
             IUnityContainer child = parent.CreateChildContainer();
@@ -60,7 +60,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void ChildInheritsParentsConfiguration_RegisterInstanceResolve()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             ITestContainer obj = new TestContainer();
             
             parent.RegisterInstance<ITestContainer>("InParent", obj);
@@ -79,7 +79,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void ChildInheritsParentsConfiguration_RegisterTypeResolveAll()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ITestContainer, TestContainer>()
                 .RegisterType<ITestContainer, TestContainer1>("first")
                 .RegisterType<ITestContainer, TestContainer2>("second");
@@ -103,7 +103,7 @@ namespace Unity.Tests.v5.ChildContainer
             ITestContainer objfirst = new TestContainer1();
             ITestContainer objsecond = new TestContainer2();
             ITestContainer objthird = new TestContainer3();
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             
             parent.RegisterInstance<ITestContainer>(objdefault)
                 .RegisterInstance<ITestContainer>("first", objfirst)
@@ -123,7 +123,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void RegisterSameTypeInChildAndParentOverriden()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ITestContainer, TestContainer>();
             IUnityContainer child = parent.CreateChildContainer()
                 .RegisterType<ITestContainer, TestContainer1>();
@@ -142,7 +142,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void ChangeInParentConfigurationIsReflectedInChild()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ITestContainer, TestContainer>();
             IUnityContainer child = parent.CreateChildContainer();
 
@@ -160,7 +160,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void WhenDisposingParentChildDisposes()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             IUnityContainer child = parent.CreateChildContainer();
 
             TestContainer3 obj = new TestContainer3();
@@ -176,7 +176,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void ParentNotDisposedWhenChildDisposed()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             IUnityContainer child = parent.CreateChildContainer();
             TestContainer obj1 = new TestContainer();
             TestContainer3 obj3 = new TestContainer3();
@@ -194,7 +194,7 @@ namespace Unity.Tests.v5.ChildContainer
         [TestMethod]
         public void ChainOfContainers()
         {
-            var parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             var child1 = parent.CreateChildContainer();
             var child2 = child1.CreateChildContainer();
             var child3 = child2.CreateChildContainer();

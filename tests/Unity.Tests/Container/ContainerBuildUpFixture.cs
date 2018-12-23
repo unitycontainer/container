@@ -45,7 +45,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void BuildNullObject4()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             object myNullObject = null;
 
             AssertHelper.ThrowsException<ArgumentNullException>(() => uc.BuildUp(null, myNullObject, "myNullObject"), "Null object is not allowed");
@@ -98,7 +98,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void BuildNullObject9()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             SimpleClass myObject1 = new SimpleClass();
             SimpleClass myObject2 = new SimpleClass();
             uc.BuildUp(myObject1, "a");
@@ -120,7 +120,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void BuildNullObject10()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             SimpleClass myObject2 = new SimpleClass();
 
             uc.BuildUp(myObject2, "  жа ");
@@ -132,7 +132,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void BuildNullObject11()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             SimpleClass myObject1 = new SimpleClass();
             uc.BuildUp(myObject1, " a b c ");
 

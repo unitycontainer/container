@@ -71,9 +71,4 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.*" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="ObjectBuilder\Policies\" />
-  </ItemGroup>
-
 </Project>

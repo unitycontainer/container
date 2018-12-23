@@ -8,7 +8,7 @@ namespace Unity.Builder
     /// Build key used to combine a type object with a string name. Used by
     /// ObjectBuilder to indicate exactly what is being built.
     /// </summary>
-    public class NamedTypeBuildKey : INamedType
+    public class NamedTypeBuildKey
     {
         private readonly int _hash;
 
@@ -80,7 +80,7 @@ namespace Unity.Builder
         /// <returns>True if the two keys are equal, false if not.</returns>
         public override bool Equals(object obj)
         {
-            return obj is INamedType namedType && Type == namedType.Type && Name == namedType.Name;
+            return obj is NamedTypeBuildKey namedType && Type == namedType.Type && Name == namedType.Name;
         }
 
         /// <summary>

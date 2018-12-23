@@ -348,7 +348,7 @@ namespace Unity.Tests.v5.Lifetime
         public void RegisterWithParentAndChild()
         {
             //create unity container
-            UnityContainer parentuc = new UnityContainer();
+            IUnityContainer parentuc = new UnityContainer();
 
             //register type UnityTestClass
             parentuc.RegisterType<UnityTestClass>(new ContainerControlledLifetimeManager());

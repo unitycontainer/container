@@ -266,8 +266,8 @@ namespace Unity.Tests.v5
         {
             var logger = new MockLogger();
 
-            var container = new UnityContainer()
-                .RegisterInstance(typeof(ILogger), "logger", logger, new ContainerControlledLifetimeManager());
+            IUnityContainer container = new UnityContainer();
+            container.RegisterInstance(typeof(ILogger), "logger", logger, new ContainerControlledLifetimeManager());
 
             var o = container.Resolve<ILogger>("logger");
             Assert.AreSame(logger, o);
@@ -595,7 +595,7 @@ namespace Unity.Tests.v5
         [TestMethod]
         public void ChildContainerResolvesChildNotParent()
         {
-            var parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             var child = parent.CreateChildContainer();
 
             Assert.AreSame(child, child.Resolve<IUnityContainer>());
@@ -604,7 +604,7 @@ namespace Unity.Tests.v5
         [TestMethod]
         public void ParentContainerResolvesParentNotChild()
         {
-            var parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             var child = parent.CreateChildContainer();
 
             Assert.AreSame(parent, parent.Resolve<IUnityContainer>());

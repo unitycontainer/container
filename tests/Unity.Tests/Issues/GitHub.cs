@@ -1,12 +1,8 @@
-using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
-using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
-using Unity.Tests.TestObjects;
 
 namespace Unity.Tests.v5.Issues
 {
@@ -92,7 +88,7 @@ namespace Unity.Tests.v5.Issues
             var str1 = "s1";
             var str2 = "s2";
 
-            var ioc = new UnityContainer();
+            IUnityContainer ioc = new UnityContainer();
             ioc.RegisterType<IFoo, Foo>(new HierarchicalLifetimeManager());
 
             var ch1 = ioc.CreateChildContainer();
@@ -215,7 +211,7 @@ namespace Unity.Tests.v5.Issues
         public void unitycontainer_container_82()
         {
             // Create root container and register classes in root
-            var rootContainer = new UnityContainer();
+            IUnityContainer rootContainer = new UnityContainer();
             rootContainer.RegisterType<MainClass>(new PerResolveLifetimeManager());
             rootContainer.RegisterType<IHostClass, MainClass>();
 

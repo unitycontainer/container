@@ -15,7 +15,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void ChildBuildsUsingParentsConfiguration()
         {
-            var parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ILogger, MockLogger>();
 
             var child = parent.CreateChildContainer();
@@ -28,7 +28,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void NamesRegisteredInParentAppearInChild()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ILogger, SpecialLogger>("special");
 
             IUnityContainer child = parent.CreateChildContainer();
@@ -42,7 +42,7 @@ namespace Unity.Tests.v5.Container
         public void NamesRegisteredInParentAppearInChildGetAll()
         {
             string[] databases = { "northwind", "adventureworks", "fabrikam" };
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterInstance("nwnd", databases[0])
                 .RegisterInstance("advwks", databases[1]);
 
@@ -56,7 +56,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void ChildConfigurationOverridesParentConfiguration()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ILogger, MockLogger>();
             IUnityContainer child = parent.CreateChildContainer()
                 .RegisterType<ILogger, SpecialLogger>();
@@ -71,7 +71,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void ChangeInParentConfigurationIsReflectedInChild()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterType<ILogger, MockLogger>();
             IUnityContainer child = parent.CreateChildContainer();
 
@@ -88,7 +88,7 @@ namespace Unity.Tests.v5.Container
         {
             bool factoryWasCalled = false;
 
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             IUnityContainer child = parent.CreateChildContainer()
                 .RegisterType<object>(new InjectionFactory(c =>
                 {
@@ -106,7 +106,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void DisposingParentDisposesChild()
         {
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             IUnityContainer child = parent.CreateChildContainer();
 
             DisposableObject spy = new DisposableObject();
@@ -122,7 +122,7 @@ namespace Unity.Tests.v5.Container
             DisposableObject parentSpy = new DisposableObject();
             DisposableObject childSpy = new DisposableObject();
 
-            UnityContainer parent = new UnityContainer();
+            IUnityContainer parent = new UnityContainer();
             parent.RegisterInstance(parentSpy);
 
             IUnityContainer child = parent.CreateChildContainer()

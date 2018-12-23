@@ -136,7 +136,7 @@ namespace Unity
             Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
 
             // Register this instance
-            RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
+            ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
 
         /// <summary>

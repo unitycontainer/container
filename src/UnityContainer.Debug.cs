@@ -25,9 +25,9 @@ namespace Unity
 
         internal class UnityContainerDebugProxy
         {
-            private readonly UnityContainer _container;
+            private readonly IUnityContainer _container;
 
-            public UnityContainerDebugProxy(UnityContainer container)
+            public UnityContainerDebugProxy(IUnityContainer container)
             {
                 _container = container;
                 ID = container.GetHashCode().ToString();

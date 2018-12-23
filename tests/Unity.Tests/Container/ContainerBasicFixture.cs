@@ -62,7 +62,7 @@ namespace Unity.Tests.v5.Container
             ITest iTest;
             ATest objA = null;
 
-            UnityContainer uc1 = new UnityContainer();
+            IUnityContainer uc1 = new UnityContainer();
 
             iTest = objA;
             uc1.RegisterInstance<ITest>("ATest", new ATest());
@@ -93,7 +93,7 @@ namespace Unity.Tests.v5.Container
             ITest iTest;
             BTest objB = new BTest();
 
-            UnityContainer uc1 = new UnityContainer();
+            IUnityContainer uc1 = new UnityContainer();
 
             uc1.RegisterType<ITest, ATest>("ATest");
             iTest = objB;

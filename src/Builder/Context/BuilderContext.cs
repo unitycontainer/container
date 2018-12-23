@@ -18,7 +18,7 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public ResolverOverride[] ResolverOverrides;
+        public ResolverOverride[] Overrides;
         public IPolicyList list;
 
         #endregion
@@ -57,7 +57,7 @@ namespace Unity.Builder
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
 
                 list = list,
-                ResolverOverrides = ResolverOverrides,
+                Overrides = Overrides,
                 DeclaringType = RegistrationType
             };
 
@@ -69,12 +69,12 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != ResolverOverrides)
+            if (null != Overrides)
             {
                 // Check for property overrides
-                for (var index = ResolverOverrides.Length - 1; index >= 0; --index)
+                for (var index = Overrides.Length - 1; index >= 0; --index)
                 {
-                    var resolverOverride = ResolverOverrides[index];
+                    var resolverOverride = Overrides[index];
 
                     // Check if this parameter is overridden
                     if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
@@ -124,12 +124,12 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != ResolverOverrides)
+            if (null != Overrides)
             {
                 // Check for property overrides
-                for (var index = ResolverOverrides.Length - 1; index >= 0; --index)
+                for (var index = Overrides.Length - 1; index >= 0; --index)
                 {
-                    var resolverOverride = ResolverOverrides[index];
+                    var resolverOverride = Overrides[index];
 
                     // Check if this parameter is overridden
                     if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
@@ -179,12 +179,12 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != ResolverOverrides)
+            if (null != Overrides)
             {
                 // Check if this parameter is overridden
-                for (var index = ResolverOverrides.Length - 1; index >= 0; --index)
+                for (var index = Overrides.Length - 1; index >= 0; --index)
                 {
-                    var resolverOverride = ResolverOverrides[index];
+                    var resolverOverride = Overrides[index];
 
                     // If matches with current parameter
                     if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))

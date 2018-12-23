@@ -12,6 +12,31 @@ namespace Unity
         #region Extension management and configuration
 
         /// <summary>
+        /// Add an extension to the container.
+        /// </summary>
+        /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
+        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
+        public static IUnityContainer AddExtension(this IUnityContainer container, IUnityContainerExtensionConfigurator extension)
+        {
+            return ((UnityContainer)container ?? throw new ArgumentNullException(nameof(container))).AddExtension(extension);
+        }
+
+        /// <summary>
+        /// Resolve access to a configuration interface exposed by an extension.
+        /// </summary>
+        /// <remarks>Extensions can expose configuration interfaces as well as adding
+        /// strategies and policies to the container. This method walks the list of
+        /// added extensions and returns the first one that implements the requested type.
+        /// </remarks>
+        /// <param name="configurationInterface"><see cref="Type"/> of configuration interface required.</param>
+        /// <returns>The requested extension's configuration interface, or null if not found.</returns>
+        public static object Configure(this IUnityContainer container, Type configurationInterface)
+        {
+            return ((UnityContainer)container ?? throw new ArgumentNullException(nameof(container))).Configure(configurationInterface);
+        }
+
+
+        /// <summary>
         /// Creates a new extension object and adds it to the container.
         /// </summary>
         /// <typeparam name="TExtension">Type of <see cref="UnityContainerExtension"/> to add. The extension type

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Events;
-using Unity.Injection;
 using Unity.Registration;
 using Unity.Storage;
 
@@ -22,156 +18,7 @@ namespace Unity
         #endregion
 
 
-        #region Type Registration
-
-        /// <summary>
-        /// RegisterType a type mapping with the container, where the created instances will use
-        /// the given <see cref="LifetimeManager"/>.
-        /// </summary>
-        /// <param name="typeFrom"><see cref="Type"/> that will be requested.</param>
-        /// <param name="typeTo"><see cref="Type"/> that will actually be returned.</param>
-        /// <param name="name">Name to use for registration, null if a default registration.</param>
-        /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
-        /// of the returned instance.</param>
-        /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
-        {
-            // Validate input
-            if (string.Empty == name) name = null;
-            if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
-            if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
-            if (lifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
-                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
-#else
-            if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
-                                    !typeFrom.IsAssignableFrom( typeTo))
-#endif
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Constants.TypesAreNotAssignable, typeFrom, typeTo), nameof(typeFrom));
-            }
-
-            // Create registration and add to appropriate storage
-            var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(typeTo, lifetimeManager, injectionMembers);
-
-            var registeredType = typeFrom ?? typeTo;
-            var mappedToType = typeTo;
-
-            // Add or replace existing 
-            var previous = container.Register(registeredType, name, registration);
-            if (previous is ContainerRegistration old &&
-                old.LifetimeManager is IDisposable disposable)
-            {
-                // Dispose replaced lifetime manager
-                container._lifetimeContainer.Remove(disposable);
-                disposable.Dispose();
-            }
-
-            // If Disposable add to container's lifetime
-            if (lifetimeManager is IDisposable manager)
-                container._lifetimeContainer.Add(manager);
-
-            // Add Injection Members
-            if (null != injectionMembers && injectionMembers.Length > 0)
-            {
-                var context = new RegistrationContext(this, registeredType, name, registration);
-                foreach (var member in injectionMembers)
-                {
-                    member.AddPolicies<BuilderContext, RegistrationContext>(
-                        registeredType, mappedToType,
-                        name, ref context);
-                }
-            }
-
-            // Check what strategies to run
-            registration.BuildChain = _buildChain.ToArray()
-                                                 .Where(strategy => strategy.RequiredToBuildType(this, 
-                                                     registeredType, registration, injectionMembers))
-                                                 .ToArray();
-            // Raise event
-            container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
-                                                                      mappedToType,
-                                                                      name,
-                                                                      lifetimeManager));
-            return this;
-        }
-
-        #endregion
-
-
-        #region Instance Registration
-
-        /// <summary>
-        /// Register an instance with the container.
-        /// </summary>
-        /// <remarks> <para>
-        /// Instance registration is much like setting a type as a singleton, except that instead
-        /// of the container creating the instance the first time it is requested, the user
-        /// creates the instance ahead of type and adds that instance to the container.
-        /// </para></remarks>
-        /// <param name="registeredType">Type of instance to register (may be an implemented interface instead of the full type).</param>
-        /// <param name="instance">Object to be returned.</param>
-        /// <param name="name">Name for registration.</param>
-        /// <param name="lifetimeManager">
-        /// <para>If null or <see cref="ContainerControlledLifetimeManager"/>, the container will take over the lifetime of the instance,
-        /// calling Dispose on it (if it's <see cref="IDisposable"/>) when the container is Disposed.</para>
-        /// <para>
-        ///  If <see cref="ExternallyControlledLifetimeManager"/>, container will not maintain a strong reference to <paramref name="instance"/>. 
-        /// User is responsible for disposing instance, and for keeping the instance typeFrom being garbage collected.</para></param>
-        /// <returns>The <see cref="UnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer RegisterInstance(Type registeredType, string name, object instance, LifetimeManager lifetimeManager)
-        {
-            // Validate input
-            if (string.Empty == name) name = null;
-            if (null == instance) throw new ArgumentNullException(nameof(instance));
-
-
-            var mappedToType = instance.GetType();
-            var typeFrom = registeredType ?? mappedToType;
-            var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
-            if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-            lifetime.SetValue(instance, _lifetimeContainer);
-
-            // Create registration and add to appropriate storage
-            var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(mappedToType, lifetime);
-
-            // Add or replace existing 
-            var previous = container.Register(typeFrom, name, registration);
-            if (previous is ContainerRegistration old &&
-                old.LifetimeManager is IDisposable disposable)
-            {
-                // Dispose replaced lifetime manager
-                container._lifetimeContainer.Remove(disposable);
-                disposable.Dispose();
-            }
-
-            // If Disposable add to container's lifetime
-            if (lifetimeManager is IDisposable manager)
-                container._lifetimeContainer.Add(manager);
-
-            // Check what strategies to run
-            registration.BuildChain = _buildChain.ToArray()
-                                                 .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
-                                                 .ToArray();
-            // Raise event
-            container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(typeFrom, instance,
-                                                                   name, lifetimeManager));
-            return this;
-        }
-
-        #endregion
-
-
         #region Check Registration
-
-        public bool IsRegistered(Type type, string name) =>
-            ReferenceEquals(string.Empty, name) ? _isTypeExplicitlyRegistered(type)
-                                                : _isExplicitlyRegistered(type, name);
 
         private bool IsExplicitlyRegisteredLocally(Type type, string name)
         {
@@ -188,10 +35,10 @@ namespace Unity
 
                 var registry = candidate.Value;
                 return registry?[name] is ContainerRegistration ||
-                       (_parent?.IsRegistered(type, name) ?? false);
+                       (((IUnityContainer)_parent)?.IsRegistered(type, name) ?? false);
             }
 
-            return _parent?.IsRegistered(type, name) ?? false;
+            return ((IUnityContainer)_parent)?.IsRegistered(type, name) ?? false;
         }
 
         private bool IsTypeTypeExplicitlyRegisteredLocally(Type type)
@@ -284,11 +131,10 @@ namespace Unity
             return null != noNameRegistration;
         }
 
-
         #endregion
 
 
-        #region Registrations Collection
+        #region Registrations Collections
 
         private static RegistrationSet GetRegistrations(UnityContainer container)
         {
