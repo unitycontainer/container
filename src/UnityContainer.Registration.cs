@@ -90,7 +90,7 @@ namespace Unity
             // Check what strategies to run
             registration.BuildChain = _buildChain.ToArray()
                                                  .Where(strategy => strategy.RequiredToBuildType(this, 
-                                                     registeredType, name, registration, injectionMembers))
+                                                     registeredType, registration, injectionMembers))
                                                  .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
@@ -758,7 +758,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    existing.GetOrAdd(name, () => CreateRegistration(type, name, policyInterface, policy));
+                    existing.GetOrAdd(name, () => CreateRegistration(type, policyInterface, policy));
                     return;
                 }
 
@@ -768,7 +768,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name, policyInterface, policy);
+                var registration = CreateRegistration(type, policyInterface, policy);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];

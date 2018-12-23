@@ -43,14 +43,14 @@ namespace Unity
                 }
             }
 
-            registration.BuildChain = GetBuilders(type, name, registration);
+            registration.BuildChain = GetBuilders(type, registration);
             return registration;
         }
 
-        private IPolicySet CreateRegistration(Type type, string name, Type policyInterface, object policy)
+        private IPolicySet CreateRegistration(Type type, Type policyInterface, object policy)
         {
             var registration = new InternalRegistration(policyInterface, policy);
-            registration.BuildChain = GetBuilders(type, name, registration);
+            registration.BuildChain = GetBuilders(type, registration);
             return registration;
         }
 
