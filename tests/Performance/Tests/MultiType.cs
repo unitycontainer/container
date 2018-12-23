@@ -55,7 +55,9 @@ namespace Runner.Tests
         }
 
 
-
+        public interface IService { }
+        public class Service : IService { }
+        public class Poco { }
     }
 }
 

@@ -8,7 +8,7 @@ namespace Runner.Tests
 {
     [BenchmarkCategory("Basic")]
     [Config(typeof(BenchmarkConfiguration))]
-    public class ColdStart
+    public class PreBuilt
     {
         IUnityContainer _container;
         object _syncRoot = new object();
@@ -21,25 +21,30 @@ namespace Runner.Tests
             _container.RegisterType<IService, Service>();
             _container.RegisterType<IService, Service>("1");
             _container.RegisterType<IService, Service>("2");
+
+            _container.Resolve<Poco>();
+            _container.Resolve<IService>();
+            _container.Resolve<IService>("1");
+            _container.Resolve<IService>("2");
         }
 
         [Benchmark]
         public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
 
         [Benchmark]
-        public object Unregistered() => _container.Resolve(typeof(object), null);
+        public object PreUnregistered() => _container.Resolve(typeof(object), null);
 
         [Benchmark]
-        public object Transient() => _container.Resolve(typeof(Poco), null);
+        public object PreTransient() => _container.Resolve(typeof(Poco), null);
 
         [Benchmark]
-        public object Mapping() => _container.Resolve(typeof(IService), null);
+        public object PreMapping() => _container.Resolve(typeof(IService), null);
 
         [Benchmark]
-        public object Array() => _container.Resolve(typeof(IService[]), null);
+        public object PreArray() => _container.Resolve(typeof(IService[]), null);
 
         [Benchmark]
-        public object Enumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
+        public object PreEnumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
 
         [Benchmark]
         public object Registrations() => _container.Registrations.ToArray();
