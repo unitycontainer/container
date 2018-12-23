@@ -48,6 +48,10 @@ namespace Unity.Registration
 
         public InjectionMember[] InjectionMembers { get; set; }
 
+        public bool BuildRequired { get; set; }
+
+        public Converter<Type, Type> Map { get; set; }
+
         #endregion
 
 

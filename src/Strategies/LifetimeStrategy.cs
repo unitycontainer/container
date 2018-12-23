@@ -2,9 +2,7 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
-using Unity.Storage;
 
 namespace Unity.Strategies
 {
@@ -33,36 +31,35 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager)context.Get(context.RegistrationType, 
-                                                      context.RegistrationName, 
+                policy = (LifetimeManager)context.Get(context.RegistrationType,
+                                                      context.RegistrationName,
                                                       typeof(LifetimeManager));
             if (null == policy)
             {
-                if (context.RegistrationType.GetTypeInfo().IsGenericType)
-                {
-                    policy = (LifetimeManager)context.Get(context.Type.GetGenericTypeDefinition(),
-                                                          context.Name, typeof(LifetimeManager));
-                    if (policy is LifetimeManager lifetimeManager)
-                    {
-                        lock (_genericLifetimeManagerLock)
-                        {
-                            // check whether the policy for closed-generic has been added since first checked
-                            policy = (LifetimeManager)context.Registration.Get(typeof(LifetimeManager));
-                            if (null == policy)
-                            {
-                                policy = lifetimeManager.CreateLifetimePolicy();
-                                context.Registration.Set(typeof(LifetimeManager), policy);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                if (!context.RegistrationType.GetTypeInfo().IsGenericType) return;
+#else
+                if (!context.RegistrationType.IsGenericType) return;
+#endif
+                var manager = (LifetimeManager)context.Get(context.Type.GetGenericTypeDefinition(),
+                                                           context.Name, typeof(LifetimeManager));
+                if (null == manager) return;
 
-                                if (policy is IDisposable)
-                                {
-                                    context.Lifetime.Add(policy);
-                                }
-                            }
+                lock (_genericLifetimeManagerLock)
+                {
+                    // check whether the policy for closed-generic has been added since first checked
+                    policy = (LifetimeManager)context.Registration.Get(typeof(LifetimeManager));
+                    if (null == policy)
+                    {
+                        policy = manager.CreateLifetimePolicy();
+                        context.Registration.Set(typeof(LifetimeManager), policy);
+
+                        if (policy is IDisposable)
+                        {
+                            context.Lifetime.Add(policy);
                         }
                     }
-                    else return;
                 }
-                else return;
             }
 
             if (policy is SynchronizedLifetimeManager recoveryPolicy)
@@ -85,7 +82,7 @@ namespace Unity.Strategies
 
             if (null == policy || policy is PerResolveLifetimeManager)
                 policy = (LifetimeManager)context.Get(context.RegistrationType,
-                                                      context.RegistrationName, 
+                                                      context.RegistrationName,
                                                       typeof(LifetimeManager));
 
             policy?.SetValue(context.Existing, context.Lifetime);
@@ -107,7 +104,11 @@ namespace Unity.Strategies
             // Dynamic registration
             if (!(registration is ContainerRegistration) &&
                 null != registration.Type &&
+#if NETSTANDARD1_0 || NETCOREAPP1_0
                 registration.Type.GetTypeInfo().IsGenericType)
+#else
+                registration.Type.IsGenericType)
+#endif
             {
                 return true;
             }
@@ -115,10 +116,7 @@ namespace Unity.Strategies
             return false;
         }
 
-        public override bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration)
-        {
-            return true;
-        }
+        public override bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration) => true;
 
         #endregion
     }

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security;
 using Unity.Utility;
 
 namespace Unity.Storage
 {
+    [SecuritySafeCritical]
     [DebuggerDisplay("HashRegistry ({Count}) ")]
     internal class HashRegistry<TKey, TValue> : IRegistry<TKey, TValue>
     {
@@ -32,16 +34,20 @@ namespace Unity.Storage
             Buckets = new int[size];
             Entries = new Entry[size];
 
-            for (var i = 0; i < Buckets.Length; i++) Buckets[i] = -1;
+            unsafe
+            {
+                fixed (int* bucketsPtr = Buckets)
+                {
+                    int* ptr = bucketsPtr;
+                    var end = bucketsPtr + Buckets.Length;
+                    while (ptr < end) *ptr++ = -1; 
+                }
+            }
         }
 
         public HashRegistry(int capacity, LinkedNode<TKey, TValue> head)
+            : this(capacity)
         {
-            var size = Prime.GetPrime(capacity);
-            Buckets = new int[size];
-            Entries = new Entry[size];
-
-            for (var i = 0; i < Buckets.Length; i++) Buckets[i] = -1;
             for (var node = head; node != null; node = node.Next)
             {
                 this[node.Key] = node.Value;
@@ -49,20 +55,15 @@ namespace Unity.Storage
         }
 
         public HashRegistry(HashRegistry<TKey, TValue> dictionary)
+            : this(Prime.GetPrime(dictionary.Entries.Length * 2))
         {
-            var size = Prime.GetPrime(dictionary.Entries.Length * 2);
-
-            Buckets = new int[size];
-            Entries = new Entry[size];
-            for (var i = 0; i < Buckets.Length; i++) Buckets[i] = -1;
-
             Array.Copy(dictionary.Entries, 0, Entries, 0, dictionary.Count);
             for (var i = 0; i < dictionary.Count; i++)
             {
                 var hashCode = Entries[i].HashCode;
                 if (hashCode < 0) continue;
 
-                var bucket = hashCode % size;
+                var bucket = hashCode % Buckets.Length; 
                 Entries[i].Next = Buckets[bucket];
                 Buckets[bucket] = i;
             }

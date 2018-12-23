@@ -286,7 +286,6 @@ namespace Unity
                               .ToArray();
         }
 
-        [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         internal Type GetFinalType(Type argType)
         {
             Type next;

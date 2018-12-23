@@ -13,7 +13,7 @@ namespace Unity.Builder
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [SecuritySafeCritical]
-    [DebuggerDisplay("Resolving: {Registration.Type},  Name: {Registration.Name}")]
+    [DebuggerDisplay("Resolving: {Type},  Name: {Name}")]
     public struct BuilderContext : IResolveContext
     {
         #region Fields

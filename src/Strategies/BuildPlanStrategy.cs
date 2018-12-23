@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Globalization;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
@@ -15,6 +17,20 @@ namespace Unity.Strategies
     /// </summary>
     public class BuildPlanStrategy : BuilderStrategy
     {
+        #region Registration and Analysis
+
+        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        {
+            // Require Re-Resolve if no injectors specified
+            registration.BuildRequired = (injectionMembers?.Any(m => m.BuildRequired) ?? false) ||
+                                          registration is ContainerRegistration cr && cr.LifetimeManager is PerResolveLifetimeManager;
+
+            return true;
+        }
+
+        #endregion
+
+
         #region BuilderStrategy
 
         /// <summary>

@@ -36,7 +36,11 @@ namespace Unity
             if (type.GetTypeInfo().IsGenericType)
             {
                 var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name);
-                registration.InjectionMembers = factory?.InjectionMembers;
+                if (null != factory)
+                {
+                    registration.InjectionMembers = factory.InjectionMembers;
+                    registration.Map = factory.Map;
+                }
             }
 
             registration.BuildChain = GetBuilders(registration);

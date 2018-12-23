@@ -1,13 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
-using Unity.Policy.Mapping;
 using Unity.Registration;
-using Unity.Storage;
 
 namespace Unity.Strategies
 {
@@ -20,35 +17,49 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
-            return (registration is ContainerRegistration containerRegistration) 
-                ? AnalyzeStaticRegistration(containerRegistration, injectionMembers)
-                : AnalyseDynamicRegistration(registration);
-        }
+            if (!(registration is ContainerRegistration containerRegistration)) return null != registration.Map;
 
-        private bool AnalyzeStaticRegistration(ContainerRegistration registration, params InjectionMember[] injectionMembers)
-        {
             // Validate input  
-            if (null == registration.MappedToType || registration.RegisteredType == registration.MappedToType) return false;
-
-            // Require Re-Resolve if no injectors specified
-            var buildRequired = registration.LifetimeManager is PerResolveLifetimeManager ||
-                                (injectionMembers?.Any(m => m.BuildRequired) ?? false);
+            if (null == containerRegistration.MappedToType || containerRegistration.RegisteredType == containerRegistration.MappedToType) return false;
 
             // Set mapping policy
-            var policy = registration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition &&
-                         registration.MappedToType.GetTypeInfo().IsGenericTypeDefinition
-                ? new GenericTypeBuildKeyMappingPolicy(registration.MappedToType, buildRequired)
-                : (IBuildKeyMappingPolicy)new BuildKeyMappingPolicy(registration.MappedToType, buildRequired);
-            registration.Set(typeof(IBuildKeyMappingPolicy), policy);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (containerRegistration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition && 
+                containerRegistration.MappedToType.GetTypeInfo().IsGenericTypeDefinition && 
+                null == containerRegistration.Map)
+#else
+            if (containerRegistration.RegisteredType.IsGenericTypeDefinition && containerRegistration.MappedToType.IsGenericTypeDefinition && null == containerRegistration.Map)
+#endif
+            {
+                containerRegistration.Map = (Type t) =>
+                {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    var targetTypeInfo = t.GetTypeInfo();
+#else
+                    var targetTypeInfo = t;
+#endif
+                    if (targetTypeInfo.IsGenericTypeDefinition)
+                    {
+                        // No need to perform a mapping - the source type is an open generic
+                        return containerRegistration.MappedToType;
+                    }
+
+                    if (targetTypeInfo.GenericTypeArguments.Length != containerRegistration.MappedToType.GetTypeInfo().GenericTypeParameters.Length)
+                        throw new ArgumentException("Invalid number of generic arguments in types: {registration.MappedToType} and {t}");
+
+                    try
+                    {
+                        return containerRegistration.MappedToType.MakeGenericType(targetTypeInfo.GenericTypeArguments);
+                    }
+                    catch (ArgumentException ae)
+                    {
+                        throw new MakeGenericTypeFailedException(ae);
+                    }
+                };
+            }
 
             return true;
         }
-
-        private static bool AnalyseDynamicRegistration(InternalRegistration registration)
-        {
-            return null != registration.Type && registration.Type.GetTypeInfo().IsGenericType;
-        }
-
 
         #endregion
 
@@ -62,52 +73,17 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(ref BuilderContext context)
         {
-            if (context.Registration is ContainerRegistration registration && 
-                registration.RegisteredType == registration.MappedToType)
-                return;
-                
-            IBuildKeyMappingPolicy policy = context.Registration.Get<IBuildKeyMappingPolicy>() 
-                                          ?? (context.RegistrationType.GetTypeInfo().IsGenericType 
-                                          ? (IBuildKeyMappingPolicy)context.Get(context.RegistrationType.GetGenericTypeDefinition(), 
-                                                                                context.RegistrationName, typeof(IBuildKeyMappingPolicy)) 
-                                          : null);
-            if (null == policy) return;
+            var map = ((InternalRegistration)context.Registration).Map;
+            if (null != map) context.Type = map(context.Type);
 
-            context.Type = policy.Map(ref context);
-
-            if (!policy.RequireBuild && ((UnityContainer)context.Container).RegistrationExists(context.Type, context.Name))
+            if (!((InternalRegistration)context.Registration).BuildRequired &&
+                ((UnityContainer)context.Container).RegistrationExists(context.Type, context.Name))
             {
-                var type = context.Type;
-                var name = context.Name;
-
-                context.Registration.Set(typeof(IBuildPlanPolicy), 
-                    new DynamicMethodBuildPlan((ResolveDelegate<BuilderContext>) ResolveDelegate));
-
-                object ResolveDelegate(ref BuilderContext c) => c.Existing = c.Resolve(type, name);
+                context.Existing = context.Resolve(context.Type, context.Name);
+                context.BuildComplete = true;
             }
         }
 
-
-        public override void PostBuildUp(ref BuilderContext context)
-        {
-            if (context.Registration is InternalRegistration registration && 
-                null != registration.BuildChain &&
-                null != context.Registration.Get<IBuildPlanPolicy>())
-            {
-                var chain = new List<BuilderStrategy>();
-                var strategies = registration.BuildChain;
-
-                for (var i = 0; i < strategies.Length; i++)
-                {
-                    var strategy = strategies[i];
-                    if (!(strategy is BuildKeyMappingStrategy))
-                        chain.Add(strategy);
-                }
-
-                registration.BuildChain = chain.ToArray();
-            }
-        }
-        
         #endregion
     }
 }
