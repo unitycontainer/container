@@ -4,12 +4,22 @@ using Unity.Policy;
 
 namespace Unity.Resolution
 {
-    public interface IResolveContext : INamedType, IPolicyList
+    public interface IResolveContext : IPolicyList
     {
         /// <summary>Reference to container.</summary>
         /// <remarks>Reference to the container used to execute this build. </remarks>
         /// <returns> Interface for the hosting container</returns>
         IUnityContainer Container { get; }
+
+        /// <summary>
+        /// Type being resolved.
+        /// </summary>
+        Type Type { get; }
+
+        /// <summary>
+        /// Name of the registered type
+        /// </summary>
+        string Name { get; }
 
         /// <summary>
         /// Resolve type/object/dependency using current context
