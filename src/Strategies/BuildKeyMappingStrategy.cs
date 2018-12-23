@@ -15,20 +15,20 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, string name, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             if (!(registration is ContainerRegistration containerRegistration)) return null != registration.Map;
 
             // Validate input  
-            if (null == containerRegistration.MappedToType || containerRegistration.RegisteredType == containerRegistration.MappedToType) return false;
+            if (null == containerRegistration.Type || type == containerRegistration.Type) return false;
 
             // Set mapping policy
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (containerRegistration.RegisteredType.GetTypeInfo().IsGenericTypeDefinition && 
-                containerRegistration.MappedToType.GetTypeInfo().IsGenericTypeDefinition && 
+            if (type.GetTypeInfo().IsGenericTypeDefinition && 
+                containerRegistration.Type.GetTypeInfo().IsGenericTypeDefinition && 
                 null == containerRegistration.Map)
 #else
-            if (containerRegistration.RegisteredType.IsGenericTypeDefinition && containerRegistration.MappedToType.IsGenericTypeDefinition && null == containerRegistration.Map)
+            if (type.IsGenericTypeDefinition && containerRegistration.Type.IsGenericTypeDefinition && null == containerRegistration.Map)
 #endif
             {
                 containerRegistration.Map = (Type t) =>
@@ -41,15 +41,15 @@ namespace Unity.Strategies
                     if (targetTypeInfo.IsGenericTypeDefinition)
                     {
                         // No need to perform a mapping - the source type is an open generic
-                        return containerRegistration.MappedToType;
+                        return containerRegistration.Type;
                     }
 
-                    if (targetTypeInfo.GenericTypeArguments.Length != containerRegistration.MappedToType.GetTypeInfo().GenericTypeParameters.Length)
+                    if (targetTypeInfo.GenericTypeArguments.Length != containerRegistration.Type.GetTypeInfo().GenericTypeParameters.Length)
                         throw new ArgumentException("Invalid number of generic arguments in types: {registration.MappedToType} and {t}");
 
                     try
                     {
-                        return containerRegistration.MappedToType.MakeGenericType(targetTypeInfo.GenericTypeArguments);
+                        return containerRegistration.Type.MakeGenericType(targetTypeInfo.GenericTypeArguments);
                     }
                     catch (ArgumentException ae)
                     {

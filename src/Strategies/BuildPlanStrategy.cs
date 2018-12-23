@@ -19,7 +19,7 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, string name, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             // Require Re-Resolve if no injectors specified
             registration.BuildRequired = (injectionMembers?.Any(m => m.BuildRequired) ?? false) ||
@@ -53,7 +53,7 @@ namespace Unity.Strategies
                 if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
                 {
                     var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? 
-                                      CheckIfOpenGeneric(context.Registration) ??
+                                      CheckIfOpenGeneric(context.RegistrationType, context.Registration) ??
                                       Get_Policy<IBuildPlanCreatorPolicy>(ref context, context.Type, context.Name);
 
                     if (planCreator != null)
@@ -105,17 +105,17 @@ namespace Unity.Strategies
             return null;
         }
 
-        protected static IBuildPlanCreatorPolicy CheckIfOpenGeneric(IPolicySet namedType)
+        protected static IBuildPlanCreatorPolicy CheckIfOpenGeneric(Type type, IPolicySet namedType)
         {
             if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) &&
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                null != registration.Type && registration.Type.GetTypeInfo().IsGenericTypeDefinition)
+                type.GetTypeInfo().IsGenericTypeDefinition)
 #else
-                null != registration.Type && registration.Type.IsGenericTypeDefinition)
+                type.IsGenericTypeDefinition)
 #endif
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Constants.CannotResolveOpenGenericType, registration.Type.FullName));
+                    Constants.CannotResolveOpenGenericType, type.FullName));
             }
 
             return null;

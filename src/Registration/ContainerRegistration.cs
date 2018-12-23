@@ -9,10 +9,10 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ContainerRegistration(Type registeredType, string name, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
-            : base(registeredType ?? mappedTo, string.IsNullOrEmpty(name) ? null : name)
+        public ContainerRegistration(Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+            : base()
         {
-            MappedToType = mappedTo;
+            Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
@@ -24,13 +24,11 @@ namespace Unity.Registration
 
         #region IContainerRegistration
 
-        public Type RegisteredType => Type;
-
         /// <summary>
         /// The type that this registration is mapped to. If no type mapping was done, the
         /// <see cref="InternalRegistration.Type"/> property and this one will have the same value.
         /// </summary>
-        public Type MappedToType { get; }
+        public Type Type { get; }
 
         /// <summary>
         /// The lifetime manager for this registration.

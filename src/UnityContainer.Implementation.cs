@@ -279,10 +279,10 @@ namespace Unity
             return assignmentInstanceType;
         }
 
-        private BuilderStrategy[] GetBuilders(InternalRegistration registration)
+        private BuilderStrategy[] GetBuilders(Type type, string name, InternalRegistration registration)
         {
             return _buildChain.ToArray()
-                              .Where(strategy => strategy.RequiredToBuildType(this, registration, null))
+                              .Where(strategy => strategy.RequiredToBuildType(this, type, name, registration, null))
                               .ToArray();
         }
 

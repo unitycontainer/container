@@ -56,7 +56,7 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(typeFrom, name, typeTo, lifetimeManager, injectionMembers);
+            var registration = new ContainerRegistration(typeTo, lifetimeManager, injectionMembers);
 
             var registeredType = typeFrom ?? typeTo;
             var mappedToType = typeTo;
@@ -89,7 +89,8 @@ namespace Unity
 
             // Check what strategies to run
             registration.BuildChain = _buildChain.ToArray()
-                                                 .Where(strategy => strategy.RequiredToBuildType(this, registration, injectionMembers))
+                                                 .Where(strategy => strategy.RequiredToBuildType(this, 
+                                                     registeredType, name, registration, injectionMembers))
                                                  .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
@@ -137,7 +138,7 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(typeFrom, name, mappedToType, lifetime);
+            var registration = new ContainerRegistration(mappedToType, lifetime);
 
             // Add or replace existing 
             var previous = container.Register(typeFrom, name, registration);

@@ -18,16 +18,12 @@ namespace Unity.Registration
 
         #region Constructors
 
-        public InternalRegistration(Type type, string name)
+        public InternalRegistration()
         {
-            Name = name;
-            Type = type;
         }
 
-        public InternalRegistration(Type type, string name, Type policyInterface, object policy)
+        public InternalRegistration(Type policyInterface, object policy)
         {
-            Name = name;
-            Type = type;
             Key = policyInterface;
             Value = policy;
         }
@@ -105,15 +101,6 @@ namespace Unity.Registration
                 last = node;
             }
         }
-
-        #endregion
-
-
-        #region INamedType
-
-        public Type Type { get; }
-
-        public string Name { get; }
 
         #endregion
     }

@@ -93,7 +93,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, string name, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             var policy = registration.Get(typeof(LifetimeManager));
             if (null != policy)
@@ -102,17 +102,13 @@ namespace Unity.Strategies
             }
 
             // Dynamic registration
-            if (!(registration is ContainerRegistration) &&
-                null != registration.Type &&
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                registration.Type.GetTypeInfo().IsGenericType)
-#else
-                registration.Type.IsGenericType)
-#endif
-            {
+            if (!(registration is ContainerRegistration) && null != type && type.GetTypeInfo().IsGenericType)
                 return true;
-            }
-
+#else
+            if (!(registration is ContainerRegistration) && null != type && type.IsGenericType)
+                return true;
+#endif
             return false;
         }
 

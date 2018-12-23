@@ -36,7 +36,7 @@ namespace Unity
                 RegistrationType = type,
                 RegistrationName = name,
                 Lifetime = _lifetimeContainer,
-                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
                 list = new PolicyList()
             };
 
@@ -79,7 +79,7 @@ namespace Unity
                 RegistrationName = name,
                 Lifetime = _lifetimeContainer,
                 Existing = existing,
-                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
                 list = new PolicyList()
             };
 

@@ -36,18 +36,19 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, string name, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             if (registration is ContainerRegistration containerRegistration)
             {
-                if (containerRegistration.RegisteredType != containerRegistration.MappedToType ||
+                if (type != containerRegistration.Type ||
                     null != injectionMembers && injectionMembers.Any(i => i is InjectionFactory))
                     return false;
             }
-
-            return null != registration.Type &&
-                   registration.Type.GetTypeInfo().IsGenericType &&
-                   typeof(IEnumerable<>) == registration.Type.GetGenericTypeDefinition();
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            return type.GetTypeInfo().IsGenericType && typeof(IEnumerable<>) == type.GetGenericTypeDefinition();
+#else
+            return type.IsGenericType && typeof(IEnumerable<>) == type.GetGenericTypeDefinition();
+#endif
         }
 
         #endregion
@@ -60,7 +61,11 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (plan == null)
             {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
                 var typeArgument = context.Type.GetTypeInfo().GenericTypeArguments.First();
+#else
+                var typeArgument = context.Type.GenericTypeArguments.First();
+#endif
                 var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
                 if (type != typeArgument)
                 {

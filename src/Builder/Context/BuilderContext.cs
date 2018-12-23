@@ -54,7 +54,7 @@ namespace Unity.Builder
                 Registration = registration,
                 RegistrationType = type,
                 RegistrationName = name,
-                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.MappedToType : registration.Type,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
 
                 list = list,
                 ResolverOverrides = ResolverOverrides,

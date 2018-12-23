@@ -138,7 +138,7 @@ namespace Unity.Storage
             public string Name { get; internal set; }
 
             public Type MappedToType => Registration is ContainerRegistration registration 
-                ? registration.MappedToType : null;
+                ? registration.Type : null;
 
             public LifetimeManager LifetimeManager => Registration is ContainerRegistration registration 
                 ? registration.LifetimeManager : null;
