@@ -54,7 +54,7 @@ namespace Unity.Builder.Expressions
         public static IEnumerable<Expression> GetParameters(ConstructorInfo info, object[] values)
         {
             var parameters = info.GetParameters();
-
+            var resolvers = null != values && 0 == values.Length ? null : values;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -64,42 +64,7 @@ namespace Unity.Builder.Expressions
                     .OfType<DependencyResolutionAttribute>()
                     .FirstOrDefault();
 
-                yield return Resolve(parameter, attribute?.Name, values[i]);
-            }
-        }
-
-
-        public static IEnumerable<Expression> GetParameters<TInfo>(SelectedMemberWithParameters<TInfo> member)
-            where TInfo : MethodBase
-        {
-            var parameters = member.MemberInfo.GetParameters();
-            var resolvers = member.GetParameterResolvers();
-
-            if (parameters.Length == resolvers.Length)
-            {
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    var parameter = parameters[i];
-
-                    // Resolve all DependencyAttributes on this parameter, if any
-                    var attribute = parameter.GetCustomAttributes(false)
-                        .OfType<DependencyResolutionAttribute>()
-                        .FirstOrDefault();
-
-                    yield return Resolve(parameter, attribute?.Name, resolvers[i]);
-                }
-            }
-            else
-            {
-                foreach (var parameter in parameters)
-                {
-                    // Resolve all DependencyAttributes on this parameter, if any
-                    var attribute = parameter.GetCustomAttributes(false)
-                        .OfType<DependencyResolutionAttribute>()
-                        .FirstOrDefault();
-
-                    yield return Resolve(parameter, attribute?.Name, null);
-                }
+                yield return Resolve(parameter, attribute?.Name, resolvers?[i]);
             }
         }
 

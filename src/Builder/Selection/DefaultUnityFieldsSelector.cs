@@ -6,7 +6,7 @@ using Unity.Policy;
 
 namespace Unity.Builder
 {
-    public class ImportedFieldsSelector : MemberSelectorBase<FieldInfo, object>, 
+    public class DefaultUnityFieldsSelector : MemberSelectorBase<FieldInfo, object>, 
                                           IFieldSelectorPolicy
     {
         public IEnumerable<object> SelectFields(ref BuilderContext context) 

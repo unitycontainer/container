@@ -11,12 +11,12 @@ namespace Unity.Builder
     /// An implementation of <see cref="IMethodSelectorPolicy"/> that is aware
     /// of the build keys used by the Unity container.
     /// </summary>
-    public class InvokedMethodsSelector : MemberSelectorBase<MethodInfo, object[]>, 
+    public class DefaultUnityMethodsSelector : MemberSelectorBase<MethodInfo, object[]>, 
                                           IMethodSelectorPolicy
     {
         #region Constructors
 
-        public InvokedMethodsSelector()
+        public DefaultUnityMethodsSelector()
             : base(new (Type type, Converter<MethodInfo, object> factory)[]
                 { (typeof(InjectionMethodAttribute), info => info) })
         {

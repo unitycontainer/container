@@ -12,8 +12,8 @@ namespace Unity.Builder
     /// An implementation of <see cref="IConstructorSelectorPolicy"/> that is
     /// aware of the build keys used by the Unity container.
     /// </summary>
-    public class InvokedConstructorSelector : MemberSelectorBase<ConstructorInfo, object[]>,
-                                              IConstructorSelectorPolicy
+    public class DefaultUnityConstructorSelector : MemberSelectorBase<ConstructorInfo, object[]>,
+                                                   IConstructorSelectorPolicy
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace Unity.Builder
 
         #region Constructors
 
-        public InvokedConstructorSelector()
+        public DefaultUnityConstructorSelector()
             : base(new (Type type, Converter<ConstructorInfo, object> factory)[]
                 { (typeof(InjectionConstructorAttribute), info => info) })
         {

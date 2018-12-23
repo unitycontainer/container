@@ -188,10 +188,10 @@ namespace Unity
             var defaults = new InternalRegistration(null, null);
 
             defaults.Set(typeof(IBuildPlanCreatorPolicy),    new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
-            defaults.Set(typeof(IConstructorSelectorPolicy), new InvokedConstructorSelector());
-            defaults.Set(typeof(IFieldSelectorPolicy),       new ImportedFieldsSelector());
-            defaults.Set(typeof(IPropertySelectorPolicy),    new ImportedPropertiesSelector());
-            defaults.Set(typeof(IMethodSelectorPolicy),      new InvokedMethodsSelector());
+            defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelector());
+            defaults.Set(typeof(IFieldSelectorPolicy),       new DefaultUnityFieldsSelector());
+            defaults.Set(typeof(IPropertySelectorPolicy),    new DefaultUnityPropertiesSelector());
+            defaults.Set(typeof(IMethodSelectorPolicy),      new DefaultUnityMethodsSelector());
 
             return defaults;
         }

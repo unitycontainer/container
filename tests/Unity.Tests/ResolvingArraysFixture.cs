@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Builder;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
 using Unity.Tests.v5.TestSupport;
@@ -151,10 +152,8 @@ namespace Unity.Tests.v5
             public object SelectConstructor(ref BuilderContext context)
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
-                var selectedConstructor = new SelectedConstructor(ctr);
-                selectedConstructor.AddParameterResolver(this._resolvePolicy);
 
-                return selectedConstructor;
+                return new InjectionConstructor(ctr, _resolvePolicy);
             }
         }
 

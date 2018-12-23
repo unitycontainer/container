@@ -11,7 +11,7 @@ namespace Unity.Builder
     /// An implementation of <see cref="IPropertySelectorPolicy"/> that is aware of
     /// the build keys used by the unity container.
     /// </summary>
-    public class ImportedPropertiesSelector : MemberSelectorBase<PropertyInfo, object>, 
+    public class DefaultUnityPropertiesSelector : MemberSelectorBase<PropertyInfo, object>, 
                                               IPropertySelectorPolicy
     {
         #region IPropertySelectorPolicy

@@ -53,26 +53,7 @@ namespace Unity.Builder.Strategies
                                     resolvedObjectParameter)));
                         break;
 
-                    case SelectedProperty selectedProperty:
-                        resolvedObjectParameter = Expression.Parameter(selectedProperty.Property.PropertyType);
-                                                                                                                                                            
-                        dynamicBuildContext.AddToBuildPlan(
-                            Expression.Block(
-                                new[] { resolvedObjectParameter },
-                                Expression.Assign(
-                                    resolvedObjectParameter,
-                                    BuilderContextExpression.Resolve(selectedProperty.Property, 
-                                                                     context.RegistrationName, 
-                                                                     selectedProperty.Resolver)),
-                                Expression.Call(
-                                    Expression.Convert(
-                                        BuilderContextExpression.Existing,
-                                        dynamicBuildContext.TypeToBuild),
-                                    GetValidatedPropertySetter(selectedProperty.Property),
-                                    resolvedObjectParameter)));
-                        break;
-
-                    case InjectionProperty injectionProperty:
+                    case MemberInfoMember<PropertyInfo> injectionProperty:
                         var (info, value) = injectionProperty.FromType(context.Type);
                         resolvedObjectParameter = Expression.Parameter(info.PropertyType);
 

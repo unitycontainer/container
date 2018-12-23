@@ -47,12 +47,6 @@ namespace Unity.Builder.Strategies
                         resolvers = null;
                         break;
 
-                    case SelectedMethod selectedMethod:
-                        methodInfo = selectedMethod.Method;
-                        parameters = methodInfo.GetParameters();
-                        resolvers = selectedMethod.GetResolvers();
-                        break;
-
                     case MethodBaseMember<MethodInfo> methodBaseMember:
                         (methodInfo, resolvers) = methodBaseMember.FromType(context.Type);
                         parameters = methodInfo.GetParameters();

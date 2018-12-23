@@ -205,15 +205,6 @@ namespace Unity.Builder.Strategies
                                        BuilderContextExpression.GetParameters(info)),
                                    typeof(object)));
 
-                case SelectedConstructor selected:
-                    return ValidateSelectedConstructor(ref context, selected.Constructor) ??
-                           Expression.Assign(
-                               BuilderContextExpression.Existing,
-                               Expression.Convert(
-                                   Expression.New(
-                                       selected.Constructor,
-                                       BuilderContextExpression.GetParameters(selected)),
-                                   typeof(object)));
                 default:
                     return Expression.Throw(
                         Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
