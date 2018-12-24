@@ -39,7 +39,7 @@ namespace Unity.Builder
 
         #region ResolveContext
 
-        public IUnityContainer Container => Lifetime.Container;
+        public IUnityContainer Container => Lifetime?.Container;
 
         public object Existing { get; set; }
 

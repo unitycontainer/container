@@ -9,7 +9,7 @@ using Unity.ResolverPolicy;
 namespace Unity.Builder.Expressions
 {
     [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-    class BuilderContextExpression : IResolveContextExpression<BuilderContext>
+    public class BuilderContextExpression : IResolveContextExpression<BuilderContext>
     {
         #region Constructor
 

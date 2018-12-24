@@ -10,10 +10,10 @@ using Unity.Policy;
 namespace Unity.Builder.Strategies
 {
     /// <summary>
-    /// A <see cref="BuilderStrategy"/> that generates IL to resolve properties
+    /// A <see cref="BuilderStrategy"/> that generates expressions to resolve properties
     /// on an object being built.
     /// </summary>
-    public class DynamicMethodPropertySetterStrategy : BuilderStrategy// CompiledStrategy<PropertyInfo, object>
+    public class DynamicMethodPropertySetterStrategy : BuilderStrategy
     {
         #region BuilderStrategy
 
