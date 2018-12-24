@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Unity.Policy;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -58,8 +56,8 @@ namespace Unity.Injection
 
             var info = type.GetTypeInfo().GetDeclaredProperty(MemberInfo.Name);
 #else
-            if ( MemberInfo.DeclaringType != null && 
-                !MemberInfo.DeclaringType.IsGenericType && 
+            if (MemberInfo.DeclaringType != null &&
+                !MemberInfo.DeclaringType.IsGenericType &&
                 !MemberInfo.DeclaringType.ContainsGenericParameters)
                 return base.FromType(type);
 
@@ -100,10 +98,10 @@ namespace Unity.Injection
 #endif
         }
 
-#endregion
+        #endregion
 
 
-#region Guards
+        #region Guards
 
         protected override void ValidateInjectionMember(Type type)
         {
@@ -191,6 +189,6 @@ namespace Unity.Injection
                 .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
         }
 
-#endregion
+        #endregion
     }
 }

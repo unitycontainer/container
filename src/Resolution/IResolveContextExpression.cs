@@ -20,6 +20,18 @@ namespace Unity.Resolution
                 .First(m => 2 == m.GetParameters().Length);
 
 
+        protected static readonly MethodInfo ResolveFieldMethod =
+            typeof(IResolveContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IResolveContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+
+                    return 2 <= parameters.Length &&
+                           typeof(FieldInfo) == parameters[0].ParameterType;
+                });
+
+
         protected static readonly MethodInfo ResolvePropertyMethod =
             typeof(IResolveContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(IResolveContext.Resolve))
@@ -90,6 +102,18 @@ namespace Unity.Resolution
                     Expression.Constant(type, typeof(Type)),
                     Expression.Constant(name, typeof(string))),
                 type);
+        }
+
+        public static Expression Resolve(FieldInfo field, string name, object value)
+        {
+            return Expression.Convert(
+                Expression.Call(
+                    Context,
+                    ResolveFieldMethod,
+                    Expression.Constant(field, typeof(FieldInfo)),
+                    Expression.Constant(name, typeof(string)),
+                    Expression.Constant(value, typeof(object))),
+                field.FieldType);
         }
 
         public static Expression Resolve(PropertyInfo property, string name, object value)
