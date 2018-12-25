@@ -5,6 +5,7 @@ using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.ResolverPolicy;
+using Unity.Strategies;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5

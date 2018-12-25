@@ -4,6 +4,7 @@ using Unity.Events;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Extension
 {

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Registration;
 
-namespace Unity.Builder
+namespace Unity.Strategies
 {
     /// <summary>
     /// Represents a strategy in the chain of responsibility.
@@ -44,6 +45,7 @@ namespace Unity.Builder
         /// Analyze registered type
         /// </summary>
         /// <param name="container">Reference to hosting container</param>
+        /// <param name="type"></param>
         /// <param name="registration">Reference to registration</param>
         /// <param name="injectionMembers"></param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>

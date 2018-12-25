@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Policy;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Builder
 {

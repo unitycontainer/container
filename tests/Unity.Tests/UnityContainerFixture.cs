@@ -6,6 +6,7 @@ using System.Linq;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
+using Unity.Strategies;
 using Unity.Tests.v5.TestObjects;
 using Unity.Tests.v5.TestSupport;
 

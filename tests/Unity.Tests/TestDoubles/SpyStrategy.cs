@@ -1,5 +1,5 @@
 ﻿using Unity.Builder;
-using Unity.Policy;
+using Unity.Strategies;
 
 namespace Unity.Tests.v5.TestDoubles
 {

@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Strategies;
 using Unity.Tests.v5.TestDoubles;
 
 namespace Unity.Tests.v5.Container

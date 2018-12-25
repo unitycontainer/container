@@ -2,6 +2,7 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
+using Unity.Strategies;
 
 namespace Unity.Policy.BuildPlanCreator
 {

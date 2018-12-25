@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Builder;
-using Unity.Container;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using Unity.Storage;
+using Unity.Strategies;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.ObjectBuilder

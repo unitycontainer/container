@@ -4,6 +4,7 @@ using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Registration
 {
