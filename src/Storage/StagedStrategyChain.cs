@@ -12,8 +12,7 @@ namespace Unity.Storage
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"></typeparam>
     public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>, 
-                                                                  IEnumerable<TStrategyType>,
-                                                                  IDisposable
+                                                                  IEnumerable<TStrategyType>
     {
         #region Fields
 
@@ -149,19 +148,6 @@ namespace Unity.Storage
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        #endregion
-
-
-        #region IDisposable
-
-        public void Dispose()
-        {
-            if (null != _innerChain)
-            {
-                _innerChain.Invalidated -= OnParentInvalidated;
-            }
         }
 
         #endregion

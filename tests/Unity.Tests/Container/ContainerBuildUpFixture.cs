@@ -108,13 +108,14 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
         public void BuildUpPrimitiveAndDotNetClassTest()
         {
             IUnityContainer uc = new UnityContainer();
             int i = 0;
             uc.BuildUp(i, "a");
 
-          AssertHelper.ThrowsException<ResolutionFailedException>(() => uc.Resolve(typeof(int), "a"));
+          var res = uc.Resolve(typeof(int), "a");
         }
 
         [TestMethod]

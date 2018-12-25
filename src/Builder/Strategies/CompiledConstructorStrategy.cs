@@ -184,7 +184,7 @@ namespace Unity.Builder.Strategies
             }
 
             switch (selector.Select(ref context)
-                            .First())
+                            .FirstOrDefault())
             {
                 case MethodBaseMember<ConstructorInfo> methodBaseMember:
                     var (ctor, resolvers) = methodBaseMember.FromType(context.Type);

@@ -59,7 +59,7 @@ namespace Unity
                                 _container._strategies = 
                                     new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(_container._parent._strategies);
                                 _container._strategies.Invalidated += _container.OnStrategiesChanged;
-                                _container._lifetimeContainer.Add(_container._strategies);
+                                _container.LifetimeContainer.Add(_container._strategies);
 
                             }
                         }
@@ -82,7 +82,7 @@ namespace Unity
                             {
                                 _container._buildPlanStrategies = 
                                     new StagedStrategyChain<BuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
-                                _container._lifetimeContainer.Add(_container._buildPlanStrategies);
+                                _container.LifetimeContainer.Add(_container._buildPlanStrategies);
                             }
                         }
                     }
@@ -93,7 +93,7 @@ namespace Unity
 
             public override IPolicyList Policies { get; }
 
-            public override ILifetimeContainer Lifetime => _container._lifetimeContainer;
+            public override ILifetimeContainer Lifetime => _container.LifetimeContainer;
 
             public override event EventHandler<RegisterEventArgs> Registering
             {

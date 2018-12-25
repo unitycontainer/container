@@ -1,13 +1,15 @@
 ﻿using System.Reflection;
+using Unity.Strategies;
 
 namespace Unity.Processors
 {
-    public partial class MemberInfoProcessor
+    public class MemberInfoProcessor : BuilderStrategy
     {
+
     }
 
-    public partial class MemberInfoProcessor<TMemberInfo> : MemberInfoProcessor
-                                        where TMemberInfo : MemberInfo
+    public partial class MemberInfoProcessor<TMemberInfo, TData> : MemberInfoProcessor
+                                               where TMemberInfo : MemberInfo
     {
     }
 }

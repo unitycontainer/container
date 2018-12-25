@@ -49,13 +49,13 @@ namespace Unity
                 old.LifetimeManager is IDisposable disposable)
             {
                 // Dispose replaced lifetime manager
-                container._lifetimeContainer.Remove(disposable);
+                container.LifetimeContainer.Remove(disposable);
                 disposable.Dispose();
             }
 
             // If Disposable add to container's lifetime
             if (lifetimeManager is IDisposable manager)
-                container._lifetimeContainer.Add(manager);
+                container.LifetimeContainer.Add(manager);
 
             // Add Injection Members
             if (null != injectionMembers && injectionMembers.Length > 0)
@@ -99,7 +99,7 @@ namespace Unity
             var typeFrom = type ?? mappedToType;
             var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
             if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
-            lifetime.SetValue(instance, _lifetimeContainer);
+            lifetime.SetValue(instance, LifetimeContainer);
 
             // Create registration and add to appropriate storage
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
@@ -111,13 +111,13 @@ namespace Unity
                 old.LifetimeManager is IDisposable disposable)
             {
                 // Dispose replaced lifetime manager
-                container._lifetimeContainer.Remove(disposable);
+                container.LifetimeContainer.Remove(disposable);
                 disposable.Dispose();
             }
 
             // If Disposable add to container's lifetime
             if (lifetimeManager is IDisposable manager)
-                container._lifetimeContainer.Add(manager);
+                container.LifetimeContainer.Add(manager);
 
             // Check what strategies to run
             registration.BuildChain = _buildChain.ToArray()
@@ -161,7 +161,7 @@ namespace Unity
                 Registration = registration,
                 RegistrationType = type,
                 RegistrationName = name,
-                Lifetime = _lifetimeContainer,
+                Lifetime = LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type,
@@ -190,7 +190,7 @@ namespace Unity
                 Registration = registration,
                 RegistrationType = type,
                 RegistrationName = name,
-                Lifetime = _lifetimeContainer,
+                Lifetime = LifetimeContainer,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Type = registration is ContainerRegistration containerRegistration

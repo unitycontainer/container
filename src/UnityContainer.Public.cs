@@ -17,7 +17,7 @@ namespace Unity
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public IUnityContainer AddExtension(IUnityContainerExtensionConfigurator extension)
         {
-            lock (_lifetimeContainer)
+            lock (LifetimeContainer)
             {
                 if (null == _extensions)
                     _extensions = new List<IUnityContainerExtensionConfigurator>();

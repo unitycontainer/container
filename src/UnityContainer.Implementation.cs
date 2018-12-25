@@ -12,6 +12,7 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Policy;
 using Unity.Policy.BuildPlanCreator;
+using Unity.Processors;
 using Unity.Registration;
 using Unity.Storage;
 using Unity.Strategies;
@@ -33,21 +34,21 @@ namespace Unity
         #region Fields
 
         // Container specific
-        internal readonly LifetimeContainer _lifetimeContainer;
+        private readonly UnityContainer _root;
+        private readonly UnityContainer _parent; 
+        internal readonly LifetimeContainer LifetimeContainer;
         private List<IUnityContainerExtensionConfigurator> _extensions;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly UnityContainer _parent; 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private UnityContainer _root;
 
         // Policies
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly ContainerContext _context;
+        private readonly ContainerContext _context;
 
         // Strategies
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
+        private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
+        private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
 
         // Registrations
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly object _syncRoot = new object();
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
+        private readonly object _syncRoot = new object();
+        private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -55,7 +56,7 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         // Caches
-        internal BuilderStrategy[] _buildChain;
+        private BuilderStrategy[] _buildChain;
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
@@ -82,15 +83,13 @@ namespace Unity
             _root = this;
 
             // Lifetime
-            _lifetimeContainer = new LifetimeContainer(this);
+            LifetimeContainer = new LifetimeContainer(this);
 
             // Registrations
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
 
-            // Context and policies
+            // Context
             _context = new ContainerContext(this);
-            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>();
-            _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>();
 
             // Methods
             _get = Get;
@@ -104,31 +103,7 @@ namespace Unity
             SetPolicy = Set;
             ClearPolicy = Clear;
 
-            _lifetimeContainer.Add(_strategies);
-            _lifetimeContainer.Add(_buildPlanStrategies);
-
-            // Main strategy chain
-            _strategies.Add(new ArrayResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
-                                                     typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))), UnityBuildStage.Enumerable);
-            _strategies.Add(new EnumerableResolveStrategy(typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
-                                                          typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))), UnityBuildStage.Enumerable);
-            _strategies.Add(new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping);
-            _strategies.Add(new LifetimeStrategy(), UnityBuildStage.Lifetime);
-            _strategies.Add(new BuildPlanStrategy(), UnityBuildStage.Creation);
-
-            // Build plan strategy chain
-
-            // Constructor
-            _buildPlanStrategies.Add(new CompiledConstructorStrategy(),    BuilderStage.Creation);
-            _buildPlanStrategies.Add(new DynamicMethodFieldsSetterStrategy(),   BuilderStage.Fields);
-            _buildPlanStrategies.Add(new DynamicMethodPropertySetterStrategy(), BuilderStage.Properties);
-            _buildPlanStrategies.Add(new DynamicMethodCallStrategy(),           BuilderStage.Methods);
-
-            // Caches
-            _buildChain = _strategies.ToArray();
-            _strategies.Invalidated += OnStrategiesChanged;
-
-            // Default Policies
+            // Default Policies and Strategies
             Set(null, null, GetDefaultPolicies());
             Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
@@ -146,14 +121,14 @@ namespace Unity
         private UnityContainer(UnityContainer parent)
         {
             // Lifetime
-            _lifetimeContainer = new LifetimeContainer(this);
+            LifetimeContainer = new LifetimeContainer(this);
 
             // Context and policies
             _context = new ContainerContext(this);
 
             // Parent
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            _parent._lifetimeContainer.Add(this);
+            _parent.LifetimeContainer.Add(this);
             _root = _parent._root;
 
             // Methods
@@ -184,13 +159,52 @@ namespace Unity
 
         private IPolicySet GetDefaultPolicies()
         {
+            // Processors
+            var fieldsProcessor      = new FieldsProcessor();
+            var methodsProcessor     = new MethodsProcessor();
+            var propertiesProcessor  = new PropertiesProcessor();
+            var constructorProcessor = new ConstructorProcessor();
+
+            // Build Strategies
+            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
+            {
+                {   // Array
+                    new ArrayResolveStrategy(
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
+                    UnityBuildStage.Enumerable
+                },
+                {   // Enumerable
+                    new EnumerableResolveStrategy(
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))),
+                    UnityBuildStage.Enumerable
+                },
+                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
+                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
+                {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
+            };
+
+            // Type build processors //
+            _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>
+            {
+                { new CompiledConstructorStrategy(),         BuilderStage.Creation },
+                { new DynamicMethodFieldsSetterStrategy(),   BuilderStage.Fields },
+                { new DynamicMethodPropertySetterStrategy(), BuilderStage.Properties },
+                { new DynamicMethodCallStrategy(),           BuilderStage.Methods }
+            };
+
+            // Caches
+            _buildChain = _strategies.ToArray();
+            _strategies.Invalidated += OnStrategiesChanged;
+
             var defaults = new InternalRegistration(null, null);
 
-            defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GetResolver);
-            defaults.Set(typeof(ISelect<ConstructorInfo>), new DefaultUnityConstructorSelector());
-            defaults.Set(typeof(ISelect<FieldInfo>),       new DefaultUnityFieldsSelector());
-            defaults.Set(typeof(ISelect<PropertyInfo>),    new DefaultUnityPropertiesSelector());
-            defaults.Set(typeof(ISelect<MethodInfo>),      new DefaultUnityMethodsSelector());
+            defaults.Set(typeof(ResolveDelegateFactory),   (ResolveDelegateFactory)GetResolver);
+            defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
+            defaults.Set(typeof(ISelect<FieldInfo>),       fieldsProcessor);
+            defaults.Set(typeof(ISelect<PropertyInfo>),    propertiesProcessor);
+            defaults.Set(typeof(ISelect<MethodInfo>),      methodsProcessor);
 
             return defaults;
         }
@@ -337,8 +351,8 @@ namespace Unity
             try
             {
                 _strategies.Invalidated -= OnStrategiesChanged;
-                _parent?._lifetimeContainer.Remove(this);
-                _lifetimeContainer.Dispose();
+                _parent?.LifetimeContainer.Remove(this);
+                LifetimeContainer.Dispose();
             }
             catch (Exception exception)
             {
