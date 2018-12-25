@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
@@ -56,12 +57,12 @@ namespace Unity.Tests.v5
             protected override void Initialize()
             {
                 Context.Policies.Set(typeof(InjectedObject), null, 
-                                     typeof(IConstructorSelectorPolicy),
+                                     typeof(ISelect<ConstructorInfo>),
                                      new InjectedObjectSelectorPolicy(this._resolvePolicy));
             }
         }
 
-        private class InjectedObjectSelectorPolicy : IConstructorSelectorPolicy
+        private class InjectedObjectSelectorPolicy : ISelect<ConstructorInfo>
         {
             private readonly IResolve _resolvePolicy;
 
@@ -70,11 +71,11 @@ namespace Unity.Tests.v5
                 this._resolvePolicy = resolvePolicy;
             }
 
-            public object SelectConstructor(ref BuilderContext context)
+            public IEnumerable<object> Select(ref BuilderContext context)
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
 
-                return new InjectionConstructor(ctr, _resolvePolicy);
+                return new []{ new InjectionConstructor(ctr, _resolvePolicy) } ;
             }
         }
 

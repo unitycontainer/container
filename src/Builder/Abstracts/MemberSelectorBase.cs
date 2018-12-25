@@ -47,17 +47,12 @@ namespace Unity.Builder
             _resolverFactories = factories;
         }
 
-        public virtual IEnumerable<object> Select(ref BuilderContext context)
+        public virtual IEnumerable<object> OnSelect(ref BuilderContext context)
         {
             var members = DeclaredMembers(context.Type);
 
-            return new[]
-            {
-                GetInjectionMembers(context.Type, ((InternalRegistration)context.Registration).InjectionMembers),
-                GetAttributedMembers(context.Type, members)
-            }
-            .SelectMany(o => o)
-            .Distinct();
+            return GetInjectionMembers(context.Type, ((InternalRegistration) context.Registration).InjectionMembers)
+                     .Concat(GetAttributedMembers(context.Type, members));
         }
 
         #endregion

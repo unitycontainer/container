@@ -4,16 +4,15 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
-using Unity.Registration;
 
 namespace Unity.Builder
 {
     /// <summary>
-    /// An implementation of <see cref="IConstructorSelectorPolicy"/> that is
+    /// An implementation of <see cref="ISelect{ConstructorInfo}"/> that is
     /// aware of the build keys used by the Unity container.
     /// </summary>
     public class DefaultUnityConstructorSelector : MemberSelectorBase<ConstructorInfo, object[]>,
-                                                   IConstructorSelectorPolicy
+                                                   ISelect<ConstructorInfo>
     {
         #region Fields
 
@@ -41,18 +40,12 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="context">Current build context</param>
         /// <returns>The chosen constructor.</returns>
-        public object SelectConstructor(ref BuilderContext context)
+        public IEnumerable<object> Select(ref BuilderContext context)
         {
-            var members = DeclaredMembers(context.Type);
-
-            return new[]
-                {
-                    GetInjectionMembers(context.Type, ((InternalRegistration)context.Registration).InjectionMembers),
-                    GetAttributedMembers(context.Type, members)
-                }
-                .SelectMany(o => o)
-                .FirstOrDefault() 
-            ?? GetDefaultMember(context.Type, DeclaredMembers(context.Type));
+            var value = OnSelect(ref context).FirstOrDefault();
+            return null == value 
+                ? new []{ GetDefaultMember(context.Type) }
+                : new[] { value };
         }
 
 
@@ -74,8 +67,9 @@ namespace Unity.Builder
 #endif
         }
 
-        protected virtual object GetDefaultMember(Type type, ConstructorInfo[] constructors)
+        protected object GetDefaultMember(Type type)
         {
+            ConstructorInfo[] constructors = DeclaredMembers(type);
             Array.Sort(constructors, ConstructorComparer);
 
             switch (constructors.Length)

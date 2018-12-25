@@ -8,11 +8,11 @@ using Unity.Utility;
 namespace Unity.Builder
 {
     /// <summary>
-    /// An implementation of <see cref="IPropertySelectorPolicy"/> that is aware of
+    /// An implementation of <see cref="ISelect{PropertyInfo}"/> that is aware of
     /// the build keys used by the unity container.
     /// </summary>
-    public class DefaultUnityPropertiesSelector : MemberSelectorBase<PropertyInfo, object>, 
-                                              IPropertySelectorPolicy
+    public class DefaultUnityPropertiesSelector : MemberSelectorBase<PropertyInfo, object>,
+                                                  ISelect<PropertyInfo>
     {
         #region IPropertySelectorPolicy
 
@@ -23,8 +23,8 @@ namespace Unity.Builder
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of <see cref="PropertyInfo"/> objects
         /// that contain the properties to set.</returns>
-        public IEnumerable<object> SelectProperties(ref BuilderContext context)
-            => Select(ref context); 
+        public IEnumerable<object> Select(ref BuilderContext context)
+            => OnSelect(ref context).Distinct(); 
 
         #endregion
 

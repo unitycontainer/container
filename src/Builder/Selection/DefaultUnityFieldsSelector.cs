@@ -6,15 +6,15 @@ using Unity.Policy;
 
 namespace Unity.Builder
 {
-    public class DefaultUnityFieldsSelector : MemberSelectorBase<FieldInfo, object>, 
-                                          IFieldSelectorPolicy
+    public class DefaultUnityFieldsSelector : MemberSelectorBase<FieldInfo, object>,
+                                              ISelect<FieldInfo>
     {
-        public IEnumerable<object> SelectFields(ref BuilderContext context) 
+        public IEnumerable<object> Select(ref BuilderContext context) 
         {
             return Enumerable.Empty<object>();
         }
 
-        public override IEnumerable<object> Select(ref BuilderContext context)
+        public override IEnumerable<object> OnSelect(ref BuilderContext context)
         {
             return Enumerable.Empty<object>();
         }

@@ -169,7 +169,7 @@ namespace Unity.Builder.Strategies
 
         private Expression CreateInstanceBuildupExpression(ref BuilderContext context)
         {
-            var selector = GetPolicy<IConstructorSelectorPolicy>(ref context,
+            var selector = GetPolicy<ISelect<ConstructorInfo>>(ref context,
                 context.RegistrationType, context.RegistrationName);
 
             if (null == selector)
@@ -183,7 +183,8 @@ namespace Unity.Builder.Strategies
                         InvalidRegistrationExpression));
             }
 
-            switch (selector.SelectConstructor(ref context))
+            switch (selector.Select(ref context)
+                            .First())
             {
                 case MethodBaseMember<ConstructorInfo> methodBaseMember:
                     var (ctor, resolvers) = methodBaseMember.FromType(context.Type);

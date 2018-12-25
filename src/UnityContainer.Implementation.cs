@@ -187,10 +187,10 @@ namespace Unity
             var defaults = new InternalRegistration(null, null);
 
             defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GetResolver);
-            defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelector());
-            defaults.Set(typeof(IFieldSelectorPolicy),       new DefaultUnityFieldsSelector());
-            defaults.Set(typeof(IPropertySelectorPolicy),    new DefaultUnityPropertiesSelector());
-            defaults.Set(typeof(IMethodSelectorPolicy),      new DefaultUnityMethodsSelector());
+            defaults.Set(typeof(ISelect<ConstructorInfo>), new DefaultUnityConstructorSelector());
+            defaults.Set(typeof(ISelect<FieldInfo>),       new DefaultUnityFieldsSelector());
+            defaults.Set(typeof(ISelect<PropertyInfo>),    new DefaultUnityPropertiesSelector());
+            defaults.Set(typeof(ISelect<MethodInfo>),      new DefaultUnityMethodsSelector());
 
             return defaults;
         }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder.Expressions;
 using Unity.Injection;
 using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
@@ -26,10 +25,10 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = GetPolicy<IFieldSelectorPolicy>(ref context,
+            var selector = GetPolicy<ISelect<FieldInfo>>(ref context,
                 context.RegistrationType, context.RegistrationName);
 
-            foreach (var field in selector.SelectFields(ref context))
+            foreach (var field in selector.Select(ref context))
             {
                 ParameterExpression resolvedObjectParameter;
 

@@ -26,10 +26,10 @@ namespace Unity.Builder.Strategies
         {
             var dynamicBuildContext = (DynamicBuildPlanGenerationContext)context.Existing;
 
-            var selector = GetPolicy<IPropertySelectorPolicy>(ref context, 
+            var selector = GetPolicy<ISelect<PropertyInfo>>(ref context, 
                 context.RegistrationType, context.RegistrationName);
 
-            foreach (var property in selector.SelectProperties(ref context))
+            foreach (var property in selector.Select(ref context))
             {
                 ParameterExpression resolvedObjectParameter;
 

@@ -11,8 +11,8 @@ namespace Unity.Builder
     /// An implementation of <see cref="IMethodSelectorPolicy"/> that is aware
     /// of the build keys used by the Unity container.
     /// </summary>
-    public class DefaultUnityMethodsSelector : MemberSelectorBase<MethodInfo, object[]>, 
-                                          IMethodSelectorPolicy
+    public class DefaultUnityMethodsSelector : MemberSelectorBase<MethodInfo, object[]>,
+                                               ISelect<MethodInfo>
     {
         #region Constructors
 
@@ -32,9 +32,9 @@ namespace Unity.Builder
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>Sequence of methods to call.</returns>
-        public virtual IEnumerable<object> SelectMethods(ref BuilderContext context)
+        public virtual IEnumerable<object> Select(ref BuilderContext context)
         {
-            return Select(ref context);
+            return OnSelect(ref context).Distinct();
         }
 
         #endregion
