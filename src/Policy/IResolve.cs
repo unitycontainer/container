@@ -3,7 +3,8 @@
 
 namespace Unity.Policy
 {
-    public delegate object ResolveDelegate<TContext>(ref TContext context) where TContext : IResolveContext;
+    public delegate object ResolveDelegate<TContext>(ref TContext context)
+        where TContext : IResolveContext;
 
 
     /// <summary>

@@ -71,7 +71,7 @@ namespace Unity.Resolution
         {
             return this is IResolve policy
                 ? (ResolveDelegate<TContext>)policy.Resolve
-                : throw new InvalidCastException("Derived type does not implement IResolverPolicy");
+                : throw new InvalidCastException("Derived type does not implement IResolve policy");
         }
 
         #endregion
