@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
 
@@ -153,6 +154,55 @@ namespace Unity
 
             return list;
         }
+
+        #endregion
+
+
+        #region Build Plan
+
+
+        private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
+        {
+            var generatorContext = new ObjectBuilder.BuildPlan.DynamicMethod.DynamicBuildPlanGenerationContext(context.Type);
+
+            var planContext = new BuilderContext
+            {
+                Existing = generatorContext,
+                Lifetime = context.Lifetime,
+                RegistrationType = context.RegistrationType,
+                RegistrationName = context.RegistrationName,
+                Registration = context.Registration,
+                Type = context.Type,
+
+                list = context.list
+            };
+
+            var plan = _buildPlanStrategies.ToArray().ExecutePlan(ref planContext);
+
+            return generatorContext.GetBuildMethod();
+        }
+
+
+        //private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
+        //{
+        //    context.Variable = Expression.Variable(context.Type, "instance");
+
+        //    var expressions = new List<Expression>();
+
+        //    foreach (var strategy in _buildPlanStrategies.ToArray())
+        //    {
+        //        //foreach (var step in strategy.BuildUp(ref context))
+        //        //    expressions.Add(step);
+        //    }
+
+        //    expressions.Add(Expression.Convert(context.Variable, typeof(object)));
+
+        //    var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
+        //        Expression.Block(new ParameterExpression[] { context.Variable }, expressions),
+        //        BuilderContextExpression.Context);
+
+        //    return lambda.Compile();
+        //}
 
         #endregion
 

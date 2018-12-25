@@ -3,10 +3,7 @@ using Unity.Builder;
 
 namespace Unity.Policy
 {
-    /// <summary>
-    /// A policy that can create and return an <see cref="IBuildPlanPolicy"/>
-    /// for the given build key.
-    /// </summary>
+    [Obsolete("This interface has been replaced with Unity.Policy.ResolveDelegateFactory delegate", true)]
     public interface IBuildPlanCreatorPolicy 
     {
         /// <summary>

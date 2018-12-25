@@ -10,7 +10,6 @@ using Unity.Builder.Strategies;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 using Unity.Policy;
 using Unity.Policy.BuildPlanCreator;
 using Unity.Registration;
@@ -133,7 +132,7 @@ namespace Unity
             Set(null, null, GetDefaultPolicies());
             Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
-            Set(typeof(Lazy<>), string.Empty, typeof(IBuildPlanCreatorPolicy), new GenericLazyBuildPlanCreatorPolicy());
+            Set(typeof(Lazy<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyBuildPlanCreatorPolicy.GetResolver);
 
             // Register this instance
             ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
@@ -187,7 +186,7 @@ namespace Unity
         {
             var defaults = new InternalRegistration(null, null);
 
-            defaults.Set(typeof(IBuildPlanCreatorPolicy),    new DynamicMethodBuildPlanCreatorPolicy(_buildPlanStrategies));
+            defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GetResolver);
             defaults.Set(typeof(IConstructorSelectorPolicy), new DefaultUnityConstructorSelector());
             defaults.Set(typeof(IFieldSelectorPolicy),       new DefaultUnityFieldsSelector());
             defaults.Set(typeof(IPropertySelectorPolicy),    new DefaultUnityPropertiesSelector());

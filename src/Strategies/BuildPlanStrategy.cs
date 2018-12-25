@@ -42,28 +42,39 @@ namespace Unity.Strategies
             var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (null == resolver)
             {
+
                 // Legacy support
                 // TODO: Verify and optimize getting default
-                var plan = context.Registration.Get<IBuildPlanPolicy>() ?? 
+                var plan = context.Registration.Get<IBuildPlanPolicy>() ??
                            (IBuildPlanPolicy)(
                                context.Get(context.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
-                               GetGeneric(ref context, typeof(IBuildPlanPolicy),
-                                   context.RegistrationType, context.RegistrationName));
+                               GetGeneric(ref context, typeof(IBuildPlanPolicy), context.RegistrationType, context.RegistrationName));
 
-                if (plan == null || plan is OverriddenBuildPlanMarkerPolicy)
+                if (plan == null)
                 {
-                    var planCreator = context.Registration.Get<IBuildPlanCreatorPolicy>() ?? 
-                                      CheckIfOpenGeneric(context.RegistrationType, context.Registration) ??
-                                      Get_Policy<IBuildPlanCreatorPolicy>(ref context, context.Type, context.Name);
-
-                    if (planCreator != null)
+                    // Check if can create 
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                    if (!(context.Registration is ContainerRegistration) &&  context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
+#else
+                    if (!(context.Registration is ContainerRegistration) && context.RegistrationType.IsGenericTypeDefinition)
+#endif
                     {
-                        plan = planCreator.CreatePlan(ref context, context.Type, context.Name);
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                            Constants.CannotResolveOpenGenericType, context.RegistrationType.FullName));
+                    }
 
-                        if (plan is IResolve policy)
-                            context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), (ResolveDelegate<BuilderContext>)policy.Resolve);
-                        else
-                            context.Registration.Set(typeof(IBuildPlanPolicy), plan);
+                    // Create plan 
+                    var factory = context.Registration.Get<ResolveDelegateFactory>() ??
+                                      Get_Policy<ResolveDelegateFactory>(ref context, context.Type, context.Name);
+
+                    if (null != factory)
+                    {
+                        resolver = factory(ref context);
+
+                        context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
+                        context.Existing = resolver(ref context);
+
+                        return;
                     }
                     else
                         throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy");
@@ -100,22 +111,6 @@ namespace Unity.Strategies
                 var newType = type.GetGenericTypeDefinition();
                 return context.Get(newType, name, policyInterface) ??
                        context.Get(newType, string.Empty, policyInterface);
-            }
-
-            return null;
-        }
-
-        protected static IBuildPlanCreatorPolicy CheckIfOpenGeneric(Type type, IPolicySet namedType)
-        {
-            if (namedType is InternalRegistration registration && !(namedType is ContainerRegistration) &&
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                type.GetTypeInfo().IsGenericTypeDefinition)
-#else
-                type.IsGenericTypeDefinition)
-#endif
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Constants.CannotResolveOpenGenericType, type.FullName));
             }
 
             return null;

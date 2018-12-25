@@ -2,15 +2,14 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
-using Unity.ObjectBuilder.BuildPlan.DynamicMethod;
 
 namespace Unity.Policy.BuildPlanCreator
 {
     /// <summary>
-    /// An <see cref="IBuildPlanCreatorPolicy"/> implementation
+    /// An <see cref="IResolveDelegateFactory"/> implementation
     /// that constructs a build plan for creating <see cref="Lazy{T}"/> objects.
     /// </summary>
-    public class GenericLazyBuildPlanCreatorPolicy : IBuildPlanCreatorPolicy
+    public class GenericLazyBuildPlanCreatorPolicy 
     {
         #region Fields
 
@@ -21,14 +20,14 @@ namespace Unity.Policy.BuildPlanCreator
         #endregion
 
 
-        #region IBuildPlanCreatorPolicy
+        #region IResolveDelegateFactory
 
-        public IBuildPlanPolicy CreatePlan(ref BuilderContext context, Type type, string name)
+        public static ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
         {
             var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
             var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(itemType);
 
-            return new DynamicMethodBuildPlan(lazyMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>)));
+            return (ResolveDelegate<BuilderContext>)lazyMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
         }
 
         #endregion

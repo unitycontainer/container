@@ -22,6 +22,7 @@ namespace Runner.Tests
             _container.RegisterType<IService, Service>("1");
             _container.RegisterType<IService, Service>("2");
 
+            _container.Resolve<object>();
             _container.Resolve<Poco>();
             _container.Resolve<IService>();
             _container.Resolve<IService>("1");
