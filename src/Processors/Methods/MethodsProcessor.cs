@@ -5,10 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Expressions;
 using Unity.Exceptions;
-using Unity.Injection;
-using Unity.Policy;
 using Unity.Utility;
 
 namespace Unity.Processors
@@ -18,8 +15,7 @@ namespace Unity.Processors
         #region Constructors
 
         public MethodsProcessor()
-            : base(new (Type type, Converter<MethodInfo, object> factory)[]
-                { (typeof(InjectionMethodAttribute), info => info) })
+            : base(typeof(InjectionMethodAttribute))
         {
         }
 
@@ -30,7 +26,6 @@ namespace Unity.Processors
 
         public override IEnumerable<object> Select(ref BuilderContext context) =>
             base.Select(ref context).Distinct();
-
 
         protected override MethodInfo[] DeclaredMembers(Type type)
         {
@@ -44,82 +39,23 @@ namespace Unity.Processors
 #endif
         }
 
-        #endregion
-
-
-        #region BuilderStrategy
-
-        /// <inheritdoc />
-        public override IEnumerable<Expression> GetEnumerator(ref BuilderContext context)
+        protected override void VerifyMemberInfo(MethodInfo info)
         {
-            var selector = GetPolicy<ISelect<MethodInfo>>(ref context, context.RegistrationType, context.RegistrationName);
-            var methods = selector.Select(ref context);
-
-            return GetEnumerator(context.Type, context.Name, context.Variable, methods);
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private IEnumerable<Expression> GetEnumerator(Type type, string name, ParameterExpression variable, IEnumerable<object> methods)
-        {
-            foreach (var method in methods)
+            var parameters = info.GetParameters();
+            if (info.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
             {
-                switch (method)
-                {
-                    case MethodInfo methodInfo:
-                        VerifyMethodInfo(methodInfo);
-                        yield return Expression.Call(variable, methodInfo,
-                            BuildMethodParameterExpressions(methodInfo.GetParameters(), null));
-                        break;
-
-                    case MethodBaseMember<MethodInfo> injectionField:
-                        var (info, resolvers) = injectionField.FromType(type);
-                        VerifyMethodInfo(info);
-                        yield return Expression.Call(variable, info,
-                            BuildMethodParameterExpressions(info.GetParameters(), resolvers));
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of field");
-                }
-            }
-        }
-
-        private void VerifyMethodInfo(MethodInfo methodInfo)
-        {
-            var parameters = methodInfo.GetParameters();
-            if (methodInfo.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
-            {
-                var format = methodInfo.IsGenericMethodDefinition
+                var format = info.IsGenericMethodDefinition
                     ? Constants.CannotInjectOpenGenericMethod
                     : Constants.CannotInjectMethodWithOutParam;
 
                 throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
-                    format, methodInfo.DeclaringType.GetTypeInfo().Name, methodInfo.Name));
-            }
-
-        }
-
-        private IEnumerable<Expression> BuildMethodParameterExpressions(ParameterInfo[] parameters, object[] resolvers)
-        {
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-
-                // Resolve all DependencyAttributes on this parameter, if any
-                var attribute = parameter.GetCustomAttributes(false)
-                    .OfType<DependencyResolutionAttribute>()
-                    .FirstOrDefault();
-
-                yield return
-                    BuilderContextExpression.Resolve(parameter, attribute?.Name, resolvers?[i]);
+                    format, info.DeclaringType.GetTypeInfo().Name, info.Name));
             }
         }
+
+        protected override Expression CreateExpression(MethodInfo info, object[] resolvers, ParameterExpression variable) 
+            => Expression.Call(variable, info, CreateParameterExpressions(info.GetParameters(), resolvers));
 
         #endregion
-
     }
 }

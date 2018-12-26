@@ -7,7 +7,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Expressions;
 using Unity.Container.Lifetime;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 
@@ -17,6 +16,9 @@ namespace Unity.Processors
     {
         #region Fields
 
+        private static readonly MethodInfo SetPerBuildSingletonMethod = typeof(ConstructorProcessor)
+            .GetTypeInfo().GetDeclaredMethod(nameof(SetPerBuildSingleton));
+
         private static readonly ConstructorLengthComparer ConstructorComparer = new ConstructorLengthComparer();
 
         #endregion
@@ -25,8 +27,7 @@ namespace Unity.Processors
         #region Constructors
 
         public ConstructorProcessor()
-            : base(new (Type type, Converter<ConstructorInfo, object> factory)[]
-                { (typeof(InjectionConstructorAttribute), info => info) })
+            : base(typeof(InjectionConstructorAttribute))
         {
 
         }
@@ -49,6 +50,12 @@ namespace Unity.Processors
 #endif
         }
 
+        /// <summary>
+        /// Selects default constructor
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> to be built</param>
+        /// <param name="members">All public constructors this type implements</param>
+        /// <returns></returns>
         protected override object GetDefault(Type type, ConstructorInfo[] members)
         {
             Array.Sort(members, ConstructorComparer);
@@ -75,22 +82,6 @@ namespace Unity.Processors
                     return members[0];
             }
         }
-
-
-        #endregion
-
-
-
-
-        #region Static Fields
-
-        private static readonly MethodInfo SetPerBuildSingletonMethod = typeof(ConstructorProcessor)
-            .GetTypeInfo().GetDeclaredMethod(nameof(SetPerBuildSingleton));
-
-        #endregion
-
-
-        #region BuilderStrategy
 
         public override IEnumerable<Expression> GetEnumerator(ref BuilderContext context)
         {
@@ -132,13 +123,13 @@ namespace Unity.Processors
                     var (ctor, resolvers) = methodBaseMember.FromType(context.Type);
                     ctorExpr = ValidateSelectedConstructor(ref context, ctor) ??
                                Expression.Assign(context.Variable,
-                                   Expression.New(ctor, BuilderContextExpression.GetParameters(ctor, resolvers)));
+                                   Expression.New(ctor, CreateParameterExpressions(ctor.GetParameters(), resolvers)));
                     break;
 
                 case ConstructorInfo info:
                     ctorExpr = ValidateSelectedConstructor(ref context, info) ??
                                Expression.Assign(context.Variable,
-                                   Expression.New(info, BuilderContextExpression.GetParameters(info)));
+                                   Expression.New(info, CreateParameterExpressions(info.GetParameters(), null)));
                     break;
 
                 default:
@@ -158,6 +149,11 @@ namespace Unity.Processors
             return context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
                 ? new Expression[] { createExpr, BuilderContextExpression.SetPerBuildSingleton(ref context) }
                 : new Expression[] { createExpr };
+        }
+
+        protected override Expression CreateExpression(ConstructorInfo info, object[] resolvers, ParameterExpression variable)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -277,9 +273,6 @@ namespace Unity.Processors
         }
 
         #endregion
-
-
-
 
 
         #region Nested Types

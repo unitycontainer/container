@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Builder.Expressions;
-using Unity.Injection;
-using Unity.Policy;
 
 namespace Unity.Processors
 {
@@ -19,62 +17,17 @@ namespace Unity.Processors
 
         #endregion
 
-        #region BuilderStrategy
-
-        /// <inheritdoc />
-        public override IEnumerable<Expression> GetEnumerator(ref BuilderContext context)
-        {
-            var selector = GetPolicy<ISelect<FieldInfo>>(ref context, context.RegistrationType, context.RegistrationName);
-            var fields = selector.Select(ref context);
-
-            return GetEnumerator(context.Type, context.Name, context.Variable, fields);
-        }
-
-        #endregion
-
 
         #region Implementation
 
-        private IEnumerable<Expression> GetEnumerator(Type type, string name, ParameterExpression variable, IEnumerable<object> fields)
-        {
-            foreach (var field in fields)
-            {
-                MemberExpression fieldExpr;
+        protected override Type MemberType(FieldInfo info) 
+            => info.FieldType;
 
-                switch (field)
-                {
-                    case FieldInfo fieldInfo:
-                        fieldExpr = Expression.Field(variable, fieldInfo);
-                        yield return Expression.Assign(fieldExpr, BuilderContextExpression.Resolve(fieldInfo, name));
-                        break;
+        protected override Expression ResolveExpression(FieldInfo info, string name, object resolver)
+            => BuilderContextExpression.Resolve(info, name, resolver);
 
-                    case MemberInfoMember<FieldInfo> injectionField:
-                        var (info, value) = injectionField.FromType(type);
-                        fieldExpr = Expression.Field(variable, info);
-                        yield return Expression.Assign(fieldExpr, BuilderContextExpression.Resolve(info, name, value));
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of field");
-                }
-            }
-        }
-
-
-        public static Expression GetField(FieldInfo info, object value)
-        {
-            // Resolve all DependencyAttributes on this parameter, if any
-            var attribute = info.GetCustomAttributes(false)
-                .OfType<DependencyResolutionAttribute>()
-                .FirstOrDefault();
-
-            if (null == attribute)
-                return BuilderContextExpression.Resolve(info, null, null);
-            else
-                return attribute is OptionalDependencyAttribute
-                    ? BuilderContextExpression.Resolve(info, attribute.Name, Expression.Constant(null, typeof(object)))
-                    : BuilderContextExpression.Resolve(info, attribute.Name, null);
-        }
+        protected override MemberExpression CreateMemberExpression(ParameterExpression variable, FieldInfo info) 
+            => Expression.Field(variable, info);
 
         #endregion
 

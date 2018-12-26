@@ -8,48 +8,8 @@ using Unity.Registration;
 
 namespace Unity.Processors
 {
-    public partial class MemberBuildProcessor<TMemberInfo, TData> : ISelect<TMemberInfo>
-                                               where TMemberInfo : MemberInfo
+    public abstract partial class MemberBuildProcessor<TMemberInfo, TData> : ISelect<TMemberInfo>
     {
-        #region Fields
-
-        private (Type type, Converter<TMemberInfo, object> factory)[] _resolverFactories;
-
-        #endregion
-
-
-        #region Constructors
-
-        protected MemberBuildProcessor()
-        {
-            _resolverFactories = new (Type type, Converter<TMemberInfo, object> factory)[]
-            {
-                (typeof(DependencyAttribute),         info => info),
-                (typeof(OptionalDependencyAttribute), info => info),
-            };
-        }
-
-        protected MemberBuildProcessor((Type type, Converter<TMemberInfo, object> factory)[] factories)
-        {
-            _resolverFactories = factories ?? throw new ArgumentNullException(nameof(factories));
-        }
-
-        #endregion
-
-
-        #region Public Methods
-
-        public virtual void Add(Type type, Converter<TMemberInfo, object> factory)
-        {
-            var factories = new (Type type, Converter<TMemberInfo, object> factory)[_resolverFactories.Length + 1];
-            Array.Copy(_resolverFactories, factories, _resolverFactories.Length);
-            factories[_resolverFactories.Length] = (type, factory);
-            _resolverFactories = factories;
-        }
-
-        #endregion
-
-
         #region ISelect
 
         public virtual IEnumerable<object> Select(ref BuilderContext context)
@@ -80,11 +40,11 @@ namespace Unity.Processors
             {
                 foreach (var member in members)
                 {
-                    foreach (var pair in _resolverFactories)
+                    foreach (var pair in ResolverFactories)
                     {
                         if (!member.IsDefined(pair.type)) continue;
 
-                        yield return pair.factory(member);
+                        yield return member;
                         break;
                     }
                 }

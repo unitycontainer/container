@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -74,33 +73,33 @@ namespace Unity.Builder.Expressions
 
         #region Methods
 
-        public static Expression Resolve(FieldInfo field, string name, object value = null)
+        public static Expression Resolve(FieldInfo field, string name, object resolver = null)
         {
             return Expression.Convert(
                 Expression.Call(Context, _resolveField,
                     Expression.Constant(field, typeof(FieldInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(value, typeof(object))),
+                    Expression.Constant(resolver, typeof(object))),
                 field.FieldType);
         }
 
-        public static Expression Resolve(PropertyInfo property, string name, object value = null)
+        public static Expression Resolve(PropertyInfo property, string name, object resolver = null)
         {
             return Expression.Convert(
                 Expression.Call(Context, _resolveProperty,
                     Expression.Constant(property, typeof(PropertyInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(value, typeof(object))),
+                    Expression.Constant(resolver, typeof(object))),
                 property.PropertyType);
         }
 
-        public static Expression Resolve(ParameterInfo parameter, string name, object value = null)
+        public static Expression Resolve(ParameterInfo parameter, string name, object resolver = null)
         {
             return Expression.Convert(
                 Expression.Call(Context, _resolveParameter,
                     Expression.Constant(parameter, typeof(ParameterInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(value, typeof(object))),
+                    Expression.Constant(resolver, typeof(object))),
                 parameter.ParameterType);
         }
 
