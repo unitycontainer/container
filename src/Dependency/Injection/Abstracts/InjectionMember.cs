@@ -47,13 +47,13 @@ namespace Unity.Injection
 
 
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
-    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, 
+    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember,
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
         #region Constructors
 
-        protected InjectionMember(string name,TData data)
+        protected InjectionMember(string name, TData data)
         {
             Name = name;
             Data = data;
@@ -122,23 +122,36 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            foreach (var member in DeclaredMembers(mappedToType))
+            if (null == Data)
             {
-                if (!MatchMemberInfo(member, Data))
-                    continue;
-
-                if (null != MemberInfo)
+                foreach (var member in DeclaredMembers(mappedToType))
                 {
-                    // TODO: 5.9.0 Proper error message
-                    var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
-                    var message = $"The type {mappedToType.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
-                    throw new InvalidOperationException(message);
-                }
+                    if (Name != member.Name) continue;
+                    if (null != MemberInfo) ThrowAmbigousMember(MemberInfo, mappedToType);
 
-                MemberInfo = member;
+                    MemberInfo = member;
+                }
+            }
+            else
+            {
+                foreach (var member in DeclaredMembers(mappedToType))
+                {
+                    if (!MatchMemberInfo(member, Data)) continue;
+                    if (null != MemberInfo) ThrowAmbigousMember(MemberInfo, mappedToType);
+
+                    MemberInfo = member;
+                }
             }
 
             ValidateInjectionMember(mappedToType);
+        }
+
+        protected virtual void ThrowAmbigousMember(TMemberInfo info, Type type)
+        {
+            // TODO: 5.9.0 Proper error message
+            var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
+            var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
+            throw new InvalidOperationException(message);
         }
 
         public override bool Equals(object obj)

@@ -14,6 +14,11 @@ namespace Unity.Injection
     {
         #region Constructors
 
+        public InjectionMethod(string name)
+            : base(name, null)
+        {
+        }
+
         /// <summary>
         /// Create a new <see cref="InjectionMethod"/> instance which will configure
         /// the container to call the given methods with the given parameters.
