@@ -4,18 +4,12 @@ using System.Reflection;
 
 namespace Unity.Processors
 {
-    public class MethodBaseInfoProcessor<TMemberInfo> : MemberInfoProcessor<TMemberInfo, object[]>
+    public class MethodBaseInfoProcessor<TMemberInfo> : MemberBuildProcessor<TMemberInfo, object[]>
                                     where TMemberInfo : MemberInfo
     {
-        public MethodBaseInfoProcessor()
-        {
-
-        }
-
         public MethodBaseInfoProcessor((Type type, Converter<TMemberInfo, object> factory)[] factories)
             : base(factories)
         {
-            
         }
     }
 }

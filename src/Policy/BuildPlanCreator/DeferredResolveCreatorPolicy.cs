@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Strategies;
+using Unity.Container.Lifetime;
 
 namespace Unity.Policy.BuildPlanCreator
 {
@@ -32,7 +32,7 @@ namespace Unity.Policy.BuildPlanCreator
 
                 context.Existing = resolveMethod;
 
-                CompiledConstructorStrategy.SetPerBuildSingleton(ref context);
+                SetPerBuildSingleton(ref context);
             }
         }
 
@@ -100,6 +100,13 @@ namespace Unity.Policy.BuildPlanCreator
             {
                 return _container.ResolveAll<TItem>();
             }
+        }
+
+
+        public static void SetPerBuildSingleton(ref BuilderContext context)
+        {
+            var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
+            context.Set(context.RegistrationType, context.RegistrationName, typeof(LifetimeManager), perBuildLifetime);
         }
     }
 }

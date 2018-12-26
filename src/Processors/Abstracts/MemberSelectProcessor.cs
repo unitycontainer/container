@@ -8,7 +8,7 @@ using Unity.Registration;
 
 namespace Unity.Processors
 {
-    public partial class MemberInfoProcessor<TMemberInfo, TData> : ISelect<TMemberInfo>
+    public partial class MemberBuildProcessor<TMemberInfo, TData> : ISelect<TMemberInfo>
                                                where TMemberInfo : MemberInfo
     {
         #region Fields
@@ -20,7 +20,7 @@ namespace Unity.Processors
 
         #region Constructors
 
-        protected MemberInfoProcessor()
+        protected MemberBuildProcessor()
         {
             _resolverFactories = new (Type type, Converter<TMemberInfo, object> factory)[]
             {
@@ -29,7 +29,7 @@ namespace Unity.Processors
             };
         }
 
-        protected MemberInfoProcessor((Type type, Converter<TMemberInfo, object> factory)[] factories)
+        protected MemberBuildProcessor((Type type, Converter<TMemberInfo, object> factory)[] factories)
         {
             _resolverFactories = factories ?? throw new ArgumentNullException(nameof(factories));
         }
@@ -54,7 +54,7 @@ namespace Unity.Processors
 
         public virtual IEnumerable<object> Select(ref BuilderContext context)
         {
-            return GetEnumerable(context.Type, DeclaredMembers(context.Type),
+            return GetEnumerator(context.Type, DeclaredMembers(context.Type),
                 ((InternalRegistration) context.Registration).InjectionMembers);
         }
 
@@ -63,7 +63,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        private IEnumerable<object> GetEnumerable(Type type, TMemberInfo[] members, InjectionMember[] injectors)
+        private IEnumerable<object> GetEnumerator(Type type, TMemberInfo[] members, InjectionMember[] injectors)
         {
             // Select Injected Members
             if (null != injectors)

@@ -73,21 +73,23 @@ namespace Unity
             {
                 get
                 {
-                    if (null != _container._parent && 
-                        _container._parent._buildPlanStrategies == _container._buildPlanStrategies)
-                    {
-                        lock (syncRoot)
-                        {
-                            if (_container._parent._buildPlanStrategies == _container._buildPlanStrategies)
-                            {
-                                _container._buildPlanStrategies = 
-                                    new StagedStrategyChain<BuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
-                                _container.LifetimeContainer.Add(_container._buildPlanStrategies);
-                            }
-                        }
-                    }
+                    // TODO: Re-implement
+                    throw new NotImplementedException();
+                    //if (null != _container._parent && 
+                    //    _container._parent._buildPlanStrategies == _container._buildPlanStrategies)
+                    //{
+                    //    lock (syncRoot)
+                    //    {
+                    //        if (_container._parent._buildPlanStrategies == _container._buildPlanStrategies)
+                    //        {
+                    //            _container._buildPlanStrategies = 
+                    //                new StagedStrategyChain<BuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
+                    //            _container.LifetimeContainer.Add(_container._buildPlanStrategies);
+                    //        }
+                    //    }
+                    //}
 
-                    return _container._buildPlanStrategies;
+                    //return _container._buildPlanStrategies;
                 }
             }
 

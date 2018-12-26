@@ -70,7 +70,7 @@ namespace Unity
             }
 
             // Check what strategies to run
-            registration.BuildChain = _buildChain.ToArray()
+            registration.BuildChain = _strategiesChain.ToArray()
                                                  .Where(strategy => strategy.RequiredToBuildType(this,
                                                      registeredType, registration, injectionMembers))
                                                  .ToArray();
@@ -120,7 +120,7 @@ namespace Unity
                 container.LifetimeContainer.Add(manager);
 
             // Check what strategies to run
-            registration.BuildChain = _buildChain.ToArray()
+            registration.BuildChain = _strategiesChain.ToArray()
                                                  .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
                                                  .ToArray();
             // Raise event

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Strategies;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
@@ -44,7 +43,7 @@ namespace Unity
 
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<BuilderStrategy, BuilderStage> _buildPlanStrategies;
+        private StagedStrategyChain<MemberBuildProcessor, BuilderStage> _buildPlanStrategies;
 
         // Registrations
         private readonly object _syncRoot = new object();
@@ -56,7 +55,8 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         // Caches
-        private BuilderStrategy[] _buildChain;
+        private BuilderStrategy[]      _strategiesChain;
+        private MemberBuildProcessor[] _processorsChain;
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
@@ -104,7 +104,7 @@ namespace Unity
             ClearPolicy = Clear;
 
             // Default Policies and Strategies
-            Set(null, null, GetDefaultPolicies());
+            Set(null, null, InitializeDefaultPolicies());
             Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
             Set(typeof(Lazy<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyBuildPlanCreatorPolicy.GetResolver);
@@ -146,7 +146,8 @@ namespace Unity
             // Strategies
             _strategies = _parent._strategies;
             _buildPlanStrategies = _parent._buildPlanStrategies;
-            _buildChain = _parent._buildChain;
+            _strategiesChain = _parent._strategiesChain;
+            _processorsChain = _parent._processorsChain;
 
             // Caches
             _strategies.Invalidated += OnStrategiesChanged;
@@ -157,14 +158,8 @@ namespace Unity
 
         #region Defaults
 
-        private IPolicySet GetDefaultPolicies()
+        private IPolicySet InitializeDefaultPolicies()
         {
-            // Processors
-            var fieldsProcessor      = new FieldsProcessor();
-            var methodsProcessor     = new MethodsProcessor();
-            var propertiesProcessor  = new PropertiesProcessor();
-            var constructorProcessor = new ConstructorProcessor();
-
             // Build Strategies
             _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
             {
@@ -184,20 +179,36 @@ namespace Unity
                 {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
                 {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
             };
-
-            // Type build processors //
-            _buildPlanStrategies = new StagedStrategyChain<BuilderStrategy, BuilderStage>
-            {
-                { new CompiledConstructorStrategy(),         BuilderStage.Creation },
-                { new DynamicMethodFieldsSetterStrategy(),   BuilderStage.Fields },
-                { new DynamicMethodPropertySetterStrategy(), BuilderStage.Properties },
-                { new DynamicMethodCallStrategy(),           BuilderStage.Methods }
-            };
-
-            // Caches
-            _buildChain = _strategies.ToArray();
+            
+            // Update on change
             _strategies.Invalidated += OnStrategiesChanged;
 
+            
+            // Processors
+            var fieldsProcessor = new FieldsProcessor();
+            var methodsProcessor = new MethodsProcessor();
+            var propertiesProcessor = new PropertiesProcessor();
+            var constructorProcessor = new ConstructorProcessor();
+
+            // Processors chain
+            _buildPlanStrategies = new StagedStrategyChain<MemberBuildProcessor, BuilderStage>
+            {
+                { constructorProcessor, BuilderStage.Creation },
+                { fieldsProcessor,      BuilderStage.Fields },
+                { propertiesProcessor,  BuilderStage.Properties },
+                { methodsProcessor,     BuilderStage.Methods }
+            };
+
+            // Update on change
+            _buildPlanStrategies.Invalidated += (s, e) => _processorsChain = _buildPlanStrategies.ToArray();
+
+
+            // Caches
+            _strategiesChain = _strategies.ToArray();
+            _processorsChain = _buildPlanStrategies.ToArray();
+
+
+            // Default policies
             var defaults = new InternalRegistration(null, null);
 
             defaults.Set(typeof(ResolveDelegateFactory),   (ResolveDelegateFactory)GetResolver);
@@ -255,7 +266,7 @@ namespace Unity
 
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
-            _buildChain = _strategies.ToArray();
+            _strategiesChain = _strategies.ToArray();
 
             if (null != _parent && null == _registrations)
             {
@@ -294,7 +305,7 @@ namespace Unity
 
         private BuilderStrategy[] GetBuilders(Type type, InternalRegistration registration)
         {
-            return _buildChain.ToArray()
+            return _strategiesChain.ToArray()
                               .Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
                               .ToArray();
         }

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Unity.Builder;
+using Unity.Builder.Expressions;
 using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
@@ -160,49 +162,26 @@ namespace Unity
 
         #region Build Plan
 
-
         private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
         {
-            var generatorContext = new ObjectBuilder.BuildPlan.DynamicMethod.DynamicBuildPlanGenerationContext(context.Type);
+            context.Variable = Expression.Variable(context.Type, "instance");
 
-            var planContext = new BuilderContext
+            var expressions = new List<Expression>();
+
+            foreach (var processor in _processorsChain)
             {
-                Existing = generatorContext,
-                Lifetime = context.Lifetime,
-                RegistrationType = context.RegistrationType,
-                RegistrationName = context.RegistrationName,
-                Registration = context.Registration,
-                Type = context.Type,
+                foreach (var step in processor.GetEnumerator(ref context))
+                    expressions.Add(step);
+            }
 
-                list = context.list
-            };
+            expressions.Add(Expression.Convert(context.Variable, typeof(object)));
 
-            var plan = _buildPlanStrategies.ToArray().ExecutePlan(ref planContext);
+            var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
+                Expression.Block(new ParameterExpression[] { context.Variable }, expressions),
+                BuilderContextExpression.Context);
 
-            return generatorContext.GetBuildMethod();
+            return lambda.Compile();
         }
-
-
-        //private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
-        //{
-        //    context.Variable = Expression.Variable(context.Type, "instance");
-
-        //    var expressions = new List<Expression>();
-
-        //    foreach (var strategy in _buildPlanStrategies.ToArray())
-        //    {
-        //        //foreach (var step in strategy.BuildUp(ref context))
-        //        //    expressions.Add(step);
-        //    }
-
-        //    expressions.Add(Expression.Convert(context.Variable, typeof(object)));
-
-        //    var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
-        //        Expression.Block(new ParameterExpression[] { context.Variable }, expressions),
-        //        BuilderContextExpression.Context);
-
-        //    return lambda.Compile();
-        //}
 
         #endregion
 
