@@ -43,11 +43,5 @@ namespace Runner.Tests
 
         [Benchmark(Description = "Resolve<IEnumerable<IService>>   (registered)")]
         public object Enumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
-
-
-        public interface IService { }
-        public class Service : IService { }
-
-        public class Poco { }
     }
 }

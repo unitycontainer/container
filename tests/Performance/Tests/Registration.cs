@@ -36,7 +36,4 @@ namespace Runner.Tests
         [Benchmark(Description = "IsRegistered (False)")]
         public object IsRegisteredFalse() => _container.IsRegistered(typeof(IFoo));
     }
-
-    public interface IFoo { }
-    public class Foo : IFoo { }
 }
