@@ -18,9 +18,9 @@ namespace Runner.Tests
         {
             _container = new UnityContainer();
             _container.RegisterType<Poco>();
-            _container.RegisterType<IService, Service>();
-            _container.RegisterType<IService, Service>("1");
-            _container.RegisterType<IService>("2", Invoke.Factory(c => new Service()));
+            _container.RegisterType<IFoo, Foo>();
+            _container.RegisterType<IFoo, Foo>("1");
+            _container.RegisterType<IFoo>("2", Invoke.Factory(c => new Foo()));
         }
 
         [Benchmark(Description = "Resolve<IUnityContainer>               ")]
@@ -33,15 +33,15 @@ namespace Runner.Tests
         public object Transient() => _container.Resolve(typeof(Poco), null);
 
         [Benchmark(Description = "Resolve<IService>   (registered)")]
-        public object Mapping() => _container.Resolve(typeof(IService), null);
+        public object Mapping() => _container.Resolve(typeof(IFoo), null);
 
         [Benchmark(Description = "Resolve<IService>      (factory)")]
-        public object Factory() => _container.Resolve(typeof(IService), "2");
+        public object Factory() => _container.Resolve(typeof(IFoo), "2");
 
         [Benchmark(Description = "Resolve<IService[]>   (registered)")]
-        public object Array() => _container.Resolve(typeof(IService[]), null);
+        public object Array() => _container.Resolve(typeof(IFoo[]), null);
 
         [Benchmark(Description = "Resolve<IEnumerable<IService>>   (registered)")]
-        public object Enumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
+        public object Enumerable() => _container.Resolve(typeof(IEnumerable<IFoo>), null);
     }
 }
