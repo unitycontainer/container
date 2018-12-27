@@ -5,10 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Expressions;
 using Unity.Container.Lifetime;
-using Unity.Injection;
-using Unity.Policy;
 
 namespace Unity.Processors
 {
@@ -17,6 +14,29 @@ namespace Unity.Processors
         #region Fields
 
         private static readonly ConstructorLengthComparer ConstructorComparer = new ConstructorLengthComparer();
+
+        private static readonly ConstructorInfo PerResolveInfo = typeof(InternalPerResolveLifetimeManager)
+            .GetTypeInfo().DeclaredConstructors.First();
+
+        private static readonly ConstructorInfo InvalidOperationExceptionCtor =
+            typeof(InvalidOperationException)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .First(c =>
+                {
+                    var parameters = c.GetParameters();
+                    return 2 == parameters.Length &&
+                           typeof(string) == parameters[0].ParameterType &&
+                           typeof(Exception) == parameters[1].ParameterType;
+                });
+
+        private static readonly Expression NoConstructorExceptionExpr =
+            Expression.Throw(
+                Expression.New(InvalidOperationExceptionCtor,
+                    Expression.Call(StringFormat,
+                        Expression.Constant("No public constructor is available for type {0}."),
+                        BuilderContextExpression.Type),
+                    InvalidRegistrationExpression));
 
         #endregion
 
@@ -97,31 +117,20 @@ namespace Unity.Processors
                 }
             }
 
-            var expression = base.GetEnumerator(ref context)
-                                 .FirstOrDefault();
-            switch (expression)
-            {
-                case NewExpression newExpression:
-                    expression = Expression.Assign(context.Variable, newExpression);
-                    break;
+            var newExpr = base.GetEnumerator(ref context)
+                                 .FirstOrDefault() ?? 
+                          NoConstructorExceptionExpr;
 
-                case null:
-                    expression = Expression.Throw(
-                        Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                            Expression.Call(StringFormat,
-                                Expression.Constant("No public constructor is available for type {0}."),
-                                BuilderContextExpression.Type),
-                            InvalidRegistrationExpression));
-                    break;
-            }
-
-            var createExpr = Expression.IfThenElse(Expression.NotEqual(Expression.Constant(null), BuilderContextExpression.Existing),
-                    Expression.Assign(context.Variable, Expression.Convert(BuilderContextExpression.Existing, context.Type)),
-                    ValidateConstructedType(ref context) ?? expression);
+            var IfThenExpr = Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                    ValidateConstructedType(ref context) ?? newExpr);
 
             return context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
-                ? new Expression[] { createExpr, BuilderContextExpression.SetPerBuildSingleton(ref context) }
-                : new Expression[] { createExpr };
+                ? new[] { IfThenExpr, BuilderContextExpression.Set(context.RegistrationType, 
+                                                                   context.RegistrationName, 
+                                                                   typeof(LifetimeManager),
+                                                                   Expression.New(PerResolveInfo, 
+                                                                                  BuilderContextExpression.Existing)) }
+                : new Expression[] { IfThenExpr };
         }
 
         protected override Expression ValidateMemberInfo(ConstructorInfo info)
@@ -129,7 +138,7 @@ namespace Unity.Processors
             var parameters = info.GetParameters();
             if (parameters.Any(pi => pi.ParameterType.IsByRef))
             {
-                return Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                return Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
                         Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
                         InvalidRegistrationExpression));
             }
@@ -148,8 +157,15 @@ namespace Unity.Processors
 
         }
 
-        protected override Expression CreateExpression(ConstructorInfo info, object[] resolvers, ParameterExpression variable)
-            => Expression.New(info, CreateParameterExpressions(info.GetParameters(), resolvers));
+        protected override Expression CreateExpression(ConstructorInfo info, object[] resolvers)
+        {
+            var variable = Expression.Variable(info.DeclaringType);
+            return Expression.Block(new[] { variable }, new Expression[]
+            {
+                Expression.Assign(variable, Expression.New(info, CreateParameterExpressions(info.GetParameters(), resolvers))),
+                Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object))) 
+            });
+        }
 
         #endregion
 
@@ -166,7 +182,7 @@ namespace Unity.Processors
 #endif
             {
                 return Expression.Throw(
-                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructInterface),
@@ -181,7 +197,7 @@ namespace Unity.Processors
 #endif
             {
                 return Expression.Throw(
-                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructAbstractClass),
@@ -196,7 +212,7 @@ namespace Unity.Processors
 #endif
             {
                 return Expression.Throw(
-                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.CannotConstructDelegate),
@@ -207,7 +223,7 @@ namespace Unity.Processors
             if (context.Type == typeof(string))
             {
                 return Expression.Throw(
-                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                    Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(Constants.TypeIsNotConstructable),

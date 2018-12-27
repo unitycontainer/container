@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder.Expressions;
+using Unity.Builder;
 using Unity.Injection;
 
 namespace Unity.Processors
@@ -10,6 +11,21 @@ namespace Unity.Processors
     public abstract class MethodBaseInfoProcessor<TMemberInfo> : MemberBuildProcessor<TMemberInfo, object[]>
                                              where TMemberInfo : MethodBase
     {
+        #region Fields
+
+        private static readonly MethodInfo ResolveParameter =
+            typeof(BuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 2 <= parameters.Length &&
+                        typeof(ParameterInfo) == parameters[0].ParameterType;
+                });
+
+        #endregion
+
+        
         #region Constructors
 
         public MethodBaseInfoProcessor(Type attribute)
@@ -27,7 +43,7 @@ namespace Unity.Processors
 
         protected override Type MemberType(TMemberInfo info) => info.DeclaringType;
 
-        protected override IEnumerable<Expression> GetEnumerator(Type type, string name, ParameterExpression variable, IEnumerable<object> members)
+        protected override IEnumerable<Expression> GetEnumerator(Type type, string name, IEnumerable<object> members)
         {
             foreach (var member in members)
             {
@@ -35,13 +51,13 @@ namespace Unity.Processors
                 {
                     case TMemberInfo memberInfo:
                         yield return ValidateMemberInfo(memberInfo) ??
-                                     CreateExpression(memberInfo, null, variable);
+                                     CreateExpression(memberInfo, null);
                         break;
 
                     case MethodBaseMember<TMemberInfo> injectionMember:
                         var (info, resolvers) = injectionMember.FromType(type);
                         yield return ValidateMemberInfo(info) ??
-                                     CreateExpression(info, resolvers, variable);
+                                     CreateExpression(info, resolvers);
                         break;
 
                     default:
@@ -76,12 +92,12 @@ namespace Unity.Processors
                     if (null == defaultValueExpr)
                     {
                         // Plain vanilla case
-                        expression = BuilderContextExpression.Resolve(parameter, null, resolver);
+                        expression = ResolveExpression(parameter, null, resolver);
                     }
                     else
                     {
                         var variable = Expression.Variable(parameter.ParameterType);
-                        var resolve = BuilderContextExpression.Resolve(parameter, null, resolver);
+                        var resolve = ResolveExpression(parameter, null, resolver);
 
                         expression = Expression.Block(new[] { variable }, new Expression[]
                         {
@@ -121,7 +137,7 @@ namespace Unity.Processors
             if (null == member)
             {
                 // Plain vanilla case
-                return BuilderContextExpression.Resolve(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver);
+                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver);
             }
             else
             {
@@ -133,7 +149,7 @@ namespace Unity.Processors
                         Expression.TryCatch(
                             Expression.Assign(
                                 variable,
-                                BuilderContextExpression.Resolve(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
+                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
                         Expression.Catch(typeof(Exception),
                             Expression.Assign(variable, member))),
                         variable
@@ -153,7 +169,7 @@ namespace Unity.Processors
                 Expression.TryCatch(
                     Expression.Assign(
                         variable,
-                        BuilderContextExpression.Resolve(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
+                        ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
                 Expression.Catch(typeof(Exception),
                     Expression.Assign(variable, member ?? Expression.Constant(null, parameter.ParameterType)))),
                 variable
@@ -166,7 +182,17 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract Expression CreateExpression(TMemberInfo info, object[] resolvers, ParameterExpression variable);
+        private Expression ResolveExpression(ParameterInfo parameter, string name, object resolver = null)
+        {
+            return Expression.Convert(
+                Expression.Call(BuilderContextExpression.Context, ResolveParameter,
+                    Expression.Constant(parameter, typeof(ParameterInfo)),
+                    Expression.Constant(name, typeof(string)),
+                    Expression.Constant(resolver, typeof(object))),
+                parameter.ParameterType);
+        }
+
+        protected abstract Expression CreateExpression(TMemberInfo info, object[] resolvers);
 
         protected virtual Expression ValidateMemberInfo(TMemberInfo info) => null;
 

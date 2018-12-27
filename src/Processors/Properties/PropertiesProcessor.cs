@@ -4,13 +4,27 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Builder.Expressions;
 using Unity.Utility;
 
 namespace Unity.Processors
 {
     public class PropertiesProcessor : MemberBuildProcessor<PropertyInfo, object>
     {
+        #region Fields
+
+        public static readonly MethodInfo ResolveProperty =
+            typeof(BuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 2 <= parameters.Length &&
+                        typeof(PropertyInfo) == parameters[0].ParameterType;
+                });
+
+        #endregion
+
+        
         #region Overrides
 
         public override IEnumerable<object> Select(ref BuilderContext context) =>
@@ -41,21 +55,22 @@ namespace Unity.Processors
 #endif
         }
 
-        #endregion
-
-
-        #region Implementation
-
         protected override Type MemberType(PropertyInfo info) 
             => info.PropertyType;
 
-        protected override Expression ResolveExpression(PropertyInfo member, string name, object resolver) 
-            => BuilderContextExpression.Resolve(member, name, resolver);
+        protected override Expression ResolveExpression(PropertyInfo property, string name, object resolver)
+        {
+            return Expression.Convert(
+                Expression.Call(BuilderContextExpression.Context, ResolveProperty,
+                    Expression.Constant(property, typeof(PropertyInfo)),
+                    Expression.Constant(name, typeof(string)),
+                    Expression.Constant(resolver, typeof(object))),
+                property.PropertyType);
+        }
 
-        protected override MemberExpression CreateMemberExpression(ParameterExpression variable, PropertyInfo info) 
-            => Expression.Property(variable, info);
+        protected override MemberExpression CreateMemberExpression(PropertyInfo info) 
+            => Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info);
 
         #endregion
-
     }
 }

@@ -1,12 +1,12 @@
 using System;
 using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Security;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity.Builder
 {
@@ -73,7 +73,7 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Public Members
+        #region Public Properties
 
         public object Existing { get; set; }
 
@@ -84,8 +84,6 @@ namespace Unity.Builder
         public bool BuildComplete;
 
         public Type DeclaringType { get; private set; }
-
-        public ParameterExpression Variable;
 
         #endregion
 
@@ -107,7 +105,7 @@ namespace Unity.Builder
                 DeclaringType = RegistrationType
             };
 
-            return registration.BuildChain.ExecuteReThrowingPlan(ref context);
+            return ExecuteReThrowingPlan(registration.BuildChain, ref context);
         }
 
         public object Resolve(ParameterInfo parameter, string name, object value)
@@ -275,6 +273,37 @@ namespace Unity.Builder
 
             // Resolve from container
             return Resolve(property.PropertyType, name);
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+
+        private static object ExecuteReThrowingPlan(BuilderStrategy[] chain, ref BuilderContext context)
+        {
+            var i = -1;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Length)
+                {
+                    chain[i].PreBuildUp(ref context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ref context);
+                }
+            }
+            catch
+            {
+                context.RequiresRecovery?.Recover();
+                throw;
+            }
+
+            return context.Existing;
         }
 
         #endregion

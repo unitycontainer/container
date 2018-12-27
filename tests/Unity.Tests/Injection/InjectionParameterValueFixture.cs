@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Injection;
-using Unity.Policy;
-using Unity.ResolverPolicy;
 using Unity.Tests.v5.Generics;
 using Unity.Tests.v5.TestSupport;
 

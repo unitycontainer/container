@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Unity.Builder;
-using Unity.Builder.Expressions;
 using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
@@ -164,8 +163,6 @@ namespace Unity
 
         private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
         {
-            context.Variable = Expression.Variable(context.Type, "instance");
-
             var expressions = new List<Expression>();
 
             foreach (var processor in _processorsChain)
@@ -174,11 +171,10 @@ namespace Unity
                     expressions.Add(step);
             }
 
-            expressions.Add(Expression.Convert(context.Variable, typeof(object)));
+            expressions.Add(BuilderContextExpression.Existing);
 
             var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
-                Expression.Block(new ParameterExpression[] { context.Variable }, expressions),
-                BuilderContextExpression.Context);
+                Expression.Block(expressions), BuilderContextExpression.Context);
 
             return lambda.Compile();
         }
@@ -194,7 +190,7 @@ namespace Unity
             var builder = new StringBuilder();
 
             builder.AppendLine($"Resolution of the dependency failed for type = '{typeRequested}', name = '{FormatName(nameRequested)}'.");
-            builder.AppendLine($"Exception occurred while: {ExceptionReason(ref context)}.");
+            builder.AppendLine($"Exception occurred while: {Constants.NoOperationExceptionReason}.");
             builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
             builder.AppendLine("-----------------------------------------------");
             builder.AppendLine("At the time of the exception, the container was: ");
@@ -225,33 +221,6 @@ namespace Unity
         private static string FormatName(string name)
         {
             return string.IsNullOrEmpty(name) ? "(none)" : name;
-        }
-
-        private static string ExceptionReason(ref BuilderContext context)
-        {
-            //var deepestContext = context;
-
-            //// Find deepest child
-            //while (deepestContext.ChildContext != null)
-            //{
-            //    deepestContext = deepestContext.ChildContext;
-            //}
-
-            // Backtrack to last known operation
-
-            return Constants.NoOperationExceptionReason;
-        }
-
-        private static string OperationError(object operation)
-        {
-            switch (operation)
-            {
-                case ConstructorInfo ctor:
-                    return $"Calling constructor {ctor}";
-
-                default:
-                    return operation.ToString();
-            }
         }
 
         #endregion

@@ -340,6 +340,34 @@ namespace Unity
             return argType;
         }
 
+        private static object ExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
+        {
+            var i = -1;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Length)
+                {
+                    chain[i].PreBuildUp(ref context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ref context);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.RequiresRecovery?.Recover();
+                // TODO: 5.9.0 Add proper error message
+                throw new ResolutionFailedException(context.RegistrationType,
+                    context.RegistrationName,
+                    "", ex);
+            }
+
+            return context.Existing;
+        }
+
         #endregion
 
 

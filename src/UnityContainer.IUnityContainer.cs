@@ -167,7 +167,7 @@ namespace Unity
                                      ? containerRegistration.Type : type,
             };
 
-            return registration.BuildChain.ExecuteThrowingPlan(ref context);
+            return ExecutePlan(registration.BuildChain, ref context);
         }
 
         #endregion
@@ -197,7 +197,7 @@ namespace Unity
                                      ? containerRegistration.Type : type
             };
 
-            return registration.BuildChain.ExecuteThrowingPlan(ref context);
+            return ExecutePlan(registration.BuildChain, ref context);
         }
 
         #endregion

@@ -20,7 +20,7 @@ namespace Runner.Tests
             _container.RegisterType<Poco>();
             _container.RegisterType<IService, Service>();
             _container.RegisterType<IService, Service>("1");
-            _container.RegisterType<IService, Service>("2");
+            _container.RegisterType<IService>("2", Invoke.Factory(c => new Service()));
 
             _container.Resolve<object>();
             _container.Resolve<Poco>();
@@ -40,6 +40,9 @@ namespace Runner.Tests
 
         [Benchmark(Description = "Resolve<IService> (pre-built)")]
         public object Mapping() => _container.Resolve(typeof(IService), null);
+
+        [Benchmark(Description = "Resolve<IService>   (factory)")]
+        public object Factory() => _container.Resolve(typeof(IService), "2");
 
         [Benchmark(Description = "Resolve<IService[]> (pre-built)")]
         public object Array() => _container.Resolve(typeof(IService[]), null);

@@ -55,8 +55,9 @@ namespace Unity.Processors
             return null;
         }
 
-        protected override Expression CreateExpression(MethodInfo info, object[] resolvers, ParameterExpression variable) 
-            => Expression.Call(variable, info, CreateParameterExpressions(info.GetParameters(), resolvers));
+        protected override Expression CreateExpression(MethodInfo info, object[] resolvers) 
+            => Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), 
+                info, CreateParameterExpressions(info.GetParameters(), resolvers));
 
         #endregion
     }

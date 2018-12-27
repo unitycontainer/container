@@ -14,7 +14,28 @@ namespace Unity.Processors
 
     public abstract class MemberBuildProcessor
     {
+        #region Fields
+
+        protected static readonly MethodInfo StringFormat =
+            typeof(string).GetTypeInfo()
+                .DeclaredMethods
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return m.Name == nameof(string.Format) &&
+                           m.GetParameters().Length == 2 &&
+                           typeof(object) == parameters[1].ParameterType;
+                });
+        protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
+
+        #endregion
+
+
+        #region Public Methods
+
         public abstract IEnumerable<Expression> GetEnumerator(ref BuilderContext context);
+
+        #endregion
     }
 
 
@@ -22,18 +43,6 @@ namespace Unity.Processors
                                                 where TMemberInfo : MemberInfo
     {
         #region Fields
-
-        protected static readonly MethodInfo StringFormat =
-            typeof(string).GetTypeInfo()
-                          .DeclaredMethods
-                          .First(m =>
-                          {
-                              var parameters = m.GetParameters();
-                              return m.Name == nameof(string.Format) &&
-                                     m.GetParameters().Length == 2 &&
-                                     typeof(object) == parameters[1].ParameterType;
-                          });
-        protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
 
         protected (Type type, MemberExpressionFactory factory)[] ResolverFactories;
 
@@ -79,7 +88,7 @@ namespace Unity.Processors
 
         #region Public Methods
 
-        public virtual void Add(Type type, MemberExpressionFactory factory)
+        public void Add(Type type, MemberExpressionFactory factory)
         {
             for (var i = 0; i < ResolverFactories.Length; i++)
             {
@@ -104,7 +113,7 @@ namespace Unity.Processors
         {
             var selector = GetPolicy<ISelect<TMemberInfo>>(ref context, context.RegistrationType, context.RegistrationName);
             var members = selector.Select(ref context);
-            return GetEnumerator(context.Type, context.Name, context.Variable, members);
+            return GetEnumerator(context.Type, context.Name, members);
         }
 
         #endregion
@@ -112,7 +121,7 @@ namespace Unity.Processors
 
         #region Expression Building
 
-        protected virtual IEnumerable<Expression> GetEnumerator(Type type, string name, ParameterExpression variable, IEnumerable<object> members)
+        protected virtual IEnumerable<Expression> GetEnumerator(Type type, string name, IEnumerable<object> members)
         {
             foreach (var member in members)
             {
@@ -121,13 +130,13 @@ namespace Unity.Processors
                 switch (member)
                 {
                     case TMemberInfo memberInfo:
-                        memberExpr = CreateMemberExpression(variable, memberInfo);
+                        memberExpr = CreateMemberExpression(memberInfo);
                         yield return BuildMemberExpression(memberExpr, memberInfo, name, null);
                         break;
 
                     case InjectionMember<TMemberInfo, TData> injectionMember:
                         var (info, value) = injectionMember.FromType(type);
-                        memberExpr = CreateMemberExpression(variable, info);
+                        memberExpr = CreateMemberExpression(info);
                         yield return BuildMemberExpression(memberExpr, info, name, value);
                         break;
 
@@ -169,7 +178,7 @@ namespace Unity.Processors
         protected virtual Expression ResolveExpression(TMemberInfo info, string name, object resolver)
             => throw new NotImplementedException();
 
-        protected virtual MemberExpression CreateMemberExpression(ParameterExpression variable, TMemberInfo info)
+        protected virtual MemberExpression CreateMemberExpression(TMemberInfo info)
             => throw new NotImplementedException();
 
         #endregion
