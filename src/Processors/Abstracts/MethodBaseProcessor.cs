@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder.Expressions;
@@ -35,14 +34,14 @@ namespace Unity.Processors
                 switch (member)
                 {
                     case TMemberInfo memberInfo:
-                        VerifyMemberInfo(memberInfo);
-                        yield return CreateExpression(memberInfo, null, variable);
+                        yield return ValidateMemberInfo(memberInfo) ??
+                                     CreateExpression(memberInfo, null, variable);
                         break;
 
                     case MethodBaseMember<TMemberInfo> injectionMember:
                         var (info, resolvers) = injectionMember.FromType(type);
-                        VerifyMemberInfo(info);
-                        yield return CreateExpression(info, resolvers, variable);
+                        yield return ValidateMemberInfo(info) ??
+                                     CreateExpression(info, resolvers, variable);
                         break;
 
                     default:
@@ -54,11 +53,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Implementation
-
-        protected abstract Expression CreateExpression(TMemberInfo info, object[] resolvers, ParameterExpression variable);
-
-        protected virtual void VerifyMemberInfo(TMemberInfo info) { }
+        #region Parameter Expression Factories
 
         protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object[] injectors)
         {
@@ -69,21 +64,22 @@ namespace Unity.Processors
                 var resolver = resolvers?[i];
 
                 // Check if has default value
-                var value = parameter.HasDefaultValue
+                var defaultValueExpr = parameter.HasDefaultValue
                     ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
                     : null;
 
-                var expression = GetAttributedFactory(parameter, value, resolver);
+                // Check for registered attributes first
+                var expression = FromAttribute(parameter, defaultValueExpr, resolver);
                 if (null == expression)
                 {
-                    if (null == value)
+                    // Check if has default value
+                    if (null == defaultValueExpr)
                     {
                         // Plain vanilla case
                         expression = BuilderContextExpression.Resolve(parameter, null, resolver);
                     }
                     else
                     {
-                        // Has default value
                         var variable = Expression.Variable(parameter.ParameterType);
                         var resolve = BuilderContextExpression.Resolve(parameter, null, resolver);
 
@@ -92,7 +88,7 @@ namespace Unity.Processors
                             Expression.TryCatch(
                                 Expression.Assign(variable, resolve),
                             Expression.Catch(typeof(Exception),
-                                Expression.Assign(variable, value))),
+                                Expression.Assign(variable, defaultValueExpr))),
                             variable
                         });
 
@@ -102,16 +98,15 @@ namespace Unity.Processors
                 yield return expression;
             }
 
-            Expression GetAttributedFactory(ParameterInfo param, Expression member, object data)
+            Expression FromAttribute(ParameterInfo param, Expression member, object data)
             {
-                // Check for attributes
                 foreach (var pair in ResolverFactories)
                 {
                     if (null == pair.factory) continue;
-
                     var attribute = param.GetCustomAttribute(pair.type);
                     if (null == attribute) continue;
 
+                    // If found match, use provided factory to create expression
                     return pair.factory(attribute, member, param, param.ParameterType, null, data);
                 }
 
@@ -119,12 +114,7 @@ namespace Unity.Processors
             }
         }
 
-        Expression GetExpression(object info, string name, object resolver)
-        {
-            throw new NotImplementedException();
-        }
-
-        // Default expression factory for [Dependency] attribute
+        // Default ParameterInfo expression factory for [Dependency] attribute
         Expression DependencyParameterExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
         {
             var parameter = (ParameterInfo)info;
@@ -142,7 +132,7 @@ namespace Unity.Processors
                 {
                         Expression.TryCatch(
                             Expression.Assign(
-                                variable, 
+                                variable,
                                 BuilderContextExpression.Resolve(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
                         Expression.Catch(typeof(Exception),
                             Expression.Assign(variable, member))),
@@ -152,25 +142,33 @@ namespace Unity.Processors
             }
         }
 
-        // Default expression factory for [OptionalDependency] attribute
+        // Default ParameterInfo expression factory for [OptionalDependency] attribute
         Expression OptionalDependencyParameterExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
         {
             var parameter = (ParameterInfo)info;
             var variable = Expression.Variable(parameter.ParameterType);
 
-            return Expression.Block(new[] { variable }, new Expression[] 
+            return Expression.Block(new[] { variable }, new Expression[]
             {
                 Expression.TryCatch(
                     Expression.Assign(
-                        variable, 
+                        variable,
                         BuilderContextExpression.Resolve(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
-                Expression.Catch(typeof(Exception), 
+                Expression.Catch(typeof(Exception),
                     Expression.Assign(variable, member ?? Expression.Constant(null, parameter.ParameterType)))),
                 variable
             });
 
         }
 
+        #endregion
+
+
+        #region Implementation
+
+        protected abstract Expression CreateExpression(TMemberInfo info, object[] resolvers, ParameterExpression variable);
+
+        protected virtual Expression ValidateMemberInfo(TMemberInfo info) => null;
 
         #endregion
     }

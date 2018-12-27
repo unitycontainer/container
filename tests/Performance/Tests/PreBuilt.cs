@@ -29,26 +29,24 @@ namespace Runner.Tests
             _container.Resolve<IService>("2");
         }
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<IUnityContainer>            ")]
         public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark]
-        public object PreUnregistered() => _container.Resolve(typeof(object), null);
+        [Benchmark(Description = "Resolve<object> (pre-built)")]
+        public object Unregistered() => _container.Resolve(typeof(object), null);
 
-        [Benchmark]
-        public object PreTransient() => _container.Resolve(typeof(Poco), null);
+        [Benchmark(Description = "Resolve<Poco> (pre-built)")]
+        public object Transient() => _container.Resolve(typeof(Poco), null);
 
-        [Benchmark]
-        public object PreMapping() => _container.Resolve(typeof(IService), null);
+        [Benchmark(Description = "Resolve<IService> (pre-built)")]
+        public object Mapping() => _container.Resolve(typeof(IService), null);
 
-        [Benchmark]
-        public object PreArray() => _container.Resolve(typeof(IService[]), null);
+        [Benchmark(Description = "Resolve<IService[]> (pre-built)")]
+        public object Array() => _container.Resolve(typeof(IService[]), null);
 
-        [Benchmark]
-        public object PreEnumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
+        [Benchmark(Description = "Resolve<IEnumerable<IService>> (pre-built)")]
+        public object Enumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
 
-        [Benchmark]
-        public object Registrations() => _container.Registrations.ToArray();
 
         public interface IService { }
         public class Service : IService { }

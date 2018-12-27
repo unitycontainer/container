@@ -39,7 +39,7 @@ namespace Unity.Processors
 #endif
         }
 
-        protected override void VerifyMemberInfo(MethodInfo info)
+        protected override Expression ValidateMemberInfo(MethodInfo info)
         {
             var parameters = info.GetParameters();
             if (info.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
@@ -51,6 +51,8 @@ namespace Unity.Processors
                 throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
                     format, info.DeclaringType.GetTypeInfo().Name, info.Name));
             }
+
+            return null;
         }
 
         protected override Expression CreateExpression(MethodInfo info, object[] resolvers, ParameterExpression variable) 

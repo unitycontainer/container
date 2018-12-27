@@ -23,26 +23,24 @@ namespace Runner.Tests
             _container.RegisterType<IService, Service>("2");
         }
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<IUnityContainer>")]
         public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<object> (unregistered)")]
         public object Unregistered() => _container.Resolve(typeof(object), null);
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<Poco> (registered)")]
         public object Transient() => _container.Resolve(typeof(Poco), null);
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<IService> (registered)")]
         public object Mapping() => _container.Resolve(typeof(IService), null);
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<IService[]> (registered)")]
         public object Array() => _container.Resolve(typeof(IService[]), null);
 
-        [Benchmark]
+        [Benchmark(Description = "Resolve<IEnumerable<IService>> (registered)")]
         public object Enumerable() => _container.Resolve(typeof(IEnumerable<IService>), null);
 
-        [Benchmark]
-        public object Registrations() => _container.Registrations.ToArray();
 
         public interface IService { }
         public class Service : IService { }

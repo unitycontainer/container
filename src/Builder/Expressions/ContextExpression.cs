@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Container.Lifetime;
 using Unity.Resolution;
-using Unity.ResolverPolicy;
 
 namespace Unity.Builder.Expressions
 {
-    [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
     public class BuilderContextExpression : IResolveContextExpression<BuilderContext>
     {
         #region Fields
@@ -101,41 +97,6 @@ namespace Unity.Builder.Expressions
                     Expression.Constant(name, typeof(string)),
                     Expression.Constant(resolver, typeof(object))),
                 parameter.ParameterType);
-        }
-
-        public static IEnumerable<Expression> GetParameters(MethodBase methodBase)
-        {
-            foreach (var parameter in methodBase.GetParameters())
-            {
-                // Resolve all DependencyAttributes on this parameter, if any
-                var attribute = parameter.GetCustomAttributes(false)
-                    .OfType<DependencyResolutionAttribute>()
-                    .FirstOrDefault();
-
-                if (null == attribute)
-                    yield return Resolve(parameter, null, null);
-                else
-                    yield return attribute is OptionalDependencyAttribute
-                        ? Resolve(parameter, attribute.Name, new OptionalDependencyResolvePolicy(parameter.ParameterType, attribute.Name))
-                        : Resolve(parameter, attribute.Name, null);
-            }
-        }
-
-        public static IEnumerable<Expression> GetParameters(ConstructorInfo info, object[] values)
-        {
-            var parameters = info.GetParameters();
-            var resolvers = null != values && 0 == values.Length ? null : values;
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-
-                // Resolve all DependencyAttributes on this parameter, if any
-                var attribute = parameter.GetCustomAttributes(false)
-                    .OfType<DependencyResolutionAttribute>()
-                    .FirstOrDefault();
-
-                yield return Resolve(parameter, attribute?.Name, resolvers?[i]);
-            }
         }
 
         public static Expression SetPerBuildSingleton(ref BuilderContext context)

@@ -16,9 +16,6 @@ namespace Unity.Processors
     {
         #region Fields
 
-        private static readonly MethodInfo SetPerBuildSingletonMethod = typeof(ConstructorProcessor)
-            .GetTypeInfo().GetDeclaredMethod(nameof(SetPerBuildSingleton));
-
         private static readonly ConstructorLengthComparer ConstructorComparer = new ConstructorLengthComparer();
 
         #endregion
@@ -100,43 +97,19 @@ namespace Unity.Processors
                 }
             }
 
-            var selector = GetPolicy<ISelect<ConstructorInfo>>(ref context,
-                context.RegistrationType, context.RegistrationName);
-
-            if (null == selector)
+            var expression = base.GetEnumerator(ref context)
+                                 .FirstOrDefault();
+            switch (expression)
             {
-                return new[] { Expression.Throw(
-                    Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                        Expression.Call(
-                            StringFormat,
-                            Expression.Constant("No appropriate constructor selector is registered for type {0}."),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression))};
-            }
-
-            Expression ctorExpr;
-
-            switch (selector.Select(ref context)
-                            .FirstOrDefault())
-            {
-                case MethodBaseMember<ConstructorInfo> methodBaseMember:
-                    var (ctor, resolvers) = methodBaseMember.FromType(context.Type);
-                    ctorExpr = ValidateSelectedConstructor(ref context, ctor) ??
-                               Expression.Assign(context.Variable,
-                                   Expression.New(ctor, CreateParameterExpressions(ctor.GetParameters(), resolvers)));
+                case NewExpression newExpression:
+                    expression = Expression.Assign(context.Variable, newExpression);
                     break;
 
-                case ConstructorInfo info:
-                    ctorExpr = ValidateSelectedConstructor(ref context, info) ??
-                               Expression.Assign(context.Variable,
-                                   Expression.New(info, CreateParameterExpressions(info.GetParameters(), null)));
-                    break;
-
-                default:
-                    ctorExpr = Expression.Throw(
+                case null:
+                    expression = Expression.Throw(
                         Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
                             Expression.Call(StringFormat,
-                                Expression.Constant(Constants.NoConstructorFound),
+                                Expression.Constant("No public constructor is available for type {0}."),
                                 BuilderContextExpression.Type),
                             InvalidRegistrationExpression));
                     break;
@@ -144,17 +117,39 @@ namespace Unity.Processors
 
             var createExpr = Expression.IfThenElse(Expression.NotEqual(Expression.Constant(null), BuilderContextExpression.Existing),
                     Expression.Assign(context.Variable, Expression.Convert(BuilderContextExpression.Existing, context.Type)),
-                    ValidateConstructedType(ref context) ?? ctorExpr);
+                    ValidateConstructedType(ref context) ?? expression);
 
             return context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
                 ? new Expression[] { createExpr, BuilderContextExpression.SetPerBuildSingleton(ref context) }
                 : new Expression[] { createExpr };
         }
 
-        protected override Expression CreateExpression(ConstructorInfo info, object[] resolvers, ParameterExpression variable)
+        protected override Expression ValidateMemberInfo(ConstructorInfo info)
         {
-            throw new NotImplementedException();
+            var parameters = info.GetParameters();
+            if (parameters.Any(pi => pi.ParameterType.IsByRef))
+            {
+                return Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
+                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
+                        InvalidRegistrationExpression));
+            }
+
+            return null;
+
+            // TODO: Check if required
+            string CreateErrorMessage(string format, Type type, MethodBase constructor)
+            {
+                var parameterDescriptions =
+                    constructor.GetParameters()
+                        .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
+
+                return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
+            }
+
         }
+
+        protected override Expression CreateExpression(ConstructorInfo info, object[] resolvers, ParameterExpression variable)
+            => Expression.New(info, CreateParameterExpressions(info.GetParameters(), resolvers));
 
         #endregion
 
@@ -221,55 +216,6 @@ namespace Unity.Processors
             }
 
             return null;
-        }
-
-        private Expression ValidateSelectedConstructor(ref BuilderContext context, ConstructorInfo ctor)
-        {
-            var parameters = ctor.GetParameters();
-            if (parameters.Any(pi => pi.ParameterType.IsByRef))
-            {
-                return Expression.IfThen(Expression.Equal(BuilderContextExpression.Existing, Expression.Constant(null)),
-                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, context.Type, ctor)),
-                        InvalidRegistrationExpression)));
-            }
-
-            if (IsInvalidConstructor(context.Type, ref context, parameters))
-            {
-                return Expression.IfThen(Expression.Equal(BuilderContextExpression.Existing, Expression.Constant(null)),
-                    Expression.Throw(Expression.New(ExceptionExpression.InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefItself, context.Type, ctor)),
-                        InvalidRegistrationExpression)));
-            }
-
-            return null;
-        }
-
-        private static bool IsInvalidConstructor(Type target, ref BuilderContext context, ParameterInfo[] parameters)
-        {
-            if (parameters.Any(p => p.ParameterType == target))
-            {
-                var policy = (LifetimeManager)context.Get(context.Type, context.Name, typeof(LifetimeManager));
-                if (null == policy?.GetValue())
-                    return true;
-            }
-
-            return false;
-        }
-
-        private static string CreateErrorMessage(string format, Type type, MethodBase constructor)
-        {
-            var parameterDescriptions =
-                constructor.GetParameters()
-                    .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
-
-            return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
-        }
-
-        public static void SetPerBuildSingleton(ref BuilderContext context)
-        {
-            var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-            context.Set(context.RegistrationType, context.RegistrationName, typeof(LifetimeManager), perBuildLifetime);
         }
 
         #endregion

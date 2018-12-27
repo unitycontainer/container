@@ -630,23 +630,6 @@ namespace Unity.Tests.v5
             }
         }
 
-        [Ignore]    // TODO: Ignored
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
-        public void ResovingObjectWithPrivateSetterGivesUsefulException()
-        {
-            IUnityContainer container = new UnityContainer();
-            try
-            {
-                container.Resolve<ObjectWithPrivateSetter>();
-            }
-            catch (ResolutionFailedException e)
-            {
-                Assert.IsInstanceOfType(e.InnerException, typeof(InvalidOperationException));
-                throw;
-            }
-        }
-
         [TestMethod]
         public void ResolvingUnconfiguredPrimitiveDependencyGivesReasonableException()
         {
@@ -673,13 +656,13 @@ namespace Unity.Tests.v5
             try
             {
                 container.Resolve<TypeWithPrimitiveDependency<T>>();
+                Assert.Fail("Expected exception did not occur");
             }
             catch (ResolutionFailedException e)
             {
                 Assert.IsInstanceOfType(e.InnerException, typeof(InvalidOperationException));
                 return;
             }
-            Assert.Fail("Expected exception did not occur");
         }
 
         internal class SomeType
