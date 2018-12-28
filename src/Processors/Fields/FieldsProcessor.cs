@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,9 +25,6 @@ namespace Unity.Processors
 
 
         #region Overrides
-
-        public override IEnumerable<object> Select(ref BuilderContext context) =>
-            base.Select(ref context).Distinct();
 
         protected override FieldInfo[] DeclaredMembers(Type type)
         {

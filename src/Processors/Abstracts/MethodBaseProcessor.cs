@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 
@@ -42,6 +41,34 @@ namespace Unity.Processors
         #region Overrides
 
         protected override Type MemberType(TMemberInfo info) => info.DeclaringType;
+
+        protected override IEnumerable<object> SelectMembers(Type type, TMemberInfo[] members, InjectionMember[] injectors)
+        {
+            // Select Injected Members
+            if (null != injectors)
+            {
+                foreach (var injectionMember in injectors)
+                {
+                    if (injectionMember is InjectionMember<TMemberInfo, object[]>)
+                        yield return injectionMember;
+                }
+            }
+
+            // Select Attributed members
+            if (null != members)
+            {
+                foreach (var member in members)
+                {
+                    foreach (var pair in ResolverFactories)
+                    {
+                        if (!member.IsDefined(pair.type)) continue;
+
+                        yield return member;
+                        break;
+                    }
+                }
+            }
+        }
 
         #endregion
 

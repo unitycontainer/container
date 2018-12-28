@@ -28,9 +28,6 @@ namespace Unity.Processors
         
         #region Overrides
 
-        public override IEnumerable<object> Select(ref BuilderContext context) =>
-            base.Select(ref context).Distinct();
-
         protected override PropertyInfo[] DeclaredMembers(Type type)
         {
 #if NETSTANDARD1_0

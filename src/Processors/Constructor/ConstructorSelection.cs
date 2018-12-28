@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Injection;
 
 namespace Unity.Processors
 {
@@ -20,6 +22,40 @@ namespace Unity.Processors
             return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public)
                        .ToArray();
 #endif
+        }
+
+        protected override IEnumerable<object> SelectMembers(Type type, ConstructorInfo[] members, InjectionMember[] injectors)
+        {
+            // Select Injected Members
+            if (null != injectors)
+            {
+                foreach (var injectionMember in injectors)
+                {
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        yield return injectionMember;
+                        yield break;
+                    }
+                }
+            }
+
+            // Select Attributed members
+            if (null != members)
+            {
+                foreach (var member in members)
+                {
+                    foreach (var pair in ResolverFactories)
+                    {
+                        if (!member.IsDefined(pair.type)) continue;
+
+                        yield return member;
+                        yield break;
+                    }
+                }
+            }
+
+            // Select default
+            yield return GetDefault(type, members);
         }
 
         /// <summary>

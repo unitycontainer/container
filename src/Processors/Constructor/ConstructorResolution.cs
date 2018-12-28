@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Container.Lifetime;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 
@@ -30,7 +32,7 @@ namespace Unity.Processors
 
             var selector = GetPolicy<ISelect<ConstructorInfo>>(ref context, context.RegistrationType, context.RegistrationName);
             var selection = selector.Select(ref context)
-                               .FirstOrDefault();
+                                    .FirstOrDefault();
             
             // Validate constructor info
             if (null == selection)
@@ -38,28 +40,15 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException($"No public constructor is available for type {c.Type}.");
+                        throw new InvalidOperationException($"No public constructor is available for type {c.Type}.", 
+                            new InvalidRegistrationException());
 
                     return c.Existing;
                 };
             }
 
-            return ValidateConstructedTypeResolver(ref context) ?? BuildResolver(context.Type, selection);
-
-            //var resolvers = GetResolvers(context.Type, context.Name, members);
-
-            //var IfThenExpr = Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-            //        ValidateConstructedType(ref context) ?? newExpr);
-
-            //return context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
-            //    ? new[] { IfThenExpr, BuilderContextExpression.Set(context.RegistrationType,
-            //                                                       context.RegistrationName,
-            //                                                       typeof(LifetimeManager),
-            //                                                       Expression.New(PerResolveInfo,
-            //                                                                      BuilderContextExpression.Existing)) }
-            //    : new Expression[] { IfThenExpr };
-
-            //return base.GetResolver(ref context, seed);
+            return ValidateConstructedTypeResolver(ref context) ?? 
+                   BuildResolver(ref context, selection);
         }
 
 
@@ -68,7 +57,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        private ResolveDelegate<BuilderContext> BuildResolver(Type type, object selection)
+        private ResolveDelegate<BuilderContext> BuildResolver(ref BuilderContext context, object selection)
         {
             ConstructorInfo info;
             object[] resolvers = null;
@@ -80,7 +69,7 @@ namespace Unity.Processors
                     break;
 
                 case MethodBaseMember<ConstructorInfo> injectionMember:
-                    (info, resolvers) = injectionMember.FromType(type);
+                    (info, resolvers) = injectionMember.FromType(context.Type);
                     break;
 
                 default:
@@ -88,6 +77,30 @@ namespace Unity.Processors
             }
 
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+
+            if (context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager)
+            {
+                // PerResolve lifetime
+                return (ref BuilderContext c) =>
+                {
+                    if (null == c.Existing)
+                    {
+                        var parameters = new object[parameterResolvers.Length];
+                        for (var i = 0; i < parameters.Length; i++)
+                            parameters[i] = parameterResolvers[i](ref c);
+
+                        c.Existing = info.Invoke(parameters);
+                        c.Set(c.RegistrationType, 
+                              c.RegistrationName, 
+                              typeof(LifetimeManager), 
+                              new InternalPerResolveLifetimeManager(c.Existing));
+                    }
+
+                    return c.Existing;
+                };
+            }
+
+            // Normal activator
             return (ref BuilderContext c) =>
             {
                 if (null == c.Existing)
@@ -115,7 +128,8 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.CannotConstructInterface, c.Type));
+                        throw new InvalidOperationException(string.Format(Constants.CannotConstructInterface, c.Type),
+                            new InvalidRegistrationException());
 
                     return c.Existing;
                 };
@@ -130,7 +144,8 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.CannotConstructAbstractClass, c.Type));
+                        throw new InvalidOperationException(string.Format(Constants.CannotConstructAbstractClass, c.Type),
+                            new InvalidRegistrationException());
 
                     return c.Existing;
                 };
@@ -145,7 +160,8 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.CannotConstructDelegate, c.Type));
+                        throw new InvalidOperationException(string.Format(Constants.CannotConstructDelegate, c.Type),
+                            new InvalidRegistrationException());
 
                     return c.Existing;
                 };
@@ -156,7 +172,8 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.TypeIsNotConstructable, c.Type));
+                        throw new InvalidOperationException(string.Format(Constants.TypeIsNotConstructable, c.Type),
+                            new InvalidRegistrationException());
 
                     return c.Existing;
                 };

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
@@ -12,10 +13,11 @@ namespace Unity.Processors
     {
         #region ISelect
 
-        public virtual IEnumerable<object> Select(ref BuilderContext context)
+        public IEnumerable<object> Select(ref BuilderContext context)
         {
-            return GetEnumerator(context.Type, DeclaredMembers(context.Type),
-                ((InternalRegistration) context.Registration).InjectionMembers);
+            return SelectMembers(context.Type, DeclaredMembers(context.Type),
+                ((InternalRegistration) context.Registration).InjectionMembers)
+                .Distinct();
         }
 
         #endregion
@@ -23,7 +25,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        private IEnumerable<object> GetEnumerator(Type type, TMemberInfo[] members, InjectionMember[] injectors)
+        protected virtual IEnumerable<object> SelectMembers(Type type, TMemberInfo[] members, InjectionMember[] injectors)
         {
             // Select Injected Members
             if (null != injectors)
@@ -49,10 +51,6 @@ namespace Unity.Processors
                     }
                 }
             }
-
-            // Select default
-            var defaultSelection = GetDefault(type, members);
-            if (null != defaultSelection) yield return defaultSelection;
         }
 
         protected virtual TMemberInfo[] DeclaredMembers(Type type) => new TMemberInfo[0];

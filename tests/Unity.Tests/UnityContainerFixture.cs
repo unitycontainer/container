@@ -619,15 +619,7 @@ namespace Unity.Tests.v5
             var container = new UnityContainer()
                 .RegisterType(typeof(List<>), new InjectionConstructor(10));
 
-            try
-            {
-                container.Resolve(typeof (List<>));
-            }
-            catch (ResolutionFailedException e)
-            {
-                Assert.IsInstanceOfType(e.InnerException, typeof(ArgumentException));
-                throw;
-            }
+            container.Resolve(typeof(List<>));
         }
 
         [TestMethod]

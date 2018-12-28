@@ -47,15 +47,13 @@ namespace Unity.Processors
         {
             var selector = GetPolicy<ISelect<TMemberInfo>>(ref context, context.RegistrationType, context.RegistrationName);
             var members = selector.Select(ref context);
-            var resolvers = ResolversFromSelected(context.Type, context.Name, members);
+            var resolvers = ResolversFromSelected(context.Type, context.Name, members).ToArray();
 
             return (ref BuilderContext c) =>
             {
-                // Constructor could be overridden 
-                if (null != seed) c.Existing = seed(ref c);
+                if (null == (c.Existing = seed(ref c))) return null;
 
-                foreach (var resolver in resolvers)
-                    c.Existing = resolver(ref c);
+                foreach (var resolver in resolvers) resolver(ref c);
 
                 return c.Existing;
             };
