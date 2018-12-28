@@ -30,7 +30,7 @@ namespace Unity.Processors
                 }
             }
 
-            var selector = GetPolicy<ISelect<ConstructorInfo>>(ref context, context.RegistrationType, context.RegistrationName);
+            var selector = GetPolicy<ISelect<ConstructorInfo>>(ref context);
             var selection = selector.Select(ref context)
                                     .FirstOrDefault();
             
@@ -90,9 +90,7 @@ namespace Unity.Processors
                             parameters[i] = parameterResolvers[i](ref c);
 
                         c.Existing = info.Invoke(parameters);
-                        c.Set(c.RegistrationType, 
-                              c.RegistrationName, 
-                              typeof(LifetimeManager), 
+                        c.Set(typeof(LifetimeManager), 
                               new InternalPerResolveLifetimeManager(c.Existing));
                     }
 

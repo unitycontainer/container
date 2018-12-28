@@ -31,7 +31,7 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string Name => RegistrationName;
+        public string Name { get; set; }
 
         public object Resolve(Type type, string name) => Resolve(type, name,
             (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
@@ -41,12 +41,23 @@ namespace Unity.Builder
 
         #region IPolicyList
 
+        public object Get(Type policyInterface)
+        {
+            return list.Get(RegistrationType, Name, policyInterface) ?? 
+                   Registration.Get(policyInterface);
+        }
+
         public object Get(Type type, string name, Type policyInterface)
         {
             return list.Get(type, name, policyInterface) ??
-                   (type != RegistrationType || name != RegistrationName
+                   (type != RegistrationType || name != Name
                        ? ((UnityContainer)Container).GetPolicy(type, name, policyInterface)
                        : Registration.Get(policyInterface));
+        }
+
+        public void Set(Type policyInterface, object policy)
+        {
+            list.Set(RegistrationType, Name, policyInterface, policy);
         }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
@@ -65,8 +76,6 @@ namespace Unity.Builder
         #region Registration
 
         public Type RegistrationType { get; set; }
-
-        public string RegistrationName { get; set; }
 
         public IPolicySet Registration { get; set; }
 
@@ -97,7 +106,7 @@ namespace Unity.Builder
                 Lifetime = Lifetime,
                 Registration = registration,
                 RegistrationType = type,
-                RegistrationName = name,
+                Name = name,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
 
                 list = list,

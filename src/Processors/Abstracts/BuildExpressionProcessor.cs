@@ -46,7 +46,7 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override IEnumerable<Expression> GetBuildSteps(ref BuilderContext context)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(ref context, context.RegistrationType, context.RegistrationName);
+            var selector = GetPolicy<ISelect<TMemberInfo>>(ref context);
             var members = selector.Select(ref context);
             return ExpressionsFromSelected(context.Type, context.Name, members);
         }

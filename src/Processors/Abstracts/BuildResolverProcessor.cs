@@ -45,7 +45,7 @@ namespace Unity.Processors
 
         public override ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context, ResolveDelegate<BuilderContext> seed)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(ref context, context.RegistrationType, context.RegistrationName);
+            var selector = GetPolicy<ISelect<TMemberInfo>>(ref context);
             var members = selector.Select(ref context);
             var resolvers = ResolversFromSelected(context.Type, context.Name, members).ToArray();
 

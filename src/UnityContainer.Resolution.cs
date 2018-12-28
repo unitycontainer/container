@@ -220,7 +220,7 @@ namespace Unity
 
             builder.Append(context.Type == context.RegistrationType
                 ? $"Resolving {context.Type},{FormatName(context.Name)}"
-                : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {context.RegistrationType}, {FormatName(context.RegistrationName)})");
+                : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {context.RegistrationType}, {FormatName(context.Name)})");
 
             builder.AppendLine();
 

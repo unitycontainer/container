@@ -106,7 +106,7 @@ namespace Unity.Policy.BuildPlanCreator
         public static void SetPerBuildSingleton(ref BuilderContext context)
         {
             var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
-            context.Set(context.RegistrationType, context.RegistrationName, typeof(LifetimeManager), perBuildLifetime);
+            context.Set(typeof(LifetimeManager), perBuildLifetime);
         }
     }
 }

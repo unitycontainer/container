@@ -65,16 +65,16 @@ namespace Unity.Processors
 
         #region Policy Retrieval
 
-        public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
+        public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context)
         {
             return (TPolicyInterface)
-            (context.Get(type, name, typeof(TPolicyInterface)) ?? (
+            (context.Get(typeof(TPolicyInterface)) ?? (
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                type.GetTypeInfo().IsGenericType
+                context.RegistrationType.GetTypeInfo().IsGenericType
 #else
-                type.IsGenericType
+                context.RegistrationType.IsGenericType
 #endif
-                ? context.Get(type.GetGenericTypeDefinition(), name, typeof(TPolicyInterface)) ?? context.Get(null, null, typeof(TPolicyInterface))
+                ? context.Get(context.RegistrationType.GetGenericTypeDefinition(), context.Name, typeof(TPolicyInterface)) ?? context.Get(null, null, typeof(TPolicyInterface))
                 : context.Get(null, null, typeof(TPolicyInterface))));
         }
 

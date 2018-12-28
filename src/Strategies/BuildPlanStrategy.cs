@@ -48,7 +48,7 @@ namespace Unity.Strategies
                 var plan = context.Registration.Get<IBuildPlanPolicy>() ??
                            (IBuildPlanPolicy)(
                                context.Get(context.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
-                               GetGeneric(ref context, typeof(IBuildPlanPolicy), context.RegistrationType, context.RegistrationName));
+                               GetGeneric(ref context, typeof(IBuildPlanPolicy)));
 
                 if (plan == null)
                 {
@@ -97,6 +97,23 @@ namespace Unity.Strategies
         {
             return (TPolicyInterface)(GetGeneric(ref context, typeof(TPolicyInterface), type, name) ??
                                       context.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
+        }
+
+        protected static object GetGeneric(ref BuilderContext context, Type policyInterface)
+        {
+            // Check if generic
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+            if (context.RegistrationType.GetTypeInfo().IsGenericType)
+#else
+            if (context.RegistrationType.IsGenericType)
+#endif
+            {
+                var newType = context.RegistrationType.GetGenericTypeDefinition();
+                return context.Get(newType, context.Name, policyInterface) ??
+                       context.Get(newType, string.Empty, policyInterface);
+            }
+
+            return null;
         }
 
         protected static object GetGeneric(ref BuilderContext context, Type policyInterface, Type type, string name)

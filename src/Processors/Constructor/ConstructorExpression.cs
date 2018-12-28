@@ -12,6 +12,11 @@ namespace Unity.Processors
     {
         #region Fields
 
+        private static readonly MethodInfo SetMethod =
+            typeof(BuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(BuilderContext.Set))
+                .First(m => 2 == m.GetParameters().Length);
+
         private static readonly ConstructorLengthComparer ConstructorComparer = new ConstructorLengthComparer();
 
         private static readonly ConstructorInfo PerResolveInfo = typeof(InternalPerResolveLifetimeManager)
@@ -36,6 +41,11 @@ namespace Unity.Processors
                         Expression.Constant("No public constructor is available for type {0}."),
                         BuilderContextExpression.Type),
                     InvalidRegistrationExpression));
+
+        private static readonly Expression SetPerBuildSingletonExpr = 
+            Expression.Call(BuilderContextExpression.Context, SetMethod,
+                Expression.Constant(typeof(LifetimeManager), typeof(Type)),
+                Expression.New(PerResolveInfo, BuilderContextExpression.Existing));
 
         #endregion
 
@@ -78,11 +88,7 @@ namespace Unity.Processors
                     ValidateConstructedTypeExpression(ref context) ?? newExpr);
 
             return context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
-                ? new[] { IfThenExpr, BuilderContextExpression.Set(context.RegistrationType, 
-                                                                   context.RegistrationName, 
-                                                                   typeof(LifetimeManager),
-                                                                   Expression.New(PerResolveInfo, 
-                                                                                  BuilderContextExpression.Existing)) }
+                ? new Expression[] { IfThenExpr, SetPerBuildSingletonExpr }
                 : new Expression[] { IfThenExpr };
         }
 

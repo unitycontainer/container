@@ -158,11 +158,11 @@ namespace Unity
             var context = new BuilderContext
             {
                 list = new PolicyList(),
-                Registration = registration,
-                RegistrationType = type,
-                RegistrationName = name,
                 Lifetime = LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
+                Registration = registration,
+                RegistrationType = type,
+                Name = name,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type,
             };
@@ -187,12 +187,12 @@ namespace Unity
             var context = new BuilderContext
             {
                 list = new PolicyList(),
-                Registration = registration,
-                RegistrationType = type,
-                RegistrationName = name,
                 Lifetime = LifetimeContainer,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
+                Registration = registration,
+                RegistrationType = type,
+                Name = name,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type
             };
