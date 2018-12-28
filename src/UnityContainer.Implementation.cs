@@ -43,7 +43,7 @@ namespace Unity
 
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<MemberBuildProcessor, BuilderStage> _buildPlanStrategies;
+        private StagedStrategyChain<BuildMemberProcessor, BuilderStage> _buildPlanStrategies;
 
         // Registrations
         private readonly object _syncRoot = new object();
@@ -56,7 +56,7 @@ namespace Unity
 
         // Caches
         private BuilderStrategy[]      _strategiesChain;
-        private MemberBuildProcessor[] _processorsChain;
+        private BuildMemberProcessor[] _processorsChain;
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
@@ -191,7 +191,7 @@ namespace Unity
             var constructorProcessor = new ConstructorProcessor();
 
             // Processors chain
-            _buildPlanStrategies = new StagedStrategyChain<MemberBuildProcessor, BuilderStage>
+            _buildPlanStrategies = new StagedStrategyChain<BuildMemberProcessor, BuilderStage>
             {
                 { constructorProcessor, BuilderStage.Creation },
                 { fieldsProcessor,      BuilderStage.Fields },
@@ -210,8 +210,9 @@ namespace Unity
 
             // Default policies
             var defaults = new InternalRegistration(null, null);
-
+            
             defaults.Set(typeof(ResolveDelegateFactory),   (ResolveDelegateFactory)GetResolver);
+            //defaults.Set(typeof(ResolveDelegateFactory),   (ResolveDelegateFactory)GetCompiledResolver);
             defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
             defaults.Set(typeof(ISelect<FieldInfo>),       fieldsProcessor);
             defaults.Set(typeof(ISelect<PropertyInfo>),    propertiesProcessor);

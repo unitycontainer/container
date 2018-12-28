@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Policy;
 using Unity.Utility;
 
 namespace Unity.Processors
@@ -22,7 +23,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Overrides
+        #region Selection
 
         public override IEnumerable<object> Select(ref BuilderContext context) =>
             base.Select(ref context).Distinct();
@@ -39,7 +40,50 @@ namespace Unity.Processors
 #endif
         }
 
-        protected override Expression ValidateMemberInfo(MethodInfo info)
+        #endregion
+
+
+        #region Building Expression
+
+        protected override Expression BuildMemberExpression(MethodInfo info, string name, object[] resolvers)
+        {
+            ValidateMethod(info);
+
+            return Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                           info, CreateParameterExpressions(info.GetParameters(), resolvers));
+        }
+
+        #endregion
+
+
+        #region Building Resolver
+
+        protected override ResolveDelegate<BuilderContext> BuildMemberResolver(MethodInfo info, string name, object[] resolvers)
+        {
+            ValidateMethod(info);
+
+            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            return (ref BuilderContext c) =>
+            {
+                if (null != c.Existing)
+                {
+                    var parameters = new object[parameterResolvers.Length];
+                    for (var i = 0; i < parameters.Length; i++)
+                        parameters[i] = parameterResolvers[i](ref c);
+
+                    info.Invoke(c.Existing, parameters);
+                }
+
+                return c.Existing;
+            };
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        private void ValidateMethod(MethodInfo info)
         {
             var parameters = info.GetParameters();
             if (info.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
@@ -52,12 +96,7 @@ namespace Unity.Processors
                     format, info.DeclaringType.GetTypeInfo().Name, info.Name));
             }
 
-            return null;
         }
-
-        protected override Expression CreateExpression(MethodInfo info, object[] resolvers) 
-            => Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), 
-                info, CreateParameterExpressions(info.GetParameters(), resolvers));
 
         #endregion
     }

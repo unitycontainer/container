@@ -8,7 +8,7 @@ using Unity.Registration;
 
 namespace Unity.Processors
 {
-    public abstract partial class MemberBuildProcessor<TMemberInfo, TData> : ISelect<TMemberInfo>
+    public abstract partial class BuildMemberProcessor<TMemberInfo, TData> : ISelect<TMemberInfo>
     {
         #region ISelect
 
@@ -40,7 +40,7 @@ namespace Unity.Processors
             {
                 foreach (var member in members)
                 {
-                    foreach (var pair in ResolverFactories)
+                    foreach (var pair in ExpressionFactories)
                     {
                         if (!member.IsDefined(pair.type)) continue;
 

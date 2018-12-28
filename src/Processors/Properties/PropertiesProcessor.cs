@@ -4,11 +4,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Policy;
 using Unity.Utility;
 
 namespace Unity.Processors
 {
-    public class PropertiesProcessor : MemberBuildProcessor<PropertyInfo, object>
+    public class PropertiesProcessor : BuildMemberProcessor<PropertyInfo, object>
     {
         #region Fields
 
@@ -58,7 +59,16 @@ namespace Unity.Processors
         protected override Type MemberType(PropertyInfo info) 
             => info.PropertyType;
 
-        protected override Expression ResolveExpression(PropertyInfo property, string name, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolver(PropertyInfo info, string name, object resolver)
+        {
+            return (ref BuilderContext context) =>
+            {
+                info.SetValue(context.Existing, context.Resolve(info, name, resolver));
+                return context.Existing;
+            };
+        }
+
+        protected override Expression GetExpression(PropertyInfo property, string name, object resolver)
         {
             return Expression.Convert(
                 Expression.Call(BuilderContextExpression.Context, ResolveProperty,
@@ -70,6 +80,40 @@ namespace Unity.Processors
 
         protected override MemberExpression CreateMemberExpression(PropertyInfo info) 
             => Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info);
+
+        #endregion
+
+
+        #region Parameter Resolver Factories
+
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue)
+        {
+            return (ref BuilderContext context) =>
+            {
+                ((PropertyInfo)info).SetValue(context.Existing, 
+                    context.Resolve((PropertyInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver));
+
+                return context.Existing;
+            };
+        }
+
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue)
+        {
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    ((PropertyInfo)info).SetValue(context.Existing, 
+                        context.Resolve((PropertyInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver));
+                    return context.Existing;
+                }
+                catch
+                {
+                    ((PropertyInfo)info).SetValue(context.Existing, defaultValue);
+                    return context.Existing;
+                }
+            };
+        }
 
         #endregion
     }

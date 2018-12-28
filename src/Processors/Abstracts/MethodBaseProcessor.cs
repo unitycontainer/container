@@ -4,11 +4,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
+using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public abstract class MethodBaseInfoProcessor<TMemberInfo> : MemberBuildProcessor<TMemberInfo, object[]>
+    public abstract class MethodBaseInfoProcessor<TMemberInfo> : BuildMemberProcessor<TMemberInfo, object[]>
                                              where TMemberInfo : MethodBase
     {
         #region Fields
@@ -29,11 +31,9 @@ namespace Unity.Processors
         #region Constructors
 
         public MethodBaseInfoProcessor(Type attribute)
-            : base(new (Type type, MemberExpressionFactory factory)[] { (attribute, null) })
         {
-            // TODO: Optimize 
-            Add(typeof(DependencyAttribute),         DependencyParameterExpressionFactory);
-            Add(typeof(OptionalDependencyAttribute), OptionalDependencyParameterExpressionFactory);
+            Add(attribute, (MemberResolverFactory)null);
+            Add(attribute, (MemberExpressionFactory)null);
         }
 
         #endregion
@@ -43,27 +43,106 @@ namespace Unity.Processors
 
         protected override Type MemberType(TMemberInfo info) => info.DeclaringType;
 
-        protected override IEnumerable<Expression> GetEnumerator(Type type, string name, IEnumerable<object> members)
+        #endregion
+
+
+        #region Parameter Resolution Factories
+
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object[] injectors)
         {
-            foreach (var member in members)
+            object[] resolvers = null != injectors && 0 == injectors.Length ? null : injectors;
+            for (var i = 0; i < parameters.Length; i++)
             {
-                switch (member)
+                var parameter = parameters[i];
+                var resolver = resolvers?[i];
+
+                // Check if has default value
+                var defaultValue = parameter.HasDefaultValue
+                    ? parameter.DefaultValue
+                    : null;
+
+                // Check for registered attributes first
+                var expression = FromAttribute(parameter, defaultValue, resolver);
+                if (null == expression)
                 {
-                    case TMemberInfo memberInfo:
-                        yield return ValidateMemberInfo(memberInfo) ??
-                                     CreateExpression(memberInfo, null);
-                        break;
-
-                    case MethodBaseMember<TMemberInfo> injectionMember:
-                        var (info, resolvers) = injectionMember.FromType(type);
-                        yield return ValidateMemberInfo(info) ??
-                                     CreateExpression(info, resolvers);
-                        break;
-
-                    default:
-                        throw new InvalidOperationException($"Unknown MethodBase<{typeof(TMemberInfo)}> type");
+                    // Check if has default value
+                    if (null == defaultValue)
+                    {
+                        // Plain vanilla case
+                        expression = (ref BuilderContext context) => context.Resolve(parameter, null, resolver);
+                    }
+                    else
+                    {
+                        var variable = Expression.Variable(parameter.ParameterType);
+                        var resolve = ResolveExpression(parameter, null, resolver);
+                        expression = (ref BuilderContext context) => 
+                        {
+                            try
+                            {
+                                return context.Resolve(parameter, null, resolver);
+                            }
+                            catch
+                            {
+                                return parameter.HasDefaultValue
+                                ? parameter.DefaultValue
+                                : null;
+                            }
+                        };
+                    }
                 }
+
+                yield return expression;
             }
+
+            ResolveDelegate<BuilderContext> FromAttribute(ParameterInfo param, object defaultValue, object data)
+            {
+                foreach (var pair in ResolverFactories)
+                {
+                    if (null == pair.factory) continue;
+                    var attribute = param.GetCustomAttribute(pair.type);
+                    if (null == attribute) continue;
+
+                    // If found match, use provided factory to create expression
+                    return pair.factory(attribute, param, null, data, defaultValue);
+                }
+
+                return null;
+            }
+        }
+
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue)
+        {
+            return (ref BuilderContext context) => 
+            {
+                if (null == defaultValue)
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver);
+                else
+                {
+                    try
+                    {
+                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver);
+                    }
+                    catch
+                    {
+                        return defaultValue;
+                    }
+                }
+            };
+        }
+
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue)
+        {
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver);
+                }
+                catch
+                {
+                    return defaultValue;
+                }
+            };
         }
 
         #endregion
@@ -116,7 +195,7 @@ namespace Unity.Processors
 
             Expression FromAttribute(ParameterInfo param, Expression member, object data)
             {
-                foreach (var pair in ResolverFactories)
+                foreach (var pair in ExpressionFactories)
                 {
                     if (null == pair.factory) continue;
                     var attribute = param.GetCustomAttribute(pair.type);
@@ -130,8 +209,7 @@ namespace Unity.Processors
             }
         }
 
-        // Default ParameterInfo expression factory for [Dependency] attribute
-        Expression DependencyParameterExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
+        protected override Expression DependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
         {
             var parameter = (ParameterInfo)info;
             if (null == member)
@@ -158,8 +236,7 @@ namespace Unity.Processors
             }
         }
 
-        // Default ParameterInfo expression factory for [OptionalDependency] attribute
-        Expression OptionalDependencyParameterExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
+        protected override Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
         {
             var parameter = (ParameterInfo)info;
             var variable = Expression.Variable(parameter.ParameterType);
@@ -180,7 +257,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Implementation
+        #region Expression Implementation
 
         private Expression ResolveExpression(ParameterInfo parameter, string name, object resolver = null)
         {
@@ -191,10 +268,6 @@ namespace Unity.Processors
                     Expression.Constant(resolver, typeof(object))),
                 parameter.ParameterType);
         }
-
-        protected abstract Expression CreateExpression(TMemberInfo info, object[] resolvers);
-
-        protected virtual Expression ValidateMemberInfo(TMemberInfo info) => null;
 
         #endregion
     }

@@ -161,13 +161,13 @@ namespace Unity
 
         #region Build Plan
 
-        private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
+        private ResolveDelegate<BuilderContext> GetCompiledResolver(ref BuilderContext context)
         {
             var expressions = new List<Expression>();
 
             foreach (var processor in _processorsChain)
             {
-                foreach (var step in processor.GetEnumerator(ref context))
+                foreach (var step in processor.GetBuildSteps(ref context))
                     expressions.Add(step);
             }
 
@@ -177,6 +177,17 @@ namespace Unity
                 Expression.Block(expressions), BuilderContextExpression.Context);
 
             return lambda.Compile();
+        }
+
+        private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
+        {
+            ResolveDelegate<BuilderContext> seed = null;
+            foreach (var processor in _processorsChain)
+            {
+                seed = processor.GetResolver(ref context, seed);
+            }
+
+            return seed;
         }
 
         #endregion
