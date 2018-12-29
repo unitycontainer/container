@@ -33,10 +33,9 @@ namespace Unity
 
         private IPolicySet InitializeDefaultPolicies()
         {
-
             // Default policies
-            var defaults = new InternalRegistration(null, null);
-
+            var defaults = new InternalRegistration(typeof(ResolveDelegate<BuilderContext>), 
+                                                   (ResolveDelegate<BuilderContext>)ExecuteDefaultPlan);
             // Processors
             var fieldsProcessor = new FieldsProcessor(defaults);
             var methodsProcessor = new MethodsProcessor(defaults);

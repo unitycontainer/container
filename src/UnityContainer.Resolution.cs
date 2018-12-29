@@ -11,6 +11,7 @@ using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity
 {
@@ -163,20 +164,61 @@ namespace Unity
 
         #region Build Plan
 
+        private object ExecuteDefaultPlan(ref BuilderContext context)
+        {
+            var i = -1;
+            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Length)
+                {
+                    chain[i].PreBuildUp(ref context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ref context);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.RequiresRecovery?.Recover();
+                // TODO: 5.9.0 Add proper error message
+                throw new ResolutionFailedException(
+                    context.RegistrationType,
+                    context.Name,
+                    "", ex);
+            }
+
+            return context.Existing;
+        }
+
+        #endregion
+
+
+        #region Resolve Delegate Factories
+
         private ResolveDelegate<BuilderContext> OptimizingFactory(ref BuilderContext context)
         {
-            var run = 0;
             var counter = 3;
             var type = context.Type;
             var registration = context.Registration;
-            var resolve = ResolvingFactory(ref context);
+            ResolveDelegate<BuilderContext> seed = null;
 
+            // Generate build chain
+            foreach (var processor in _processorsChain)
+                seed = processor.GetResolver(type, registration, seed);
+
+            // Return delegate
             return (ref BuilderContext c) => 
             {
+                // Check if optimization is required
                 if (0 == Interlocked.Decrement(ref counter))
                 {
                     Task.Factory.StartNew(() => {
 
+                        // Compile build plan on worker thread
                         var expressions = new List<Expression>();
                         foreach (var processor in _processorsChain)
                         {
@@ -189,13 +231,12 @@ namespace Unity
                         var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
                             Expression.Block(expressions), BuilderContextExpression.Context);
 
+                        // Replace this build plan with compiled
                         registration.Set(typeof(ResolveDelegate<BuilderContext>), lambda.Compile());
                     });
                 };
 
-                System.Diagnostics.Debug.WriteLine($"Executing {++run}");
-
-                return resolve(ref c);
+                return seed(ref c);
             };
         }
 

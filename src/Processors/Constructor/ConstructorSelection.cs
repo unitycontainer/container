@@ -103,7 +103,7 @@ namespace Unity.Processors
         /// <returns></returns>
         public object LegacySelector(Type type, ConstructorInfo[] members)
         {
-            Array.Sort(members, ConstructorComparer);
+            Array.Sort(members, (ConstructorInfo x, ConstructorInfo y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
 
             switch (members.Length)
             {

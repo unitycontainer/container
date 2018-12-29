@@ -2,12 +2,13 @@
 using Runner.Setup;
 using System.Collections.Generic;
 using Unity;
+using Unity.Extension;
 
 namespace Runner.Tests
 {
     [BenchmarkCategory("Basic")]
     [Config(typeof(BenchmarkConfiguration))]
-    public class ColdStart
+    public class Resolved
     {
         IUnityContainer _container;
         object _syncRoot = new object();
@@ -16,10 +17,9 @@ namespace Runner.Tests
         public virtual void SetupContainer()
         {
             _container = new UnityContainer();
-            _container.RegisterType<Poco>();
-            _container.RegisterType<IFoo, Foo>();
-            _container.RegisterType<IFoo, Foo>("1");
-            _container.RegisterType<IFoo>("2", Invoke.Factory(c => new Foo()));
+            _container.AddExtension(new Diagnostic())
+                      .Configure<Diagnostic>()
+                      .DisableCompile();
         }
 
         [Benchmark(Description = "Resolve<IUnityContainer>               ")]

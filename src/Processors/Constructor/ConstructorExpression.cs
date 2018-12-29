@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
+using Unity.Injection;
+using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Processors
@@ -17,8 +19,6 @@ namespace Unity.Processors
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Set))
                 .First(m => 2 == m.GetParameters().Length);
-
-        private static readonly ConstructorLengthComparer ConstructorComparer = new ConstructorLengthComparer();
 
         private static readonly ConstructorInfo PerResolveInfo = typeof(InternalPerResolveLifetimeManager)
             .GetTypeInfo().DeclaredConstructors.First();
@@ -35,18 +35,59 @@ namespace Unity.Processors
                            typeof(Exception) == parameters[1].ParameterType;
                 });
 
-        private static readonly Expression NoConstructorExceptionExpr =
-            Expression.Throw(
-                Expression.New(InvalidOperationExceptionCtor,
-                    Expression.Call(StringFormat,
+        private static readonly Expression NoConstructorExpr =
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                    Expression.Throw(
+                        Expression.New(InvalidOperationExceptionCtor,
+                        Expression.Call(StringFormat,
                         Expression.Constant("No public constructor is available for type {0}."),
                         BuilderContextExpression.Type),
-                    InvalidRegistrationExpression));
+                    InvalidRegistrationExpression)));
 
         private static readonly Expression SetPerBuildSingletonExpr = 
             Expression.Call(BuilderContextExpression.Context, SetMethod,
                 Expression.Constant(typeof(LifetimeManager), typeof(Type)),
                 Expression.New(PerResolveInfo, BuilderContextExpression.Existing));
+
+        private static readonly Expression CannotConstructInterfaceExpr =
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                 Expression.Throw(
+                    Expression.New(InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.CannotConstructInterface),
+                            BuilderContextExpression.Type),
+                        InvalidRegistrationExpression)));
+
+        private static readonly Expression CannotConstructAbstractClassExpr =
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                 Expression.Throw(
+                    Expression.New(InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.CannotConstructAbstractClass),
+                            BuilderContextExpression.Type),
+                        InvalidRegistrationExpression)));
+
+        private static readonly Expression CannotConstructDelegateExpr =
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                 Expression.Throw(
+                    Expression.New(InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.CannotConstructDelegate),
+                            BuilderContextExpression.Type),
+                        InvalidRegistrationExpression)));
+
+        private static readonly Expression TypeIsNotConstructableExpr =
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                 Expression.Throw(
+                    Expression.New(InvalidOperationExceptionCtor,
+                        Expression.Call(
+                            StringFormat,
+                            Expression.Constant(Constants.TypeIsNotConstructable),
+                            BuilderContextExpression.Type),
+                        InvalidRegistrationExpression)));
 
         #endregion
 
@@ -55,12 +96,68 @@ namespace Unity.Processors
 
         public override IEnumerable<Expression> GetBuildSteps(Type type, IPolicySet registration)
         {
-            var newExpr = base.GetBuildSteps(type, registration)
-                              .FirstOrDefault() ?? NoConstructorExceptionExpr;
+            // Validate if Type could be created
+            var exceptionExpr = ValidateConstructedTypeExpression(type);
+            if (null != exceptionExpr) return new Expression[] { exceptionExpr };
 
-            var IfThenExpr = Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                    ValidateConstructedTypeExpression(type) ?? newExpr);
+            // Select ConstructorInfo
+            var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
+            var selection = selector.Select(type, registration)
+                                    .FirstOrDefault();
 
+            // Validate constructor info
+            if (null == selection) return new Expression[] { NoConstructorExpr };
+
+
+            // Select appropriate ctor for the Type
+            ConstructorInfo info;
+            object[] resolvers = null;
+
+            switch (selection)
+            {
+                case ConstructorInfo memberInfo:
+                    info = memberInfo;
+                    break;
+
+                case MethodBaseMember<ConstructorInfo> injectionMember:
+                    (info, resolvers) = injectionMember.FromType(type);
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown constructor representation");
+            }
+
+            // Get lifetime manager
+            var LifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
+
+
+            // Validate parameters
+            var parameters = info.GetParameters();
+            if (parameters.Any(p => p.ParameterType == info.DeclaringType))
+            {
+                if (null == LifetimeManager?.GetValue())
+                {
+                    return new Expression[] 
+                    {
+                        Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                        Expression.Throw(
+                            Expression.New(InvalidOperationExceptionCtor,
+                            Expression.Call(
+                                StringFormat,
+                                Expression.Constant(Constants.SelectedConstructorHasRefItself),
+                                Expression.Constant(info, typeof(ConstructorInfo)),
+                                BuilderContextExpression.Type),
+                            InvalidRegistrationExpression)))
+                    };
+                }
+            }
+
+            // Create 'new' expression
+            var IfThenExpr = Expression.IfThen(
+                Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                BuildMemberExpression(info, resolvers));
+
+            // Check if PerResolveLifetimeManager is required
             return registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
                 ? new Expression[] { IfThenExpr, SetPerBuildSingletonExpr }
                 : new Expression[] { IfThenExpr };
@@ -110,68 +207,26 @@ namespace Unity.Processors
 #else
             if (type.IsInterface)
 #endif
-            {
-                return Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Call(
-                            StringFormat,
-                            Expression.Constant(Constants.CannotConstructInterface),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression));
-            }
+                return CannotConstructInterfaceExpr;
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeInfo.IsAbstract)
 #else
             if (type.IsAbstract)
 #endif
-            {
-                return Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Call(
-                            StringFormat,
-                            Expression.Constant(Constants.CannotConstructAbstractClass),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression));
-            }
+                return CannotConstructAbstractClassExpr;
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
 #else
             if (type.IsSubclassOf(typeof(Delegate)))
 #endif
-            {
-                return Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Call(
-                            StringFormat,
-                            Expression.Constant(Constants.CannotConstructDelegate),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression));
-            }
+                return CannotConstructDelegateExpr;
 
             if (type == typeof(string))
-            {
-                return Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Call(
-                            StringFormat,
-                            Expression.Constant(Constants.TypeIsNotConstructable),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression));
-            }
+                return TypeIsNotConstructableExpr;
 
             return null;
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        private class ConstructorLengthComparer : IComparer<ConstructorInfo>
-        {
-            public int Compare(ConstructorInfo x, ConstructorInfo y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0;
         }
 
         #endregion

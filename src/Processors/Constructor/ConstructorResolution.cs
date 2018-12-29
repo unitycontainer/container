@@ -16,6 +16,11 @@ namespace Unity.Processors
 
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
+            // Validate if Type could be created
+            var exception = ValidateConstructedTypeResolver(type);
+            if (null != exception) return exception;
+
+            // Select ConstructorInfo
             var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
             var selection = selector.Select(type, registration)
                                     .FirstOrDefault();
@@ -33,17 +38,7 @@ namespace Unity.Processors
                 };
             }
 
-            return ValidateConstructedTypeResolver(type) ?? 
-                   BuildResolver(registration, type, selection);
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private ResolveDelegate<BuilderContext> BuildResolver(IPolicySet registration, Type type, object selection)
-        {
+            // Select appropriate ctor for the Type
             ConstructorInfo info;
             object[] resolvers = null;
 
@@ -58,24 +53,42 @@ namespace Unity.Processors
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Unknown constructor type");
+                    throw new InvalidOperationException($"Unknown constructor representation");
             }
 
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            // Get lifetime manager
+            var LifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
 
-            if (registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager)
+            // Validate parameters
+            var parameters = info.GetParameters();
+            if (parameters.Any(p => p.ParameterType == info.DeclaringType))
+            {
+                if (null == LifetimeManager?.GetValue())
+                    return (ref BuilderContext c) =>
+                    {
+                        if (null == c.Existing)
+                            throw new InvalidOperationException(string.Format(Constants.SelectedConstructorHasRefItself, info, c.Type),
+                                new InvalidRegistrationException());
+
+                        return c.Existing;
+                    };
+            }
+
+            // Create dependency resolvers
+            var parameterResolvers = CreateParameterResolvers(parameters, resolvers).ToArray();
+            if (LifetimeManager is PerResolveLifetimeManager)
             {
                 // PerResolve lifetime
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
                     {
-                        var parameters = new object[parameterResolvers.Length];
-                        for (var i = 0; i < parameters.Length; i++)
-                            parameters[i] = parameterResolvers[i](ref c);
+                        var dependencies = new object[parameterResolvers.Length];
+                        for (var i = 0; i < dependencies.Length; i++)
+                            dependencies[i] = parameterResolvers[i](ref c);
 
-                        c.Existing = info.Invoke(parameters);
-                        c.Set(typeof(LifetimeManager), 
+                        c.Existing = info.Invoke(dependencies);
+                        c.Set(typeof(LifetimeManager),
                               new InternalPerResolveLifetimeManager(c.Existing));
                     }
 
@@ -88,16 +101,22 @@ namespace Unity.Processors
             {
                 if (null == c.Existing)
                 {
-                    var parameters = new object[parameterResolvers.Length];
-                    for (var i = 0; i < parameters.Length; i++)
-                        parameters[i] = parameterResolvers[i](ref c);
+                    var dependencies = new object[parameterResolvers.Length];
+                    for (var i = 0; i < dependencies.Length; i++)
+                        dependencies[i] = parameterResolvers[i](ref c);
 
-                    c.Existing = info.Invoke(parameters);
+                    c.Existing = info.Invoke(dependencies);
                 }
 
                 return c.Existing;
             };
+
         }
+
+        #endregion
+
+
+        #region Implementation
 
         private ResolveDelegate<BuilderContext> ValidateConstructedTypeResolver(Type type)
         {

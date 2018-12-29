@@ -46,7 +46,7 @@ namespace Unity
         private StagedStrategyChain<BuildMemberProcessor, BuilderStage> _processors;
 
         // Caches
-        private BuilderStrategy[]      _strategiesChain;
+        private BuilderStrategy[] _strategiesChain;
         private BuildMemberProcessor[] _processorsChain;
 
         // Events
@@ -70,10 +70,10 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal ClearPolicyDelegate ClearPolicy;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet>       _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool>             _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool> _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, bool>                     _isTypeExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, bool> _isTypeExplicitlyRegistered;
 
         #endregion
 
@@ -132,7 +132,7 @@ namespace Unity
             _strategies.Invalidated += OnStrategiesChanged;
             _strategiesChain = _strategies.ToArray();
 
-            
+
             // Default Policies and Strategies
             _defaults = InitializeDefaultPolicies();
             Set(null, null, _defaults);
@@ -304,35 +304,6 @@ namespace Unity
             return argType;
         }
 
-        private static object ExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
-        {
-            var i = -1;
-
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception ex)
-            {
-                context.RequiresRecovery?.Recover();
-                // TODO: 5.9.0 Add proper error message
-                throw new ResolutionFailedException(
-                    context.RegistrationType,
-                    context.Name,
-                    "", ex);
-            }
-
-            return context.Existing;
-        }
-
         #endregion
 
 
@@ -354,6 +325,7 @@ namespace Unity
 
             try
             {
+                GetPolicy = (type, name, policyInterface) => throw new ObjectDisposedException($"{DebugName()}");
                 _strategies.Invalidated -= OnStrategiesChanged;
                 _parent?.LifetimeContainer.Remove(this);
                 LifetimeContainer.Dispose();

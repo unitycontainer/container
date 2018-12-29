@@ -39,38 +39,42 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(ref BuilderContext context)
         {
+            // Get resolver if already created
             var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (null == resolver)
             {
-                // Check if can create 
+                // Check if can create at all
+                if (!(context.Registration is ContainerRegistration) &&  
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (!(context.Registration is ContainerRegistration) &&  context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
+                      context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
 #else
-                if (!(context.Registration is ContainerRegistration) && context.RegistrationType.IsGenericTypeDefinition)
+                      context.RegistrationType.IsGenericTypeDefinition)
 #endif
                 {
                     throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                         Constants.CannotResolveOpenGenericType, context.RegistrationType.FullName));
                 }
 
-                // Create plan 
-                var factory = context.Registration.Get<ResolveDelegateFactory>() ??
-                                  Get_Policy<ResolveDelegateFactory>(ref context, context.Type, context.Name);
+                // Get resolver factory
+                var factory = context.Registration.Get<ResolveDelegateFactory>() ?? (ResolveDelegateFactory)(
+                               context.Get(context.Type, string.Empty, typeof(ResolveDelegateFactory)) ??
+                               GetGeneric(ref context, typeof(ResolveDelegateFactory)) ?? 
+                               context.Get(null, null, typeof(ResolveDelegateFactory)));
 
+                // Create plan 
                 if (null != factory)
                 {
                     resolver = factory(ref context);
 
                     context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
                     context.Existing = resolver(ref context);
-
-                    return;
                 }
                 else
-                    throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy");
+                    throw new ResolutionFailedException(context.Type, context.Name, $"Failed to find Resolve Delegate Factory for Type {context.Type}");
             }
             else
             {
+                // Plan has been already created, just build the object
                 context.Existing = resolver(ref context);
             }
         }

@@ -1,8 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Runner.Setup;
 using System.Collections.Generic;
-using System.Threading;
 using Unity;
+using Unity.Extension;
 
 namespace Runner.Tests
 {
@@ -17,12 +17,16 @@ namespace Runner.Tests
         public virtual void SetupContainer()
         {
             _container = new UnityContainer();
+            _container.AddExtension(new Diagnostic())
+                      .Configure<Diagnostic>()
+                      .ForceCompile();
+
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();
             _container.RegisterType<IFoo, Foo>("1");
             _container.RegisterType<IFoo>("2", Invoke.Factory(c => new Foo()));
 
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < 3; i++)
             {
                 _container.Resolve<object>();
                 _container.Resolve<Poco>();
@@ -30,8 +34,6 @@ namespace Runner.Tests
                 _container.Resolve<IFoo>("1");
                 _container.Resolve<IFoo>("2");
             }
-
-            Thread.Sleep(300);
         }
 
         [Benchmark(Description = "Resolve<IUnityContainer>            ")]

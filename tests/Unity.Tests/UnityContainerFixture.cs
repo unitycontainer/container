@@ -677,7 +677,7 @@ namespace Unity.Tests.v5
                 container.Resolve<TypeWithPrimitiveDependency<T>>();
                 Assert.Fail("Expected exception did not occur");
             }
-            catch (ResolutionFailedException e)
+            catch (ResolutionFailedException)
             {
                 return;
             }
