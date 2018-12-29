@@ -12,7 +12,6 @@ namespace Unity.Strategies
     /// </summary>
     public abstract class BuilderStrategy
     {
-
         #region Build
 
         /// <summary>

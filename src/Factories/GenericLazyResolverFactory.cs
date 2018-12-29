@@ -7,21 +7,21 @@ using Unity.Strategies;
 namespace Unity.Policy.BuildPlanCreator
 {
     /// <summary>
-    /// An <see cref="IResolveDelegateFactory"/> implementation
+    /// An <see cref="ResolverDelegateFactory"/> implementation
     /// that constructs a build plan for creating <see cref="Lazy{T}"/> objects.
     /// </summary>
-    public class GenericLazyBuildPlanCreatorPolicy 
+    internal class GenericLazyResolverFactory 
     {
         #region Fields
 
         private static readonly MethodInfo BuildResolveLazyMethod =
-            typeof(GenericLazyBuildPlanCreatorPolicy).GetTypeInfo()
+            typeof(GenericLazyResolverFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(BuildResolveLazy));
 
         #endregion
 
 
-        #region IResolveDelegateFactory
+        #region ResolveDelegateFactory
 
         public static ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
         {

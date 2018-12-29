@@ -6,6 +6,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -29,7 +30,8 @@ namespace Unity.Processors
         
         #region Constructors
 
-        public MethodBaseInfoProcessor(Type attribute)
+        public MethodBaseInfoProcessor(IPolicySet policySet, Type attribute)
+            : base(policySet)
         {
             Add(attribute, (MemberResolverFactory)null);
             Add(attribute, (MemberExpressionFactory)null);
@@ -54,18 +56,17 @@ namespace Unity.Processors
                 }
             }
 
-            // Select Attributed members
-            if (null != members)
-            {
-                foreach (var member in members)
-                {
-                    foreach (var pair in ResolverFactories)
-                    {
-                        if (!member.IsDefined(pair.type)) continue;
+            if (null == members || 0 == members.Length) yield break;
 
-                        yield return member;
-                        break;
-                    }
+            // Select Attributed members
+            foreach (var member in members)
+            {
+                foreach (var pair in ResolverFactories)
+                {
+                    if (!member.IsDefined(pair.type)) continue;
+
+                    yield return member;
+                    break;
                 }
             }
         }
@@ -130,24 +131,24 @@ namespace Unity.Processors
                     if (null == attribute) continue;
 
                     // If found match, use provided factory to create expression
-                    return pair.factory(attribute, param, null, data, defaultValue);
+                    return pair.factory(attribute, param, data, defaultValue);
                 }
 
                 return null;
             }
         }
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue)
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue)
         {
             return (ref BuilderContext context) => 
             {
                 if (null == defaultValue)
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver);
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
                 else
                 {
                     try
                     {
-                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver);
+                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
                     }
                     catch
                     {
@@ -157,13 +158,13 @@ namespace Unity.Processors
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue)
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue)
         {
             return (ref BuilderContext context) =>
             {
                 try
                 {
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver);
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
                 }
                 catch
                 {
@@ -229,14 +230,14 @@ namespace Unity.Processors
                     if (null == attribute) continue;
 
                     // If found match, use provided factory to create expression
-                    return pair.factory(attribute, member, param, param.ParameterType, null, data);
+                    return pair.factory(attribute, member, param, param.ParameterType, data);
                 }
 
                 return null;
             }
         }
 
-        protected override Expression DependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
+        protected override Expression DependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver)
         {
             var parameter = (ParameterInfo)info;
             if (null == member)
@@ -263,7 +264,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver)
+        protected override Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver)
         {
             var parameter = (ParameterInfo)info;
             var variable = Expression.Variable(parameter.ParameterType);

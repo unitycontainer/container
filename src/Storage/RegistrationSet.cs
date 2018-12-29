@@ -164,22 +164,17 @@ namespace Unity.Storage
 
         }
 
-        private class RegistrationSetDebugProxy  
+        private class RegistrationSetDebugProxy 
         {
-            private readonly RegistrationSet _set;
-
             public RegistrationSetDebugProxy(RegistrationSet set)
             {
-                _set = set;
-                Entries = _set._entries
-                              .Cast<IContainerRegistration>()
-                              .Take(_set.Count)
-                              .ToArray();
+                Registrations = set._entries
+                             .Cast<IContainerRegistration>()
+                             .Take(set.Count)
+                             .ToArray();
             }
 
-            public int Count => _set.Count;
-
-            public IContainerRegistration[] Entries { get; }
+            public IContainerRegistration[] Registrations { get; }
         }
 
         #endregion

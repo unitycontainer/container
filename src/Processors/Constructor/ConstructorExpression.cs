@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -50,49 +51,22 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Constructors
-
-        public ConstructorProcessor()
-            : base(typeof(InjectionConstructorAttribute))
-        {
-
-        }
-
-        #endregion
-
-
         #region Overrides
 
-        public override IEnumerable<Expression> GetBuildSteps(ref BuilderContext context)
+        public override IEnumerable<Expression> GetBuildSteps(Type type, IPolicySet registration)
         {
-            // Verify the type we're trying to build is actually constructable -
-            // CLR primitive types like string and int aren't.
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (!context.Type.GetTypeInfo().IsInterface)
-#else
-            if (!context.Type.IsInterface)
-#endif
-            {
-                if (context.Type == typeof(string))
-                {
-                    throw new InvalidOperationException(
-                        $"The type {context.Type.Name} cannot be constructed. You must configure the container to supply this value.");
-                }
-            }
-
-            var newExpr = base.GetBuildSteps(ref context)
-                              .FirstOrDefault() ?? 
-                          NoConstructorExceptionExpr;
+            var newExpr = base.GetBuildSteps(type, registration)
+                              .FirstOrDefault() ?? NoConstructorExceptionExpr;
 
             var IfThenExpr = Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                    ValidateConstructedTypeExpression(ref context) ?? newExpr);
+                    ValidateConstructedTypeExpression(type) ?? newExpr);
 
-            return context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
+            return registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
                 ? new Expression[] { IfThenExpr, SetPerBuildSingletonExpr }
                 : new Expression[] { IfThenExpr };
         }
 
-        protected override Expression BuildMemberExpression(ConstructorInfo info, string name, object[] resolvers)
+        protected override Expression BuildMemberExpression(ConstructorInfo info, object[] resolvers)
         {
             // Check if had ByRef parameters
             var parameters = info.GetParameters();
@@ -128,13 +102,13 @@ namespace Unity.Processors
 
         #region Implementation
 
-        private Expression ValidateConstructedTypeExpression(ref BuilderContext context)
+        private Expression ValidateConstructedTypeExpression(Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = context.Type.GetTypeInfo();
+            var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsInterface)
 #else
-            if (context.Type.IsInterface)
+            if (type.IsInterface)
 #endif
             {
                 return Expression.Throw(
@@ -149,7 +123,7 @@ namespace Unity.Processors
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeInfo.IsAbstract)
 #else
-            if (context.Type.IsAbstract)
+            if (type.IsAbstract)
 #endif
             {
                 return Expression.Throw(
@@ -164,7 +138,7 @@ namespace Unity.Processors
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
 #else
-            if (context.Type.IsSubclassOf(typeof(Delegate)))
+            if (type.IsSubclassOf(typeof(Delegate)))
 #endif
             {
                 return Expression.Throw(
@@ -176,7 +150,7 @@ namespace Unity.Processors
                         InvalidRegistrationExpression));
             }
 
-            if (context.Type == typeof(string))
+            if (type == typeof(string))
             {
                 return Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,

@@ -6,6 +6,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -23,6 +24,7 @@ namespace Unity.Processors
                            m.GetParameters().Length == 2 &&
                            typeof(object) == parameters[1].ParameterType;
                 });
+
         protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
 
         #endregion
@@ -30,9 +32,9 @@ namespace Unity.Processors
 
         #region Public Methods
 
-        public abstract IEnumerable<Expression> GetBuildSteps(ref BuilderContext context);
+        public abstract IEnumerable<Expression> GetBuildSteps(Type type, IPolicySet registration);
 
-        public abstract ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context, ResolveDelegate<BuilderContext> seed);
+        public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed);
 
         #endregion
     }
@@ -41,9 +43,16 @@ namespace Unity.Processors
     public abstract partial class BuildMemberProcessor<TMemberInfo, TData> : BuildMemberProcessor
                                                          where TMemberInfo : MemberInfo
     {
+        #region Fields
+
+        private readonly IPolicySet _policySet;
+        
+        #endregion
+
+
         #region Constructors
 
-        protected BuildMemberProcessor()
+        protected BuildMemberProcessor(IPolicySet policySet)
         {
             // Add Unity attribute factories
             ExpressionFactories = new (Type type, MemberExpressionFactory factory)[]
@@ -58,6 +67,8 @@ namespace Unity.Processors
                 (typeof(DependencyAttribute),         DependencyResolverFactory),
                 (typeof(OptionalDependencyAttribute), OptionalDependencyResolverFactory),
             };
+
+            _policySet = policySet;
         }
 
         #endregion
@@ -65,17 +76,9 @@ namespace Unity.Processors
 
         #region Policy Retrieval
 
-        public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context)
+        public TPolicyInterface GetPolicy<TPolicyInterface>(IPolicySet registration)
         {
-            return (TPolicyInterface)
-            (context.Get(typeof(TPolicyInterface)) ?? (
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                context.RegistrationType.GetTypeInfo().IsGenericType
-#else
-                context.RegistrationType.IsGenericType
-#endif
-                ? context.Get(context.RegistrationType.GetGenericTypeDefinition(), context.Name, typeof(TPolicyInterface)) ?? context.Get(null, null, typeof(TPolicyInterface))
-                : context.Get(null, null, typeof(TPolicyInterface))));
+            return (TPolicyInterface)(registration.Get(typeof(TPolicyInterface)) ?? _policySet.Get(typeof(TPolicyInterface)));
         }
 
         #endregion

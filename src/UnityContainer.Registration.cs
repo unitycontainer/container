@@ -4,7 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Unity.Registration;
 using Unity.Storage;
-
+using Unity.Builder;
+using Unity.Processors;
+using Unity.Policy;
 
 namespace Unity
 {
@@ -14,6 +16,54 @@ namespace Unity
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ContainerInitialCapacity = 37;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ListToHashCutoverPoint = 8;
+
+        #endregion
+
+
+        #region Registration Fields
+
+        private readonly object _syncRoot = new object();
+        internal readonly IPolicySet _defaults;
+        private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
+
+        #endregion
+
+
+        #region Default Registrations
+
+        private IPolicySet InitializeDefaultPolicies()
+        {
+
+            // Default policies
+            var defaults = new InternalRegistration(null, null);
+
+            // Processors
+            var fieldsProcessor = new FieldsProcessor(defaults);
+            var methodsProcessor = new MethodsProcessor(defaults);
+            var propertiesProcessor = new PropertiesProcessor(defaults);
+            var constructorProcessor = new ConstructorProcessor(defaults, _isTypeExplicitlyRegistered);
+
+            // Processors chain
+            _processors = new StagedStrategyChain<BuildMemberProcessor, BuilderStage>
+            {
+                { constructorProcessor, BuilderStage.Creation },
+                { fieldsProcessor,      BuilderStage.Fields },
+                { propertiesProcessor,  BuilderStage.Properties },
+                { methodsProcessor,     BuilderStage.Methods }
+            };
+
+            // Caches
+            _processors.Invalidated += (s, e) => _processorsChain = _processors.ToArray();
+            _processorsChain = _processors.ToArray();
+
+            defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
+            defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
+            defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
+            defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
+            defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+
+            return defaults;
+        }
 
         #endregion
 

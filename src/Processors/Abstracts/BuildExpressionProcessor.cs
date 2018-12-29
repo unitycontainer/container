@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public delegate Expression MemberExpressionFactory(Attribute attribute, Expression member, object info, Type type, string name, object resolver);
+    public delegate Expression MemberExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver);
 
     public abstract partial class BuildMemberProcessor<TMemberInfo, TData> : BuildMemberProcessor
                                                          where TMemberInfo : MemberInfo
@@ -44,11 +44,11 @@ namespace Unity.Processors
         #region Overrides
 
         /// <inheritdoc />
-        public override IEnumerable<Expression> GetBuildSteps(ref BuilderContext context)
+        public override IEnumerable<Expression> GetBuildSteps(Type type, IPolicySet registration)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(ref context);
-            var members = selector.Select(ref context);
-            return ExpressionsFromSelected(context.Type, context.Name, members);
+            var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
+            var members = selector.Select(type, registration);
+            return ExpressionsFromSelected(type, members);
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace Unity.Processors
 
         #region Build Expression 
 
-        protected virtual IEnumerable<Expression> ExpressionsFromSelected(Type type, string name, IEnumerable<object> members)
+        protected virtual IEnumerable<Expression> ExpressionsFromSelected(Type type, IEnumerable<object> members)
         {
             foreach (var member in members)
             {
@@ -64,12 +64,12 @@ namespace Unity.Processors
                 switch (member)
                 {
                     case TMemberInfo memberInfo:
-                        yield return BuildMemberExpression(memberInfo, name, default);
+                        yield return BuildMemberExpression(memberInfo, default);
                         break;
 
                     case InjectionMember<TMemberInfo, TData> injectionMember:
                         var (info, value) = injectionMember.FromType(type);
-                        yield return BuildMemberExpression(info, name, value);
+                        yield return BuildMemberExpression(info, value);
                         break;
 
                     default:
@@ -78,7 +78,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual Expression BuildMemberExpression(TMemberInfo info, string name, TData resolver)
+        protected virtual Expression BuildMemberExpression(TMemberInfo info, TData resolver)
         {
             var member = CreateMemberExpression(info);
 
@@ -96,10 +96,10 @@ namespace Unity.Processors
                 if (null == attribute || null == pair.factory)
                     continue;
 
-                return pair.factory(attribute, member, info, MemberType(info), name, resolver);
+                return pair.factory(attribute, member, info, MemberType(info), resolver);
             }
 
-            return Expression.Assign(member, GetExpression(info, name, resolver));
+            return Expression.Assign(member, GetExpression(info, null, resolver));
         }
 
         protected virtual Expression GetExpression(TMemberInfo info, string name, object resolver) => throw new NotImplementedException();
@@ -114,18 +114,18 @@ namespace Unity.Processors
         #region Parameter Expression Factories
 
         // Default expression factory for [Dependency] attribute
-        protected virtual Expression DependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, string name, object resolver)
+        protected virtual Expression DependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, object resolver)
         {
             TMemberInfo info = (TMemberInfo)memberInfo;
-            return Expression.Assign(member, GetExpression(info, ((DependencyResolutionAttribute)attribute).Name ?? name, resolver));
+            return Expression.Assign(member, GetExpression(info, ((DependencyResolutionAttribute)attribute).Name, resolver));
         }
 
         // Default expression factory for [OptionalDependency] attribute
-        protected virtual Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, string name, object resolver)
+        protected virtual Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, object resolver)
         {
             TMemberInfo info = (TMemberInfo)memberInfo;
             return Expression.TryCatch(
-                        Expression.Assign(member, GetExpression(info, ((OptionalDependencyAttribute)attribute).Name ?? name, resolver)),
+                        Expression.Assign(member, GetExpression(info, ((OptionalDependencyAttribute)attribute).Name, resolver)),
                     Expression.Catch(typeof(Exception),
                         Expression.Assign(member, Expression.Constant(null, type))));
         }

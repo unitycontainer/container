@@ -151,7 +151,7 @@ namespace Unity.Tests.v5.Container
             UnityContainer uc1 = new UnityContainer();
 
             uc1.RegisterType<List<ATest>>("List");
-            AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<List<ATest>>("List"));
+            AssertHelper.ThrowsException<ResolutionFailedException>(() => uc1.Resolve<IList<ATest>>("List"));
         }
 
         #region Basic Parameterized Constructor
@@ -225,7 +225,7 @@ namespace Unity.Tests.v5.Container
 
     public class ListOfClassParameter : ITestColl
     {
-        public ListOfClassParameter(List<ATest> lst)
+        public ListOfClassParameter(IList<ATest> lst)
         {
         }
     }

@@ -48,23 +48,6 @@ namespace Unity
             {
                 get
                 {
-                    if (null != _container._parent && 
-                        _container._parent._strategies == _container._strategies)
-                    {
-                        lock (syncRoot)
-                        {
-                            if (_container._parent._strategies == _container._strategies)
-                            {
-                                _container._strategies.Invalidated -= _container.OnStrategiesChanged;
-                                _container._strategies = 
-                                    new StagedStrategyChain<BuilderStrategy, UnityBuildStage>(_container._parent._strategies);
-                                _container._strategies.Invalidated += _container.OnStrategiesChanged;
-                                _container.LifetimeContainer.Add(_container._strategies);
-
-                            }
-                        }
-                    }
-
                     return _container._strategies;
                 }
             }

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Storage;
@@ -8,15 +7,10 @@ using Unity.Strategies;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("InternalRegistration:  Type={Type?.Name},    Name={Name}")]
+    [DebuggerDisplay("InternalRegistration")]
     public class InternalRegistration : LinkedNode<Type, object>,
                                         IPolicySet
     {
-        #region Fields
-
-        #endregion
-
-
         #region Constructors
 
         public InternalRegistration()

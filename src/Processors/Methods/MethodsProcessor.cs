@@ -6,6 +6,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Policy;
+using Unity.Storage;
 using Unity.Utility;
 
 namespace Unity.Processors
@@ -14,8 +15,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public MethodsProcessor()
-            : base(typeof(InjectionMethodAttribute))
+        public MethodsProcessor(IPolicySet policySet)
+            : base(policySet, typeof(InjectionMethodAttribute))
         {
         }
 
@@ -41,7 +42,7 @@ namespace Unity.Processors
 
         #region Building Expression
 
-        protected override Expression BuildMemberExpression(MethodInfo info, string name, object[] resolvers)
+        protected override Expression BuildMemberExpression(MethodInfo info, object[] resolvers)
         {
             ValidateMethod(info);
 
@@ -54,7 +55,7 @@ namespace Unity.Processors
 
         #region Building Resolver
 
-        protected override ResolveDelegate<BuilderContext> BuildMemberResolver(MethodInfo info, string name, object[] resolvers)
+        protected override ResolveDelegate<BuilderContext> BuildMemberResolver(MethodInfo info, object[] resolvers)
         {
             ValidateMethod(info);
 

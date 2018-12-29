@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public delegate ResolveDelegate<BuilderContext> MemberResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue);
+    public delegate ResolveDelegate<BuilderContext> MemberResolverFactory(Attribute attribute, object info, object resolver, object defaultValue);
 
     public abstract partial class BuildMemberProcessor<TMemberInfo, TData> : BuildMemberProcessor
                                                          where TMemberInfo : MemberInfo
@@ -43,11 +43,11 @@ namespace Unity.Processors
 
         #region Overrides
 
-        public override ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context, ResolveDelegate<BuilderContext> seed)
+        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(ref context);
-            var members = selector.Select(ref context);
-            var resolvers = ResolversFromSelected(context.Type, context.Name, members).ToArray();
+            var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
+            var members = selector.Select(type, registration);
+            var resolvers = ResolversFromSelected(type, members).ToArray();
 
             return (ref BuilderContext c) =>
             {
@@ -64,7 +64,7 @@ namespace Unity.Processors
 
         #region Build Resolver 
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> ResolversFromSelected(Type type, string name, IEnumerable<object> members)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> ResolversFromSelected(Type type, IEnumerable<object> members)
         {
             foreach (var member in members)
             {
@@ -72,12 +72,12 @@ namespace Unity.Processors
                 switch (member)
                 {
                     case TMemberInfo memberInfo:
-                        yield return BuildMemberResolver(memberInfo, name, default);
+                        yield return BuildMemberResolver(memberInfo, default);
                         break;
 
                     case InjectionMember<TMemberInfo, TData> injectionMember:
                         var (info, value) = injectionMember.FromType(type);
-                        yield return BuildMemberResolver(info, name, value);
+                        yield return BuildMemberResolver(info, value);
                         break;
 
                     default:
@@ -86,7 +86,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual ResolveDelegate<BuilderContext> BuildMemberResolver(TMemberInfo info, string name, TData resolver)
+        protected virtual ResolveDelegate<BuilderContext> BuildMemberResolver(TMemberInfo info, TData resolver)
         {
             foreach (var pair in ResolverFactories)
             {
@@ -102,13 +102,13 @@ namespace Unity.Processors
                 if (null == attribute || null == pair.factory)
                     continue;
 
-                return pair.factory(attribute, info, name, resolver, null);
+                return pair.factory(attribute, info, resolver, null);
             }
 
-            return GetResolver(info, name, resolver);
+            return GetResolver(info, resolver);
         }
 
-        protected virtual ResolveDelegate<BuilderContext> GetResolver(TMemberInfo info, string name, object resolver) => throw new NotImplementedException();
+        protected virtual ResolveDelegate<BuilderContext> GetResolver(TMemberInfo info, object resolver) => throw new NotImplementedException();
 
         #endregion
 
@@ -116,10 +116,10 @@ namespace Unity.Processors
         #region Parameter Resolver Factories
 
         // Default expression factory for [Dependency] attribute
-        protected abstract ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue = null);
+        protected abstract ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null);
 
         // Default expression factory for [OptionalDependency] attribute
-        protected abstract ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, string name, object resolver, object defaultValue = null);
+        protected abstract ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null);
 
         #endregion
     }

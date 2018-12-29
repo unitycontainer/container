@@ -42,45 +42,32 @@ namespace Unity.Strategies
             var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (null == resolver)
             {
-
-                // Legacy support
-                // TODO: Verify and optimize getting default
-                var plan = context.Registration.Get<IBuildPlanPolicy>() ??
-                           (IBuildPlanPolicy)(
-                               context.Get(context.Type, string.Empty, typeof(IBuildPlanPolicy)) ??
-                               GetGeneric(ref context, typeof(IBuildPlanPolicy)));
-
-                if (plan == null)
-                {
-                    // Check if can create 
+                // Check if can create 
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                    if (!(context.Registration is ContainerRegistration) &&  context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
+                if (!(context.Registration is ContainerRegistration) &&  context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
 #else
-                    if (!(context.Registration is ContainerRegistration) && context.RegistrationType.IsGenericTypeDefinition)
+                if (!(context.Registration is ContainerRegistration) && context.RegistrationType.IsGenericTypeDefinition)
 #endif
-                    {
-                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                            Constants.CannotResolveOpenGenericType, context.RegistrationType.FullName));
-                    }
-
-                    // Create plan 
-                    var factory = context.Registration.Get<ResolveDelegateFactory>() ??
-                                      Get_Policy<ResolveDelegateFactory>(ref context, context.Type, context.Name);
-
-                    if (null != factory)
-                    {
-                        resolver = factory(ref context);
-
-                        context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
-                        context.Existing = resolver(ref context);
-
-                        return;
-                    }
-                    else
-                        throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy");
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                        Constants.CannotResolveOpenGenericType, context.RegistrationType.FullName));
                 }
 
-                plan?.BuildUp(ref context);
+                // Create plan 
+                var factory = context.Registration.Get<ResolveDelegateFactory>() ??
+                                  Get_Policy<ResolveDelegateFactory>(ref context, context.Type, context.Name);
+
+                if (null != factory)
+                {
+                    resolver = factory(ref context);
+
+                    context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
+                    context.Existing = resolver(ref context);
+
+                    return;
+                }
+                else
+                    throw new ResolutionFailedException(context.Type, context.Name, "Failed to find Build Plan Creator Policy");
             }
             else
             {

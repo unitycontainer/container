@@ -1,10 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 using Unity.Strategies;
 using Unity.Tests.v5.TestSupport;
 
@@ -70,7 +72,7 @@ namespace Unity.Tests.v5
                 this._resolvePolicy = resolvePolicy;
             }
 
-            public IEnumerable<object> Select(ref BuilderContext context)
+            public IEnumerable<object> Select(Type type, IPolicySet registration)
             {
                 var ctr = typeof(InjectedObject).GetMatchingConstructor(new[] { typeof(object) });
 

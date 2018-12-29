@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
-using Unity.Builder;
+using Unity.Storage;
 
 namespace Unity.Policy
 {
     public interface ISelect<TMemberInfo> where TMemberInfo : MemberInfo
     {
-        IEnumerable<object> Select(ref BuilderContext context);
+        IEnumerable<object> Select(Type type, IPolicySet registration);
     }
 }

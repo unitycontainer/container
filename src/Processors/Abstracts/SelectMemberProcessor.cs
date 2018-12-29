@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -13,10 +13,10 @@ namespace Unity.Processors
     {
         #region ISelect
 
-        public IEnumerable<object> Select(ref BuilderContext context)
+        public IEnumerable<object> Select(Type type, IPolicySet registration)
         {
-            return SelectMembers(context.Type, DeclaredMembers(context.Type),
-                ((InternalRegistration) context.Registration).InjectionMembers)
+            return SelectMembers(type, DeclaredMembers(type),
+                ((InternalRegistration) registration).InjectionMembers)
                 .Distinct();
         }
 
@@ -37,27 +37,23 @@ namespace Unity.Processors
                 }
             }
 
-            // Select Attributed members
-            if (null != members)
-            {
-                foreach (var member in members)
-                {
-                    foreach (var pair in ExpressionFactories)
-                    {
-                        if (!member.IsDefined(pair.type)) continue;
+            if (null == members || 0 == members.Length) yield break;
 
-                        yield return member;
-                        break;
-                    }
+            // Select Attributed members
+            foreach (var member in members)
+            {
+                foreach (var pair in ExpressionFactories)
+                {
+                    if (!member.IsDefined(pair.type)) continue;
+
+                    yield return member;
+                    break;
                 }
             }
         }
 
         protected virtual TMemberInfo[] DeclaredMembers(Type type) => new TMemberInfo[0];
 
-        protected virtual object GetDefault(Type type, TMemberInfo[] members) => null;
-
         #endregion
-
     }
 }

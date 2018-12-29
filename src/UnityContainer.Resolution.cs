@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Policy;
@@ -161,13 +163,51 @@ namespace Unity
 
         #region Build Plan
 
-        private ResolveDelegate<BuilderContext> GetCompiledResolver(ref BuilderContext context)
+        private ResolveDelegate<BuilderContext> OptimizingFactory(ref BuilderContext context)
+        {
+            var run = 0;
+            var counter = 3;
+            var type = context.Type;
+            var registration = context.Registration;
+            var resolve = ResolvingFactory(ref context);
+
+            return (ref BuilderContext c) => 
+            {
+                if (0 == Interlocked.Decrement(ref counter))
+                {
+                    Task.Factory.StartNew(() => {
+
+                        var expressions = new List<Expression>();
+                        foreach (var processor in _processorsChain)
+                        {
+                            foreach (var step in processor.GetBuildSteps(type, registration))
+                                expressions.Add(step);
+                        }
+
+                        expressions.Add(BuilderContextExpression.Existing);
+
+                        var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
+                            Expression.Block(expressions), BuilderContextExpression.Context);
+
+                        registration.Set(typeof(ResolveDelegate<BuilderContext>), lambda.Compile());
+                    });
+                };
+
+                System.Diagnostics.Debug.WriteLine($"Executing {++run}");
+
+                return resolve(ref c);
+            };
+        }
+
+        internal ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
         {
             var expressions = new List<Expression>();
+            var type = context.Type;
+            var registration = context.Registration;
 
             foreach (var processor in _processorsChain)
             {
-                foreach (var step in processor.GetBuildSteps(ref context))
+                foreach (var step in processor.GetBuildSteps(type, registration))
                     expressions.Add(step);
             }
 
@@ -179,13 +219,14 @@ namespace Unity
             return lambda.Compile();
         }
 
-        private ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
+        internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
         {
             ResolveDelegate<BuilderContext> seed = null;
+            var type = context.Type;
+            var registration = context.Registration;
+
             foreach (var processor in _processorsChain)
-            {
-                seed = processor.GetResolver(ref context, seed);
-            }
+                seed = processor.GetResolver(type, registration, seed);
 
             return seed;
         }

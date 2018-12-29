@@ -34,7 +34,7 @@ namespace Unity
 
         // Container specific
         private readonly UnityContainer _root;
-        private readonly UnityContainer _parent; 
+        private readonly UnityContainer _parent;
         internal readonly LifetimeContainer LifetimeContainer;
         private List<IUnityContainerExtensionConfigurator> _extensions;
 
@@ -43,32 +43,37 @@ namespace Unity
 
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<BuildMemberProcessor, BuilderStage> _buildPlanStrategies;
+        private StagedStrategyChain<BuildMemberProcessor, BuilderStage> _processors;
 
-        // Registrations
-        private readonly object _syncRoot = new object();
-        private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
+        // Caches
+        private BuilderStrategy[]      _strategiesChain;
+        private BuildMemberProcessor[] _processorsChain;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
-        // Caches
-        private BuilderStrategy[]      _strategiesChain;
-        private BuildMemberProcessor[] _processorsChain;
-
         // Methods
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, IPolicySet> GetRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, InternalRegistration, IPolicySet> Register;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal GetPolicyDelegate GetPolicy;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal SetPolicyDelegate SetPolicy;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal ClearPolicyDelegate ClearPolicy;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal Func<Type, string, IPolicySet> GetRegistration;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal Func<Type, string, InternalRegistration, IPolicySet> Register;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal GetPolicyDelegate GetPolicy;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal SetPolicyDelegate SetPolicy;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal ClearPolicyDelegate ClearPolicy;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet>       _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool>             _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, bool> _isTypeExplicitlyRegistered;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool> _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, bool>                     _isTypeExplicitlyRegistered;
 
         #endregion
 
@@ -103,11 +108,37 @@ namespace Unity
             SetPolicy = Set;
             ClearPolicy = Clear;
 
+            // Build Strategies
+            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
+            {
+                {   // Array
+                    new ArrayResolveStrategy(
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
+                    UnityBuildStage.Enumerable
+                },
+                {   // Enumerable
+                    new EnumerableResolveStrategy(
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))),
+                    UnityBuildStage.Enumerable
+                },
+                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
+                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
+                {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
+            };
+
+            // Update on change
+            _strategies.Invalidated += OnStrategiesChanged;
+            _strategiesChain = _strategies.ToArray();
+
+            
             // Default Policies and Strategies
-            Set(null, null, InitializeDefaultPolicies());
+            _defaults = InitializeDefaultPolicies();
+            Set(null, null, _defaults);
             Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
-            Set(typeof(Func<>), string.Empty, typeof(IBuildPlanPolicy), new DeferredResolveCreatorPolicy());
-            Set(typeof(Lazy<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyBuildPlanCreatorPolicy.GetResolver);
+            Set(typeof(Func<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
+            Set(typeof(Lazy<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
 
             // Register this instance
             ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
@@ -145,80 +176,11 @@ namespace Unity
 
             // Strategies
             _strategies = _parent._strategies;
-            _buildPlanStrategies = _parent._buildPlanStrategies;
             _strategiesChain = _parent._strategiesChain;
-            _processorsChain = _parent._processorsChain;
-
-            // Caches
-            _strategies.Invalidated += OnStrategiesChanged;
-        }
-
-        #endregion
-
-
-        #region Defaults
-
-        private IPolicySet InitializeDefaultPolicies()
-        {
-            // Build Strategies
-            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
-            {
-                {   // Array
-                    new ArrayResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
-                    UnityBuildStage.Enumerable
-                },
-                {   // Enumerable
-                    new EnumerableResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))),
-                    UnityBuildStage.Enumerable
-                },
-                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
-                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
-                {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
-            };
-            
-            // Update on change
             _strategies.Invalidated += OnStrategiesChanged;
 
-            
-            // Processors
-            var fieldsProcessor = new FieldsProcessor();
-            var methodsProcessor = new MethodsProcessor();
-            var propertiesProcessor = new PropertiesProcessor();
-            var constructorProcessor = new ConstructorProcessor();
-
-            // Processors chain
-            _buildPlanStrategies = new StagedStrategyChain<BuildMemberProcessor, BuilderStage>
-            {
-                { constructorProcessor, BuilderStage.Creation },
-                { fieldsProcessor,      BuilderStage.Fields },
-                { propertiesProcessor,  BuilderStage.Properties },
-                { methodsProcessor,     BuilderStage.Methods }
-            };
-
-            // Update on change
-            _buildPlanStrategies.Invalidated += (s, e) => _processorsChain = _buildPlanStrategies.ToArray();
-
-
             // Caches
-            _strategiesChain = _strategies.ToArray();
-            _processorsChain = _buildPlanStrategies.ToArray();
-
-
-            // Default policies
-            var defaults = new InternalRegistration(null, null);
-            
-            defaults.Set(typeof(ResolveDelegateFactory),   (ResolveDelegateFactory)GetResolver);
-            //defaults.Set(typeof(ResolveDelegateFactory),   (ResolveDelegateFactory)GetCompiledResolver);
-            defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            defaults.Set(typeof(ISelect<FieldInfo>),       fieldsProcessor);
-            defaults.Set(typeof(ISelect<PropertyInfo>),    propertiesProcessor);
-            defaults.Set(typeof(ISelect<MethodInfo>),      methodsProcessor);
-
-            return defaults;
+            _defaults = InitializeDefaultPolicies();
         }
 
         #endregion
@@ -251,6 +213,7 @@ namespace Unity
         private void SetupChildContainerBehaviors()
         {
             _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
+            Set(null, null, _defaults);
 
             Register = AddOrUpdate;
             GetPolicy = Get;

@@ -6,6 +6,7 @@ using Unity.Container.Lifetime;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Processors
 {
@@ -13,25 +14,10 @@ namespace Unity.Processors
     {
         #region Overrides
 
-        public override ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context, ResolveDelegate<BuilderContext> seed)
+        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
-            // Verify the type we're trying to build is actually constructable -
-            // CLR primitive types like string and int aren't.
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (!context.Type.GetTypeInfo().IsInterface)
-#else
-            if (!context.Type.IsInterface)
-#endif
-            {
-                if (context.Type == typeof(string))
-                {
-                    throw new InvalidOperationException(
-                        $"The type {context.Type.Name} cannot be constructed. You must configure the container to supply this value.");
-                }
-            }
-
-            var selector = GetPolicy<ISelect<ConstructorInfo>>(ref context);
-            var selection = selector.Select(ref context)
+            var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
+            var selection = selector.Select(type, registration)
                                     .FirstOrDefault();
             
             // Validate constructor info
@@ -47,17 +33,16 @@ namespace Unity.Processors
                 };
             }
 
-            return ValidateConstructedTypeResolver(ref context) ?? 
-                   BuildResolver(ref context, selection);
+            return ValidateConstructedTypeResolver(type) ?? 
+                   BuildResolver(registration, type, selection);
         }
-
 
         #endregion
 
 
         #region Implementation
 
-        private ResolveDelegate<BuilderContext> BuildResolver(ref BuilderContext context, object selection)
+        private ResolveDelegate<BuilderContext> BuildResolver(IPolicySet registration, Type type, object selection)
         {
             ConstructorInfo info;
             object[] resolvers = null;
@@ -69,7 +54,7 @@ namespace Unity.Processors
                     break;
 
                 case MethodBaseMember<ConstructorInfo> injectionMember:
-                    (info, resolvers) = injectionMember.FromType(context.Type);
+                    (info, resolvers) = injectionMember.FromType(type);
                     break;
 
                 default:
@@ -78,7 +63,7 @@ namespace Unity.Processors
 
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
-            if (context.Registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager)
+            if (registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager)
             {
                 // PerResolve lifetime
                 return (ref BuilderContext c) =>
@@ -114,13 +99,13 @@ namespace Unity.Processors
             };
         }
 
-        private ResolveDelegate<BuilderContext> ValidateConstructedTypeResolver(ref BuilderContext context)
+        private ResolveDelegate<BuilderContext> ValidateConstructedTypeResolver(Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = context.Type.GetTypeInfo();
+            var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsInterface)
 #else
-            if (context.Type.IsInterface)
+            if (type.IsInterface)
 #endif
             {
                 return (ref BuilderContext c) =>
@@ -136,7 +121,7 @@ namespace Unity.Processors
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeInfo.IsAbstract)
 #else
-            if (context.Type.IsAbstract)
+            if (type.IsAbstract)
 #endif
             {
                 return (ref BuilderContext c) =>
@@ -152,7 +137,7 @@ namespace Unity.Processors
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
 #else
-            if (context.Type.IsSubclassOf(typeof(Delegate)))
+            if (type.IsSubclassOf(typeof(Delegate)))
 #endif
             {
                 return (ref BuilderContext c) =>
@@ -165,7 +150,7 @@ namespace Unity.Processors
                 };
             }
 
-            if (context.Type == typeof(string))
+            if (type == typeof(string))
             {
                 return (ref BuilderContext c) =>
                 {

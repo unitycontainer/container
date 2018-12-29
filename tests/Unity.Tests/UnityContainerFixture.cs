@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Unity.Builder;
 using Unity.Extension;
 using Unity.Injection;
@@ -23,6 +24,32 @@ namespace Unity.Tests.v5
             object o = container.Resolve<object>();
 
             Assert.IsNotNull(o);
+        }
+
+        [TestMethod]
+        public void CanCreateOptimizingResolver()
+        {
+            var container = new UnityContainer();
+
+            object o = container.Resolve<object>();
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
+            Thread.Sleep(100);
+            Assert.IsNotNull(container.Resolve<object>());
         }
 
         [TestMethod]
@@ -652,7 +679,6 @@ namespace Unity.Tests.v5
             }
             catch (ResolutionFailedException e)
             {
-                Assert.IsInstanceOfType(e.InnerException, typeof(InvalidOperationException));
                 return;
             }
         }
