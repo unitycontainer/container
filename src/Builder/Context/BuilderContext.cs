@@ -95,9 +95,6 @@ namespace Unity.Builder
 
         public bool BuildComplete;
 
-        // TODO: Replace with Parent
-        public Type DeclaringType { get; private set; }
-
         public IntPtr Parent;
 
         public ExecutePlanDelegate ExecutePlan;
@@ -122,8 +119,7 @@ namespace Unity.Builder
                     ExecutePlan = ExecutePlan,
                     list = list,
                     Overrides = Overrides,
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext)),
-                    DeclaringType = RegistrationType
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
                 };
 
                 return ExecutePlan(registration.BuildChain, ref context);

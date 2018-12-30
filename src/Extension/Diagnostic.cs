@@ -6,7 +6,7 @@ namespace Unity.Extension
     {
         protected override void Initialize()
         {
-            ((UnityContainer)Container).ExecutePlan = UnityContainer.ExecuteValidatingPlan;
+            ((UnityContainer)Container).ExecutePlan = UnityContainer.ValidatingExecutePlan;
         }
 
         public void ForceCompile()
@@ -20,7 +20,5 @@ namespace Unity.Extension
             ((UnityContainer)Container)._defaults.Set(typeof(ResolveDelegateFactory),
                 (ResolveDelegateFactory)((UnityContainer)Container).ResolvingFactory);
         }
-
-
     }
 }

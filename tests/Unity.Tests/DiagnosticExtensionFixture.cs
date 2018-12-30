@@ -9,7 +9,7 @@ namespace Unity.Tests.v5
         [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         // https://github.com/unitycontainer/container/issues/122
-        public void Container_122()
+        public void GitHub_Container_122()
         {
             var container = new UnityContainer();
             container.AddNewExtension<Diagnostic>();

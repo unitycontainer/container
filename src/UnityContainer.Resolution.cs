@@ -237,9 +237,9 @@ namespace Unity
                         // Replace this build plan with compiled
                         registration.Set(typeof(ResolveDelegate<BuilderContext>), lambda.Compile());
                     });
-                };
+                }
 
-                return seed(ref c);
+                return seed?.Invoke(ref c);
             };
         }
 
@@ -349,27 +349,9 @@ namespace Unity
                 }
 
                 return context.Existing;
-
-                object GetPerResolveValue(IntPtr parent, Type registrationType, string name)
-                {
-                    if (IntPtr.Zero == parent) return null;
-
-                    unsafe
-                    {
-                        var c = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                        if (registrationType != c.RegistrationType || name != c.Name)
-                            return GetPerResolveValue(c.Parent, registrationType, name);
-
-                        var lifetimeManager = (LifetimeManager) c.Get(typeof(LifetimeManager));
-                        var result = lifetimeManager?.GetValue();
-                        if (null != result) return result;
-
-                        throw new InvalidOperationException($"Circular reference for type: {c.Type}");
-                    }
-                }
             };
 
-        internal static object ExecuteValidatingPlan(BuilderStrategy[] chain, ref BuilderContext context)
+        internal static object ValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
         {
             var i = -1;
 
