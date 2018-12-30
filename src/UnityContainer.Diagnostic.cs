@@ -11,10 +11,48 @@ using Unity.Storage;
 
 namespace Unity
 {
-    [DebuggerDisplay("{DebugName()}")]
+    [DebuggerDisplay("{" + nameof(DebugName) + "()}")]
     [DebuggerTypeProxy(typeof(UnityContainerDebugProxy))]
     public partial class UnityContainer
     {
+        #region Fields
+
+        private readonly ResolveDelegateFactory _buildStrategy = OptimizingFactory;
+
+        #endregion
+
+        public enum BuildStrategy
+        {
+            Compiled,
+
+            Resolved,
+
+            Optimized
+        }
+
+        #region Diagnostic Constructor
+
+        public UnityContainer(BuildStrategy strategy)
+            : this()
+        {
+            switch (strategy)
+            {
+                case BuildStrategy.Compiled:
+                    _buildStrategy = CompilingFactory;
+                    Defaults.Set(typeof(ResolveDelegateFactory), _buildStrategy);
+                    break;
+
+                case BuildStrategy.Resolved:
+                    _buildStrategy = ResolvingFactory;
+                    Defaults.Set(typeof(ResolveDelegateFactory), _buildStrategy);
+                    break;
+            }
+        }
+
+
+        #endregion
+
+
         #region Diagnostic Registrations
 
         internal void SetDiagnosticPolicies()
@@ -22,6 +60,8 @@ namespace Unity
             // Default policies
             Defaults = new InternalRegistration(typeof(ResolveDelegate<BuilderContext>),
                                                 (ResolveDelegate<BuilderContext>)ExecuteDefaultPlan);
+            Set(null, null, Defaults);
+
             // Processors
             var fieldsProcessor = new FieldsProcessor(Defaults);
             var methodsProcessor = new MethodsProcessor(Defaults);
@@ -41,13 +81,13 @@ namespace Unity
             _processors.Invalidated += (s, e) => _processorsChain = _processors.ToArray();
             _processorsChain = _processors.ToArray();
 
-            Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
+            Defaults.Set(typeof(ResolveDelegateFactory), _buildStrategy);
             Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
             Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
             Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
             Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
-            ExecutePlan = UnityContainer.ValidatingExecutePlan;
+            ExecutePlan = ValidatingExecutePlan;
         }
 
         #endregion
@@ -72,10 +112,10 @@ namespace Unity
             public UnityContainerDebugProxy(IUnityContainer container)
             {
                 _container = container;
-                ID = container.GetHashCode().ToString();
+                Id = container.GetHashCode().ToString();
             }
 
-            public string ID { get; }
+            public string Id { get; }
 
             public IEnumerable<IContainerRegistration> Registrations => _container.Registrations;
 

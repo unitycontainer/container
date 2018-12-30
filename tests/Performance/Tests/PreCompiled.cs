@@ -1,9 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Runner.Setup;
 using System.Collections.Generic;
-using System.Linq;
 using Unity;
-using Unity.Extension;
 
 namespace Runner.Tests
 {
@@ -17,10 +15,7 @@ namespace Runner.Tests
         [IterationSetup]
         public virtual void SetupContainer()
         {
-            _container = new UnityContainer();
-            _container.AddExtension(new Diagnostic())
-                      .Configure<Diagnostic>()
-                      .ForceCompile();
+            _container = new UnityContainer(UnityContainer.BuildStrategy.Compiled);
 
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();

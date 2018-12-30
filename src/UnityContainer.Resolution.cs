@@ -202,15 +202,16 @@ namespace Unity
 
         #region Resolve Delegate Factories
 
-        private ResolveDelegate<BuilderContext> OptimizingFactory(ref BuilderContext context)
+        private static ResolveDelegate<BuilderContext> OptimizingFactory(ref BuilderContext context)
         {
             var counter = 3;
             var type = context.Type;
             var registration = context.Registration;
             ResolveDelegate<BuilderContext> seed = null;
+            var chain = ((UnityContainer) context.Container)._processorsChain;
 
             // Generate build chain
-            foreach (var processor in _processorsChain)
+            foreach (var processor in chain)
                 seed = processor.GetResolver(type, registration, seed);
 
             // Return delegate
@@ -223,7 +224,7 @@ namespace Unity
 
                         // Compile build plan on worker thread
                         var expressions = new List<Expression>();
-                        foreach (var processor in _processorsChain)
+                        foreach (var processor in chain)
                         {
                             foreach (var step in processor.GetBuildSteps(type, registration))
                                 expressions.Add(step);
@@ -243,7 +244,7 @@ namespace Unity
             };
         }
 
-        internal ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
+        private ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
         {
             var expressions = new List<Expression>();
             var type = context.Type;
@@ -263,7 +264,7 @@ namespace Unity
             return lambda.Compile();
         }
 
-        internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
+        private ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
         {
             ResolveDelegate<BuilderContext> seed = null;
             var type = context.Type;
