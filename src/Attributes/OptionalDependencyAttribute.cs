@@ -7,7 +7,7 @@ namespace Unity
     /// as optional - the container will try to resolve it, and return null
     /// if the resolution fails rather than throw.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class OptionalDependencyAttribute : DependencyResolutionAttribute
     {
         /// <summary>
