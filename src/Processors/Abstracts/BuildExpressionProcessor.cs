@@ -11,8 +11,7 @@ namespace Unity.Processors
 {
     public delegate Expression MemberExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver);
 
-    public abstract partial class BuildMemberProcessor<TMemberInfo, TData> : BuildMemberProcessor
-                                                         where TMemberInfo : MemberInfo
+    public abstract partial class BuildMemberProcessor<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
         #region Fields
 

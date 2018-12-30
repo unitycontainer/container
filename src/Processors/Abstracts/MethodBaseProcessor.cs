@@ -15,7 +15,7 @@ namespace Unity.Processors
     {
         #region Fields
 
-        private static readonly MethodInfo ResolveParameter =
+        private readonly MethodInfo ResolveParameter =
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Resolve))
                 .First(m =>
@@ -101,8 +101,6 @@ namespace Unity.Processors
                     }
                     else
                     {
-                        var variable = Expression.Variable(parameter.ParameterType);
-                        var resolve = ResolveExpression(parameter, null, resolver);
                         expression = (ref BuilderContext context) => 
                         {
                             try
@@ -138,7 +136,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue)
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
             return (ref BuilderContext context) => 
             {
@@ -158,7 +156,7 @@ namespace Unity.Processors
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue)
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
             return (ref BuilderContext context) =>
             {

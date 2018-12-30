@@ -1,39 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Exceptions;
-using Unity.Injection;
 
 namespace Unity.Tests.v5
 {
     [TestClass]
     public class ConstructorWithOutAndRefParametersFixture
     {
-        [TestMethod]
-        public void CanBuildUpExistingObjectOnTypeWithCtorWithRefParameter()
-        {
-            IUnityContainer container =
-                new UnityContainer()
-                    .RegisterType<TypeWithConstructorWithRefParameter>(new InjectionProperty("Property", 10));
-            string ignored = "ignored";
-            TypeWithConstructorWithRefParameter instance = new TypeWithConstructorWithRefParameter(ref ignored);
-
-            container.BuildUp(instance);
-
-            Assert.AreEqual(10, instance.Property);
-        }
-
-        [TestMethod]
-        public void CanBuildUpExistingObjectOnTypeWithCtorWithOutParameter()
-        {
-            IUnityContainer container =
-                new UnityContainer()
-                    .RegisterType<TypeWithConstructorWithOutParameter>(new InjectionProperty("Property", 10));
-            string ignored = "ignored";
-            TypeWithConstructorWithOutParameter instance = new TypeWithConstructorWithOutParameter(out ignored);
-
-            container.BuildUp(instance);
-
-            Assert.AreEqual(10, instance.Property);
-        }
 
         [TestMethod]
         public void ResolvingANewInstanceOfTypeWithCtorWithRefParameterThrows()

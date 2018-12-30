@@ -73,7 +73,7 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool> _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, bool> _isTypeExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
 
         #endregion
 
@@ -100,7 +100,7 @@ namespace Unity
             _get = Get;
             _getGenericRegistration = GetOrAddGeneric;
             _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
-            _isTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
+            IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
 
             GetRegistration = GetOrAdd;
             Register = AddOrUpdate;
@@ -134,8 +134,8 @@ namespace Unity
 
 
             // Default Policies and Strategies
-            _defaults = InitializeDefaultPolicies();
-            Set(null, null, _defaults);
+            SetDefaultPolicies();
+            Set(null, null, Defaults);
             Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
             Set(typeof(Lazy<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
@@ -166,7 +166,7 @@ namespace Unity
             _get = _parent._get;
             _getGenericRegistration = _parent._getGenericRegistration;
             _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
-            _isTypeExplicitlyRegistered = _parent._isTypeExplicitlyRegistered;
+            IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
 
             GetRegistration = _parent.GetRegistration;
             Register = CreateAndSetOrUpdate;
@@ -180,7 +180,7 @@ namespace Unity
             _strategies.Invalidated += OnStrategiesChanged;
 
             // Caches
-            _defaults = InitializeDefaultPolicies();
+            SetDefaultPolicies();
         }
 
         #endregion
@@ -212,20 +212,27 @@ namespace Unity
 
         private void SetupChildContainerBehaviors()
         {
-            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
-            Set(null, null, _defaults);
+            lock (_syncRoot)
+            {
+                if (null == _registrations)
+                {
+                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
+                    Set(null, null, Defaults);
 
-            Register = AddOrUpdate;
-            GetPolicy = Get;
-            SetPolicy = Set;
-            ClearPolicy = Clear;
+                    Register = AddOrUpdate;
+                    GetPolicy = Get;
+                    SetPolicy = Set;
+                    ClearPolicy = Clear;
 
-            GetRegistration = GetDynamicRegistration;
+                    GetRegistration = GetDynamicRegistration;
 
-            _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
-            _getGenericRegistration = GetOrAddGeneric;
-            _isTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
-            _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
+                    _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
+                    _getGenericRegistration = GetOrAddGeneric;
+                    IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
+                    _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
+                }
+            }
+
         }
 
         private void OnStrategiesChanged(object sender, EventArgs e)
@@ -282,18 +289,18 @@ namespace Unity
                 var info = type.GetTypeInfo();
                 if (info.IsGenericType)
                 {
-                    if (_isTypeExplicitlyRegistered(type)) return type;
+                    if (IsTypeExplicitlyRegistered(type)) return type;
 
                     var definition = info.GetGenericTypeDefinition();
-                    if (_isTypeExplicitlyRegistered(definition)) return definition;
+                    if (IsTypeExplicitlyRegistered(definition)) return definition;
 
                     next = info.GenericTypeArguments[0];
-                    if (_isTypeExplicitlyRegistered(next)) return next;
+                    if (IsTypeExplicitlyRegistered(next)) return next;
                 }
                 else if (type.IsArray)
                 {
                     next = type.GetElementType();
-                    if (_isTypeExplicitlyRegistered(next)) return next;
+                    if (IsTypeExplicitlyRegistered(next)) return next;
                 }
                 else
                 {

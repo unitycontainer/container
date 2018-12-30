@@ -136,7 +136,7 @@ namespace Unity
 
         /// <inheritdoc />
         bool IUnityContainer.IsRegistered(Type type, string name) =>
-            ReferenceEquals(string.Empty, name) ? _isTypeExplicitlyRegistered(type)
+            ReferenceEquals(string.Empty, name) ? IsTypeExplicitlyRegistered(type)
                                                 : _isExplicitlyRegistered(type, name);
 
         /// <inheritdoc />

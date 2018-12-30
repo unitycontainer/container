@@ -287,18 +287,6 @@ namespace Unity.Tests.v5.Container
             AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(ChildStub1), objBase), "type of the object should match");
         }
 
-        [TestMethod]
-        public void BuildBaseAndChildObject4()
-        {
-            UnityContainer uc = new UnityContainer();
-            BaseStub1 objBase = new BaseStub1();
-            Assert.IsNotNull(objBase);
-            Assert.IsNull(objBase.InterfaceProp);
-
-            uc.BuildUp(typeof(Interface1), objBase);
-            Assert.IsNotNull(objBase.InterfaceProp);
-        }
-
         public interface Interface1
         {
             [Dependency]
@@ -345,22 +333,6 @@ namespace Unity.Tests.v5.Container
         #region BuildUp method with Abstract Base
 
         [TestMethod]
-        public void BuildAbstractBaseAndChildObject1()
-        {
-            UnityContainer uc = new UnityContainer();
-            ConcreteChild objChild = new ConcreteChild();
-
-            Assert.IsNotNull(objChild);
-            Assert.IsNull(objChild.AbsBaseProp);
-            Assert.IsNull(objChild.ChildProp);
-
-            uc.BuildUp(typeof(AbstractBase), objChild);
-
-            Assert.IsNotNull(objChild.AbsBaseProp);
-            Assert.IsNull(objChild.ChildProp);
-        }
-
-        [TestMethod]
         public void BuildAbstractBaseAndChildObject2()
         {
             UnityContainer uc = new UnityContainer();
@@ -398,77 +370,6 @@ namespace Unity.Tests.v5.Container
 
             [Dependency]
             public object ChildProp { get; set; }
-        }
-
-        #endregion
-
-        #region BuildUp method with Interface
-
-        [TestMethod]
-        public void BuildInterfacePropertyInjectTest1()
-        {
-            UnityContainer uc = new UnityContainer();
-            BarClass objBase = new BarClass();
-
-            uc.BuildUp(typeof(IFooInterface), objBase);
-
-            Assert.IsNotNull(objBase.InterfaceProp);
-        }
-
-        [TestMethod]
-        public void BuildInterfacePropertyInjectTest2()
-        {
-            UnityContainer uc = new UnityContainer();
-            BarClass2 objBase = new BarClass2();
-
-            uc.BuildUp(typeof(IFooInterface2), objBase);
-
-            Assert.IsNull(objBase.InterfaceProp);
-        }
-
-        public interface IFooInterface
-        {
-            [Dependency]
-            object InterfaceProp
-            {
-                get;
-                set;
-            }
-        }
-
-        public interface IFooInterface2
-        {
-            object InterfaceProp
-            {
-                get;
-                set;
-            }
-        }
-
-        public class BarClass : IFooInterface
-        {
-            public object InterfaceProp { get; set; }
-        }
-
-        public class BarClass2 : IFooInterface2
-        {
-            [Dependency]
-            public object InterfaceProp { get; set; }
-        }
-
-        public class PropertyDependencyClassStub1
-        {
-            [Dependency]
-            public object MyFirstObj { get; set; }
-        }
-
-        public class PropertyDependencyClassStub2
-        {
-            [Dependency]
-            public object MyFirstObj { get; set; }
-
-            [Dependency]
-            public object MySecondObj { get; set; }
         }
 
         #endregion

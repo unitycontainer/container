@@ -265,31 +265,6 @@ namespace Unity.Tests.v5
         }
 
         [TestMethod]
-        public void CanBuildupObjectWithExplicitInterface()
-        {
-            var container = new UnityContainer()
-                .RegisterType<ILogger, MockLogger>();
-
-            var o = new ObjectWithExplicitInterface();
-            container.BuildUp<ISomeCommonProperties>(o);
-
-            o.ValidateInterface();
-        }
-
-        [TestMethod]
-        public void CanBuildupObjectWithExplicitInterfaceUsingNongenericMethod()
-        {
-            var container = new UnityContainer()
-                .RegisterType<ILogger, MockLogger>();
-
-            var o = new ObjectWithExplicitInterface();
-            container.BuildUp(typeof(ISomeCommonProperties), o);
-
-            o.ValidateInterface();
-
-        }
-
-        [TestMethod]
         public void CanUseInstanceAsSingleton()
         {
             var logger = new MockLogger();

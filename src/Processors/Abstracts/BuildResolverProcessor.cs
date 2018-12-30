@@ -11,8 +11,7 @@ namespace Unity.Processors
 {
     public delegate ResolveDelegate<BuilderContext> MemberResolverFactory(Attribute attribute, object info, object resolver, object defaultValue);
 
-    public abstract partial class BuildMemberProcessor<TMemberInfo, TData> : BuildMemberProcessor
-                                                         where TMemberInfo : MemberInfo
+    public abstract partial class BuildMemberProcessor<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
         #region Fields
 

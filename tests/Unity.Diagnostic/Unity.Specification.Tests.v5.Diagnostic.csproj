@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SpecificationTests\src\Unity.Specification.csproj" />
+    <ProjectReference Include="..\..\..\SpecificationTests\diagnostic\Unity.Specification.Diagnostic.csproj" />
     <ProjectReference Include="..\..\src\Unity.Container.csproj" />
   </ItemGroup>
 

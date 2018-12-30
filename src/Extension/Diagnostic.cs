@@ -6,18 +6,20 @@ namespace Unity.Extension
     {
         protected override void Initialize()
         {
-            ((UnityContainer)Container).ExecutePlan = UnityContainer.ValidatingExecutePlan;
+            ((UnityContainer)Container).SetDiagnosticPolicies();
+
+            Context.ChildContainerCreated += (s, e) => ((UnityContainer)e.ChildContainer).SetDiagnosticPolicies(); 
         }
 
         public void ForceCompile()
         {
-            ((UnityContainer)Container)._defaults.Set(typeof(ResolveDelegateFactory), 
+            ((UnityContainer)Container).Defaults.Set(typeof(ResolveDelegateFactory), 
                 (ResolveDelegateFactory)((UnityContainer)Container).CompilingFactory);
         }
 
         public void DisableCompile()
         {
-            ((UnityContainer)Container)._defaults.Set(typeof(ResolveDelegateFactory),
+            ((UnityContainer)Container).Defaults.Set(typeof(ResolveDelegateFactory),
                 (ResolveDelegateFactory)((UnityContainer)Container).ResolvingFactory);
         }
     }
