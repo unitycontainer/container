@@ -8,7 +8,7 @@ namespace Runner.Tests
 {
     [BenchmarkCategory("Basic")]
     [Config(typeof(BenchmarkConfiguration))]
-    public class Optimized
+    public class PreResolved
     {
         IUnityContainer _container;
         object _syncRoot = new object();
@@ -19,7 +19,7 @@ namespace Runner.Tests
             _container = new UnityContainer();
             _container.AddExtension(new Diagnostic())
                       .Configure<Diagnostic>()
-                      .ForceCompile();
+                      .DisableCompile();
 
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();
@@ -39,22 +39,22 @@ namespace Runner.Tests
         [Benchmark(Description = "Resolve<IUnityContainer>            ")]
         public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark(Description = "Resolve<object> (optimized)")]
+        [Benchmark(Description = "PreResolved<object> (optimized)")]
         public object Unregistered() => _container.Resolve(typeof(object), null);
 
-        [Benchmark(Description = "Resolve<Poco> (optimized)")]
+        [Benchmark(Description = "PreResolved<Poco> (optimized)")]
         public object Transient() => _container.Resolve(typeof(Poco), null);
 
-        [Benchmark(Description = "Resolve<IService> (optimized)")]
+        [Benchmark(Description = "PreResolved<IService> (optimized)")]
         public object Mapping() => _container.Resolve(typeof(IFoo), null);
 
-        [Benchmark(Description = "Resolve<IService>   (factory)")]
+        [Benchmark(Description = "PreResolved<IService>   (factory)")]
         public object Factory() => _container.Resolve(typeof(IFoo), "2");
 
-        [Benchmark(Description = "Resolve<IService[]> (optimized)")]
+        [Benchmark(Description = "PreResolved<IService[]> (optimized)")]
         public object Array() => _container.Resolve(typeof(IFoo[]), null);
 
-        [Benchmark(Description = "Resolve<IEnumerable<IService>> (optimized)")]
+        [Benchmark(Description = "PreResolved<IEnumerable<IService>> (optimized)")]
         public object Enumerable() => _container.Resolve(typeof(IEnumerable<IFoo>), null);
     }
 }

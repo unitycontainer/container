@@ -39,20 +39,18 @@ namespace Unity.Processors
 
         #region Overrides
 
-        protected override ConstructorInfo[] DeclaredMembers(Type type)
+        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
 #if NETSTANDARD1_0
             return type.GetTypeInfo()
                        .DeclaredConstructors
-                       .Where(c => c.IsStatic == false && c.IsPublic)
-                       .ToArray();
+                       .Where(c => c.IsStatic == false && c.IsPublic);
 #else
-            return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public)
-                       .ToArray();
+            return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
 #endif
         }
 
-        protected override IEnumerable<object> SelectMembers(Type type, ConstructorInfo[] members, InjectionMember[] injectors)
+        protected override IEnumerable<object> SelectMembers(Type type, IEnumerable<ConstructorInfo> members, InjectionMember[] injectors)
         {
             // Select Injected Members
             if (null != injectors)
@@ -67,27 +65,34 @@ namespace Unity.Processors
                 }
             }
 
-            if (null == members || 0 == members.Length) yield break;
-            if (1 == members.Length)
+            if (null == members) yield break;
+
+            // Enumerate to array
+            var constructors = members.ToArray();
+            switch (constructors.Length)
             {
-                yield return members[0];
-                yield break;
+                case 0:
+                    yield break;
+
+                case 1:
+                    yield return constructors[0];
+                    yield break;
             }
 
             // Select Attributed members
-            foreach (var member in members)
+            foreach (var constructor in constructors)
             {
                 foreach (var pair in ResolverFactories)
                 {
-                    if (!member.IsDefined(pair.type)) continue;
+                    if (!constructor.IsDefined(pair.type)) continue;
 
-                    yield return member;
+                    yield return constructor;
                     yield break;
                 }
             }
 
             // Select default
-            yield return SelectMethod(type, members);
+            yield return SelectMethod(type, constructors);
         }
 
         #endregion

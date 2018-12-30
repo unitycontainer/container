@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Container;
+using Unity.Specification.Container.Hierarchy;
 
-namespace Specification.Tests
+namespace Container
 {
     [TestClass]
-    public class Container : SpecificationTests
+    public class Hierarchy : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

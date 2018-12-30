@@ -163,6 +163,7 @@ namespace Unity
                 Registration = registration,
                 RegistrationType = type,
                 Name = name,
+                ExecutePlan = ExecutePlan,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type,
             };
@@ -193,6 +194,7 @@ namespace Unity
                 Registration = registration,
                 RegistrationType = type,
                 Name = name,
+                ExecutePlan = ExecutePlan,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type
             };

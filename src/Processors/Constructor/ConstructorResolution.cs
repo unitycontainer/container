@@ -10,7 +10,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor : MethodBaseInfoProcessor<ConstructorInfo>
+    public partial class ConstructorProcessor 
     {
         #region Overrides
 
@@ -57,13 +57,13 @@ namespace Unity.Processors
             }
 
             // Get lifetime manager
-            var LifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
 
             // Validate parameters
             var parameters = info.GetParameters();
             if (parameters.Any(p => p.ParameterType == info.DeclaringType))
             {
-                if (null == LifetimeManager?.GetValue())
+                if (null == lifetimeManager?.GetValue())
                     return (ref BuilderContext c) =>
                     {
                         if (null == c.Existing)
@@ -76,7 +76,7 @@ namespace Unity.Processors
 
             // Create dependency resolvers
             var parameterResolvers = CreateParameterResolvers(parameters, resolvers).ToArray();
-            if (LifetimeManager is PerResolveLifetimeManager)
+            if (lifetimeManager is PerResolveLifetimeManager)
             {
                 // PerResolve lifetime
                 return (ref BuilderContext c) =>

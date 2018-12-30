@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Injection.Property;
+using Unity.Specification.Container.IsRegistered;
 
-namespace Injection
+namespace Container
 {
     [TestClass]
-    public class Property : SpecificationTests
+    public class IsRegistered : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

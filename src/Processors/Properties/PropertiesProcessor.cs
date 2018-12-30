@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -38,28 +39,26 @@ namespace Unity.Processors
 
         #region Overrides
 
-        protected override PropertyInfo[] DeclaredMembers(Type type)
+        protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
 #if NETSTANDARD1_0
-            return type.GetPropertiesHierarchical()
-                       .Where(p =>
-                       {
-                           if (!p.CanWrite) return false;
+            return GetPropertiesHierarchical(type)
+               .Where(p =>
+               {
+                   if (!p.CanWrite) return false;
 
-                           var propertyMethod = p.GetSetMethod(true) ??
-                                                p.GetGetMethod(true);
+                   var propertyMethod = p.GetSetMethod(true) ??
+                                        p.GetGetMethod(true);
 
-                           // Skip static properties and indexers. 
-                           if (propertyMethod.IsStatic || p.GetIndexParameters().Length != 0)
-                               return false;
+                   // Skip static properties and indexers. 
+                   if (propertyMethod.IsStatic || p.GetIndexParameters().Length != 0)
+                       return false;
 
-                           return true;
-                       })
-                      .ToArray();
+                   return true;
+               });
 #else
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.CanWrite && p.GetIndexParameters().Length == 0)
-                .ToArray();
+                .Where(p => p.CanWrite && p.GetIndexParameters().Length == 0);
 #endif
         }
 
@@ -120,6 +119,28 @@ namespace Unity.Processors
                     return context.Existing;
                 }
             };
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        public static IEnumerable<PropertyInfo> GetPropertiesHierarchical(Type type)
+        {
+            if (type == null)
+            {
+                return Enumerable.Empty<PropertyInfo>();
+            }
+
+            if (type == typeof(object))
+            {
+                return type.GetTypeInfo().DeclaredProperties;
+            }
+
+            return type.GetTypeInfo()
+                       .DeclaredProperties
+                       .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
         }
 
         #endregion

@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Injection.Parameter;
+using Unity.Specification.Factory.Resolution;
 
-namespace Injection
+namespace Factory
 {
     [TestClass]
-    public class Parameter : SpecificationTests
+    public class Resolution : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

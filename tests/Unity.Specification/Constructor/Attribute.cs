@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Issues.GitHub;
+using Unity.Specification.Constructor.Attribute;
 
-namespace Issues
+namespace Constructor
 {
     [TestClass]
-    public class GitHub : SpecificationTests
+    public class Attribute : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

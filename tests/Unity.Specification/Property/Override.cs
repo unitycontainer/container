@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Injection.Methods;
+using Unity.Specification.Property.Overrides;
 
-namespace Injection
+namespace Property
 {
     [TestClass]
-    public class Methods : SpecificationTests
+    public class Override : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -13,3 +13,4 @@ namespace Injection
         }
     }
 }
+

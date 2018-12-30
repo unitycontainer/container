@@ -9,7 +9,7 @@ namespace Runner.Tests
 {
     [BenchmarkCategory("Basic")]
     [Config(typeof(BenchmarkConfiguration))]
-    public class PreBuilt
+    public class PreCompiled
     {
         IUnityContainer _container;
         object _syncRoot = new object();
@@ -20,7 +20,7 @@ namespace Runner.Tests
             _container = new UnityContainer();
             _container.AddExtension(new Diagnostic())
                       .Configure<Diagnostic>()
-                      .DisableCompile();
+                      .ForceCompile();
 
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();
@@ -40,22 +40,22 @@ namespace Runner.Tests
         [Benchmark(Description = "Resolve<IUnityContainer>            ")]
         public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark(Description = "Resolve<object> (pre-built)")]
+        [Benchmark(Description = "PreCompiled<object> (pre-built)")]
         public object Unregistered() => _container.Resolve(typeof(object), null);
 
-        [Benchmark(Description = "Resolve<Poco> (pre-built)")]
+        [Benchmark(Description = "PreCompiled<Poco> (pre-built)")]
         public object Transient() => _container.Resolve(typeof(Poco), null);
 
-        [Benchmark(Description = "Resolve<IService> (pre-built)")]
+        [Benchmark(Description = "PreCompiled<IService> (pre-built)")]
         public object Mapping() => _container.Resolve(typeof(IFoo), null);
 
-        [Benchmark(Description = "Resolve<IService>   (factory)")]
+        [Benchmark(Description = "PreCompiled<IService>   (factory)")]
         public object Factory() => _container.Resolve(typeof(IFoo), "2");
 
-        [Benchmark(Description = "Resolve<IService[]> (pre-built)")]
+        [Benchmark(Description = "PreCompiled<IService[]> (pre-built)")]
         public object Array() => _container.Resolve(typeof(IFoo[]), null);
 
-        [Benchmark(Description = "Resolve<IEnumerable<IService>> (pre-built)")]
+        [Benchmark(Description = "PreCompiled<IEnumerable<IService>> (pre-built)")]
         public object Enumerable() => _container.Resolve(typeof(IEnumerable<IFoo>), null);
     }
 }

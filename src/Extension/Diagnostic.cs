@@ -6,6 +6,7 @@ namespace Unity.Extension
     {
         protected override void Initialize()
         {
+            ((UnityContainer)Container).ExecutePlan = UnityContainer.ExecuteValidatingPlan;
         }
 
         public void ForceCompile()

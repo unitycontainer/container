@@ -20,27 +20,32 @@ namespace Runner.Tests
             _container.AddExtension(new Diagnostic())
                       .Configure<Diagnostic>()
                       .ForceCompile();
+
+            _container.RegisterType<Poco>();
+            _container.RegisterType<IFoo, Foo>();
+            _container.RegisterType<IFoo, Foo>("1");
+            _container.RegisterType<IFoo>("2", Invoke.Factory(c => new Foo()));
         }
 
         [Benchmark(Description = "Resolve<IUnityContainer>               ")]
         public object IUnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark(Description = "Resolve<object> (unregistered)")]
+        [Benchmark(Description = "Compiled<object> (unregistered)")]
         public object Unregistered() => _container.Resolve(typeof(object), null);
 
-        [Benchmark(Description = "Resolve<Poco>   (registered)")]
+        [Benchmark(Description = "Compiled<Poco>   (registered)")]
         public object Transient() => _container.Resolve(typeof(Poco), null);
 
-        [Benchmark(Description = "Resolve<IService>   (registered)")]
+        [Benchmark(Description = "Compiled<IService>   (registered)")]
         public object Mapping() => _container.Resolve(typeof(IFoo), null);
 
-        [Benchmark(Description = "Resolve<IService>      (factory)")]
+        [Benchmark(Description = "Compiled<IService>      (factory)")]
         public object Factory() => _container.Resolve(typeof(IFoo), "2");
 
-        [Benchmark(Description = "Resolve<IService[]>   (registered)")]
+        [Benchmark(Description = "Compiled<IService[]>   (registered)")]
         public object Array() => _container.Resolve(typeof(IFoo[]), null);
 
-        [Benchmark(Description = "Resolve<IEnumerable<IService>>   (registered)")]
+        [Benchmark(Description = "Compiled<IEnumerable<IService>>   (registered)")]
         public object Enumerable() => _container.Resolve(typeof(IEnumerable<IFoo>), null);
     }
 }

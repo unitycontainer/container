@@ -44,7 +44,7 @@ namespace Unity.Processors
 
         protected override Type MemberType(TMemberInfo info) => info.DeclaringType;
 
-        protected override IEnumerable<object> SelectMembers(Type type, TMemberInfo[] members, InjectionMember[] injectors)
+        protected override IEnumerable<object> SelectMembers(Type type, IEnumerable<TMemberInfo> members, InjectionMember[] injectors)
         {
             // Select Injected Members
             if (null != injectors)
@@ -56,7 +56,7 @@ namespace Unity.Processors
                 }
             }
 
-            if (null == members || 0 == members.Length) yield break;
+            if (null == members) yield break;
 
             // Select Attributed members
             foreach (var member in members)

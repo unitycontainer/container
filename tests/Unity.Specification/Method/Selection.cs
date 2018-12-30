@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Issues.GitHub;
+using Unity.Specification.Method.Selection;
 
-namespace Issues
+namespace Method
 {
     [TestClass]
-    public class GitHub : SpecificationTests
+    public class Selection : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

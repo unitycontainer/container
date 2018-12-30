@@ -25,7 +25,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected virtual IEnumerable<object> SelectMembers(Type type, TMemberInfo[] members, InjectionMember[] injectors)
+        protected virtual IEnumerable<object> SelectMembers(Type type, IEnumerable<TMemberInfo> members, InjectionMember[] injectors)
         {
             // Select Injected Members
             if (null != injectors)
@@ -37,7 +37,7 @@ namespace Unity.Processors
                 }
             }
 
-            if (null == members || 0 == members.Length) yield break;
+            if (null == members) yield break;
 
             // Select Attributed members
             foreach (var member in members)
@@ -52,7 +52,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual TMemberInfo[] DeclaredMembers(Type type) => new TMemberInfo[0];
+        protected virtual IEnumerable<TMemberInfo> DeclaredMembers(Type type) => new TMemberInfo[0];
 
         #endregion
     }

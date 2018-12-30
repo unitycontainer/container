@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Registrations.IsRegistered;
+using Unity.Specification.Field.Attribute;
 
-namespace Registrations
+namespace Field
 {
     [TestClass]
-    public class IsRegistered : SpecificationTests
+    public class Attribute : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

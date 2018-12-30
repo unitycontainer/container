@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace Unity
     /// <summary>
     /// A simple, extensible dependency injection container.
     /// </summary>
+    [SecuritySafeCritical]
     public partial class UnityContainer
     {
         #region Dynamic Registrations
@@ -318,5 +321,100 @@ namespace Unity
 
         #endregion
 
+
+
+        #region Implementation
+
+        internal BuilderContext.ExecutePlanDelegate ExecutePlan { get; set; } =
+            (BuilderStrategy[] chain, ref BuilderContext context) =>
+            {
+                var i = -1;
+
+                try
+                {
+                    while (!context.BuildComplete && ++i < chain.Length)
+                    {
+                        chain[i].PreBuildUp(ref context);
+                    }
+
+                    while (--i >= 0)
+                    {
+                        chain[i].PostBuildUp(ref context);
+                    }
+                }
+                catch
+                {
+                    context.RequiresRecovery?.Recover();
+                    throw;
+                }
+
+                return context.Existing;
+
+                object GetPerResolveValue(IntPtr parent, Type registrationType, string name)
+                {
+                    if (IntPtr.Zero == parent) return null;
+
+                    unsafe
+                    {
+                        var c = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                        if (registrationType != c.RegistrationType || name != c.Name)
+                            return GetPerResolveValue(c.Parent, registrationType, name);
+
+                        var lifetimeManager = (LifetimeManager) c.Get(typeof(LifetimeManager));
+                        var result = lifetimeManager?.GetValue();
+                        if (null != result) return result;
+
+                        throw new InvalidOperationException($"Circular reference for type: {c.Type}");
+                    }
+                }
+            };
+
+        internal static object ExecuteValidatingPlan(BuilderStrategy[] chain, ref BuilderContext context)
+        {
+            var i = -1;
+
+            var value = GetPerResolveValue(context.Parent, context.RegistrationType, context.Name);
+            if (null != value) return value;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Length)
+                {
+                    chain[i].PreBuildUp(ref context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ref context);
+                }
+            }
+            catch
+            {
+                context.RequiresRecovery?.Recover();
+                throw;
+            }
+
+            return context.Existing;
+
+            object GetPerResolveValue(IntPtr parent, Type registrationType, string name)
+            {
+                if (IntPtr.Zero == parent) return null;
+
+                unsafe
+                {
+                    var c = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                    if (registrationType != c.RegistrationType || name != c.Name)
+                        return GetPerResolveValue(c.Parent, registrationType, name);
+
+                    var lifetimeManager = (LifetimeManager)c.Get(typeof(LifetimeManager));
+                    var result = lifetimeManager?.GetValue();
+                    if (null != result) return result;
+
+                    throw new InvalidOperationException($"Circular reference for type: {c.Type}");
+                }
+            }
+        }
+
+        #endregion
     }
 }

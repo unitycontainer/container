@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -37,9 +38,14 @@ namespace Unity.Processors
 
         #region Overrides
 
-        protected override FieldInfo[] DeclaredMembers(Type type)
+        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type)
         {
-            return new FieldInfo[0];
+#if NETSTANDARD1_0
+            return GetFieldsHierarchical(type).Where(f => !f.IsInitOnly && !f.IsStatic);
+#else
+            return type.GetFields(BindingFlags.Instance | BindingFlags.Public)
+                       .Where(f => !f.IsInitOnly && !f.IsStatic);
+#endif
         }
 
         protected override Type MemberType(FieldInfo info) => info.FieldType;
@@ -88,7 +94,7 @@ namespace Unity.Processors
             {
                 try
                 {
-                    ((PropertyInfo)info).SetValue(context.Existing,
+                    ((FieldInfo)info).SetValue(context.Existing,
                         context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver));
                     return context.Existing;
                 }
@@ -98,6 +104,28 @@ namespace Unity.Processors
                     return context.Existing;
                 }
             };
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        public static IEnumerable<FieldInfo> GetFieldsHierarchical(Type type)
+        {
+            if (type == null)
+            {
+                return Enumerable.Empty<FieldInfo>();
+            }
+
+            if (type == typeof(object))
+            {
+                return type.GetTypeInfo().DeclaredFields;
+            }
+
+            return type.GetTypeInfo()
+                .DeclaredFields
+                .Concat(GetFieldsHierarchical(type.GetTypeInfo().BaseType));
         }
 
         #endregion

@@ -34,27 +34,6 @@ namespace Unity.Utility
         }
 
         /// <summary>
-        /// Returns the declared properties of a type or its base types.
-        /// </summary>
-        /// <param name="type">The type to inspect</param>
-        /// <returns>An enumerable of the <see cref="PropertyInfo"/> objects.</returns>
-        public static IEnumerable<PropertyInfo> GetPropertiesHierarchical(this Type type)
-        {
-            if (type == null)
-            {
-                return Enumerable.Empty<PropertyInfo>();
-            }
-
-            if (type == typeof(object))
-            {
-                return type.GetTypeInfo().DeclaredProperties;
-            }
-
-            return type.GetTypeInfo().DeclaredProperties
-                                      .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
-        }
-
-        /// <summary>
         /// Determines if the types in a parameter set ordinally matches the set of supplied types.
         /// </summary>
         /// <param name="parameters"></param>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,15 +26,13 @@ namespace Unity.Processors
 
         #region Selection
 
-        protected override MethodInfo[] DeclaredMembers(Type type)
+        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
 #if NETSTANDARD1_0
             return type.GetMethodsHierarchical()
-                       .Where(c => c.IsStatic == false && c.IsPublic)
-                       .ToArray();
+                       .Where(c => c.IsStatic == false && c.IsPublic);
 #else
-            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .ToArray();
+            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public);
 #endif
         }
 

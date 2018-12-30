@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security;
 using Unity.Policy;
 using Unity.Registration;
@@ -21,6 +22,8 @@ namespace Unity.Builder
 
         public ResolverOverride[] Overrides;
         public IPolicyList list;
+
+        public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
 
         #endregion
 
@@ -92,7 +95,12 @@ namespace Unity.Builder
 
         public bool BuildComplete;
 
+        // TODO: Replace with Parent
         public Type DeclaringType { get; private set; }
+
+        public IntPtr Parent;
+
+        public ExecutePlanDelegate ExecutePlan;
 
         #endregion
 
@@ -101,20 +109,25 @@ namespace Unity.Builder
 
         public object Resolve(Type type, string name, InternalRegistration registration)
         {
-            var context = new BuilderContext
+            unsafe
             {
-                Lifetime = Lifetime,
-                Registration = registration,
-                RegistrationType = type,
-                Name = name,
-                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
+                var thisContext = this;
+                var context = new BuilderContext
+                {
+                    Lifetime = Lifetime,
+                    Registration = registration,
+                    RegistrationType = type,
+                    Name = name,
+                    Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
+                    ExecutePlan = ExecutePlan,
+                    list = list,
+                    Overrides = Overrides,
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext)),
+                    DeclaringType = RegistrationType
+                };
 
-                list = list,
-                Overrides = Overrides,
-                DeclaringType = RegistrationType
-            };
-
-            return ExecuteReThrowingPlan(registration.BuildChain, ref context);
+                return ExecutePlan(registration.BuildChain, ref context);
+            }
         }
 
         public object Resolve(ParameterInfo parameter, string name, object value)
@@ -282,37 +295,6 @@ namespace Unity.Builder
 
             // Resolve from container
             return Resolve(property.PropertyType, name);
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-
-        private static object ExecuteReThrowingPlan(BuilderStrategy[] chain, ref BuilderContext context)
-        {
-            var i = -1;
-
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch
-            {
-                context.RequiresRecovery?.Recover();
-                throw;
-            }
-
-            return context.Existing;
         }
 
         #endregion

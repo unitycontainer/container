@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Select.Property;
+using Unity.Specification.Parameter.Attribute;
 
-namespace Select
+namespace Parameter
 {
     [TestClass]
-    public class Property : SpecificationTests
+    public class Attribute : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

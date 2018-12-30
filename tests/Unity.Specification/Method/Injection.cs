@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Resolution.Field;
+using Unity.Specification.Method.Injection;
 
-namespace Resolution
+namespace Method
 {
     [TestClass]
-    public class Field : SpecificationTests
+    public class Injection : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

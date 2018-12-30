@@ -11,7 +11,7 @@ using Unity.Storage;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor : MethodBaseInfoProcessor<ConstructorInfo>
+    public partial class ConstructorProcessor 
     {
         #region Fields
 
@@ -98,7 +98,7 @@ namespace Unity.Processors
         {
             // Validate if Type could be created
             var exceptionExpr = ValidateConstructedTypeExpression(type);
-            if (null != exceptionExpr) return new Expression[] { exceptionExpr };
+            if (null != exceptionExpr) return new[] { exceptionExpr };
 
             // Select ConstructorInfo
             var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
@@ -106,7 +106,7 @@ namespace Unity.Processors
                                     .FirstOrDefault();
 
             // Validate constructor info
-            if (null == selection) return new Expression[] { NoConstructorExpr };
+            if (null == selection) return new[] { NoConstructorExpr };
 
 
             // Select appropriate ctor for the Type
@@ -128,14 +128,14 @@ namespace Unity.Processors
             }
 
             // Get lifetime manager
-            var LifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
 
 
             // Validate parameters
             var parameters = info.GetParameters();
             if (parameters.Any(p => p.ParameterType == info.DeclaringType))
             {
-                if (null == LifetimeManager?.GetValue())
+                if (null == lifetimeManager?.GetValue())
                 {
                     return new Expression[] 
                     {
@@ -153,14 +153,14 @@ namespace Unity.Processors
             }
 
             // Create 'new' expression
-            var IfThenExpr = Expression.IfThen(
+            var ifThenExpr = Expression.IfThen(
                 Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                 BuildMemberExpression(info, resolvers));
 
             // Check if PerResolveLifetimeManager is required
             return registration.Get(typeof(LifetimeManager)) is PerResolveLifetimeManager
-                ? new Expression[] { IfThenExpr, SetPerBuildSingletonExpr }
-                : new Expression[] { IfThenExpr };
+                ? new[] { ifThenExpr, SetPerBuildSingletonExpr }
+                : new Expression[] { ifThenExpr };
         }
 
         protected override Expression BuildMemberExpression(ConstructorInfo info, object[] resolvers)

@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Resolution.Parameters;
+using Unity.Specification.Property.Attribute;
 
-namespace Resolution
+namespace Property
 {
     [TestClass]
-    public class Parameters : SpecificationTests
+    public class Attribute : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

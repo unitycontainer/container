@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Select.Method;
+using Unity.Specification.Field.Injection;
 
-namespace Select
+namespace Field
 {
     [TestClass]
-    public class Method : SpecificationTests
+    public class Injection : SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
