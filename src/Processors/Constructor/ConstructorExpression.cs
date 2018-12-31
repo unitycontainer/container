@@ -63,16 +63,19 @@ namespace Unity.Processors
 
             // Select appropriate ctor for the Type
             ConstructorInfo info;
-            object[] resolvers = null;
+            IEnumerable<Expression> parametersExpr;
 
             switch (selection)
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
+                    parametersExpr = CreateParameterExpressions(info.GetParameters());
                     break;
 
                 case MethodBaseMember<ConstructorInfo> injectionMember:
+                    object[] resolvers;
                     (info, resolvers) = injectionMember.FromType(type);
+                    parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
                     break;
 
                 default:
@@ -88,7 +91,7 @@ namespace Unity.Processors
                 Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                 Expression.Block(new[] { variable }, new Expression[]
                 {
-                    Expression.Assign(variable, Expression.New(info, CreateParameterExpressions(info.GetParameters(), resolvers))),
+                    Expression.Assign(variable, Expression.New(info, parametersExpr)),
                     Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
                 }));
 

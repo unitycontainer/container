@@ -77,25 +77,25 @@ namespace Unity.Processors
 
         #region Parameter Resolver Factories
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue)
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
             return (ref BuilderContext context) =>
             {
                 ((FieldInfo)info).SetValue(context.Existing,
-                    context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver));
+                    context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
 
                 return context.Existing;
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue)
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
             return (ref BuilderContext context) =>
             {
                 try
                 {
                     ((FieldInfo)info).SetValue(context.Existing,
-                        context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver));
+                        context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
                     return context.Existing;
                 }
                 catch

@@ -63,7 +63,7 @@ namespace Unity.Processors
                 switch (member)
                 {
                     case TMemberInfo memberInfo:
-                        yield return BuildMemberExpression(memberInfo, default);
+                        yield return BuildMemberExpression(memberInfo);
                         break;
 
                     case InjectionMember<TMemberInfo, TData> injectionMember:
@@ -77,7 +77,8 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual Expression BuildMemberExpression(TMemberInfo info, TData resolver)
+
+        protected virtual Expression BuildMemberExpression(TMemberInfo info)
         {
             var member = CreateMemberExpression(info);
 
@@ -95,11 +96,15 @@ namespace Unity.Processors
                 if (null == attribute || null == pair.factory)
                     continue;
 
-                return pair.factory(attribute, member, info, MemberType(info), resolver);
+                return pair.factory(attribute, member, info, MemberType(info), null);
             }
 
-            return Expression.Assign(member, GetExpression(info, null, resolver));
+            return Expression.Assign(member, GetExpression(info, null, null));
         }
+
+
+        protected virtual Expression BuildMemberExpression(TMemberInfo info, TData resolver) 
+            => Expression.Assign(CreateMemberExpression(info), GetExpression(info, null, resolver));
 
         protected virtual Expression GetExpression(TMemberInfo info, string name, object resolver) => throw new NotImplementedException();
 
@@ -112,19 +117,17 @@ namespace Unity.Processors
 
         #region Parameter Expression Factories
 
-        // Default expression factory for [Dependency] attribute
         protected virtual Expression DependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, object resolver)
         {
             TMemberInfo info = (TMemberInfo)memberInfo;
-            return Expression.Assign(member, GetExpression(info, ((DependencyResolutionAttribute)attribute).Name, resolver));
+            return Expression.Assign(member, GetExpression(info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
         }
 
-        // Default expression factory for [OptionalDependency] attribute
         protected virtual Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, object resolver)
         {
             TMemberInfo info = (TMemberInfo)memberInfo;
             return Expression.TryCatch(
-                        Expression.Assign(member, GetExpression(info, ((OptionalDependencyAttribute)attribute).Name, resolver)),
+                        Expression.Assign(member, GetExpression(info, ((OptionalDependencyAttribute)attribute).Name, resolver ?? info)),
                     Expression.Catch(typeof(Exception),
                         Expression.Assign(member, Expression.Constant(null, type))));
         }

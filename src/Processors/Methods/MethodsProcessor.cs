@@ -41,6 +41,14 @@ namespace Unity.Processors
 
         #region Building Expression
 
+        protected override Expression BuildMemberExpression(MethodInfo info)
+        {
+            ValidateMethod(info);
+
+            return Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                info, CreateParameterExpressions(info.GetParameters()));
+        }
+
         protected override Expression BuildMemberExpression(MethodInfo info, object[] resolvers)
         {
             ValidateMethod(info);
@@ -54,6 +62,25 @@ namespace Unity.Processors
 
         #region Building Resolver
 
+        protected override ResolveDelegate<BuilderContext> BuildMemberResolver(MethodInfo info)
+        {
+            ValidateMethod(info);
+
+            var parameterResolvers = CreateParameterResolvers(info.GetParameters()).ToArray();
+            return (ref BuilderContext c) =>
+            {
+                if (null == c.Existing) return c.Existing;
+
+                var parameters = new object[parameterResolvers.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                    parameters[i] = parameterResolvers[i](ref c);
+
+                info.Invoke(c.Existing, parameters);
+
+                return c.Existing;
+            };
+        }
+
         protected override ResolveDelegate<BuilderContext> BuildMemberResolver(MethodInfo info, object[] resolvers)
         {
             ValidateMethod(info);
@@ -61,14 +88,13 @@ namespace Unity.Processors
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>
             {
-                if (null != c.Existing)
-                {
-                    var parameters = new object[parameterResolvers.Length];
-                    for (var i = 0; i < parameters.Length; i++)
-                        parameters[i] = parameterResolvers[i](ref c);
+                if (null == c.Existing) return c.Existing;
 
-                    info.Invoke(c.Existing, parameters);
-                }
+                var parameters = new object[parameterResolvers.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                    parameters[i] = parameterResolvers[i](ref c);
+
+                info.Invoke(c.Existing, parameters);
 
                 return c.Existing;
             };

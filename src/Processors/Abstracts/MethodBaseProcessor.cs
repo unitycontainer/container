@@ -30,7 +30,7 @@ namespace Unity.Processors
         
         #region Constructors
 
-        public MethodBaseInfoProcessor(IPolicySet policySet, Type attribute)
+        protected MethodBaseInfoProcessor(IPolicySet policySet, Type attribute)
             : base(policySet)
         {
             Add(attribute, (MemberResolverFactory)null);
@@ -61,12 +61,9 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in members)
             {
-                foreach (var pair in ResolverFactories)
+                if (ResolverFactories.Any(pair => member.IsDefined(pair.type)))
                 {
-                    if (!member.IsDefined(pair.type)) continue;
-
                     yield return member;
-                    break;
                 }
             }
         }
@@ -76,13 +73,13 @@ namespace Unity.Processors
 
         #region Parameter Resolution Factories
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object[] injectors)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object[] injectors = null)
         {
             object[] resolvers = null != injectors && 0 == injectors.Length ? null : injectors;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
-                var resolver = resolvers?[i];
+                var resolver = null == resolvers ? parameter : resolvers[i];
 
                 // Check if has default value
                 var defaultValue = parameter.HasDefaultValue
@@ -141,12 +138,12 @@ namespace Unity.Processors
             return (ref BuilderContext context) => 
             {
                 if (null == defaultValue)
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
                 else
                 {
                     try
                     {
-                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
+                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
                     }
                     catch
                     {
@@ -162,7 +159,7 @@ namespace Unity.Processors
             {
                 try
                 {
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
                 }
                 catch
                 {
@@ -176,13 +173,13 @@ namespace Unity.Processors
 
         #region Parameter Expression Factories
 
-        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object[] injectors)
+        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object[] injectors = null)
         {
             object[] resolvers = null != injectors && 0 == injectors.Length ? null : injectors;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
-                var resolver = resolvers?[i];
+                var resolver = null == resolvers ? parameter : resolvers[i];
 
                 // Check if has default value
                 var defaultValueExpr = parameter.HasDefaultValue
@@ -241,7 +238,7 @@ namespace Unity.Processors
             if (null == member)
             {
                 // Plain vanilla case
-                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver);
+                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
             }
             else
             {
@@ -253,7 +250,7 @@ namespace Unity.Processors
                         Expression.TryCatch(
                             Expression.Assign(
                                 variable,
-                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
+                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info)),
                         Expression.Catch(typeof(Exception),
                             Expression.Assign(variable, member))),
                         variable
@@ -272,7 +269,7 @@ namespace Unity.Processors
                 Expression.TryCatch(
                     Expression.Assign(
                         variable,
-                        ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
+                        ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info)),
                 Expression.Catch(typeof(Exception),
                     Expression.Assign(variable, member ?? Expression.Constant(null, parameter.ParameterType)))),
                 variable

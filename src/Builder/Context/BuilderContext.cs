@@ -158,9 +158,11 @@ namespace Unity.Builder
             }
 
             // Resolve from injectors
-            // TODO: Optimize via overrides
             switch (value)
             {
+                case ParameterInfo info when ReferenceEquals(info, parameter):
+                    return Resolve(parameter.ParameterType, name);
+
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
@@ -171,16 +173,12 @@ namespace Unity.Builder
                     var method = factory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
 
-                case Type type:     // TODO: Requires evaluation
-                    if (typeof(Type) == parameter.ParameterType) return type;
-                    break;
-
-                case object obj:
-                    return obj;
+                case Type type:
+                    return typeof(Type) == parameter.ParameterType 
+                        ? type : Resolve(parameter.ParameterType, name);
             }
 
-            // Resolve from container
-            return Resolve(parameter.ParameterType, name);
+            return value;
         }
 
         public object Resolve(FieldInfo field, string name, object value)
@@ -229,13 +227,9 @@ namespace Unity.Builder
                 case IResolverFactory factory:
                     var method = factory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
-
-                case object obj:
-                    return obj;
             }
 
-            // Resolve from container
-            return Resolve(field.FieldType, name);
+            return value;
         }
 
         public object Resolve(PropertyInfo property, string name, object value)
@@ -284,13 +278,9 @@ namespace Unity.Builder
                 case IResolverFactory factory:
                     var method = factory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
-
-                case object obj:
-                    return obj;
             }
 
-            // Resolve from container
-            return Resolve(property.PropertyType, name);
+            return value;
         }
 
         #endregion

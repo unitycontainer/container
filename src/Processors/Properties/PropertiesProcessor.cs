@@ -97,7 +97,7 @@ namespace Unity.Processors
             return (ref BuilderContext context) =>
             {
                 ((PropertyInfo)info).SetValue(context.Existing, 
-                    context.Resolve((PropertyInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver));
+                    context.Resolve((PropertyInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
 
                 return context.Existing;
             };
@@ -110,7 +110,7 @@ namespace Unity.Processors
                 try
                 {
                     ((PropertyInfo)info).SetValue(context.Existing, 
-                        context.Resolve((PropertyInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver));
+                        context.Resolve((PropertyInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
                     return context.Existing;
                 }
                 catch

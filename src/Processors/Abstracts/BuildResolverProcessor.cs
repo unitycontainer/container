@@ -71,7 +71,7 @@ namespace Unity.Processors
                 switch (member)
                 {
                     case TMemberInfo memberInfo:
-                        yield return BuildMemberResolver(memberInfo, default);
+                        yield return BuildMemberResolver(memberInfo);
                         break;
 
                     case InjectionMember<TMemberInfo, TData> injectionMember:
@@ -85,7 +85,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual ResolveDelegate<BuilderContext> BuildMemberResolver(TMemberInfo info, TData resolver)
+        protected virtual ResolveDelegate<BuilderContext> BuildMemberResolver(TMemberInfo info)
         {
             foreach (var pair in ResolverFactories)
             {
@@ -101,11 +101,13 @@ namespace Unity.Processors
                 if (null == attribute || null == pair.factory)
                     continue;
 
-                return pair.factory(attribute, info, resolver, null);
+                return pair.factory(attribute, info, null, null);
             }
 
-            return GetResolver(info, resolver);
+            return GetResolver(info, null);
         }
+
+        protected virtual ResolveDelegate<BuilderContext> BuildMemberResolver(TMemberInfo info, TData resolver) => GetResolver(info, resolver);
 
         protected virtual ResolveDelegate<BuilderContext> GetResolver(TMemberInfo info, object resolver) => throw new NotImplementedException();
 

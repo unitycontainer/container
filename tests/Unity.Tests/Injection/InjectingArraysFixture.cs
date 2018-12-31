@@ -142,7 +142,7 @@ namespace Unity.Tests.v5.Injection
 
             public TypeWithArrayConstructorParameter(ILogger[] loggers)
             {
-                this.Loggers = loggers;
+                Loggers = loggers;
             }
         }
 
