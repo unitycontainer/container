@@ -6,13 +6,6 @@ namespace Unity.Injection
     public abstract class MemberInfoMember<TMemberInfo> : InjectionMember<TMemberInfo, object>
                                       where TMemberInfo : MemberInfo
     {
-        #region Fields
-
-        protected static readonly object ResolvedValue = new object();
-
-        #endregion
-
-
         #region Constructors
 
         protected MemberInfoMember(string name, object data) 

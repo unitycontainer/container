@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -13,6 +12,13 @@ namespace Unity.Injection
     /// </summary>
     public abstract class InjectionMember
     {
+        #region Fields
+
+        protected static readonly object ResolvedValue = new object();
+
+        #endregion
+
+        
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
@@ -46,7 +52,6 @@ namespace Unity.Injection
     }
 
 
-    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember,
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
@@ -91,7 +96,7 @@ namespace Unity.Injection
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-        protected virtual bool MatchMemberInfo(TMemberInfo info, TData data) => true;
+        protected virtual bool MatchMemberInfo(TMemberInfo info, TData data) => info.Name == Name;
 
         protected virtual void ValidateInjectionMember(Type type)
         {
@@ -122,7 +127,7 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            if (null == Data)
+            if (null == Data || ReferenceEquals(Data, ResolvedValue))
             {
                 foreach (var member in DeclaredMembers(mappedToType))
                 {

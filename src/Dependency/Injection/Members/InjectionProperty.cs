@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -89,15 +88,6 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override bool MatchMemberInfo(PropertyInfo info, object data)
-        {
-#if NET40
-            return info.Name == Name && !info.GetSetMethod(true).IsStatic;
-#else
-            return info.Name == Name && info.CanWrite && !info.SetMethod.IsStatic;
-#endif
-        }
-
         #endregion
 
 
@@ -107,86 +97,28 @@ namespace Unity.Injection
         {
             base.ValidateInjectionMember(type);
 
-            // TODO: Optimize
-            GuardPropertyExists(MemberInfo, type, Name);
-            GuardPropertyIsSettable(MemberInfo);
-            GuardPropertyIsNotIndexer(MemberInfo);
-            //InitializeParameterValue(propMemberInfo);
-            //GuardPropertyValueIsCompatible(propMemberInfo, _dummy);
-        }
-
-        private static void GuardPropertyExists(PropertyInfo propInfo, Type typeToCreate, string propertyName)
-        {
-            if (propInfo == null)
+            if (!MemberInfo.CanWrite)
             {
                 throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        Constants.NoSuchProperty,
-                        typeToCreate.GetTypeInfo().Name,
-                        propertyName));
+                    $"The property {MemberInfo.Name} on type {MemberInfo.DeclaringType} is not settable.");
             }
-        }
 
-        private static void GuardPropertyIsSettable(PropertyInfo propInfo)
-        {
-            if (!propInfo.CanWrite)
+            if (MemberInfo.GetIndexParameters().Length > 0)
             {
                 throw new InvalidOperationException(
-                    ExceptionMessage(Constants.PropertyNotSettable,
-                        propInfo.Name, propInfo.DeclaringType));
-            }
-        }
-
-        private static void GuardPropertyIsNotIndexer(PropertyInfo property)
-        {
-            if (property.GetIndexParameters().Length > 0)
-            {
-                throw new InvalidOperationException(
-                    ExceptionMessage(Constants.CannotInjectIndexer,
-                        property.Name, property.DeclaringType));
-            }
-        }
-
-        private static void GuardPropertyValueIsCompatible(PropertyInfo property, InjectionParameterValue value)
-        {
-            if (!value.MatchesType(property.PropertyType))
-            {
-                throw new InvalidOperationException(
-                    ExceptionMessage(Constants.PropertyTypeMismatch,
-                                     property.Name,
-                                     property.DeclaringType,
-                                     property.PropertyType,
-                                     value.ParameterTypeName));
-            }
-        }
-
-        private static string ExceptionMessage(string format, params object[] args)
-        {
-            for (int i = 0; i < args.Length; ++i)
-            {
-                if (args[i] is Type)
-                {
-                    args[i] = ((Type)args[i]).GetTypeInfo().Name;
-                }
-            }
-            return string.Format(CultureInfo.CurrentCulture, format, args);
-        }
-
-        private static IEnumerable<PropertyInfo> GetPropertiesHierarchical(Type type)
-        {
-            if (type == null)
-            {
-                return Enumerable.Empty<PropertyInfo>();
+                    $"The property {MemberInfo.Name} on type {MemberInfo.DeclaringType} is an indexer. Indexed properties cannot be injected.");
             }
 
-            if (type == typeof(object))
-            {
-                return type.GetTypeInfo().DeclaredProperties;
-            }
-
-            return type.GetTypeInfo().DeclaredProperties
-                .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
+            // TODO: Implement
+            //if (!value.MatchesType(property.PropertyType))
+            //{
+            //    throw new InvalidOperationException(
+            //        ExceptionMessage(Constants.PropertyTypeMismatch,
+            //            property.Name,
+            //            property.DeclaringType,
+            //            property.PropertyType,
+            //            value.ParameterTypeName));
+            //}
         }
 
         #endregion

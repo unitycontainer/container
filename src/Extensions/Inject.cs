@@ -57,7 +57,28 @@ namespace Unity
         #endregion
 
 
+        #region Field
+
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Field(string name) => new InjectionField(name);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Field(string name, object value) => new InjectionField(name, value);
+
+        #endregion
+
+
         #region Property
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Property(string name) => new InjectionProperty(name);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
