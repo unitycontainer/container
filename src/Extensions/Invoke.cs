@@ -78,17 +78,7 @@ namespace Unity
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionMember Method(string name) => new InjectionMethod(name);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static InjectionMember Method(string name, params object[] parameters) => new InjectionMethod(name, parameters);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Method(MethodInfo info, params object[] parameters) => throw new NotImplementedException();
 
         #endregion
     }

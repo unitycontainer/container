@@ -9,6 +9,11 @@ namespace Unity.Injection
     {
         #region Constructors
 
+        static InjectionField()
+        {
+            ResolvedValue = new object();
+        }
+
         /// <summary>
         /// Configure the container to inject the given field name.
         /// </summary>
@@ -24,13 +29,8 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="name">Name of property to inject.</param>
         /// <param name="value">InjectionParameterValue for property.</param>
-        public InjectionField(string name, object value = null)
+        public InjectionField(string name, object value)
             : base(name, value)
-        {
-        }
-
-        protected InjectionField(FieldInfo info, object value = null)
-            : base(info, value)
         {
         }
 
@@ -39,26 +39,13 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (FieldInfo, object) FromType(Type type)
+        protected override FieldInfo DeclaredMember(Type type, string name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var declaringType = MemberInfo.DeclaringType.GetTypeInfo();
-
-            if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
-                return base.FromType(type);
-
-            var info = type.GetTypeInfo().GetDeclaredField(MemberInfo.Name);
+            return type.GetTypeInfo().GetDeclaredField(MemberInfo.Name);
 #else
-            if (MemberInfo.DeclaringType != null &&
-                !MemberInfo.DeclaringType.IsGenericType &&
-                !MemberInfo.DeclaringType.ContainsGenericParameters)
-                return base.FromType(type);
-
-            var info = type.GetField(MemberInfo.Name);
+            return type.GetField(MemberInfo.Name);
 #endif
-            return ReferenceEquals(Data, ResolvedValue)
-                ? (info, info)
-                : (info, Data);
         }
 
         protected override IEnumerable<FieldInfo> DeclaredMembers(Type type)
@@ -82,10 +69,7 @@ namespace Unity.Injection
 #endif
         }
 
-        #endregion
-
-
-        #region Guards
+        protected override Type MemberType => MemberInfo.FieldType;
 
         protected override void ValidateInjectionMember(Type type)
         {
@@ -96,17 +80,6 @@ namespace Unity.Injection
                 throw new InvalidOperationException(
                     $"The field {MemberInfo.Name} on type {MemberInfo.DeclaringType} is not settable.");
             }
-
-            // TODO: Implement
-            //if (null != Data && !ReferenceEquals(Data, ResolvedValue) && !Data.MatchesType(MemberInfo.FieldType))
-            //{
-            //    throw new InvalidOperationException(
-            //        ExceptionMessage(Constants.PropertyTypeMismatch,
-            //            property.Name,
-            //            property.DeclaringType,
-            //            property.PropertyType,
-            //            value.ParameterTypeName));
-            //}
         }
 
         #endregion

@@ -13,6 +13,11 @@ namespace Unity.Injection
     {
         #region Constructors
 
+        static InjectionProperty()
+        {
+            ResolvedValue = new object();
+        }
+
         /// <summary>
         /// Configure the container to inject the given property name,
         /// using the value supplied.
@@ -34,37 +39,18 @@ namespace Unity.Injection
         {
         }
 
-        protected InjectionProperty(PropertyInfo info, object value = null)
-            : base(info, value)
-        {
-        }
-
-
         #endregion
 
 
         #region Overrides
 
-        public override (PropertyInfo, object) FromType(Type type)
+        protected override PropertyInfo DeclaredMember(Type type, string name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var declaringType = MemberInfo.DeclaringType.GetTypeInfo();
-
-            if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
-                return base.FromType(type);
-
-            var info = type.GetTypeInfo().GetDeclaredProperty(MemberInfo.Name);
+            return type.GetTypeInfo().GetDeclaredProperty(MemberInfo.Name);
 #else
-            if (MemberInfo.DeclaringType != null &&
-                !MemberInfo.DeclaringType.IsGenericType &&
-                !MemberInfo.DeclaringType.ContainsGenericParameters)
-                return base.FromType(type);
-
-            var info = type.GetProperty(MemberInfo.Name);
+            return type.GetProperty(MemberInfo.Name);
 #endif
-            return ReferenceEquals(Data, ResolvedValue)
-                ? (info, info)
-                : (info, Data);
         }
 
         protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
@@ -88,10 +74,7 @@ namespace Unity.Injection
 #endif
         }
 
-        #endregion
-
-
-        #region Guards
+        protected override Type MemberType => MemberInfo.PropertyType;
 
         protected override void ValidateInjectionMember(Type type)
         {
@@ -108,17 +91,6 @@ namespace Unity.Injection
                 throw new InvalidOperationException(
                     $"The property {MemberInfo.Name} on type {MemberInfo.DeclaringType} is an indexer. Indexed properties cannot be injected.");
             }
-
-            // TODO: Implement
-            //if (!value.MatchesType(property.PropertyType))
-            //{
-            //    throw new InvalidOperationException(
-            //        ExceptionMessage(Constants.PropertyTypeMismatch,
-            //            property.Name,
-            //            property.DeclaringType,
-            //            property.PropertyType,
-            //            value.ParameterTypeName));
-            //}
         }
 
         #endregion

@@ -12,13 +12,6 @@ namespace Unity.Injection
     /// </summary>
     public abstract class InjectionMember
     {
-        #region Fields
-
-        protected static readonly object ResolvedValue = new object();
-
-        #endregion
-
-        
         /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
@@ -56,6 +49,13 @@ namespace Unity.Injection
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
+        #region Fields
+
+        protected static TData ResolvedValue;
+
+        #endregion
+
+
         #region Constructors
 
         protected InjectionMember(string name, TData data)
@@ -127,12 +127,12 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
         {
-            if (null == Data || ReferenceEquals(Data, ResolvedValue))
+            if (ReferenceEquals(Data, ResolvedValue))
             {
                 foreach (var member in DeclaredMembers(mappedToType))
                 {
                     if (Name != member.Name) continue;
-                    if (null != MemberInfo) ThrowAmbigousMember(MemberInfo, mappedToType);
+                    if (null != MemberInfo) ThrowAmbiguousMember(MemberInfo, mappedToType);
 
                     MemberInfo = member;
                 }
@@ -142,7 +142,7 @@ namespace Unity.Injection
                 foreach (var member in DeclaredMembers(mappedToType))
                 {
                     if (!MatchMemberInfo(member, Data)) continue;
-                    if (null != MemberInfo) ThrowAmbigousMember(MemberInfo, mappedToType);
+                    if (null != MemberInfo) ThrowAmbiguousMember(MemberInfo, mappedToType);
 
                     MemberInfo = member;
                 }
@@ -151,7 +151,7 @@ namespace Unity.Injection
             ValidateInjectionMember(mappedToType);
         }
 
-        protected virtual void ThrowAmbigousMember(TMemberInfo info, Type type)
+        protected virtual void ThrowAmbiguousMember(TMemberInfo info, Type type)
         {
             // TODO: 5.9.0 Proper error message
             var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
@@ -177,6 +177,67 @@ namespace Unity.Injection
         public override int GetHashCode()
         {
             return MemberInfo?.GetHashCode() ?? 0;
+        }
+
+        #endregion
+
+
+        #region Signature matching
+
+        protected virtual bool Matches(object data, Type match)
+        {
+            switch (data)
+            {
+                // TODO: 5.9.0 Replace with IEquatable
+                case InjectionParameterValue injectionParameter:
+                    return injectionParameter.MatchesType(match);
+
+                case Type type:
+                    return MatchesType(type, match);
+
+                default:
+                    return MatchesObject(data, match);
+            }
+        }
+
+        protected static bool MatchesType(Type type, Type match)
+        {
+            if (null == type) return true;
+
+            var typeInfo = type.GetTypeInfo();
+            var matchInfo = match.GetTypeInfo();
+
+            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
+            if ((typeInfo.IsArray || typeof(Array) == type) &&
+               (matchInfo.IsArray || match == typeof(Array)))
+                return true;
+
+            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
+                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
+                return true;
+
+            return false;
+        }
+
+        protected static bool MatchesObject(object parameter, Type match)
+        {
+            var type = parameter is Type ? typeof(Type) : parameter?.GetType();
+
+            if (null == type) return true;
+
+            var typeInfo = type.GetTypeInfo();
+            var matchInfo = match.GetTypeInfo();
+
+            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
+            if ((typeInfo.IsArray || typeof(Array) == type) &&
+                (matchInfo.IsArray || match == typeof(Array)))
+                return true;
+
+            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
+                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
+                return true;
+
+            return false;
         }
 
         #endregion

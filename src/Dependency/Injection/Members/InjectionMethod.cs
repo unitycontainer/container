@@ -14,9 +14,9 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        public InjectionMethod(string name)
-            : base(name, null)
+        static InjectionMethod()
         {
+            ResolvedValue = new object[0];
         }
 
         /// <summary>
@@ -26,12 +26,7 @@ namespace Unity.Injection
         /// <param name="name">Name of the method to call.</param>
         /// <param name="arguments">Parameter values for the method.</param>
         public InjectionMethod(string name, params object[] arguments)
-            : base(name, arguments)
-        {
-        }
-
-        protected InjectionMethod(MethodInfo info, params object[] arguments)
-            : base(info, arguments)
+            : base(name, null == arguments || 0 == arguments.Length ? ResolvedValue : arguments)
         {
         }
 

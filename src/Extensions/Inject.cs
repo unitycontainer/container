@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
 
@@ -59,11 +58,15 @@ namespace Unity
 
         #region Field
 
-
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static InjectionMember Field(string name) => new InjectionField(name);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember OptionalField(string name) => throw new NotImplementedException();
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,22 +86,12 @@ namespace Unity
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public static InjectionMember OptionalProperty(string name) => throw new NotImplementedException();
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static InjectionMember Property(string name, object value) => new InjectionProperty(name, value);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Property(Type type, object value) => throw new NotImplementedException();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Property<TTarget>(object value) => throw new NotImplementedException();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Property(PropertyInfo info, object value) => throw new NotImplementedException();
 
         #endregion
     }

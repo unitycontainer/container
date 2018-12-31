@@ -9,7 +9,7 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        protected MethodBaseMember(string name, params object[] arguments)
+        protected MethodBaseMember(string name, object[] arguments)
             : base(name, arguments)
         {
         }
@@ -20,67 +20,6 @@ namespace Unity.Injection
         {
         }
 
-
-        #endregion
-
-
-        #region Signature matching
-
-        protected virtual bool Matches(object parameter, Type match)
-        {
-            switch (parameter)
-            {
-                // TODO: 5.9.0 Replace with IEquatable
-                case InjectionParameterValue injectionParameter:
-                    return injectionParameter.MatchesType(match);
-
-                case Type type:
-                    return MatchesType(type, match);
-
-                default:
-                    return MatchesObject(parameter, match);
-            }
-        }
-
-        protected static bool MatchesType(Type type, Type match)
-        {
-            if (null == type) return true;
-
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-            if ((typeInfo.IsArray || typeof(Array) == type) &&
-               (matchInfo.IsArray || match == typeof(Array)))
-                return true;
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-
-            return false;
-        }
-
-        protected static bool MatchesObject(object parameter, Type match)
-        {
-            var type = parameter is Type ? typeof(Type) : parameter?.GetType();
-
-            if (null == type) return true;
-
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-            if ((typeInfo.IsArray || typeof(Array) == type) &&
-                (matchInfo.IsArray || match == typeof(Array)))
-                return true;
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-
-            return false;
-        }
 
         #endregion
 
