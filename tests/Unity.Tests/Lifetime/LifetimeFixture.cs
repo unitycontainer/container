@@ -441,6 +441,11 @@ namespace Unity.Tests.v5.Lifetime
             Assert.IsNotNull(obj);
         }
 
+        private class  ATest
+        {
+            
+        }
+
         [TestMethod]
         public void TestEmpty()
         {

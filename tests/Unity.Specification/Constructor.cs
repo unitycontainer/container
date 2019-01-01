@@ -20,6 +20,15 @@ namespace Compiled.Constructor
             return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
         }
     }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Constructor.Parameters.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+        }
+    }
 }
 
 namespace Resolved.Constructor
@@ -35,6 +44,15 @@ namespace Resolved.Constructor
 
     [TestClass]
     public class Attribute : Unity.Specification.Constructor.Attribute.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+        }
+    }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Constructor.Parameters.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

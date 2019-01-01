@@ -29,6 +29,15 @@ namespace Compiled.Method
             return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
         }
     }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Method.Parameters.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+        }
+    }
 }
 
 namespace Resolved.Method
@@ -53,6 +62,15 @@ namespace Resolved.Method
 
     [TestClass]
     public class Selection : Unity.Specification.Method.Selection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+        }
+    }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Method.Parameters.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
