@@ -31,7 +31,6 @@ namespace Unity
         #endregion
 
 
-
         #region Optional Dependency
 
 #if !NET40
@@ -55,7 +54,6 @@ namespace Unity
         public static TypedInjectionValue OptionalDependency<TTarget>(string name) => new OptionalParameter(typeof(TTarget), name);
 
         #endregion
-
 
 
         #region Parameter
