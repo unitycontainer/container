@@ -31,26 +31,5 @@ namespace Unity.Tests.v5
             Assert.IsNotNull(container.Resolve<object>());
         }
 
-        [TestMethod]
-        public void ForceCompile()
-        {
-            // Setup
-            var container = new UnityContainer(UnityContainer.BuildStrategy.Compiled);
-
-            // Validate
-            Assert.IsNotNull(container.Resolve<object>());
-        }
-
-
-        [TestMethod]
-        public void ForceResolving()
-        {
-            // Setup
-            var container = new UnityContainer(UnityContainer.BuildStrategy.Resolved);
-
-            // Validate
-            Assert.IsNotNull(container.Resolve<object>());
-        }
-
     }
 }

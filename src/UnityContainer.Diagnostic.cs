@@ -21,7 +21,7 @@ namespace Unity
 
         #endregion
 
-        public enum BuildStrategy
+        internal enum BuildStrategy
         {
             Compiled,
 
@@ -32,7 +32,7 @@ namespace Unity
 
         #region Diagnostic Constructor
 
-        public UnityContainer(BuildStrategy strategy)
+        internal UnityContainer(BuildStrategy strategy)
             : this()
         {
             switch (strategy)
