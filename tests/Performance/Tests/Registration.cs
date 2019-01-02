@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System;
+using BenchmarkDotNet.Attributes;
 using Runner.Setup;
 using System.Linq;
 using Unity;
@@ -19,7 +20,7 @@ namespace Runner.Tests
         }
 
         [Benchmark(Description = "Register (No Mapping)")]
-        public object Register() => _container.RegisterType(null, typeof(object), null, null);
+        public object Register() => _container.RegisterType((Type)null, typeof(object), null, null);
 
         [Benchmark(Description = "Register Mapping")]
         public object RegisterMapping() => _container.RegisterType(typeof(IFoo), typeof(Foo), null, null);
