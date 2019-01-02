@@ -14,6 +14,13 @@ namespace Unity
 {
     public partial class UnityContainer : IUnityContainer
     {
+        #region Constants
+
+        const string LifetimeManagerInUse = "The lifetime manager is already registered. Lifetime managers cannot be reused, please create a new one.";
+
+        #endregion
+
+
         #region Type Registration
 
         /// <inheritdoc />
@@ -22,7 +29,7 @@ namespace Unity
             // Validate input
             if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
             if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
-            if (lifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
+            if (lifetimeManager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
                                     !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
@@ -95,7 +102,7 @@ namespace Unity
             var mappedToType = instance.GetType();
             var typeFrom = type ?? mappedToType;
             var lifetime = lifetimeManager ?? new ContainerControlledLifetimeManager();
-            if (lifetime.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
+            if (lifetime.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
             lifetime.SetValue(instance, LifetimeContainer);
 
             // Create registration and add to appropriate storage

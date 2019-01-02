@@ -111,8 +111,8 @@ namespace Unity.Processors
             if (info.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
             {
                 var format = info.IsGenericMethodDefinition
-                    ? Constants.CannotInjectOpenGenericMethod
-                    : Constants.CannotInjectMethodWithOutParam;
+                    ? "The method {1} on type {0} is marked for injection, but it is an open generic method. Injection cannot be performed."
+                    : "The method {1} on type {0} has an out parameter. Injection cannot be performed.";
 
                 throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
                     format, info.DeclaringType.GetTypeInfo().Name, info.Name));

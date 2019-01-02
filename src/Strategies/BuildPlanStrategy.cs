@@ -1,12 +1,11 @@
 using System;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Storage;
 
 namespace Unity.Strategies
 {
@@ -52,7 +51,8 @@ namespace Unity.Strategies
 #endif
                 {
                     throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                        Constants.CannotResolveOpenGenericType, context.RegistrationType.FullName));
+                        "The type {0} is an open generic type. An open generic type cannot be resolved.",
+                        context.RegistrationType.FullName));
                 }
 
                 // Get resolver factory

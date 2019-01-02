@@ -15,13 +15,18 @@ namespace Unity.Processors
     {
         #region Fields
 
+        const string CannotConstructAbstractClass = "The current type, {0}, is an abstract class and cannot be constructed. Are you missing a type mapping?";
+        const string CannotConstructDelegate = "The current type, {0}, is delegate and cannot be constructed. Unity only supports resolving Func&lt;T&gt; and Func&lt;IEnumerable&lt;T&gt;&gt; by default.";
+        const string CannotConstructInterface = "The current type, {0}, is an interface and cannot be constructed. Are you missing a type mapping?";
+        const string TypeIsNotConstructable = "The type {0} cannot be constructed. You must configure the container to supply this value.";
+
         private static readonly Expression CannotConstructInterfaceExpr =
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
-                            Expression.Constant(Constants.CannotConstructInterface),
+                            Expression.Constant(CannotConstructInterface),
                             BuilderContextExpression.Type),
                         InvalidRegistrationExpression)));
 
@@ -31,7 +36,7 @@ namespace Unity.Processors
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
-                            Expression.Constant(Constants.CannotConstructAbstractClass),
+                            Expression.Constant(CannotConstructAbstractClass),
                             BuilderContextExpression.Type),
                         InvalidRegistrationExpression)));
 
@@ -41,7 +46,7 @@ namespace Unity.Processors
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
-                            Expression.Constant(Constants.CannotConstructDelegate),
+                            Expression.Constant(CannotConstructDelegate),
                             BuilderContextExpression.Type),
                         InvalidRegistrationExpression)));
 
@@ -51,7 +56,7 @@ namespace Unity.Processors
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
-                            Expression.Constant(Constants.TypeIsNotConstructable),
+                            Expression.Constant(TypeIsNotConstructable),
                             BuilderContextExpression.Type),
                         InvalidRegistrationExpression)));
 
@@ -280,7 +285,7 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.CannotConstructInterface, c.Type),
+                        throw new InvalidOperationException(string.Format(CannotConstructInterface, c.Type),
                             new InvalidRegistrationException());
 
                     return c.Existing;
@@ -296,7 +301,7 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.CannotConstructAbstractClass, c.Type),
+                        throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, c.Type),
                             new InvalidRegistrationException());
 
                     return c.Existing;
@@ -312,7 +317,7 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.CannotConstructDelegate, c.Type),
+                        throw new InvalidOperationException(string.Format(CannotConstructDelegate, c.Type),
                             new InvalidRegistrationException());
 
                     return c.Existing;
@@ -324,7 +329,7 @@ namespace Unity.Processors
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(Constants.TypeIsNotConstructable, c.Type),
+                        throw new InvalidOperationException(string.Format(TypeIsNotConstructable, c.Type),
                             new InvalidRegistrationException());
 
                     return c.Existing;

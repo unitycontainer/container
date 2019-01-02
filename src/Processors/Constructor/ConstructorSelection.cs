@@ -125,7 +125,7 @@ namespace Unity.Processors
                         throw new InvalidOperationException(
                             string.Format(
                                 CultureInfo.CurrentCulture,
-                                Constants.AmbiguousInjectionConstructor,
+                                "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
                                 type.GetTypeInfo().Name,
                                 paramLength));
                     }
