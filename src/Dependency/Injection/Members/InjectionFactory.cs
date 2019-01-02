@@ -1,8 +1,11 @@
 ﻿using System;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
+    public delegate object InjectionFactoryDelegate<TContext>(ref TContext context) where TContext : IResolveContext;
+
     /// <inheritdoc />
     /// <summary>
     /// A class that lets you specify a factory method the container
@@ -14,11 +17,17 @@ namespace Unity.Injection
         #region Fields
 
         private readonly Func<IUnityContainer, Type, string, object> _factoryFunc;
+        private readonly Delegate _factory;
 
         #endregion
 
 
         #region Constructors
+
+        public InjectionFactory(Delegate factory)
+        {
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        }
 
         /// <summary>
         /// Create a new instance of <see cref="InjectionFactory"/> with
@@ -57,29 +66,59 @@ namespace Unity.Injection
         /// <param name="policies">Policy list to add policies to.</param>
         public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
         {
-            // TODO: 5.9.0 Requires allocation optimization
-
+            // Verify
             if (null != mappedToType && mappedToType != registeredType)
                 throw new InvalidOperationException(
                     "Registration where both MappedToType and InjectionFactory are set is not supported");
 
+            // Check if Per Resolve lifetime is required
             var lifetime = policies.Get(typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
-                policies.Set(typeof(ResolveDelegate<TContext>),
-                    (ResolveDelegate<TContext>)((ref TContext context) =>
-                    {
-                        var result = _factoryFunc(context.Container, context.Type, context.Name);
-                        var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
-                        context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
-                        return result;
-                    }));
+                policies.Set(typeof(ResolveDelegate<TContext>), 
+                    null == _factory ? CreatePerResolveLegacyPolicy()
+                                     : CreatePerResolveContextPolicy());
             }
             else
             {
-                policies.Set(typeof(ResolveDelegate<TContext>), (ResolveDelegate<TContext>)((ref TContext c) =>
-                        _factoryFunc(c.Container, c.Type, c.Name) ?? 
-                        throw new InvalidOperationException("Injection Factory must return valid object or throw an exception")));
+                policies.Set(typeof(ResolveDelegate<TContext>), 
+                    null == _factory ? CreateLegacyPolicy()
+                                     : (ref TContext c) => ((InjectionFactoryDelegate<TContext>)_factory)(ref c) ?? 
+                                        throw new InvalidOperationException("Injection Factory must return valid object or throw an exception"));
+            }
+
+            // Factory methods
+
+            ResolveDelegate<TContext> CreateLegacyPolicy()
+            {
+                return (ref TContext c) =>
+                    _factoryFunc((IUnityContainer)c.Resolve(typeof(IUnityContainer), null), c.Type, c.Name) ??
+                    throw new InvalidOperationException("Injection Factory must return valid object or throw an exception");
+            }
+
+            ResolveDelegate<TContext> CreatePerResolveLegacyPolicy() 
+            {
+                return (ref TContext context) =>
+                {
+                    var container = (IUnityContainer)context.Resolve(typeof(IUnityContainer), null);
+                    var result = _factoryFunc(container, context.Type, context.Name);
+                    var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
+
+                    context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
+                    return result;
+                }; 
+            }
+
+            ResolveDelegate<TContext> CreatePerResolveContextPolicy()
+            {
+                return (ref TContext context) =>
+                {
+                    var result = ((InjectionFactoryDelegate<TContext>)_factory)(ref context);
+                    var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
+
+                    context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
+                    return result;
+                };
             }
         }
 

@@ -30,6 +30,23 @@ namespace Unity
 
 
         /// <summary>
+        /// Registers implementation type <param name="injectionMembers"></param> via provided collection of it's interfaces.
+        /// </summary>
+        /// <remarks>
+        /// This method allows creation of single registration for multiple interfaces the object of type <param name="implementationType"></param>
+        /// might be exposing. Registrations created with this method are self contained and will never 'Map' to other registrations.
+        /// In other words this registration will always create build plan and resolve new objects through it.
+        /// </remarks>
+        /// <param name="interfaces">Collection of interfaces that <paramref name="implementationType"/> exposes to container</param>
+        /// <param name="implementationType"><see cref="Type"/> that will be used to instantiate object.</param>
+        /// <param name="name">Name of the registration</param>
+        /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
+        /// <param name="injectionMembers">Injection configuration objects.</param>
+        /// <returns></returns>
+        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type implementationType, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+
+
+        /// <summary>
         /// Register an instance with the container.
         /// </summary>
         /// <remarks>

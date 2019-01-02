@@ -25,7 +25,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType<T>(this IUnityContainer container, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, null, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, typeof(T), null, null, injectionMembers);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType<T>(this IUnityContainer container, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, lifetimeManager, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, typeof(T), null, lifetimeManager, injectionMembers);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, null, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, typeof(T), name, null, injectionMembers);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, lifetimeManager, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, typeof(T), name, lifetimeManager, injectionMembers);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, new ContainerControlledLifetimeManager(), injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, typeof(T), null, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, new ContainerControlledLifetimeManager(), injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, typeof(T), name, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType(this IUnityContainer container, Type t, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, null, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, t, null, null, injectionMembers);
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType(this IUnityContainer container, Type t, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, lifetimeManager, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, t, null, lifetimeManager, injectionMembers);
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType(this IUnityContainer container, Type t, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, null, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, t, name, null, injectionMembers);
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterType(this IUnityContainer container, Type t, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, lifetimeManager, injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, t, name, lifetimeManager, injectionMembers);
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type t, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, new ContainerControlledLifetimeManager(), injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, t, null, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace Unity
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type t, string name, params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, new ContainerControlledLifetimeManager(), injectionMembers);
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType((Type)null, t, name, new ContainerControlledLifetimeManager(), injectionMembers);
         }
 
         /// <summary>

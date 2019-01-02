@@ -22,7 +22,6 @@ namespace Unity.Resolution
             Context   = Expression.Parameter(contextRefType, "context");
             Type      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IResolveContext.Type)));
             Name      = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IResolveContext.Name)));
-            Container = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(IResolveContext.Container)));
         }
 
         #endregion
@@ -31,8 +30,6 @@ namespace Unity.Resolution
         #region Properties
 
         public static readonly ParameterExpression Context;
-
-        public static readonly MemberExpression Container;
 
         public static readonly MemberExpression Type;
 
