@@ -55,7 +55,7 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+        public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
         {
             // TODO: 5.9.0 Requires allocation optimization
 
@@ -63,10 +63,10 @@ namespace Unity.Injection
                 throw new InvalidOperationException(
                     "Registration where both MappedToType and InjectionFactory are set is not supported");
 
-            var lifetime = policies.Get(registeredType, name, typeof(LifetimeManager));
+            var lifetime = policies.Get(typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
-                policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
+                policies.Set(typeof(ResolveDelegate<TContext>),
                     (ResolveDelegate<TContext>)((ref TContext context) =>
                     {
                         var result = _factoryFunc(context.Container, context.Type, context.Name);
@@ -77,8 +77,7 @@ namespace Unity.Injection
             }
             else
             {
-                policies.Set(registeredType, name, typeof(ResolveDelegate<TContext>),
-                    (ResolveDelegate<TContext>)((ref TContext c) =>
+                policies.Set(typeof(ResolveDelegate<TContext>), (ResolveDelegate<TContext>)((ref TContext c) =>
                         _factoryFunc(c.Container, c.Type, c.Name) ?? 
                         throw new InvalidOperationException("Injection Factory must return valid object or throw an exception")));
             }

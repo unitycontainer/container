@@ -21,9 +21,9 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public virtual void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
-                where TContext : IResolveContext
-                where TPolicyList : IPolicyList
+        public virtual void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
+                where TContext   : IResolveContext
+                where TPolicySet : IPolicySet
         {
         }
 
@@ -125,7 +125,7 @@ namespace Unity.Injection
 
         public override bool BuildRequired => true;
 
-        public override void AddPolicies<TContext, TPolicyList>(Type registeredType, Type mappedToType, string name, ref TPolicyList policies)
+        public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
         {
             if (ReferenceEquals(Data, ResolvedValue))
             {
