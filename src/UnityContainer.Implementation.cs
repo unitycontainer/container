@@ -9,8 +9,8 @@ using Unity.Builder;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Factories;
 using Unity.Policy;
-using Unity.Policy.BuildPlanCreator;
 using Unity.Processors;
 using Unity.Registration;
 using Unity.Storage;
@@ -136,9 +136,9 @@ namespace Unity
             // Default Policies and Strategies
             SetDefaultPolicies();
             Set(null, null, Defaults);
-            Set(typeof(Func<>), string.Empty, typeof(LifetimeManager), new PerResolveLifetimeManager());
-            Set(typeof(Func<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
-            Set(typeof(Lazy<>), string.Empty, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
+            Set(typeof(Func<>), All, typeof(LifetimeManager), new PerResolveLifetimeManager());
+            Set(typeof(Func<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
+            Set(typeof(Lazy<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
 
             // Register this instance
             ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());

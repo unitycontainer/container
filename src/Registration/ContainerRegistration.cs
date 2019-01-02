@@ -4,13 +4,12 @@ using Unity.Injection;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("ContainerRegistration: Type={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
+    [DebuggerDisplay("ContainerRegistration: MappedTo={Type?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
     public class ContainerRegistration : InternalRegistration
     {
         #region Constructors
 
         public ContainerRegistration(Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
-            : base()
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
@@ -26,7 +25,7 @@ namespace Unity.Registration
 
         /// <summary>
         /// The type that this registration is mapped to. If no type mapping was done, the
-        /// <see cref="InternalRegistration.Type"/> property and this one will have the same value.
+        /// <see cref="Type"/> property and this one will have the same value.
         /// </summary>
         public Type Type { get; }
 

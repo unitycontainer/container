@@ -15,7 +15,8 @@ namespace Unity
         #region Constants
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ContainerInitialCapacity = 37;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ListToHashCutoverPoint = 8;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ListToHashCutPoint = 8;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] public static string All = "ALL";
 
         #endregion
 
@@ -133,7 +134,7 @@ namespace Unity
                     var registry = candidate.Value;
 
                     if (null != registry[name]) return true;
-                    if (null == defaultRegistration) defaultRegistration = registry[string.Empty];
+                    if (null == defaultRegistration) defaultRegistration = registry[All];
                     if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
                 }
             }
@@ -169,7 +170,7 @@ namespace Unity
                     var registry = candidate.Value;
 
                     if (null != registry[name]) return true;
-                    if (null == defaultRegistration) defaultRegistration = registry[string.Empty];
+                    if (null == defaultRegistration) defaultRegistration = registry[All];
                     if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
                 }
             }
@@ -381,7 +382,7 @@ namespace Unity
                     return existing.SetOrReplace(name, registration);
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
                 {
                     _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;
@@ -440,7 +441,7 @@ namespace Unity
                     return existing.GetOrAdd(name, () => CreateRegistration(type, name));
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
                 {
                     _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;
@@ -509,7 +510,7 @@ namespace Unity
                     return existing.GetOrAdd(name, () => CreateRegistration(type, name));
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
                 {
                     _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;
@@ -577,7 +578,7 @@ namespace Unity
                     return;
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
                 {
                     _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;
@@ -655,7 +656,7 @@ namespace Unity
                     return;
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutoverPoint < collisions)
+                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
                 {
                     _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(_registrations);
                     targetBucket = hashCode % _registrations.Buckets.Length;

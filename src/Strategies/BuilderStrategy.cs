@@ -69,26 +69,6 @@ namespace Unity.Strategies
 
         #region Implementation
 
-
-        public static TPolicyInterface GetPolicyOrDefault<TPolicyInterface>(ref BuilderContext context)
-        {
-            return (TPolicyInterface)(GetNamedPolicy(ref context, context.RegistrationType, context.Name) ??
-                                      GetNamedPolicy(ref context, context.RegistrationType, string.Empty));
-
-            object GetNamedPolicy(ref BuilderContext c, Type t, string n)
-            {
-                return (c.Get(t, n, typeof(TPolicyInterface)) ?? (
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                    t.GetTypeInfo().IsGenericType
-#else
-                    t.IsGenericType
-#endif
-                    ? c.Get(t.GetGenericTypeDefinition(), n, typeof(TPolicyInterface)) ?? c.Get(null, null, typeof(TPolicyInterface))
-                    : c.Get(null, null, typeof(TPolicyInterface))));
-            }
-        }
-
-
         public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context)
         {
             return (TPolicyInterface)

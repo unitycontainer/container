@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Policy;
 
-namespace Unity.Policy.BuildPlanCreator
+namespace Unity.Factories
 {
     internal class DeferredFuncResolverFactory
     {

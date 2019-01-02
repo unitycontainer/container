@@ -20,7 +20,6 @@ namespace Unity
         IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             // Validate input
-            if (string.Empty == name) name = null;
             if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
             if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
             if (lifetimeManager.InUse) throw new InvalidOperationException(Constants.LifetimeManagerInUse);
@@ -63,9 +62,8 @@ namespace Unity
                 var context = new RegistrationContext(this, registeredType, name, registration);
                 foreach (var member in injectionMembers)
                 {
-                    member.AddPolicies<BuilderContext, RegistrationContext>(
-                        registeredType, mappedToType,
-                        name, ref context);
+                    member.AddPolicies<BuilderContext, ContainerRegistration>(
+                        registeredType, mappedToType, name, ref registration);
                 }
             }
 
@@ -91,7 +89,6 @@ namespace Unity
         IUnityContainer IUnityContainer.RegisterInstance(Type type, string name, object instance, LifetimeManager lifetimeManager)
         {
             // Validate input
-            if (string.Empty == name) name = null;
             if (null == instance) throw new ArgumentNullException(nameof(instance));
 
 
@@ -135,10 +132,8 @@ namespace Unity
         #region Registrations
 
         /// <inheritdoc />
-        bool IUnityContainer.IsRegistered(Type type, string name) =>
-            ReferenceEquals(string.Empty, name) ? IsTypeExplicitlyRegistered(type)
-                                                : _isExplicitlyRegistered(type, name);
-
+        bool IUnityContainer.IsRegistered(Type type, string name) => ReferenceEquals(All, name) ? IsTypeExplicitlyRegistered(type)
+                                                                                                : _isExplicitlyRegistered(type, name);
         /// <inheritdoc />
         IEnumerable<IContainerRegistration> IUnityContainer.Registrations => GetRegistrations(this);
 

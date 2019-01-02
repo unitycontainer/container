@@ -2,12 +2,13 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
+using Unity.Policy;
 using Unity.Strategies;
 
-namespace Unity.Policy.BuildPlanCreator
+namespace Unity.Factories
 {
     /// <summary>
-    /// An <see cref="ResolverDelegateFactory"/> implementation
+    /// An Resolver Delegate Factory implementation
     /// that constructs a build plan for creating <see cref="Lazy{T}"/> objects.
     /// </summary>
     internal class GenericLazyResolverFactory 

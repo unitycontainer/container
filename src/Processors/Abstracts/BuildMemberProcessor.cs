@@ -78,7 +78,8 @@ namespace Unity.Processors
 
         public TPolicyInterface GetPolicy<TPolicyInterface>(IPolicySet registration)
         {
-            return (TPolicyInterface)(registration.Get(typeof(TPolicyInterface)) ?? _policySet.Get(typeof(TPolicyInterface)));
+            return (TPolicyInterface)(registration.Get(typeof(TPolicyInterface)) ?? 
+                                        _policySet.Get(typeof(TPolicyInterface)));
         }
 
         #endregion

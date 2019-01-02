@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Storage;
+using Unity.Policy;
 
 namespace Unity.Processors
 {
@@ -13,7 +13,7 @@ namespace Unity.Processors
         #region Fields
 
         private readonly Func<Type, bool> _isTypeRegistered;
-        private static readonly TypeInfo _delegateType = typeof(Delegate).GetTypeInfo();
+        private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
 
         #endregion
 
@@ -108,7 +108,7 @@ namespace Unity.Processors
         /// <returns></returns>
         public object LegacySelector(Type type, ConstructorInfo[] members)
         {
-            Array.Sort(members, (ConstructorInfo x, ConstructorInfo y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
+            Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
 
             switch (members.Length)
             {
@@ -215,7 +215,7 @@ namespace Unity.Processors
 
             if (info.IsClass)
             {
-                if (_delegateType.IsAssignableFrom(info) ||
+                if (DelegateType.IsAssignableFrom(info) ||
                     typeof(string) == type || info.IsEnum || info.IsPrimitive || info.IsAbstract)
                 {
                     return _isTypeRegistered(type);

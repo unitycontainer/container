@@ -107,8 +107,8 @@ namespace Unity.Storage
                 _type = type;
                 _name = !string.IsNullOrEmpty(name) ? name : null;
                 _hash = (policyType?.GetHashCode() ?? 0) * 37 + 
-                    (ReferenceEquals(string.Empty, name) ? type?.GetHashCode() ?? 0 
-                                                         : ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)));
+                    (ReferenceEquals(UnityContainer.All, name) ? type?.GetHashCode() ?? 0 
+                                                               : ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)));
             }
 
             public override bool Equals(object obj)
