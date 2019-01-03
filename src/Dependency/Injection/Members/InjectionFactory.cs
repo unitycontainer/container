@@ -92,7 +92,7 @@ namespace Unity.Injection
             ResolveDelegate<TContext> CreateLegacyPolicy()
             {
                 return (ref TContext c) =>
-                    _factoryFunc((IUnityContainer)c.Resolve(typeof(IUnityContainer), null), c.Type, c.Name) ??
+                    _factoryFunc(c.Container, c.Type, c.Name) ??
                     throw new InvalidOperationException("Injection Factory must return valid object or throw an exception");
             }
 
@@ -100,8 +100,7 @@ namespace Unity.Injection
             {
                 return (ref TContext context) =>
                 {
-                    var container = (IUnityContainer)context.Resolve(typeof(IUnityContainer), null);
-                    var result = _factoryFunc(container, context.Type, context.Name);
+                    var result = _factoryFunc(context.Container, context.Type, context.Name);
                     var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
 
                     context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);

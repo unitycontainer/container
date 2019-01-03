@@ -8,37 +8,20 @@ namespace Unity
     {
         #region Parameter
 
-
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static InjectionParameter Parameter(object value) => new InjectionParameter(value);
 
-
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionParameter Parameter(Type type, object value) => new InjectionParameter(type, value);
-
+        public static InjectionParameter Parameter(Type type, object value) 
+            => new InjectionParameter(type ?? throw new ArgumentNullException(nameof(type)), value);
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static InjectionParameter Parameter<TTarget>(object value) => new InjectionParameter(typeof(TTarget), value);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionParameter Parameter(string name, object value) => throw new NotImplementedException();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionParameter Parameter(Type type, string name, object value) => throw new NotImplementedException();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionParameter Parameter<TTarget>(string name, object value) => throw new NotImplementedException();
 
         #endregion
 
@@ -61,18 +44,8 @@ namespace Unity
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionMember Field(string name) => new InjectionField(name);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember OptionalField(string name) => throw new NotImplementedException();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Field(string name, object value) => new InjectionField(name, value);
-
+        public static InjectionMember Field(string name, object value) 
+            => new InjectionField(name ?? throw new ArgumentNullException(nameof(name)), value);
         #endregion
 
 
@@ -81,18 +54,8 @@ namespace Unity
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionMember Property(string name) => new InjectionProperty(name);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember OptionalProperty(string name) => throw new NotImplementedException();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Property(string name, object value) => new InjectionProperty(name, value);
-
+        public static InjectionMember Property(string name, object value) 
+            => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)), value);
         #endregion
     }
 }

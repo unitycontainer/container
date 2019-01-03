@@ -12,7 +12,8 @@ namespace Unity.Injection
     /// an array containing the registered instances of a generic type parameter 
     /// should be resolved.
     /// </summary>
-    public class GenericResolvedArrayParameter : InjectionParameterValue
+    public class GenericResolvedArrayParameter : InjectionParameterValue,
+                                                 IEquatable<Type>
     {
         private readonly object[] _values;
         private readonly string _genericParameterName;
@@ -41,16 +42,11 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => _genericParameterName + "[]";
 
-        /// <summary>
-        /// Test to see if this parameter value has a matching type for the given type.
-        /// </summary>
-        /// <param name="type">Type to check.</param>
-        /// <returns>True if this parameter value is compatible with type <paramref name="type"/>,
-        /// false if not.</returns>
-        /// <remarks>A type is considered compatible if it is an array type of rank one
-        /// and its element type is a generic type parameter with a name matching this generic
-        /// parameter name configured for the receiver.</remarks>
-        public override bool MatchesType(Type type)
+
+
+        #region  IEquatable
+
+        public bool Equals(Type type)
         {
             var t = type ?? throw new ArgumentNullException(nameof(type));
 
@@ -62,6 +58,8 @@ namespace Unity.Injection
             Type elementType = t.GetElementType();
             return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == _genericParameterName;
         }
+
+        #endregion
 
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)

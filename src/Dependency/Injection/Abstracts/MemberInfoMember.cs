@@ -24,28 +24,21 @@ namespace Unity.Injection
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
             var declaringType = MemberInfo.DeclaringType.GetTypeInfo();
             if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
-                return ReferenceEquals(Data, ResolvedValue)
-                    ? (MemberInfo, MemberInfo)
-                    : (MemberInfo, Data);
+                return (MemberInfo, Data);
 #else
             if (MemberInfo.DeclaringType != null &&
                !MemberInfo.DeclaringType.IsGenericType &&
                !MemberInfo.DeclaringType.ContainsGenericParameters)
-                return ReferenceEquals(Data, ResolvedValue)
-                    ? (MemberInfo, MemberInfo)
-                    : (MemberInfo, Data);
+                return (MemberInfo, Data);
 #endif
-            var info = DeclaredMember(type, MemberInfo.Name);
-            return ReferenceEquals(Data, ResolvedValue)
-                ? (info, info)
-                : (info, Data);
+            return (DeclaredMember(type, MemberInfo.Name), Data);
         }
 
         protected override void ValidateInjectionMember(Type type)
         {
             base.ValidateInjectionMember(type);
 
-            if (null == Data || ReferenceEquals(Data, ResolvedValue)) return;
+            if (null == Data || Data is DependencyResolutionAttribute) return;
 
             if (!Matches(Data, MemberType))
             {

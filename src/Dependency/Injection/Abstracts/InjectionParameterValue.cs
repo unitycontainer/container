@@ -33,15 +33,6 @@ namespace Unity.Injection
             get;
         }
 
-        /// <summary>
-        /// Test to see if this parameter value has a matching type for the given type.
-        /// </summary>
-        /// <param name="t">Type to check.</param>
-        /// <returns>True if this parameter value is compatible with type <paramref name="t"/>,
-        /// false if not.</returns>
-        public abstract bool MatchesType(Type t);
-
-
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {

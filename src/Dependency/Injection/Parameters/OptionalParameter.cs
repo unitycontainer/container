@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -9,9 +10,14 @@ namespace Unity.Injection
     /// <see cref="IUnityContainer.RegisterType"/> to configure a
     /// parameter or property as an optional dependency.
     /// </summary>
-    public class OptionalParameter : TypedInjectionValue
+    public class OptionalParameter : TypedInjectionValue, IResolverFactory<ParameterInfo>
     {
         private readonly string _name;
+
+        public OptionalParameter()
+        {
+
+        }
 
         /// <summary>
         /// Construct a new <see cref="OptionalParameter"/> object that
@@ -19,8 +25,19 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="type">Type of the dependency.</param>
         public OptionalParameter(Type type)
-            : this(type, null)
+            : base(type, null)
         {
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="OptionalParameter"/> object that
+        /// specifies the given <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name">Name for the dependency.</param>
+        public OptionalParameter(string name)
+            : base(null, null)
+        {
+            _name = name;
         }
 
         /// <summary>
@@ -54,6 +71,45 @@ namespace Unity.Injection
                 }
             };
         }
+
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) where TContext : IResolveContext
+        {
+            if (null != ParameterType)
+            {
+                var info = ParameterType.GetTypeInfo();
+                var type = parameterInfo.ParameterType;
+                var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)
+                    ? ParameterType
+                    : ParameterType.GetClosedParameterType(type.GetTypeInfo()
+                                                               .GenericTypeArguments);
+                return (ref TContext c) =>
+                {
+                    try
+                    {
+                        return c.Resolve(typeToResolve, _name);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                };
+            }
+            else
+            {
+                var type = parameterInfo.ParameterType;
+                return (ref TContext c) =>
+                {
+                    try
+                    {
+                        return c.Resolve(type, _name);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                };
+            }
+        }
     }
 
     /// <summary>
@@ -66,8 +122,7 @@ namespace Unity.Injection
         /// <summary>
         /// Construct a new <see cref="OptionalParameter{T}"/>.
         /// </summary>
-        public OptionalParameter()
-            : base(typeof(T))
+        public OptionalParameter() : base(typeof(T))
         {
         }
 
@@ -76,8 +131,7 @@ namespace Unity.Injection
         /// <paramref name="name"/>.
         /// </summary>
         /// <param name="name">Name of the dependency.</param>
-        public OptionalParameter(string name)
-            : base(typeof(T), name)
+        public OptionalParameter(string name) : base(typeof(T), name)
         {
         }
     }

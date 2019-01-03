@@ -13,18 +13,15 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        static InjectionProperty()
-        {
-            ResolvedValue = new object();
-        }
-
         /// <summary>
         /// Configure the container to inject the given property name,
         /// using the value supplied.
         /// </summary>
         /// <param name="name">Name of property to inject.</param>
-        public InjectionProperty(string name)
-            : base(name, ResolvedValue)
+        /// <param name="optional">Tells Unity if this field is optional.</param>
+        public InjectionProperty(string name, bool optional = false)
+            : base(name, optional ? OptionalDependencyAttribute.Instance
+                                  : (object)DependencyAttribute.Instance)
         {
         }
 

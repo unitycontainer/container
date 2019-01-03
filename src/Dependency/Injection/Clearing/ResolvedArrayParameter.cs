@@ -52,7 +52,7 @@ namespace Unity.Injection
             _elementValues.AddRange(ToParameters(elementValues ?? throw new ArgumentNullException(nameof(elementValues))));
             foreach (InjectionParameterValue pv in _elementValues)
             {
-                if (!pv.MatchesType(elementType))
+                if (pv is IEquatable<Type> equatable && !equatable.Equals(elementType))
                 {
                     throw new InvalidOperationException(
                         string.Format(

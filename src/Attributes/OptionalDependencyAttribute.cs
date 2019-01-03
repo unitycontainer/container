@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Unity
 {
@@ -10,6 +11,9 @@ namespace Unity
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class OptionalDependencyAttribute : DependencyResolutionAttribute
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal static OptionalDependencyAttribute Instance = new OptionalDependencyAttribute();
+
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object.
         /// </summary>

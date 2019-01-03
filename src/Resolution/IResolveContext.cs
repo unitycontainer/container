@@ -5,6 +5,9 @@ namespace Unity.Resolution
 {
     public interface IResolveContext : IPolicyList
     {
+        /// <summary>Reference to container.</summary>
+        IUnityContainer Container { get; }
+
         /// <summary>
         /// Type being resolved.
         /// </summary>

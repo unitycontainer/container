@@ -14,11 +14,6 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        static InjectionMethod()
-        {
-            ResolvedValue = new object[0];
-        }
-
         /// <summary>
         /// Create a new <see cref="InjectionMethod"/> instance which will configure
         /// the container to call the given methods with the given parameters.
@@ -26,7 +21,7 @@ namespace Unity.Injection
         /// <param name="name">Name of the method to call.</param>
         /// <param name="arguments">Parameter values for the method.</param>
         public InjectionMethod(string name, params object[] arguments)
-            : base(name, null == arguments || 0 == arguments.Length ? ResolvedValue : arguments)
+            : base(name, null == arguments || 0 == arguments.Length ? InjectionMethodAttribute.Instance : arguments)
         {
         }
 

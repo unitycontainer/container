@@ -7,9 +7,22 @@ namespace Unity.Injection
     /// A base class for implementing <see cref="InjectionParameterValue"/> classes
     /// that deal in explicit types.
     /// </summary>
-    public abstract class TypedInjectionValue : InjectionParameterValue
+    public abstract class TypedInjectionValue : InjectionParameterValue,
+                                                IEquatable<Type>
     {
+        #region Fields
+
         private readonly Type _type;
+
+        #endregion
+
+
+        #region Constructors
+
+        public TypedInjectionValue()
+        {
+
+        }
 
         /// <summary>
         /// Create a new <see cref="TypedInjectionValue"/> that exposes
@@ -22,6 +35,9 @@ namespace Unity.Injection
             _type = parameterType;
         }
 
+
+        #endregion
+
         /// <summary>
         /// The type of parameter this object represents.
         /// </summary>
@@ -33,20 +49,16 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => _type.GetTypeInfo().Name;
 
-        /// <summary>
-        /// Test to see if this parameter value has a matching type for the given type.
-        /// </summary>
-        /// <param name="t">Type to check.</param>
-        /// <returns>True if this parameter value is compatible with type <paramref name="t"/>,
-        /// false if not.</returns>
-        public override bool MatchesType(Type t)
+        public bool Equals(Type t)
         {
+            if (null == _type) return true;
+
             var cInfo = (t ?? throw new ArgumentNullException(nameof(t))).GetTypeInfo();
             var info = _type.GetTypeInfo();
 
             if (cInfo.IsGenericType && cInfo.ContainsGenericParameters && info.IsGenericType && info.ContainsGenericParameters)
             {
-                return t.GetGenericTypeDefinition() ==  _type.GetGenericTypeDefinition();
+                return t.GetGenericTypeDefinition() == _type.GetGenericTypeDefinition();
             }
 
             return cInfo.IsAssignableFrom(info);

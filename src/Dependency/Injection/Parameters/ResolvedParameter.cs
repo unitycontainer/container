@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -9,7 +10,7 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
-    public class ResolvedParameter : TypedInjectionValue
+    public class ResolvedParameter : TypedInjectionValue, IResolverFactory<ParameterInfo>
     {
         #region Fields
 
@@ -20,14 +21,29 @@ namespace Unity.Injection
 
         #region Constructors
 
+        public ResolvedParameter()
+        {
+        }
+
         /// <summary>
         /// Construct a new <see cref="ResolvedParameter"/> that
         /// resolves to the given type.
         /// </summary>
         /// <param name="parameterType">Type of this parameter.</param>
         public ResolvedParameter(Type parameterType)
-            : this(parameterType, null)
+            : base(parameterType, null)
         {
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="ResolvedParameter"/> that
+        /// resolves the given type and name.
+        /// </summary>
+        /// <param name="name">Name to use when resolving parameter.</param>
+        public ResolvedParameter(string name)
+            : base(null, null)
+        {
+            _name = name;
         }
 
         /// <summary>
@@ -61,6 +77,30 @@ namespace Unity.Injection
             return (ref TContext c) => c.Resolve(ParameterType, _name);
         }
 
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) 
+            where TContext : IResolveContext
+        {
+            if (null != ParameterType)
+            {
+                var type = parameterInfo.Member.DeclaringType;
+                var info = ParameterType.GetTypeInfo();
+
+                if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                    info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
+                {
+                    var parameterType = ParameterType.GetClosedParameterType(type.GetTypeInfo().GenericTypeArguments);
+                    return (ref TContext c) => c.Resolve(parameterType, _name);
+                }
+
+                return (ref TContext c) => c.Resolve(ParameterType, _name);
+            }
+            else
+            {
+                var type = parameterInfo.ParameterType;
+                return (ref TContext c) => c.Resolve(type, _name);
+            }
+        }
+
         #endregion
     }
 
@@ -75,8 +115,7 @@ namespace Unity.Injection
         /// Create a new <see cref="ResolvedParameter{TParameter}"/> for the given
         /// generic type and the default name.
         /// </summary>
-        public ResolvedParameter()
-            : base(typeof(TParameter))
+        public ResolvedParameter() : base(typeof(TParameter))
         {
         }
 
@@ -85,8 +124,7 @@ namespace Unity.Injection
         /// generic type and name.
         /// </summary>
         /// <param name="name">Name to use to resolve this parameter.</param>
-        public ResolvedParameter(string name)
-            : base(typeof(TParameter), name)
+        public ResolvedParameter(string name) : base(typeof(TParameter), name)
         {
         }
     }

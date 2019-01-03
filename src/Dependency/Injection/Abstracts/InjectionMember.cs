@@ -49,13 +49,6 @@ namespace Unity.Injection
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
-        #region Fields
-
-        protected static TData ResolvedValue;
-
-        #endregion
-
-
         #region Constructors
 
         protected InjectionMember(string name, TData data)
@@ -127,7 +120,7 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
         {
-            if (ReferenceEquals(Data, ResolvedValue))
+            if (ReferenceEquals(Data, InjectionMethodAttribute.Instance))
             {
                 foreach (var member in DeclaredMembers(mappedToType))
                 {
@@ -188,9 +181,8 @@ namespace Unity.Injection
         {
             switch (data)
             {
-                // TODO: 5.9.0 Replace with IEquatable
-                case InjectionParameterValue injectionParameter:
-                    return injectionParameter.MatchesType(match);
+                case IEquatable<Type> equatable:
+                    return equatable.Equals(match);
 
                 case Type type:
                     return MatchesType(type, match);

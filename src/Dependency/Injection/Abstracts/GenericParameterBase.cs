@@ -7,14 +7,21 @@ using Unity.Resolution;
 namespace Unity.Injection
 {
     /// <summary>
-    /// Base class for <see cref="InjectionParameterValue"/> subclasses that let you specify that
-    /// an instance of a generic type parameter should be resolved.
+    /// Base class for generic type parameters.
     /// </summary>
-    public abstract class GenericParameterBase : InjectionParameterValue
+    public abstract class GenericParameterBase : InjectionParameterValue,
+                                                 IEquatable<Type>
     {
+        #region Fields
+
         private readonly string _genericParameterName;
         private readonly bool _isArray;
         private readonly string _resolutionKey;
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Create a new <see cref="GenericParameter"/> instance that specifies
@@ -47,22 +54,13 @@ namespace Unity.Injection
             _resolutionKey = resolutionKey;
         }
 
-        /// <summary>
-        /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
-        /// This may be an actual type name or a generic argument name.
-        /// </summary>
-        public override string ParameterTypeName
-        {
-            get { return _genericParameterName; }
-        }
 
-        /// <summary>
-        /// Test to see if this parameter value has a matching type for the given type.
-        /// </summary>
-        /// <param name="type">Type to check.</param>
-        /// <returns>True if this parameter value is compatible with type <paramref name="type"/>,
-        /// false if not.</returns>
-        public override bool MatchesType(Type type)
+        #endregion
+
+
+        #region  IEquatable
+
+        public bool Equals(Type type)
         {
             var t = type ?? throw new ArgumentNullException(nameof(type));
             if (!_isArray)
@@ -70,6 +68,17 @@ namespace Unity.Injection
                 return t.GetTypeInfo().IsGenericParameter && t.GetTypeInfo().Name == _genericParameterName;
             }
             return t.IsArray && t.GetElementType().GetTypeInfo().IsGenericParameter && t.GetElementType().GetTypeInfo().Name == _genericParameterName;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
+        /// This may be an actual type name or a generic argument name.
+        /// </summary>
+        public override string ParameterTypeName
+        {
+            get { return _genericParameterName; }
         }
 
         public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
@@ -139,6 +148,5 @@ namespace Unity.Injection
             }
             return result;
         }
-
     }
 }
