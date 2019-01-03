@@ -18,9 +18,9 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="parameterValue">InjectionParameterValue to be injected for this parameter.</param>
         public InjectionParameter(object parameterValue)
-            : base((parameterValue ?? throw new ArgumentNullException(nameof(parameterValue))).GetType(), 
-                    parameterValue)
+            : base((parameterValue ?? throw new ArgumentNullException(nameof(parameterValue))).GetType())
         {
+            Value = parameterValue;
         }
 
         /// <summary>
@@ -30,9 +30,13 @@ namespace Unity.Injection
         /// <param name="parameterType">Type of the parameter.</param>
         /// <param name="parameterValue">InjectionParameterValue of the parameter</param>
         public InjectionParameter(Type parameterType, object parameterValue)
-            : base(parameterType, parameterValue)
+            : base(parameterType)
         {
+            Value = parameterValue;
         }
+
+        public object Value { get; }
+
 
         public object Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext

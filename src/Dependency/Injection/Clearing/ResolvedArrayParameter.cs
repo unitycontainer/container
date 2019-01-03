@@ -13,7 +13,7 @@ namespace Unity.Injection
     /// resolver object that resolves all the named instances or the
     /// type registered in a container.
     /// </summary>
-    public class ResolvedArrayParameter : TypedInjectionValue
+    public class ResolvedArrayParameter : TypedInjectionValue, IResolverFactory
     {
         private readonly Type _elementType;
         private readonly object[] _values;
@@ -44,7 +44,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
         protected ResolvedArrayParameter(Type arrayParameterType, Type elementType, params object[] elementValues)
-            : base(arrayParameterType, null)
+            : base(arrayParameterType)
         {
             _elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             _values = elementValues;
@@ -64,7 +64,8 @@ namespace Unity.Injection
             }
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
             var elementType = !_elementType.IsArray ? _elementType
                 : _elementType.GetArrayParameterType(type.GetTypeInfo().GenericTypeArguments);
@@ -102,6 +103,59 @@ namespace Unity.Injection
             }
 
             return result;
+        }
+
+        protected static object ResolveValue<TContext>(ref TContext context, object value)
+            where TContext : IResolveContext
+        {
+            switch (value)
+            {
+                case ResolveDelegate<TContext> resolver:
+                    return resolver(ref context);
+
+                case IResolve policy:
+                    return policy.Resolve(ref context);
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Convert the given set of arbitrary values to a sequence of InjectionParameterValue
+        /// objects. The rules are: If it's already an InjectionParameterValue, return it. If
+        /// it's a Type, return a ResolvedParameter object for that type. Otherwise return
+        /// an InjectionParameter object for that value.
+        /// </summary>
+        /// <param name="values">The values to build the sequence from.</param>
+        /// <returns>The resulting converted sequence.</returns>
+        public static IEnumerable<InjectionParameterValue> ToParameters(params object[] values)
+        {
+            foreach (object value in values)
+            {
+                yield return ToParameter(value);
+            }
+        }
+
+        /// <summary>
+        /// Convert an arbitrary value to an InjectionParameterValue object. The rules are: 
+        /// If it's already an InjectionParameterValue, return it. If it's a Type, return a
+        /// ResolvedParameter object for that type. Otherwise return an InjectionParameter
+        /// object for that value.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>The resulting <see cref="InjectionParameterValue"/>.</returns>
+        public static InjectionParameterValue ToParameter(object value)
+        {
+            switch (value)
+            {
+                case InjectionParameterValue parameterValue:
+                    return parameterValue;
+
+                case Type typeValue:
+                    return new ResolvedParameter(typeValue);
+            }
+
+            return new InjectionParameter(value);
         }
     }
 

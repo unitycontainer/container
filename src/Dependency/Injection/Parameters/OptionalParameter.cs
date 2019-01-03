@@ -10,7 +10,9 @@ namespace Unity.Injection
     /// <see cref="IUnityContainer.RegisterType"/> to configure a
     /// parameter or property as an optional dependency.
     /// </summary>
-    public class OptionalParameter : TypedInjectionValue, IResolverFactory<ParameterInfo>
+    public class OptionalParameter : TypedInjectionValue, 
+                                     IResolverFactory<ParameterInfo>, 
+                                     IResolverFactory
     {
         private readonly string _name;
 
@@ -25,7 +27,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="type">Type of the dependency.</param>
         public OptionalParameter(Type type)
-            : base(type, null)
+            : base(type)
         {
         }
 
@@ -35,7 +37,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="name">Name for the dependency.</param>
         public OptionalParameter(string name)
-            : base(null, null)
+            : base(null)
         {
             _name = name;
         }
@@ -47,12 +49,13 @@ namespace Unity.Injection
         /// <param name="type">Type of the dependency.</param>
         /// <param name="name">Name for the dependency.</param>
         public OptionalParameter(Type type, string name)
-            : base(type, null)
+            : base(type)
         {
             _name = name;
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
             var info = ParameterType.GetTypeInfo();
             var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)

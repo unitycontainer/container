@@ -29,8 +29,7 @@ namespace Unity.Injection
         /// information about the given <paramref name="parameterType"/>.
         /// </summary>
         /// <param name="parameterType">Type of the parameter.</param>
-        protected TypedInjectionValue(Type parameterType, object value)
-            : base(value)
+        protected TypedInjectionValue(Type parameterType)
         {
             _type = parameterType;
         }

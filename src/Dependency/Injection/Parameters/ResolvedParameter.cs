@@ -10,7 +10,9 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
-    public class ResolvedParameter : TypedInjectionValue, IResolverFactory<ParameterInfo>
+    public class ResolvedParameter : TypedInjectionValue, 
+                                     IResolverFactory<ParameterInfo>,
+                                     IResolverFactory
     {
         #region Fields
 
@@ -31,7 +33,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="parameterType">Type of this parameter.</param>
         public ResolvedParameter(Type parameterType)
-            : base(parameterType, null)
+            : base(parameterType)
         {
         }
 
@@ -41,7 +43,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="name">Name to use when resolving parameter.</param>
         public ResolvedParameter(string name)
-            : base(null, null)
+            : base(null)
         {
             _name = name;
         }
@@ -53,7 +55,7 @@ namespace Unity.Injection
         /// <param name="parameterType">Type of this parameter.</param>
         /// <param name="name">Name to use when resolving parameter.</param>
         public ResolvedParameter(Type parameterType, string name)
-            : base(parameterType, null)
+            : base(parameterType)
         {
             _name = name;
         }
@@ -63,7 +65,8 @@ namespace Unity.Injection
 
         #region TypedInjectionValue
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
             var info = ParameterType.GetTypeInfo();
 

@@ -13,6 +13,7 @@ namespace Unity.Injection
     /// should be resolved.
     /// </summary>
     public class GenericResolvedArrayParameter : InjectionParameterValue,
+                                                 IResolverFactory,
                                                  IEquatable<Type>
     {
         private readonly object[] _values;
@@ -93,7 +94,8 @@ namespace Unity.Injection
                     _genericParameterName));
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
             GuardTypeToBuildIsGeneric(type);
             GuardTypeToBuildHasMatchingGenericParameter(type);
@@ -131,6 +133,22 @@ namespace Unity.Injection
             }
 
             return result;
+        }
+
+
+        protected static object ResolveValue<TContext>(ref TContext context, object value)
+            where TContext : IResolveContext
+        {
+            switch (value)
+            {
+                case ResolveDelegate<TContext> resolver:
+                    return resolver(ref context);
+
+                case IResolve policy:
+                    return policy.Resolve(ref context);
+            }
+
+            return value;
         }
     }
 }

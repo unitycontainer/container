@@ -10,7 +10,8 @@ namespace Unity.Injection
     /// Base class for generic type parameters.
     /// </summary>
     public abstract class GenericParameterBase : InjectionParameterValue,
-                                                 IEquatable<Type>
+                                                 IEquatable<Type>,
+                                                 IResolverFactory
     {
         #region Fields
 
@@ -81,7 +82,8 @@ namespace Unity.Injection
             get { return _genericParameterName; }
         }
 
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
         {
             GuardTypeToBuildIsGeneric(type);
             GuardTypeToBuildHasMatchingGenericParameter(type);
