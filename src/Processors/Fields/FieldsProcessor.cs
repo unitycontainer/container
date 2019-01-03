@@ -82,7 +82,7 @@ namespace Unity.Processors
             return (ref BuilderContext context) =>
             {
                 ((FieldInfo)info).SetValue(context.Existing,
-                    context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
+                    context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance));
 
                 return context.Existing;
             };
@@ -95,7 +95,7 @@ namespace Unity.Processors
                 try
                 {
                     ((FieldInfo)info).SetValue(context.Existing,
-                        context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
+                        context.Resolve((FieldInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? OptionalDependencyAttribute.Instance));
                     return context.Existing;
                 }
                 catch

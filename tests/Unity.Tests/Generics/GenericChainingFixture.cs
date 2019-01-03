@@ -28,37 +28,6 @@ namespace Unity.Tests.v5.Generics
         }
 
         [TestMethod]
-        public void CanChainGenericTypes()
-        {
-            IUnityContainer container = new UnityContainer();
-            container.RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")));
-            container.RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
-
-            var md = container.Resolve<ICommand<User>>("concrete");
-
-
-            ICommand<User> cmd = container.Resolve<ICommand<User>>();
-            LoggingCommand<User> logCmd = (LoggingCommand<User>)cmd;
-
-            Assert.IsNotNull(logCmd.Inner);
-            AssertExtensions.IsInstanceOfType(logCmd.Inner, typeof(ConcreteCommand<User>));
-        }
-
-        [TestMethod]
-        public void CanChainGenericTypesViaRegisterTypeMethod()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")))
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
-
-            ICommand<User> cmd = container.Resolve<ICommand<User>>();
-            LoggingCommand<User> logCmd = (LoggingCommand<User>)cmd;
-
-            Assert.IsNotNull(logCmd.Inner);
-            AssertExtensions.IsInstanceOfType(logCmd.Inner, typeof(ConcreteCommand<User>));
-        }
-
-        [TestMethod]
         public void CanConfigureGenericMethodInjectionInContainer()
         {
             IUnityContainer container = new UnityContainer()
@@ -67,21 +36,6 @@ namespace Unity.Tests.v5.Generics
                     new InjectionMethod("ChainedExecute", new ResolvedParameter(typeof(ICommand<>), "inner")))
                 .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete")
                 .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "inner");
-        }
-
-        [TestMethod]
-        public void ConfiguredGenericMethodInjectionIsCalled()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>), new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")),
-                                                                            new InjectionMethod("ChainedExecute", new ResolvedParameter(typeof(ICommand<>), "inner")))
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete")
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "inner");
-
-            ICommand<Account> result = container.Resolve<ICommand<Account>>();
-            LoggingCommand<Account> lc = (LoggingCommand<Account>)result;
-
-            Assert.IsTrue(lc.ChainedExecuteWasCalled);
         }
 
         [TestMethod]
@@ -125,24 +79,6 @@ namespace Unity.Tests.v5.Generics
         }
 
         [TestMethod]
-        public void GenericPropertyIsActuallyInjected()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>),
-                    new InjectionConstructor(),
-                    new InjectionProperty("Inner",
-                        new ResolvedParameter(typeof(ICommand<>), "inner")))
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "inner");
-
-            ICommand<Account> result = container.Resolve<ICommand<Account>>();
-
-            LoggingCommand<Account> actualResult = (LoggingCommand<Account>)result;
-
-            Assert.IsNotNull(actualResult.Inner);
-            AssertExtensions.IsInstanceOfType(actualResult.Inner, typeof(ConcreteCommand<Account>));
-        }
-
-        [TestMethod]
         public void CanInjectNonGenericPropertyOnGenericClass()
         {
             IUnityContainer container = new UnityContainer()
@@ -151,21 +87,6 @@ namespace Unity.Tests.v5.Generics
 
             ConcreteCommand<User> result = (ConcreteCommand<User>)(container.Resolve<ICommand<User>>());
             Assert.IsNotNull(result.NonGenericProperty);
-        }
-
-        [TestMethod]
-        public void CanInjectNestedGenerics()
-        {
-            IUnityContainer container = new UnityContainer()
-                .RegisterType(typeof(ICommand<>), typeof(LoggingCommand<>),
-                new InjectionConstructor(new ResolvedParameter(typeof(ICommand<>), "concrete")))
-                .RegisterType(typeof(ICommand<>), typeof(ConcreteCommand<>), "concrete");
-
-            var cmd = container.Resolve<ICommand<Customer?>>();
-            var logCmd = (LoggingCommand<Customer?>)cmd;
-
-            Assert.IsNotNull(logCmd.Inner);
-            AssertExtensions.IsInstanceOfType(logCmd.Inner, typeof(ConcreteCommand<Customer?>));
         }
 
         [TestMethod]

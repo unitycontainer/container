@@ -166,7 +166,7 @@ namespace Unity.Utility
 
             if (toMatch.Length != candidateTypes.Length) return false;
 
-            return !toMatch.Where((t, i) => !t.MatchesType(candidateTypes[i])).Any();
+            return !toMatch.Where((t, i) => t is IEquatable<Type> equatable && !equatable.Equals(candidateTypes[i])).Any();
         }
     }
 }

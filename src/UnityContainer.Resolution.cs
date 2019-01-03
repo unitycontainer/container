@@ -282,12 +282,12 @@ namespace Unity
         #region Exceptions
 
         public static string CreateMessage(Type typeRequested, string nameRequested, Exception innerException,
-                                            ref BuilderContext context, string format = Constants.ResolutionFailed)
+                                            ref BuilderContext context, string format = Error.ResolutionFailed)
         {
             var builder = new StringBuilder();
 
             builder.AppendLine($"Resolution of the dependency failed for type = '{typeRequested}', name = '{FormatName(nameRequested)}'.");
-            builder.AppendLine($"Exception occurred while: {Constants.NoOperationExceptionReason}.");
+            builder.AppendLine($"Exception occurred while: {Error.NoOperationExceptionReason}.");
             builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
             builder.AppendLine("-----------------------------------------------");
             builder.AppendLine("At the time of the exception, the container was: ");

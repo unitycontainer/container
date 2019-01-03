@@ -1,7 +1,7 @@
 ﻿
 namespace Unity
 {
-    internal static class Constants
+    internal static class Error
     {
         public const string MissingDependency = "Could not resolve dependency for build key {0}.";
         public const string NoOperationExceptionReason = "while resolving";

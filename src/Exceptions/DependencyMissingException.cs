@@ -41,7 +41,7 @@ namespace Unity.Exceptions
         /// <param name="buildKey">The build key of the object begin built.</param>
         public DependencyMissingException(object buildKey)
             : base(string.Format(CultureInfo.CurrentCulture,
-                Constants.MissingDependency,
+                Error.MissingDependency,
                 buildKey))
         {
         }

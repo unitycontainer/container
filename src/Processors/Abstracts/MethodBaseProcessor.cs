@@ -138,12 +138,12 @@ namespace Unity.Processors
             return (ref BuilderContext context) => 
             {
                 if (null == defaultValue)
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance);
                 else
                 {
                     try
                     {
-                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
+                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance);
                     }
                     catch
                     {
@@ -159,7 +159,7 @@ namespace Unity.Processors
             {
                 try
                 {
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
+                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? OptionalDependencyAttribute.Instance);
                 }
                 catch
                 {
@@ -238,7 +238,7 @@ namespace Unity.Processors
             if (null == member)
             {
                 // Plain vanilla case
-                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info);
+                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance);
             }
             else
             {
@@ -250,7 +250,7 @@ namespace Unity.Processors
                         Expression.TryCatch(
                             Expression.Assign(
                                 variable,
-                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info)),
+                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance)),
                         Expression.Catch(typeof(Exception),
                             Expression.Assign(variable, member))),
                         variable
@@ -269,7 +269,7 @@ namespace Unity.Processors
                 Expression.TryCatch(
                     Expression.Assign(
                         variable,
-                        ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info)),
+                        ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? OptionalDependencyAttribute.Instance)),
                 Expression.Catch(typeof(Exception),
                     Expression.Assign(variable, member ?? Expression.Constant(null, parameter.ParameterType)))),
                 variable

@@ -121,7 +121,7 @@ namespace Unity.Processors
                             Expression.New(InvalidOperationExceptionCtor,
                             Expression.Call(
                                 StringFormat,
-                                Expression.Constant(Constants.SelectedConstructorHasRefItself),
+                                Expression.Constant(Error.SelectedConstructorHasRefItself),
                                 Expression.Constant(info, typeof(ConstructorInfo)),
                                 BuilderContextExpression.Type),
                             InvalidRegistrationExpression)))
@@ -147,7 +147,7 @@ namespace Unity.Processors
             if (parameters.Any(pi => pi.ParameterType.IsByRef))
             {
                 return Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Constants.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
+                        Expression.Constant(CreateErrorMessage(Error.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
                         InvalidRegistrationExpression));
             }
 
@@ -222,7 +222,7 @@ namespace Unity.Processors
                     return (ref BuilderContext c) =>
                     {
                         if (null == c.Existing)
-                            throw new InvalidOperationException(string.Format(Constants.SelectedConstructorHasRefItself, info, c.Type),
+                            throw new InvalidOperationException(string.Format(Error.SelectedConstructorHasRefItself, info, c.Type),
                                 new InvalidRegistrationException());
 
                         return c.Existing;

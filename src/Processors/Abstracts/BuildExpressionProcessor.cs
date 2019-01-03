@@ -120,14 +120,14 @@ namespace Unity.Processors
         protected virtual Expression DependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, object resolver)
         {
             TMemberInfo info = (TMemberInfo)memberInfo;
-            return Expression.Assign(member, GetExpression(info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? info));
+            return Expression.Assign(member, GetExpression(info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance));
         }
 
         protected virtual Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object memberInfo, Type type, object resolver)
         {
             TMemberInfo info = (TMemberInfo)memberInfo;
             return Expression.TryCatch(
-                        Expression.Assign(member, GetExpression(info, ((OptionalDependencyAttribute)attribute).Name, resolver ?? info)),
+                        Expression.Assign(member, GetExpression(info, ((OptionalDependencyAttribute)attribute).Name, resolver ?? OptionalDependencyAttribute.Instance)),
                     Expression.Catch(typeof(Exception),
                         Expression.Assign(member, Expression.Constant(null, type))));
         }

@@ -39,7 +39,7 @@ namespace Unity
 #endif
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Constants.TypesAreNotAssignable, typeFrom, typeTo), nameof(typeFrom));
+                    Error.TypesAreNotAssignable, typeFrom, typeTo), nameof(typeFrom));
             }
 
             // Create registration and add to appropriate storage

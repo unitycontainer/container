@@ -169,8 +169,12 @@ namespace Unity.Builder
                 case IResolve policy:
                     return policy.Resolve(ref context);
 
-                case IResolverFactory factory:
-                    var method = factory.GetResolver<BuilderContext>(Type);
+                case IResolverFactory<ParameterInfo> factory:
+                    var resolveMethod = factory.GetResolver<BuilderContext>(parameter);
+                    return resolveMethod?.Invoke(ref context);
+
+                case IResolverFactory typeFactory:
+                    var method = typeFactory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
 
                 case Type type:
@@ -215,8 +219,12 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case FieldInfo info when ReferenceEquals(info, field):
+                case DependencyAttribute dependencyAttribute when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
                     return Resolve(field.FieldType, name);
+
+                case OptionalDependencyAttribute optionalAttribute when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
+                    try   { return Resolve(field.FieldType, name); }
+                    catch { return null; }
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
@@ -266,8 +274,12 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case PropertyInfo info when ReferenceEquals(info, property):
+                case DependencyAttribute dependencyAttribute when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
                     return Resolve(property.PropertyType, name);
+
+                case OptionalDependencyAttribute optionalAttribute when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
+                    try { return Resolve(property.PropertyType, name); }
+                    catch { return null; }
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);

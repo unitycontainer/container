@@ -253,7 +253,7 @@ namespace Unity
                 throw new ArgumentException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Constants.TypesAreNotAssignable,
+                        Error.TypesAreNotAssignable,
                         assignmentTargetType, GetTypeName(assignmentInstance)),
                     argumentName);
             }
@@ -268,7 +268,7 @@ namespace Unity
             }
             catch (Exception)
             {
-                assignmentInstanceType = Constants.UnknownType;
+                assignmentInstanceType = Error.UnknownType;
             }
 
             return assignmentInstanceType;
