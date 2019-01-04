@@ -96,7 +96,7 @@ namespace Unity.Processors
                     info = memberInfo;
                     break;
 
-                case MethodBaseMember<ConstructorInfo> injectionMember:
+                case MethodBase<ConstructorInfo> injectionMember:
                     (info, resolvers) = injectionMember.FromType(type);
                     break;
 
@@ -196,7 +196,7 @@ namespace Unity.Processors
                     info = memberInfo;
                     break;
 
-                case MethodBaseMember<ConstructorInfo> injectionMember:
+                case MethodBase<ConstructorInfo> injectionMember:
                     (info, resolvers) = injectionMember.FromType(type);
                     break;
 

@@ -71,7 +71,7 @@ namespace Unity.Processors
                     parametersExpr = CreateParameterExpressions(info.GetParameters());
                     break;
 
-                case MethodBaseMember<ConstructorInfo> injectionMember:
+                case MethodBase<ConstructorInfo> injectionMember:
                     object[] resolvers;
                     (info, resolvers) = injectionMember.FromType(type);
                     parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);

@@ -160,26 +160,12 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case ParameterInfo info when ReferenceEquals(info, parameter):
+                case ParameterInfo info 
+                when ReferenceEquals(info, parameter):
                     return Resolve(parameter.ParameterType, name);
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
-
-                case IResolve policy:
-                    return policy.Resolve(ref context);
-
-                case IResolverFactory<ParameterInfo> factory:
-                    var resolveMethod = factory.GetResolver<BuilderContext>(parameter);
-                    return resolveMethod?.Invoke(ref context);
-
-                case IResolverFactory typeFactory:
-                    var method = typeFactory.GetResolver<BuilderContext>(Type);
-                    return method?.Invoke(ref context);
-
-                case Type type:
-                    return typeof(Type) == parameter.ParameterType 
-                        ? type : Resolve(parameter.ParameterType, name);
             }
 
             return value;
@@ -219,6 +205,10 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
+                case FieldInfo info
+                when ReferenceEquals(info, field):
+                    return Resolve(field.FieldType, name);
+
                 case DependencyAttribute dependencyAttribute when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
                     return Resolve(field.FieldType, name);
 
@@ -228,9 +218,6 @@ namespace Unity.Builder
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
-
-                case IResolve policy:
-                    return policy.Resolve(ref context);
 
                 case IResolverFactory factory:
                     var method = factory.GetResolver<BuilderContext>(Type);
@@ -274,6 +261,10 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
+                case PropertyInfo info
+                when ReferenceEquals(info, property):
+                    return Resolve(property.PropertyType, name);
+
                 case DependencyAttribute dependencyAttribute when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
                     return Resolve(property.PropertyType, name);
 
@@ -283,9 +274,6 @@ namespace Unity.Builder
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
-
-                case IResolve policy:
-                    return policy.Resolve(ref context);
 
                 case IResolverFactory factory:
                     var method = factory.GetResolver<BuilderContext>(Type);

@@ -79,7 +79,7 @@ namespace Unity.Processors
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
-                var resolver = null == resolvers ? parameter : resolvers[i];
+                var resolver = null == resolvers ? parameter : PreProcessResolver(parameter, resolvers[i]);
 
                 // Check if has default value
                 var defaultValue = parameter.HasDefaultValue
@@ -91,7 +91,7 @@ namespace Unity.Processors
                 if (null == expression)
                 {
                     // Check if has default value
-                    if (null == defaultValue)
+                    if (!parameter.HasDefaultValue)
                     {
                         // Plain vanilla case
                         expression = (ref BuilderContext context) => context.Resolve(parameter, null, resolver);
@@ -106,9 +106,7 @@ namespace Unity.Processors
                             }
                             catch
                             {
-                                return parameter.HasDefaultValue
-                                ? parameter.DefaultValue
-                                : null;
+                                return defaultValue;
                             }
                         };
                     }
@@ -135,26 +133,30 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
-            return (ref BuilderContext context) => 
+            var parameter = (ParameterInfo)info;
+
+            if (!parameter.HasDefaultValue)
+                return (ref BuilderContext context) => context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
+            else
             {
-                if (null == defaultValue)
-                    return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance);
-                else
+                return (ref BuilderContext context) =>
                 {
                     try
                     {
-                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance);
+                        return context.Resolve((ParameterInfo)info, ((DependencyResolutionAttribute)attribute).Name, resolver);
                     }
                     catch
                     {
                         return defaultValue;
                     }
-                }
-            };
+                };
+            }
         }
 
         protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
+            var parameter = (ParameterInfo)info;
+
             return (ref BuilderContext context) =>
             {
                 try
@@ -179,7 +181,7 @@ namespace Unity.Processors
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
-                var resolver = null == resolvers ? parameter : resolvers[i];
+                var resolver = null == resolvers ? parameter : PreProcessResolver(parameter, resolvers[i]);
 
                 // Check if has default value
                 var defaultValueExpr = parameter.HasDefaultValue
@@ -191,7 +193,7 @@ namespace Unity.Processors
                 if (null == expression)
                 {
                     // Check if has default value
-                    if (null == defaultValueExpr)
+                    if (!parameter.HasDefaultValue)
                     {
                         // Plain vanilla case
                         expression = ResolveExpression(parameter, null, resolver);
@@ -238,7 +240,7 @@ namespace Unity.Processors
             if (null == member)
             {
                 // Plain vanilla case
-                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance);
+                return ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver);
             }
             else
             {
@@ -250,7 +252,7 @@ namespace Unity.Processors
                         Expression.TryCatch(
                             Expression.Assign(
                                 variable,
-                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? DependencyAttribute.Instance)),
+                                ResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver)),
                         Expression.Catch(typeof(Exception),
                             Expression.Assign(variable, member))),
                         variable
@@ -290,6 +292,29 @@ namespace Unity.Processors
                     Expression.Constant(name, typeof(string)),
                     Expression.Constant(resolver, typeof(object))),
                 parameter.ParameterType);
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        private object PreProcessResolver(ParameterInfo parameter, object resolver)
+        {
+            switch (resolver)
+            {
+                case IResolve policy:
+                    return (ResolveDelegate<BuilderContext>)policy.Resolve;
+
+                case IResolverFactory<ParameterInfo> factory:
+                    return factory.GetResolver<BuilderContext>(parameter);
+
+                case Type type:
+                    return typeof(Type) == parameter.ParameterType
+                        ? type : (object)parameter;
+            }
+
+            return resolver;
         }
 
         #endregion

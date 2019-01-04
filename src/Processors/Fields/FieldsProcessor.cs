@@ -52,9 +52,10 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> GetResolver(FieldInfo info, object resolver)
         {
+            var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>
             {
-                info.SetValue(context.Existing, context.Resolve(info, context.Name, resolver));
+                info.SetValue(context.Existing, context.Resolve(info, context.Name, value));
                 return context.Existing;
             };
         }
@@ -65,7 +66,7 @@ namespace Unity.Processors
                 Expression.Call(BuilderContextExpression.Context, ResolveField,
                     Expression.Constant(field, typeof(FieldInfo)),
                     Expression.Constant(name, typeof(string)),
-                    Expression.Constant(resolver, typeof(object))),
+                    Expression.Constant(PreProcessResolver(field, resolver), typeof(object))),
                 field.FieldType);
         }
 
@@ -126,6 +127,24 @@ namespace Unity.Processors
             return type.GetTypeInfo()
                 .DeclaredFields
                 .Concat(GetFieldsHierarchical(type.GetTypeInfo().BaseType));
+        }
+
+        private object PreProcessResolver(FieldInfo field, object resolver)
+        {
+            switch (resolver)
+            {
+                case IResolve policy:
+                    return (ResolveDelegate<BuilderContext>)policy.Resolve;
+
+                case IResolverFactory factory:
+                    return factory.GetResolver<BuilderContext>(field.FieldType);
+
+                case Type type:
+                    return typeof(Type) == field.FieldType
+                        ? type : (object)field;
+            }
+
+            return resolver;
         }
 
         #endregion

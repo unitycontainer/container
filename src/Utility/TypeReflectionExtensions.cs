@@ -159,7 +159,7 @@ namespace Unity.Utility
         /// <param name="parametersToMatch"></param>
         /// <param name="candidate">parameter list to look for.</param>
         /// <returns>true if they match, false if they don't.</returns>
-        public static bool Matches(this IEnumerable<InjectionParameterValue> parametersToMatch, IEnumerable<Type> candidate)
+        public static bool Matches(this IEnumerable<ParameterValue> parametersToMatch, IEnumerable<Type> candidate)
         {
             var toMatch = parametersToMatch.ToArray();
             var candidateTypes = candidate.ToArray();
