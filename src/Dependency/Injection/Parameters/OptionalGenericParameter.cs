@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Injection
 {
     /// <summary>
-    /// A <see cref="InjectionParameterValue"/> that lets you specify that
+    /// A <see cref="ParameterValue"/> that lets you specify that
     /// an instance of a generic type parameter should be resolved, providing the <see langword="null"/>
     /// value if resolving fails.
     /// </summary>
-    public class OptionalGenericParameter : GenericParameterBase
+    public class OptionalGenericParameter : GenericBase
     {
         /// <summary>
         /// Create a new <see cref="GenericParameter"/> instance that specifies

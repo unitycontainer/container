@@ -9,7 +9,7 @@ namespace Unity.Injection
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : MemberInfoMember<PropertyInfo>
+    public class InjectionProperty : MemberInfoBase<PropertyInfo>
     {
         #region Constructors
 

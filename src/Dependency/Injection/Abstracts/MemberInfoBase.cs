@@ -3,12 +3,12 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public abstract class MemberInfoMember<TMemberInfo> : InjectionMember<TMemberInfo, object>
-                                      where TMemberInfo : MemberInfo
+    public abstract class MemberInfoBase<TMemberInfo> : InjectionMember<TMemberInfo, object>
+                                    where TMemberInfo : MemberInfo
     {
         #region Constructors
 
-        protected MemberInfoMember(string name, object data) 
+        protected MemberInfoBase(string name, object data) 
             : base(name, data)
         {
         }

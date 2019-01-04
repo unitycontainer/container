@@ -4,17 +4,17 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public abstract class MethodBaseMember<TMemberInfo> : InjectionMember<TMemberInfo, object[]>
-                                      where TMemberInfo : MethodBase
+    public abstract class MethodBase<TMemberInfo> : InjectionMember<TMemberInfo, object[]>
+                                where TMemberInfo : MethodBase
     {
         #region Constructors
 
-        protected MethodBaseMember(string name, object[] arguments)
+        protected MethodBase(string name, object[] arguments)
             : base(name, arguments)
         {
         }
 
-        protected MethodBaseMember(TMemberInfo info, params object[] arguments)
+        protected MethodBase(TMemberInfo info, params object[] arguments)
             : base(info, MatchParameters(info, arguments) ?? 
                          throw new ArgumentException("Provided arguments do not match signature"))
         {

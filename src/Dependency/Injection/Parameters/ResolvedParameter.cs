@@ -10,9 +10,8 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
-    public class ResolvedParameter : TypedInjectionValue, 
-                                     IResolverFactory<ParameterInfo>,
-                                     IResolverFactory
+    public class ResolvedParameter : ParameterBase, IResolverFactory,
+                                     IResolverFactory<ParameterInfo>
     {
         #region Fields
 

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public class InjectionField : MemberInfoMember<FieldInfo>
+    public class InjectionField : MemberInfoBase<FieldInfo>
     {
         #region Constructors
 

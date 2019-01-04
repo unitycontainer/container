@@ -13,11 +13,11 @@ namespace Unity.Injection
     /// resolver object that resolves all the named instances or the
     /// type registered in a container.
     /// </summary>
-    public class ResolvedArrayParameter : TypedInjectionValue, IResolverFactory
+    public class ResolvedArrayParameter : ParameterBase, IResolverFactory, IResolverFactory<ParameterInfo>
     {
         private readonly Type _elementType;
         private readonly object[] _values;
-        private readonly List<InjectionParameterValue> _elementValues = new List<InjectionParameterValue>();
+        private readonly List<ParameterValue> _elementValues = new List<ParameterValue>();
         private static readonly MethodInfo ResolverMethod =
             typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
         private delegate object Resolver<TContext>(ref TContext context, object[] values)
@@ -29,7 +29,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="elementType">The type of elements to resolve.</param>
         /// <param name="elementValues">The values for the elements, that will
-        /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
+        /// be converted to <see cref="ParameterValue"/> objects.</param>
         public ResolvedArrayParameter(Type elementType, params object[] elementValues)
             : this(elementType.MakeArrayType(), elementType, elementValues)
         {
@@ -42,7 +42,7 @@ namespace Unity.Injection
         /// <param name="arrayParameterType">The type for the array of elements to resolve.</param>
         /// <param name="elementType">The type of elements to resolve.</param>
         /// <param name="elementValues">The values for the elements, that will
-        /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
+        /// be converted to <see cref="ParameterValue"/> objects.</param>
         protected ResolvedArrayParameter(Type arrayParameterType, Type elementType, params object[] elementValues)
             : base(arrayParameterType)
         {
@@ -50,7 +50,7 @@ namespace Unity.Injection
             _values = elementValues;
 
             _elementValues.AddRange(ToParameters(elementValues ?? throw new ArgumentNullException(nameof(elementValues))));
-            foreach (InjectionParameterValue pv in _elementValues)
+            foreach (ParameterValue pv in _elementValues)
             {
                 if (pv is IEquatable<Type> equatable && !equatable.Equals(elementType))
                 {
@@ -59,9 +59,34 @@ namespace Unity.Injection
                             CultureInfo.CurrentCulture,
                             Constants.TypesAreNotAssignable,
                             elementType,
-                            pv.ParameterTypeName));
+                            "pv.ParameterTypeName")); // TODO: Re-implement properly
                 }
             }
+        }
+
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
+            where TContext : IResolveContext
+        {
+            var elementType = info.ParameterType.GetElementType();
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
+                                                                   .CreateDelegate(typeof(Resolver<TContext>));
+            var values = _values.Select(value =>
+            {
+                switch (value)
+                {
+                    case IResolverFactory factory:
+                        return factory.GetResolver<TContext>(elementType);
+
+                    case Type _ when typeof(Type) != elementType:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+
+                    default:
+                        return value;
+                }
+
+            }).ToArray();
+
+            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
         }
 
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
@@ -128,7 +153,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="values">The values to build the sequence from.</param>
         /// <returns>The resulting converted sequence.</returns>
-        public static IEnumerable<InjectionParameterValue> ToParameters(params object[] values)
+        public static IEnumerable<ParameterValue> ToParameters(params object[] values)
         {
             foreach (object value in values)
             {
@@ -143,12 +168,12 @@ namespace Unity.Injection
         /// object for that value.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns>The resulting <see cref="InjectionParameterValue"/>.</returns>
-        public static InjectionParameterValue ToParameter(object value)
+        /// <returns>The resulting <see cref="ParameterValue"/>.</returns>
+        public static ParameterValue ToParameter(object value)
         {
             switch (value)
             {
-                case InjectionParameterValue parameterValue:
+                case ParameterValue parameterValue:
                     return parameterValue;
 
                 case Type typeValue:
@@ -171,7 +196,7 @@ namespace Unity.Injection
         /// resolves to the given element generic type with the given element values.
         /// </summary>
         /// <param name="elementValues">The values for the elements, that will
-        /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
+        /// be converted to <see cref="ParameterValue"/> objects.</param>
         public ResolvedArrayParameter(params object[] elementValues)
             : base(typeof(TElement[]), typeof(TElement), elementValues)
         {

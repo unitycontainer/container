@@ -6,13 +6,13 @@ using Unity.Resolution;
 namespace Unity.Injection
 {
     /// <summary>
-    /// A <see cref="InjectionParameterValue"/> that can be passed to
+    /// A <see cref="ParameterValue"/> that can be passed to
     /// <see cref="IUnityContainer.RegisterType"/> to configure a
     /// parameter or property as an optional dependency.
     /// </summary>
-    public class OptionalParameter : TypedInjectionValue, 
-                                     IResolverFactory<ParameterInfo>, 
-                                     IResolverFactory
+    public class OptionalParameter : ParameterBase, 
+                                     IResolverFactory, 
+                                     IResolverFactory<ParameterInfo>
     {
         private readonly string _name;
 
@@ -75,7 +75,8 @@ namespace Unity.Injection
             };
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) where TContext : IResolveContext
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) 
+            where TContext : IResolveContext
         {
             if (null != ParameterType)
             {

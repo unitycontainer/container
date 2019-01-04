@@ -9,9 +9,10 @@ namespace Unity.Injection
     /// <summary>
     /// Base class for generic type parameters.
     /// </summary>
-    public abstract class GenericParameterBase : InjectionParameterValue,
-                                                 IEquatable<Type>,
-                                                 IResolverFactory
+    public abstract class GenericBase : ParameterValue,
+                                        IEquatable<Type>,
+                                        IResolverFactory,
+                                        IResolverFactory<ParameterInfo>
     {
         #region Fields
 
@@ -29,7 +30,7 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        protected GenericParameterBase(string genericParameterName)
+        protected GenericBase(string genericParameterName)
             : this(genericParameterName, null)
         { }
 
@@ -39,7 +40,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         /// <param name="resolutionKey">name to use when looking up in the container.</param>
-        protected GenericParameterBase(string genericParameterName, string resolutionKey)
+        protected GenericBase(string genericParameterName, string resolutionKey)
         {
             if ((genericParameterName ?? throw new ArgumentNullException(nameof(genericParameterName))).EndsWith("[]", StringComparison.Ordinal) ||
                 genericParameterName.EndsWith("()", StringComparison.Ordinal))
@@ -61,7 +62,7 @@ namespace Unity.Injection
 
         #region  IEquatable
 
-        public bool Equals(Type type)
+        public override bool Equals(Type type)
         {
             var t = type ?? throw new ArgumentNullException(nameof(type));
             if (!_isArray)
@@ -74,30 +75,43 @@ namespace Unity.Injection
         #endregion
 
         /// <summary>
-        /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
+        /// Name for the type represented by this <see cref="ParameterValue"/>.
         /// This may be an actual type name or a generic argument name.
         /// </summary>
-        public override string ParameterTypeName
+        public virtual string ParameterTypeName
         {
             get { return _genericParameterName; }
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
             where TContext : IResolveContext
         {
-            GuardTypeToBuildIsGeneric(type);
-            GuardTypeToBuildHasMatchingGenericParameter(type);
-            Type typeToResolve = GetNamedGenericParameter(type, _genericParameterName);
-            if (_isArray)
-            {
-                typeToResolve = typeToResolve.MakeArrayType();
-            }
-
-            return GetResolver<TContext>(typeToResolve, _resolutionKey);
+            var type = info.ParameterType;
+            return GetResolver<TContext>(type, _resolutionKey);
         }
 
-        protected abstract ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey) 
-            where TContext : IResolveContext;
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
+        {
+            if (type.GetTypeInfo().IsGenericType)
+            {
+                GuardTypeToBuildHasMatchingGenericParameter(type);
+                Type typeToResolve = GetNamedGenericParameter(type, _genericParameterName);
+                if (_isArray)
+                {
+                    typeToResolve = typeToResolve.MakeArrayType();
+                }
+                return GetResolver<TContext>(typeToResolve, _resolutionKey);
+            }
+            else
+                return GetResolver<TContext>(type, _resolutionKey);
+        }
+
+        protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
+            where TContext : IResolveContext
+        {
+            return (ref TContext context) => context.Resolve(type, resolutionKey);
+        }
 
         private void GuardTypeToBuildIsGeneric(Type typeToBuild)
         {

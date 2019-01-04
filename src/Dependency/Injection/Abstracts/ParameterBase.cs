@@ -4,11 +4,10 @@ using System.Reflection;
 namespace Unity.Injection
 {
     /// <summary>
-    /// A base class for implementing <see cref="InjectionParameterValue"/> classes
+    /// A base class for implementing <see cref="ParameterValue"/> classes
     /// that deal in explicit types.
     /// </summary>
-    public abstract class TypedInjectionValue : InjectionParameterValue,
-                                                IEquatable<Type>
+    public abstract class ParameterBase : ParameterValue
     {
         #region Fields
 
@@ -19,17 +18,17 @@ namespace Unity.Injection
 
         #region Constructors
 
-        public TypedInjectionValue()
+        public ParameterBase()
         {
 
         }
 
         /// <summary>
-        /// Create a new <see cref="TypedInjectionValue"/> that exposes
+        /// Create a new <see cref="ParameterBase"/> that exposes
         /// information about the given <paramref name="parameterType"/>.
         /// </summary>
         /// <param name="parameterType">Type of the parameter.</param>
-        protected TypedInjectionValue(Type parameterType)
+        protected ParameterBase(Type parameterType)
         {
             _type = parameterType;
         }
@@ -42,13 +41,11 @@ namespace Unity.Injection
         /// </summary>
         public virtual Type ParameterType => _type;
 
-        /// <summary>
-        /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
-        /// This may be an actual type name or a generic argument name.
-        /// </summary>
-        public override string ParameterTypeName => _type.GetTypeInfo().Name;
 
-        public bool Equals(Type t)
+         
+
+
+        public override bool Equals(Type t)
         {
             if (null == _type) return true;
 

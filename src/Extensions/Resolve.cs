@@ -7,24 +7,24 @@ namespace Unity
     {
         #region Dependency
 
-        public static TypedInjectionValue Dependency<TTarget>(string name) => new ResolvedParameter(typeof(TTarget), name);
+        public static ParameterBase Dependency<TTarget>(string name) => new ResolvedParameter(typeof(TTarget), name);
 
         #endregion
 
 
         #region Parameter
 
-        public static TypedInjectionValue Parameter() => new ResolvedParameter();
+        public static ParameterBase Parameter() => new ResolvedParameter();
 
-        public static TypedInjectionValue Parameter(string name) => new ResolvedParameter(name);
+        public static ParameterBase Parameter(string name) => new ResolvedParameter(name);
 
-        public static TypedInjectionValue Parameter(Type type) => new ResolvedParameter(type);
+        public static ParameterBase Parameter(Type type) => new ResolvedParameter(type);
 
-        public static TypedInjectionValue Parameter<TTarget>() => new ResolvedParameter(typeof(TTarget));
+        public static ParameterBase Parameter<TTarget>() => new ResolvedParameter(typeof(TTarget));
 
-        public static TypedInjectionValue Parameter(Type type, string name) => new ResolvedParameter(type, name);
+        public static ParameterBase Parameter(Type type, string name) => new ResolvedParameter(type, name);
 
-        public static TypedInjectionValue Parameter<TTarget>(string name) => new ResolvedParameter(typeof(TTarget), name);
+        public static ParameterBase Parameter<TTarget>(string name) => new ResolvedParameter(typeof(TTarget), name);
 
         #endregion
 
@@ -40,17 +40,17 @@ namespace Unity
 
         #region Optional
 
-        public static TypedInjectionValue Optional() => new OptionalParameter();
+        public static ParameterBase Optional() => new OptionalParameter();
 
-        public static TypedInjectionValue Optional(string name) => new OptionalParameter(name);
+        public static ParameterBase Optional(string name) => new OptionalParameter(name);
 
-        public static TypedInjectionValue Optional(Type type) => new OptionalParameter(type);
+        public static ParameterBase Optional(Type type) => new OptionalParameter(type);
 
-        public static TypedInjectionValue Optional<TTarget>() => new OptionalParameter(typeof(TTarget));
+        public static ParameterBase Optional<TTarget>() => new OptionalParameter(typeof(TTarget));
 
-        public static TypedInjectionValue Optional(Type type, string name) => new OptionalParameter(type, name);
+        public static ParameterBase Optional(Type type, string name) => new OptionalParameter(type, name);
 
-        public static TypedInjectionValue Optional<TTarget>(string name) => new OptionalParameter(typeof(TTarget), name);
+        public static ParameterBase Optional<TTarget>(string name) => new OptionalParameter(typeof(TTarget), name);
 
         #endregion
 

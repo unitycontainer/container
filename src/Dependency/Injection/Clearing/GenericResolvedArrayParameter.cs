@@ -8,19 +8,17 @@ using Unity.Resolution;
 namespace Unity.Injection
 {
     /// <summary>
-    /// A <see cref="InjectionParameterValue"/> that lets you specify that
+    /// A <see cref="ParameterValue"/> that lets you specify that
     /// an array containing the registered instances of a generic type parameter 
     /// should be resolved.
     /// </summary>
-    public class GenericResolvedArrayParameter : InjectionParameterValue,
-                                                 IResolverFactory,
-                                                 IEquatable<Type>
+    public class GenericResolvedArrayParameter : GenericBase, IResolverFactory
     {
         private readonly object[] _values;
-        private readonly string _genericParameterName;
 
         private static readonly MethodInfo ResolverMethod =
             typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
+
         private delegate object Resolver<TContext>(ref TContext context, object[] values) 
             where TContext : IResolveContext;
 
@@ -30,24 +28,24 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         /// <param name="elementValues">The values for the elements, that will
-        /// be converted to <see cref="InjectionParameterValue"/> objects.</param>
+        /// be converted to <see cref="ParameterValue"/> objects.</param>
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
+            : base(genericParameterName)
         {
-            _genericParameterName = genericParameterName ?? throw new ArgumentNullException(nameof(genericParameterName));
             _values = elementValues;
         }
 
         /// <summary>
-        /// Name for the type represented by this <see cref="InjectionParameterValue"/>.
+        /// Name for the type represented by this <see cref="ParameterValue"/>.
         /// This may be an actual type name or a generic argument name.
         /// </summary>
-        public override string ParameterTypeName => _genericParameterName + "[]";
+        public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
 
 
-        #region  IEquatable
+        #region  GenericBase
 
-        public bool Equals(Type type)
+        public override bool Equals(Type type)
         {
             var t = type ?? throw new ArgumentNullException(nameof(type));
 
@@ -57,7 +55,31 @@ namespace Unity.Injection
             }
 
             Type elementType = t.GetElementType();
-            return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == _genericParameterName;
+            return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == base.ParameterTypeName;
+        }
+
+        public override ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
+        {
+            var typeToResolve = info.ParameterType.GetElementType();
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), typeToResolve)
+                                                                   .CreateDelegate(typeof(Resolver<TContext>));
+            var values = _values.Select(value =>
+            {
+                switch (value)
+                {
+                    case IResolverFactory factory:
+                        return factory.GetResolver<TContext>(typeToResolve);
+
+                    case Type _ when typeof(Type) != typeToResolve:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(typeToResolve, null));
+
+                    default:
+                        return value;
+                }
+
+            }).ToArray();
+
+            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
         }
 
         #endregion
@@ -72,7 +94,7 @@ namespace Unity.Injection
                         CultureInfo.CurrentCulture,
                         Constants.NotAGenericType,
                         typeToBuild.GetTypeInfo().Name,
-                        _genericParameterName));
+                        base.ParameterTypeName));
             }
         }
 
@@ -80,7 +102,7 @@ namespace Unity.Injection
         {
             foreach (Type genericParam in typeToBuild.GetGenericTypeDefinition().GetTypeInfo().GenericTypeParameters)
             {
-                if (genericParam.GetTypeInfo().Name == _genericParameterName)
+                if (genericParam.GetTypeInfo().Name == base.ParameterTypeName)
                 {
                     return;
                 }
@@ -91,16 +113,27 @@ namespace Unity.Injection
                     CultureInfo.CurrentCulture,
                     Constants.NoMatchingGenericArgument,
                     typeToBuild.GetTypeInfo().Name,
-                    _genericParameterName));
+                    base.ParameterTypeName));
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            GuardTypeToBuildIsGeneric(type);
-            GuardTypeToBuildHasMatchingGenericParameter(type);
 
-            var typeToResolve = type.GetNamedGenericParameter(_genericParameterName);
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+        {
+            Type elementType;
+            Type typeToResolve;
+            if (type.GetTypeInfo().IsGenericType)
+            {
+                GuardTypeToBuildHasMatchingGenericParameter(type);
+                typeToResolve = type.GetNamedGenericParameter(base.ParameterTypeName);
+                elementType = type;
+            }
+            else
+            {
+                typeToResolve = type.GetElementType();
+                elementType = typeToResolve;
+            }
+
+
             var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), typeToResolve)
                                                                    .CreateDelegate(typeof(Resolver<TContext>));
             var values = _values.Select(value =>
@@ -108,7 +141,7 @@ namespace Unity.Injection
                 switch (value)
                 {
                     case IResolverFactory factory:
-                        return factory.GetResolver<TContext>(type);
+                        return factory.GetResolver<TContext>(elementType);
 
                     case Type _ when typeof(Type) != typeToResolve:
                         return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(typeToResolve, null));

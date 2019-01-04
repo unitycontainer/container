@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -9,7 +10,7 @@ namespace Unity.Injection
     /// the required <see cref="IResolve"/>
     /// when the container is configured.
     /// </summary>
-    public class InjectionParameter : TypedInjectionValue, IResolve
+    public class InjectionParameter : ParameterBase, IResolve
     {
         /// <summary>
         /// Create an instance of <see cref="InjectionParameter"/> that stores
@@ -36,7 +37,6 @@ namespace Unity.Injection
         }
 
         public object Value { get; }
-
 
         public object Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext

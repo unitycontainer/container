@@ -4,10 +4,10 @@ using Unity.Policy;
 namespace Unity.Injection
 {
     /// <summary>
-    /// A <see cref="InjectionParameterValue"/> that lets you specify that
+    /// A <see cref="ParameterValue"/> that lets you specify that
     /// an instance of a generic type parameter should be resolved.
     /// </summary>
-    public class GenericParameter : GenericParameterBase
+    public class GenericParameter : GenericBase, IResolverFactory
     {
         /// <summary>
         /// Create a new <see cref="GenericParameter"/> instance that specifies
