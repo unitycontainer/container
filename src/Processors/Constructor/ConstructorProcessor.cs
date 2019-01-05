@@ -5,10 +5,11 @@ using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor : MethodBaseInfoProcessor<ConstructorInfo>
+    public partial class ConstructorProcessor : MethodBaseProcessor<ConstructorInfo>
     {
         #region Fields
 
@@ -39,6 +40,41 @@ namespace Unity.Processors
 
         #region Overrides
 
+        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        {
+            // Select Injected Members
+            if (null != ((InternalRegistration)registration).InjectionMembers)
+            {
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                {
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        return new[] { injectionMember };
+                    }
+                }
+            }
+
+            // Enumerate to array
+            var constructors = DeclaredMembers(type).ToArray();
+            if (1 >= constructors.Length)
+                return constructors;
+
+            // Select Attributed constructors
+            foreach (var constructor in constructors)
+            {
+                for (var i = 0; i < AttributeFactories.Length; i++)
+                {
+                    if (!constructor.IsDefined(AttributeFactories[i].Type))
+                        continue;
+
+                    return new[] { constructor };
+                }
+            }
+
+            // Select default
+            return new[] { SelectMethod(type, constructors) };
+        }
+
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
 #if NETSTANDARD1_0
@@ -48,51 +84,6 @@ namespace Unity.Processors
 #else
             return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
 #endif
-        }
-
-        protected override IEnumerable<object> SelectMembers(Type type, IEnumerable<ConstructorInfo> members, InjectionMember[] injectors)
-        {
-            // Select Injected Members
-            if (null != injectors)
-            {
-                foreach (var injectionMember in injectors)
-                {
-                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
-                    {
-                        yield return injectionMember;
-                        yield break;
-                    }
-                }
-            }
-
-            if (null == members) yield break;
-
-            // Enumerate to array
-            var constructors = members.ToArray();
-            switch (constructors.Length)
-            {
-                case 0:
-                    yield break;
-
-                case 1:
-                    yield return constructors[0];
-                    yield break;
-            }
-
-            // Select Attributed members
-            foreach (var constructor in constructors)
-            {
-                foreach (var pair in ResolverFactories)
-                {
-                    if (!constructor.IsDefined(pair.type)) continue;
-
-                    yield return constructor;
-                    yield break;
-                }
-            }
-
-            // Select default
-            yield return SelectMethod(type, constructors);
         }
 
         #endregion

@@ -226,7 +226,7 @@ namespace Unity
                         var expressions = new List<Expression>();
                         foreach (var processor in chain)
                         {
-                            foreach (var step in processor.GetBuildSteps(type, registration))
+                            foreach (var step in processor.GetExpressions(type, registration))
                                 expressions.Add(step);
                         }
 
@@ -252,7 +252,7 @@ namespace Unity
 
             foreach (var processor in _processorsChain)
             {
-                foreach (var step in processor.GetBuildSteps(type, registration))
+                foreach (var step in processor.GetExpressions(type, registration))
                     expressions.Add(step);
             }
 

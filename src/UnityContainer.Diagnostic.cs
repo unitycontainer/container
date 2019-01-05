@@ -64,12 +64,12 @@ namespace Unity
 
             // Processors
             var fieldsProcessor = new FieldsProcessor(Defaults);
-            var methodsProcessor = new MethodsProcessor(Defaults);
-            var propertiesProcessor = new PropertiesProcessor(Defaults);
+            var methodsProcessor = new MethodProcessor(Defaults);
+            var propertiesProcessor = new PropertyProcessor(Defaults);
             var constructorProcessor = new ConstructorDiagnostic(Defaults, IsTypeExplicitlyRegistered);
 
             // Processors chain
-            _processors = new StagedStrategyChain<BuildMemberProcessor, BuilderStage>
+            _processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
             {
                 { constructorProcessor, BuilderStage.Creation },
                 { fieldsProcessor,      BuilderStage.Fields },

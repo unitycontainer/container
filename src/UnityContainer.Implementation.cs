@@ -43,11 +43,11 @@ namespace Unity
 
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<BuildMemberProcessor, BuilderStage> _processors;
+        private StagedStrategyChain<MemberProcessor, BuilderStage> _processors;
 
         // Caches
         private BuilderStrategy[] _strategiesChain;
-        private BuildMemberProcessor[] _processorsChain;
+        private MemberProcessor[] _processorsChain;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;

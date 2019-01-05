@@ -75,7 +75,7 @@ namespace Unity.Processors
 
         #region Expression Overrides
 
-        public override IEnumerable<Expression> GetBuildSteps(Type type, IPolicySet registration)
+        public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
             // Validate if Type could be created
             var exceptionExpr = ValidateConstructedTypeExpression(type);
@@ -132,7 +132,7 @@ namespace Unity.Processors
             // Create 'new' expression
             var ifThenExpr = Expression.IfThen(
                 Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                BuildMemberExpression(info, resolvers));
+                ExpressionFromMemberInfo(info, resolvers));
 
             // Check if PerResolveLifetimeManager is required
             return lifetimeManager is PerResolveLifetimeManager
@@ -140,7 +140,7 @@ namespace Unity.Processors
                 : new Expression[] { ifThenExpr };
         }
 
-        protected override Expression BuildMemberExpression(ConstructorInfo info, object[] resolvers)
+        protected override Expression ExpressionFromMemberInfo(ConstructorInfo info, object[] resolvers)
         {
             // Check if had ByRef parameters
             var parameters = info.GetParameters();
