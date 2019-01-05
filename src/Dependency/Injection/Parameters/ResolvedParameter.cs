@@ -64,6 +64,7 @@ namespace Unity.Injection
 
         #region TypedInjectionValue
 
+        // TODO: Optimize Y
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
@@ -72,8 +73,7 @@ namespace Unity.Injection
             if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
                 info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
             {
-                var parameterType = ParameterType.GetClosedParameterType(type.GetTypeInfo().GenericTypeArguments);
-                return (ref TContext c) => c.Resolve(parameterType, _name);
+                return (ref TContext c) => c.Resolve(type, _name);
             }
 
             return (ref TContext c) => c.Resolve(ParameterType, _name);
