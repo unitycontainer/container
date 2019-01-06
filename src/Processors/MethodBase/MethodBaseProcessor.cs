@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
@@ -9,27 +8,22 @@ namespace Unity.Processors
     public abstract partial class MethodBaseProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
                                                  where TMemberInfo : MethodBase
     {
-        #region Fields
-
-        private readonly MethodInfo ResolveParameter =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-                    return 2 <= parameters.Length &&
-                        typeof(ParameterInfo) == parameters[0].ParameterType;
-                });
-
-        #endregion
-
-        
         #region Constructors
 
         protected MethodBaseProcessor(IPolicySet policySet, Type attribute)
-            : base(policySet)
+            : base(policySet, new[]
+            {
+                new AttributeFactoryNode(attribute, null, null),
+
+                new AttributeFactoryNode(typeof(DependencyAttribute),
+                    (ExpressionParameterAttributeFactory)DependencyExpressionFactory,
+                    (ResolutionParameterAttributeFactory)DependencyResolverFactory),
+
+                new AttributeFactoryNode(typeof(OptionalDependencyAttribute),
+                    (ExpressionParameterAttributeFactory)OptionalDependencyExpressionFactory,
+                    (ResolutionParameterAttributeFactory)OptionalDependencyResolverFactory),
+            })
         {
-            Add(attribute, (ExpressionAttributeFactory)null, (ResolutionAttributeFactory)null);
         }
 
         #endregion

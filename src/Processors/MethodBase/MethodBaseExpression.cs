@@ -6,6 +6,8 @@ using Unity.Builder;
 
 namespace Unity.Processors
 {
+    public delegate Expression ExpressionParameterAttributeFactory(Attribute attribute, Expression member, object info, Type type, object resolver);
+
     public abstract partial class MethodBaseProcessor<TMemberInfo>
     {
         #region Parameter Factory
@@ -62,7 +64,7 @@ namespace Unity.Processors
                     if (null == attribute) continue;
 
                     // If found match, use provided factory to create expression
-                    return node.ExpressionFactory(attribute, member, param, param.ParameterType, data);
+                    return ((ExpressionParameterAttributeFactory)node.ExpressionFactory)(attribute, member, param, param.ParameterType, data);
                 }
 
                 return null;
@@ -74,7 +76,7 @@ namespace Unity.Processors
 
         #region Attribute Factory
 
-        protected override Expression DependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver)
+        private static Expression DependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver)
         {
             var parameter = (ParameterInfo)info;
             if (null == member)
@@ -101,7 +103,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver)
+        private static Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, object info, Type type, object resolver)
         {
             var parameter = (ParameterInfo)info;
             var variable = Expression.Variable(parameter.ParameterType);
@@ -127,7 +129,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        private Expression CallResolveExpression(ParameterInfo parameter, string name, object resolver = null)
+        private static Expression CallResolveExpression(ParameterInfo parameter, string name, object resolver = null)
         {
             return Expression.Convert(
                 Expression.Call(BuilderContextExpression.Context, ResolveParameter,

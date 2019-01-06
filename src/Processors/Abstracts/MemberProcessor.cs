@@ -15,6 +15,16 @@ namespace Unity.Processors
     {
         #region Fields
 
+        protected static readonly MethodInfo ResolveParameter =
+            typeof(BuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 2 <= parameters.Length &&
+                        typeof(ParameterInfo) == parameters[0].ParameterType;
+                });
+
         protected static readonly MethodInfo StringFormat =
             typeof(string).GetTypeInfo()
                 .DeclaredMethods
@@ -90,15 +100,21 @@ namespace Unity.Processors
             AttributeFactories = new[]
             {
                 new AttributeFactoryNode(typeof(DependencyAttribute), 
-                                         DependencyExpressionFactory,  
-                                         DependencyResolverFactory),
+                    (ExpressionAttributeFactory<TMemberInfo>)DependencyExpressionFactory,  
+                    (ResolutionAttributeFactory<TMemberInfo>)DependencyResolverFactory),
 
                 new AttributeFactoryNode(typeof(OptionalDependencyAttribute), 
-                                         OptionalDependencyExpressionFactory,  
-                                         OptionalDependencyResolverFactory),
+                    (ExpressionAttributeFactory<TMemberInfo>)OptionalDependencyExpressionFactory,  
+                    (ResolutionAttributeFactory<TMemberInfo>)OptionalDependencyResolverFactory),
             };
 
             _policySet = policySet;
+        }
+
+        protected MemberProcessor(IPolicySet policySet, AttributeFactoryNode[] factories)
+        {
+            _policySet = policySet;
+            AttributeFactories = factories;
         }
 
         #endregion
@@ -106,8 +122,7 @@ namespace Unity.Processors
 
         #region Public Methods
 
-        public void Add(Type type, ExpressionAttributeFactory expressionFactory, 
-                                   ResolutionAttributeFactory resolutionFactory)
+        public void Add(Type type, Delegate expressionFactory, Delegate resolutionFactory)
         {
             for (var i = 0; i < AttributeFactories.Length; i++)
             {
@@ -243,10 +258,10 @@ namespace Unity.Processors
         public struct AttributeFactoryNode
         {
             public readonly Type Type;
-            public ExpressionAttributeFactory ExpressionFactory;
-            public ResolutionAttributeFactory   ResolutionFactory;
+            public Delegate ExpressionFactory;
+            public Delegate ResolutionFactory;
 
-            public AttributeFactoryNode(Type type, ExpressionAttributeFactory expressionFactory, ResolutionAttributeFactory resolutionFactory)
+            public AttributeFactoryNode(Type type, Delegate expressionFactory, Delegate resolutionFactory)
             {
                 Type = type;
                 ExpressionFactory = expressionFactory;

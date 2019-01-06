@@ -7,7 +7,8 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public delegate ResolveDelegate<BuilderContext> ResolutionAttributeFactory(Attribute attribute, object info, object resolver, object defaultValue);
+    public delegate ResolveDelegate<BuilderContext> ResolutionAttributeFactory<TMemberInfo>(Attribute attribute, TMemberInfo info)
+        where TMemberInfo : MemberInfo;
 
     public abstract partial class MemberProcessor<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
@@ -43,7 +44,9 @@ namespace Unity.Processors
                 if (null == attribute || null == node.ResolutionFactory)
                     continue;
 
-                return node.ResolutionFactory(attribute, info, DependencyAttribute.Instance, null);
+                var factory = (ResolutionAttributeFactory<TMemberInfo>)node.ResolutionFactory;
+
+                return GetResolverDelegate(info, factory(attribute, info));
             }
 
             return GetResolverDelegate(info, DependencyAttribute.Instance);
@@ -69,9 +72,21 @@ namespace Unity.Processors
 
         #region Parameter Resolver Factories
 
-        protected abstract ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null);
+        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, TMemberInfo info)
+        {
+            var type = MemberType(info);
+            return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
+        }
 
-        protected abstract ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null);
+        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, TMemberInfo info)
+        {
+            var type = MemberType(info);
+            return (ref BuilderContext context) =>
+            {
+                try { return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name); }
+                catch { return null; }
+            };
+        }
 
         #endregion
     }

@@ -6,6 +6,8 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
+    public delegate ResolveDelegate<BuilderContext> ResolutionParameterAttributeFactory(Attribute attribute, object info, object resolver, object defaultValue);
+
     public abstract partial class MethodBaseProcessor<TMemberInfo>
     {
         #region Parameter Factory
@@ -61,7 +63,7 @@ namespace Unity.Processors
                     if (null == attribute) continue;
 
                     // If found match, use provided factory to create expression
-                    return node.ResolutionFactory(attribute, param, data, defaultValue);
+                    return ((ResolutionParameterAttributeFactory)node.ResolutionFactory)(attribute, param, data, defaultValue);
                 }
 
                 return null;
@@ -70,9 +72,10 @@ namespace Unity.Processors
 
         #endregion
 
+
         #region Attribute Factory
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
+        private static ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
             var parameter = (ParameterInfo)info;
 
@@ -94,7 +97,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
+        private static ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object resolver, object defaultValue = null)
         {
             var parameter = (ParameterInfo)info;
 
