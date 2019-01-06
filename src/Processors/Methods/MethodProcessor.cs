@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Policy;
-using Unity.Utility;
 
 namespace Unity.Processors
 {
@@ -26,8 +25,24 @@ namespace Unity.Processors
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
 #if NETSTANDARD1_0
-            return type.GetMethodsHierarchical()
-                       .Where(c => c.IsStatic == false && c.IsPublic);
+            return GetMethodsHierarchical(type)
+                    .Where(c => c.IsStatic == false && c.IsPublic);
+
+            IEnumerable<MethodInfo> GetMethodsHierarchical(Type t)
+            {
+                if (t == null)
+                {
+                    return Enumerable.Empty<MethodInfo>();
+                }
+
+                if (t == typeof(object))
+                {
+                    return t.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic);
+                }
+
+                return t.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic)
+                        .Concat(GetMethodsHierarchical(t.GetTypeInfo().BaseType));
+            }
 #else
             return type.GetMethods(BindingFlags.Instance | BindingFlags.Public);
 #endif
