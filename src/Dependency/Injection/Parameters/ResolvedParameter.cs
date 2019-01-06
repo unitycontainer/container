@@ -64,19 +64,26 @@ namespace Unity.Injection
 
         #region TypedInjectionValue
 
-        // TODO: Optimize Y
+        // TODO: Optimize GetTypeInfo
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-            var info = ParameterType.GetTypeInfo();
+            if (null != ParameterType)
+            {
+                var info = ParameterType.GetTypeInfo();
 
-            if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
+                if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                    info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
+                {
+                    return (ref TContext c) => c.Resolve(type, _name);
+                }
+
+                return (ref TContext c) => c.Resolve(ParameterType, _name);
+            }
+            else
             {
                 return (ref TContext c) => c.Resolve(type, _name);
             }
-
-            return (ref TContext c) => c.Resolve(ParameterType, _name);
         }
 
         public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) 
