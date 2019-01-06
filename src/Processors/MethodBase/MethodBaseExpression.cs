@@ -29,7 +29,8 @@ namespace Unity.Processors
                 {
                     // Plain vanilla case
                     yield return Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context, ResolveParameter,
+                                    Expression.Call(BuilderContextExpression.Context, 
+                                        BuilderContextExpression.ResolveParameter,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
@@ -38,7 +39,8 @@ namespace Unity.Processors
                 {
                     var variable = Expression.Variable(parameter.ParameterType);
                     var resolve = Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context, ResolveParameter,
+                                    Expression.Call(BuilderContextExpression.Context, 
+                                        BuilderContextExpression.ResolveParameter,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);

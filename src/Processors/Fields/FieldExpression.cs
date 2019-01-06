@@ -13,7 +13,8 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(FieldInfo field, string name, object resolver)
         {
             return Expression.Convert(
-                Expression.Call(BuilderContextExpression.Context, ResolveField,
+                Expression.Call(BuilderContextExpression.Context, 
+                    BuilderContextExpression.ResolveField,
                     Expression.Constant(field, typeof(FieldInfo)),
                     Expression.Constant(name, typeof(string)),
                     Expression.Constant(PreProcessResolver(field, resolver), typeof(object))),

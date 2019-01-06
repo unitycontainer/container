@@ -2,28 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.Processors
 {
     public partial class PropertyProcessor : MemberProcessor<PropertyInfo, object>
     {
-        #region Fields
-
-        public static readonly MethodInfo ResolveProperty =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-                    return 2 <= parameters.Length &&
-                        typeof(PropertyInfo) == parameters[0].ParameterType;
-                });
-
-        #endregion
-
-
         #region Constructors
 
         public PropertyProcessor(IPolicySet policySet)

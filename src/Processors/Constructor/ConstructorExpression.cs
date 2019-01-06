@@ -26,16 +26,12 @@ namespace Unity.Processors
                            typeof(Exception) == parameters[1].ParameterType;
                 });
 
-        private static readonly MethodInfo SetMethod =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Set))
-                .First(m => 2 == m.GetParameters().Length);
-
         private static readonly ConstructorInfo PerResolveInfo = typeof(InternalPerResolveLifetimeManager)
             .GetTypeInfo().DeclaredConstructors.First();
 
         protected static readonly Expression SetPerBuildSingletonExpr =
-            Expression.Call(BuilderContextExpression.Context, SetMethod,
+            Expression.Call(BuilderContextExpression.Context, 
+                BuilderContextExpression.SetMethod,
                 Expression.Constant(typeof(LifetimeManager), typeof(Type)),
                 Expression.New(PerResolveInfo, BuilderContextExpression.Existing));
 

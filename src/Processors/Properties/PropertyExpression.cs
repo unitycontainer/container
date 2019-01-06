@@ -11,7 +11,8 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(PropertyInfo property, string name, object resolver)
         {
             return Expression.Convert(
-                Expression.Call(BuilderContextExpression.Context, ResolveProperty,
+                Expression.Call(BuilderContextExpression.Context, 
+                    BuilderContextExpression.ResolveProperty,
                     Expression.Constant(property, typeof(PropertyInfo)),
                     Expression.Constant(name, typeof(string)),
                     Expression.Constant(PreProcessResolver(property, resolver), typeof(object))),

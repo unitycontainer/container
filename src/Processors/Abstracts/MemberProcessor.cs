@@ -15,16 +15,6 @@ namespace Unity.Processors
     {
         #region Fields
 
-        protected static readonly MethodInfo ResolveParameter =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-                    return 2 <= parameters.Length &&
-                        typeof(ParameterInfo) == parameters[0].ParameterType;
-                });
-
         protected static readonly MethodInfo StringFormat =
             typeof(string).GetTypeInfo()
                 .DeclaredMethods

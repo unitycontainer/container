@@ -173,6 +173,7 @@ namespace Unity.Processors
 
         #endregion
 
+
         #region Overrides
 
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
