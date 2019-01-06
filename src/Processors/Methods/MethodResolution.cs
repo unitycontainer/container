@@ -11,40 +11,18 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> ResolverFromMemberInfo(MethodInfo info)
         {
-            ValidateMethod(info);
+            ValidateMember(info);
 
             var parameterResolvers = CreateParameterResolvers(info.GetParameters()).ToArray();
-            return (ref BuilderContext c) =>
-            {
-                if (null == c.Existing) return c.Existing;
-
-                var parameters = new object[parameterResolvers.Length];
-                for (var i = 0; i < parameters.Length; i++)
-                    parameters[i] = parameterResolvers[i](ref c);
-
-                info.Invoke(c.Existing, parameters);
-
-                return c.Existing;
-            };
+            return GetResolverDelegate(info, parameterResolvers);
         }
 
         protected override ResolveDelegate<BuilderContext> ResolverFromMemberInfo(MethodInfo info, object[] resolvers)
         {
-            ValidateMethod(info);
+            ValidateMember(info);
 
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return (ref BuilderContext c) =>
-            {
-                if (null == c.Existing) return c.Existing;
-
-                var parameters = new object[parameterResolvers.Length];
-                for (var i = 0; i < parameters.Length; i++)
-                    parameters[i] = parameterResolvers[i](ref c);
-
-                info.Invoke(c.Existing, parameters);
-
-                return c.Existing;
-            };
+            return GetResolverDelegate(info, parameterResolvers);
         }
 
         #endregion

@@ -11,18 +11,7 @@ namespace Unity.Processors
         #region Constructors
 
         protected MethodBaseProcessor(IPolicySet policySet, Type attribute)
-            : base(policySet, new[]
-            {
-                new AttributeFactoryNode(attribute, null, null),
-
-                new AttributeFactoryNode(typeof(DependencyAttribute),
-                    (ExpressionParameterAttributeFactory)DependencyExpressionFactory,
-                    (ResolutionParameterAttributeFactory)DependencyResolverFactory),
-
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute),
-                    (ExpressionParameterAttributeFactory)OptionalDependencyExpressionFactory,
-                    (ResolutionParameterAttributeFactory)OptionalDependencyResolverFactory),
-            })
+            : base(policySet, attribute)
         {
         }
 
@@ -50,10 +39,51 @@ namespace Unity.Processors
 
                 case Type type:
                     return typeof(Type) == parameter.ParameterType
-                        ? type : (object)parameter;
+                        ? type : FromAttribute(parameter);
             }
 
             return resolver;
+        }
+
+        private object FromAttribute(ParameterInfo info)
+        {
+            var defaultValue = info.HasDefaultValue ? info.DefaultValue : null;
+            foreach (var node in AttributeFactories)
+            {
+                if (null == node.Factory) continue;
+                var attribute = info.GetCustomAttribute(node.Type);
+                if (null == attribute) continue;
+
+                // If found match, use provided factory to create expression
+                return node.Factory(attribute, info, defaultValue);
+            }
+
+            return info;
+        }
+
+        #endregion
+
+
+        #region Attribute Factory
+
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
+        {
+            return (ref BuilderContext context) => context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
+        }
+
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object value = null)
+        {
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    return context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
+                }
+                catch
+                {
+                    return value;
+                }
+            };
         }
 
         #endregion

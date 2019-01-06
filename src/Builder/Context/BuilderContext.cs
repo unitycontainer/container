@@ -126,7 +126,7 @@ namespace Unity.Builder
             }
         }
 
-        public object Resolve(ParameterInfo parameter, string name, object value)
+        public object Resolve(ParameterInfo parameter, object value)
         {
             var context = this;
 
@@ -162,7 +162,7 @@ namespace Unity.Builder
             {
                 case ParameterInfo info 
                 when ReferenceEquals(info, parameter):
-                    return Resolve(parameter.ParameterType, name);
+                    return Resolve(parameter.ParameterType, null);
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);

@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity.Processors
 {
-    public delegate Expression ExpressionAttributeFactory<TMemberInfo>(Attribute attribute, Expression member, TMemberInfo info, Type type, object resolver)
-        where TMemberInfo : MemberInfo;
-
     public abstract partial class MemberProcessor<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
-        #region Members Processing
+        #region Selection Processing
 
         protected virtual IEnumerable<Expression> ExpressionsFromSelection(Type type, IEnumerable<object> members)
         {
@@ -37,6 +32,11 @@ namespace Unity.Processors
             }
         }
 
+        #endregion
+
+
+        #region Members Processing
+
         protected virtual Expression ExpressionFromMemberInfo(TMemberInfo info)
         {
             var member = CreateMemberExpression(info);
@@ -44,12 +44,11 @@ namespace Unity.Processors
             foreach (var node in AttributeFactories)
             {
                 var attribute = GetCustomAttribute(info, node.Type);
-                if (null == attribute || null == node.ExpressionFactory)
-                    continue;
+                if (null == attribute) continue;
 
-                var factory = (ResolutionAttributeFactory<TMemberInfo>)node.ResolutionFactory;
-
-                return Expression.Assign(member, GetResolverExpression(info, null, factory(attribute, info)));
+                return null == node.Factory
+                    ? Expression.Assign(member, GetResolverExpression(info, null, attribute))
+                    : Expression.Assign(member, GetResolverExpression(info, null, node.Factory(attribute, info)));
             }
 
             return Expression.Assign(member, GetResolverExpression(info, null, DependencyAttribute.Instance));
@@ -65,48 +64,11 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected virtual Expression GetResolverExpression(TMemberInfo info, string name, object resolver) => throw new NotImplementedException();
+        protected virtual Expression GetResolverExpression(TMemberInfo info, string name, object resolver) 
+            => throw new NotImplementedException();
 
-        protected virtual MemberExpression CreateMemberExpression(TMemberInfo info) => throw new NotImplementedException();
-
-        #endregion
-
-
-        #region Parameter Expression Factories
-
-        protected virtual Expression DependencyExpressionFactory(Attribute attribute, Expression member, TMemberInfo info, Type type, object resolver)
-        {
-            var dependencyType = MemberType(info);
-            var resolve = Expression.Call(
-                            BuilderContextExpression.Context,
-                            BuilderContextExpression.ResolveMethod,
-                            Expression.Constant(dependencyType, typeof(Type)),
-                            Expression.Constant(((DependencyResolutionAttribute)attribute).Name, typeof(string)));
-
-            return Expression.Convert(resolve, dependencyType);
-        }
-
-        protected virtual Expression OptionalDependencyExpressionFactory(Attribute attribute, Expression member, TMemberInfo info, Type type, object resolver)
-        {
-            var dependencyType = MemberType(info);
-            var variable = Expression.Variable(dependencyType);
-            var resolve = Expression.Call(
-                            BuilderContextExpression.Context,
-                            BuilderContextExpression.ResolveMethod,
-                            Expression.Constant(dependencyType, typeof(Type)),
-                            Expression.Constant(((DependencyResolutionAttribute)attribute).Name, typeof(string)));
-
-            var expression = Expression.Block(new[] { variable }, new Expression[]
-            {
-                Expression.TryCatch(
-                    Expression.Assign(variable, Expression.Convert(resolve, dependencyType)),
-                Expression.Catch(typeof(Exception),
-                    Expression.Assign(variable, Expression.Constant(null, dependencyType)))),
-                variable
-            });
-
-            return expression;
-        }
+        protected virtual MemberExpression CreateMemberExpression(TMemberInfo info) 
+            => throw new NotImplementedException();
 
         #endregion
     }

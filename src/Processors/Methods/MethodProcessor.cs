@@ -36,9 +36,9 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Implementation
+        #region Overrides
 
-        private void ValidateMethod(MethodInfo info)
+        protected override void ValidateMember(MethodInfo info)
         {
             var parameters = info.GetParameters();
             if (info.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))

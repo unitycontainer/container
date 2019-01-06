@@ -10,7 +10,7 @@ namespace Unity.Processors
 
         protected override Expression ExpressionFromMemberInfo(MethodInfo info)
         {
-            ValidateMethod(info);
+            ValidateMember(info);
 
             return Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
                 info, CreateParameterExpressions(info.GetParameters()));
@@ -18,7 +18,7 @@ namespace Unity.Processors
 
         protected override Expression ExpressionFromMemberInfo(MethodInfo info, object[] resolvers)
         {
-            ValidateMethod(info);
+            ValidateMember(info);
 
             return Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
                            info, CreateParameterExpressions(info.GetParameters(), resolvers));

@@ -79,6 +79,7 @@ namespace Unity.Processors
         #endregion
     }
 
+    public delegate ResolveDelegate<BuilderContext> AttributeResolverFactory(Attribute attribute, object info, object value = null);
 
     public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor,
                                                                         ISelect<TMemberInfo>
@@ -99,22 +100,23 @@ namespace Unity.Processors
             // Add Unity attribute factories
             AttributeFactories = new[]
             {
-                new AttributeFactoryNode(typeof(DependencyAttribute), 
-                    (ExpressionAttributeFactory<TMemberInfo>)DependencyExpressionFactory,  
-                    (ResolutionAttributeFactory<TMemberInfo>)DependencyResolverFactory),
-
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), 
-                    (ExpressionAttributeFactory<TMemberInfo>)OptionalDependencyExpressionFactory,  
-                    (ResolutionAttributeFactory<TMemberInfo>)OptionalDependencyResolverFactory),
+                new AttributeFactoryNode(typeof(DependencyAttribute),         DependencyResolverFactory),
+                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), OptionalDependencyResolverFactory),
             };
 
             _policySet = policySet;
         }
 
-        protected MemberProcessor(IPolicySet policySet, AttributeFactoryNode[] factories)
+        protected MemberProcessor(IPolicySet policySet, Type attribute)
         {
+            // Add Unity attribute factories
+            AttributeFactories = new[]
+            {
+                new AttributeFactoryNode(attribute,                           null),
+                new AttributeFactoryNode(typeof(DependencyAttribute),         DependencyResolverFactory),
+                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), OptionalDependencyResolverFactory),
+            };
             _policySet = policySet;
-            AttributeFactories = factories;
         }
 
         #endregion
@@ -122,20 +124,19 @@ namespace Unity.Processors
 
         #region Public Methods
 
-        public void Add(Type type, Delegate expressionFactory, Delegate resolutionFactory)
+        public void Add(Type type, AttributeResolverFactory resolutionFactory)
         {
             for (var i = 0; i < AttributeFactories.Length; i++)
             {
                 if (AttributeFactories[i].Type != type) continue;
 
-                AttributeFactories[i].ExpressionFactory = expressionFactory;
-                AttributeFactories[i].ResolutionFactory   = resolutionFactory;
+                AttributeFactories[i].Factory   = resolutionFactory;
                 return;
             }
 
             var factories = new AttributeFactoryNode[AttributeFactories.Length + 1];
             Array.Copy(AttributeFactories, factories, AttributeFactories.Length);
-            factories[AttributeFactories.Length] = new AttributeFactoryNode(type, expressionFactory, resolutionFactory);
+            factories[AttributeFactories.Length] = new AttributeFactoryNode(type, resolutionFactory);
             AttributeFactories = factories;
         }
 
@@ -213,7 +214,9 @@ namespace Unity.Processors
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-        protected virtual object PreProcessResolver(TMemberInfo info, object resolver)
+        protected virtual void ValidateMember(TMemberInfo info) { }
+
+        protected object PreProcessResolver(TMemberInfo info, object resolver)
         {
             switch (resolver)
             {
@@ -253,19 +256,38 @@ namespace Unity.Processors
         #endregion
 
 
+        #region Parameter Resolver Factories
+
+        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
+        {
+            var type = MemberType((TMemberInfo)info);
+            return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
+        }
+
+        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object value = null)
+        {
+            var type = MemberType((TMemberInfo)info);
+            return (ref BuilderContext context) =>
+            {
+                try { return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name); }
+                catch { return value; }
+            };
+        }
+
+        #endregion
+
+
         #region Nested Types
 
         public struct AttributeFactoryNode
         {
             public readonly Type Type;
-            public Delegate ExpressionFactory;
-            public Delegate ResolutionFactory;
+            public AttributeResolverFactory Factory;
 
-            public AttributeFactoryNode(Type type, Delegate expressionFactory, Delegate resolutionFactory)
+            public AttributeFactoryNode(Type type, AttributeResolverFactory factory)
             {
                 Type = type;
-                ExpressionFactory = expressionFactory;
-                ResolutionFactory = resolutionFactory;
+                Factory = factory;
             }
         }
 

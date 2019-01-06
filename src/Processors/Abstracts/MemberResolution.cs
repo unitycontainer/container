@@ -7,12 +7,9 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public delegate ResolveDelegate<BuilderContext> ResolutionAttributeFactory<TMemberInfo>(Attribute attribute, TMemberInfo info)
-        where TMemberInfo : MemberInfo;
-
     public abstract partial class MemberProcessor<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
-        #region Member Processing
+        #region Selection Processing
 
         protected virtual IEnumerable<ResolveDelegate<BuilderContext>> ResolversFromSelection(Type type, IEnumerable<object> members)
         {
@@ -35,18 +32,23 @@ namespace Unity.Processors
             }
         }
 
+        #endregion
+
+
+        #region Member Processing
 
         protected virtual ResolveDelegate<BuilderContext> ResolverFromMemberInfo(TMemberInfo info)
         {
+            ValidateMember(info);
+
             foreach (var node in AttributeFactories)
             {
                 var attribute = GetCustomAttribute(info, node.Type);
-                if (null == attribute || null == node.ResolutionFactory)
-                    continue;
+                if (null == attribute) continue;
 
-                var factory = (ResolutionAttributeFactory<TMemberInfo>)node.ResolutionFactory;
-
-                return GetResolverDelegate(info, factory(attribute, info));
+                return null == node.Factory
+                    ? GetResolverDelegate(info, attribute)
+                    : GetResolverDelegate(info, node.Factory(attribute, info)); 
             }
 
             return GetResolverDelegate(info, DependencyAttribute.Instance);
@@ -54,6 +56,7 @@ namespace Unity.Processors
 
         protected virtual ResolveDelegate<BuilderContext> ResolverFromMemberInfo(TMemberInfo info, TData resolver)
         {
+            ValidateMember(info);
             return GetResolverDelegate(info, resolver);
         }
 
@@ -62,31 +65,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object resolver)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
-        #region Parameter Resolver Factories
-
-        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, TMemberInfo info)
-        {
-            var type = MemberType(info);
-            return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
-        }
-
-        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, TMemberInfo info)
-        {
-            var type = MemberType(info);
-            return (ref BuilderContext context) =>
-            {
-                try { return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name); }
-                catch { return null; }
-            };
-        }
+        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object resolver);
 
         #endregion
     }
