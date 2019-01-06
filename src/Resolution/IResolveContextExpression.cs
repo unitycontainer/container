@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Policy;
 
@@ -7,6 +8,11 @@ namespace Unity.Resolution
     public class IResolveContextExpression<TContext>
         where TContext : IResolveContext
     {
+        public static readonly MethodInfo ResolveMethod =
+            typeof(IResolveContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IResolveContext.Resolve))
+                .First();
+
         #region Constructor
 
         static IResolveContextExpression()
