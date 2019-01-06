@@ -47,12 +47,12 @@ namespace Unity.Processors
                 if (null == attribute || null == node.ExpressionFactory)
                     continue;
 
-                var factory = (ExpressionAttributeFactory<TMemberInfo>)node.ExpressionFactory;
+                var factory = (ResolutionAttributeFactory<TMemberInfo>)node.ResolutionFactory;
 
-                return Expression.Assign(member, GetResolverExpression(info, null, factory(attribute, member, info, MemberType(info), null)));
+                return Expression.Assign(member, GetResolverExpression(info, null, factory(attribute, info)));
             }
 
-            return Expression.Assign(member, GetResolverExpression(info, null, null));
+            return Expression.Assign(member, GetResolverExpression(info, null, DependencyAttribute.Instance));
         }
 
         protected virtual Expression ExpressionFromMemberInfo(TMemberInfo info, TData resolver)
@@ -64,8 +64,6 @@ namespace Unity.Processors
 
 
         #region Implementation
-
-        protected virtual Expression GetResolverExpression(TMemberInfo info, string name, Expression resolver) => throw new NotImplementedException();
 
         protected virtual Expression GetResolverExpression(TMemberInfo info, string name, object resolver) => throw new NotImplementedException();
 
