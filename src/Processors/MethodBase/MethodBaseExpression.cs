@@ -105,6 +105,9 @@ namespace Unity.Processors
         {
             var parameter = (ParameterInfo)info;
             var variable = Expression.Variable(parameter.ParameterType);
+            var value = parameter.HasDefaultValue
+                ? parameter.DefaultValue
+                : null;
 
             return Expression.Block(new[] { variable }, new Expression[]
             {
@@ -113,7 +116,7 @@ namespace Unity.Processors
                         variable,
                         CallResolveExpression(parameter, ((DependencyResolutionAttribute)attribute).Name, resolver ?? OptionalDependencyAttribute.Instance)),
                 Expression.Catch(typeof(Exception),
-                    Expression.Assign(variable, member ?? Expression.Constant(null, parameter.ParameterType)))),
+                    Expression.Assign(variable, member ?? Expression.Constant(value, parameter.ParameterType)))),
                 variable
             });
 
