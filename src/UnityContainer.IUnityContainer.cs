@@ -87,14 +87,6 @@ namespace Unity
             return this;
         }
 
-        /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterType(IEnumerable<Type> interfaces, Type implementationType, string name,
-            LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            throw new NotImplementedException();
-        }
-
-
         #endregion
 
 
