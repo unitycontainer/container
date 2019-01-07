@@ -43,7 +43,6 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="name">Name to use when resolving parameter.</param>
         public ResolvedParameter(string name)
-            : base(null)
         {
             _name = name;
         }

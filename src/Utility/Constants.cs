@@ -10,7 +10,6 @@ namespace Unity
         public const string NoMatchingGenericArgument = "The type {0} does not have a generic argument named '{1}'";
         public const string NotAGenericType = "The type {0} is not a generic type, and you are attempting to inject a generic parameter named '{1}'.";
         public const string ResolutionFailed = "Resolution of the dependency failed, type = '{0}', name = '{1}'.\nException occurred while: {2}.\nException is: {3} - {4}\n-----------------------------------------------\nAt the time of the exception, the container was: ";
-        public const string TypesAreNotAssignable = "The type {1} cannot be assigned to variables of type {0}.";
     }
 }
 

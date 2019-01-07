@@ -9,7 +9,6 @@ namespace Unity.Injection
     /// Base class for generic type parameters.
     /// </summary>
     public abstract class GenericBase : ParameterValue,
-                                        IEquatable<Type>,
                                         IResolverFactory,
                                         IResolverFactory<ParameterInfo>
     {
@@ -46,7 +45,7 @@ namespace Unity.Injection
             if (genericParameterName.EndsWith("[]", StringComparison.Ordinal) ||
                 genericParameterName.EndsWith("()", StringComparison.Ordinal))
             {
-                _genericParameterName = genericParameterName.Replace("[]", String.Empty).Replace("()", String.Empty);
+                _genericParameterName = genericParameterName.Replace("[]", string.Empty).Replace("()", string.Empty);
                 _isArray = true;
             }
             else
@@ -67,10 +66,7 @@ namespace Unity.Injection
         /// Name for the type represented by this <see cref="ParameterValue"/>.
         /// This may be an actual type name or a generic argument name.
         /// </summary>
-        public virtual string ParameterTypeName
-        {
-            get { return _genericParameterName; }
-        }
+        public virtual string ParameterTypeName => _genericParameterName;
 
         #endregion
 

@@ -21,7 +21,8 @@ namespace Unity.Injection
         /// <param name="name">Name of the method to call.</param>
         /// <param name="arguments">Parameter values for the method.</param>
         public InjectionMethod(string name, params object[] arguments)
-            : base(name, null == arguments || 0 == arguments.Length ? InjectionMethodAttribute.Instance : arguments)
+            : base(name, null == arguments || 0 == arguments.Length 
+                  ? InjectionMethodAttribute.Instance : arguments)
         {
         }
 

@@ -1,10 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Unity.Dependency.Injection.Members
+namespace Unity.Injection
 {
-    class InjectionDependency
+    // TODO: InjectionDependency
+    public class InjectionDependency : InjectionMember
     {
+        #region Fields
+        #endregion
+
+
+        #region Constructors
+
+        public InjectionDependency(Type type, string name)
+        {
+
+        }
+
+
+        #endregion
+
+
+
     }
 }

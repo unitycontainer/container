@@ -48,7 +48,6 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="name">Name for the dependency.</param>
         public OptionalParameter(string name)
-            : base(null)
         {
             _name = name;
         }

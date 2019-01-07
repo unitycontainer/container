@@ -9,7 +9,7 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        protected MethodBase(string name, object[] arguments)
+        protected MethodBase(string name, params object[] arguments)
             : base(name, arguments)
         {
         }
@@ -39,7 +39,7 @@ namespace Unity.Injection
 #if NETSTANDARD1_0
             var typeInfo = type.GetTypeInfo();
             var parameterTypes = MemberInfo.GetParameters()
-                                           .Select(pi => pi.ParameterType.GetClosedParameterType(typeInfo.GenericTypeArguments))
+                                           .Select(pi => GetClosedParameterType(pi.ParameterType, typeInfo.GenericTypeArguments))
                                            .ToArray();
             var member = DeclaredMembers(type).Single(m => m.Name.Equals(MemberInfo.Name) && ParametersMatch(m.GetParameters(), parameterTypes));
             if (null != member) return (member, Data);
@@ -53,6 +53,37 @@ namespace Unity.Injection
                 }
 
                 return !parameters.Where((t, i) => !t.ParameterType.Equals(closedConstructorParameterTypes[i])).Any();
+            }
+
+
+            Type GetClosedParameterType(Type typeToReflect, Type[] genericArguments)
+            {
+                // Prior version of the framework returned both generic type arguments and parameters
+                // through one mechanism, now they are broken out.  May want to consider different reflection
+                // helpers instead of this case statement.
+
+                var tInfo = typeToReflect.GetTypeInfo();
+                if (tInfo.IsGenericType && tInfo.ContainsGenericParameters)
+                {
+                    Type[] typeArgs = tInfo.IsGenericTypeDefinition ? tInfo.GenericTypeParameters : tInfo.GenericTypeArguments;
+                    for (int i = 0; i < typeArgs.Length; ++i)
+                    {
+                        typeArgs[i] = (genericArguments ?? throw new ArgumentNullException(nameof(genericArguments)))[typeArgs[i].GenericParameterPosition];
+                    }
+                    return typeToReflect.GetGenericTypeDefinition().MakeGenericType(typeArgs);
+                }
+
+                if (typeToReflect.IsArray)
+                {
+                    return typeToReflect.GetArrayParameterType(genericArguments);
+                }
+
+                if (tInfo.IsGenericParameter)
+                {
+                    return genericArguments[typeToReflect.GenericParameterPosition];
+                }
+
+                return typeToReflect;
             }
 
 #else

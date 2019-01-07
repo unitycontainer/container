@@ -71,7 +71,7 @@ namespace Unity.Injection
                     continue;
 #endif
                 throw new InvalidOperationException(
-                    $"The type {pv.GetType()} cannot be assigned to variables of type {elementType}.");
+                    $"The type {pv?.GetType()} cannot be assigned to variables of type {elementType}.");
             }
         }
 
