@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Injection;
 using Unity.Resolution;
 
@@ -9,24 +10,23 @@ namespace Unity
     /// Interface defining the behavior of the Unity dependency injection container.
     /// </summary>
     [CLSCompliant(true)]
-    public interface IUnityContainer : IDisposable
+    public interface IUnityContainerAsync : IDisposable
     {
         /// <summary>
-        /// Register a type mapping with the container, where the created instances will use
-        /// the given <see cref="LifetimeManager"/>.
+        /// Registers implementation type <param name="injectionMembers"></param> via provided collection of it's interfaces.
         /// </summary>
-        /// <param name="typeFrom"><see cref="Type"/> that will be requested when resolving. Sometime it is called a ServiceType</param>
-        /// <param name="typeTo"><see cref="Type"/> that will actually be returned. This type is also called ImplementationType.</param>
-        /// <param name="name">Name to use for registration</param>
-        /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
-        /// of the returned instance.</param>
-        /// <param name="injectionMembers">Injection configuration objects. Can be null.</param>
-        /// <remarks>Container will store registrations by <paramref name="typeFrom"/> type. Type <paramref name="typeTo"/> will not be registered 
-        /// with the container and only used to build the requested instance.
-        /// If type provided in <paramref name="typeTo"/> is already registered with container, registration creates mapping to the existing
-        /// registration and instead will use registration for <paramref name="typeTo"/> type to create object.</remarks>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        /// <remarks>
+        /// This method allows creation of single registration for multiple interfaces the object of type <param name="implementationType"></param>
+        /// might be exposing. Registrations created with this method are self contained and will never 'Map' to other registrations.
+        /// In other words this registration will always create build plan and resolve new objects through it.
+        /// </remarks>
+        /// <param name="interfaces">Collection of interfaces that <paramref name="implementationType"/> exposes to container</param>
+        /// <param name="implementationType"><see cref="Type"/> that will be used to instantiate object.</param>
+        /// <param name="name">Name of the registration</param>
+        /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
+        /// <param name="injectionMembers">Injection configuration objects.</param>
+        /// <returns></returns>
+        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type implementationType, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Unity
         /// creates the instance ahead of type and adds that instance to the container.
         /// </para>
         /// </remarks>
-        /// <param name="type"><see cref="Type"/> of instance to register (may be an implemented interface instead of the actual type).</param>
+        /// <param name="interfaces">Collection of interfaces that <paramref name="implementationType"/> exposes to container</param>
         /// <param name="instance">Object to be registered</param>
         /// <param name="name">Name for registration</param>
         /// <param name="lifetimeManager">
@@ -47,7 +47,7 @@ namespace Unity
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetimeManager);
+        IUnityContainer RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, LifetimeManager lifetimeManager);
 
 
         /// <summary>
@@ -81,26 +81,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        object Resolve(Type type, string name, params ResolverOverride[] overrides);
-
-
-        /// <summary>
-        /// Run an existing object through the container's build pipeline and perform injections on it.
-        /// </summary>
-        /// <remarks>
-        /// This method is useful when you don't control the construction of an
-        /// instance (ASP.NET pages or objects created via XAML, for instance)
-        /// but you still want properties and other injections performed.
-        /// </remarks>
-        /// <param name="type"><see cref="Type"/> of object to perform injection on.</param>
-        /// <param name="existing">Instance to the object.</param>
-        /// <param name="name">name to use when looking up the registration and other configurations.</param>
-        /// <param name="overrides">Any overrides for the resolve calls.</param>
-        /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
-        /// container extensions may add things like automatic proxy creation which would
-        /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
-        object BuildUp(Type type, object existing, string name, params ResolverOverride[] overrides);
-
+        Task<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
 
         /// <summary>
         /// The parent of this container.

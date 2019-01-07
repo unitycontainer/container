@@ -10,7 +10,8 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
-    public class ResolvedParameter : ParameterBase, IResolverFactory,
+    public class ResolvedParameter : ParameterBase, 
+                                     IResolverFactory,
                                      IResolverFactory<ParameterInfo>
     {
         #region Fields
@@ -62,52 +63,47 @@ namespace Unity.Injection
         #endregion
 
 
-        #region TypedInjectionValue
+        #region IResolverFactory
 
-        // TODO: Optimize GetTypeInfo
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-            if (null != ParameterType)
-            {
-                var info = ParameterType.GetTypeInfo();
-
-                if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                    info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
-                {
-                    return (ref TContext c) => c.Resolve(type, _name);
-                }
-
-                return (ref TContext c) => c.Resolve(ParameterType, _name);
-            }
-            else
+#if NETSTANDARD1_0 || NETCOREAPP1_0 
+            var info = ParameterType?.GetTypeInfo();
+            if (null == info || info.IsGenericType && info.ContainsGenericParameters ||
+                ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                ParameterType.IsGenericParameter)
+#else
+            if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
+                ParameterType.IsArray && ParameterType.GetElementType().IsGenericParameter ||
+                ParameterType.IsGenericParameter)
+#endif
             {
                 return (ref TContext c) => c.Resolve(type, _name);
             }
+
+            return (ref TContext c) => c.Resolve(ParameterType, _name);
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) 
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
             where TContext : IResolveContext
         {
-            if (null != ParameterType)
+#if NETSTANDARD1_0 || NETCOREAPP1_0 
+            var parameterInfo = ParameterType?.GetTypeInfo();
+            if (null == parameterInfo || parameterInfo.IsGenericType && parameterInfo.ContainsGenericParameters ||
+                ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                ParameterType.IsGenericParameter)
+#else
+            if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
+                ParameterType.IsArray && ParameterType.GetElementType().IsGenericParameter ||
+                ParameterType.IsGenericParameter)
+#endif
             {
-                var type = parameterInfo.Member.DeclaringType;
-                var info = ParameterType.GetTypeInfo();
-
-                if (ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                    info.IsGenericType && info.ContainsGenericParameters || ParameterType.IsGenericParameter)
-                {
-                    var parameterType = ParameterType.GetClosedParameterType(type.GetTypeInfo().GenericTypeArguments);
-                    return (ref TContext c) => c.Resolve(parameterType, _name);
-                }
-
-                return (ref TContext c) => c.Resolve(ParameterType, _name);
-            }
-            else
-            {
-                var type = parameterInfo.ParameterType;
+                var type = info.ParameterType;
                 return (ref TContext c) => c.Resolve(type, _name);
             }
+
+            return (ref TContext c) => c.Resolve(ParameterType, _name);
         }
 
         #endregion

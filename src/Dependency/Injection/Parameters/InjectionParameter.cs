@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -12,16 +11,25 @@ namespace Unity.Injection
     /// </summary>
     public class InjectionParameter : ParameterBase, IResolve
     {
+        #region Fields
+
+        private readonly object _value;
+
+        #endregion
+
+
+        #region Constructors
+
         /// <summary>
         /// Create an instance of <see cref="InjectionParameter"/> that stores
         /// the given value, using the runtime type of that value as the
         /// type of the parameter.
         /// </summary>
-        /// <param name="parameterValue">InjectionParameterValue to be injected for this parameter.</param>
-        public InjectionParameter(object parameterValue)
-            : base((parameterValue ?? throw new ArgumentNullException(nameof(parameterValue))).GetType())
+        /// <param name="value">Value to be injected for this parameter.</param>
+        public InjectionParameter(object value)
+            : base((value ?? throw new ArgumentNullException(nameof(value))).GetType())
         {
-            Value = parameterValue;
+            _value = value;
         }
 
         /// <summary>
@@ -33,16 +41,21 @@ namespace Unity.Injection
         public InjectionParameter(Type parameterType, object parameterValue)
             : base(parameterType)
         {
-            Value = parameterValue;
+            _value = parameterValue;
         }
 
-        public object Value { get; }
+        #endregion
+
+
+        #region IResolve
 
         public object Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext
         {
-            return Value;
+            return _value;
         }
+
+        #endregion
     }
 
     /// <summary>
@@ -55,9 +68,9 @@ namespace Unity.Injection
         /// <summary>
         /// Create a new <see cref="InjectionParameter{TParameter}"/>.
         /// </summary>
-        /// <param name="parameterValue">InjectionParameterValue for the parameter.</param>
-        public InjectionParameter(TParameter parameterValue)
-            : base(typeof(TParameter), parameterValue)
+        /// <param name="value">Value for the parameter to be injected.</param>
+        public InjectionParameter(TParameter value)
+            : base(typeof(TParameter), value)
         {
         }
     }

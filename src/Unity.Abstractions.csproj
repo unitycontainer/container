@@ -39,6 +39,15 @@
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Compile Remove="IUnityContainerAsync.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
+    <Compile Remove="IUnityContainerAsync.Net40.cs" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Remove="Unity.Abstractions.csproj.DotSettings" />
   </ItemGroup>

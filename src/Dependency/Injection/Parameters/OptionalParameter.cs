@@ -10,15 +10,26 @@ namespace Unity.Injection
     /// <see cref="IUnityContainer.RegisterType"/> to configure a
     /// parameter or property as an optional dependency.
     /// </summary>
-    public class OptionalParameter : ParameterBase, 
-                                     IResolverFactory, 
+    public class OptionalParameter : ParameterBase,
+                                     IResolverFactory,
                                      IResolverFactory<ParameterInfo>
     {
+        #region Fields
+
         private readonly string _name;
 
+        #endregion
+
+
+        #region Constructors
+
+        /// <summary>
+        /// Construct a new <see cref="OptionalParameter"/> instance that
+        /// specifies to optionally resolve whatever <see cref="Type"/> specified
+        /// at this position
+        /// </summary>
         public OptionalParameter()
         {
-
         }
 
         /// <summary>
@@ -54,66 +65,56 @@ namespace Unity.Injection
             _name = name;
         }
 
+        #endregion
+
+
+        #region IResolverFactory
+
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-            var info = ParameterType.GetTypeInfo();
-            var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)
-                ? ParameterType
-                : ParameterType.GetClosedParameterType(type.GetTypeInfo()
-                                                           .GenericTypeArguments);
             return (ref TContext c) =>
             {
-                try
-                {
-                    return c.Resolve(typeToResolve, _name);
-                }
-                catch
-                {
-                    return null;
-                }
+                try { return c.Resolve(type, _name); }
+                catch { return null; }
             };
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo parameterInfo) 
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
             where TContext : IResolveContext
         {
-            if (null != ParameterType)
+#if NET40
+            object value = null;
+#else
+            var value = info.HasDefaultValue ? info.DefaultValue : null;
+#endif
+#if NETSTANDARD1_0 || NETCOREAPP1_0 
+            var typeInfo = ParameterType?.GetTypeInfo();
+            if (null == typeInfo || typeInfo.IsGenericType && typeInfo.ContainsGenericParameters ||
+                ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                ParameterType.IsGenericParameter)
+#else
+            if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
+                ParameterType.IsArray && ParameterType.GetElementType().IsGenericParameter ||
+                ParameterType.IsGenericParameter)
+#endif
             {
-                var info = ParameterType.GetTypeInfo();
-                var type = parameterInfo.ParameterType;
-                var typeToResolve = !(info.IsGenericType && info.ContainsGenericParameters)
-                    ? ParameterType
-                    : ParameterType.GetClosedParameterType(type.GetTypeInfo()
-                                                               .GenericTypeArguments);
+                var type = info.ParameterType;
                 return (ref TContext c) =>
                 {
-                    try
-                    {
-                        return c.Resolve(typeToResolve, _name);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    try { return c.Resolve(type, _name); }
+                    catch { return value; }
                 };
             }
-            else
+
+            return (ref TContext c) =>
             {
-                var type = parameterInfo.ParameterType;
-                return (ref TContext c) =>
-                {
-                    try
-                    {
-                        return c.Resolve(type, _name);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                };
-            }
+                try { return c.Resolve(ParameterType, _name); }
+                catch { return value; }
+            };
         }
+
+        #endregion
     }
 
     /// <summary>

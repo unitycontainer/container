@@ -9,6 +9,10 @@ namespace Unity.Injection
     /// </summary>
     public abstract class ParameterValue : IEquatable<Type>
     {
+        #region IEquatable
+
         public abstract bool Equals(Type type);
+
+        #endregion
     }
 }

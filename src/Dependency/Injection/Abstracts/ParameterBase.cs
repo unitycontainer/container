@@ -18,17 +18,12 @@ namespace Unity.Injection
 
         #region Constructors
 
-        public ParameterBase()
-        {
-
-        }
-
         /// <summary>
         /// Create a new <see cref="ParameterBase"/> that exposes
         /// information about the given <paramref name="parameterType"/>.
         /// </summary>
         /// <param name="parameterType">Type of the parameter.</param>
-        protected ParameterBase(Type parameterType)
+        protected ParameterBase(Type parameterType = null)
         {
             _type = parameterType;
         }
@@ -36,14 +31,18 @@ namespace Unity.Injection
 
         #endregion
 
+
+        #region Public Properties
+
         /// <summary>
         /// The type of parameter this object represents.
         /// </summary>
         public virtual Type ParameterType => _type;
 
+        #endregion
 
-         
 
+        #region Overrides
 
         public override bool Equals(Type t)
         {
@@ -59,5 +58,7 @@ namespace Unity.Injection
 
             return cInfo.IsAssignableFrom(info);
         }
+
+        #endregion
     }
 }

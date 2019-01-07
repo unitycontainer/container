@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Reflection;
 using Unity.Policy;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -12,6 +10,8 @@ namespace Unity.Injection
     /// </summary>
     public class OptionalGenericParameter : GenericBase
     {
+        #region Constructors
+
         /// <summary>
         /// Create a new <see cref="GenericParameter"/> instance that specifies
         /// that the given named generic parameter should be resolved.
@@ -26,24 +26,25 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        /// <param name="resolutionKey">name to use when looking up in the container.</param>
-        public OptionalGenericParameter(string genericParameterName, string resolutionKey)
-            : base(genericParameterName, resolutionKey)
+        /// <param name="name">Registration name to use when looking up in the container.</param>
+        public OptionalGenericParameter(string genericParameterName, string name)
+            : base(genericParameterName, name)
         { }
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
+        #endregion
+
+
+        #region Overrides
+
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
         {
             return (ref TContext context) =>
             {
-                try
-                {
-                    return context.Resolve(type, resolutionKey);
-                }
-                catch
-                {
-                    return null;
-                }
+                try { return context.Resolve(type, name); }
+                catch {return null; }
             };
         }
+
+        #endregion
     }
 }

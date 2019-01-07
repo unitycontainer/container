@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
@@ -13,15 +11,25 @@ namespace Unity.Injection
     /// resolver object that resolves all the named instances or the
     /// type registered in a container.
     /// </summary>
-    public class ResolvedArrayParameter : ParameterBase, IResolverFactory, IResolverFactory<ParameterInfo>
+    public class ResolvedArrayParameter : ParameterBase,
+                                          IResolverFactory,
+                                          IResolverFactory<ParameterInfo>
     {
-        private readonly Type _elementType;
+        #region Fields
+
         private readonly object[] _values;
-        private readonly List<ParameterValue> _elementValues = new List<ParameterValue>();
+        private readonly Type _elementType;
+
         private static readonly MethodInfo ResolverMethod =
             typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
+
         private delegate object Resolver<TContext>(ref TContext context, object[] values)
             where TContext : IResolveContext;
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Construct a new <see cref="ResolvedArrayParameter"/> that
@@ -49,22 +57,59 @@ namespace Unity.Injection
             _elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             _values = elementValues;
 
-            _elementValues.AddRange(ToParameters(elementValues ?? throw new ArgumentNullException(nameof(elementValues))));
-            foreach (ParameterValue pv in _elementValues)
+            // Verify array elements
+            foreach (var pv in elementValues)
             {
-                if (pv is IEquatable<Type> equatable && !equatable.Equals(elementType))
-                {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            CultureInfo.CurrentCulture,
-                            Constants.TypesAreNotAssignable,
-                            elementType,
-                            "pv.ParameterTypeName")); // TODO: Re-implement properly
-                }
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                var info = _elementType.GetTypeInfo();
+                if ((pv is IEquatable<Type> equatable && equatable.Equals(elementType)) ||
+                    (pv is Type type && type == _elementType) || info.IsAssignableFrom(pv?.GetType().GetTypeInfo()))
+                    continue;
+#else
+                if ((pv is IEquatable<Type> equatable && equatable.Equals(elementType)) ||
+                    (pv is Type type && type == _elementType) || _elementType.IsAssignableFrom(pv?.GetType()))
+                    continue;
+#endif
+                throw new InvalidOperationException(
+                    $"The type {pv.GetType()} cannot be assigned to variables of type {elementType}.");
             }
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
+        #endregion
+
+
+        #region IResolverFactory
+
+        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
+        {
+            var elementType = !_elementType.IsArray
+                            ? _elementType
+                            : _elementType.GetArrayParameterType(type.GetTypeInfo()
+                                                                     .GenericTypeArguments);
+
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
+                                                                   .CreateDelegate(typeof(Resolver<TContext>));
+            var values = _values.Select(value =>
+            {
+                switch (value)
+                {
+                    case IResolverFactory factory:
+                        return factory.GetResolver<TContext>(type);
+
+                    case Type _ when typeof(Type) != elementType:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+
+                    default:
+                        return value;
+                }
+
+            }).ToArray();
+
+            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
+        }
+
+        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
             where TContext : IResolveContext
         {
             var elementType = info.ParameterType.GetElementType();
@@ -89,33 +134,10 @@ namespace Unity.Injection
             return (ref TContext context) => resolverMethod.Invoke(ref context, values);
         }
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            var elementType = !_elementType.IsArray ? _elementType
-                : _elementType.GetArrayParameterType(type.GetTypeInfo().GenericTypeArguments);
+        #endregion
 
-            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
-                .CreateDelegate(typeof(Resolver<TContext>));
 
-            var values = _values.Select(value =>
-            {
-                switch (value)
-                {
-                    case IResolverFactory factory:
-                        return factory.GetResolver<TContext>(type);
-
-                    case Type _ when typeof(Type) != elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
-
-                    default:
-                        return value;
-                }
-
-            }).ToArray();
-
-            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
-        }
+        #region Implementation
 
         private static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
             where TContext : IResolveContext
@@ -128,60 +150,24 @@ namespace Unity.Injection
             }
 
             return result;
-        }
 
-        protected static object ResolveValue<TContext>(ref TContext context, object value)
-            where TContext : IResolveContext
-        {
-            switch (value)
+
+            object ResolveValue(ref TContext c, object value)
             {
-                case ResolveDelegate<TContext> resolver:
-                    return resolver(ref context);
+                switch (value)
+                {
+                    case ResolveDelegate<TContext> resolver:
+                        return resolver(ref c);
 
-                case IResolve policy:
-                    return policy.Resolve(ref context);
-            }
+                    case IResolve policy:
+                        return policy.Resolve(ref c);
+                }
 
-            return value;
-        }
-
-        /// <summary>
-        /// Convert the given set of arbitrary values to a sequence of InjectionParameterValue
-        /// objects. The rules are: If it's already an InjectionParameterValue, return it. If
-        /// it's a Type, return a ResolvedParameter object for that type. Otherwise return
-        /// an InjectionParameter object for that value.
-        /// </summary>
-        /// <param name="values">The values to build the sequence from.</param>
-        /// <returns>The resulting converted sequence.</returns>
-        public static IEnumerable<ParameterValue> ToParameters(params object[] values)
-        {
-            foreach (object value in values)
-            {
-                yield return ToParameter(value);
+                return value;
             }
         }
 
-        /// <summary>
-        /// Convert an arbitrary value to an InjectionParameterValue object. The rules are: 
-        /// If it's already an InjectionParameterValue, return it. If it's a Type, return a
-        /// ResolvedParameter object for that type. Otherwise return an InjectionParameter
-        /// object for that value.
-        /// </summary>
-        /// <param name="value">The value to convert.</param>
-        /// <returns>The resulting <see cref="ParameterValue"/>.</returns>
-        public static ParameterValue ToParameter(object value)
-        {
-            switch (value)
-            {
-                case ParameterValue parameterValue:
-                    return parameterValue;
-
-                case Type typeValue:
-                    return new ResolvedParameter(typeValue);
-            }
-
-            return new InjectionParameter(value);
-        }
+        #endregion
     }
 
     /// <summary>

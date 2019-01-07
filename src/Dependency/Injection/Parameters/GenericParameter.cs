@@ -1,14 +1,13 @@
-﻿using System;
-using Unity.Policy;
-
-namespace Unity.Injection
+﻿namespace Unity.Injection
 {
     /// <summary>
     /// A <see cref="ParameterValue"/> that lets you specify that
     /// an instance of a generic type parameter should be resolved.
     /// </summary>
-    public class GenericParameter : GenericBase, IResolverFactory
+    public class GenericParameter : GenericBase
     {
+        #region Constructors
+
         /// <summary>
         /// Create a new <see cref="GenericParameter"/> instance that specifies
         /// that the given named generic parameter should be resolved.
@@ -23,14 +22,11 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        /// <param name="resolutionKey">name to use when looking up in the container.</param>
-        public GenericParameter(string genericParameterName, string resolutionKey)
-            : base(genericParameterName, resolutionKey)
+        /// <param name="name">Registration name to use when looking up in the container.</param>
+        public GenericParameter(string genericParameterName, string name)
+            : base(genericParameterName, name)
         { }
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string resolutionKey)
-        {
-            return (ref TContext context) => context.Resolve(type, resolutionKey);
-        }
+        #endregion
     }
 }
