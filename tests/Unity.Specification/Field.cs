@@ -20,6 +20,17 @@ namespace Compiled.Field
             return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
         }
     }
+
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Field.Overrides.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+        }
+    }
+   
 }
 
 namespace Resolved.Field
@@ -35,6 +46,15 @@ namespace Resolved.Field
 
     [TestClass]
     public class Injection : Unity.Specification.Field.Injection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+        }
+    }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Field.Overrides.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

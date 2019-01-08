@@ -38,7 +38,18 @@ namespace Compiled.Parameter
             return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
         }
     }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Parameter.Overrides.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+        }
+    }
 }
+
+
 
 namespace Resolved.Parameter
 {
@@ -71,6 +82,15 @@ namespace Resolved.Parameter
 
     [TestClass]
     public class Optional : Unity.Specification.Parameter.Optional.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+        }
+    }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Parameter.Overrides.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
