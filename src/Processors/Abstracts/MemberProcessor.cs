@@ -213,7 +213,7 @@ namespace Unity.Processors
                 case IResolve policy:
                     return (ResolveDelegate<BuilderContext>)policy.Resolve;
 
-                case IResolverFactory factory:
+                case IResolverFactory<Type> factory:
                     return factory.GetResolver<BuilderContext>(MemberType(info));
 
                 case Type type:

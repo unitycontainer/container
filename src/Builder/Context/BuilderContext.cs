@@ -20,7 +20,7 @@ namespace Unity.Builder
         #region Fields
 
         public ResolverOverride[] Overrides;
-        public IPolicyList list;
+        public IPolicyList List;
 
         public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
 
@@ -45,13 +45,13 @@ namespace Unity.Builder
 
         public object Get(Type policyInterface)
         {
-            return list.Get(RegistrationType, Name, policyInterface) ?? 
+            return List.Get(RegistrationType, Name, policyInterface) ?? 
                    Registration.Get(policyInterface);
         }
 
         public object Get(Type type, string name, Type policyInterface)
         {
-            return list.Get(type, name, policyInterface) ??
+            return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
                        ? ((UnityContainer)Container).GetPolicy(type, name, policyInterface)
                        : Registration.Get(policyInterface));
@@ -59,17 +59,17 @@ namespace Unity.Builder
 
         public void Set(Type policyInterface, object policy)
         {
-            list.Set(RegistrationType, Name, policyInterface, policy);
+            List.Set(RegistrationType, Name, policyInterface, policy);
         }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
         {
-            list.Set(type, name, policyInterface, policy);
+            List.Set(type, name, policyInterface, policy);
         }
 
         public void Clear(Type type, string name, Type policyInterface)
         {
-            list.Clear(type, name, policyInterface);
+            List.Clear(type, name, policyInterface);
         }
 
         #endregion
@@ -116,7 +116,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
                     ExecutePlan = ExecutePlan,
-                    list = list,
+                    List = List,
                     Overrides = Overrides,
                     Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
                 };
@@ -218,7 +218,7 @@ namespace Unity.Builder
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
-                case IResolverFactory factory:
+                case IResolverFactory<Type> factory:
                     var method = factory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
             }
@@ -274,7 +274,7 @@ namespace Unity.Builder
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
 
-                case IResolverFactory factory:
+                case IResolverFactory<Type> factory:
                     var method = factory.GetResolver<BuilderContext>(Type);
                     return method?.Invoke(ref context);
             }

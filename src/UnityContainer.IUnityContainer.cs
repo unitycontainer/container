@@ -159,7 +159,7 @@ namespace Unity
             var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext
             {
-                list = new PolicyList(),
+                List = new PolicyList(),
                 Lifetime = LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
@@ -189,7 +189,7 @@ namespace Unity
             var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext
             {
-                list = new PolicyList(),
+                List = new PolicyList(),
                 Lifetime = LifetimeContainer,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
