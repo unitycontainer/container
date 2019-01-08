@@ -101,7 +101,6 @@ namespace Unity.Injection
         {
             var parameters = info.GetParameters();
 
-            // TODO: optimize
             if ((data?.Length ?? 0) != parameters.Length) return false;
 
             for (var i = 0; i < (data?.Length ?? 0); i++)
