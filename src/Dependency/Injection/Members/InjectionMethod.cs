@@ -57,10 +57,10 @@ namespace Unity.Injection
             base.ValidateInjectionMember(type);
 
             // TODO: 5.9.0 Verify necessity 
-            if (MemberInfo.IsStatic) ThrowIllegalMember(Constants.CannotInjectStaticMethod, type);
-            if (MemberInfo.IsGenericMethodDefinition) ThrowIllegalMember(Constants.CannotInjectGenericMethod, type);
-            if (MemberInfo.GetParameters().Any(param => param.IsOut)) ThrowIllegalMember(Constants.CannotInjectMethodWithOutParams, type);
-            if (MemberInfo.GetParameters().Any(param => param.ParameterType.IsByRef)) ThrowIllegalMember(Constants.CannotInjectMethodWithRefParams, type);
+            if (MemberInfo.IsStatic) ThrowIllegalMember("The method {0}.{1}({2}) is static. Static methods cannot be injected.", type);
+            if (MemberInfo.IsGenericMethodDefinition) ThrowIllegalMember("The method {0}.{1}({2}) is an open generic method. Open generic methods cannot be injected.", type);
+            if (MemberInfo.GetParameters().Any(param => param.IsOut)) ThrowIllegalMember("The method {0}.{1}({2}) has at least one out parameter. Methods with out parameters cannot be injected.", type);
+            if (MemberInfo.GetParameters().Any(param => param.ParameterType.IsByRef)) ThrowIllegalMember("The method {0}.{1}({2}) has at least one ref parameter.Methods with ref parameters cannot be injected.", type);
         }
 
 #if NETSTANDARD1_0
