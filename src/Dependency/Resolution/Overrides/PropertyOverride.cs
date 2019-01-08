@@ -68,7 +68,7 @@ namespace Unity.Resolution
             if (Value is IResolve policy)
                 return policy.Resolve(ref context);
 
-            if (Value is IResolverFactory factory)
+            if (Value is IResolverFactory<Type> factory)
             {
                 var resolveDelegate = factory.GetResolver<TContext>(Type);
                 return resolveDelegate(ref context);

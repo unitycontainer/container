@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// container.
     /// </summary>
     public class ResolvedParameter : ParameterBase, 
-                                     IResolverFactory,
+                                     IResolverFactory<Type>,
                                      IResolverFactory<ParameterInfo>
     {
         #region Fields

@@ -12,7 +12,7 @@ namespace Unity.Injection
     /// type registered in a container.
     /// </summary>
     public class ResolvedArrayParameter : ParameterBase,
-                                          IResolverFactory,
+                                          IResolverFactory<Type>,
                                           IResolverFactory<ParameterInfo>
     {
         #region Fields
@@ -94,7 +94,7 @@ namespace Unity.Injection
             {
                 switch (value)
                 {
-                    case IResolverFactory factory:
+                    case IResolverFactory<Type> factory:
                         return factory.GetResolver<TContext>(type);
 
                     case Type _ when typeof(Type) != elementType:
@@ -119,7 +119,7 @@ namespace Unity.Injection
             {
                 switch (value)
                 {
-                    case IResolverFactory factory:
+                    case IResolverFactory<Type> factory:
                         return factory.GetResolver<TContext>(elementType);
 
                     case Type _ when typeof(Type) != elementType:

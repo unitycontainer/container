@@ -9,7 +9,7 @@ namespace Unity.Injection
     /// Base class for generic type parameters.
     /// </summary>
     public abstract class GenericBase : ParameterValue,
-                                        IResolverFactory,
+                                        IResolverFactory<Type>,
                                         IResolverFactory<ParameterInfo>
     {
         #region Fields

@@ -11,7 +11,7 @@ namespace Unity.Injection
     /// parameter or property as an optional dependency.
     /// </summary>
     public class OptionalParameter : ParameterBase,
-                                     IResolverFactory,
+                                     IResolverFactory<Type>,
                                      IResolverFactory<ParameterInfo>
     {
         #region Fields

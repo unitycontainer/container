@@ -7,7 +7,7 @@ namespace Unity.Resolution
     /// Base class for all override objects passed in the
     /// <see cref="IUnityContainer.Resolve"/> method.
     /// </summary>
-    public abstract class ResolverOverride : IResolverFactory
+    public abstract class ResolverOverride : IResolverFactory<Type>
     {
         #region Fields
 
