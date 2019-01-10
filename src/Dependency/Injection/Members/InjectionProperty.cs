@@ -44,9 +44,9 @@ namespace Unity.Injection
         protected override PropertyInfo DeclaredMember(Type type, string name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            return type.GetTypeInfo().GetDeclaredProperty(MemberInfo.Name);
+            return type.GetTypeInfo().GetDeclaredProperty(Selection.Name);
 #else
-            return type.GetProperty(MemberInfo.Name);
+            return type.GetProperty(Selection.Name);
 #endif
         }
 
@@ -71,24 +71,7 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override Type MemberType => MemberInfo.PropertyType;
-
-        protected override void ValidateInjectionMember(Type type)
-        {
-            base.ValidateInjectionMember(type);
-
-            if (!MemberInfo.CanWrite)
-            {
-                throw new InvalidOperationException(
-                    $"The property {MemberInfo.Name} on type {MemberInfo.DeclaringType} is not settable.");
-            }
-
-            if (MemberInfo.GetIndexParameters().Length > 0)
-            {
-                throw new InvalidOperationException(
-                    $"The property {MemberInfo.Name} on type {MemberInfo.DeclaringType} is an indexer. Indexed properties cannot be injected.");
-            }
-        }
+        protected override Type MemberType => Selection.PropertyType;
 
         #endregion
     }

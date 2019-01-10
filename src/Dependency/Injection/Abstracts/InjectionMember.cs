@@ -49,6 +49,17 @@ namespace Unity.Injection
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
+        #region Fields
+
+        protected const string NoMatchFound = "No member matching data has been found. \r\n";
+
+        protected string Name { get; }
+
+        protected TMemberInfo Selection { get; set; }
+
+        #endregion
+
+
         #region Constructors
 
         protected InjectionMember(string name, TData data)
@@ -59,7 +70,7 @@ namespace Unity.Injection
 
         protected InjectionMember(TMemberInfo info, TData data)
         {
-            MemberInfo = info;
+            Selection = info;
             Name = info.Name;
             Data = data;
         }
@@ -69,46 +80,38 @@ namespace Unity.Injection
 
         #region Public Members
 
-        public abstract (TMemberInfo, TData) FromType(Type type);
+        public TData Data { get; set; }
+
+        public abstract TMemberInfo MemberInfo(Type type);
 
         #endregion
 
 
-        #region Properties
-
-        protected TData Data { get; set; }
-
-        protected string Name { get; }
-
-        protected TMemberInfo MemberInfo { get; set; }
-
-        #endregion
-
-
-        #region Methods
-
-        protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
-
-        protected virtual bool MatchMemberInfo(TMemberInfo info, TData data) => info.Name == Name;
-
-        protected virtual void ValidateInjectionMember(Type type)
-        {
-            if (null != MemberInfo) return;
-
-            // TODO: 5.9.0 Implement correct error message
-            var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
-            var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
-            throw new InvalidOperationException(message);
-        }
-
-        #endregion
-
-
-        #region Interface Implementations
+        #region Equatable
 
         public virtual bool Equals(TMemberInfo other)
         {
-            return MemberInfo?.Equals(other) ?? false;
+            return Selection?.Equals(other) ?? false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            switch (obj)
+            {
+                case TMemberInfo info:
+                    return Equals(info);
+
+                case IEquatable<TMemberInfo> equatable:
+                    return equatable.Equals(Selection);
+
+                default:
+                    return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Selection?.GetHashCode() ?? 0;
         }
 
         #endregion
@@ -120,117 +123,20 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
         {
-            if (ReferenceEquals(Data, InjectionMethodAttribute.Instance))
-            {
-                foreach (var member in DeclaredMembers(mappedToType))
-                {
-                    if (Name != member.Name) continue;
-                    if (null != MemberInfo) ThrowAmbiguousMember(MemberInfo, mappedToType);
+            var select = policies.Get<Func<IEnumerable<TMemberInfo>, TData, TMemberInfo>>() 
+                      ?? SelectMember;
 
-                    MemberInfo = member;
-                }
-            }
-            else
-            {
-                foreach (var member in DeclaredMembers(mappedToType))
-                {
-                    if (!MatchMemberInfo(member, Data)) continue;
-                    if (null != MemberInfo) ThrowAmbiguousMember(MemberInfo, mappedToType);
-
-                    MemberInfo = member;
-                }
-            }
-
-            ValidateInjectionMember(mappedToType);
-        }
-
-        protected virtual void ThrowAmbiguousMember(TMemberInfo info, Type type)
-        {
-            // TODO: 5.9.0 Proper error message
-            var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
-            var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
-            throw new InvalidOperationException(message);
-        }
-
-        public override bool Equals(object obj)
-        {
-            switch (obj)
-            {
-                case TMemberInfo info:
-                    return Equals(info);
-
-                case IEquatable<TMemberInfo> equatable:
-                    return equatable.Equals(MemberInfo);
-
-                default:
-                    return false;
-            }
-        }
-
-        public override int GetHashCode()
-        {
-            return MemberInfo?.GetHashCode() ?? 0;
+            Selection = select(DeclaredMembers(mappedToType), Data);
         }
 
         #endregion
 
 
-        #region Signature matching
+        #region Implementation
 
-        protected virtual bool Matches(object data, Type match)
-        {
-            switch (data)
-            {
-                case IEquatable<Type> equatable:
-                    return equatable.Equals(match);
+        protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-                case Type type:
-                    return MatchesType(type, match);
-
-                default:
-                    return MatchesObject(data, match);
-            }
-        }
-
-        protected static bool MatchesType(Type type, Type match)
-        {
-            if (null == type) return true;
-
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-            if ((typeInfo.IsArray || typeof(Array) == type) &&
-               (matchInfo.IsArray || match == typeof(Array)))
-                return true;
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-
-            return false;
-        }
-
-        protected static bool MatchesObject(object parameter, Type match)
-        {
-            var type = parameter is Type ? typeof(Type) : parameter?.GetType();
-
-            if (null == type) return true;
-
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-            if ((typeInfo.IsArray || typeof(Array) == type) &&
-                (matchInfo.IsArray || match == typeof(Array)))
-                return true;
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-
-            return false;
-        }
+        protected virtual TMemberInfo SelectMember(IEnumerable<TMemberInfo> members, TData data) => throw new NotImplementedException();
 
         #endregion
     }

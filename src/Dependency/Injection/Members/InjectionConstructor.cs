@@ -21,20 +21,32 @@ namespace Unity.Injection
         /// <param name="arguments">The values for the constructor's parameters, that will
         /// be used to create objects.</param>
         public InjectionConstructor(params object[] arguments)
-            : base(Signature(arguments), arguments)
+            : base((string)null, arguments)
         {
         }
 
         public InjectionConstructor(ConstructorInfo info, params object[] arguments)
-            : base(Signature(arguments), arguments)
+            : base((string)null, arguments)
         {
-            MemberInfo = info;
+            Selection = info;
         }
 
         #endregion
 
 
         #region Overrides
+
+        protected override ConstructorInfo SelectMember(IEnumerable<ConstructorInfo> members, object[] data)
+        {
+            foreach (var member in members)
+            {
+                if (!Data.MatchMemberInfo(member)) continue;
+
+                return member;
+            }
+
+            throw new InvalidOperationException(NoMatchFound);
+        }
 
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -19,32 +20,31 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (TMemberInfo, object) FromType(Type type)
+        public override TMemberInfo MemberInfo(Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var declaringType = MemberInfo.DeclaringType.GetTypeInfo();
+            var declaringType = Selection.DeclaringType.GetTypeInfo();
             if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
-                return (MemberInfo, Data);
+                return Selection;
 #else
-            if (MemberInfo.DeclaringType != null &&
-               !MemberInfo.DeclaringType.IsGenericType &&
-               !MemberInfo.DeclaringType.ContainsGenericParameters)
-                return (MemberInfo, Data);
+            if (Selection.DeclaringType != null &&
+               !Selection.DeclaringType.IsGenericType &&
+               !Selection.DeclaringType.ContainsGenericParameters)
+                return Selection;
 #endif
-            return (DeclaredMember(type, MemberInfo.Name), Data);
+            return DeclaredMember(type, Selection.Name);
         }
 
-        protected override void ValidateInjectionMember(Type type)
+        protected override TMemberInfo SelectMember(IEnumerable<TMemberInfo> members, object data)
         {
-            base.ValidateInjectionMember(type);
-
-            if (null == Data || Data is DependencyResolutionAttribute) return;
-
-            if (!Matches(Data, MemberType))
+            foreach (var member in members)
             {
-                throw new InvalidOperationException(
-                    $"Type of injector {Name} does not match member type '{MemberType}'");
+                if (member.Name != Name) continue;
+
+                return member;
             }
+
+            throw new InvalidOperationException(NoMatchFound);
         }
 
 #if NETSTANDARD1_0

@@ -39,9 +39,9 @@ namespace Unity.Injection
         protected override FieldInfo DeclaredMember(Type type, string name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            return type.GetTypeInfo().GetDeclaredField(MemberInfo.Name);
+            return type.GetTypeInfo().GetDeclaredField(Selection.Name);
 #else
-            return type.GetField(MemberInfo.Name);
+            return type.GetField(Selection.Name);
 #endif
         }
 
@@ -66,18 +66,7 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override Type MemberType => MemberInfo.FieldType;
-
-        protected override void ValidateInjectionMember(Type type)
-        {
-            base.ValidateInjectionMember(type);
-
-            if (MemberInfo.IsInitOnly)
-            {
-                throw new InvalidOperationException(
-                    $"The field {MemberInfo.Name} on type {MemberInfo.DeclaringType} is not settable.");
-            }
-        }
+        protected override Type MemberType => Selection.FieldType;
 
         #endregion
     }

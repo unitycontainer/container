@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -21,8 +20,7 @@ namespace Unity.Injection
         /// <param name="name">Name of the method to call.</param>
         /// <param name="arguments">Parameter values for the method.</param>
         public InjectionMethod(string name, params object[] arguments)
-            : base(name, null == arguments || 0 == arguments.Length 
-                  ? InjectionMethodAttribute.Instance : arguments)
+            : base(name, arguments)
         {
         }
 
@@ -30,6 +28,26 @@ namespace Unity.Injection
 
 
         #region Overrides
+
+        protected override MethodInfo SelectMember(IEnumerable<MethodInfo> members, object[] data)
+        {
+            var noData = 0 == (Data?.Length ?? 0);
+
+            foreach (var member in members)
+            {
+                if (null != Name)
+                {
+                    if (Name != member.Name) continue;
+                    if (noData) return member;
+                }
+
+                if (!Data.MatchMemberInfo(member)) continue;
+
+                return member;
+            }
+
+            throw new InvalidOperationException(NoMatchFound);
+        }
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
@@ -52,17 +70,6 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override void ValidateInjectionMember(Type type)
-        {
-            base.ValidateInjectionMember(type);
-
-            // TODO: 5.9.0 Verify necessity 
-            if (MemberInfo.IsStatic) ThrowIllegalMember("The method {0}.{1}({2}) is static. Static methods cannot be injected.", type);
-            if (MemberInfo.IsGenericMethodDefinition) ThrowIllegalMember("The method {0}.{1}({2}) is an open generic method. Open generic methods cannot be injected.", type);
-            if (MemberInfo.GetParameters().Any(param => param.IsOut)) ThrowIllegalMember("The method {0}.{1}({2}) has at least one out parameter. Methods with out parameters cannot be injected.", type);
-            if (MemberInfo.GetParameters().Any(param => param.ParameterType.IsByRef)) ThrowIllegalMember("The method {0}.{1}({2}) has at least one ref parameter.Methods with ref parameters cannot be injected.", type);
-        }
-
 #if NETSTANDARD1_0
 
         public override bool Equals(MethodInfo other)
@@ -73,30 +80,15 @@ namespace Unity.Injection
                                       .Select(p => p.ParameterType)
                                       .ToArray();
 
-            if (MemberInfo.ContainsGenericParameters)
+            if (Selection.ContainsGenericParameters)
                 return Data.Length == parameterTypes.Length;
 
-            return MemberInfo.GetParameters()
+            return Selection.GetParameters()
                              .Select(p => p.ParameterType)
                              .SequenceEqual(parameterTypes);
         }
 
 #endif
-        #endregion
-
-
-        #region Implementation
-
-        private void ThrowIllegalMember(string message, Type type)
-        {
-            throw new InvalidOperationException(
-                string.Format(CultureInfo.CurrentCulture,
-                    message,
-                    type.GetTypeInfo().Name,
-                    // TODO: 5.9.0
-                    Name, "string.Join(", ", _injectionParameterValues.FromType(mp => mp.ParameterTypeName))"));
-        }
-
         #endregion
     }
 }

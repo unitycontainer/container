@@ -16,17 +16,17 @@ namespace Unity
         /// Registers implementation type <param name="injectionMembers"></param> via provided collection of it's interfaces.
         /// </summary>
         /// <remarks>
-        /// This method allows creation of single registration for multiple interfaces the object of type <param name="implementationType"></param>
+        /// This method allows creation of single registration for multiple interfaces the object of type <param name="type"></param>
         /// might be exposing. Registrations created with this method are self contained and will never 'Map' to other registrations.
         /// In other words this registration will always create build plan and resolve new objects through it.
         /// </remarks>
-        /// <param name="interfaces">Collection of interfaces that <paramref name="implementationType"/> exposes to container</param>
-        /// <param name="implementationType"><see cref="Type"/> that will be used to instantiate object.</param>
+        /// <param name="interfaces">Collection of interfaces that <paramref name="type"/> exposes to container</param>
+        /// <param name="type"><see cref="Type"/> that will be used to instantiate object.</param>
         /// <param name="name">Name of the registration</param>
         /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns></returns>
-        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type implementationType, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type type, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Unity
         /// creates the instance ahead of type and adds that instance to the container.
         /// </para>
         /// </remarks>
-        /// <param name="interfaces">Collection of interfaces that <paramref name="implementationType"/> exposes to container</param>
+        /// <param name="interfaces">Collection of interfaces that <paramref name="instance"/> exposes to container</param>
         /// <param name="instance">Object to be registered</param>
         /// <param name="name">Name for registration</param>
         /// <param name="lifetimeManager">
@@ -81,7 +81,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        ValueTask<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
+        Task<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
 
         /// <summary>
         /// The parent of this container.

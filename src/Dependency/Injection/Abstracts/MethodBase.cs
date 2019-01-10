@@ -15,8 +15,7 @@ namespace Unity.Injection
         }
 
         protected MethodBase(TMemberInfo info, params object[] arguments)
-            : base(info, MatchParameters(info, arguments) ?? 
-                         throw new ArgumentException("Provided arguments do not match signature"))
+            : base(info, arguments)
         {
         }
 
@@ -26,23 +25,23 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override (TMemberInfo, object[]) FromType(Type type)
+        public override TMemberInfo MemberInfo(Type type)
         {
-            var methodHasOpenGenericParameters = MemberInfo.GetParameters()
+            var methodHasOpenGenericParameters = Selection.GetParameters()
                                                      .Select(p => p.ParameterType.GetTypeInfo())
                                                      .Any(i => i.IsGenericType && i.ContainsGenericParameters);
 
-            var info = MemberInfo.DeclaringType.GetTypeInfo();
+            var info = Selection.DeclaringType.GetTypeInfo();
             if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
-                return (MemberInfo, Data);
+                return Selection;
 
 #if NETSTANDARD1_0
             var typeInfo = type.GetTypeInfo();
-            var parameterTypes = MemberInfo.GetParameters()
+            var parameterTypes = Selection.GetParameters()
                                            .Select(pi => GetClosedParameterType(pi.ParameterType, typeInfo.GenericTypeArguments))
                                            .ToArray();
-            var member = DeclaredMembers(type).Single(m => m.Name.Equals(MemberInfo.Name) && ParametersMatch(m.GetParameters(), parameterTypes));
-            if (null != member) return (member, Data);
+            var member = DeclaredMembers(type).Single(m => m.Name.Equals(Selection.Name) && ParametersMatch(m.GetParameters(), parameterTypes));
+            if (null != member) return member;
 
             bool ParametersMatch(ParameterInfo[] parameters, Type[] closedConstructorParameterTypes)
             {
@@ -89,62 +88,12 @@ namespace Unity.Injection
 #else
             foreach (var member in DeclaredMembers(type))
             {
-                if (member.MetadataToken == MemberInfo.MetadataToken)
-                    return (member, Data);
+                if (member.MetadataToken == Selection.MetadataToken)
+                    return member;
             }
 #endif
             // TODO: 5.9.0 Implement correct error message
             throw new InvalidOperationException("No such member");
-        }
-
-        protected override bool MatchMemberInfo(TMemberInfo info, object[] data)
-        {
-            var parameters = info.GetParameters();
-
-            if ((data?.Length ?? 0) != parameters.Length) return false;
-
-            for (var i = 0; i < (data?.Length ?? 0); i++)
-            {
-                if (Matches(data?[i], parameters[i].ParameterType))
-                    continue;
-
-                return false;
-            }
-
-            return true;
-        }
-
-        protected override void ValidateInjectionMember(Type type)
-        {
-            if (null != MemberInfo) return;
-
-            // TODO:  Extended matching
-
-
-            // If nothing helps throw
-
-            // TODO: 5.9.0 Implement correct error message
-            var signature = "xxx";//string.Join(", ", _arguments?.FromType(t => t.Name) ?? );
-            var message = $"The type {type.FullName} does not have a {typeof(TMemberInfo).Name} that takes these parameters ({signature}).";
-            throw new InvalidOperationException(message);
-
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        protected static object[] MatchParameters(TMemberInfo info, params object[] arguments)
-        {
-            // TODO: Implement validation and extended matching
-            return arguments;
-        }
-
-        protected static string Signature(object[] arguments)
-        {
-            // TODO: 5.9.0 Implement properly
-            return "InjectionConstructor";
         }
 
         #endregion

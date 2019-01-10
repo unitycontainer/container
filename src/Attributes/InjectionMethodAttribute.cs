@@ -9,6 +9,5 @@ namespace Unity
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class InjectionMethodAttribute : Attribute
     {
-        internal static InjectionMethodAttribute[] Instance = new InjectionMethodAttribute[0];
     }
 }
