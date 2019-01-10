@@ -78,71 +78,7 @@ namespace Unity
         #endregion
 
 
-        #region Constructors
-
-        /// <summary>
-        /// Create a default <see cref="UnityContainer"/>.
-        /// </summary>
-        public UnityContainer()
-        {
-            _root = this;
-
-            // Lifetime
-            LifetimeContainer = new LifetimeContainer(this);
-
-            // Registrations
-            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
-
-            // Context
-            _context = new ContainerContext(this);
-
-            // Methods
-            _get = Get;
-            _getGenericRegistration = GetOrAddGeneric;
-            _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
-            IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
-
-            GetRegistration = GetOrAdd;
-            Register = AddOrUpdate;
-            GetPolicy = Get;
-            SetPolicy = Set;
-            ClearPolicy = Clear;
-
-            // Build Strategies
-            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
-            {
-                {   // Array
-                    new ArrayResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
-                    UnityBuildStage.Enumerable
-                },
-                {   // Enumerable
-                    new EnumerableResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))),
-                    UnityBuildStage.Enumerable
-                },
-                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
-                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
-                {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
-            };
-
-            // Update on change
-            _strategies.Invalidated += OnStrategiesChanged;
-            _strategiesChain = _strategies.ToArray();
-
-
-            // Default Policies and Strategies
-            SetDefaultPolicies();
-            Set(null, null, Defaults);
-            Set(typeof(Func<>), All, typeof(LifetimeManager), new PerResolveLifetimeManager());
-            Set(typeof(Func<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
-            Set(typeof(Lazy<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
-
-            // Register this instance
-            ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
-        }
+        #region Constructor
 
         /// <summary>
         /// Create a <see cref="Unity.UnityContainer"/> with the given parent container.
@@ -245,6 +181,7 @@ namespace Unity
             }
         }
 
+        // TODO: Consolidate with TypeValidator
         private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
         {
             if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))

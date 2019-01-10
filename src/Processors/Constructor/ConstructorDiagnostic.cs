@@ -97,7 +97,8 @@ namespace Unity.Processors
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
-                    (info, resolvers) = injectionMember.FromType(type);
+                    info = injectionMember.MemberInfo(type); 
+                    resolvers = injectionMember.Data;
                     break;
 
                 default:
@@ -198,7 +199,8 @@ namespace Unity.Processors
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
-                    (info, resolvers) = injectionMember.FromType(type);
+                    info = injectionMember.MemberInfo(type);
+                    resolvers = injectionMember.Data;
                     break;
 
                 default:

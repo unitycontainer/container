@@ -22,8 +22,8 @@ namespace Unity.Processors
                         break;
 
                     case InjectionMember<TMemberInfo, TData> injectionMember:
-                        var (info, value) = injectionMember.FromType(type);
-                        yield return ExpressionFromMemberInfo(info, value);
+                        yield return ExpressionFromMemberInfo(injectionMember.MemberInfo(type), 
+                                                              injectionMember.Data);
                         break;
 
                     default:

@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
+using Unity.Policy;
+using Unity.Processors;
 using Unity.Registration;
 using Unity.Storage;
-using Unity.Builder;
-using Unity.Processors;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -23,8 +23,9 @@ namespace Unity
 
         #region Registration Fields
 
-        private readonly object _syncRoot = new object();
         internal IPolicySet Defaults;
+        private readonly object _syncRoot = new object();
+        private  LinkedNode<Type, object> _validators;
         private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
 
         #endregion
@@ -36,7 +37,7 @@ namespace Unity
         {
             // Default policies
             Defaults = new InternalRegistration(typeof(ResolveDelegate<BuilderContext>), 
-                                                   (ResolveDelegate<BuilderContext>)ExecuteDefaultPlan);
+                                                      (ResolveDelegate<BuilderContext>)ExecuteDefaultPlan);
             // Processors
             var fieldsProcessor = new FieldsProcessor(Defaults);
             var methodsProcessor = new MethodProcessor(Defaults);

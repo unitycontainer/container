@@ -23,6 +23,16 @@ namespace Compiled.Constructor
                 .AddExtension(new Diagnostic());
         }
     }
+
+    [TestClass]
+    public class Validation : Unity.Specification.Diagnostic.Constructor.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Compiled)
+                .AddExtension(new Diagnostic());
+        }
+    }
 }
 
 namespace Resolved.Constructor
@@ -39,6 +49,16 @@ namespace Resolved.Constructor
 
     [TestClass]
     public class Types : Unity.Specification.Diagnostic.Constructor.Types.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(UnityContainer.BuildStrategy.Resolved)
+                .AddExtension(new Diagnostic());
+        }
+    }
+
+    [TestClass]
+    public class Validation : Unity.Specification.Diagnostic.Constructor.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

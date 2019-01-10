@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
@@ -14,9 +12,10 @@ namespace Unity
 {
     public partial class UnityContainer : IUnityContainer
     {
-        #region Constants
+        #region Fields
 
         const string LifetimeManagerInUse = "The lifetime manager is already registered. Lifetime managers cannot be reused, please create a new one.";
+        private Action<Type, Type> TypeValidator;
 
         #endregion
 
@@ -30,21 +29,13 @@ namespace Unity
             if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
             if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
             if (lifetimeManager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
-                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
-#else
-            if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
-                                    !typeFrom.IsAssignableFrom(typeTo))
-#endif
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
-                    Error.TypesAreNotAssignable, typeFrom, typeTo), nameof(typeFrom));
-            }
+
+            // Validate are assignable
+            TypeValidator?.Invoke(typeFrom, typeTo);
 
             // Create registration and add to appropriate storage
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(typeTo, lifetimeManager, injectionMembers);
+            var registration = new ContainerRegistration(_validators, typeTo, lifetimeManager, injectionMembers);
 
             var registeredType = typeFrom ?? typeTo;
             var mappedToType = typeTo;
@@ -66,7 +57,6 @@ namespace Unity
             // Add Injection Members
             if (null != injectionMembers && injectionMembers.Length > 0)
             {
-                var context = new RegistrationContext(this, registeredType, name, registration);
                 foreach (var member in injectionMembers)
                 {
                     member.AddPolicies<BuilderContext, ContainerRegistration>(
@@ -76,9 +66,9 @@ namespace Unity
 
             // Check what strategies to run
             registration.BuildChain = _strategiesChain.ToArray()
-                                                 .Where(strategy => strategy.RequiredToBuildType(this,
-                                                     registeredType, registration, injectionMembers))
-                                                 .ToArray();
+                                                      .Where(strategy => strategy.RequiredToBuildType(this,
+                                                          registeredType, registration, injectionMembers))
+                                                      .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
                                                                       mappedToType,
@@ -107,7 +97,7 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(mappedToType, lifetime);
+            var registration = new ContainerRegistration(null, mappedToType, lifetime);
 
             // Add or replace existing 
             var previous = container.Register(typeFrom, name, registration);

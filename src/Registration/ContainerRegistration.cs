@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Injection;
+using Unity.Storage;
 
 namespace Unity.Registration
 {
@@ -9,13 +10,14 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ContainerRegistration(Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ContainerRegistration(LinkedNode<Type, object> validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
+            Next = validators;
         }
 
         #endregion

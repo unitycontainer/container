@@ -2,17 +2,8 @@
 using Unity;
 using Unity.Extension;
 
-namespace Compiled.Method
+namespace Compiled.Field
 {
-    [TestClass]
-    public class Parameters : Unity.Specification.Diagnostic.Method.Parameters.SpecificationTests
-    {
-        public override IUnityContainer GetContainer()
-        {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled)
-                .AddExtension(new Diagnostic());
-        }
-    }
 
     [TestClass]
     public class Validation : Unity.Specification.Diagnostic.Method.Validation.SpecificationTests
@@ -25,17 +16,8 @@ namespace Compiled.Method
     }
 }
 
-namespace Resolved.Method
+namespace Resolved.Field
 {
-    [TestClass]
-    public class Parameters : Unity.Specification.Diagnostic.Method.Parameters.SpecificationTests
-    {
-        public override IUnityContainer GetContainer()
-        {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved)
-                .AddExtension(new Diagnostic());
-        }
-    }
 
     [TestClass]
     public class Validation : Unity.Specification.Diagnostic.Method.Validation.SpecificationTests

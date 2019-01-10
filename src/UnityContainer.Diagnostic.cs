@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Injection;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Registration;
@@ -88,6 +89,28 @@ namespace Unity
             Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
             ExecutePlan = ValidatingExecutePlan;
+
+            var validators = new InternalRegistration();
+
+            validators.Set(typeof(Func<IEnumerable<ConstructorInfo>, object[], ConstructorInfo>), ValidatingConstructor.Selector);
+            validators.Set(typeof(Func<IEnumerable<MethodInfo>,      object[], MethodInfo>),           ValidatingMethod.Selector);
+
+            _validators = validators;
+
+            // Registration Validator
+            TypeValidator = (typeFrom, typeTo) =>
+            {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
+                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
+#else
+                if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
+                    !typeFrom.IsAssignableFrom(typeTo))
+#endif
+                {
+                    throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
+                }
+            };
         }
 
         #endregion
