@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -48,6 +49,7 @@ namespace Unity.Injection
         {
             if (null == type) return true;
 
+#if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
             var matchInfo = match.GetTypeInfo();
 
@@ -59,7 +61,16 @@ namespace Unity.Injection
             if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
                 typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
                 return true;
+#else
+            if (match.IsAssignableFrom(type)) return true;
+            if ((type.IsArray || typeof(Array) == type) &&
+               (match.IsArray || match == typeof(Array)))
+                return true;
 
+            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
+                type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
+                return true;
+#endif
             return false;
         }
 
@@ -69,6 +80,7 @@ namespace Unity.Injection
 
             if (null == type) return true;
 
+#if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
             var matchInfo = match.GetTypeInfo();
 
@@ -80,11 +92,29 @@ namespace Unity.Injection
             if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
                 typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
                 return true;
+#else
+            if (match.IsAssignableFrom(type)) return true;
+            if ((type.IsArray || typeof(Array) == type) &&
+                (match.IsArray || match == typeof(Array)))
+                return true;
 
+            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
+                type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
+                return true;
+#endif
             return false;
         }
 
         #endregion
 
+
+        #region Error Reporting
+
+        public static string Signature(this object[] data)
+        {
+            return string.Join(", ", data?.Select(d => d.ToString()) ?? Enumerable.Empty<string>());
+        }
+
+        #endregion
     }
 }

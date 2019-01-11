@@ -1,6 +1,4 @@
-﻿using Unity.Policy;
-
-namespace Unity
+﻿namespace Unity
 {
     /// <summary>
     /// An <see cref="LifetimeManager"/> implementation that does nothing,
@@ -30,5 +28,12 @@ namespace Unity
         {
             return Instance;
         }
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.Transient";
+
+        #endregion
     }
 }

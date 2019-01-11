@@ -6,11 +6,11 @@ namespace Unity.Resolution
 {
     /// <summary>
     /// A <see cref="ResolverOverride"/> that lets you override
-    /// the value for a specified property.
+    /// the value for a specified field.
     /// </summary>
-    public class PropertyOverride : ResolverOverride,
-                                    IEquatable<PropertyInfo>,
-                                    IResolve
+    public class FieldOverride : ResolverOverride,
+                                 IEquatable<FieldInfo>,
+                                 IResolve
     {
         #region Fields
 
@@ -18,18 +18,18 @@ namespace Unity.Resolution
 
         #endregion
 
-        
+
         #region Constructors
 
         /// <summary>
-        /// Create an instance of <see cref="PropertyOverride"/>.
+        /// Create an instance of <see cref="FieldOverride"/>.
         /// </summary>
-        /// <param name="propertyName">The property name.</param>
-        /// <param name="propertyValue">InjectionParameterValue to use for the property.</param>
-        public PropertyOverride(string propertyName, object propertyValue)
-            : base(propertyName)
+        /// <param name="fieldName">The Field name.</param>
+        /// <param name="fieldValue">InjectionParameterValue to use for the Field.</param>
+        public FieldOverride(string fieldName, object fieldValue)
+            : base(fieldName)
         {
-            Value = propertyValue;
+            Value = fieldValue;
         }
 
         #endregion
@@ -44,17 +44,17 @@ namespace Unity.Resolution
 
         public override bool Equals(object obj)
         {
-            if (obj is PropertyInfo info)
+            if (obj is FieldInfo info)
                 return Equals(info);
 
             return base.Equals(obj);
         }
 
-        public bool Equals(PropertyInfo other)
+        public bool Equals(FieldInfo other)
         {
             return (null == Target || other?.DeclaringType == Target) &&
-                   (null == Type   || other?.PropertyType == Type) &&
-                   (null == Name   || other?.Name == Name);
+                   (null == Type || other?.FieldType == Type) &&
+                   (null == Name || other?.Name == Name);
         }
 
         #endregion

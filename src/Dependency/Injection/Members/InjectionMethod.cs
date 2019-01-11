@@ -29,11 +29,11 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override MethodInfo SelectMember(IEnumerable<MethodInfo> members, object[] data)
+        protected override MethodInfo SelectMember(Type type, InjectionMember _)
         {
             var noData = 0 == (Data?.Length ?? 0);
 
-            foreach (var member in members)
+            foreach (var member in DeclaredMembers(type))
             {
                 if (null != Name)
                 {
@@ -46,10 +46,10 @@ namespace Unity.Injection
                 return member;
             }
 
-            throw new InvalidOperationException(NoMatchFound);
+            throw new ArgumentException(NoMatchFound);
         }
 
-        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
+        public override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
             if (null == type) return Enumerable.Empty<MethodInfo>();
@@ -68,6 +68,11 @@ namespace Unity.Injection
             return type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                        .Where(m => Name == m.Name);
 #endif
+        }
+
+        public override string ToString()
+        {
+            return $"Invoke.Method('{Name}', {Data.Signature()})";
         }
 
 #if NETSTANDARD1_0

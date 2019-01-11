@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -94,6 +93,13 @@ namespace Unity
                 base.Dispose(disposing);
             }
         }
+
+        #endregion
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.Hierarchical";
 
         #endregion
 

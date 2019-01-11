@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -35,5 +34,12 @@ namespace Unity
         {
             return new ExternallyControlledLifetimeManager();
         }
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.External";
+
+        #endregion
     }
 }

@@ -50,7 +50,7 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
+        public override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
             if (type == null)
@@ -72,6 +72,13 @@ namespace Unity.Injection
         }
 
         protected override Type MemberType => Selection.PropertyType;
+
+        public override string ToString()
+        {
+            return Data is DependencyResolutionAttribute 
+                ? $"Resolve.Property('{Name}')"
+                : $"Inject.Property('{Name}', {Data})";
+        }
 
         #endregion
     }

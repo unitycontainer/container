@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -69,5 +68,12 @@ namespace Unity
         {
             return new PerThreadLifetimeManager();
         }
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.PerThread";
+
+        #endregion
     }
 }

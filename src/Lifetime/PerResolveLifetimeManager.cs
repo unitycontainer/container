@@ -1,7 +1,4 @@
-﻿
-using Unity.Policy;
-
-namespace Unity
+﻿namespace Unity
 {
     /// <summary>
     /// This is a custom lifetime manager that acts like <see cref="TransientLifetimeManager"/>,
@@ -35,5 +32,12 @@ namespace Unity
         {
             return new PerResolveLifetimeManager();
         }
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.PerResolve";
+
+        #endregion
     }
 }

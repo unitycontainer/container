@@ -10,8 +10,7 @@ namespace Unity.Resolution
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
     public class DependencyOverride : ResolverOverride, 
-                                      IEquatable<ParameterInfo>,
-                                      IEquatable<PropertyInfo>,
+                                      IEquatable<(Type,string)>,
                                       IResolve
     {
         #region Fields
@@ -41,6 +40,12 @@ namespace Unity.Resolution
             Value = dependencyValue;
         }
 
+        public DependencyOverride(Type type, string name, object value)
+            : base(null, type, name)
+        {
+            Value = value;
+        }
+
         public DependencyOverride(Type target, Type type, string name, object value)
             : base(target, type, name)
         {
@@ -59,31 +64,13 @@ namespace Unity.Resolution
 
         public override bool Equals(object obj)
         {
-            switch (obj)
-            {
-                case PropertyInfo property:
-                    return Equals(property);
-
-                case ParameterInfo parameter:
-                    return Equals(parameter);
-
-                default:
-                    return base.Equals(obj);
-            }
+            return false;
         }
 
-        public bool Equals(PropertyInfo other)
+        public bool Equals((Type, string) other)
         {
-            return (null == Target || other?.DeclaringType == Target) &&
-                   (null == Type   || other?.PropertyType == Type) &&
-                   (null == Name   || other?.Name == Name);
-        }
-
-        public bool Equals(ParameterInfo other)
-        {
-            return (null == Target || other?.Member.DeclaringType == Target) &&
-                   (null == Type   || other?.ParameterType == Type) &&
-                   (null == Name   || other?.Name == Name);
+            return (null == Type || other.Item1 == Type) &&
+                   (null == Name || other.Item2 == Name);
         }
 
         #endregion

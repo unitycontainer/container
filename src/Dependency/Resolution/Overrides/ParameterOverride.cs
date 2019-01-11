@@ -29,9 +29,36 @@ namespace Unity.Resolution
         /// <param name="parameterName">Name of the constructor parameter.</param>
         /// <param name="parameterValue">InjectionParameterValue to pass for the constructor.</param>
         public ParameterOverride(string parameterName, object parameterValue)
-            : base(parameterName)
+            : base(null, null, parameterName)
         {
-            Value = parameterValue ?? throw new ArgumentNullException(nameof(parameterValue));
+            Value = parameterValue;
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="ParameterOverride"/> object that will
+        /// override the given named constructor parameter, and pass the given
+        /// value.
+        /// </summary>
+        /// <param name="parameterType">Type of the parameter.</param>
+        /// <param name="parameterValue">Value to pass for the MethodBase.</param>
+        public ParameterOverride(Type parameterType, object parameterValue)
+            : base(null, parameterType, null)
+        {
+            Value = parameterValue;
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="ParameterOverride"/> object that will
+        /// override the given named constructor parameter, and pass the given
+        /// value.
+        /// </summary>
+        /// <param name="parameterType">Type of the parameter.</param>
+        /// <param name="parameterName">Name of the constructor parameter.</param>
+        /// <param name="parameterValue">Value to pass for the MethodBase.</param>
+        public ParameterOverride(Type parameterType, string parameterName, object parameterValue)
+            : base(null, parameterType, parameterName)
+        {
+            Value = parameterValue;
         }
 
         #endregion

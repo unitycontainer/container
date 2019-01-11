@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -72,6 +71,13 @@ namespace Unity
             }
             Value = null;
         }
+
+        #endregion
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.Singleton";
 
         #endregion
     }

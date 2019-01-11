@@ -45,7 +45,7 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type)
+        public override IEnumerable<FieldInfo> DeclaredMembers(Type type)
         {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
             if (type == null)
@@ -67,6 +67,13 @@ namespace Unity.Injection
         }
 
         protected override Type MemberType => Selection.FieldType;
+
+        public override string ToString()
+        {
+            return Data is DependencyResolutionAttribute
+                ? $"Resolve.Field('{Name}')"
+                : $"Inject.Field('{Name}', {Data})";
+        }
 
         #endregion
     }

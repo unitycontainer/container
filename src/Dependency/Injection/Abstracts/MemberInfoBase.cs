@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -35,16 +34,16 @@ namespace Unity.Injection
             return DeclaredMember(type, Selection.Name);
         }
 
-        protected override TMemberInfo SelectMember(IEnumerable<TMemberInfo> members, object data)
+        protected override TMemberInfo SelectMember(Type type, InjectionMember _)
         {
-            foreach (var member in members)
+            foreach (var member in DeclaredMembers(type))
             {
                 if (member.Name != Name) continue;
 
                 return member;
             }
 
-            throw new InvalidOperationException(NoMatchFound);
+            throw new ArgumentException(NoMatchFound);
         }
 
 #if NETSTANDARD1_0

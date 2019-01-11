@@ -9,6 +9,8 @@ namespace Unity
 
         public static ParameterBase Dependency<TTarget>(string name) => new ResolvedParameter(typeof(TTarget), name);
 
+        //public static ParameterBase Dependency(string name) => new ResolvedParameter(name);
+
         #endregion
 
 

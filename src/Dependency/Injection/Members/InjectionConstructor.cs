@@ -36,19 +36,19 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override ConstructorInfo SelectMember(IEnumerable<ConstructorInfo> members, object[] data)
+        protected override ConstructorInfo SelectMember(Type type, InjectionMember _)
         {
-            foreach (var member in members)
+            foreach (var member in DeclaredMembers(type))
             {
                 if (!Data.MatchMemberInfo(member)) continue;
 
                 return member;
             }
 
-            throw new InvalidOperationException(NoMatchFound);
+            throw new ArgumentException(NoMatchFound);
         }
 
-        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
+        public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
             return type.GetTypeInfo().DeclaredConstructors
@@ -56,6 +56,11 @@ namespace Unity.Injection
 #else
             return type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 #endif
+        }
+
+        public override string ToString()
+        {
+            return $"Invoke.Constructor({Data.Signature()})";
         }
 
         #endregion

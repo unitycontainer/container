@@ -26,6 +26,7 @@ namespace Unity
         /// If type provided in <paramref name="typeTo"/> is already registered with container, registration creates mapping to the existing
         /// registration and instead will use registration for <paramref name="typeTo"/> type to create object.</remarks>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
+        /// <exception cref="InvalidRegistrationException"></exception>
         IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 

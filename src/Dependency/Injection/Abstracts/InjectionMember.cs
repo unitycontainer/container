@@ -51,9 +51,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        protected const string NoMatchFound = "No member matching data has been found. \r\n";
-
-        protected string Name { get; }
+        protected const string NoMatchFound = "No member matching data has been found.";
 
         protected TMemberInfo Selection { get; set; }
 
@@ -80,9 +78,13 @@ namespace Unity.Injection
 
         #region Public Members
 
-        public TData Data { get; set; }
+        public string Name { get; }
+
+        public TData Data { get; }
 
         public abstract TMemberInfo MemberInfo(Type type);
+
+        public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
         #endregion
 
@@ -123,10 +125,10 @@ namespace Unity.Injection
 
         public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
         {
-            var select = policies.Get<Func<IEnumerable<TMemberInfo>, TData, TMemberInfo>>() 
+            var select = policies.Get<Func<Type, InjectionMember, TMemberInfo>>() 
                       ?? SelectMember;
 
-            Selection = select(DeclaredMembers(mappedToType), Data);
+            Selection = select(mappedToType, this);
         }
 
         #endregion
@@ -134,9 +136,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
-
-        protected virtual TMemberInfo SelectMember(IEnumerable<TMemberInfo> members, TData data) => throw new NotImplementedException();
+        protected virtual TMemberInfo SelectMember(Type type, InjectionMember member) => throw new NotImplementedException();
 
         #endregion
     }

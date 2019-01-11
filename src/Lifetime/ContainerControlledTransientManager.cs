@@ -1,5 +1,4 @@
 using System;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -31,5 +30,12 @@ namespace Unity
         }
 
         public override bool InUse { get => false; set => base.InUse = false; }
+
+
+        #region Overrides
+
+        public override string ToString() => "Lifetime.PerContainerTransient";
+
+        #endregion
     }
 }

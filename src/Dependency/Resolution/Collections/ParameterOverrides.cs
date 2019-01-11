@@ -47,7 +47,7 @@ namespace Unity.Resolution
         /// <returns>The new override.</returns>
         public ResolverOverride[] OnType<T>()
         {
-            return _values.Select(p => new DependencyOverride(p.Item1, p.Item2).OnType<T>())
+            return _values.Select(p => new ParameterOverride(p.Item1, p.Item2).OnType<T>())
                           .ToArray();
         }
 
@@ -68,7 +68,7 @@ namespace Unity.Resolution
         {
             foreach (var tuple in _values)
             {
-                yield return new DependencyOverride(tuple.Item1, tuple.Item2);
+                yield return new ParameterOverride(tuple.Item1, tuple.Item2);
             }
         }
     }
