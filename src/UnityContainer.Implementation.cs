@@ -9,7 +9,6 @@ using Unity.Builder;
 using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Factories;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Registration;

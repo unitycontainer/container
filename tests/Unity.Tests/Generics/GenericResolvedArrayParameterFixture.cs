@@ -2,7 +2,6 @@
 using System;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Generics
 {
@@ -104,14 +103,12 @@ namespace Unity.Tests.v5.Generics
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void AppropriateExceptionIsThrownWhenNoMatchingConstructorCanBeFound()
         {
-            AssertExtensions.AssertException<InvalidOperationException>(() =>
-            {
-                new UnityContainer()
-                    .RegisterType(typeof(ClassWithOneGenericParameter<>),
-                        new InjectionConstructor(new GenericResolvedArrayParameter("T")));
-            });
+            new UnityContainer()
+                .RegisterType(typeof(ClassWithOneGenericParameter<>),
+                    new InjectionConstructor(new GenericResolvedArrayParameter("T")));
         }
 
         private void GetT<T>() { }

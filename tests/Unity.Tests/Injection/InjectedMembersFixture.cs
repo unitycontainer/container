@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Injection;
-using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Injection
 {
@@ -139,26 +138,22 @@ namespace Unity.Tests.v5.Injection
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void ConfiguringInjectionConstructorThatDoesNotExistThrows()
         {
             IUnityContainer container = new UnityContainer();
 
-            AssertExtensions.AssertException<InvalidOperationException>(() =>
-                {
-                    container.RegisterType<GuineaPig>(
-                        new InjectionConstructor(typeof(string), typeof(string)));
-                });
+            container.RegisterType<GuineaPig>(
+                new InjectionConstructor(typeof(string), typeof(string)));
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void RegisterTypeThrowsIfTypeIsNull()
         {
             IUnityContainer container = new UnityContainer();
 
-            AssertExtensions.AssertException<ArgumentNullException>(() =>
-                {
-                    container.RegisterType(null);
-                });
+            container.RegisterType(null);
         }
 
         public class GuineaPig

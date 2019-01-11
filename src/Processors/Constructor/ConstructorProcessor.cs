@@ -192,9 +192,9 @@ namespace Unity.Processors
 
             if (bestCtor == null)
             {
-                //return null;
+                // TODO: Expand error message in Diagnostic mode
                 throw new InvalidOperationException(
-                    $"Builder not found for { type.FullName}");
+                    $"Failed to select a constructor for {type.FullName}");
             }
 
             return bestCtor;

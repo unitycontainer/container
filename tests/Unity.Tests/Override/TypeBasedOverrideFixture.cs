@@ -202,14 +202,6 @@ namespace Unity.Tests.v5.Override
 
             Assert.AreEqual<int>(111, result.IForTypeToInject.Value);
         }
-
-        [TestMethod]
-        public void TypeBasedOverrideConstructorWithNullOverride()
-        {
-            TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
-            TypeToInject2ForTypeOverride overrideValue = null;
-            AssertHelper.ThrowsException<ArgumentNullException>(() => new ParameterOverride("injectedObject", overrideValue));
-        }
     }
 #pragma warning restore 618
 }

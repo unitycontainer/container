@@ -6,7 +6,7 @@ namespace Compiled.Property
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Method.Validation.SpecificationTests
+    public class Validation : Unity.Specification.Diagnostic.Property.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -20,7 +20,7 @@ namespace Resolved.Property
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Method.Validation.SpecificationTests
+    public class Validation : Unity.Specification.Diagnostic.Property.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

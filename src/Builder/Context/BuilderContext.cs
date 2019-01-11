@@ -35,8 +35,29 @@ namespace Unity.Builder
 
         public string Name { get; set; }
 
-        public object Resolve(Type type, string name) => Resolve(type, name,
-            (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
+        public object Resolve(Type type, string name)
+        {
+            // Process overrides if any
+            if (null != Overrides)
+            {
+                // Check if this parameter is overridden
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+
+                    // If matches with current parameter
+                    if (resolverOverride is IResolve resolverPolicy && 
+                        resolverOverride is IEquatable<(Type, string)> comparer && comparer.Equals((type, name)))
+                    {
+                        var context = this;
+
+                        return resolverPolicy.Resolve(ref context);
+                    }
+                }
+            }
+
+            return Resolve(type, name, (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
+        }
 
         #endregion
 

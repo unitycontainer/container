@@ -92,8 +92,10 @@ namespace Unity
 
             var validators = new InternalRegistration();
 
-            validators.Set(typeof(Func<IEnumerable<ConstructorInfo>, object[], ConstructorInfo>), ValidatingConstructor.Selector);
-            validators.Set(typeof(Func<IEnumerable<MethodInfo>,      object[], MethodInfo>),           ValidatingMethod.Selector);
+            validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
 
             _validators = validators;
 

@@ -6,7 +6,7 @@ namespace Compiled.Field
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Method.Validation.SpecificationTests
+    public class Validation : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -20,7 +20,7 @@ namespace Resolved.Field
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Method.Validation.SpecificationTests
+    public class Validation : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

@@ -1,11 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Unity.Exceptions
 {
-    public class InvalidRegistrationException : Exception
+    internal class InvalidRegistrationException : Exception
     {
+        public InvalidRegistrationException()
+            : base()
+        {
 
+        }
+
+        public InvalidRegistrationException(string message, Exception exception)
+            : base(message, exception)
+        {
+        }
     }
 }
