@@ -4,7 +4,7 @@ using Unity.Builder;
 
 namespace Unity.Processors
 {
-    public partial class FieldsProcessor 
+    public partial class FieldProcessor 
     {
 
 

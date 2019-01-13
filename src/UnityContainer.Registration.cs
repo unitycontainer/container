@@ -39,7 +39,7 @@ namespace Unity
             Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), ContextExecutePlan);
 
             // Processors
-            var fieldsProcessor = new FieldsProcessor(Defaults);
+            var fieldsProcessor = new FieldProcessor(Defaults);
             var methodsProcessor = new MethodProcessor(Defaults);
             var propertiesProcessor = new PropertyProcessor(Defaults);
             var constructorProcessor = new ConstructorProcessor(Defaults, IsTypeExplicitlyRegistered);

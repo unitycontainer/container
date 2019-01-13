@@ -65,9 +65,9 @@ namespace Unity
             Set(null, null, Defaults);
 
             // Processors
-            var fieldsProcessor = new FieldsProcessor(Defaults);
-            var methodsProcessor = new MethodProcessor(Defaults);
-            var propertiesProcessor = new PropertyProcessor(Defaults);
+            var fieldsProcessor      = new FieldDiagnostic(Defaults);
+            var methodsProcessor     = new MethodDiagnostic(Defaults);
+            var propertiesProcessor  = new PropertyDiagnostic(Defaults);
             var constructorProcessor = new ConstructorDiagnostic(Defaults, IsTypeExplicitlyRegistered);
 
             // Processors chain

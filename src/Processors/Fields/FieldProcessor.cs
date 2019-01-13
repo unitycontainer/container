@@ -6,11 +6,11 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public partial class FieldsProcessor : MemberProcessor<FieldInfo, object>
+    public partial class FieldProcessor : MemberProcessor<FieldInfo, object>
     {
         #region Constructors
 
-        public FieldsProcessor(IPolicySet policySet)
+        public FieldProcessor(IPolicySet policySet)
             : base(policySet)
         {
         }
