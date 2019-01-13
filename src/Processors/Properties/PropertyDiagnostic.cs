@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Reflection;
+using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.Processors
@@ -17,5 +17,26 @@ namespace Unity.Processors
         #endregion
 
 
+        #region Overrides
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        {
+            var value = PreProcessResolver(info, resolver);
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    info.SetValue(context.Existing, context.Resolve(info, context.Name, value));
+                    return context.Existing;
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add(info, context.Name);
+                    throw;
+                }
+            };
+        }
+
+        #endregion
     }
 }
