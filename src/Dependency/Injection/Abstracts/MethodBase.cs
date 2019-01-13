@@ -92,8 +92,7 @@ namespace Unity.Injection
                     return member;
             }
 #endif
-            // TODO: 5.9.0 Implement correct error message
-            throw new InvalidOperationException("No such member");
+            throw new InvalidOperationException($"Error selecting member on type {type}");
         }
 
         #endregion
