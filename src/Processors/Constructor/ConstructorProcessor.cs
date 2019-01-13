@@ -192,7 +192,6 @@ namespace Unity.Processors
 
             if (bestCtor == null)
             {
-                // TODO: Expand error message in Diagnostic mode
                 throw new InvalidOperationException(
                     $"Failed to select a constructor for {type.FullName}");
             }

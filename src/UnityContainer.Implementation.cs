@@ -180,21 +180,6 @@ namespace Unity
             }
         }
 
-        // TODO: Consolidate with TypeValidator
-        private static void InstanceIsAssignable(Type assignmentTargetType, object assignmentInstance, string argumentName)
-        {
-            if (!(assignmentTargetType ?? throw new ArgumentNullException(nameof(assignmentTargetType)))
-                .GetTypeInfo().IsAssignableFrom((assignmentInstance ?? throw new ArgumentNullException(nameof(assignmentInstance))).GetType().GetTypeInfo()))
-            {
-                throw new ArgumentException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        Error.TypesAreNotAssignable,
-                        assignmentTargetType, GetTypeName(assignmentInstance)),
-                    argumentName);
-            }
-        }
-
         private static string GetTypeName(object assignmentInstance)
         {
             string assignmentInstanceType;

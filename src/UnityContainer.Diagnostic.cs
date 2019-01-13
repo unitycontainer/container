@@ -59,8 +59,9 @@ namespace Unity
         internal void SetDiagnosticPolicies()
         {
             // Default policies
-            Defaults = new InternalRegistration(typeof(ResolveDelegate<BuilderContext>),
-                                                (ResolveDelegate<BuilderContext>)ExecuteDefaultPlan);
+            ContextExecutePlan = ContextValidatingPlan;
+            ExecutePlan        = ExecuteValidatingPlan;
+            Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), ContextExecutePlan);
             Set(null, null, Defaults);
 
             // Processors
@@ -87,8 +88,6 @@ namespace Unity
             Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
             Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
             Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
-
-            ExecutePlan = ValidatingExecutePlan;
 
             var validators = new InternalRegistration();
 
@@ -128,7 +127,6 @@ namespace Unity
 
             return _parent.DebugName() + $".Child[{types}]"; 
         }
-
 
         internal class UnityContainerDebugProxy
         {

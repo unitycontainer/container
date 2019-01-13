@@ -20,40 +20,45 @@ namespace Unity.Processors
                              ? FromAttribute(parameter)
                              : PreProcessResolver(parameter, resolvers[i]);
 
-                // Check if has default value
-                var defaultValueExpr = parameter.HasDefaultValue
-                    ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
-                    : null;
+                yield return CreateParameterExpression(parameter, resolver);
+            }
+        }
 
-                if (!parameter.HasDefaultValue)
-                {
-                    // Plain vanilla case
-                    yield return Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context, 
-                                        BuilderContextExpression.ResolveParameter,
-                                        Expression.Constant(parameter, typeof(ParameterInfo)),
-                                        Expression.Constant(resolver, typeof(object))),
-                                    parameter.ParameterType);
-                }
-                else
-                {
-                    var variable = Expression.Variable(parameter.ParameterType);
-                    var resolve = Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context, 
-                                        BuilderContextExpression.ResolveParameter,
-                                        Expression.Constant(parameter, typeof(ParameterInfo)),
-                                        Expression.Constant(resolver, typeof(object))),
-                                    parameter.ParameterType);
+        protected virtual Expression CreateParameterExpression(ParameterInfo parameter, object resolver)
+        {
+            // Check if has default value
+            var defaultValueExpr = parameter.HasDefaultValue
+                ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
+                : null;
 
-                    yield return Expression.Block(new[] { variable }, new Expression[]
-                    {
+            if (!parameter.HasDefaultValue)
+            {
+                // Plain vanilla case
+                return Expression.Convert(
+                                Expression.Call(BuilderContextExpression.Context,
+                                    BuilderContextExpression.ResolveParameter,
+                                    Expression.Constant(parameter, typeof(ParameterInfo)),
+                                    Expression.Constant(resolver, typeof(object))),
+                                parameter.ParameterType);
+            }
+            else
+            {
+                var variable = Expression.Variable(parameter.ParameterType);
+                var resolve = Expression.Convert(
+                                Expression.Call(BuilderContextExpression.Context,
+                                    BuilderContextExpression.ResolveParameter,
+                                    Expression.Constant(parameter, typeof(ParameterInfo)),
+                                    Expression.Constant(resolver, typeof(object))),
+                                parameter.ParameterType);
+
+                return Expression.Block(new[] { variable }, new Expression[]
+                {
                         Expression.TryCatch(
                             Expression.Assign(variable, resolve),
                         Expression.Catch(typeof(Exception),
                             Expression.Assign(variable, defaultValueExpr))),
                         variable
-                    });
-                }
+                });
             }
         }
 

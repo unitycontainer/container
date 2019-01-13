@@ -180,52 +180,6 @@ namespace Unity.Tests.v5.Container
             }
         }
 
-        [TestMethod]
-        public void BuildUnmatchedObject2()
-        {
-            UnityContainer uc = new UnityContainer();
-
-            BuildUnmatchedObject2__PropertyDependencyClassStub2 obj2 = new BuildUnmatchedObject2__PropertyDependencyClassStub2();
-
-            Assert.IsNotNull(obj2);
-            Assert.IsNull(obj2.MyFirstObj);
-            Assert.IsNull(obj2.MySecondObj);
-
-            AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(BuildUnmatchedObject2_PropertyDependencyClassStub1), obj2), "type of the object should match");
-        }
-
-        public class BuildUnmatchedObject2_PropertyDependencyClassStub1
-        {
-            private object myFirstObj;
-
-            [Dependency]
-            public object MyFirstObj
-            {
-                get { return myFirstObj; }
-                set { myFirstObj = value; }
-            }
-        }
-
-        public class BuildUnmatchedObject2__PropertyDependencyClassStub2
-        {
-            private object myFirstObj;
-            private object mySecondObj;
-
-            [Dependency]
-            public object MyFirstObj
-            {
-                get { return myFirstObj; }
-                set { myFirstObj = value; }
-            }
-
-            [Dependency]
-            public object MySecondObj
-            {
-                get { return mySecondObj; }
-                set { mySecondObj = value; }
-            }
-        }
-
         #endregion
 
         #region BuildUp method with Base and Child
@@ -270,21 +224,6 @@ namespace Unity.Tests.v5.Container
 
             Assert.IsNotNull(objChild.BaseProp);
             Assert.IsNotNull(objChild.ChildProp); //ChildProp get created
-        }
-
-        [TestMethod]
-        public void BuildBaseAndChildObject3()
-        {
-            UnityContainer uc = new UnityContainer();
-            BaseStub1 objBase = new BaseStub1();
-
-            Assert.IsNotNull(objBase);
-            Assert.IsNull(objBase.BaseProp);
-
-            uc.BuildUp(typeof(BaseStub1), objBase);
-            Assert.IsNotNull(objBase.BaseProp);
-
-            AssertHelper.ThrowsException<ArgumentException>(() => uc.BuildUp(typeof(ChildStub1), objBase), "type of the object should match");
         }
 
         public interface Interface1

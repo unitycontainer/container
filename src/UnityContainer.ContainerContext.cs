@@ -3,6 +3,7 @@ using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Policy;
+using Unity.Processors;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -52,27 +53,11 @@ namespace Unity
                 }
             }
 
-            public override IStagedStrategyChain<BuilderStrategy, BuilderStage> BuildPlanStrategies
+            public override IStagedStrategyChain<MemberProcessor, BuilderStage> BuildPlanStrategies
             {
                 get
                 {
-                    // TODO: Re-implement
-                    throw new NotImplementedException();
-                    //if (null != _container._parent && 
-                    //    _container._parent._buildPlanStrategies == _container._buildPlanStrategies)
-                    //{
-                    //    lock (syncRoot)
-                    //    {
-                    //        if (_container._parent._buildPlanStrategies == _container._buildPlanStrategies)
-                    //        {
-                    //            _container._buildPlanStrategies = 
-                    //                new StagedStrategyChain<BuilderStrategy, BuilderStage>(_container._parent._buildPlanStrategies);
-                    //            _container.LifetimeContainer.Add(_container._buildPlanStrategies);
-                    //        }
-                    //    }
-                    //}
-
-                    //return _container._buildPlanStrategies;
+                    return _container._processors;
                 }
             }
 

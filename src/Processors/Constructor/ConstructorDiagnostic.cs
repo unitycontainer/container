@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -59,6 +60,12 @@ namespace Unity.Processors
                             Expression.Constant(TypeIsNotConstructable),
                             BuilderContextExpression.Type),
                         InvalidRegistrationExpression)));
+
+        private static readonly PropertyInfo DataProperty = 
+            typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data));
+
+        private static readonly MethodInfo AddMethod = 
+            typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add));
 
         #endregion
 
@@ -153,15 +160,24 @@ namespace Unity.Processors
             }
 
             // Create 
+
             var variable = Expression.Variable(info.DeclaringType ?? throw new ArgumentNullException(nameof(info)));
-            return Expression.Block(new[] { variable }, new Expression[]
+            var tryBlock = Expression.Block(new[] { variable }, new Expression[]
             {
                 Expression.Assign(variable, Expression.New(info, CreateParameterExpressions(info.GetParameters(), resolvers))),
                 Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
             });
 
+            var ex = Expression.Variable(typeof(Exception));
+            var exData = Expression.MakeMemberAccess(ex, DataProperty);
+            var catchBlock = Expression.Block(typeof(object),
+                Expression.Call(exData, AddMethod,
+                        Expression.Constant(info, typeof(object)),
+                        Expression.Constant(null, typeof(object))),
+                Expression.Rethrow(typeof(object)));
 
-            // TODO: Check if required
+            return Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock));
+
             string CreateErrorMessage(string format, Type type, MethodBase constructor)
             {
                 var parameterDescriptions =
@@ -172,10 +188,24 @@ namespace Unity.Processors
             }
         }
 
+        protected override Expression CreateParameterExpression(ParameterInfo parameter, object resolver)
+        {
+            var ex = Expression.Variable(typeof(Exception));
+            var exData = Expression.MakeMemberAccess(ex, DataProperty);
+            var block = Expression.Block(parameter.ParameterType,
+                Expression.Call(exData, AddMethod,
+                        Expression.Constant(parameter, typeof(object)),
+                        Expression.Constant(null, typeof(object))),
+                Expression.Rethrow(parameter.ParameterType));
+
+            return Expression.TryCatch(base.CreateParameterExpression(parameter, resolver),
+                   Expression.Catch(ex, block));
+        }
+
         #endregion
 
 
-        #region Overrides
+        #region Resolver Overrides
 
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
@@ -241,11 +271,20 @@ namespace Unity.Processors
                 {
                     if (null == c.Existing)
                     {
-                        var dependencies = new object[parameterResolvers.Length];
-                        for (var i = 0; i < dependencies.Length; i++)
-                            dependencies[i] = parameterResolvers[i](ref c);
+                        try
+                        {
+                            var dependencies = new object[parameterResolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = parameterResolvers[i](ref c);
 
-                        c.Existing = info.Invoke(dependencies);
+                            c.Existing = info.Invoke(dependencies);
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.Data.Add(info, c.Name);
+                            throw;
+                        }
+
                         c.Set(typeof(LifetimeManager),
                               new InternalPerResolveLifetimeManager(c.Existing));
                     }
@@ -259,11 +298,19 @@ namespace Unity.Processors
             {
                 if (null == c.Existing)
                 {
-                    var dependencies = new object[parameterResolvers.Length];
-                    for (var i = 0; i < dependencies.Length; i++)
-                        dependencies[i] = parameterResolvers[i](ref c);
+                    try
+                    {
+                        var dependencies = new object[parameterResolvers.Length];
+                        for (var i = 0; i < dependencies.Length; i++)
+                            dependencies[i] = parameterResolvers[i](ref c);
 
-                    c.Existing = info.Invoke(dependencies);
+                        c.Existing = info.Invoke(dependencies);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Data.Add(info, c.Name);
+                        throw;
+                    }
                 }
 
                 return c.Existing;
@@ -271,10 +318,58 @@ namespace Unity.Processors
 
         }
 
+        protected override ResolveDelegate<BuilderContext> CreateParameterResolver(ParameterInfo parameter, object resolver)
+        {
+            var resolverDelegate = base.CreateParameterResolver(parameter, resolver);
+
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    return resolverDelegate(ref context);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add(parameter, context.Name);
+                    throw;
+                }
+            };
+        }
+
         #endregion
 
 
         #region Implementation
+
+        private Expression ValidateConstructedTypeExpression(Type type)
+        {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsInterface)
+#else
+            if (type.IsInterface)
+#endif
+                return CannotConstructInterfaceExpr;
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeInfo.IsAbstract)
+#else
+            if (type.IsAbstract)
+#endif
+                return CannotConstructAbstractClassExpr;
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeInfo.IsSubclassOf(typeof(Delegate)))
+#else
+            if (type.IsSubclassOf(typeof(Delegate)))
+#endif
+                return CannotConstructDelegateExpr;
+
+            if (type == typeof(string))
+                return TypeIsNotConstructableExpr;
+
+            return null;
+        }
 
         private ResolveDelegate<BuilderContext> ValidateConstructedTypeResolver(Type type)
         {
@@ -338,36 +433,6 @@ namespace Unity.Processors
                     return c.Existing;
                 };
             }
-
-            return null;
-        }
-
-        private Expression ValidateConstructedTypeExpression(Type type)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            if (typeInfo.IsInterface)
-#else
-            if (type.IsInterface)
-#endif
-                return CannotConstructInterfaceExpr;
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeInfo.IsAbstract)
-#else
-            if (type.IsAbstract)
-#endif
-                return CannotConstructAbstractClassExpr;
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeInfo.IsSubclassOf(typeof(Delegate)))
-#else
-            if (type.IsSubclassOf(typeof(Delegate)))
-#endif
-                return CannotConstructDelegateExpr;
-
-            if (type == typeof(string))
-                return TypeIsNotConstructableExpr;
 
             return null;
         }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Builder;
 using Unity.Events;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Registration;
 using Unity.Resolution;
@@ -37,7 +36,7 @@ namespace Unity
                 if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
                 if (lifetimeManager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
-                // Validate are assignable
+                // Validate if they are assignable
                 TypeValidator?.Invoke(typeFrom, typeTo);
 
                 // Create registration and add to appropriate storage
@@ -187,12 +186,12 @@ namespace Unity
                 Registration = registration,
                 RegistrationType = type,
                 Name = name,
-                ExecutePlan = ExecutePlan,
+                ExecutePlan = ContextExecutePlan,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type,
             };
 
-            return ExecuteDefaultPlan(ref context);
+            return ExecutePlan(ref context);
         }
 
         #endregion
@@ -205,8 +204,9 @@ namespace Unity
         {
             // Verify arguments
             if (null == type) throw new ArgumentNullException(nameof(type));
-            name = string.IsNullOrEmpty(name) ? null : name;
-            if (null != existing) InstanceIsAssignable(type, existing, nameof(existing));
+
+            // Validate if they are assignable
+            if (null != existing && null != TypeValidator) TypeValidator(type, existing.GetType());
 
             var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext
@@ -218,12 +218,12 @@ namespace Unity
                 Registration = registration,
                 RegistrationType = type,
                 Name = name,
-                ExecutePlan = ExecutePlan,
+                ExecutePlan = ContextExecutePlan,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type
             };
 
-            return ExecuteDefaultPlan(ref context);
+            return ExecutePlan(ref context);
         }
 
         #endregion

@@ -30,7 +30,7 @@ namespace Unity.Storage
 
         public HashRegistry(int capacity)
         {
-            var size = Prime.GetPrime(capacity);
+            var size = HashHelpers.GetPrime(capacity);
             Buckets = new int[size];
             Entries = new Entry[size];
 
@@ -55,7 +55,7 @@ namespace Unity.Storage
         }
 
         public HashRegistry(HashRegistry<TKey, TValue> dictionary)
-            : this(Prime.GetPrime(dictionary.Entries.Length * 2))
+            : this(HashHelpers.GetPrime(dictionary.Entries.Length * 2))
         {
             Array.Copy(dictionary.Entries, 0, Entries, 0, dictionary.Count);
             for (var i = 0; i < dictionary.Count; i++)

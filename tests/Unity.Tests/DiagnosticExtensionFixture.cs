@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Extension;
 
 namespace Unity.Tests.v5
@@ -20,16 +21,28 @@ namespace Unity.Tests.v5
             Assert.IsNotNull(config);
         }
 
-
         [TestMethod]
-        public void OptimizingResolve()
+        public void ErrorMessage()
         {
             // Setup
             var container = new UnityContainer();
 
             // Validate
-            Assert.IsNotNull(container.Resolve<object>());
+            try
+            {
+                container.Resolve<string>();
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+            }
         }
 
+
+
     }
+
+    #region Test Data
+
+    #endregion
 }

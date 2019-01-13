@@ -41,29 +41,34 @@ namespace Unity.Processors
                              ? FromAttribute(parameter) 
                              : PreProcessResolver(parameter, resolvers[i]);
 
-                // Check if has default value
-                if (!parameter.HasDefaultValue)
-                {
-                    // Plain vanilla case
-                    yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
-                }
-                else
-                {
-                    // Check if has default value
-                    var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
+                yield return CreateParameterResolver(parameter, resolver);
+            }
+        }
 
-                    yield return (ref BuilderContext context) =>
+        protected virtual ResolveDelegate<BuilderContext> CreateParameterResolver(ParameterInfo parameter, object resolver)
+        {
+            // Check if has default value
+            if (!parameter.HasDefaultValue)
+            {
+                // Plain vanilla case
+                return (ref BuilderContext context) => context.Resolve(parameter, resolver);
+            }
+            else
+            {
+                // Check if has default value
+                var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
+
+                return (ref BuilderContext context) =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return context.Resolve(parameter, resolver);
-                        }
-                        catch
-                        {
-                            return defaultValue;
-                        }
-                    };
-                }
+                        return context.Resolve(parameter, resolver);
+                    }
+                    catch
+                    {
+                        return defaultValue;
+                    }
+                };
             }
         }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -112,11 +113,9 @@ namespace Unity
                     else
                         list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
                 }
-                catch (ArgumentException ex)
+                catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                 {
-                    if (!(ex.InnerException is TypeLoadException))
-                        throw;
-                    // TODO: Check if required and why
+                    // Ignore
                 }
             }
 
@@ -151,50 +150,13 @@ namespace Unity
                     list.Add((TElement)context.Resolve(typeof(TElement), entry.Name));
                 }
                 catch (MakeGenericTypeFailedException) { /* Ignore */ }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
                 {
-                    if (!(ex.InnerException is InvalidRegistrationException))
-                        throw;
-                    // TODO: Check if required and why
+                    // Ignore
                 }
             }
 
             return list;
-        }
-
-        #endregion
-
-
-        #region Build Plan
-
-        private object ExecuteDefaultPlan(ref BuilderContext context)
-        {
-            var i = -1;
-            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
-
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception ex)
-            {
-                context.RequiresRecovery?.Recover();
-                // TODO: 5.9.0 Add proper error message
-                throw new ResolutionFailedException(
-                    context.RegistrationType,
-                    context.Name,
-                    "", ex);
-            }
-
-            return context.Existing;
         }
 
         #endregion
@@ -323,9 +285,109 @@ namespace Unity
         #endregion
 
 
-        #region Implementation
+        #region Build Plans
 
-        internal BuilderContext.ExecutePlanDelegate ExecutePlan { get; set; } =
+        private ResolveDelegate<BuilderContext> ExecutePlan { get; set; } =
+            (ref BuilderContext context) =>
+            {
+                var i = -1;
+                BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+
+                try
+                {
+                    while (!context.BuildComplete && ++i < chain.Length)
+                    {
+                        chain[i].PreBuildUp(ref context);
+                    }
+
+                    while (--i >= 0)
+                    {
+                        chain[i].PostBuildUp(ref context);
+                    }
+                }
+                catch (Exception ex) 
+                {
+                    context.RequiresRecovery?.Recover();
+
+                    throw new ResolutionFailedException(context.RegistrationType, context.Name,
+                        "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())", ex);
+                }
+
+                return context.Existing;
+            };
+
+
+        private object ExecuteValidatingPlan(ref BuilderContext context)
+        {
+            var i = -1;
+            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+
+            try
+            {
+                while (!context.BuildComplete && ++i < chain.Length)
+                {
+                    chain[i].PreBuildUp(ref context);
+                }
+
+                while (--i >= 0)
+                {
+                    chain[i].PostBuildUp(ref context);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.RequiresRecovery?.Recover();
+
+                var builder = new StringBuilder();
+
+                var type = context.RegistrationType?.Name ?? context.Type.Name;
+
+                builder.AppendLine(null == context.Name 
+                    ? $"Resolution of type '{type}' failed with error:" 
+                    : $"Resolution of type '{type}' with name '{context.Name}' failed with error:");
+
+                builder.AppendLine(ex.Message);
+
+                builder.AppendLine("___________________________________________________________________________________");
+                builder.AppendLine("Exception occurred while resolving:");
+                builder.AppendLine();
+
+                foreach (DictionaryEntry item in ex.Data)
+                {
+                    builder.AppendLine(MemberToString(item.Key, item.Value));
+                }
+
+                //builder.AppendLine($"Exception occurred while: {Error.NoOperationExceptionReason}.");
+                //builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
+                //builder.AppendLine("-----------------------------------------------");
+
+                //builder.AppendLine("At the time of the exception, the container was: ");
+
+                var message = builder.ToString();
+
+                throw new ResolutionFailedException( context.RegistrationType, context.Name, builder.ToString(), ex);
+            }
+
+            return context.Existing;
+        }
+
+        string MemberToString(object key, object value)
+        {
+            switch (key)
+            {
+                case ParameterInfo parameter:
+                    return $"  parameter: {parameter.ParameterType.Name} {parameter.Name}";
+
+                case ConstructorInfo constructor:
+                    var signature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+                    return $"constructor: {constructor.DeclaringType.Name}({signature})";
+            }
+
+            return key.ToString();
+        }
+
+
+        internal BuilderContext.ExecutePlanDelegate ContextExecutePlan { get; set; } =
             (BuilderStrategy[] chain, ref BuilderContext context) =>
             {
                 var i = -1;
@@ -342,16 +404,16 @@ namespace Unity
                         chain[i].PostBuildUp(ref context);
                     }
                 }
-                catch
+                catch when (null != context.RequiresRecovery)
                 {
-                    context.RequiresRecovery?.Recover();
+                    context.RequiresRecovery.Recover();
                     throw;
                 }
 
                 return context.Existing;
             };
 
-        internal static object ValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
+        internal static object ContextValidatingPlan(BuilderStrategy[] chain, ref BuilderContext context)
         {
             var i = -1;
 
@@ -370,9 +432,9 @@ namespace Unity
                     chain[i].PostBuildUp(ref context);
                 }
             }
-            catch
+            catch when (null != context.RequiresRecovery)
             {
-                context.RequiresRecovery?.Recover();
+                context.RequiresRecovery.Recover();
                 throw;
             }
 
