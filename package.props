@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <UnityAbstractionsVersion>4.*</UnityAbstractionsVersion>
+    <UnityAbstractionsVersion>4.0.*</UnityAbstractionsVersion>
     <TargetFrameworks>netstandard2.0;netstandard1.0;netcoreapp2.0;netcoreapp1.0;net47;net46;net45</TargetFrameworks>
   </PropertyGroup>
 
