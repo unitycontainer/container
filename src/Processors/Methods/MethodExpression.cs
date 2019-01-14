@@ -10,16 +10,12 @@ namespace Unity.Processors
 
         protected override Expression ExpressionFromMemberInfo(MethodInfo info)
         {
-            ValidateMember(info);
-
             return Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
                 info, CreateParameterExpressions(info.GetParameters()));
         }
 
         protected override Expression ExpressionFromMemberInfo(MethodInfo info, object[] resolvers)
         {
-            ValidateMember(info);
-
             return Expression.Call(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
                            info, CreateParameterExpressions(info.GetParameters(), resolvers));
         }

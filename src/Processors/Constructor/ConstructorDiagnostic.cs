@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -60,12 +59,6 @@ namespace Unity.Processors
                             Expression.Constant(TypeIsNotConstructable),
                             BuilderContextExpression.Type),
                         InvalidRegistrationExpression)));
-
-        private static readonly PropertyInfo DataProperty = 
-            typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data));
-
-        private static readonly MethodInfo AddMethod = 
-            typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add));
 
         #endregion
 
@@ -168,12 +161,13 @@ namespace Unity.Processors
                 Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
             });
 
+
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
             var catchBlock = Expression.Block(typeof(object),
-                Expression.Call(exData, AddMethod,
-                        Expression.Constant(info, typeof(object)),
-                        Expression.Constant(null, typeof(object))),
+                Expression.Call(exData, AddMethod, 
+                        Expression.Convert(NewGuid, typeof(object)),
+                        Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(typeof(object)));
 
             return Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock));
@@ -194,8 +188,8 @@ namespace Unity.Processors
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
             var block = Expression.Block(parameter.ParameterType,
                 Expression.Call(exData, AddMethod,
-                        Expression.Constant(parameter, typeof(object)),
-                        Expression.Constant(null, typeof(object))),
+                        Expression.Convert(NewGuid, typeof(object)),
+                        Expression.Constant(parameter, typeof(object))),
                 Expression.Rethrow(parameter.ParameterType));
 
             return Expression.TryCatch(base.CreateParameterExpression(parameter, resolver),
@@ -281,7 +275,7 @@ namespace Unity.Processors
                         }
                         catch (Exception ex)
                         {
-                            ex.Data.Add(info, c.Name);
+                            ex.Data.Add(Guid.NewGuid(), info);
                             throw;
                         }
 
@@ -308,7 +302,7 @@ namespace Unity.Processors
                     }
                     catch (Exception ex)
                     {
-                        ex.Data.Add(info, c.Name);
+                        ex.Data.Add(Guid.NewGuid(), info);
                         throw;
                     }
                 }
@@ -330,7 +324,7 @@ namespace Unity.Processors
                 }
                 catch (Exception ex)
                 {
-                    ex.Data.Add(parameter, context.Name);
+                    ex.Data.Add(Guid.NewGuid(), parameter);
                     throw;
                 }
             };

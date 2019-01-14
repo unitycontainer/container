@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
@@ -18,6 +19,21 @@ namespace Unity.Processors
 
         #region Overrides
 
+        protected override Expression GetResolverExpression(FieldInfo field, string name, object resolver)
+        {
+            var ex = Expression.Variable(typeof(Exception));
+            var exData = Expression.MakeMemberAccess(ex, DataProperty);
+            var block = 
+                Expression.Block(field.FieldType,
+                    Expression.Call(exData, AddMethod,
+                        Expression.Convert(NewGuid, typeof(object)),
+                        Expression.Constant(field, typeof(object))),
+                Expression.Rethrow(field.FieldType));
+
+            return Expression.TryCatch(base.GetResolverExpression(field, name, resolver),
+                   Expression.Catch(ex, block));
+        }
+
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object resolver)
         {
             var value = PreProcessResolver(info, resolver);
@@ -30,7 +46,7 @@ namespace Unity.Processors
                 }
                 catch (Exception ex)
                 {
-                    ex.Data.Add(info, context.Name);
+                    ex.Data.Add(Guid.NewGuid(), info);
                     throw;
                 }
             };

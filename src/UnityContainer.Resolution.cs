@@ -241,50 +241,6 @@ namespace Unity
         #endregion
 
 
-        #region Exceptions
-
-        public static string CreateMessage(Type typeRequested, string nameRequested, Exception innerException,
-                                            ref BuilderContext context, string format = Error.ResolutionFailed)
-        {
-            var builder = new StringBuilder();
-
-            builder.AppendLine($"Resolution of the dependency failed for type = '{typeRequested}', name = '{FormatName(nameRequested)}'.");
-            builder.AppendLine($"Exception occurred while: {Error.NoOperationExceptionReason}.");
-            builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
-            builder.AppendLine("-----------------------------------------------");
-            builder.AppendLine("At the time of the exception, the container was: ");
-
-            AddContextDetails(builder, ref context, 1);
-
-            var message = builder.ToString();
-            return message;
-        }
-
-        private static void AddContextDetails(StringBuilder builder, ref BuilderContext context, int depth)
-        {
-            var indentation = new string(' ', depth * 2);
-
-            builder.Append(indentation);
-
-            builder.Append(context.Type == context.RegistrationType
-                ? $"Resolving {context.Type},{FormatName(context.Name)}"
-                : $"Resolving {context.Type},{FormatName(context.Name)} (mapped from {context.RegistrationType}, {FormatName(context.Name)})");
-
-            builder.AppendLine();
-
-
-            // TODO: 5.9.0 ReEnable
-            //AddContextDetails(builder, context.ChildContext, depth + 1);
-        }
-
-        private static string FormatName(string name)
-        {
-            return string.IsNullOrEmpty(name) ? "(none)" : name;
-        }
-
-        #endregion
-
-
         #region Build Plans
 
         private ResolveDelegate<BuilderContext> ExecutePlan { get; set; } =
@@ -337,55 +293,73 @@ namespace Unity
             catch (Exception ex)
             {
                 context.RequiresRecovery?.Recover();
+                ex.Data.Add(Guid.NewGuid(), null == context.Name
+                    ? context.RegistrationType == context.Type
+                        ? (object)context.Type
+                        : new Tuple<Type, Type>(context.RegistrationType, context.Type)
+                    : context.RegistrationType == context.Type
+                        ? (object)new Tuple<Type, string>(context.Type, context.Name)
+                        : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
 
                 var builder = new StringBuilder();
-
-                var type = context.RegistrationType?.Name ?? context.Type.Name;
-
-                builder.AppendLine(null == context.Name 
-                    ? $"Resolution of type '{type}' failed with error:" 
-                    : $"Resolution of type '{type}' with name '{context.Name}' failed with error:");
-
                 builder.AppendLine(ex.Message);
-
-                builder.AppendLine("___________________________________________________________________________________");
-                builder.AppendLine("Exception occurred while resolving:");
+                builder.AppendLine("_____________________________________________________");
+                builder.AppendLine("Exception occurred while:");
                 builder.AppendLine();
 
+                var indent = 0;
                 foreach (DictionaryEntry item in ex.Data)
                 {
-                    builder.AppendLine(MemberToString(item.Key, item.Value));
+                    for (var c = 0; c < indent; c++) builder.Append(" ");
+                    builder.AppendLine(CreateErrorMessage(item.Value));
+                    indent += 1;
                 }
-
-                //builder.AppendLine($"Exception occurred while: {Error.NoOperationExceptionReason}.");
-                //builder.AppendLine($"Exception is: {innerException?.GetType().GetTypeInfo().Name ?? "ResolutionFailedException"} - {innerException?.Message}");
-                //builder.AppendLine("-----------------------------------------------");
-
-                //builder.AppendLine("At the time of the exception, the container was: ");
 
                 var message = builder.ToString();
 
-                throw new ResolutionFailedException( context.RegistrationType, context.Name, builder.ToString(), ex);
+                throw new ResolutionFailedException( context.RegistrationType, context.Name, message, ex);
             }
 
             return context.Existing;
-        }
 
-        string MemberToString(object key, object value)
-        {
-            switch (key)
+
+            string CreateErrorMessage(object value)
             {
-                case ParameterInfo parameter:
-                    return $"  parameter: {parameter.ParameterType.Name} {parameter.Name}";
+                switch (value)
+                {
+                    case ParameterInfo parameter:
+                        return $" for parameter:  '{parameter.Name}'";
 
-                case ConstructorInfo constructor:
-                    var signature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-                    return $"constructor: {constructor.DeclaringType.Name}({signature})";
+                    case ConstructorInfo constructor:
+                        var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+                        return $"on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
+
+                    case MethodInfo method:
+                        var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+                        return $"     on method:  {method.Name}({methodSignature})";
+
+                    case PropertyInfo property:
+                        return $"  for property:  '{property.Name}'";
+
+                    case FieldInfo field:
+                        return $"     for field:  '{field.Name}'";
+
+                    case Type type:
+                        return $"·resolving type:  '{type.Name}'";
+
+                    case Tuple<Type, string> tuple:
+                        return $"•resolving type:  '{tuple.Item1.Name}' registered with name: '{tuple.Item2}'";
+
+                    case Tuple<Type, Type> tuple:
+                        return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}'";
+
+                    case Tuple<Type, Type, string> tuple:
+                        return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}' and registered with name: '{tuple.Item3}'";
+                }
+
+                return value.ToString();
             }
-
-            return key.ToString();
         }
-
 
         internal BuilderContext.ExecutePlanDelegate ContextExecutePlan { get; set; } =
             (BuilderStrategy[] chain, ref BuilderContext context) =>
@@ -432,9 +406,16 @@ namespace Unity
                     chain[i].PostBuildUp(ref context);
                 }
             }
-            catch when (null != context.RequiresRecovery)
+            catch (Exception ex)
             {
-                context.RequiresRecovery.Recover();
+                context.RequiresRecovery?.Recover();
+                ex.Data.Add(Guid.NewGuid(), null == context.Name
+                    ? context.RegistrationType == context.Type 
+                        ? (object)context.Type 
+                        : new Tuple<Type, Type>(context.RegistrationType, context.Type)
+                    : context.RegistrationType == context.Type 
+                        ? (object)new Tuple<Type, string>(context.Type, context.Name) 
+                        : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
                 throw;
             }
 
