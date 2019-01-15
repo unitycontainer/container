@@ -20,30 +20,43 @@ namespace Unity.Processors
                              ? FromAttribute(parameter)
                              : PreProcessResolver(parameter, resolvers[i]);
 
-                yield return CreateDiagnosticParameterResolver(parameter, resolver);
+                // TODO: Add diagnostic for parameters
+
+                // Check if has default value
+                if (!parameter.HasDefaultValue)
+                {
+                    // Plain vanilla case
+                    yield return (ref BuilderContext context) =>
+                    {
+                        try
+                        {
+                            return context.Resolve(parameter, resolver);
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.Data.Add(Guid.NewGuid(), parameter);
+                            throw;
+                        }
+                    };
+                }
+                else
+                {
+                    // Check if has default value
+                    var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
+                    yield return (ref BuilderContext context) =>
+                    {
+                        try
+                        {
+                            return context.Resolve(parameter, resolver);
+                        }
+                        catch
+                        {
+                            return defaultValue;
+                        }
+                    };
+                }
             }
         }
-
-        protected virtual ResolveDelegate<BuilderContext> CreateDiagnosticParameterResolver(ParameterInfo parameter, object resolver)
-        {
-            // TODO: Add diagnostic to parameters
-
-            var resolverDelegate = CreateParameterResolver(parameter, resolver);
-
-            return (ref BuilderContext context) =>
-            {
-                try
-                {
-                    return resolverDelegate(ref context);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add(Guid.NewGuid(), parameter);
-                    throw;
-                }
-            };
-        }
-
 
         #endregion
     }
