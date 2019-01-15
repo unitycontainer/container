@@ -9,7 +9,7 @@ using Unity.Registration;
 
 namespace Unity.Processors
 {
-    public partial class ConstructorProcessor : MethodBaseProcessor<ConstructorInfo>
+    public partial class ConstructorProcessor : ParametersProcessor<ConstructorInfo>
     {
         #region Fields
 

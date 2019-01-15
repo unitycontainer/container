@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
@@ -66,9 +67,12 @@ namespace Unity.Processors
                    Expression.Catch(ex, block));
         }
 
+
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object resolvers)
         {
-            var parameterResolvers = (ResolveDelegate<BuilderContext>[])resolvers;
+            ValidateMember(info);
+
+            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>
             {
                 try
@@ -88,24 +92,6 @@ namespace Unity.Processors
                 }
 
                 return c.Existing;
-            };
-        }
-
-        protected override ResolveDelegate<BuilderContext> CreateParameterResolver(ParameterInfo parameter, object resolver)
-        {
-            var resolverDelegate = base.CreateParameterResolver(parameter, resolver);
-
-            return (ref BuilderContext context) =>
-            {
-                try
-                {
-                    return resolverDelegate(ref context);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add(Guid.NewGuid(), parameter);
-                    throw;
-                }
             };
         }
 

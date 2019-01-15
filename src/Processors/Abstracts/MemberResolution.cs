@@ -17,47 +17,31 @@ namespace Unity.Processors
             {
                 switch (member)
                 {
-                    case TMemberInfo memberInfo:
-                        yield return ResolverFromMemberInfo(memberInfo);
+                    // MemberInfo
+                    case TMemberInfo info:
+                        object value = DependencyAttribute.Instance;
+                        foreach (var node in AttributeFactories)
+                        {
+                            var attribute = GetCustomAttribute(info, node.Type);
+                            if (null == attribute) continue;
+
+                            value = null == node.Factory ? (object)attribute : node.Factory(attribute, info);
+                            break;
+                        }
+                        yield return GetResolverDelegate(info, value);
                         break;
 
+                    // Injection Member
                     case InjectionMember<TMemberInfo, TData> injectionMember:
-                        yield return ResolverFromMemberInfo(injectionMember.MemberInfo(type), 
-                                                            injectionMember.Data);
+                        yield return GetResolverDelegate(injectionMember.MemberInfo(type), 
+                                                         injectionMember.Data);
                         break;
 
+                    // Unknown
                     default:
                         throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
                 }
             }
-        }
-
-        #endregion
-
-
-        #region Member Processing
-
-        protected virtual ResolveDelegate<BuilderContext> ResolverFromMemberInfo(TMemberInfo info)
-        {
-            ValidateMember(info);
-
-            foreach (var node in AttributeFactories)
-            {
-                var attribute = GetCustomAttribute(info, node.Type);
-                if (null == attribute) continue;
-
-                return null == node.Factory
-                    ? GetResolverDelegate(info, attribute)
-                    : GetResolverDelegate(info, node.Factory(attribute, info)); 
-            }
-
-            return GetResolverDelegate(info, DependencyAttribute.Instance);
-        }
-
-        protected virtual ResolveDelegate<BuilderContext> ResolverFromMemberInfo(TMemberInfo info, TData resolver)
-        {
-            ValidateMember(info);
-            return GetResolverDelegate(info, resolver);
         }
 
         #endregion

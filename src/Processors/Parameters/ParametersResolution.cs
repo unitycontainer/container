@@ -5,35 +5,13 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo>
+    public abstract partial class ParametersProcessor<TMemberInfo>
     {
-        #region Overrides
-
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object resolvers)
-        {
-            var parameterResolvers = (ResolveDelegate<BuilderContext>[])resolvers;
-            return (ref BuilderContext c) =>
-            {
-                if (null == c.Existing) return c.Existing;
-
-                var parameters = new object[parameterResolvers.Length];
-                for (var i = 0; i < parameters.Length; i++)
-                    parameters[i] = parameterResolvers[i](ref c);
-
-                info.Invoke(c.Existing, parameters);
-
-                return c.Existing;
-            };
-        }
-
-        #endregion
-
-
         #region Parameter Factory
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object[] injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object injectors = null)
         {
-            object[] resolvers = null != injectors && 0 == injectors.Length ? null : injectors;
+            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];

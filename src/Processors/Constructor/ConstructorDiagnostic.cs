@@ -203,91 +203,68 @@ namespace Unity.Processors
 
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = type.GetTypeInfo();
+#else
+            var typeInfo = type;
+#endif
             // Validate if Type could be created
-            var exception = ValidateConstructedTypeResolver(type);
-            if (null != exception) return exception;
-
-            // Select ConstructorInfo
-            var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
-            var selection = selector.Select(type, registration)
-                                    .FirstOrDefault();
-
-            // Select appropriate ctor for the Type
-            ConstructorInfo info;
-            object[] resolvers = null;
-
-            switch (selection)
+            if (typeInfo.IsInterface)
             {
-                case ConstructorInfo memberInfo:
-                    info = memberInfo;
-                    break;
-
-                case MethodBase<ConstructorInfo> injectionMember:
-                    info = injectionMember.MemberInfo(type);
-                    resolvers = injectionMember.Data;
-                    break;
-
-                default:
-                    return (ref BuilderContext c) =>
-                    {
-                        if (null == c.Existing)
-                            throw new InvalidOperationException($"No public constructor is available for type {c.Type}.",
-                                new InvalidRegistrationException());
-
-                        return c.Existing;
-                    };
-            }
-
-            // Get lifetime manager
-            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
-
-            // Validate parameters
-            var parameters = info.GetParameters();
-            if (parameters.Any(p => p.ParameterType == info.DeclaringType))
-            {
-                if (null == lifetimeManager?.GetValue())
-                    return (ref BuilderContext c) =>
-                    {
-                        if (null == c.Existing)
-                            throw new InvalidOperationException(string.Format(Error.SelectedConstructorHasRefItself, info, c.Type),
-                                new InvalidRegistrationException());
-
-                        return c.Existing;
-                    };
-            }
-
-            // Create dependency resolvers
-            var parameterResolvers = CreateParameterResolvers(parameters, resolvers).ToArray();
-            if (lifetimeManager is PerResolveLifetimeManager)
-            {
-                // PerResolve lifetime
                 return (ref BuilderContext c) =>
                 {
                     if (null == c.Existing)
-                    {
-                        try
-                        {
-                            var dependencies = new object[parameterResolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = parameterResolvers[i](ref c);
-
-                            c.Existing = info.Invoke(dependencies);
-                        }
-                        catch (Exception ex)
-                        {
-                            ex.Data.Add(Guid.NewGuid(), info);
-                            throw;
-                        }
-
-                        c.Set(typeof(LifetimeManager),
-                              new InternalPerResolveLifetimeManager(c.Existing));
-                    }
+                        throw new InvalidOperationException(string.Format(CannotConstructInterface, c.Type),
+                            new InvalidRegistrationException());
 
                     return c.Existing;
                 };
             }
 
-            // Normal activator
+            if (typeInfo.IsAbstract)
+            {
+                return (ref BuilderContext c) =>
+                {
+                    if (null == c.Existing)
+                        throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, c.Type),
+                            new InvalidRegistrationException());
+
+                    return c.Existing;
+                };
+            }
+
+            if (typeInfo.IsSubclassOf(typeof(Delegate)))
+            {
+                return (ref BuilderContext c) =>
+                {
+                    if (null == c.Existing)
+                        throw new InvalidOperationException(string.Format(CannotConstructDelegate, c.Type),
+                            new InvalidRegistrationException());
+
+                    return c.Existing;
+                };
+            }
+
+            if (type == typeof(string))
+            {
+                return (ref BuilderContext c) =>
+                {
+                    if (null == c.Existing)
+                        throw new InvalidOperationException(string.Format(TypeIsNotConstructable, c.Type),
+                            new InvalidRegistrationException());
+
+                    return c.Existing;
+                };
+            }
+
+
+            return base.GetResolver(type, registration, seed);
+        }
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object resolvers)
+        {
+            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+
             return (ref BuilderContext c) =>
             {
                 if (null == c.Existing)
@@ -309,24 +286,35 @@ namespace Unity.Processors
 
                 return c.Existing;
             };
-
         }
 
-        protected override ResolveDelegate<BuilderContext> CreateParameterResolver(ParameterInfo parameter, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object resolvers)
         {
-            var resolverDelegate = base.CreateParameterResolver(parameter, resolver);
-
-            return (ref BuilderContext context) =>
+            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            // PerResolve lifetime
+            return (ref BuilderContext c) =>
             {
-                try
+                if (null == c.Existing)
                 {
-                    return resolverDelegate(ref context);
+                    try
+                    {
+                        var dependencies = new object[parameterResolvers.Length];
+                        for (var i = 0; i < dependencies.Length; i++)
+                            dependencies[i] = parameterResolvers[i](ref c);
+
+                        c.Existing = info.Invoke(dependencies);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Data.Add(Guid.NewGuid(), info);
+                        throw;
+                    }
+
+                    c.Set(typeof(LifetimeManager),
+                          new InternalPerResolveLifetimeManager(c.Existing));
                 }
-                catch (Exception ex)
-                {
-                    ex.Data.Add(Guid.NewGuid(), parameter);
-                    throw;
-                }
+
+                return c.Existing;
             };
         }
 
@@ -361,72 +349,6 @@ namespace Unity.Processors
 
             if (type == typeof(string))
                 return TypeIsNotConstructableExpr;
-
-            return null;
-        }
-
-        private ResolveDelegate<BuilderContext> ValidateConstructedTypeResolver(Type type)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            if (typeInfo.IsInterface)
-#else
-            if (type.IsInterface)
-#endif
-            {
-                return (ref BuilderContext c) =>
-                {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructInterface, c.Type),
-                            new InvalidRegistrationException());
-
-                    return c.Existing;
-                };
-            }
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeInfo.IsAbstract)
-#else
-            if (type.IsAbstract)
-#endif
-            {
-                return (ref BuilderContext c) =>
-                {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, c.Type),
-                            new InvalidRegistrationException());
-
-                    return c.Existing;
-                };
-            }
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeInfo.IsSubclassOf(typeof(Delegate)))
-#else
-            if (type.IsSubclassOf(typeof(Delegate)))
-#endif
-            {
-                return (ref BuilderContext c) =>
-                {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructDelegate, c.Type),
-                            new InvalidRegistrationException());
-
-                    return c.Existing;
-                };
-            }
-
-            if (type == typeof(string))
-            {
-                return (ref BuilderContext c) =>
-                {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(TypeIsNotConstructable, c.Type),
-                            new InvalidRegistrationException());
-
-                    return c.Existing;
-                };
-            }
 
             return null;
         }

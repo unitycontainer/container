@@ -8,7 +8,7 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public partial class MethodProcessor : MethodBaseProcessor<MethodInfo>
+    public partial class MethodProcessor : ParametersProcessor<MethodInfo>
     {
         #region Constructors
 
@@ -65,7 +65,6 @@ namespace Unity.Processors
                 throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
                     format, info.DeclaringType.GetTypeInfo().Name, info.Name));
             }
-
         }
 
         #endregion

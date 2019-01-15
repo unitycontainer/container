@@ -6,7 +6,7 @@ using Unity.Builder;
 
 namespace Unity.Processors
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo>
+    public abstract partial class ParametersProcessor<TMemberInfo>
     {
         #region Parameter Factory
 

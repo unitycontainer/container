@@ -5,12 +5,12 @@ using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
+    public abstract partial class ParametersProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
                                                  where TMemberInfo : MethodBase
     {
         #region Constructors
 
-        protected MethodBaseProcessor(IPolicySet policySet, Type attribute)
+        protected ParametersProcessor(IPolicySet policySet, Type attribute)
             : base(policySet, attribute)
         {
         }

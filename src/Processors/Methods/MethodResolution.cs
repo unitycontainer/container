@@ -7,22 +7,23 @@ namespace Unity.Processors
 {
     public partial class MethodProcessor
     {
-        #region Building Resolver
+        #region Overrides
 
-        protected override ResolveDelegate<BuilderContext> ResolverFromMemberInfo(MethodInfo info)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object resolvers)
         {
-            ValidateMember(info);
-
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters()).ToArray();
-            return GetResolverDelegate(info, parameterResolvers);
-        }
-
-        protected override ResolveDelegate<BuilderContext> ResolverFromMemberInfo(MethodInfo info, object[] resolvers)
-        {
-            ValidateMember(info);
-
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return GetResolverDelegate(info, parameterResolvers);
+            return (ref BuilderContext c) =>
+            {
+                if (null == c.Existing) return c.Existing;
+
+                var parameters = new object[parameterResolvers.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                    parameters[i] = parameterResolvers[i](ref c);
+
+                info.Invoke(c.Existing, parameters);
+
+                return c.Existing;
+            };
         }
 
         #endregion
