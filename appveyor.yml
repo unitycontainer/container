@@ -7,7 +7,7 @@ install:
   - ps: Update-AppveyorBuild -Version "$env:build_version.$env:APPVEYOR_BUILD_NUMBER"
 
 assembly_info: 
-  patch: true 
+  patch: false 
   assembly_informational_version: "{version} $(GIT_HASH)"
 
 dotnet_csproj:
