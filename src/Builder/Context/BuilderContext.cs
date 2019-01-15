@@ -225,23 +225,17 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case FieldInfo info
-                when ReferenceEquals(info, field):
+                case DependencyAttribute dependencyAttribute 
+                when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
                     return Resolve(field.FieldType, name);
 
-                case DependencyAttribute dependencyAttribute when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
-                    return Resolve(field.FieldType, name);
-
-                case OptionalDependencyAttribute optionalAttribute when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
+                case OptionalDependencyAttribute optionalAttribute 
+                when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
                     try   { return Resolve(field.FieldType, name); }
                     catch { return null; }
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
-
-                case IResolverFactory<Type> factory:
-                    var method = factory.GetResolver<BuilderContext>(Type);
-                    return method?.Invoke(ref context);
             }
 
             return value;
@@ -281,23 +275,17 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case PropertyInfo info
-                when ReferenceEquals(info, property):
+                case DependencyAttribute dependencyAttribute 
+                when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
                     return Resolve(property.PropertyType, name);
 
-                case DependencyAttribute dependencyAttribute when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
-                    return Resolve(property.PropertyType, name);
-
-                case OptionalDependencyAttribute optionalAttribute when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
+                case OptionalDependencyAttribute optionalAttribute 
+                when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
                     try { return Resolve(property.PropertyType, name); }
                     catch { return null; }
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
-
-                case IResolverFactory<Type> factory:
-                    var method = factory.GetResolver<BuilderContext>(Type);
-                    return method?.Invoke(ref context);
             }
 
             return value;
