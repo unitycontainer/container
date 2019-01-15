@@ -3,8 +3,9 @@
   <Import Project="..\package.props" />
 
   <PropertyGroup>
-    <FileVersion>$(Version).0</FileVersion>
-    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <Version>$(VersionBase)-RC</Version>
+    <FileVersion>$(VersionBase).0</FileVersion>
+    <AssemblyVersion>$(VersionBase).0</AssemblyVersion>
     <AssemblyInformationalVersion>$(FileVersion)</AssemblyInformationalVersion>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
