@@ -6,7 +6,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Container.Lifetime;
 using Unity.Exceptions;
-using Unity.Injection;
 using Unity.Policy;
 
 namespace Unity.Processors
@@ -20,7 +19,7 @@ namespace Unity.Processors
         const string CannotConstructInterface = "The current type, {0}, is an interface and cannot be constructed. Are you missing a type mapping?";
         const string TypeIsNotConstructable = "The type {0} cannot be constructed. You must configure the container to supply this value.";
 
-        private static readonly Expression CannotConstructInterfaceExpr =
+        private static readonly Expression[] CannotConstructInterfaceExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
@@ -28,9 +27,9 @@ namespace Unity.Processors
                             StringFormat,
                             Expression.Constant(CannotConstructInterface),
                             BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)));
+                        InvalidRegistrationExpression)))};
 
-        private static readonly Expression CannotConstructAbstractClassExpr =
+        private static readonly Expression[] CannotConstructAbstractClassExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
@@ -38,9 +37,9 @@ namespace Unity.Processors
                             StringFormat,
                             Expression.Constant(CannotConstructAbstractClass),
                             BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)));
+                        InvalidRegistrationExpression)))};
 
-        private static readonly Expression CannotConstructDelegateExpr =
+        private static readonly Expression[] CannotConstructDelegateExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
@@ -48,9 +47,9 @@ namespace Unity.Processors
                             StringFormat,
                             Expression.Constant(CannotConstructDelegate),
                             BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)));
+                        InvalidRegistrationExpression)))};
 
-        private static readonly Expression TypeIsNotConstructableExpr =
+        private static readonly Expression[] TypeIsNotConstructableExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
@@ -58,7 +57,7 @@ namespace Unity.Processors
                             StringFormat,
                             Expression.Constant(TypeIsNotConstructable),
                             BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)));
+                        InvalidRegistrationExpression)))};
 
         #endregion
 
@@ -77,101 +76,59 @@ namespace Unity.Processors
 
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = type.GetTypeInfo();
+#else
+            var typeInfo = type;
+#endif
             // Validate if Type could be created
-            var exceptionExpr = ValidateConstructedTypeExpression(type);
-            if (null != exceptionExpr) return new[] { exceptionExpr };
+            if (typeInfo.IsInterface) return CannotConstructInterfaceExpr;
 
-            // Select ConstructorInfo
-            var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
-            var selection = selector.Select(type, registration)
-                                    .FirstOrDefault();
+            if (typeInfo.IsAbstract) return CannotConstructAbstractClassExpr;
 
-            // Select appropriate ctor for the Type
-            ConstructorInfo info;
-            object[] resolvers = null;
+            if (typeInfo.IsSubclassOf(typeof(Delegate)))
+                return CannotConstructDelegateExpr;
 
-            switch (selection)
-            {
-                case ConstructorInfo memberInfo:
-                    info = memberInfo;
-                    break;
+            if (type == typeof(string))
+                return TypeIsNotConstructableExpr;
 
-                case MethodBase<ConstructorInfo> injectionMember:
-                    info = injectionMember.MemberInfo(type); 
-                    resolvers = injectionMember.Data;
-                    break;
-
-                default:
-                    return new[] { NoConstructorExpr };
-            }
-
-            // Get lifetime manager
-            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
-
-
-            // Validate parameters
-            var parameters = info.GetParameters();
-            if (parameters.Any(p => p.ParameterType == info.DeclaringType))
-            {
-                if (null == lifetimeManager?.GetValue())
-                {
-                    return new Expression[]
-                    {
-                        Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                        Expression.Throw(
-                            Expression.New(InvalidOperationExceptionCtor,
-                            Expression.Call(
-                                StringFormat,
-                                Expression.Constant(Error.SelectedConstructorHasRefItself),
-                                Expression.Constant(info, typeof(ConstructorInfo)),
-                                BuilderContextExpression.Type),
-                            InvalidRegistrationExpression)))
-                    };
-                }
-            }
-
-            // Create 'new' expression
-            var ifThenExpr = Expression.IfThen(
-                Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                ExpressionFromMemberInfo(info, resolvers));
-
-            // Check if PerResolveLifetimeManager is required
-            return lifetimeManager is PerResolveLifetimeManager
-                ? new[] { ifThenExpr, SetPerBuildSingletonExpr }
-                : new Expression[] { ifThenExpr };
+            // Build expression as usual
+            return base.GetExpressions(type, registration);
         }
 
-        protected override Expression ExpressionFromMemberInfo(ConstructorInfo info, object[] resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
         {
-            // Check if had ByRef parameters
-            var parameters = info.GetParameters();
-            if (parameters.Any(pi => pi.ParameterType.IsByRef))
-            {
-                return Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Error.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
-                        InvalidRegistrationExpression));
-            }
-
-            // Create 
-
-            var variable = Expression.Variable(info.DeclaringType ?? throw new ArgumentNullException(nameof(info)));
-            var tryBlock = Expression.Block(new[] { variable }, new Expression[]
-            {
-                Expression.Assign(variable, Expression.New(info, CreateParameterExpressions(info.GetParameters(), resolvers))),
-                Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
-            });
-
-
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var catchBlock = Expression.Block(typeof(object),
-                Expression.Call(exData, AddMethod, 
+            var variable = Expression.Variable(info.DeclaringType ?? throw new ArgumentNullException(nameof(info)));
+            var parameters = info.GetParameters();
+
+            // Check if has Out or ByRef parameters
+            var tryBlock = parameters.Any(pi => pi.ParameterType.IsByRef)
+                
+                // Report error
+                ? (Expression)Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
+                        Expression.Constant(CreateErrorMessage(Error.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
+                        InvalidRegistrationExpression))
+                
+                // Create new instance
+                : Expression.Block(new[] { variable }, new Expression[]
+                    {
+                        Expression.Assign(variable, Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers))),
+                        Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
+                    });
+
+            // Add location to dictionary and re-throw
+            var catchBlock = Expression.Block(tryBlock.Type,
+                Expression.Call(exData, AddMethod,
                         Expression.Convert(NewGuid, typeof(object)),
                         Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(typeof(object)));
+                Expression.Rethrow(tryBlock.Type));
 
-            return Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock));
-
+            // Create 
+            return Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                                     Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock)));
+            // Report error
             string CreateErrorMessage(string format, Type type, MethodBase constructor)
             {
                 var parameterDescriptions =
@@ -180,20 +137,6 @@ namespace Unity.Processors
 
                 return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
             }
-        }
-
-        protected override Expression CreateParameterExpression(ParameterInfo parameter, object resolver)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var block = Expression.Block(parameter.ParameterType,
-                Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(parameter, typeof(object))),
-                Expression.Rethrow(parameter.ParameterType));
-
-            return Expression.TryCatch(base.CreateParameterExpression(parameter, resolver),
-                   Expression.Catch(ex, block));
         }
 
         #endregion
@@ -316,41 +259,6 @@ namespace Unity.Processors
 
                 return c.Existing;
             };
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private Expression ValidateConstructedTypeExpression(Type type)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            if (typeInfo.IsInterface)
-#else
-            if (type.IsInterface)
-#endif
-                return CannotConstructInterfaceExpr;
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeInfo.IsAbstract)
-#else
-            if (type.IsAbstract)
-#endif
-                return CannotConstructAbstractClassExpr;
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeInfo.IsSubclassOf(typeof(Delegate)))
-#else
-            if (type.IsSubclassOf(typeof(Delegate)))
-#endif
-                return CannotConstructDelegateExpr;
-
-            if (type == typeof(string))
-                return TypeIsNotConstructableExpr;
-
-            return null;
         }
 
         #endregion

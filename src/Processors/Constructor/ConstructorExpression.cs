@@ -35,14 +35,14 @@ namespace Unity.Processors
                 Expression.Constant(typeof(LifetimeManager), typeof(Type)),
                 Expression.New(PerResolveInfo, BuilderContextExpression.Existing));
 
-        protected static readonly Expression NoConstructorExpr =
+        protected static readonly Expression[] NoConstructorExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                 Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
                             BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)));
+                        InvalidRegistrationExpression)))};
 
         #endregion
 
@@ -56,8 +56,9 @@ namespace Unity.Processors
             var selection = selector.Select(type, registration)
                                     .FirstOrDefault();
 
-            // Select appropriate ctor for the Type
+            // Select constructor for the Type
             ConstructorInfo info;
+            object[] resolvers = null;
             IEnumerable<Expression> parametersExpr;
 
             switch (selection)
@@ -68,33 +69,35 @@ namespace Unity.Processors
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
-                    object[] resolvers;
                     info = injectionMember.MemberInfo(type);
                     resolvers = injectionMember.Data;
                     parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
                     break;
 
                 default:
-                    return new[] { NoConstructorExpr };
+                    return NoConstructorExpr;
             }
 
             // Get lifetime manager
             var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
 
-            // Create 'new' expression
+            return lifetimeManager is PerResolveLifetimeManager
+                ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }
+                : new Expression[] { GetResolverExpression(info, resolvers) };
+        }
+
+        protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
+        {
             var variable = Expression.Variable(info.DeclaringType);
-            var ifThenExpr = Expression.IfThen(
+            var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
+
+            return Expression.IfThen(
                 Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                 Expression.Block(new[] { variable }, new Expression[]
                 {
                     Expression.Assign(variable, Expression.New(info, parametersExpr)),
                     Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
                 }));
-
-            // Check if PerResolveLifetimeManager is required
-            return lifetimeManager is PerResolveLifetimeManager
-                ? new[] { ifThenExpr, SetPerBuildSingletonExpr }
-                : new Expression[] { ifThenExpr };
         }
 
         #endregion

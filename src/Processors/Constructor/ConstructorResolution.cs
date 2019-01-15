@@ -73,6 +73,11 @@ namespace Unity.Processors
             };
         }
 
+        #endregion
+
+
+        #region Implementation
+
         protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object resolvers)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();

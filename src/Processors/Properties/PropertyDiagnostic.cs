@@ -20,7 +20,7 @@ namespace Unity.Processors
 
         #region Overrides
 
-        protected override Expression GetResolverExpression(PropertyInfo property, string name, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo property, object resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -31,7 +31,7 @@ namespace Unity.Processors
                         Expression.Constant(property, typeof(object))),
                 Expression.Rethrow(property.PropertyType));
 
-            return Expression.TryCatch(base.GetResolverExpression(property, name, resolver),
+            return Expression.TryCatch(base.GetResolverExpression(property, resolver),
                    Expression.Catch(ex, block));
         }
 
@@ -42,7 +42,7 @@ namespace Unity.Processors
             {
                 try
                 {
-                    info.SetValue(context.Existing, context.Resolve(info, context.Name, value));
+                    info.SetValue(context.Existing, context.Resolve(info, value));
                     return context.Existing;
                 }
                 catch (Exception ex)

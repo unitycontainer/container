@@ -191,57 +191,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(FieldInfo field, string name, object value)
-        {
-            var context = this;
-
-            // Process overrides if any
-            if (null != Overrides)
-            {
-                // Check for property overrides
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-
-                    // Check if this parameter is overridden
-                    if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
-                    {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return resolverPolicy.Resolve(ref context);
-                        }
-
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
-                        if (null != resolveDelegate)
-                        {
-                            return resolveDelegate(ref context);
-                        }
-                    }
-                }
-            }
-
-            // Resolve from injectors
-            switch (value)
-            {
-                case DependencyAttribute dependencyAttribute 
-                when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
-                    return Resolve(field.FieldType, name);
-
-                case OptionalDependencyAttribute optionalAttribute 
-                when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
-                    try   { return Resolve(field.FieldType, name); }
-                    catch { return null; }
-
-                case ResolveDelegate<BuilderContext> resolver:
-                    return resolver(ref context);
-            }
-
-            return value;
-        }
-
-        public object Resolve(PropertyInfo property, string name, object value)
+        public object Resolve(PropertyInfo property, object value)
         {
             var context = this;
 
@@ -275,13 +225,59 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case DependencyAttribute dependencyAttribute 
-                when ReferenceEquals(dependencyAttribute, DependencyAttribute.Instance):
-                    return Resolve(property.PropertyType, name);
+                case DependencyAttribute dependencyAttribute:
+                    return Resolve(property.PropertyType, dependencyAttribute.Name);
 
-                case OptionalDependencyAttribute optionalAttribute 
-                when ReferenceEquals(optionalAttribute, OptionalDependencyAttribute.Instance):
-                    try { return Resolve(property.PropertyType, name); }
+                case OptionalDependencyAttribute optionalAttribute:
+                    try { return Resolve(property.PropertyType, optionalAttribute.Name); }
+                    catch { return null; }
+
+                case ResolveDelegate<BuilderContext> resolver:
+                    return resolver(ref context);
+            }
+
+            return value;
+        }
+
+        public object Resolve(FieldInfo field, object value)
+        {
+            var context = this;
+
+            // Process overrides if any
+            if (null != Overrides)
+            {
+                // Check for property overrides
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+
+                    // Check if this parameter is overridden
+                    if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
+                    {
+                        // Check if itself is a value 
+                        if (resolverOverride is IResolve resolverPolicy)
+                        {
+                            return resolverPolicy.Resolve(ref context);
+                        }
+
+                        // Try to create value
+                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
+                        if (null != resolveDelegate)
+                        {
+                            return resolveDelegate(ref context);
+                        }
+                    }
+                }
+            }
+
+            // Resolve from injectors
+            switch (value)
+            {
+                case DependencyAttribute dependencyAttribute:
+                    return Resolve(field.FieldType, dependencyAttribute.Name);
+
+                case OptionalDependencyAttribute optionalAttribute:
+                    try   { return Resolve(field.FieldType, optionalAttribute.Name); }
                     catch { return null; }
 
                 case ResolveDelegate<BuilderContext> resolver:

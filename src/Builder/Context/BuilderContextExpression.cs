@@ -9,33 +9,33 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public static readonly MethodInfo ResolveProperty =
+        public static readonly MethodInfo ResolvePropertyMethod =
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
-                    return 2 <= parameters.Length &&
+                    return 0 < parameters.Length &&
                         typeof(PropertyInfo) == parameters[0].ParameterType;
                 });
 
-        public static readonly MethodInfo ResolveField =
+        public static readonly MethodInfo ResolveFieldMethod =
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
-                    return 2 <= parameters.Length &&
+                    return 0 < parameters.Length &&
                         typeof(FieldInfo) == parameters[0].ParameterType;
                 });
 
-        public static readonly MethodInfo ResolveParameter =
+        public static readonly MethodInfo ResolveParameterMethod =
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
-                    return 2 <= parameters.Length &&
+                    return 0 < parameters.Length &&
                         typeof(ParameterInfo) == parameters[0].ParameterType;
                 });
 

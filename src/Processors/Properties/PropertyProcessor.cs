@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Policy;
 
 namespace Unity.Processors
 {
-    public partial class PropertyProcessor : MemberProcessor<PropertyInfo, object>
+    public class PropertyProcessor : MemberProcessor<PropertyInfo, object>
     {
         #region Constructors
 
@@ -43,6 +45,38 @@ namespace Unity.Processors
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => p.CanWrite && p.GetIndexParameters().Length == 0);
 #endif
+        }
+
+        #endregion
+
+
+        #region Expression 
+
+        protected override Expression GetResolverExpression(PropertyInfo info, object resolver)
+        {
+            return Expression.Assign(
+                Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                Expression.Convert(
+                    Expression.Call(BuilderContextExpression.Context,
+                        BuilderContextExpression.ResolvePropertyMethod,
+                        Expression.Constant(info, typeof(PropertyInfo)),
+                        Expression.Constant(PreProcessResolver(info, resolver), typeof(object))),
+                    info.PropertyType));
+        }
+
+        #endregion
+
+
+        #region Resolution
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        {
+            var value = PreProcessResolver(info, resolver);
+            return (ref BuilderContext context) =>
+            {
+                info.SetValue(context.Existing, context.Resolve(info, value));
+                return context.Existing;
+            };
         }
 
         #endregion
