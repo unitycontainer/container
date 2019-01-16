@@ -14,7 +14,7 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected readonly object? Value;
+        protected readonly object Value;
 
         #endregion
 
@@ -28,8 +28,8 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="parameterName">Name of the constructor parameter.</param>
         /// <param name="parameterValue">InjectionParameterValue to pass for the constructor.</param>
-        public ParameterOverride(string parameterName, object? parameterValue)
-            : base(parameterName)
+        public ParameterOverride(string parameterName, object parameterValue)
+            : base(null, null, parameterName)
         {
             Value = parameterValue;
         }
@@ -41,7 +41,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="parameterType">Type of the parameter.</param>
         /// <param name="parameterValue">Value to pass for the MethodBase.</param>
-        public ParameterOverride(Type parameterType, object? parameterValue)
+        public ParameterOverride(Type parameterType, object parameterValue)
             : base(null, parameterType, null)
         {
             Value = parameterValue;
@@ -55,7 +55,7 @@ namespace Unity.Resolution
         /// <param name="parameterType">Type of the parameter.</param>
         /// <param name="parameterName">Name of the constructor parameter.</param>
         /// <param name="parameterValue">Value to pass for the MethodBase.</param>
-        public ParameterOverride(Type parameterType, string parameterName, object? parameterValue)
+        public ParameterOverride(Type parameterType, string parameterName, object parameterValue)
             : base(null, parameterType, parameterName)
         {
             Value = parameterValue;
@@ -74,15 +74,10 @@ namespace Unity.Resolution
 
         public override bool Equals(object other)
         {
-            if (other is ParameterOverride parameter)
-                return (parameter.Target == Target) &&
-                       (parameter.Type == Type) &&
-                       (parameter.Name == Name);
-
-            if ( other is ParameterInfo info)
+            if (other is ParameterInfo info)
                 return Equals(info);
 
-            return false;
+            return base.Equals(other);
         }
 
         public bool Equals(ParameterInfo other)
@@ -98,7 +93,7 @@ namespace Unity.Resolution
 
         #region IResolverPolicy
 
-        public object? Resolve<TContext>(ref TContext context)
+        public object Resolve<TContext>(ref TContext context)
             where TContext : IResolveContext
         {
             if (Value is IResolve policy)
@@ -106,7 +101,7 @@ namespace Unity.Resolution
 
             if (Value is IResolverFactory<Type> factory)
             {
-                var resolveDelegate = factory.GetResolver<TContext>(Type ?? context.Type);
+                var resolveDelegate = factory.GetResolver<TContext>(Type);
                 return resolveDelegate(ref context);
             }
 

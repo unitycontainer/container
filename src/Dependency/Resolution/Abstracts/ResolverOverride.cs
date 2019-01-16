@@ -11,9 +11,9 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected          Type?   Target;
-        protected readonly Type?   Type;
-        protected readonly string? Name;
+        protected Type Target;
+        protected readonly Type   Type;
+        protected readonly string Name;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace Unity.Resolution
             Name = name;
         }
 
-        protected ResolverOverride(Type? target, Type type, string? name)
+        protected ResolverOverride(Type target, Type type, string name)
         {
             Target = target;
             Type = type;
@@ -87,7 +87,7 @@ namespace Unity.Resolution
 
         public override bool Equals(object obj)
         {
-            return obj is ResolverOverride ro && this == ro;
+            return this == obj as ResolverOverride;
         }
 
         public static bool operator ==(ResolverOverride left, ResolverOverride right)

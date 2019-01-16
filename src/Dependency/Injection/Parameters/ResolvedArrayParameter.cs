@@ -139,7 +139,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        private static object? DoResolve<TContext, TElement>(ref TContext context, object[] values)
+        private static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
             where TContext : IResolveContext
         {
             var result = new TElement[values.Length];
@@ -152,7 +152,7 @@ namespace Unity.Injection
             return result;
 
 
-            object? ResolveValue(ref TContext c, object value)
+            object ResolveValue(ref TContext c, object value)
             {
                 switch (value)
                 {

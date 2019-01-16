@@ -17,7 +17,7 @@ namespace Unity
         /// <param name="nameRequested">Name requested from the container.</param>
         /// <param name="message">Error message</param>
         /// <param name="innerException">The actual exception that caused the failure of the build.</param>
-        public ResolutionFailedException(Type typeRequested, string nameRequested, string message, Exception? innerException = null)
+        public ResolutionFailedException(Type typeRequested, string nameRequested, string message, Exception innerException = null)
             : base(message, innerException)
         {
             TypeRequested = (typeRequested ?? throw new ArgumentNullException(nameof(typeRequested))).GetTypeInfo().Name;

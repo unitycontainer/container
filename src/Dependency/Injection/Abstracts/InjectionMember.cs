@@ -52,16 +52,15 @@ namespace Unity.Injection
         #region Fields
 
         protected const string NoMatchFound = "No member matching data has been found.";
-        protected const string AddToRegistrationFirst = "Member must be added to registration before it could be used";
 
-        protected TMemberInfo? Selection { get; set; }
+        protected TMemberInfo Selection { get; set; }
 
         #endregion
 
 
         #region Constructors
 
-        protected InjectionMember(string? name, TData data)
+        protected InjectionMember(string name, TData data)
         {
             Name = name;
             Data = data;
@@ -79,7 +78,7 @@ namespace Unity.Injection
 
         #region Public Members
 
-        public string? Name { get; }
+        public string Name { get; }
 
         public TData Data { get; }
 
@@ -105,7 +104,7 @@ namespace Unity.Injection
                     return Equals(info);
 
                 case IEquatable<TMemberInfo> equatable:
-                    return null != Selection && equatable.Equals(Selection);
+                    return equatable.Equals(Selection);
 
                 default:
                     return false;

@@ -65,7 +65,7 @@ namespace Unity.Injection
             return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == base.ParameterTypeName;
         }
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
         {
             Type elementType = type.GetElementType();
             var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
@@ -107,7 +107,7 @@ namespace Unity.Injection
             return result;
 
             // Interpret factories
-            object? ResolveValue(ref TContext c, object value)
+            object ResolveValue(ref TContext c, object value)
             {
                 switch (value)
                 {

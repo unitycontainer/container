@@ -21,7 +21,6 @@
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
-    <NullableReferenceTypes>true</NullableReferenceTypes>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

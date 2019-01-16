@@ -10,15 +10,23 @@ namespace Unity
     {
         #region Factory
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static InjectionMember Factory(Func<IUnityContainer, object?> factoryFunc) => new InjectionFactory(factoryFunc);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionMember Factory(Func<IUnityContainer, Type?, string?, object?> factoryFunc) => new InjectionFactory(factoryFunc);
+        public static InjectionMember Factory<TContext>(InjectionFactoryDelegate<TContext> factory) 
+            where TContext : IResolveContext 
+            => new InjectionFactory(factory);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Factory(Func<IUnityContainer, object> factoryFunc) => new InjectionFactory(factoryFunc);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectionMember Factory(Func<IUnityContainer, Type, string, object> factoryFunc) => new InjectionFactory(factoryFunc);
 
         #endregion
 

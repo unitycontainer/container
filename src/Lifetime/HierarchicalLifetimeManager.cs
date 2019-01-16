@@ -27,7 +27,7 @@ namespace Unity
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
-        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null)
+        protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return _values.TryGetValue(container ?? throw new ArgumentNullException(nameof(container)), 
                                        out object value) ? value : null;
@@ -40,17 +40,17 @@ namespace Unity
         /// <param name="container">Container that owns the value</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer? container = null)
+        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             _values[container ?? throw new ArgumentNullException(nameof(container))] = newValue;
-            container?.Add(new DisposableAction(() => RemoveValue(container)));
+            container.Add(new DisposableAction(() => RemoveValue(container)));
         }
 
 
         /// <summary>
         /// Remove the given object from backing store.
         /// </summary>
-        public override void RemoveValue(ILifetimeContainer? container = null)
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
             if (null == container) throw new ArgumentNullException(nameof(container));
             if (!_values.TryGetValue(container, out object value)) return;

@@ -11,9 +11,9 @@ namespace Unity
     {
         #region Fields
 
-        protected object? Value;
-        private Func<ILifetimeContainer?, object?> _currentGetValue;
-        private Action<object, ILifetimeContainer?> _currentSetValue;
+        protected object Value;
+        private Func<ILifetimeContainer, object> _currentGetValue;
+        private Action<object, ILifetimeContainer> _currentSetValue;
 
         #endregion
 
@@ -23,12 +23,12 @@ namespace Unity
             _currentSetValue = base.SetValue;
         }
 
-        public override object? GetValue(ILifetimeContainer? container = null)
+        public override object GetValue(ILifetimeContainer container = null)
         {
             return _currentGetValue(container);
         }
 
-        public override void SetValue(object newValue, ILifetimeContainer? container = null)
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             _currentSetValue(newValue, container);
             _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
@@ -42,7 +42,7 @@ namespace Unity
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
-        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null)
+        protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return Value;
         }
@@ -54,7 +54,7 @@ namespace Unity
         /// <param name="container"></param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer? container = null)
+        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             Value = newValue;
         }
@@ -64,7 +64,7 @@ namespace Unity
         /// Remove the given object from backing store.
         /// </summary>
         /// <param name="container">Instance of container</param>
-        public override void RemoveValue(ILifetimeContainer? container = null)
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
             Dispose();
         }

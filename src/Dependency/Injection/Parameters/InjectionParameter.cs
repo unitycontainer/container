@@ -13,7 +13,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly object? _value;
+        private readonly object _value;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="value">Value to be injected for this parameter.</param>
         public InjectionParameter(object value)
-            : base(value?.GetType())
+            : base((value ?? throw new ArgumentNullException(nameof(value))).GetType())
         {
             _value = value;
         }
@@ -38,7 +38,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="parameterType">Type of the parameter.</param>
         /// <param name="parameterValue">InjectionParameterValue of the parameter</param>
-        public InjectionParameter(Type parameterType, object? parameterValue)
+        public InjectionParameter(Type parameterType, object parameterValue)
             : base(parameterType)
         {
             _value = parameterValue;
@@ -49,7 +49,7 @@ namespace Unity.Injection
 
         #region IResolve
 
-        public object? Resolve<TContext>(ref TContext context) 
+        public object Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext
         {
             return _value;

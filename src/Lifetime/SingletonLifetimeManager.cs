@@ -11,7 +11,7 @@ namespace Unity
     {
         #region Fields
 
-        protected object? Value;
+        protected object Value;
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace Unity
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
-        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null)
+        protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return Value;
         }
@@ -34,7 +34,7 @@ namespace Unity
         /// <param name="container"></param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer? container = null)
+        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             Value = newValue;
         }
@@ -44,7 +44,7 @@ namespace Unity
         /// Remove the given object from backing store.
         /// </summary>
         /// <param name="container">Instance of container</param>
-        public override void RemoveValue(ILifetimeContainer? container = null)
+        public override void RemoveValue(ILifetimeContainer container = null)
         {
             Dispose();
         }

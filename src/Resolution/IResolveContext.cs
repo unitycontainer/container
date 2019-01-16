@@ -16,7 +16,7 @@ namespace Unity.Resolution
         /// <summary>
         /// Name of the registered type
         /// </summary>
-        string? Name { get; }
+        string Name { get; }
 
         /// <summary>
         /// Resolve type/object/dependency using current context
@@ -24,6 +24,6 @@ namespace Unity.Resolution
         /// <param name="type">Type of requested object</param>
         /// <param name="name">Name of registration</param>
         /// <returns></returns>
-        object? Resolve(Type type, string? name);
+        object Resolve(Type type, string name);
     }
 }
