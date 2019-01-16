@@ -9,18 +9,18 @@ namespace Unity
     /// </summary>
     public class ContainerControlledTransientManager : LifetimeManager
     {
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object newValue, ILifetimeContainer? container = null)
         {
             if (newValue is IDisposable disposable)
                 container?.Add(disposable);
         }
 
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             return null;
         }
 
-        public override void RemoveValue(ILifetimeContainer container = null)
+        public override void RemoveValue(ILifetimeContainer? container = null)
         {
         }
 

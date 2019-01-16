@@ -36,7 +36,7 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
         {
             return (ref TContext context) =>
             {

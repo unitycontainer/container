@@ -85,6 +85,8 @@ namespace Unity.Injection
                                       .Select(p => p.ParameterType)
                                       .ToArray();
 
+            if (null == Selection) throw new InvalidOperationException(AddToRegistrationFirst);
+
             if (Selection.ContainsGenericParameters)
                 return Data.Length == parameterTypes.Length;
 

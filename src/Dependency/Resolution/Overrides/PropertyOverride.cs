@@ -14,7 +14,7 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected readonly object Value;
+        protected readonly object? Value;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="propertyName">The property name.</param>
         /// <param name="propertyValue">InjectionParameterValue to use for the property.</param>
-        public PropertyOverride(string propertyName, object propertyValue)
+        public PropertyOverride(string propertyName, object? propertyValue)
             : base(propertyName)
         {
             Value = propertyValue;
@@ -42,12 +42,17 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            if (obj is PropertyInfo info)
+            if (other is PropertyOverride property)
+                return (property.Target == Target) &&
+                       (property.Type == Type) &&
+                       (property.Name == Name);
+
+            if (other is PropertyInfo info)
                 return Equals(info);
 
-            return base.Equals(obj);
+            return false;
         }
 
         public bool Equals(PropertyInfo other)
@@ -62,7 +67,7 @@ namespace Unity.Resolution
 
         #region IResolverPolicy
 
-        public object Resolve<TContext>(ref TContext context)
+        public object? Resolve<TContext>(ref TContext context)
             where TContext : IResolveContext
         {
             if (Value is IResolve policy)
@@ -70,7 +75,7 @@ namespace Unity.Resolution
 
             if (Value is IResolverFactory<Type> factory)
             {
-                var resolveDelegate = factory.GetResolver<TContext>(Type);
+                var resolveDelegate = factory.GetResolver<TContext>(Type ?? context.Type);
                 return resolveDelegate(ref context);
             }
 

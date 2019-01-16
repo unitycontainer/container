@@ -3,7 +3,7 @@
 
 namespace Unity.Policy
 {
-    public delegate object ResolveDelegate<TContext>(ref TContext context)
+    public delegate object? ResolveDelegate<TContext>(ref TContext context)
         where TContext : IResolveContext;
 
 
@@ -18,7 +18,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="context">Current build context.</param>
         /// <returns>The value for the dependency.</returns>
-        object Resolve<TContext>(ref TContext context) 
+        object? Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext;
     }
 }

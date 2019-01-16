@@ -9,7 +9,7 @@ namespace Unity.Injection
     {
         #region Constructors
 
-        protected MethodBase(string name, params object[] arguments)
+        protected MethodBase(string? name, params object[] arguments)
             : base(name, arguments)
         {
         }
@@ -27,9 +27,11 @@ namespace Unity.Injection
 
         public override TMemberInfo MemberInfo(Type type)
         {
+            if (null == Selection) throw new InvalidOperationException(AddToRegistrationFirst);
+
             var methodHasOpenGenericParameters = Selection.GetParameters()
-                                                     .Select(p => p.ParameterType.GetTypeInfo())
-                                                     .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+                                                          .Select(p => p.ParameterType.GetTypeInfo())
+                                                          .Any(i => i.IsGenericType && i.ContainsGenericParameters);
 
             var info = Selection.DeclaringType.GetTypeInfo();
             if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
@@ -40,7 +42,7 @@ namespace Unity.Injection
             var parameterTypes = Selection.GetParameters()
                                            .Select(pi => GetClosedParameterType(pi.ParameterType, typeInfo.GenericTypeArguments))
                                            .ToArray();
-            var member = DeclaredMembers(type).Single(m => m.Name.Equals(Selection.Name) && ParametersMatch(m.GetParameters(), parameterTypes));
+            var member = DeclaredMembers(type).Single(m => m.Name.Equals(Selection?.Name) && ParametersMatch(m.GetParameters(), parameterTypes));
             if (null != member) return member;
 
             bool ParametersMatch(ParameterInfo[] parameters, Type[] closedConstructorParameterTypes)

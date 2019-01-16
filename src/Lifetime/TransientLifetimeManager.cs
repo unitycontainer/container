@@ -19,7 +19,7 @@
         /// </summary>
         /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             return null;
         }

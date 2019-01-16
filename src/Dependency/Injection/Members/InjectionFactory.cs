@@ -16,25 +16,19 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly Func<IUnityContainer, Type, string, object> _factoryFunc;
-        private readonly Delegate _factory;
+        private readonly Func<IUnityContainer, Type?, string?, object?> _factoryFunc;
 
         #endregion
 
 
         #region Constructors
 
-        public InjectionFactory(Delegate factory)
-        {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-        }
-
         /// <summary>
         /// Create a new instance of <see cref="InjectionFactory"/> with
         /// the given factory function.
         /// </summary>
         /// <param name="factoryFunc">Factory function.</param>
-        public InjectionFactory(Func<IUnityContainer, object> factoryFunc)
+        public InjectionFactory(Func<IUnityContainer, object?> factoryFunc)
         {
             if (null == factoryFunc) throw new ArgumentNullException(nameof(factoryFunc));
             _factoryFunc = (c, t, s) => factoryFunc(c);
@@ -45,7 +39,7 @@ namespace Unity.Injection
         /// the given factory function.
         /// </summary>
         /// <param name="factoryFunc">Factory function.</param>
-        public InjectionFactory(Func<IUnityContainer, Type, string, object> factoryFunc)
+        public InjectionFactory(Func<IUnityContainer, Type?, string?, object?> factoryFunc)
         {
             _factoryFunc = factoryFunc ?? throw new ArgumentNullException(nameof(factoryFunc));
         }
@@ -75,16 +69,11 @@ namespace Unity.Injection
             var lifetime = policies.Get(typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
-                policies.Set(typeof(ResolveDelegate<TContext>), 
-                    null == _factory ? CreatePerResolveLegacyPolicy()
-                                     : CreatePerResolveContextPolicy());
+                policies.Set(typeof(ResolveDelegate<TContext>), CreatePerResolveLegacyPolicy());
             }
             else
             {
-                policies.Set(typeof(ResolveDelegate<TContext>), 
-                    null == _factory ? CreateLegacyPolicy()
-                                     : (ref TContext c) => ((InjectionFactoryDelegate<TContext>)_factory)(ref c) ?? 
-                                        throw new InvalidOperationException("Injection Factory must return valid object or throw an exception"));
+                policies.Set(typeof(ResolveDelegate<TContext>), CreateLegacyPolicy());
             }
 
             // Factory methods
@@ -107,18 +96,6 @@ namespace Unity.Injection
                     return result;
                 }; 
             }
-
-            ResolveDelegate<TContext> CreatePerResolveContextPolicy()
-            {
-                return (ref TContext context) =>
-                {
-                    var result = ((InjectionFactoryDelegate<TContext>)_factory)(ref context);
-                    var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
-
-                    context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
-                    return result;
-                };
-            }
         }
 
         #endregion
@@ -128,7 +105,7 @@ namespace Unity.Injection
 
         internal sealed class InternalPerResolveLifetimeManager : PerResolveLifetimeManager
         {
-            public InternalPerResolveLifetimeManager(object obj)
+            public InternalPerResolveLifetimeManager(object? obj)
             {
                 value = obj;
                 InUse = true;

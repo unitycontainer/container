@@ -41,12 +41,12 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override PropertyInfo DeclaredMember(Type type, string name)
+        protected override PropertyInfo DeclaredMember(Type type, string? name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            return type.GetTypeInfo().GetDeclaredProperty(Selection.Name);
+            return type.GetTypeInfo().GetDeclaredProperty(Selection?.Name);
 #else
-            return type.GetProperty(Selection.Name);
+            return type.GetProperty(Selection?.Name);
 #endif
         }
 
@@ -71,7 +71,8 @@ namespace Unity.Injection
 #endif
         }
 
-        protected override Type MemberType => Selection.PropertyType;
+        protected override Type MemberType => Selection?.PropertyType ?? 
+            throw new InvalidOperationException("Member must be added to registration first");
 
         public override string ToString()
         {

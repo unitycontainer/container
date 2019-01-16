@@ -27,7 +27,7 @@ namespace Unity
         /// registration and instead will use registration for <paramref name="typeTo"/> type to create object.</remarks>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
         /// <exception cref="InvalidRegistrationException"></exception>
-        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type? typeFrom, Type typeTo, string? name, LifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Unity
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetimeManager);
+        IUnityContainer RegisterInstance(Type? type, string? name, object instance, LifetimeManager? lifetimeManager);
 
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Unity
         /// <param name="type"><see cref="Type"/> to look for</param>
         /// <param name="name">Name of the registration</param>
         /// <returns></returns>
-        bool IsRegistered(Type type, string name);
+        bool IsRegistered(Type type, string? name);
 
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        object Resolve(Type type, string name, params ResolverOverride[] overrides);
+        object Resolve(Type type, string? name, params ResolverOverride[] overrides);
 
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Unity
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would
         /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
-        object BuildUp(Type type, object existing, string name, params ResolverOverride[] overrides);
+        object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides);
 
 
         /// <summary>

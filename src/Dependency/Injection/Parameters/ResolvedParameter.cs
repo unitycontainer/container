@@ -16,7 +16,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly string _name;
+        private readonly string? _name;
 
         #endregion
 
@@ -68,8 +68,8 @@ namespace Unity.Injection
             where TContext : IResolveContext
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var info = ParameterType?.GetTypeInfo();
-            if (null == info || info.IsGenericType && info.ContainsGenericParameters ||
+            var typeInfo = ParameterType?.GetTypeInfo();
+            if (null == ParameterType || null == typeInfo || typeInfo.IsGenericType && typeInfo.ContainsGenericParameters ||
                 ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
                 ParameterType.IsGenericParameter)
 #else
@@ -81,15 +81,16 @@ namespace Unity.Injection
                 return (ref TContext c) => c.Resolve(type, _name);
             }
 
-            return (ref TContext c) => c.Resolve(ParameterType, _name);
+            Type parameter = ParameterType;
+            return (ref TContext c) => c.Resolve(parameter, _name);
         }
 
         public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
             where TContext : IResolveContext
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var parameterInfo = ParameterType?.GetTypeInfo();
-            if (null == parameterInfo || parameterInfo.IsGenericType && parameterInfo.ContainsGenericParameters ||
+            var typeInfo = ParameterType?.GetTypeInfo();
+            if (null == ParameterType || null == typeInfo || typeInfo.IsGenericType && typeInfo.ContainsGenericParameters ||
                 ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
                 ParameterType.IsGenericParameter)
 #else
@@ -102,7 +103,8 @@ namespace Unity.Injection
                 return (ref TContext c) => c.Resolve(type, _name);
             }
 
-            return (ref TContext c) => c.Resolve(ParameterType, _name);
+            Type parameter = ParameterType;
+            return (ref TContext c) => c.Resolve(parameter, _name);
         }
 
         #endregion

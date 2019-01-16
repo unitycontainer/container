@@ -34,7 +34,7 @@ namespace Unity
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>Calls to this method acquire a lock which is released only if a non-null value
         /// has been set for the lifetime manager.</remarks>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             Monitor.Enter(_lockObj);
             var result = SynchronizedGetValue(container);
@@ -52,7 +52,7 @@ namespace Unity
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
-        protected abstract object SynchronizedGetValue(ILifetimeContainer container);
+        protected abstract object? SynchronizedGetValue(ILifetimeContainer? container);
 
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Unity
         /// <param name="container">The container this value belongs to.</param>
         /// <remarks>Setting a value will attempt to release the lock acquired by 
         /// <see cref="SynchronizedLifetimeManager.GetValue"/>.</remarks>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object newValue, ILifetimeContainer? container = null)
         {
             SynchronizedSetValue(newValue, container);
             TryExit();
@@ -75,7 +75,7 @@ namespace Unity
         /// <param name="container"></param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected abstract void SynchronizedSetValue(object newValue, ILifetimeContainer container);
+        protected abstract void SynchronizedSetValue(object newValue, ILifetimeContainer? container);
 
         /// <summary>
         /// A method that does whatever is needed to clean up

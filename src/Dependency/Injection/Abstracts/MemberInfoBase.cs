@@ -21,17 +21,19 @@ namespace Unity.Injection
 
         public override TMemberInfo MemberInfo(Type type)
         {
+            if (null == Selection) throw new InvalidOperationException(AddToRegistrationFirst);
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var declaringType = Selection.DeclaringType.GetTypeInfo();
-            if (!declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
+            var declaringType = Selection?.DeclaringType.GetTypeInfo();
+            if (null != declaringType && !declaringType.IsGenericType && !declaringType.ContainsGenericParameters)
                 return Selection;
 #else
-            if (Selection.DeclaringType != null &&
+            if (Selection != null && 
+                Selection.DeclaringType != null &&
                !Selection.DeclaringType.IsGenericType &&
                !Selection.DeclaringType.ContainsGenericParameters)
                 return Selection;
 #endif
-            return DeclaredMember(type, Selection.Name);
+            return DeclaredMember(type, Selection?.Name);
         }
 
         protected override TMemberInfo SelectMember(Type type, InjectionMember _)
@@ -57,7 +59,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected abstract TMemberInfo DeclaredMember(Type type, string name);
+        protected abstract TMemberInfo DeclaredMember(Type type, string? name);
 
         protected abstract Type MemberType { get; }
 

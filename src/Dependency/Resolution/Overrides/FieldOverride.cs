@@ -42,19 +42,24 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            if (obj is FieldInfo info)
+            if (other is FieldOverride field)
+                return (field.Target == Target) &&
+                       (field.Type == Type) &&
+                       (field.Name == Name);
+
+            if (other is FieldInfo info)
                 return Equals(info);
 
-            return base.Equals(obj);
+            return false;
         }
 
         public bool Equals(FieldInfo other)
         {
             return (null == Target || other?.DeclaringType == Target) &&
-                   (null == Type || other?.FieldType == Type) &&
-                   (null == Name || other?.Name == Name);
+                   (null == Type   || other?.FieldType == Type) &&
+                   (null == Name   || other?.Name == Name);
         }
 
         #endregion
@@ -62,7 +67,7 @@ namespace Unity.Resolution
 
         #region IResolverPolicy
 
-        public object Resolve<TContext>(ref TContext context)
+        public object? Resolve<TContext>(ref TContext context)
             where TContext : IResolveContext
         {
             if (Value is IResolve policy)
@@ -70,7 +75,7 @@ namespace Unity.Resolution
 
             if (Value is IResolverFactory<Type> factory)
             {
-                var resolveDelegate = factory.GetResolver<TContext>(Type);
+                var resolveDelegate = factory.GetResolver<TContext>(Type ?? context.Type);
                 return resolveDelegate(ref context);
             }
 

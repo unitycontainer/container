@@ -9,7 +9,7 @@ namespace Unity.Policy
         /// </summary>
         /// <param name="policyInterface">Type of policy to retrieve</param>
         /// <returns>Instance of the policy or null if none found</returns>
-        object Get(Type policyInterface);
+        object? Get(Type policyInterface);
 
         /// <summary>
         /// Set policy

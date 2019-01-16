@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Unity.Policy;
 
 namespace Unity.Resolution
@@ -35,7 +34,7 @@ namespace Unity.Resolution
         }
 
         public DependencyOverride(string name, object dependencyValue)
-            : base(null, null, name)
+            : base(name)
         {
             Value = dependencyValue;
         }
@@ -59,11 +58,16 @@ namespace Unity.Resolution
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return (Type, Name).GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
+            if (other is DependencyOverride dependency)
+                return (dependency.Target == Target) &&
+                       (dependency.Type == Type) &&
+                       (dependency.Name == Name);
+
             return false;
         }
 
@@ -78,13 +82,13 @@ namespace Unity.Resolution
 
         #region IResolverPolicy
 
-        public object Resolve<TContext>(ref TContext context) 
+        public object? Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext
         {
             if (Value is IResolve policy)
                 return policy.Resolve(ref context);
 
-            if (Value is IResolverFactory<Type> factory)
+            if (Value is IResolverFactory<Type> factory && null != Type)
             {
                 var resolveDelegate = factory.GetResolver<TContext>(Type);
                 return resolveDelegate(ref context);
@@ -108,7 +112,7 @@ namespace Unity.Resolution
         /// override the given dependency, and pass the given value.
         /// </summary>
         public DependencyOverride(object dependencyValue)
-            : base(null, typeof(T), null, dependencyValue)
+            : base(typeof(T), dependencyValue)
         {
         }
     }

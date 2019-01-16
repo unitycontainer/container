@@ -7,7 +7,7 @@
     /// </summary>
     public class PerResolveLifetimeManager : LifetimeManager
     {
-        protected object value;
+        protected object? value;
 
         /// <summary>
         /// Construct a new <see cref="PerResolveLifetimeManager"/> object that does not
@@ -15,7 +15,6 @@
         /// </summary>
         public PerResolveLifetimeManager()
         {
-            value = null;
         }
 
         /// <summary>
@@ -23,7 +22,7 @@
         /// </summary>
         /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             return value;
         }

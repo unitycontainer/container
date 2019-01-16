@@ -15,7 +15,7 @@ namespace Unity
     public class PerThreadLifetimeManager : LifetimeManager
     {
         [ThreadStatic]
-        private static Dictionary<Guid, object> _values;
+        private static Dictionary<Guid, object?> _values;
         private readonly Guid _key;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Unity
         /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or <see langword="null"/> if no such object is currently 
         /// stored for the current thread.</returns>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             EnsureValues();
 
@@ -48,7 +48,7 @@ namespace Unity
         /// </summary>
         /// <param name="container">Instance of container which owns the value</param>
         /// <param name="newValue">The object being stored.</param>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object newValue, ILifetimeContainer? container = null)
         {
             EnsureValues();
 
@@ -60,7 +60,7 @@ namespace Unity
             // no need for locking, values is TLS
             if (_values == null)
             {
-                _values = new Dictionary<Guid, object>();
+                _values = new Dictionary<Guid, object?>();
             }
         }
 

@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace System.Collections.Concurrent
 {
+
     /// <summary>
     /// Represents a thread-safe collection of keys and values.
     /// </summary>
@@ -18,6 +19,7 @@ namespace System.Collections.Concurrent
     internal class ConcurrentDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>
     {
         protected const int MaxArrayLength = 0x7fefffff;
+
 
         /// <summary>
         /// Tables that hold the internal state of the ConcurrentDictionary
@@ -346,7 +348,9 @@ namespace System.Collections.Concurrent
         {
             if (key == null) throw new ArgumentNullException("key");
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
             return TryRemoveInternal(key, out value, false, default(TValue));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
         }
 
         /// <summary>
@@ -379,10 +383,12 @@ namespace System.Collections.Concurrent
                         continue;
                     }
 
-                    Node prev = null;
+                    Node? prev = null;
                     for (Node curr = tables._buckets[bucketNo]; curr != null; curr = curr.m_next)
                     {
+#pragma warning disable CS8602 // Possible dereference of a null reference.
                         Assert((prev == null && curr == tables._buckets[bucketNo]) || prev.m_next == curr);
+#pragma warning restore CS8602 // Possible dereference of a null reference.
 
                         if (comparer.Equals(curr.m_key, key))
                         {
@@ -391,7 +397,9 @@ namespace System.Collections.Concurrent
                                 bool valuesMatch = EqualityComparer<TValue>.Default.Equals(oldValue, curr.m_value);
                                 if (!valuesMatch)
                                 {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                                     value = default(TValue);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                                     return false;
                                 }
                             }
@@ -413,7 +421,9 @@ namespace System.Collections.Concurrent
                     }
                 }
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                 value = default(TValue);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                 return false;
             }
         }
@@ -456,7 +466,9 @@ namespace System.Collections.Concurrent
                 n = n.m_next;
             }
 
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
             value = default(TValue);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
             return false;
         }
 
@@ -503,10 +515,14 @@ namespace System.Collections.Concurrent
                     }
 
                     // Try to find this key in the bucket
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     Node prev = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                     for (Node node = tables._buckets[bucketNo]; node != null; node = node.m_next)
                     {
+#pragma warning disable CS8602 // Possible dereference of a null reference.
                         Assert((prev == null && node == tables._buckets[bucketNo]) || prev.m_next == node);
+#pragma warning restore CS8602 // Possible dereference of a null reference.
                         if (comparer.Equals(node.m_key, key))
                         {
                             if (valueComparer.Equals(node.m_value, comparisonValue))
@@ -760,10 +776,14 @@ namespace System.Collections.Concurrent
                     }
 
                     // Try to find this key in the bucket
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     Node prev = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                     for (Node node = tables._buckets[bucketNo]; node != null; node = node.m_next)
                     {
+#pragma warning disable CS8602 // Possible dereference of a null reference.
                         Assert((prev == null && node == tables._buckets[bucketNo]) || prev.m_next == node);
+#pragma warning restore CS8602 // Possible dereference of a null reference.
                         if (comparer.Equals(node.m_key, key))
                         {
                             // The key was found in the dictionary. If updates are allowed, update the value for that key.
@@ -1150,7 +1170,9 @@ namespace System.Collections.Concurrent
         /// the <see cref="T:System.Collections.Generic.IReadOnlyDictionary{TKey,TValue}"/>.</value>
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys
         {
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             get { return GetKeys(); }
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
         }
 
         /// <summary>
@@ -1173,7 +1195,9 @@ namespace System.Collections.Concurrent
         /// values in the <see cref="T:System.Collections.Generic.IReadOnlyDictionary{TKey,TValue}"/>.</value>
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values
         {
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             get { return GetValues(); }
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
         }
         #endregion
 
@@ -1424,10 +1448,14 @@ namespace System.Collections.Concurrent
                 TValue value;
                 if (key is TKey && this.TryGetValue((TKey)key, out value))
                 {
+#pragma warning disable CS8603 // Possible null reference return.
                     return value;
+#pragma warning restore CS8603 // Possible null reference return.
                 }
 
+#pragma warning disable CS8603 // Possible null reference return.
                 return null;
+#pragma warning restore CS8603 // Possible null reference return.
             }
             set
             {
@@ -1491,21 +1519,27 @@ namespace System.Collections.Concurrent
                 //    - an array of DictionaryEntry structs
                 //    - an array of objects
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 KeyValuePair<TKey, TValue>[] pairs = array as KeyValuePair<TKey, TValue>[];
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 if (pairs != null)
                 {
                     CopyToPairs(pairs, index);
                     return;
                 }
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 DictionaryEntry[] entries = array as DictionaryEntry[];
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 if (entries != null)
                 {
                     CopyToEntries(entries, index);
                     return;
                 }
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 object[] objects = array as object[];
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 if (objects != null)
                 {
                     CopyToObjects(objects, index);
@@ -1918,12 +1952,16 @@ namespace System.Collections.Concurrent
 
             public object Key
             {
+#pragma warning disable CS8603 // Possible null reference return.
                 get { return m_enumerator.Current.Key; }
+#pragma warning restore CS8603 // Possible null reference return.
             }
 
             public object Value
             {
+#pragma warning disable CS8603 // Possible null reference return.
                 get { return m_enumerator.Current.Value; }
+#pragma warning restore CS8603 // Possible null reference return.
             }
 
             public object Current
@@ -1941,5 +1979,7 @@ namespace System.Collections.Concurrent
                 m_enumerator.Reset();
             }
         }
+    
     }
+        
 }
