@@ -2,6 +2,7 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Registration;
 
 namespace Unity.Strategies

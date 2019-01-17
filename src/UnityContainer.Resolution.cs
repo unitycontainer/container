@@ -11,8 +11,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 

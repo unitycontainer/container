@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container.Lifetime;
+using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Resolution;
 using Unity.Strategies;
 
 namespace Unity.Factories

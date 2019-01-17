@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container.Lifetime;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Policy;
 
 namespace Unity.Processors

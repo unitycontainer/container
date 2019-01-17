@@ -2,6 +2,7 @@
 using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Storage;
@@ -24,9 +25,9 @@ namespace Unity.Extension
         public abstract IUnityContainer Container { get; }
 
         /// <summary>
-        /// The <see cref="Unity.Lifetime.ILifetimeContainer"/> that this container uses.
+        /// The <see cref="Unity.WithLifetime.ILifetimeContainer"/> that this container uses.
         /// </summary>
-        /// <value>The <see cref="Unity.Lifetime.ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
+        /// <value>The <see cref="Unity.WithLifetime.ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
         public abstract ILifetimeContainer Lifetime { get; }
 
         #endregion

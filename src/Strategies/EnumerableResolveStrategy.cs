@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Strategies

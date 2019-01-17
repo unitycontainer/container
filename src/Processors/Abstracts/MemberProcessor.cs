@@ -9,6 +9,7 @@ using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Processors
 {

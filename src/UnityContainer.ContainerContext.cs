@@ -2,6 +2,7 @@
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Storage;

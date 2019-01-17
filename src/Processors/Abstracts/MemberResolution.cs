@@ -4,6 +4,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Processors
 {

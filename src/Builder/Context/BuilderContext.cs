@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;

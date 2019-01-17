@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Storage;
 
 namespace Unity.Registration

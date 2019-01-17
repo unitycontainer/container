@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container.Lifetime;
 using Unity.Extension;
 using Unity.Factories;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Storage;
 using Unity.Strategies;
@@ -23,7 +23,7 @@ namespace Unity
         {
             _root = this;
 
-            // Lifetime
+            // WithLifetime
             LifetimeContainer = new LifetimeContainer(this);
 
             // Registrations
@@ -60,7 +60,7 @@ namespace Unity
                     UnityBuildStage.Enumerable
                 },
                 {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
-                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
+                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // WithLifetime
                 {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
             };
 

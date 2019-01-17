@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container.Lifetime;
 using Unity.Exceptions;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Processors
 {

@@ -1,7 +1,6 @@
-﻿
-
-using System;
+﻿using System;
 using Unity.Extension;
+using Unity.Lifetime;
 
 namespace Unity.Events
 {

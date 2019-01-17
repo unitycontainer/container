@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Container.Lifetime;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Registration;
@@ -86,7 +85,7 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
-            // Lifetime
+            // WithLifetime
             LifetimeContainer = new LifetimeContainer(this);
 
             // Context and policies

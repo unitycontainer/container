@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Injection;
+using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Issues
 {

@@ -1,8 +1,9 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
+using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Generics
 {
@@ -37,7 +38,7 @@ namespace Unity.Tests.v5.Generics
 
         /// <summary>
         /// Sample from Unit test cases.
-        /// modified for Lifetime.
+        /// modified for WithLifetime.
         /// pass
         /// </summary>
         [TestMethod]
@@ -76,7 +77,7 @@ namespace Unity.Tests.v5.Generics
 
         /// <summary>
         /// Using List of int type. Pass
-        /// Lifetime passed is null.
+        /// WithLifetime passed is null.
         /// </summary>
         [TestMethod]
         public void Testmethod_NoLifetimeSpecified()
@@ -106,7 +107,7 @@ namespace Unity.Tests.v5.Generics
 
         /// <summary>
         /// Using List of string type.
-        /// Passes if Lifetime passed is null. Pass
+        /// Passes if WithLifetime passed is null. Pass
         /// </summary>
         [TestMethod]
         public void Testmethod_ListOfString()
@@ -122,7 +123,7 @@ namespace Unity.Tests.v5.Generics
 
         /// <summary>
         /// Using List of object type.
-        /// Passes if Lifetime passed is null. Pass
+        /// Passes if WithLifetime passed is null. Pass
         /// </summary>
         [TestMethod]
         public void Testmethod_ListOfObjectType()

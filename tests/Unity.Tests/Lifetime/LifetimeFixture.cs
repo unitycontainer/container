@@ -1,8 +1,8 @@
-using System;
 using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using Unity.Lifetime;
 using Unity.Tests.TestObjects;
-using Unity.Tests.v5.Container;
 
 namespace Unity.Tests.v5.Lifetime
 {
@@ -364,7 +364,7 @@ namespace Unity.Tests.v5.Lifetime
         }
 
         /// <summary>
-        /// Verify Lifetime managers. When registered using externally controlled and freed, new instance is 
+        /// Verify WithLifetime managers. When registered using externally controlled and freed, new instance is 
         /// returned when again resolve is done.
         /// </summary>
         [TestMethod]
@@ -384,7 +384,7 @@ namespace Unity.Tests.v5.Lifetime
         }
 
         /// <summary>
-        /// Verify Lifetime managers. When registered using externally controlled. Should return me with new 
+        /// Verify WithLifetime managers. When registered using externally controlled. Should return me with new 
         /// instance every time when asked by Resolve.
         /// Bug ID : 16372
         /// </summary>
@@ -403,7 +403,7 @@ namespace Unity.Tests.v5.Lifetime
         }
 
         /// <summary>
-        /// Verify Lifetime managers. When registered using container controlled and freed, even then
+        /// Verify WithLifetime managers. When registered using container controlled and freed, even then
         /// same instance is returned when asked for Resolve.
         /// </summary>
         [TestMethod]

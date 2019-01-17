@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -14,7 +15,7 @@ namespace Unity
     {
         #region Fields
 
-        const string LifetimeManagerInUse = "The lifetime manager is already registered. Lifetime managers cannot be reused, please create a new one.";
+        const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
         private Action<Type, Type> TypeValidator;
 
         #endregion

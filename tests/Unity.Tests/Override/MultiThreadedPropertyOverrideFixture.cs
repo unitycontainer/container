@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.Tests.v5.Override

@@ -1,6 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Tests.v5.TestSupport;
 
 namespace Unity.Tests.v5.Generics

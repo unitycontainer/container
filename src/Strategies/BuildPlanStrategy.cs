@@ -4,8 +4,10 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Strategies
 {

@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.Tests.v5.Issues

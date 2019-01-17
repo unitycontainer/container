@@ -7,6 +7,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Processors
 {
