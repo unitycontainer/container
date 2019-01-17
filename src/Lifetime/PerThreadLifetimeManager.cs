@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// A <see cref="LifetimeManager"/> that holds the instances given to it, 
@@ -27,7 +27,7 @@ namespace Unity
         }
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy for the 
+        /// Retrieve a value from the backing store associated with this WithLifetime policy for the 
         /// current thread.
         /// </summary>
         /// <param name="container">Instance of container requesting the value</param>
@@ -72,7 +72,7 @@ namespace Unity
 
         #region Overrides
 
-        public override string ToString() => "Lifetime.PerThread";
+        public override string ToString() => "WithLifetime.PerThread";
 
         #endregion
     }

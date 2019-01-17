@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// A <see cref="LifetimeManager"/> that holds onto the instance given to it.
@@ -37,7 +37,7 @@ namespace Unity
         
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this Lifetime policy.
+        /// with this WithLifetime policy.
         /// </summary>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
@@ -102,7 +102,7 @@ namespace Unity
 
         #region Overrides
 
-        public override string ToString() => "Lifetime.PerContainer"; 
+        public override string ToString() => "WithLifetime.PerContainer"; 
 
         #endregion
     }

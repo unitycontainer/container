@@ -1,6 +1,8 @@
-﻿namespace Unity
+﻿using Unity.Lifetime;
+
+namespace Unity
 {
-    public static partial class Lifetime
+    public abstract partial class LifetimeManager
     {
         public static LifetimeManager External => new ExternallyControlledLifetimeManager();
 

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// A special lifetime manager which works like <see cref="ContainerControlledLifetimeManager"/>,
@@ -21,7 +21,7 @@ namespace Unity
 
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this Lifetime policy.
+        /// with this WithLifetime policy.
         /// </summary>
         /// <param name="container">Container that owns the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
@@ -99,7 +99,7 @@ namespace Unity
 
         #region Overrides
 
-        public override string ToString() => "Lifetime.Hierarchical";
+        public override string ToString() => "WithLifetime.Hierarchical";
 
         #endregion
 

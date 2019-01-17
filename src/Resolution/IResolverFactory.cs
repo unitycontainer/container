@@ -1,7 +1,6 @@
 ﻿using System;
-using Unity.Resolution;
 
-namespace Unity.Policy
+namespace Unity.Resolution
 {
     public delegate ResolveDelegate<TContext> ResolverFactory<TContext>(Type type) 
         where TContext : IResolveContext;

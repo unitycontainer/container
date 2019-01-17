@@ -1,6 +1,6 @@
 using System;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// A special lifetime manager which works like <see cref="TransienLifetimeManager"/>,
@@ -34,7 +34,7 @@ namespace Unity
 
         #region Overrides
 
-        public override string ToString() => "Lifetime.PerContainerTransient";
+        public override string ToString() => "WithLifetime.PerContainerTransient";
 
         #endregion
     }

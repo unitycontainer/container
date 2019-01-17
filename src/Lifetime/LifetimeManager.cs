@@ -1,12 +1,13 @@
 ﻿using System;
+using Unity.Lifetime;
 
 namespace Unity
 {
     /// <summary>
-    /// Base class for Lifetime managers - classes that control how
+    /// Base class for WithLifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager
+    public abstract partial class LifetimeManager
     {
         public virtual bool InUse { get; set; }
 
@@ -14,7 +15,7 @@ namespace Unity
         #region LifetimeManager Members
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy.
+        /// Retrieve a value from the backing store associated with this WithLifetime policy.
         /// </summary>
         /// <param name="container">Child container this lifetime belongs to</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
@@ -51,7 +52,7 @@ namespace Unity
         #region Implementation
 
         /// <summary>
-        /// Creates Lifetime Manager
+        /// Creates WithLifetime Manager
         /// </summary>
         /// <returns></returns>
         protected abstract LifetimeManager OnCreateLifetimeManager();

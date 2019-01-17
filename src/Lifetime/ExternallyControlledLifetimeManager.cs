@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// A <see cref="LifetimeManager"/> that holds a weak reference to
@@ -11,7 +11,7 @@ namespace Unity
         private WeakReference _value = new WeakReference(null);
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy.
+        /// Retrieve a value from the backing store associated with this WithLifetime policy.
         /// </summary>
         /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
@@ -38,7 +38,7 @@ namespace Unity
 
         #region Overrides
 
-        public override string ToString() => "Lifetime.External";
+        public override string ToString() => "WithLifetime.External";
 
         #endregion
     }

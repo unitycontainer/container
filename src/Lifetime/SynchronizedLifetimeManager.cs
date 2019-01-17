@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
-    /// Base class for Lifetime managers which need to synchronize calls to
+    /// Base class for WithLifetime managers which need to synchronize calls to
     /// <see cref="SynchronizedLifetimeManager.GetValue"/>.
     /// </summary>
     /// <remarks>
@@ -29,7 +29,7 @@ namespace Unity
         #endregion
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy.
+        /// Retrieve a value from the backing store associated with this WithLifetime policy.
         /// </summary>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>Calls to this method acquire a lock which is released only if a non-null value
@@ -47,7 +47,7 @@ namespace Unity
 
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this Lifetime policy.
+        /// with this WithLifetime policy.
         /// </summary>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>

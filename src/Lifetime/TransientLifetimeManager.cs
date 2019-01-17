@@ -1,4 +1,4 @@
-﻿namespace Unity
+﻿namespace Unity.Lifetime
 {
     /// <summary>
     /// An <see cref="LifetimeManager"/> implementation that does nothing,
@@ -15,7 +15,7 @@
         }
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy.
+        /// Retrieve a value from the backing store associated with this WithLifetime policy.
         /// </summary>
         /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
@@ -32,7 +32,7 @@
 
         #region Overrides
 
-        public override string ToString() => "Lifetime.Transient";
+        public override string ToString() => "WithLifetime.Transient";
 
         #endregion
     }
