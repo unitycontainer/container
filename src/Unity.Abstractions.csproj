@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
-    <Compile Remove="Utility\ConcurrentDictionary.cs" />
+    <Compile Remove="Lifetime\Managers\ConcurrentDictionary.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">

@@ -96,6 +96,7 @@ namespace Unity
         /// <returns>The retrieved object.</returns>
         Task<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
 
+
         /// <summary>
         /// The parent of this container.
         /// </summary>
