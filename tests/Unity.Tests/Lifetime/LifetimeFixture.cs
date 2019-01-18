@@ -90,7 +90,7 @@ namespace Unity.Tests.v5.Lifetime
             IUnityContainer uc = new UnityContainer();
             
             uc.RegisterType<A>(new ContainerControlledLifetimeManager())
-                .RegisterType<A>("hello", new ExternallyControlledLifetimeManager());
+              .RegisterType<A>("hello", new HierarchicalLifetimeManager());
             A obj = uc.Resolve<A>();
             A obj1 = uc.Resolve<A>("hello");
             
@@ -361,45 +361,6 @@ namespace Unity.Tests.v5.Lifetime
             UnityTestClass mytestchild = childuc.Resolve<UnityTestClass>();
 
             Assert.AreNotSame(mytestparent.Name, mytestchild.Name);
-        }
-
-        /// <summary>
-        /// Verify WithLifetime managers. When registered using externally controlled and freed, new instance is 
-        /// returned when again resolve is done.
-        /// </summary>
-        [TestMethod]
-        public void UseExternallyControlledLifetime()
-        {
-            IUnityContainer parentuc = new UnityContainer();
-
-            parentuc.RegisterType<UnityTestClass>(new ExternallyControlledLifetimeManager());
-
-            UnityTestClass parentinstance = parentuc.Resolve<UnityTestClass>();
-            parentinstance.Name = "Hello World Ob1";
-            parentinstance = null;
-            GC.Collect();
-            UnityTestClass parentinstance1 = parentuc.Resolve<UnityTestClass>();
-
-            Assert.AreSame("Hello", parentinstance1.Name);
-        }
-
-        /// <summary>
-        /// Verify WithLifetime managers. When registered using externally controlled. Should return me with new 
-        /// instance every time when asked by Resolve.
-        /// Bug ID : 16372
-        /// </summary>
-        [TestMethod]
-        public void UseExternallyControlledLifetimeResolve()
-        {
-            IUnityContainer parentuc = new UnityContainer();
-            parentuc.RegisterType<UnityTestClass>(new ExternallyControlledLifetimeManager());
-
-            UnityTestClass parentinstance = parentuc.Resolve<UnityTestClass>();
-            parentinstance.Name = "Hello World Ob1";
-
-            UnityTestClass parentinstance1 = parentuc.Resolve<UnityTestClass>();
-
-            Assert.AreSame(parentinstance.Name, parentinstance1.Name);
         }
 
         /// <summary>
