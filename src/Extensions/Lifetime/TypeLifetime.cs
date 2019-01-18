@@ -4,8 +4,6 @@ namespace Unity
 {
     public static class TypeLifetime
     {
-        public static ITypeLifetimeManager External => new ExternallyControlledLifetimeManager();
-
         public static ITypeLifetimeManager Singleton => new SingletonLifetimeManager();
 
         public static ITypeLifetimeManager PerContainer => new ContainerControlledLifetimeManager();

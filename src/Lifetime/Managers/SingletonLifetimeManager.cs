@@ -80,7 +80,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.Singleton";
+        public override string ToString() => "Lifetime:Singleton";
 
         #endregion
     }

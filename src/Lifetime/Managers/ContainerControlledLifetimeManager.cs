@@ -105,7 +105,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.PerContainer"; 
+        public override string ToString() => "Lifetime:PerContainer"; 
 
         #endregion
     }

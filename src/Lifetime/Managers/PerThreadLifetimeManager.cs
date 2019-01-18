@@ -74,7 +74,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.PerThread";
+        public override string ToString() => "Lifetime:PerThread";
 
         #endregion
     }

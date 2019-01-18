@@ -34,7 +34,7 @@
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.Transient";
+        public override string ToString() => "Lifetime:Transient";
 
         #endregion
     }

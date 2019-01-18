@@ -39,7 +39,7 @@
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.PerResolve";
+        public override string ToString() => "Lifetime:PerResolve";
 
         #endregion
     }

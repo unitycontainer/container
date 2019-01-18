@@ -36,7 +36,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.PerContainerTransient";
+        public override string ToString() => "Lifetime:PerContainerTransient";
 
         #endregion
     }

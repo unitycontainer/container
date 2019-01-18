@@ -101,7 +101,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.Hierarchical";
+        public override string ToString() => "Lifetime:Hierarchical";
 
         #endregion
 

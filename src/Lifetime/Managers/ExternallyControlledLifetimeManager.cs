@@ -8,8 +8,7 @@ namespace Unity.Lifetime
     /// </summary>
     public class ExternallyControlledLifetimeManager : LifetimeManager,
                                                        IInstanceLifetimeManager, 
-                                                       IFactoryLifetimeManager,
-                                                       ITypeLifetimeManager
+                                                       IFactoryLifetimeManager
     {
         private WeakReference _value = new WeakReference(null);
 
@@ -41,7 +40,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.External";
+        public override string ToString() => "Lifetime:External";
 
         #endregion
     }
