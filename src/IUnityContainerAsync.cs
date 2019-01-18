@@ -27,7 +27,7 @@ namespace Unity
         /// <param name="lifetimeManager">WithLifetime manager that will be responsible for managing created object's lifetime.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns></returns>
-        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type type, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type type, string name, ILifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -48,7 +48,19 @@ namespace Unity
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, LifetimeManager lifetimeManager);
+        IUnityContainer RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager);
+
+
+        /// <summary>
+        /// Register <see cref="Type"/> factory with the container
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> of instance to register (may be an implemented interface instead of the actual type).</param>
+        /// <param name="name">Name for registration</param>
+        /// <param name="factory"></param>
+        /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
+        /// of the returned instance.</param>
+        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
 
 
         /// <summary>

@@ -3,18 +3,40 @@
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that is unique for all the children containers.
-    /// When the <see cref="SingletonLifetimeManager"/> is disposed,
+    /// A <see cref="LifetimeManager"/> that holds onto the instance given to it.
+    /// When the <see cref="ContainerControlledLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
     /// </summary>
-    public class SingletonLifetimeManager : SynchronizedLifetimeManager
+    public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, 
+                                                      IInstanceLifetimeManager, 
+                                                      IFactoryLifetimeManager
     {
         #region Fields
 
         protected object Value;
+        private Func<ILifetimeContainer, object> _currentGetValue;
+        private Action<object, ILifetimeContainer> _currentSetValue;
 
         #endregion
 
+        public ContainerControlledLifetimeManager()
+        {
+            _currentGetValue = base.GetValue;
+            _currentSetValue = base.SetValue;
+        }
+
+        public override object GetValue(ILifetimeContainer container = null)
+        {
+            return _currentGetValue(container);
+        }
+
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        {
+            _currentSetValue(newValue, container);
+            _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
+            _currentGetValue = SynchronizedGetValue;
+        }
+        
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
         /// with this WithLifetime policy.
@@ -51,7 +73,7 @@ namespace Unity.Lifetime
 
         protected override LifetimeManager OnCreateLifetimeManager()
         {
-            return new SingletonLifetimeManager();
+            return new ContainerControlledLifetimeManager();
         }
 
         #region IDisposable
@@ -62,14 +84,19 @@ namespace Unity.Lifetime
         /// <param name="disposing">Always true, since we don't have a finalizer.</param>		
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
-            if (Value == null) return;
-            if (Value is IDisposable disposable)
+            try
             {
-                disposable.Dispose();
+                if (Value == null) return;
+                if (Value is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+                Value = null;
             }
-            Value = null;
+            finally 
+            {
+                base.Dispose(disposing);
+            }
         }
 
         #endregion
@@ -77,7 +104,7 @@ namespace Unity.Lifetime
 
         #region Overrides
 
-        public override string ToString() => "WithLifetime.Singleton";
+        public override string ToString() => "WithLifetime.PerContainer"; 
 
         #endregion
     }

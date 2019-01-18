@@ -12,7 +12,8 @@ namespace Unity.Lifetime
     /// This LifetimeManager does not dispose the instances it holds.
     /// </para>
     /// </remarks>
-    public class PerThreadLifetimeManager : LifetimeManager
+    public class PerThreadLifetimeManager : LifetimeManager,
+                                            IFactoryLifetimeManager
     {
         [ThreadStatic]
         private static Dictionary<Guid, object> _values;

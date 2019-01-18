@@ -1,34 +1,26 @@
 ﻿using System;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Injection
 {
-    public delegate object InjectionFactoryDelegate<TContext>(ref TContext context) where TContext : IResolveContext;
-
     /// <inheritdoc />
     /// <summary>
     /// A class that lets you specify a factory method the container
     /// will use to create the object.
     /// </summary>
     /// <remarks>This factory allow using predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types.</remarks>
+    [Obsolete("InjectionFactory has been deprecated and will be removed in next release. Please use IUnityContainer.RegisterFactory(...) method instead.", false)]
     public class InjectionFactory : InjectionMember
     {
         #region Fields
 
         private readonly Func<IUnityContainer, Type, string, object> _factoryFunc;
-        private readonly Delegate _factory;
 
         #endregion
 
 
         #region Constructors
-
-        public InjectionFactory(Delegate factory)
-        {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-        }
 
         /// <summary>
         /// Create a new instance of <see cref="InjectionFactory"/> with
@@ -76,16 +68,11 @@ namespace Unity.Injection
             var lifetime = policies.Get(typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
-                policies.Set(typeof(ResolveDelegate<TContext>), 
-                    null == _factory ? CreatePerResolveLegacyPolicy()
-                                     : CreatePerResolveContextPolicy());
+                policies.Set(typeof(ResolveDelegate<TContext>), CreatePerResolveLegacyPolicy());
             }
             else
             {
-                policies.Set(typeof(ResolveDelegate<TContext>), 
-                    null == _factory ? CreateLegacyPolicy()
-                                     : (ref TContext c) => ((InjectionFactoryDelegate<TContext>)_factory)(ref c) ?? 
-                                        throw new InvalidOperationException("Injection Factory must return valid object or throw an exception"));
+                policies.Set(typeof(ResolveDelegate<TContext>), CreateLegacyPolicy());
             }
 
             // Factory methods
@@ -107,18 +94,6 @@ namespace Unity.Injection
                     context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
                     return result;
                 }; 
-            }
-
-            ResolveDelegate<TContext> CreatePerResolveContextPolicy()
-            {
-                return (ref TContext context) =>
-                {
-                    var result = ((InjectionFactoryDelegate<TContext>)_factory)(ref context);
-                    var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
-
-                    context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
-                    return result;
-                };
             }
         }
 

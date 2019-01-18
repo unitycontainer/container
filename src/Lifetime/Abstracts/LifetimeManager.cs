@@ -1,13 +1,12 @@
 ﻿using System;
-using Unity.Lifetime;
 
-namespace Unity
+namespace Unity.Lifetime
 {
     /// <summary>
     /// Base class for WithLifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract partial class LifetimeManager
+    public abstract class LifetimeManager : ILifetimeManager
     {
         public virtual bool InUse { get; set; }
 

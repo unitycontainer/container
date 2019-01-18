@@ -5,7 +5,9 @@
     /// but also provides a signal to the default build plan, marking the type so that
     /// instances are reused across the build up object graph.
     /// </summary>
-    public class PerResolveLifetimeManager : LifetimeManager
+    public class PerResolveLifetimeManager : LifetimeManager, 
+                                             IInstanceLifetimeManager, 
+                                             IFactoryLifetimeManager
     {
         protected object value;
 

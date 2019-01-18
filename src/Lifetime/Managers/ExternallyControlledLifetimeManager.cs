@@ -6,7 +6,9 @@ namespace Unity.Lifetime
     /// A <see cref="LifetimeManager"/> that holds a weak reference to
     /// it's managed instance.
     /// </summary>
-    public class ExternallyControlledLifetimeManager : LifetimeManager
+    public class ExternallyControlledLifetimeManager : LifetimeManager,
+                                                       IInstanceLifetimeManager, 
+                                                       IFactoryLifetimeManager
     {
         private WeakReference _value = new WeakReference(null);
 

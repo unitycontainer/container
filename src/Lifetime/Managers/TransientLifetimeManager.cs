@@ -4,7 +4,8 @@
     /// An <see cref="LifetimeManager"/> implementation that does nothing,
     /// thus ensuring that instances are created new every time.
     /// </summary>
-    public class TransientLifetimeManager : LifetimeManager
+    public class TransientLifetimeManager : LifetimeManager,
+                                            IFactoryLifetimeManager
     {
         public static TransientLifetimeManager Instance = new TransientLifetimeManager();
 

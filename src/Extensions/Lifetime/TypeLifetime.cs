@@ -2,7 +2,7 @@
 
 namespace Unity
 {
-    public abstract partial class LifetimeManager
+    public static class TypeLifetime
     {
         public static LifetimeManager External => new ExternallyControlledLifetimeManager();
 
@@ -19,6 +19,5 @@ namespace Unity
         public static LifetimeManager Transient { get; } = new TransientLifetimeManager();
 
         public static LifetimeManager PerContainerTransient => new ContainerControlledTransientManager();
-
     }
 }

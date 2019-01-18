@@ -26,9 +26,9 @@ namespace Unity
         /// with the container and only used to build the requested instance.
         /// If type provided in <paramref name="typeTo"/> is already registered with container, registration creates mapping to the existing
         /// registration and instead will use registration for <paramref name="typeTo"/> type to create object.</remarks>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
+        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         /// <exception cref="InvalidRegistrationException"></exception>
-        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, ILifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -48,8 +48,20 @@ namespace Unity
         /// <see cref="LifetimeManager"/> manager that controls how this instance will be managed by the container.
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterInstance(Type type, string name, object instance, LifetimeManager lifetimeManager);
+        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        IUnityContainer RegisterInstance(Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager);
+
+
+        /// <summary>
+        /// Register <see cref="Type"/> factory with the container
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> to register (may be an implemented interface instead of the actual type).</param>
+        /// <param name="name">Name for registration</param>
+        /// <param name="factory">Predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types</param>
+        /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
+        /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
+        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
+        IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
 
 
         /// <summary>

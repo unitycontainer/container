@@ -7,7 +7,8 @@ namespace Unity.Lifetime
     /// except container remembers all Disposable objects it created. Once container
     /// is disposed all these objects are disposed as well.
     /// </summary>
-    public class ContainerControlledTransientManager : LifetimeManager
+    public class ContainerControlledTransientManager : LifetimeManager,
+                                                       IFactoryLifetimeManager
     {
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
