@@ -203,7 +203,7 @@ namespace Unity.Tests.v5.Generics
             var container = new UnityContainer();
 
             container.RegisterType<IFoo, Foo>("1");
-            container.RegisterType<IFoo>("2", new InjectionFactory(c => { throw new System.InvalidOperationException(); }));
+            container.RegisterFactory<IFoo>("2", c => { throw new System.InvalidOperationException(); });
 
             container.ResolveAll<IFoo>();
         }
@@ -215,7 +215,7 @@ namespace Unity.Tests.v5.Generics
             var container = new UnityContainer();
 
             container.RegisterType<IFoo, Foo>("1");
-            container.RegisterType<IFoo>("2", new InjectionFactory(c => { throw new System.InvalidOperationException(); }));
+            container.RegisterFactory<IFoo>("2", c => { throw new System.InvalidOperationException(); });
 
             container.Resolve<IEnumerable<IFoo>>();
         }

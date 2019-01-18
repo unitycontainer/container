@@ -8,7 +8,7 @@
     /// Works like the ExternallyControlledLifetimeManager, but uses 
     /// regular instead of weak references
     /// </remarks>
-    internal class ContainerLifetimeManager : LifetimeManager
+    internal class ContainerLifetimeManager : LifetimeManager, IInstanceLifetimeManager
     {
         public override object GetValue(ILifetimeContainer container = null)
         {

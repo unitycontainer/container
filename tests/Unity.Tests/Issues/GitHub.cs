@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -109,10 +108,10 @@ namespace Unity.Tests.v5.Issues
         public void unitycontainer_container_92()
         {
             var ioc = new UnityContainer();
-            ioc.RegisterType<IFoo>(
+            ioc.RegisterFactory<IFoo>(
                 string.Empty, 
-                new SingletonLifetimeManager(), 
-                new InjectionFactory(c => { throw new InvalidOperationException(); }));
+                c => { throw new InvalidOperationException(); },
+                new SingletonLifetimeManager());
 
             Assert.ThrowsException<ResolutionFailedException>(() => ioc.Resolve<IFoo>());
         }

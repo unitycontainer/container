@@ -32,8 +32,8 @@ namespace Unity.Tests.v5.CollectionSupport
             var data = new [] { new TestClass(), new TestClass() };
 
             var container = new UnityContainer()
-                .RegisterType<TestClass[]>(new InjectionFactory(c => data))
-                .RegisterType<TestClass[]>(name, new InjectionFactory(c => data));
+                .RegisterFactory<TestClass[]>(c => data)
+                .RegisterFactory<TestClass[]>(name, c => data);
 
             Assert.AreSame(data, container.Resolve<TestClass[]>());
             Assert.AreSame(data, container.Resolve<TestClass[]>(name));
@@ -46,8 +46,8 @@ namespace Unity.Tests.v5.CollectionSupport
             var data = new [] { new TestClass(), new TestClass() };
 
             var container = new UnityContainer()
-                .RegisterType<IEnumerable<TestClass>>(new InjectionFactory(c => data))
-                .RegisterType<IEnumerable<TestClass>>(name, new InjectionFactory(c => data));
+                .RegisterFactory<IEnumerable<TestClass>>(c => data)
+                .RegisterFactory<IEnumerable<TestClass>>(name, c => data);
 
             Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>());
             Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>(name));
@@ -67,7 +67,7 @@ namespace Unity.Tests.v5.CollectionSupport
         {
             IUnityContainer container = new UnityContainer();
             TestClass[] array = new TestClass[0];
-            container.RegisterInstance<TestClass[]>(array);
+            container.RegisterInstance(array);
 
             TestClass[] resolved = container.Resolve<TestClass[]>();
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Injection;
 using Unity.Lifetime;
 
 namespace Unity.Tests.v5.Lifetime
@@ -48,9 +47,8 @@ namespace Unity.Tests.v5.Lifetime
         public void PerBuildLifetimeIsHonoredWhenUsingFactory()
         {
             var container = new UnityContainer()
-                .RegisterType<SomeService>(
-                    new PerResolveLifetimeManager(),
-                    new InjectionFactory(c => new SomeService()));
+                .RegisterFactory<SomeService>(c => new SomeService(),
+                    new PerResolveLifetimeManager());
 
             var rootService = container.Resolve<AService>();
             Assert.AreSame(rootService.SomeService, rootService.OtherService.SomeService);

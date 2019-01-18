@@ -6,7 +6,6 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity.Strategies
 {
@@ -41,7 +40,9 @@ namespace Unity.Strategies
             if (registration is ContainerRegistration containerRegistration)
             {
                 if (type != containerRegistration.Type ||
+#pragma warning disable CS0618 // TODO: InjectionFactory
                     null != injectionMembers && injectionMembers.Any(i => i is InjectionFactory))
+#pragma warning restore CS0618
                     return false;
             }
 
