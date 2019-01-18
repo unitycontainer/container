@@ -5,7 +5,8 @@
     /// thus ensuring that instances are created new every time.
     /// </summary>
     public class TransientLifetimeManager : LifetimeManager,
-                                            IFactoryLifetimeManager
+                                            IFactoryLifetimeManager,
+                                            ITypeLifetimeManager
     {
         public static TransientLifetimeManager Instance = new TransientLifetimeManager();
 

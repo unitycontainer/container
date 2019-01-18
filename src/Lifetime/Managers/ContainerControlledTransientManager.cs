@@ -8,7 +8,8 @@ namespace Unity.Lifetime
     /// is disposed all these objects are disposed as well.
     /// </summary>
     public class ContainerControlledTransientManager : LifetimeManager,
-                                                       IFactoryLifetimeManager
+                                                       IFactoryLifetimeManager,
+                                                       ITypeLifetimeManager
     {
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {

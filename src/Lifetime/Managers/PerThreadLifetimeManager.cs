@@ -13,7 +13,8 @@ namespace Unity.Lifetime
     /// </para>
     /// </remarks>
     public class PerThreadLifetimeManager : LifetimeManager,
-                                            IFactoryLifetimeManager
+                                            IFactoryLifetimeManager,
+                                            ITypeLifetimeManager
     {
         [ThreadStatic]
         private static Dictionary<Guid, object> _values;

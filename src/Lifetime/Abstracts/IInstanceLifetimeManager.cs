@@ -1,6 +1,6 @@
 ﻿namespace Unity.Lifetime
 {
-    public interface IInstanceLifetimeManager : ILifetimeManager
+    public interface IInstanceLifetimeManager
     {
     }
 }

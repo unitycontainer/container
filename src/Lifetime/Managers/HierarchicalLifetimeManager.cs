@@ -11,7 +11,8 @@ namespace Unity.Lifetime
     /// of the object, instead of sharing one in the common parent.
     /// </summary>
     public class HierarchicalLifetimeManager : SynchronizedLifetimeManager, 
-                                               IFactoryLifetimeManager
+                                               IFactoryLifetimeManager,
+                                               ITypeLifetimeManager
     {
         #region Fields
 

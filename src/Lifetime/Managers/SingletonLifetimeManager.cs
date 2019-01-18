@@ -9,7 +9,8 @@ namespace Unity.Lifetime
     /// </summary>
     public class SingletonLifetimeManager : SynchronizedLifetimeManager,
                                             IInstanceLifetimeManager,
-                                            IFactoryLifetimeManager
+                                            IFactoryLifetimeManager,
+                                            ITypeLifetimeManager
     {
         #region Fields
 

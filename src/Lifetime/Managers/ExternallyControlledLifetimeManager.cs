@@ -8,7 +8,8 @@ namespace Unity.Lifetime
     /// </summary>
     public class ExternallyControlledLifetimeManager : LifetimeManager,
                                                        IInstanceLifetimeManager, 
-                                                       IFactoryLifetimeManager
+                                                       IFactoryLifetimeManager,
+                                                       ITypeLifetimeManager
     {
         private WeakReference _value = new WeakReference(null);
 

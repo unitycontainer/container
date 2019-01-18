@@ -28,7 +28,7 @@ namespace Unity
         /// registration and instead will use registration for <paramref name="typeTo"/> type to create object.</remarks>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         /// <exception cref="InvalidRegistrationException"></exception>
-        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, ILifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>

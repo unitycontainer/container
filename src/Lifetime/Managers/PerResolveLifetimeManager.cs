@@ -7,7 +7,8 @@
     /// </summary>
     public class PerResolveLifetimeManager : LifetimeManager, 
                                              IInstanceLifetimeManager, 
-                                             IFactoryLifetimeManager
+                                             IFactoryLifetimeManager,
+                                             ITypeLifetimeManager
     {
         protected object value;
 

@@ -6,7 +6,7 @@ namespace Unity.Lifetime
     /// Base class for WithLifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager : ILifetimeManager
+    public abstract class LifetimeManager 
     {
         public virtual bool InUse { get; set; }
 
