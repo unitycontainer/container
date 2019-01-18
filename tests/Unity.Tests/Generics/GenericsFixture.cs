@@ -51,8 +51,7 @@ namespace Unity.Tests.v5.Generics
 
             IUnityContainer container = new UnityContainer();
             container.RegisterInstance(myDict);
-            container.RegisterType(typeof(IDictionary<,>), typeof(Dictionary<,>), new ExternallyControlledLifetimeManager(), 
-                                                                                  new InjectionConstructor());
+            container.RegisterType(typeof(IDictionary<,>), typeof(Dictionary<,>), new InjectionConstructor());
 
             IDictionary<string, string> result = container.Resolve<IDictionary<string, string>>();
             Assert.AreSame(myDict, result);
@@ -163,7 +162,7 @@ namespace Unity.Tests.v5.Generics
             myRefer.Str = "HiHello";
             IUnityContainer container = new UnityContainer()
                 .RegisterInstance<Refer<int>>(myRefer)
-                .RegisterType<IRepository<int>, MockRespository<int>>(new ExternallyControlledLifetimeManager());
+                .RegisterType<IRepository<int>, MockRespository<int>>();
 
             IRepository<int> result = container.Resolve<IRepository<int>>();
             Assert.IsInstanceOfType(result, typeof(IRepository<int>));

@@ -96,8 +96,7 @@ namespace Unity.Tests.v5.Issues
         public void CanResolveTimespan()
         {
             var container = new UnityContainer()
-                .RegisterType<TimeSpan>(new ExternallyControlledLifetimeManager(),
-                new InjectionConstructor(0L));
+                .RegisterType<TimeSpan>(new InjectionConstructor(0L));
             var expected = new TimeSpan();
             var result = container.Resolve<TimeSpan>();
 

@@ -24,7 +24,7 @@ namespace Unity
         #region Type Registration
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ILifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace Unity
 
                 if (null == lifetimeManager) lifetimeManager = new ContainerControlledLifetimeManager();
                 if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-                lifetimeManager.SetValue(instance, LifetimeContainer);
+                ((LifetimeManager)lifetimeManager).SetValue(instance, LifetimeContainer);
 
                 // Create registration and add to appropriate storage
                 var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
