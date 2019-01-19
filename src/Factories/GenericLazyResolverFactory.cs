@@ -2,7 +2,6 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Resolution;
 using Unity.Strategies;
 

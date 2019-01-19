@@ -7,6 +7,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Processors;
@@ -95,6 +96,7 @@ namespace Unity
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _parent.LifetimeContainer.Add(this);
             _root = _parent._root;
+            SetDefaultPolicies = parent.SetDefaultPolicies;
 
             // Methods
             _get = _parent._get;
@@ -114,7 +116,105 @@ namespace Unity
             _strategies.Invalidated += OnStrategiesChanged;
 
             // Caches
-            SetDefaultPolicies();
+            SetDefaultPolicies(this);
+        }
+
+        #endregion
+
+
+        #region Default Policies
+
+        internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
+        {
+            // Default policies
+            container.Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
+
+            // Processors
+            var fieldsProcessor = new FieldProcessor(container.Defaults);
+            var methodsProcessor = new MethodProcessor(container.Defaults);
+            var propertiesProcessor = new PropertyProcessor(container.Defaults);
+            var constructorProcessor = new ConstructorProcessor(container.Defaults, container.IsTypeTypeExplicitlyRegisteredRecurcive);
+
+            // Processors chain
+            container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
+            {
+                { constructorProcessor, BuilderStage.Creation },
+                { fieldsProcessor,      BuilderStage.Fields },
+                { propertiesProcessor,  BuilderStage.Properties },
+                { methodsProcessor,     BuilderStage.Methods }
+            };
+
+            // Caches
+            container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
+            container._processorsChain = container._processors.ToArray();
+
+            container.Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
+            container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
+            container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
+            container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
+            container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+
+            if (null != container._registrations) container.Set(null, null, container.Defaults);
+        };
+
+        internal static void SetDiagnosticPolicies(UnityContainer container)
+        {
+            // Default policies
+            container.ContextExecutePlan = UnityContainer.ContextValidatingPlan;
+            container.ExecutePlan = container.ExecuteValidatingPlan;
+            container.Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
+            if (null != container._registrations) container.Set(null, null, container.Defaults);
+
+            // Processors
+            var fieldsProcessor = new FieldDiagnostic(container.Defaults);
+            var methodsProcessor = new MethodDiagnostic(container.Defaults);
+            var propertiesProcessor = new PropertyDiagnostic(container.Defaults);
+            var constructorProcessor = new ConstructorDiagnostic(container.Defaults, container.IsTypeTypeExplicitlyRegisteredRecurcive);
+
+            // Processors chain
+            container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
+            {
+                { constructorProcessor, BuilderStage.Creation },
+                { fieldsProcessor,      BuilderStage.Fields },
+                { propertiesProcessor,  BuilderStage.Properties },
+                { methodsProcessor,     BuilderStage.Methods }
+            };
+
+            // Caches
+            container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
+            container._processorsChain = container._processors.ToArray();
+
+            container.Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
+            container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
+            container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
+            container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
+            container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+
+            var validators = new InternalRegistration();
+
+            validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
+
+            container._validators = validators;
+
+            // Registration Validator
+            container.TypeValidator = (typeFrom, typeTo) =>
+            {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
+                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
+#else
+                if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
+                    !typeFrom.IsAssignableFrom(typeTo))
+#endif
+                {
+                    throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
+                }
+            };
+
+            if (null != container._registrations) container.Set(null, null, container.Defaults);
         }
 
         #endregion

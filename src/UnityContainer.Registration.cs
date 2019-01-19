@@ -2,9 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
-using Unity.Processors;
 using Unity.Registration;
 using Unity.Storage;
 
@@ -27,42 +25,6 @@ namespace Unity
         private readonly object _syncRoot = new object();
         private  LinkedNode<Type, object> _validators;
         private HashRegistry<Type, IRegistry<string, IPolicySet>> _registrations;
-
-        #endregion
-
-
-        #region Default Registrations
-
-        private void SetDefaultPolicies()
-        {
-            // Default policies
-            Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), ContextExecutePlan);
-
-            // Processors
-            var fieldsProcessor = new FieldProcessor(Defaults);
-            var methodsProcessor = new MethodProcessor(Defaults);
-            var propertiesProcessor = new PropertyProcessor(Defaults);
-            var constructorProcessor = new ConstructorProcessor(Defaults, IsTypeExplicitlyRegistered);
-
-            // Processors chain
-            _processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
-            {
-                { constructorProcessor, BuilderStage.Creation },
-                { fieldsProcessor,      BuilderStage.Fields },
-                { propertiesProcessor,  BuilderStage.Properties },
-                { methodsProcessor,     BuilderStage.Methods }
-            };
-
-            // Caches
-            _processors.Invalidated += (s, e) => _processorsChain = _processors.ToArray();
-            _processorsChain = _processors.ToArray();
-
-            Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
-            Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
-            Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
-        }
 
         #endregion
 
@@ -111,6 +73,32 @@ namespace Unity
 
             return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
         }
+
+        protected bool IsTypeTypeExplicitlyRegisteredRecurcive(Type type)
+        {
+            if (null != _registrations)
+            {
+                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+                var targetBucket = hashCode % _registrations.Buckets.Length;
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key != type)
+                    {
+                        continue;
+                    }
+
+                    return candidate.Value
+                               .Values
+                               .Any(v => v is ContainerRegistration) ||
+                           (_parent?.IsTypeExplicitlyRegistered(type) ?? false);
+                }
+            }
+
+            return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
+        }
+
 
         internal bool RegistrationExists(Type type, string name)
         {

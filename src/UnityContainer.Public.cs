@@ -70,8 +70,8 @@ namespace Unity
 
 
             // Default Policies and Strategies
-            SetDefaultPolicies();
-            Set(null, null, Defaults);
+            SetDefaultPolicies(this);
+
             Set(typeof(Func<>), All, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
             Set(typeof(Lazy<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
