@@ -62,7 +62,7 @@ namespace Unity
             ContextExecutePlan = ContextValidatingPlan;
             ExecutePlan        = ExecuteValidatingPlan;
             Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), ContextExecutePlan);
-            Set(null, null, Defaults);
+            if (null != _registrations)  Set(null, null, Defaults);
 
             // Processors
             var fieldsProcessor      = new FieldDiagnostic(Defaults);

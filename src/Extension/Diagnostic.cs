@@ -1,6 +1,6 @@
-﻿using Unity.Policy;
+﻿using Unity.Extension;
 
-namespace Unity.Extension
+namespace Unity
 {
     public class Diagnostic : UnityContainerExtension
     {
