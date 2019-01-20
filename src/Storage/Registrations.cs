@@ -191,7 +191,7 @@ namespace Unity.Storage
 
         #region Nested Types
 
-        [DebuggerDisplay("Key='{Key}'   Value='{Value}'   Hash='{HashCode}'")]
+        [DebuggerDisplay("Type='{Key}'   Registrations='{Value}'   Hash='{HashCode}'")]
         public struct Entry
         {
             public int HashCode;

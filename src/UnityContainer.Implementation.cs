@@ -279,21 +279,6 @@ namespace Unity
             }
         }
 
-        private static string GetTypeName(object assignmentInstance)
-        {
-            string assignmentInstanceType;
-            try
-            {
-                assignmentInstanceType = assignmentInstance.GetType().FullName;
-            }
-            catch (Exception)
-            {
-                assignmentInstanceType = Error.UnknownType;
-            }
-
-            return assignmentInstanceType;
-        }
-
         private BuilderStrategy[] GetBuilders(Type type, InternalRegistration registration)
         {
             return _strategiesChain.ToArray()
