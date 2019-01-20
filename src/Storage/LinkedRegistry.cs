@@ -35,13 +35,19 @@ namespace Unity.Storage
         {
             get
             {
+                IPolicySet match = null;
                 for (var node = (LinkedNode<string, IPolicySet>)this; node != null; node = node.Next)
                 {
+                    // Exact match
                     if (Equals(node.Key, key))
                         return node.Value;
+
+                    // Cover all match
+                    if (ReferenceEquals(node.Key, UnityContainer.All))
+                        match = node.Value;
                 }
 
-                return default(IPolicySet);
+                return match;
             }
             set
             {

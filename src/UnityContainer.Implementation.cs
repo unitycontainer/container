@@ -250,7 +250,7 @@ namespace Unity
             {
                 if (null == _registrations)
                 {
-                    _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
+                    _registrations = new Registrations(ContainerInitialCapacity);
                     Set(null, null, Defaults);
 
                     Register = AddOrUpdate;
@@ -383,7 +383,7 @@ namespace Unity
 
             lock (GetRegistration)
             {
-                _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(1);
+                _registrations = new Registrations(1);
             }
 
             if (null != exceptions && exceptions.Count == 1)

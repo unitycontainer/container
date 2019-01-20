@@ -27,7 +27,7 @@ namespace Unity
             LifetimeContainer = new LifetimeContainer(this);
 
             // Registrations
-            _registrations = new HashRegistry<Type, IRegistry<string, IPolicySet>>(ContainerInitialCapacity);
+            _registrations = new Registrations(ContainerInitialCapacity);
 
             // Context
             _context = new ContainerContext(this);
