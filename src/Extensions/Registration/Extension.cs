@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 
 namespace Unity
 {
-
-    public delegate (IUnityContainer, object) RegisterDelegate(IUnityContainer container);
 
     public static class RegistrationExtension
     {

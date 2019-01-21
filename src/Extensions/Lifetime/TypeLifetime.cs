@@ -10,6 +10,8 @@ namespace Unity
 
         public static ITypeLifetimeManager Hierarchical => new HierarchicalLifetimeManager();
 
+        public static ITypeLifetimeManager Scoped => new HierarchicalLifetimeManager();
+
         public static ITypeLifetimeManager PerResolve => new PerResolveLifetimeManager();
 
         public static ITypeLifetimeManager PerThread => new PerThreadLifetimeManager();
