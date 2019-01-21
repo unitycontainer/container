@@ -6,6 +6,8 @@ namespace Unity
     {
         public static ITypeLifetimeManager Singleton => new SingletonLifetimeManager();
 
+        public static ITypeLifetimeManager ContainerControlled => new ContainerControlledLifetimeManager();
+
         public static ITypeLifetimeManager PerContainer => new ContainerControlledLifetimeManager();
 
         public static ITypeLifetimeManager Hierarchical => new HierarchicalLifetimeManager();
@@ -16,7 +18,7 @@ namespace Unity
 
         public static ITypeLifetimeManager PerThread => new PerThreadLifetimeManager();
         
-        public static ITypeLifetimeManager Transient { get; } = new TransientLifetimeManager();
+        public static ITypeLifetimeManager Transient => TransientLifetimeManager.Instance;
 
         public static ITypeLifetimeManager PerContainerTransient => new ContainerControlledTransientManager();
     }
