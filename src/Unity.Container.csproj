@@ -3,7 +3,7 @@
   <Import Project="..\package.props" />
 
   <PropertyGroup>
-    <Version>$(VersionBase)-RC</Version>
+    <Version>$(VersionBase)-RC1</Version>
     <FileVersion>$(VersionBase).0</FileVersion>
     <AssemblyVersion>$(VersionBase).0</AssemblyVersion>
     <AssemblyInformationalVersion>$(FileVersion)</AssemblyInformationalVersion>
