@@ -14,6 +14,9 @@ namespace Unity
 
         #region Field
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Field(string name, object value) => new FieldOverride(name, value);
 
         #endregion
@@ -21,17 +24,33 @@ namespace Unity
 
         #region Parameter
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Parameter<TType>(object value)
             => Parameter(typeof(TType), value);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Parameter<TType>(string name, object value)
             => Parameter(typeof(TType), name, value);
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Parameter(Type type, object value) 
             => new ParameterOverride(type, value);
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Parameter(Type type, string name, object value) 
             => new ParameterOverride(type, name, value);
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Parameter(string name, object value) 
             => new ParameterOverride(name, value);
 
@@ -41,12 +60,21 @@ namespace Unity
 
         #region Dependency
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Dependency(string name, object value) 
             => Dependency(value?.GetType() ?? throw new ArgumentNullException(nameof(value)), name, value);
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Dependency<TType>(string name, object value) 
             => Dependency(typeof(TType), name, value);
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ResolverOverride Dependency(Type type, string name, object value)
         {
             return new DependencyOverride(type, name, value);

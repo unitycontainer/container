@@ -26,19 +26,6 @@ namespace Unity
         #endregion
 
 
-        #region Dependency
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency(Type type, object value) => new InjectionDependency(type, value);
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency<TTarget>(object value)   => new InjectionDependency(typeof(TTarget), value);
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency(string name, object value) => new InjectionDependency(name, value);
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency(Type type, string name, object value) => new InjectionDependency(type, name, value);
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)] public static InjectionMember Dependency<TTarget>(string name, object value)   => new InjectionDependency(typeof(TTarget), name, value);
-
-        #endregion
-
-
         #region Field
 
 #if !NET40
@@ -46,6 +33,7 @@ namespace Unity
 #endif
         public static InjectionMember Field(string name, object value) 
             => new InjectionField(name ?? throw new ArgumentNullException(nameof(name)), value);
+        
         #endregion
 
 
@@ -56,6 +44,7 @@ namespace Unity
 #endif
         public static InjectionMember Property(string name, object value) 
             => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)), value);
+        
         #endregion
     }
 }

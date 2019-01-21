@@ -54,13 +54,13 @@ namespace Unity
         /// <summary>
         /// Register <see cref="Type"/> factory with the container
         /// </summary>
-        /// <param name="type"><see cref="Type"/> of instance to register (may be an implemented interface instead of the actual type).</param>
+        /// <param name="interfaces">Collection of interfaces that <paramref name="factory"/> exposes to container</param>
         /// <param name="name">Name for registration</param>
         /// <param name="factory"></param>
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
+        IUnityContainer RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
 
 
         /// <summary>

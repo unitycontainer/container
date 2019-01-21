@@ -55,6 +55,10 @@ namespace Unity
         /// <summary>
         /// Register <see cref="Type"/> factory with the container
         /// </summary>
+        /// <remarks>
+        /// This method allows to redister a <see cref="Func<IUnityContainer, Type, string, object>"/> delegate which will be called
+        /// by the container if type is requested.
+        /// </remarks>
         /// <param name="type"><see cref="Type"/> to register (may be an implemented interface instead of the actual type).</param>
         /// <param name="name">Name for registration</param>
         /// <param name="factory">Predefined <code>Func&lt;IUnityContainer, Type, string, object&gt;</code> to create types</param>

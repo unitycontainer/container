@@ -9,7 +9,6 @@ namespace Unity
     {
         #region Ctor
 
-
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
