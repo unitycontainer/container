@@ -21,8 +21,7 @@ namespace Runner.Tests
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();
             _container.RegisterType<IFoo, Foo>("1");
-            _container.RegisterType<IFoo>("2", Invoke.Factory(c => new Foo()));
-            _container.RegisterType<IFoo>("3", Invoke.Factory((ref BuilderContext c) => new Foo()));
+            _container.RegisterFactory<IFoo>("2", c => new Foo());
 
             for (var i = 0; i < 3; i++)
             {
@@ -31,7 +30,6 @@ namespace Runner.Tests
                 _container.Resolve<IFoo>();
                 _container.Resolve<IFoo>("1");
                 _container.Resolve<IFoo>("2");
-                _container.Resolve<IFoo>("3");
             }
         }
 
@@ -49,9 +47,6 @@ namespace Runner.Tests
 
         [Benchmark(Description = "Compiled<IService>      (legacy)")]
         public object LegacyFactory() => _container.Resolve(typeof(IFoo), "2");
-
-        [Benchmark(Description = "Compiled<IService>      (factory)")]
-        public object Factory() => _container.Resolve(typeof(IFoo), "3");
 
         [Benchmark(Description = "PreResolved<IService[]> (optimized)")]
         public object Array() => _container.Resolve(typeof(IFoo[]), null);
