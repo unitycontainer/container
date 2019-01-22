@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace System.Reflection
@@ -34,6 +35,8 @@ namespace System.Reflection
         public bool IsGenericType => _type.IsGenericType;
 
         public Type AsType() => _type;
+
+        public bool IsAssignableFrom(Type type) => _type.IsAssignableFrom(type);
 
         public bool IsAssignableFrom(TypeInfo typeInfo) => _type.IsAssignableFrom(typeInfo.AsType());
 
@@ -195,6 +198,14 @@ namespace System.Reflection
     internal static class IntrospectionExtensions
     {
 #if NET40
+
+        public static Attribute GetCustomAttribute(this ParameterInfo info, Type type)
+        {
+            return info.GetCustomAttributes(type, true)
+                       .Cast<Attribute>()
+                       .FirstOrDefault();
+        }
+
         public static TypeInfo GetTypeInfo(this Type type)
         {
             if (type == null)
