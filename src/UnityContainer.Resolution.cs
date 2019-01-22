@@ -392,10 +392,10 @@ namespace Unity
         internal static object ContextValidatingPlan(BuilderStrategy[] chain, ref BuilderContext context)
         {
             var i = -1;
-
+#if !NET40
             var value = GetPerResolveValue(context.Parent, context.RegistrationType, context.Name);
             if (null != value) return value;
-
+#endif
             try
             {
                 while (!context.BuildComplete && ++i < chain.Length)
@@ -423,6 +423,7 @@ namespace Unity
 
             return context.Existing;
 
+#if !NET40
             object GetPerResolveValue(IntPtr parent, Type registrationType, string name)
             {
                 if (IntPtr.Zero == parent) return null;
@@ -440,6 +441,7 @@ namespace Unity
                     throw new InvalidOperationException($"Circular reference for type: {c.Type}");
                 }
             }
+#endif
         }
 
         #endregion

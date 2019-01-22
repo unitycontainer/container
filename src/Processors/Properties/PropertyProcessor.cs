@@ -75,7 +75,11 @@ namespace Unity.Processors
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>
             {
+#if NET40
+                info.SetValue(context.Existing, context.Resolve(info, value), null);
+#else
                 info.SetValue(context.Existing, context.Resolve(info, value));
+#endif
                 return context.Existing;
             };
         }

@@ -41,11 +41,19 @@ namespace Unity.Processors
                              : PreProcessResolver(parameter, resolvers[i]);
 
                 // Check if has default value
+#if NET40
+                var defaultValueExpr = parameter.DefaultValue is DBNull
+                    ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
+                    : null;
+
+                if (parameter.DefaultValue is DBNull)
+#else
                 var defaultValueExpr = parameter.HasDefaultValue
                     ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
                     : null;
 
                 if (!parameter.HasDefaultValue)
+#endif
                 {
                     // Plain vanilla case
                     yield return Expression.Convert(
@@ -91,8 +99,11 @@ namespace Unity.Processors
                 var resolver = null == resolvers
                              ? FromAttribute(parameter)
                              : PreProcessResolver(parameter, resolvers[i]);
-
+#if NET40
+                if (parameter.DefaultValue is DBNull)
+#else
                 if (!parameter.HasDefaultValue)
+#endif
                 {
                     // Plain vanilla case
                     yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
@@ -100,8 +111,11 @@ namespace Unity.Processors
                 else
                 {
                     // Check if has default value
+#if NET40
+                    var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
+#else
                     var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-
+#endif
                     yield return (ref BuilderContext context) =>
                     {
                         try
@@ -142,7 +156,11 @@ namespace Unity.Processors
 
         private object FromAttribute(ParameterInfo info)
         {
+#if NET40
+            var defaultValue = !(info.DefaultValue is DBNull) ? info.DefaultValue : null;
+#else
             var defaultValue = info.HasDefaultValue ? info.DefaultValue : null;
+#endif
             foreach (var node in AttributeFactories)
             {
                 if (null == node.Factory) continue;

@@ -194,7 +194,11 @@ namespace Unity.Processors
             {
                 for (var i = 0; i < AttributeFactories.Length; i++)
                 {
+#if NET40
+                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
+#else
                     if (!member.IsDefined(AttributeFactories[i].Type) || 
+#endif
                         !memberSet.Add(member)) continue;
 
                     yield return member;
@@ -236,6 +240,13 @@ namespace Unity.Processors
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             return info.GetCustomAttributes()
+                       .Where(a => a.GetType()
+                                    .GetTypeInfo()
+                                    .IsAssignableFrom(type.GetTypeInfo()))
+                       .FirstOrDefault();
+#elif NET40
+            return info.GetCustomAttributes(true)
+                       .Cast<Attribute>()
                        .Where(a => a.GetType()
                                     .GetTypeInfo()
                                     .IsAssignableFrom(type.GetTypeInfo()))

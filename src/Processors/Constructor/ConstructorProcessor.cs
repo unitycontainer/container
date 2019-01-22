@@ -34,7 +34,7 @@ namespace Unity.Processors
         #region Public Properties
 
         public Func<Type, ConstructorInfo[], object> SelectMethod { get; set; }
-        
+
         #endregion
 
 
@@ -64,7 +64,11 @@ namespace Unity.Processors
             {
                 for (var i = 0; i < AttributeFactories.Length; i++)
                 {
+#if NET40
+                    if (!constructor.IsDefined(AttributeFactories[i].Type, true))
+#else
                     if (!constructor.IsDefined(AttributeFactories[i].Type))
+#endif
                         continue;
 
                     return new[] { constructor };
@@ -155,8 +159,9 @@ namespace Unity.Processors
 
                 if (null != bestCtor && parametersCount > parameters.Length) return bestCtor;
                 parametersCount = parameters.Length;
+
 #if NET40
-                if (parameters.All(p => _container.CanResolve(p.ParameterType) || null != p.DefaultValue && !(p.DefaultValue is DBNull)))
+                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p.ParameterType)))
 #else
                 if (parameters.All(p => p.HasDefaultValue || CanResolve(p.ParameterType)))
 #endif
@@ -201,7 +206,11 @@ namespace Unity.Processors
 
         private bool CanResolve(Type type)
         {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
+#else
+            var info = type;
+#endif
 
             if (info.IsClass)
             {

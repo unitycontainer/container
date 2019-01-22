@@ -63,7 +63,7 @@ namespace Unity.Strategies
             var plan = context.Registration.Get<ResolveDelegate<BuilderContext>>();
             if (plan == null)
             {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40
                 var typeArgument = context.Type.GetTypeInfo().GenericTypeArguments.First();
 #else
                 var typeArgument = context.Type.GenericTypeArguments.First();

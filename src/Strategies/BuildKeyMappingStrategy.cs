@@ -3,7 +3,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Strategies
@@ -33,7 +32,7 @@ namespace Unity.Strategies
             {
                 containerRegistration.Map = (Type t) =>
                 {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40
                     var targetTypeInfo = t.GetTypeInfo();
 #else
                     var targetTypeInfo = t;

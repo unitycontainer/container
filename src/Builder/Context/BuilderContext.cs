@@ -47,7 +47,7 @@ namespace Unity.Builder
                     var resolverOverride = Overrides[index];
 
                     // If matches with current parameter
-                    if (resolverOverride is IResolve resolverPolicy && 
+                    if (resolverOverride is IResolve resolverPolicy &&
                         resolverOverride is IEquatable<(Type, string)> comparer && comparer.Equals((type, name)))
                     {
                         var context = this;
@@ -67,7 +67,7 @@ namespace Unity.Builder
 
         public object Get(Type policyInterface)
         {
-            return List.Get(RegistrationType, Name, policyInterface) ?? 
+            return List.Get(RegistrationType, Name, policyInterface) ??
                    Registration.Get(policyInterface);
         }
 
@@ -115,9 +115,9 @@ namespace Unity.Builder
         public SynchronizedLifetimeManager RequiresRecovery;
 
         public bool BuildComplete;
-
+#if !NET40
         public IntPtr Parent;
-
+#endif
         public ExecutePlanDelegate ExecutePlan;
 
         #endregion
@@ -140,7 +140,9 @@ namespace Unity.Builder
                     ExecutePlan = ExecutePlan,
                     List = List,
                     Overrides = Overrides,
+#if !NET40
                     Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
                 };
 
                 return ExecutePlan(registration.BuildChain, ref context);
@@ -181,7 +183,7 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case ParameterInfo info 
+                case ParameterInfo info
                 when ReferenceEquals(info, parameter):
                     return Resolve(parameter.ParameterType, null);
 
@@ -278,7 +280,7 @@ namespace Unity.Builder
                     return Resolve(field.FieldType, dependencyAttribute.Name);
 
                 case OptionalDependencyAttribute optionalAttribute:
-                    try   { return Resolve(field.FieldType, optionalAttribute.Name); }
+                    try { return Resolve(field.FieldType, optionalAttribute.Name); }
                     catch { return null; }
 
                 case ResolveDelegate<BuilderContext> resolver:

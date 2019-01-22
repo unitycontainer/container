@@ -43,7 +43,11 @@ namespace Unity.Processors
             {
                 try
                 {
+#if NET40
+                    info.SetValue(context.Existing, context.Resolve(info, value), null);
+#else
                     info.SetValue(context.Existing, context.Resolve(info, value));
+#endif
                     return context.Existing;
                 }
                 catch (Exception ex)

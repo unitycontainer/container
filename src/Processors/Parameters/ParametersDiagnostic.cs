@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -23,11 +22,17 @@ namespace Unity.Processors
                              : PreProcessResolver(parameter, resolvers[i]);
 
                 // Check if has default value
+
+#if NET40
+                Expression defaultValueExpr = null;
+                if (true)
+#else
                 var defaultValueExpr = parameter.HasDefaultValue
                     ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
                     : null;
 
                 if (!parameter.HasDefaultValue)
+#endif
                 {
                     var ex = Expression.Variable(typeof(Exception));
                     var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -81,7 +86,11 @@ namespace Unity.Processors
                 // TODO: Add diagnostic for parameters
 
                 // Check if has default value
+#if NET40
+                if (parameter.DefaultValue is DBNull)
+#else
                 if (!parameter.HasDefaultValue)
+#endif
                 {
                     // Plain vanilla case
                     yield return (ref BuilderContext context) =>
@@ -100,7 +109,11 @@ namespace Unity.Processors
                 else
                 {
                     // Check if has default value
+#if NET40
+                    var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
+#else
                     var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
+#endif
                     yield return (ref BuilderContext context) =>
                     {
                         try
