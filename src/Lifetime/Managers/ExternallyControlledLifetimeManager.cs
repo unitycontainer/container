@@ -7,7 +7,8 @@ namespace Unity.Lifetime
     /// it's managed instance.
     /// </summary>
     public class ExternallyControlledLifetimeManager : LifetimeManager,
-                                                       IInstanceLifetimeManager, 
+                                                       IInstanceLifetimeManager,
+                                                       ITypeLifetimeManager,
                                                        IFactoryLifetimeManager
     {
         private WeakReference _value = new WeakReference(null);
