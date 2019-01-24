@@ -80,7 +80,7 @@ namespace Unity.Injection
 
         public string Name { get; }
 
-        public TData Data { get; }
+        public virtual TData Data { get; }
 
         public abstract TMemberInfo MemberInfo(Type type);
 
