@@ -115,6 +115,8 @@ namespace Unity.Builder
         public SynchronizedLifetimeManager RequiresRecovery;
 
         public bool BuildComplete;
+
+        public Type DeclaringType;
 #if !NET40
         public IntPtr Parent;
 #endif
@@ -140,6 +142,7 @@ namespace Unity.Builder
                     ExecutePlan = ExecutePlan,
                     List = List,
                     Overrides = Overrides,
+                    DeclaringType = Type,
 #if !NET40
                     Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
 #endif

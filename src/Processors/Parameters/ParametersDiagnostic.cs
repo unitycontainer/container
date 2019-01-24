@@ -25,7 +25,7 @@ namespace Unity.Processors
 
 #if NET40
                 Expression defaultValueExpr = null;
-                if (true)
+                if (parameter.DefaultValue is DBNull)
 #else
                 var defaultValueExpr = parameter.HasDefaultValue
                     ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
