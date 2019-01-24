@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <VersionBase>4.0.0</VersionBase>
+    <VersionBase>4.0.1</VersionBase>
     <PackageReleaseNotes>This package is distributed as .NET Standard 1.0, 2.0, .Net Core 1.0, 2.0, and .NET 4.0, 4.5, 4.6, and 4.7</PackageReleaseNotes>
   </PropertyGroup>
 
