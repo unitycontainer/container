@@ -145,19 +145,19 @@ namespace Unity.Storage
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.HashCode != hashCode || Equals(candidate.Key, key)) continue;
+                if (candidate.HashCode != hashCode || !Equals(candidate.Key, key)) continue;
 
                 return candidate.Value;
             }
 
             var value = factory();
             ref var entry = ref Entries[Count];
-            Buckets[targetBucket] = Count++;
 
             entry.HashCode = hashCode;
             entry.Next = Buckets[targetBucket];
             entry.Key = key;
             entry.Value = value;
+            Buckets[targetBucket] = Count++;
 
             return value;
         }
@@ -169,7 +169,7 @@ namespace Unity.Storage
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.HashCode != hashCode || Equals(candidate.Key, key)) continue;
+                if (candidate.HashCode != hashCode || !Equals(candidate.Key, key)) continue;
 
                 var old = candidate.Value;
                 candidate.Value = value;
