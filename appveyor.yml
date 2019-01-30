@@ -15,6 +15,7 @@ dotnet_csproj:
 
 before_build:
 - cmd: dotnet restore
+- cmd: nuget update
 
 build:
   project: package.sln
