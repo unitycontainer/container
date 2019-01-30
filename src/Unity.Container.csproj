@@ -62,7 +62,6 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <OutputPath>$(SolutionDir)lib</OutputPath>
     <DebugType>Portable</DebugType>
   </PropertyGroup>
 
