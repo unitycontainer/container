@@ -12,6 +12,8 @@ namespace Unity.Injection
                 ConstructorInfo selection = null;
                 var ctor = (InjectionMember<ConstructorInfo, object[]>)member;
 
+                if (ctor.IsInitialized) throw new InvalidOperationException("Sharing InjectionConstructor between registrations is not supported");
+
                 // Select Constructor
                 foreach (var info in ctor.DeclaredMembers(type))
                 {
@@ -39,6 +41,8 @@ namespace Unity.Injection
             {
                 MethodInfo selection = null;
                 var method = (InjectionMember<MethodInfo, object[]>)member;
+
+                if (method.IsInitialized) throw new InvalidOperationException("Sharing InjectionMethod between registrations is not supported");
 
                 // Select Method
                 foreach (var info in method.DeclaredMembers(type))
@@ -96,6 +100,8 @@ namespace Unity.Injection
                 FieldInfo selection = null;
                 var field = (InjectionMember<FieldInfo, object>)member;
 
+                if (field.IsInitialized) throw new InvalidOperationException("Sharing InjectionField between registrations is not supported");
+
                 // Select Field
                 foreach (var info in field.DeclaredMembers(type))
                 {
@@ -134,6 +140,8 @@ namespace Unity.Injection
             {
                 PropertyInfo selection = null;
                 var property = (InjectionMember<PropertyInfo, object>)member;
+
+                if (property.IsInitialized) throw new InvalidOperationException("Sharing InjectionProperty between registrations is not supported");
 
                 // Select Property
                 foreach (var info in property.DeclaredMembers(type))
