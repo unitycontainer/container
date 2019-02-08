@@ -86,6 +86,8 @@ namespace Unity.Injection
 
         public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
+        public bool IsInitialized => null != Selection;
+
         #endregion
 
 
