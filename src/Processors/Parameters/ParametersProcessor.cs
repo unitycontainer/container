@@ -147,11 +147,20 @@ namespace Unity.Processors
                     return factory.GetResolver<BuilderContext>(parameter);
 
                 case Type type:
-                    return typeof(Type) == parameter.ParameterType
-                        ? type : FromAttribute(parameter);
+                    return 
+                        typeof(Type) == parameter.ParameterType
+                          ? type 
+                          : type == parameter.ParameterType 
+                              ? FromAttribute(parameter) 
+                              : FromType(type);
             }
 
             return resolver;
+        }
+
+        private object FromType(Type type)
+        {
+            return (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Resolve(type, null));
         }
 
         private object FromAttribute(ParameterInfo info)
