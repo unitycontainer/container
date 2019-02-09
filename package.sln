@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Container", "src\Unit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{13CA431F-C840-429D-A83D-BFDEDCCA0F6F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Tests", "tests\Unity.Tests\Unity.Tests.v5.csproj", "{25E09D23-F407-4A61-8446-E5FBD6F689B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unity.Tests", "tests\Unity.Tests\Unity.Tests.csproj", "{25E09D23-F407-4A61-8446-E5FBD6F689B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
