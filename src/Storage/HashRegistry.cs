@@ -35,15 +35,20 @@ namespace Unity.Storage
             Buckets = new int[size];
             Entries = new Entry[size];
 
+#if !NET40
             unsafe
             {
                 fixed (int* bucketsPtr = Buckets)
                 {
                     int* ptr = bucketsPtr;
                     var end = bucketsPtr + Buckets.Length;
-                    while (ptr < end) *ptr++ = -1; 
+                    while (ptr < end) *ptr++ = -1;
                 }
             }
+#else
+            for(int i = 0; i < Buckets.Length; i++)
+                Buckets[i] = -1;
+#endif
         }
 
         public HashRegistry(int capacity, LinkedNode<string, IPolicySet> head)

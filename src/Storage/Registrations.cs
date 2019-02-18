@@ -35,6 +35,7 @@ namespace Unity.Storage
             Buckets = new int[size];
             Entries = new Entry[size];
 
+#if !NET40
             unsafe
             {
                 fixed (int* bucketsPtr = Buckets)
@@ -44,6 +45,10 @@ namespace Unity.Storage
                     while (ptr < end) *ptr++ = -1;
                 }
             }
+#else
+            for(int i = 0; i < Buckets.Length; i++)
+                Buckets[i] = -1;
+#endif
         }
 
         public Registrations(int capacity, LinkedNode<Type, IRegistry<string, IPolicySet>> head)
