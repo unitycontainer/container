@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Unity.Extension;
 
 namespace Unity.Tests.v5
 {
@@ -37,12 +36,5 @@ namespace Unity.Tests.v5
                 var message = ex.Message;
             }
         }
-
-
-
     }
-
-    #region Test Data
-
-    #endregion
 }
