@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Unity.Resolution
 {
@@ -9,6 +10,9 @@ namespace Unity.Resolution
     /// </summary>
     public class DependencyOverride : ResolverOverride, 
                                       IEquatable<(Type,string)>,
+                                      IEquatable<FieldInfo>,
+                                      IEquatable<PropertyInfo>,
+                                      IEquatable<ParameterInfo>,
                                       IResolve
     {
         #region Fields
@@ -69,6 +73,24 @@ namespace Unity.Resolution
         {
             return (null == Type || other.Item1 == Type) &&
                    (null == Name || other.Item2 == Name);
+        }
+
+        public bool Equals(FieldInfo other)
+        {
+            return (null == Type || other.FieldType == Type) &&
+                   (null == Name || other.Name == Name);
+        }
+
+        public bool Equals(PropertyInfo other)
+        {
+            return (null == Type || other.PropertyType == Type) &&
+                   (null == Name || other.Name == Name);
+        }
+
+        public bool Equals(ParameterInfo other)
+        {
+            return (null == Type || other.ParameterType == Type) &&
+                   (null == Name || other.Name == Name);
         }
 
         #endregion

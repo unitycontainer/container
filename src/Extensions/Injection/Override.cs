@@ -28,7 +28,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ResolverOverride Parameter<TType>(object value)
-            => Parameter(typeof(TType), value);
+            => new ParameterOverride(typeof(TType), value);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,20 +57,33 @@ namespace Unity
         #endregion
 
 
-
         #region Dependency
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ResolverOverride Dependency(string name, object value) 
+        public static ResolverOverride Dependency<TType>(object value)
+            => new DependencyOverride(typeof(TType), value);
+
+        #if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ResolverOverride Dependency<TType>(string name, object value) 
+            => new DependencyOverride(typeof(TType), name, value);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ResolverOverride Dependency(string name, object value)
             => Dependency(value?.GetType() ?? throw new ArgumentNullException(nameof(value)), name, value);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ResolverOverride Dependency<TType>(string name, object value) 
-            => Dependency(typeof(TType), name, value);
+        public static ResolverOverride Dependency(Type type, object value)
+        {
+            return new DependencyOverride(type, value);
+        }
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
