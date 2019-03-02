@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -27,40 +25,13 @@ namespace Unity.Processors
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
-            var info = type.GetTypeInfo();
-            while (null != info)
-            {
-                foreach (var member in info.DeclaredMethods)
-                {
-                    if (!member.IsFamily && !member.IsPrivate && !member.IsStatic)
-                        yield return member;
-                }
-
-                info = info.BaseType?.GetTypeInfo();
-            }
+            return type.GetDeclaredMethods()
+                       .Where(member => !member.IsFamily && 
+                                        !member.IsPrivate && 
+                                        !member.IsStatic);
         }
 
         #endregion
-
-
-        #region Overrides
-
-        protected override void ValidateMember(MethodInfo info)
-        {
-            var parameters = info.GetParameters();
-            if (info.IsGenericMethodDefinition || parameters.Any(param => param.IsOut || param.ParameterType.IsByRef))
-            {
-                var format = info.IsGenericMethodDefinition
-                    ? "The method {1} on type {0} is marked for injection, but it is an open generic method. Injection cannot be performed."
-                    : "The method {1} on type {0} has an out parameter. Injection cannot be performed.";
-
-                throw new IllegalInjectionMethodException(string.Format(CultureInfo.CurrentCulture,
-                    format, info.DeclaringType.GetTypeInfo().Name, info.Name));
-            }
-        }
-
-        #endregion
-
 
         #region Expression 
 

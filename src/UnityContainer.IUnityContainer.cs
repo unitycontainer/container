@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
@@ -80,6 +81,11 @@ namespace Unity
             }
             catch (Exception ex)
             {
+                var builder = new StringBuilder();
+
+                builder.AppendLine(ex.Message);
+                builder.AppendLine();
+
                 var parts = new List<string>();
                 var generics = null == typeFrom ? typeTo?.Name : $"{typeFrom?.Name},{typeTo?.Name}";
                 if (null != name) parts.Add($" '{name}'");
@@ -87,8 +93,8 @@ namespace Unity
                 if (null != injectionMembers && 0 != injectionMembers.Length)
                     parts.Add(string.Join(" ,", injectionMembers.Select(m => m.ToString())));
 
-                var message = $"Error in  RegisterType<{generics}>({string.Join(", ", parts)})";
-                throw new InvalidOperationException(message, ex);
+                builder.AppendLine($"  Error in:  RegisterType<{generics}>({string.Join(", ", parts)})");
+                throw new InvalidOperationException(builder.ToString(), ex);
             }
 
             return this;

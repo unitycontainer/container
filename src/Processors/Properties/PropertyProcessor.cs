@@ -26,22 +26,16 @@ namespace Unity.Processors
 
         protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
-            var info = type.GetTypeInfo();
-            while (null != info)
+            foreach (var member in type.GetDeclaredProperties())
             {
-                foreach (var member in info.DeclaredProperties)
-                {
-                    if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
-                        continue;
+                if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
+                    continue;
 
-                    var setter = member.GetSetMethod(true);
-                    if (setter.IsPrivate || setter.IsFamily)
-                        continue;
+                var setter = member.GetSetMethod(true);
+                if (setter.IsPrivate || setter.IsFamily)
+                    continue;
 
-                    yield return member;
-                }
-
-                info = info.BaseType?.GetTypeInfo();
+                yield return member;
             }
         }
 
