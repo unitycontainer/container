@@ -9,7 +9,7 @@ namespace Unity.Resolution
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
     public class DependencyOverride : ResolverOverride, 
-                                      IEquatable<(Type,string)>,
+                                      IEquatable<NamedType>,
                                       IEquatable<FieldInfo>,
                                       IEquatable<PropertyInfo>,
                                       IEquatable<ParameterInfo>,
@@ -69,10 +69,10 @@ namespace Unity.Resolution
             return false;
         }
 
-        public bool Equals((Type, string) other)
+        public bool Equals(NamedType other)
         {
-            return (null == Type || other.Item1 == Type) &&
-                   (null == Name || other.Item2 == Name);
+            return (null == Type || other.Type == Type) &&
+                   (null == Name || other.Name == Name);
         }
 
         public bool Equals(FieldInfo other)
