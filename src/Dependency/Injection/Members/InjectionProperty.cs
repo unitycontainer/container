@@ -43,32 +43,22 @@ namespace Unity.Injection
 
         protected override PropertyInfo DeclaredMember(Type type, string name)
         {
-#if NETSTANDARD1_0 || NETCOREAPP1_0 
-            return type.GetTypeInfo().GetDeclaredProperty(Selection.Name);
-#else
-            return type.GetProperty(Selection.Name);
-#endif
+            return DeclaredMembers(type).FirstOrDefault(p => p.Name == Selection.Name);
         }
 
         public override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-            if (type == null)
+            foreach (var member in type.GetDeclaredProperties())
             {
-                return Enumerable.Empty<PropertyInfo>();
-            }
+                if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
+                    continue;
 
-            var info = type.GetTypeInfo();
-            if (type == typeof(object))
-            {
-                return info.DeclaredProperties; 
-            }
+                var setter = member.GetSetMethod(true);
+                if (setter.IsPrivate || setter.IsFamily)
+                    continue;
 
-            return info.DeclaredProperties
-                       .Concat(DeclaredMembers(type.GetTypeInfo().BaseType));
-#else
-            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-#endif
+                yield return member;
+            }
         }
 
         protected override Type MemberType => Selection.PropertyType;

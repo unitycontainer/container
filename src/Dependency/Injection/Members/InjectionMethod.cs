@@ -51,23 +51,12 @@ namespace Unity.Injection
 
         public override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-            if (null == type) return Enumerable.Empty<MethodInfo>();
-
-            var info = type.GetTypeInfo();
-            if (typeof(object) == info.DeclaringType)
+            foreach (var member in type.GetDeclaredMethods())
             {
-                return info.DeclaredMethods.Where(m => !m.IsStatic)
-                           .Where(m => Name == m.Name);
+                if (!member.IsFamily && !member.IsPrivate &&
+                    !member.IsStatic && member.Name == Name)
+                    yield return member;
             }
-
-            return info.DeclaredMethods.Where(m => !m.IsStatic)
-                       .Concat(DeclaredMembers(info.BaseType))
-                       .Where(m => Name == m.Name);
-#else
-            return type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                       .Where(m => Name == m.Name);
-#endif
         }
 
         public override string ToString()

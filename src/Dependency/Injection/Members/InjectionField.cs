@@ -47,23 +47,12 @@ namespace Unity.Injection
 
         public override IEnumerable<FieldInfo> DeclaredMembers(Type type)
         {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-            if (type == null)
+            foreach (var member in type.GetDeclaredFields())
             {
-                return Enumerable.Empty<FieldInfo>();
+                if (!member.IsFamily && !member.IsPrivate &&
+                    !member.IsInitOnly && !member.IsStatic)
+                    yield return member;
             }
-
-            var info = type.GetTypeInfo();
-            if (type == typeof(object))
-            {
-                return info.DeclaredFields;
-            }
-
-            return info.DeclaredFields
-                       .Concat(DeclaredMembers(type.GetTypeInfo().BaseType));
-#else
-            return type.GetFields(BindingFlags.Instance | BindingFlags.Public);
-#endif
         }
 
         protected override Type MemberType => Selection.FieldType;

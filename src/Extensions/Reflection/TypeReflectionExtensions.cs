@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Unity
@@ -17,6 +18,42 @@ namespace Unity
                                        : genericArguments[element.GenericParameterPosition];
 
             return 1 == rank ? type.MakeArrayType() : type.MakeArrayType(rank);
+        }
+
+        public static IEnumerable<FieldInfo> GetDeclaredFields(this Type type)
+        {
+            var info = type.GetTypeInfo();
+            while (null != info)
+            {
+                foreach (var member in info.DeclaredFields)
+                    yield return member;
+
+                info = info.BaseType?.GetTypeInfo();
+            }
+        }
+
+        public static IEnumerable<PropertyInfo> GetDeclaredProperties(this Type type)
+        {
+            var info = type.GetTypeInfo();
+            while (null != info)
+            {
+                foreach (var member in info.DeclaredProperties)
+                    yield return member;
+
+                info = info.BaseType?.GetTypeInfo();
+            }
+        }
+
+        public static IEnumerable<MethodInfo> GetDeclaredMethods(this Type type)
+        {
+            var info = type.GetTypeInfo();
+            while (null != info)
+            {
+                foreach (var member in info.DeclaredMethods)
+                    yield return member;
+
+                info = info.BaseType?.GetTypeInfo();
+            }
         }
     }
 }

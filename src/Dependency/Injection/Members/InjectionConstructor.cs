@@ -50,12 +50,9 @@ namespace Unity.Injection
 
         public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-            return type.GetTypeInfo().DeclaredConstructors
-                       .Where(c => c.IsStatic == false && c.IsPublic);
-#else
-            return type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-#endif
+            return type.GetTypeInfo()
+                       .DeclaredConstructors
+                       .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
         }
 
         public override string ToString()
