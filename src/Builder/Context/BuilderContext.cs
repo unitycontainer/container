@@ -41,14 +41,19 @@ namespace Unity.Builder
             // Process overrides if any
             if (null != Overrides)
             {
+                NamedType namedType = new NamedType
+                {
+                    Type = type,
+                    Name = name
+                };
+
                 // Check if this parameter is overridden
                 for (var index = Overrides.Length - 1; index >= 0; --index)
                 {
                     var resolverOverride = Overrides[index];
-
                     // If matches with current parameter
                     if (resolverOverride is IResolve resolverPolicy &&
-                        resolverOverride is IEquatable<(Type, string)> comparer && comparer.Equals((type, name)))
+                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
                     {
                         var context = this;
 

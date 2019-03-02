@@ -27,28 +27,17 @@ namespace Unity.Processors
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
-#if NETSTANDARD1_0
-            return GetMethodsHierarchical(type)
-                    .Where(c => c.IsStatic == false && c.IsPublic);
-
-            IEnumerable<MethodInfo> GetMethodsHierarchical(Type t)
+            var info = type.GetTypeInfo();
+            while (null != info)
             {
-                if (t == null)
+                foreach (var member in info.DeclaredMethods)
                 {
-                    return Enumerable.Empty<MethodInfo>();
+                    if (!member.IsFamily && !member.IsPrivate && !member.IsStatic)
+                        yield return member;
                 }
 
-                if (t == typeof(object))
-                {
-                    return t.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic);
-                }
-
-                return t.GetTypeInfo().DeclaredMethods.Where(m => !m.IsStatic)
-                        .Concat(GetMethodsHierarchical(t.GetTypeInfo().BaseType));
+                info = info.BaseType?.GetTypeInfo();
             }
-#else
-            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public);
-#endif
         }
 
         #endregion

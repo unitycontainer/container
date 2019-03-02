@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
@@ -27,25 +26,23 @@ namespace Unity.Processors
 
         protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
-#if NETSTANDARD1_0
-            return GetPropertiesHierarchical(type)
-               .Where(p =>
-               {
-                   if (!p.CanWrite) return false;
+            var info = type.GetTypeInfo();
+            while (null != info)
+            {
+                foreach (var member in info.DeclaredProperties)
+                {
+                    if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
+                        continue;
 
-                   var propertyMethod = p.GetSetMethod(true) ??
-                                        p.GetGetMethod(true);
+                    var setter = member.GetSetMethod(true);
+                    if (setter.IsPrivate || setter.IsFamily)
+                        continue;
 
-                   // Skip static properties and indexers. 
-                   if (propertyMethod.IsStatic || p.GetIndexParameters().Length != 0)
-                       return false;
+                    yield return member;
+                }
 
-                   return true;
-               });
-#else
-            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.CanWrite && p.GetIndexParameters().Length == 0);
-#endif
+                info = info.BaseType?.GetTypeInfo();
+            }
         }
 
         #endregion
@@ -83,30 +80,6 @@ namespace Unity.Processors
                 return context.Existing;
             };
         }
-
-        #endregion
-
-
-        #region Implementation
-
-#if NETSTANDARD1_0
-        public static IEnumerable<PropertyInfo> GetPropertiesHierarchical(Type type)
-        {
-            if (type == null)
-            {
-                return Enumerable.Empty<PropertyInfo>();
-            }
-
-            if (type == typeof(object))
-            {
-                return type.GetTypeInfo().DeclaredProperties;
-            }
-
-            return type.GetTypeInfo()
-                       .DeclaredProperties
-                       .Concat(GetPropertiesHierarchical(type.GetTypeInfo().BaseType));
-        }
-#endif
 
         #endregion
     }
