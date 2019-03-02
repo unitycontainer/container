@@ -1,12 +1,12 @@
 <Project>
 
   <PropertyGroup>
-    <VersionBase>5.9.5</VersionBase>
+    <VersionBase>5.9.6</VersionBase>
     <PackageReleaseNotes>This package is compatible with .NET Standard 1.0 and 2.0, .NET Core 1.0 and 2.0, .NET 4.0, 4.5, 4.6, 4.7</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
-    <UnityAbstractionsVersion>4.0.*</UnityAbstractionsVersion>
+    <UnityAbstractionsVersion>4.1.*</UnityAbstractionsVersion>
     <TargetFrameworks>netstandard2.0;netstandard1.0;netcoreapp2.0;netcoreapp1.0;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
  

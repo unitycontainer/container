@@ -80,17 +80,6 @@ namespace Unity.Tests.v5.Issues
             IDictionary<string, string> result = container.Resolve<IDictionary<string, string>>();
         }
 
-        // http://unity.codeplex.com/WorkItem/View.aspx?WorkItemId=6431
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void AccessViolationExceptionOnx64()
-        {
-            var container1 = new UnityContainer();
-            container1.RegisterType<InnerX64Class>();
-            // SomeProperty is static, this should throw here
-            container1.RegisterType<OuterX64Class>(new InjectionProperty("SomeProperty"));
-        }
-
         // http://unity.codeplex.com/WorkItem/View.aspx?WorkItemId=6491
         [TestMethod]
         public void CanResolveTimespan()

@@ -81,13 +81,9 @@ namespace Unity.Processors
 
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
         {
-#if NETSTANDARD1_0
             return type.GetTypeInfo()
                        .DeclaredConstructors
-                       .Where(c => c.IsStatic == false && c.IsPublic);
-#else
-            return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
-#endif
+                       .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
         }
 
         #endregion

@@ -45,7 +45,7 @@ namespace Unity.Injection
                 if (method.IsInitialized) throw new InvalidOperationException("Sharing InjectionMethod between registrations is not supported");
 
                 // Select Method
-                foreach (var info in method.DeclaredMembers(type))
+                foreach (var info in type.GetDeclaredMethods())
                 {
                     if (!method.Data.MatchMemberInfo(info)) continue;
 
@@ -68,26 +68,34 @@ namespace Unity.Injection
                 if (selection.IsStatic)
                 {
                     throw new ArgumentException(
-                        $"The method {type?.Name}.{method.Name}({method.Data.Signature()}) is static. Static methods cannot be injected.");
+                        $"Static method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected");
                 }
+
+                if (selection.IsPrivate)
+                    throw new InvalidOperationException(
+                        $"Private method '{method.Name}' on type '{selection.DeclaringType.Name}' cannot be injected");
+
+                if (selection.IsFamily)
+                    throw new InvalidOperationException(
+                        $"Protected method '{method.Name}' on type '{selection.DeclaringType.Name}' cannot be injected");
 
                 if (selection.IsGenericMethodDefinition)
                 {
                     throw new ArgumentException(
-                        $"The method {type?.Name}.{method.Name}({method.Data.Signature()}) is an open generic method. Open generic methods cannot be injected.");
+                        $"Open generic method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected");
                 }
 
                 var parameters = selection.GetParameters();
                 if (parameters.Any(param => param.IsOut))
                 {
                     throw new ArgumentException(
-                        $"The method {type?.Name}.{method.Name}({method.Data.Signature()}) has at least one out parameter. Methods with out parameters cannot be injected.");
+                        $"Method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected. Methods with 'out' parameters are not injectable.");
                 }
 
                 if (parameters.Any(param => param.ParameterType.IsByRef))
                 {
                     throw new ArgumentException(
-                        $"The method {type?.Name}.{method.Name}({method.Data.Signature()}) has at least one ref parameter.Methods with ref parameters cannot be injected.");
+                        $"Method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected. Methods with 'ref' parameters are not injectable.");
                 }
 
                 return selection;
@@ -100,10 +108,11 @@ namespace Unity.Injection
                 FieldInfo selection = null;
                 var field = (InjectionMember<FieldInfo, object>)member;
 
-                if (field.IsInitialized) throw new InvalidOperationException("Sharing InjectionField between registrations is not supported");
+                if (field.IsInitialized) throw new InvalidOperationException(
+                    "Sharing InjectionField between registrations is not supported");
 
                 // Select Field
-                foreach (var info in field.DeclaredMembers(type))
+                foreach (var info in type.GetDeclaredFields())
                 {
                     if (info.Name != field.Name) continue;
 
@@ -118,17 +127,25 @@ namespace Unity.Injection
                         $"Injected field '{field.Name}' could not be matched with any public field on type '{type?.Name}'.");
                 }
 
+                if (selection.IsStatic)
+                    throw new InvalidOperationException(
+                        $"Static field '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
                 if (selection.IsInitOnly)
-                {
-                    throw new ArgumentException(
-                        $"Field '{selection.Name}' on type '{type?.Name}' is Read Only and can not be injected.");
-                }
+                    throw new InvalidOperationException(
+                        $"Readonly field '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
+                if (selection.IsPrivate)
+                    throw new InvalidOperationException(
+                        $"Private field '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
+                if (selection.IsFamily)
+                    throw new InvalidOperationException(
+                        $"Protected field '{selection.Name}' on type '{type?.Name}' cannot be injected");
 
                 if (!field.Data.Matches(selection.FieldType))
-                {
                     throw new ArgumentException(
                         $"Injected data '{field.Data}' could not be matched with type of field '{selection.FieldType.Name}'.");
-                }
 
                 return selection;
             };
@@ -144,7 +161,7 @@ namespace Unity.Injection
                 if (property.IsInitialized) throw new InvalidOperationException("Sharing InjectionProperty between registrations is not supported");
 
                 // Select Property
-                foreach (var info in property.DeclaredMembers(type))
+                foreach (var info in type.GetDeclaredProperties())
                 {
                     if (info.Name != property.Name) continue;
 
@@ -156,14 +173,30 @@ namespace Unity.Injection
                 if (null == selection)
                 {
                     throw new ArgumentException(
-                        $"Injected property '{property.Name}' could not be matched with any public property on type '{type?.Name}'.");
+                        $"Injected property '{property.Name}' could not be matched with any property on type '{type?.Name}'.");
                 }
 
                 if (!selection.CanWrite)
-                {
-                    throw new ArgumentException(
-                        $"Property '{selection.Name}' on type '{type?.Name}' is Read Only and can not be injected.");
-                }
+                    throw new InvalidOperationException(
+                        $"Readonly property '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
+                if (0 != selection.GetIndexParameters().Length)
+                    throw new InvalidOperationException(
+                        $"Indexer '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
+                var setter = selection.GetSetMethod(true);
+
+                if (setter.IsStatic)
+                    throw new InvalidOperationException(
+                        $"Static property '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
+                if (setter.IsPrivate)
+                    throw new InvalidOperationException(
+                        $"Private property '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
+                if (setter.IsFamily)
+                    throw new InvalidOperationException(
+                        $"Protected property '{selection.Name}' on type '{type?.Name}' cannot be injected");
 
                 if (!property.Data.Matches(selection.PropertyType))
                 {
@@ -173,5 +206,6 @@ namespace Unity.Injection
 
                 return selection;
             };
+
     }
 }

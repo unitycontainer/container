@@ -216,8 +216,6 @@ namespace Unity.Processors
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-        protected virtual void ValidateMember(TMemberInfo info) { }
-
         protected object PreProcessResolver(TMemberInfo info, object resolver)
         {
             switch (resolver)
