@@ -19,13 +19,13 @@ namespace Unity
         /// Register a type or a type mapping with the container.
         /// </summary>
         /// <param name="registeredType">Registration <see cref="Type"/>. This <see cref="Type"/> will be 
-        /// requested when resolving. It is also could be refereed as <c>FromType</c> or <c>ServiceType</c></param>
-        /// <param name="mappedToType">A <see cref="Type"/> that will actually be returned. Sometimes this type is referred
+        /// requested when resolving. Sometimes referred as <c>FromType</c> or <c>ServiceType</c></param>
+        /// <param name="mappedToType">A <see cref="Type"/> that will actually be returned. Also referred
         /// as <c>ToType</c> or <c>ImplementationType</c>.</param>
         /// <param name="name">Name of the registration</param>
         /// <param name="lifetimeManager">The <see cref="TypeLifetime"/> that controls the lifetime of the returned instance. 
         /// If <paramref name="lifetimeManager"/> is null, container uses <see cref="TypeLifetime.Transient"/> lifetime.</param>
-        /// <param name="injectionMembers">Injection configuration objects. Can be null.</param>
+        /// <param name="injectionMembers">Optional injection configuration objects</param>
         /// <remarks>
         /// <para>
         /// Container stores registrations by <paramref name="registeredType"/> <see cref="Type"/>. When resolving, it will look 
@@ -36,27 +36,27 @@ namespace Unity
         /// </para>
         /// <para>
         /// Type <paramref name="mappedToType"/> will not be registered with the container. It will only be used to inform container how to 
-        /// build the requested instance or where to redirect to satisfy the request. If type provided in <paramref name="mappedToType"/> 
+        /// build the requested instance or where to redirect to satisfy the request. If the type provided in <paramref name="mappedToType"/> 
         /// is already registered with the container, the registration creates a mapping to the existing registration. It will redirect to that 
         /// registration when creating an object.
         /// </para>
         /// <para> 
-        /// If <paramref name="injectionMembers"/> collection is not empty, the mapping will not redirect to other registrations. Instead it will 
+        /// If <paramref name="injectionMembers"/> collection is not empty, the mapping will not redirect to other registrations. Instead, it will 
         /// always build the <see cref="Type"/> according to the rules set by provided <see cref="InjectionMember"/> objects.
         /// </para>
         /// <para>
         /// Registering a <see cref="Type"/> with the same <paramref name="name"/> second time will overwrite previous registration. When
-        /// overwritten, registration will dispose lifetime manager it was registered with and if that manager hold a reference to an instance
-        /// of disposable object (the object implements <see cref="IDisposable"/>), it will be disposed as well.
+        /// overwritten, registration will dispose of lifetime manager it was registered with and if that manager holds a reference to an instance
+        /// of a disposable object (the object implements <see cref="IDisposable"/>), it will be disposed of as well.
         /// </para>
         /// <para>
-        /// During registration Unity performs only limited number of checks. To enable slower but more thorough and detailed validation add 
+        /// During registration, Unity performs only a limited number of checks. To enable slower but more thorough and detailed validation add 
         /// <c>Diagnostic</c> extension to the container. 
         /// </para>
         /// </remarks>
         /// <example>
-        /// This example registers a default (no name) singleton service. The service will be created with default constructor, field and property <c>Resolved</c> and 
-        /// <c>Injected</c> are initialized with resolved and injected values respectively, and method <c>Init</c> is called on the 
+        /// This example registers a default (no name) singleton service. The service will be created with a default constructor, field and property 
+        /// <c>Resolved</c> and <c>Injected</c> are initialized with resolved and injected values respectively, and method <c>Init</c> is called on the 
         /// created object.
         /// <code>
         /// c.RegisterType(typeof(IService),                         // Type to register
@@ -98,18 +98,18 @@ namespace Unity
         /// <list type="bullet">  
         ///     <item>  
         ///         <term><see cref="InstanceLifetime.External"/></term>  
-        ///         <description>- Instance is managed elsewhere. Container holds just a weak reference to the instance. An author is responsible for 
+        ///         <description>- Instance is managed elsewhere. The container holds just a weak reference to the instance. An author is responsible for 
         ///         making sure the instance is not going out of scope and garbage collected while still being used by the container.</description>  
         ///     </item>  
         ///     <item>  
         ///         <term><see cref="InstanceLifetime.Singleton"/></term>  
-        ///         <description>- The instance is registered as global singleton. This type of lifetime registers the instance with the root container
-        ///         and makes it available to all descendants. It does not matter if instance is registered with root container or any child containers, 
+        ///         <description>- The instance is registered as a global singleton. This type of lifetime registers the instance with the root container
+        ///         and makes it available to all descendants. It does not matter if an instance is registered with root container or any child containers, 
         ///         the registration is always stored at the root.</description>  
         ///     </item>  
         ///     <item>  
         ///         <term><see cref="InstanceLifetime.PerContainer"/></term>  
-        ///         <description>- Instance is registered with particular container and is available within the container and all it's descendants.</description>  
+        ///         <description>- Instance is registered with a particular container and is available within the container and all its descendants.</description>  
         ///     </item>  
         /// </list>
         /// </para>
@@ -167,15 +167,15 @@ namespace Unity
         /// <param name="type"><see cref="Type"/> to look for</param>
         /// <param name="name">Name of the registration</param>
         /// <remarks>
-        /// <para>This method checks if <see cref="Type"/> with specified <paramref name="name"/> is registered with the container.</para>
+        /// <para>This method checks if <see cref="Type"/> with the specified <paramref name="name"/> is registered with the container.</para>
         /// <para>
-        /// When method verifies if <see cref="Type"/> is registered, it looks not only into current container
+        /// When method verifies if <see cref="Type"/> is registered, it looks not only into the current container
         /// by all its predecessors as well. So if this <see cref="Type"/> not registered in the container but
         /// contained by one of its parents it will still return <c>True</c>.
         /// </para>
         /// <para>
         /// This method is quite fast. It uses the same algorithm the container employs to obtain registrations
-        /// and has very small overhead. It is order of magnitude faster than querying <see cref="IUnityContainer.Registrations"/>
+        /// and has a very small overhead. It is an order of magnitude faster than querying <see cref="IUnityContainer.Registrations"/>
         /// collection.
         /// </para>
         /// </remarks>
@@ -200,6 +200,7 @@ namespace Unity
         /// </para>
         /// </remarks>
         /// <seealso cref="IContainerRegistration"/>
+        /// <value>Registered with the container types</value>
         IEnumerable<IContainerRegistration> Registrations { get; }
 
 
@@ -213,16 +214,16 @@ namespace Unity
         /// <para>
         /// During resolution Unity checks if <see cref="Type"/> is registered and uses that registration to create an object. 
         /// If <see cref="Type"/> is not registered it uses reflection to get information about the <see cref="Type"/> and 
-        /// creates pipeline to instantiate and initialize the <see cref="Type"/> using reflected data.
+        /// creates a pipeline to instantiate and initialize the <see cref="Type"/> using reflected data.
         /// </para>
         /// <para>
-        /// Resolver overrides passed to the method will only override dependencies configured for injection. For example if 
+        /// Resolver overrides passed to the method will only override dependencies configured for injection. For example, if 
         /// some members were marked with attributes to be injected or registered with associated <see cref="InjectionMember"/>
         /// objects, only these members will be available for overriding. Override values for members not configured for injection
         /// will be ignored.
         /// </para>
         /// <para>
-        /// During resolution Unity performs only limited number of checks. If any errors occur, error information is very brief.
+        /// During resolution, Unity performs only a limited number of checks. If any errors occur, error information is very brief.
         /// To enable slower but more thorough and detailed validation and expanded error reporting add <c>Diagnostic</c>
         /// extension to the container. 
         /// </para>
@@ -242,7 +243,7 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve calls.</param>
         /// <remarks>
         /// <para>
-        /// This method performs all the initializations and injections on an instance of object you
+        /// This method performs all the initializations and injections on an instance of an object you
         /// passed in <paramref name="existing"/>. 
         /// </para>
         /// <para>
@@ -263,7 +264,7 @@ namespace Unity
         /// The parent of this container.
         /// </summary>
         /// <remarks>
-        /// If the instance of the container is a child container, this property will hold reference to
+        /// If the instance of the container is a child container, this property will hold a reference to
         /// the container that created this instance.
         /// </remarks>
         /// <value>The parent container, or null if this container doesn't have one.</value>
@@ -274,8 +275,8 @@ namespace Unity
         /// Create a child container.
         /// </summary>
         /// <remarks>
-        /// A child container shares the parent's configuration, but can be configured with different
-        /// settings or lifetime.</remarks>
+        /// Unity allows creating scopes with the help of child container. A child container shares the 
+        /// parent's configuration but can be configured with different settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
         IUnityContainer CreateChildContainer();
     }
