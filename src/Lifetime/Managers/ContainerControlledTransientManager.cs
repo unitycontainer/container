@@ -3,7 +3,7 @@ using System;
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A special lifetime manager which works like <see cref="TransienLifetimeManager"/>,
+    /// A special lifetime manager which works like <see cref="TransientLifetimeManager"/>,
     /// except container remembers all Disposable objects it created. Once container
     /// is disposed all these objects are disposed as well.
     /// </summary>
