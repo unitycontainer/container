@@ -23,8 +23,8 @@ namespace Unity
         /// <param name="mappedToType">A <see cref="Type"/> that will actually be returned. Also referred
         /// as <c>ToType</c> or <c>ImplementationType</c>.</param>
         /// <param name="name">Name of the registration</param>
-        /// <param name="lifetimeManager">The <see cref="TypeLifetime"/> that controls the lifetime of the returned instance. 
-        /// If <paramref name="lifetimeManager"/> is null, container uses <see cref="TypeLifetime.Transient"/> lifetime.</param>
+        /// <param name="lifetimeManager">A lifetime manager that controls how instances are created, managed, and disposed of. 
+        /// If <paramref name="lifetimeManager"/> is <c>null</c>, container uses default <see cref="TypeLifetime.Transient"/> lifetime.</param>
         /// <param name="injectionMembers">Optional injection configuration objects</param>
         /// <remarks>
         /// <para>
@@ -135,7 +135,8 @@ namespace Unity
         /// <param name="type">Registration <see cref="Type"/>. A <see cref="Type"/> the factory will create when requested</param>
         /// <param name="name">Registration name</param>
         /// <param name="factory">Predefined factory delegate</param>
-        /// <param name="lifetimeManager">The <see cref="FactoryLifetime"/> that controls the lifetime of objects.</param>
+        /// <param name="lifetimeManager">The <see cref="FactoryLifetime"/> that controls the lifetime of objects. 
+        /// If <paramref name="lifetimeManager"/> is <c>null</c>, container uses default <see cref="TypeLifetime.Transient"/> lifetime</param>
         /// <remarks>
         /// <para>
         /// This method allows registration of factory function for specific <see cref="Type"/>. 
