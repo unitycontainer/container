@@ -8,6 +8,8 @@ using Unity.Lifetime;
 using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Resolution;
+using Unity.Registration;
+using Unity.Injection;
 
 namespace Unity.Processors
 {
@@ -69,6 +71,79 @@ namespace Unity.Processors
             : base(policySet, isTypeRegistered)
         {
         }
+
+        #endregion
+
+
+        #region Selection
+
+        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        {
+            var members = new List<InjectionMember>();
+
+            // Select Injected Members
+            if (null != ((InternalRegistration)registration).InjectionMembers)
+            {
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                {
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        members.Add(injectionMember);
+                    }
+                }
+            }
+
+            switch (members.Count)
+            {
+                case 1:
+                    return members.ToArray();
+
+                case 0:
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Multiple Injection Constructors are registered for Type {type.FullName}");
+            }
+
+            // Enumerate to array
+            var constructors = DeclaredMembers(type).ToArray();
+            if (1 >= constructors.Length)
+                return constructors;
+
+            var selection = new HashSet<ConstructorInfo>();
+
+            // Select Attributed constructors
+            foreach (var constructor in constructors)
+            {
+                for (var i = 0; i < AttributeFactories.Length; i++)
+                {
+#if NET40
+                    if (!constructor.IsDefined(AttributeFactories[i].Type, true))
+#else
+                    if (!constructor.IsDefined(AttributeFactories[i].Type))
+#endif
+                        continue;
+
+                    selection.Add(constructor);
+                }
+            }
+
+            switch (selection.Count)
+            {
+                case 1:
+                    return selection.ToArray();
+
+                case 0:
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Multiple Constructors are annotated for injection on Type {type.FullName}");
+            }
+
+            // Select default
+            return new[] { SelectMethod(type, constructors) };
+        }
+
 
         #endregion
 
