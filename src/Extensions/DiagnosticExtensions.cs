@@ -12,7 +12,7 @@ namespace Unity
         /// <para>This extension method adds <see cref="Diagnostic"/> extension to the 
         /// container and enables extended validation for all container's operations.</para>
         /// <para>This method will only work if the calling code is built with DEBUG
-        /// symbol defined. In other word in you building in Debug mode. Condigional 
+        /// symbol defined. In other word in you building in Debug mode. Conditional 
         /// methods can not return any values, so fluent notation can not be used with 
         /// this method.</para>
         /// </remarks>
@@ -39,7 +39,7 @@ namespace Unity
         /// <remarks>
         /// <para>This extension method adds <see cref="Diagnostic"/> extension to the 
         /// container and enables extended validation for all container's operations.</para>
-        /// <para>This method works regardles of build mode. In other word, it will 
+        /// <para>This method works regardless of the build mode. In other word, it will 
         /// always enable validation. This method could be used with fluent notation.</para>
         /// </remarks>
         /// <example>
