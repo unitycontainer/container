@@ -3,8 +3,9 @@ using Unity;
 
 namespace Compiled
 {
+
     [TestClass]
-    public class BuildUp : Unity.Specification.Diagnostic.BuildUp.SpecificationTests
+    public class Override : Unity.Specification.Diagnostic.Override.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -16,8 +17,9 @@ namespace Compiled
 
 namespace Resolved
 {
+
     [TestClass]
-    public class BuildUp : Unity.Specification.Diagnostic.BuildUp.SpecificationTests
+    public class Override : Unity.Specification.Diagnostic.Override.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

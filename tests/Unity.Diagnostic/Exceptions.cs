@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Extension;
 
-namespace Compiled.Exceptions
+namespace Compiled
 {
 
     [TestClass]
@@ -16,7 +15,7 @@ namespace Compiled.Exceptions
     }
 }
 
-namespace Resolved.Exceptions
+namespace Resolved
 {
 
     [TestClass]
