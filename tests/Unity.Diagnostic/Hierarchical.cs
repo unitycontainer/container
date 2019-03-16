@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled.Hierarchical
+namespace Compiled
 {
     [TestClass]
-    public class Container : Unity.Specification.Diagnostic.Hierarchical.SpecificationTests
+    public class Hierarchical : Unity.Specification.Diagnostic.Hierarchical.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -14,10 +14,10 @@ namespace Compiled.Hierarchical
     }
 }
 
-namespace Resolved.Hierarchical
+namespace Resolved
 {
     [TestClass]
-    public class Container : Unity.Specification.Diagnostic.Hierarchical.SpecificationTests
+    public class Hierarchical : Unity.Specification.Diagnostic.Hierarchical.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

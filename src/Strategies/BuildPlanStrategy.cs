@@ -41,9 +41,8 @@ namespace Unity.Strategies
         public override void PreBuildUp(ref BuilderContext context)
         {
             // Get resolver if already created
-            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>() ?? (ResolveDelegate<BuilderContext>)(
-                           context.Get(context.Type, UnityContainer.All, typeof(ResolveDelegate<BuilderContext>)) ??
-                           GetGeneric(ref context, typeof(ResolveDelegate<BuilderContext>)));
+            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>() ?? (ResolveDelegate<BuilderContext>) 
+                                   GetGeneric(ref context, typeof(ResolveDelegate<BuilderContext>));
 
             if (null == resolver)
             {

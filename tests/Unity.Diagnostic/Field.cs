@@ -2,11 +2,11 @@
 using Unity;
 using Unity.Extension;
 
-namespace Compiled.Field
+namespace Compiled
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
+    public class Field : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -16,11 +16,11 @@ namespace Compiled.Field
     }
 }
 
-namespace Resolved.Field
+namespace Resolved
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
+    public class Field : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

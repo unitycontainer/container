@@ -1,12 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Extension;
 
-namespace Compiled.Property
+namespace Compiled
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Property.Validation.SpecificationTests
+    public class Property : Unity.Specification.Diagnostic.Property.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -16,11 +15,11 @@ namespace Compiled.Property
     }
 }
 
-namespace Resolved.Property
+namespace Resolved
 {
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Property.Validation.SpecificationTests
+    public class Property : Unity.Specification.Diagnostic.Property.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
