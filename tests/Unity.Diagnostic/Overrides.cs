@@ -5,7 +5,7 @@ namespace Compiled
 {
 
     [TestClass]
-    public class Field : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
+    public class Override : Unity.Specification.Diagnostic.Overrides.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -19,7 +19,7 @@ namespace Resolved
 {
 
     [TestClass]
-    public class Field : Unity.Specification.Diagnostic.Field.Validation.SpecificationTests
+    public class Override : Unity.Specification.Diagnostic.Overrides.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
