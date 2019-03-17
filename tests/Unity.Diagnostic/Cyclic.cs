@@ -5,7 +5,7 @@ namespace Compiled
 {
 
     [TestClass]
-    public class Override : Unity.Specification.Diagnostic.Override.SpecificationTests
+    public class Cyclic : Unity.Specification.Diagnostic.Cyclic.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -19,7 +19,7 @@ namespace Resolved
 {
 
     [TestClass]
-    public class Override : Unity.Specification.Diagnostic.Override.SpecificationTests
+    public class Cyclic : Unity.Specification.Diagnostic.Cyclic.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
