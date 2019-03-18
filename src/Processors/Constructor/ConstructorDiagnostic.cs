@@ -144,7 +144,6 @@ namespace Unity.Processors
             return new[] { SelectMethod(type, constructors) };
         }
 
-
         #endregion
 
 
