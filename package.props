@@ -1,8 +1,10 @@
 <Project>
 
   <PropertyGroup>
-    <VersionBase>5.9.8</VersionBase>
-    <PackageReleaseNotes>This package is compatible with .NET Standard 1.0 and 2.0, .NET Core 1.0 and 2.0, .NET 4.0, 4.5, 4.6, 4.7</PackageReleaseNotes>
+    <VersionBase>5.10.0</VersionBase>
+    <PackageReleaseNotes>This is a convenience package containing both Unity.Abstractions and Unity.Container assemblies. This package is distributed for these who do now wish to separate declarations and implementation.
+
+    This package is compatible with .NET Standard 1.0 and 2.0, .NET Core 1.0 and 2.0, .NET 4.0, 4.5, 4.6, 4.7</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
