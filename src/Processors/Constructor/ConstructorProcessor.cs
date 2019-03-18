@@ -207,23 +207,34 @@ namespace Unity.Processors
 #else
             var info = type;
 #endif
-
             if (info.IsClass)
             {
-                if (DelegateType.IsAssignableFrom(info) ||
-                    typeof(string) == type || info.IsEnum || info.IsPrimitive || info.IsAbstract)
-                {
-                    return _isTypeRegistered(type);
-                }
-
+                // Array could be either registered or Type can be resolved
                 if (type.IsArray)
                 {
                     return _isTypeRegistered(type) || CanResolve(type.GetElementType());
                 }
 
+                // Type must be registered if:
+                // - String
+                // - Enumeration
+                // - Primitive
+                // - Abstract
+                // - Interface
+                // - No accessible constructor
+                if (DelegateType.IsAssignableFrom(info) ||
+                    typeof(string) == type || info.IsEnum || info.IsPrimitive || info.IsAbstract
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    || !info.DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
+#else
+                    || !type.GetTypeInfo().DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
+#endif
+                    return _isTypeRegistered(type);
+
                 return true;
             }
 
+            // Can resolve if IEnumerable or factory is registered
             if (info.IsGenericType)
             {
                 var genericType = type.GetGenericTypeDefinition();
@@ -234,6 +245,7 @@ namespace Unity.Processors
                 }
             }
 
+            // Check if Type is registered
             return _isTypeRegistered(type);
         }
 
