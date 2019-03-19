@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <VersionBase>4.1.1</VersionBase>
+    <VersionBase>4.1.2</VersionBase>
     <TargetFrameworks>netstandard2.0;netstandard1.0;netcoreapp2.0;netcoreapp1.0;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
 
