@@ -263,7 +263,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Parameter Resolver Factories
+        #region Attribute Resolver Factories
 
         protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
         {
@@ -276,8 +276,15 @@ namespace Unity.Processors
             var type = MemberType((TMemberInfo)info);
             return (ref BuilderContext context) =>
             {
-                try { return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name); }
-                catch { return value; }
+                try
+                {
+                    return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
+                }
+                catch (Exception ex) 
+                when (!(ex.InnerException is CircularDependencyException))
+                {
+                    return value;
+                }
             };
         }
 

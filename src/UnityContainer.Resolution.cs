@@ -274,7 +274,6 @@ namespace Unity
                 return context.Existing;
             };
 
-
         private object ExecuteValidatingPlan(ref BuilderContext context)
         {
             var i = -1;
@@ -363,6 +362,11 @@ namespace Unity
             }
         }
 
+        #endregion
+
+
+        #region BuilderContext
+
         internal BuilderContext.ExecutePlanDelegate ContextExecutePlan { get; set; } =
             (BuilderStrategy[] chain, ref BuilderContext context) =>
             {
@@ -389,7 +393,7 @@ namespace Unity
                 return context.Existing;
             };
 
-        internal static object ContextValidatingPlan(BuilderStrategy[] chain, ref BuilderContext context)
+        internal static object ContextValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
         {
             var i = -1;
 #if !NET40
@@ -430,16 +434,60 @@ namespace Unity
 
                 unsafe
                 {
-                    var c = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                    if (registrationType != c.RegistrationType || name != c.Name)
-                        return GetPerResolveValue(c.Parent, registrationType, name);
+                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                    if (registrationType != parentRef.RegistrationType || name != parentRef.Name)
+                        return GetPerResolveValue(parentRef.Parent, registrationType, name);
 
-                    var lifetimeManager = (LifetimeManager)c.Get(typeof(LifetimeManager));
+                    var lifetimeManager = (LifetimeManager)parentRef.Get(typeof(LifetimeManager));
                     var result = lifetimeManager?.GetValue();
                     if (null != result) return result;
 
-                    throw new InvalidOperationException($"Circular reference for type: {c.Type}");
+                    throw new InvalidOperationException($"Circular reference for Type: {parentRef.Type}, Name: {parentRef.Name}",
+                            new CircularDependencyException());
                 }
+            }
+#endif
+        }
+
+        internal BuilderContext.ResolvePlanDelegate ContextResolvePlan { get; set; } =
+            (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
+
+        internal static object ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
+        {
+            if (null == resolver) throw new ArgumentNullException(nameof(resolver));
+
+#if NET40
+            return resolver(ref thisContext);
+#else
+            unsafe
+            {
+                var parent = thisContext.Parent;
+                while(IntPtr.Zero != parent)
+                {
+                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                    if (thisContext.RegistrationType == parentRef.RegistrationType && thisContext.Name == parentRef.Name)
+                        throw new InvalidOperationException($"Circular reference for Type: {thisContext.Type}, Name: {thisContext.Name}",
+                            new CircularDependencyException());
+
+                    parent = parentRef.Parent;
+                }
+
+                var context = new BuilderContext
+                {
+                    Lifetime = thisContext.Lifetime,
+                    Registration = thisContext.Registration,
+                    RegistrationType = thisContext.Type,
+                    Name = thisContext.Name,
+                    Type = thisContext.Type,
+                    ExecutePlan = thisContext.ExecutePlan,
+                    ResolvePlan = thisContext.ResolvePlan,
+                    List = thisContext.List,
+                    Overrides = thisContext.Overrides,
+                    DeclaringType = thisContext.Type,
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+                };
+
+                return resolver(ref context);
             }
 #endif
         }

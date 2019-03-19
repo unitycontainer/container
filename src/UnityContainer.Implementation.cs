@@ -160,7 +160,8 @@ namespace Unity
         internal static void SetDiagnosticPolicies(UnityContainer container)
         {
             // Default policies
-            container.ContextExecutePlan = UnityContainer.ContextValidatingPlan;
+            container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
+            container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
             container.Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             if (null != container._registrations) container.Set(null, null, container.Defaults);

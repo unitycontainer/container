@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
@@ -24,6 +25,7 @@ namespace Unity.Builder
         public IPolicyList List;
 
         public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
+        public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
 
@@ -57,7 +59,7 @@ namespace Unity.Builder
                     {
                         var context = this;
 
-                        return resolverPolicy.Resolve(ref context);
+                        return ResolvePlan(ref context, resolverPolicy.Resolve);
                     }
                 }
             }
@@ -127,6 +129,8 @@ namespace Unity.Builder
 #endif
         public ExecutePlanDelegate ExecutePlan;
 
+        public ResolvePlanDelegate ResolvePlan;
+
         #endregion
 
 
@@ -145,6 +149,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -175,14 +180,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return resolverPolicy.Resolve(ref context);
+                            return ResolvePlan(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                         if (null != resolveDelegate)
                         {
-                            return resolveDelegate(ref context);
+                            return ResolvePlan(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -220,14 +225,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return resolverPolicy.Resolve(ref context);
+                            return ResolvePlan(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                         if (null != resolveDelegate)
                         {
-                            return resolveDelegate(ref context);
+                            return ResolvePlan(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -240,8 +245,15 @@ namespace Unity.Builder
                     return Resolve(property.PropertyType, dependencyAttribute.Name);
 
                 case OptionalDependencyAttribute optionalAttribute:
-                    try { return Resolve(property.PropertyType, optionalAttribute.Name); }
-                    catch { return null; }
+                    try
+                    {
+                        return Resolve(property.PropertyType, optionalAttribute.Name);
+                    }
+                    catch (Exception ex) 
+                    when (!(ex.InnerException is CircularDependencyException))
+                    {
+                        return null;
+                    }
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
@@ -268,14 +280,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return resolverPolicy.Resolve(ref context);
+                            return ResolvePlan(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                         if (null != resolveDelegate)
                         {
-                            return resolveDelegate(ref context);
+                            return ResolvePlan(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -288,8 +300,15 @@ namespace Unity.Builder
                     return Resolve(field.FieldType, dependencyAttribute.Name);
 
                 case OptionalDependencyAttribute optionalAttribute:
-                    try { return Resolve(field.FieldType, optionalAttribute.Name); }
-                    catch { return null; }
+                    try
+                    {
+                        return Resolve(field.FieldType, optionalAttribute.Name);
+                    }
+                    catch (Exception ex) 
+                    when (!(ex.InnerException is CircularDependencyException))
+                    {
+                        return null;
+                    }
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
