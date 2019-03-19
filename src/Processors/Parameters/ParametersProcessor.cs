@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -201,7 +202,8 @@ namespace Unity.Processors
                 {
                     return context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
                 }
-                catch
+                catch (Exception ex) 
+                when (!(ex.InnerException is CircularDependencyException))
                 {
                     return value;
                 }
