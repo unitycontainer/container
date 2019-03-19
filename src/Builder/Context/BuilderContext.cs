@@ -20,7 +20,6 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public ResolverOverride[] Overrides;
         public IPolicyList List;
 
         public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
@@ -35,6 +34,8 @@ namespace Unity.Builder
         public Type Type { get; set; }
 
         public string Name { get; set; }
+
+        public ResolverOverride[] Overrides { get; set; }
 
         public object Resolve(Type type, string name)
         {

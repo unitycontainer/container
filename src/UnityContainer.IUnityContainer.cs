@@ -166,7 +166,7 @@ namespace Unity
         #region Factory Registration
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
+        public IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, ResolverOverride[], object> factory, IFactoryLifetimeManager lifetimeManager)
         {
             // Validate input
             if (null == type) throw new ArgumentNullException(nameof(type));
