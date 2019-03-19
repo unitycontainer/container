@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Policy;
+using Unity.Exceptions;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -75,7 +75,11 @@ namespace Unity.Injection
             return (ref TContext c) =>
             {
                 try { return c.Resolve(type, _name); }
-                catch { return null; }
+                catch (Exception ex) 
+                when (!(ex.InnerException is CircularDependencyException))
+                {
+                    return null;
+                }
             };
         }
 
@@ -102,14 +106,22 @@ namespace Unity.Injection
                 return (ref TContext c) =>
                 {
                     try { return c.Resolve(type, _name); }
-                    catch { return value; }
+                    catch (Exception ex) 
+                    when (!(ex.InnerException is CircularDependencyException))
+                    {
+                        return value;
+                    }
                 };
             }
 
             return (ref TContext c) =>
             {
                 try { return c.Resolve(ParameterType, _name); }
-                catch { return value; }
+                catch (Exception ex) 
+                when (!(ex.InnerException is CircularDependencyException))
+                {
+                    return value;
+                }
             };
         }
 
