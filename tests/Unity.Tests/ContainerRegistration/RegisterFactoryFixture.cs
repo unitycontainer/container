@@ -13,7 +13,7 @@ namespace Unity.Tests.v5.ContainerRegistration
             const string registrationName = "name";
 
             var instance = new TypeImplementation();
-            var container = new UnityContainer().AddExtension(new Diagnostic());
+            var container = new UnityContainer();
 
             container.RegisterFactory(typeof(ITypeInterface), registrationName,
                 (c, t, n, o) =>
@@ -35,7 +35,7 @@ namespace Unity.Tests.v5.ContainerRegistration
             const string registrationName = "name";
 
             var instance = new TypeImplementation();
-            var container = new UnityContainer().AddExtension(new Diagnostic());
+            var container = new UnityContainer();
             var overrides = new ResolverOverride[] { new FieldOverride("meaningOfLife", 42) };
 
             container.RegisterFactory(typeof(ITypeInterface), registrationName,
