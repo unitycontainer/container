@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using Unity.Builder;
-using Unity.Injection;
 using Unity.Policy;
-using Unity.Processors;
 using Unity.Registration;
-using Unity.Storage;
 
 namespace Unity
 {
@@ -18,40 +13,12 @@ namespace Unity
     {
         #region Fields
 
-        private readonly ResolveDelegateFactory _buildStrategy = OptimizingFactory;
+        internal ResolveDelegateFactory _buildStrategy = OptimizingFactory;
 
         #endregion
 
-        internal enum BuildStrategy
-        {
-            Compiled,
 
-            Resolved,
-
-            Optimized
-        }
-
-        #region Diagnostic Constructor
-
-        internal UnityContainer(BuildStrategy strategy)
-            : this()
-        {
-            switch (strategy)
-            {
-                case BuildStrategy.Compiled:
-                    _buildStrategy = CompilingFactory;
-                    Defaults.Set(typeof(ResolveDelegateFactory), _buildStrategy);
-                    break;
-
-                case BuildStrategy.Resolved:
-                    _buildStrategy = ResolvingFactory;
-                    Defaults.Set(typeof(ResolveDelegateFactory), _buildStrategy);
-                    break;
-            }
-        }
-
-
-        #endregion
+        #region Debug Support
 
         private string DebugName()
         {
@@ -80,5 +47,7 @@ namespace Unity
             public IEnumerable<IContainerRegistration> Registrations => _container.Registrations;
 
         }
+
+        #endregion
     }
 }

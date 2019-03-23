@@ -16,7 +16,7 @@ namespace Runner.Tests
         [IterationSetup]
         public virtual void SetupContainer()
         {
-            _container = new UnityContainer(Unity.UnityContainer.BuildStrategy.Compiled);
+            _container = new UnityContainer().AddExtension(new ForceCompillation());
 
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();
