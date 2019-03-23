@@ -9,8 +9,8 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled)
-                .AddExtension(new Diagnostic());
+            return new UnityContainer().AddExtension(new ForceCompillation())
+                                       .AddExtension(new Diagnostic());
         }
     }
 
@@ -19,8 +19,8 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled)
-                .AddExtension(new Diagnostic());
+            return new UnityContainer().AddExtension(new ForceCompillation())
+                                       .AddExtension(new Diagnostic());
         }
     }
 }
@@ -32,8 +32,8 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved)
-                .AddExtension(new Diagnostic());
+            return new UnityContainer().AddExtension(new ForceActivation())
+                                       .AddExtension(new Diagnostic());
         }
     }
 
@@ -42,8 +42,8 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved)
-                .AddExtension(new Diagnostic());
+            return new UnityContainer().AddExtension(new ForceActivation())
+                                       .AddExtension(new Diagnostic());
         }
     }
 }

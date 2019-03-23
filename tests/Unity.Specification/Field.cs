@@ -8,7 +8,7 @@ namespace Compiled.Field
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -17,7 +17,7 @@ namespace Compiled.Field
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -27,7 +27,7 @@ namespace Compiled.Field
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
    
@@ -40,7 +40,7 @@ namespace Resolved.Field
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -49,7 +49,7 @@ namespace Resolved.Field
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -58,7 +58,7 @@ namespace Resolved.Field
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 }

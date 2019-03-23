@@ -8,7 +8,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -17,7 +17,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -26,7 +26,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -35,7 +35,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -44,7 +44,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 }
@@ -58,7 +58,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -67,7 +67,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -76,7 +76,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -85,7 +85,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -94,7 +94,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 }

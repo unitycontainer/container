@@ -10,9 +10,9 @@ namespace GitHub
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled)
-                .AddExtension(new Diagnostic())
-                .AddExtension(new SpyExtension(new SpyStrategy(), UnityBuildStage.Initialization));
+            return new UnityContainer().AddExtension(new ForceCompillation())
+                                       .AddExtension(new Diagnostic())
+                                       .AddExtension(new SpyExtension(new SpyStrategy(), UnityBuildStage.Initialization));
         }
     }
 

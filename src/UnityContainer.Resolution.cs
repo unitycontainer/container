@@ -208,7 +208,7 @@ namespace Unity
             };
         }
 
-        private ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
+        internal ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
         {
             var expressions = new List<Expression>();
             var type = context.Type;
@@ -228,7 +228,7 @@ namespace Unity
             return lambda.Compile();
         }
 
-        private ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
+        internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
         {
             ResolveDelegate<BuilderContext> seed = null;
             var type = context.Type;

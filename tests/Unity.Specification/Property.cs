@@ -8,7 +8,7 @@ namespace Compiled.Property
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -17,7 +17,7 @@ namespace Compiled.Property
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 
@@ -26,7 +26,7 @@ namespace Compiled.Property
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Compiled);
+            return new UnityContainer().AddExtension(new ForceCompillation());
         }
     }
 }
@@ -39,7 +39,7 @@ namespace Resolved.Property
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -48,7 +48,7 @@ namespace Resolved.Property
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 
@@ -57,7 +57,7 @@ namespace Resolved.Property
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(UnityContainer.BuildStrategy.Resolved);
+            return new UnityContainer().AddExtension(new ForceActivation());
         }
     }
 }
