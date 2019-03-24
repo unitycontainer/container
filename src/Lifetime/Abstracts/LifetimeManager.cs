@@ -57,7 +57,7 @@ namespace Unity.Lifetime
         /// Type of current lifetime manager
         /// </summary>
         /// <returns>The <see cref="Type"/> of the manager.</returns>
-        [Obsolete]
+        [Obsolete("This property will be removed in next major release. Use GetType() instead", false)]
         public Type LifetimeType => GetType();
 
         #endregion
