@@ -10,6 +10,20 @@ namespace Unity.Lifetime
     /// except that in the presence of child containers, each child gets it's own instance
     /// of the object, instead of sharing one in the common parent.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The Unity container allows creating hierarchies of child containers. This lifetime 
+    /// creates local singleton for each level of the hierarchy. So, when you resolve a 
+    /// type and this container does not have an instance of that type, the container will 
+    /// create new instance. Next type the type is resolved the same instance will be returned.
+    /// </para>
+    /// <para>
+    /// If a child container is created and requested to resolve the type, the child container 
+    /// will create a new instance and store it for subsequent resolutions. Next time the 
+    /// child container requested to resolve the type, it will return stored instance.
+    /// </para>
+    /// <para>If you have multiple children, each will resolve its own instance.</para>
+    /// </remarks>
     public class HierarchicalLifetimeManager : SynchronizedLifetimeManager, 
                                                IFactoryLifetimeManager,
                                                ITypeLifetimeManager
@@ -21,27 +35,14 @@ namespace Unity.Lifetime
 
         #endregion
 
-        /// <summary>
-        /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this WithLifetime policy.
-        /// </summary>
-        /// <param name="container">Container that owns the value</param>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
-        /// after it has acquired its lock.</remarks>
+        /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return _values.TryGetValue(container ?? throw new ArgumentNullException(nameof(container)), 
                                        out object value) ? value : null;
         }
 
-        /// <summary>
-        /// Performs the actual storage of the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="newValue">The object being stored.</param>
-        /// <param name="container">Container that owns the value</param>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
-        /// before releasing its lock.</remarks>
+        /// <inheritdoc/>
         protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             _values[container ?? throw new ArgumentNullException(nameof(container))] = newValue;
@@ -49,9 +50,7 @@ namespace Unity.Lifetime
         }
 
 
-        /// <summary>
-        /// Remove the given object from backing store.
-        /// </summary>
+        /// <inheritdoc/>
         public override void RemoveValue(ILifetimeContainer container = null)
         {
             if (null == container) throw new ArgumentNullException(nameof(container));
@@ -64,6 +63,7 @@ namespace Unity.Lifetime
             }
         }
 
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new HierarchicalLifetimeManager();
@@ -72,10 +72,7 @@ namespace Unity.Lifetime
 
         #region IDisposable
 
-        /// <summary>
-        /// Standard Dispose pattern implementation.
-        /// </summary>
-        /// <param name="disposing">Always true, since we don't have a finalizer.</param>
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             try
@@ -101,6 +98,10 @@ namespace Unity.Lifetime
 
         #region Overrides
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:Hierarchical";
 
         #endregion

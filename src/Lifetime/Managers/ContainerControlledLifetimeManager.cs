@@ -3,10 +3,23 @@
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that holds onto the instance given to it.
+    /// <para>
+    /// Unity returns the same instance each time the Resolve(...) method is called or when the
+    /// dependency mechanism injects the instance into other classes.
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Per Container lifetime allows a registration of an existing or resolved object as 
+    /// a scoped singleton in the container it was created or registered. In other words 
+    /// this instance is unique within the container it war registered with. Child or parent 
+    /// containers could have their own instances registered for the same contract.
+    /// </para>
+    /// <para>
     /// When the <see cref="ContainerControlledLifetimeManager"/> is disposed,
     /// the instance is disposed with it.
-    /// </summary>
+    /// </para>
+    /// </remarks>
     public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, 
                                                       IInstanceLifetimeManager, 
                                                       IFactoryLifetimeManager,
@@ -14,11 +27,19 @@ namespace Unity.Lifetime
     {
         #region Fields
 
+        /// <summary>
+        /// An instance of the object this manager is associated with.
+        /// </summary>
+        /// <value>This field holds a strong reference to the associated object.</value>
         protected object Value;
+
         private Func<ILifetimeContainer, object> _currentGetValue;
         private Action<object, ILifetimeContainer> _currentSetValue;
 
         #endregion
+
+
+        #region Constructor
 
         public ContainerControlledLifetimeManager()
         {
@@ -26,63 +47,60 @@ namespace Unity.Lifetime
             _currentSetValue = base.SetValue;
         }
 
+        #endregion
+
+
+        #region SynchronizedLifetimeManager
+
+        /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
             return _currentGetValue(container);
         }
 
+        /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             _currentSetValue(newValue, container);
             _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
             _currentGetValue = SynchronizedGetValue;
         }
-        
-        /// <summary>
-        /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this WithLifetime policy.
-        /// </summary>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
-        /// after it has acquired its lock.</remarks>
+
+        /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return Value;
         }
 
-        /// <summary>
-        /// Performs the actual storage of the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="newValue">The object being stored.</param>
-        /// <param name="container"></param>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
-        /// before releasing its lock.</remarks>
+        /// <inheritdoc/>
         protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             Value = newValue;
         }
 
-
-        /// <summary>
-        /// Remove the given object from backing store.
-        /// </summary>
-        /// <param name="container">Instance of container</param>
+        /// <inheritdoc/>
         public override void RemoveValue(ILifetimeContainer container = null)
         {
             Dispose();
         }
 
+        #endregion
+
+
+        #region IFactoryLifetimeManager
+
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new ContainerControlledLifetimeManager();
         }
 
+        #endregion
+
+
         #region IDisposable
 
-        /// <summary>		
-        /// Standard Dispose pattern implementation.		
-        /// </summary>		
-        /// <param name="disposing">Always true, since we don't have a finalizer.</param>		
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             try
@@ -105,6 +123,10 @@ namespace Unity.Lifetime
 
         #region Overrides
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:PerContainer"; 
 
         #endregion

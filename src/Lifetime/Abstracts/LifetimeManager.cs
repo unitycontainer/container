@@ -3,20 +3,29 @@
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// Base class for WithLifetime managers - classes that control how
+    /// Base class for all lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
     public abstract class LifetimeManager 
     {
+        /// <summary>
+        /// A <see cref="Boolean"/> indicating if this manager is being used in 
+        /// one of the registrations.
+        /// </summary>
+        /// <remarks>
+        /// The Unity container requires that each registration used its own, unique
+        /// lifetime manager. This property is being used to track that condition.
+        /// </remarks>
+        /// <value>True is this instance already in use, False otherwise.</value>
         public virtual bool InUse { get; set; }
 
 
         #region LifetimeManager Members
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this WithLifetime policy.
+        /// Retrieves a value from the backing store associated with this Lifetime policy.
         /// </summary>
-        /// <param name="container">Child container this lifetime belongs to</param>
+        /// <param name="container">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         public abstract object GetValue(ILifetimeContainer container = null);
 
@@ -24,13 +33,13 @@ namespace Unity.Lifetime
         /// Stores the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
-        /// <param name="container">The container this lifetime belongs to</param>
+        /// <param name="container">The container this lifetime is associated with</param>
         public virtual void SetValue(object newValue, ILifetimeContainer container = null) { }
 
         /// <summary>
         /// Remove the given object from backing store.
-        /// <param name="container">The container this lifetime belongs to</param>
         /// </summary>
+        /// <param name="container">The container this lifetime belongs to</param>
         public virtual void RemoveValue(ILifetimeContainer container = null) { }
 
         #endregion
@@ -38,11 +47,17 @@ namespace Unity.Lifetime
 
         #region ILifetimeFactoryPolicy
 
-        public LifetimeManager CreateLifetimePolicy()
-        {
-            return OnCreateLifetimeManager();
-        }
+        /// <summary>
+        /// Creates a new lifetime manager of the same type as this Lifetime Manager
+        /// </summary>
+        /// <returns>A new instance of the appropriate lifetime manager</returns>
+        public LifetimeManager CreateLifetimePolicy() => OnCreateLifetimeManager();
 
+        /// <summary>
+        /// Type of current lifetime manager
+        /// </summary>
+        /// <returns>The <see cref="Type"/> of the manager.</returns>
+        [Obsolete]
         public Type LifetimeType => GetType();
 
         #endregion
@@ -51,9 +66,9 @@ namespace Unity.Lifetime
         #region Implementation
 
         /// <summary>
-        /// Creates WithLifetime Manager
+        /// Implementation of <see cref="CreateLifetimePolicy"/> policy.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A new instance of the same lifetime manager of appropriate type</returns>
         protected abstract LifetimeManager OnCreateLifetimeManager();
 
         #endregion

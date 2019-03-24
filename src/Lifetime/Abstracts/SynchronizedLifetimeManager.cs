@@ -4,7 +4,7 @@ using System.Threading;
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// Base class for WithLifetime managers which need to synchronize calls to
+    /// Base class for Lifetime managers which need to synchronize calls to
     /// <see cref="SynchronizedLifetimeManager.GetValue"/>.
     /// </summary>
     /// <remarks>
@@ -28,12 +28,7 @@ namespace Unity.Lifetime
 
         #endregion
 
-        /// <summary>
-        /// Retrieve a value from the backing store associated with this WithLifetime policy.
-        /// </summary>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        /// <remarks>Calls to this method acquire a lock which is released only if a non-null value
-        /// has been set for the lifetime manager.</remarks>
+        /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
             Monitor.Enter(_lockObj);
@@ -47,21 +42,16 @@ namespace Unity.Lifetime
 
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this WithLifetime policy.
+        /// with this Lifetime policy.
         /// </summary>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
+        /// <param name="container">Instance of the lifetime's container</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
+        /// <returns>the object desired, or null if no such object is currently stored.</returns>
         protected abstract object SynchronizedGetValue(ILifetimeContainer container);
 
 
-        /// <summary>
-        /// Stores the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="newValue">The object being stored.</param>
-        /// <param name="container">The container this value belongs to.</param>
-        /// <remarks>Setting a value will attempt to release the lock acquired by 
-        /// <see cref="SynchronizedLifetimeManager.GetValue"/>.</remarks>
+        /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             SynchronizedSetValue(newValue, container);
@@ -72,7 +62,7 @@ namespace Unity.Lifetime
         /// Performs the actual storage of the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
-        /// <param name="container"></param>
+        /// <param name="container">Instance of the lifetime's container</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
         protected abstract void SynchronizedSetValue(object newValue, ILifetimeContainer container);

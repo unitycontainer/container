@@ -4,28 +4,39 @@
     /// An <see cref="LifetimeManager"/> implementation that does nothing,
     /// thus ensuring that instances are created new every time.
     /// </summary>
+    /// <remarks>
+    /// Transient lifetime is a default lifetime of the Unity container. As 
+    /// the name implies it lasts very short period of time, actually, no 
+    /// time at all. In the Unity container terms, having transient lifetime 
+    /// is the same as having no lifetime manager at all.
+    /// </remarks>
     public class TransientLifetimeManager : LifetimeManager,
                                             IFactoryLifetimeManager,
                                             ITypeLifetimeManager
     {
+        /// <summary>
+        /// Globally unique transient lifetime manager singleton
+        /// </summary>
+        /// <remarks>
+        /// This instance is used for all transient lifetimes
+        /// </remarks>
+        /// <value>An instance of a <see cref="TransientLifetimeManager"/> object.</value>
         public static TransientLifetimeManager Instance = new TransientLifetimeManager();
 
+        /// <inheritdoc/>
         public override bool InUse
         {
             get => false;
             set { }
         }
 
-        /// <summary>
-        /// Retrieve a value from the backing store associated with this WithLifetime policy.
-        /// </summary>
-        /// <param name="container">Instance of container requesting the value</param>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
+        /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
             return null;
         }
 
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return Instance;
@@ -34,6 +45,10 @@
 
         #region Overrides
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:Transient";
 
         #endregion

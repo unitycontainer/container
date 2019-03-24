@@ -3,10 +3,25 @@
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that is unique for all the children containers.
-    /// When the <see cref="SingletonLifetimeManager"/> is disposed,
-    /// the instance is disposed with it.
+    /// Singleton lifetime creates globally unique singleton. Any Unity container tree 
+    /// (parent and all the children) is guaranteed to have only one global singleton 
+    /// for the registered type.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Registering a type with singleton lifetime always places the registration 
+    /// at the root of the container tree and makes it globally available for all 
+    /// the children of that container. It does not matter if registration takes 
+    /// places at the root of child container the destination is always the root node.
+    /// </para>
+    /// <para>
+    /// Repeating the registration on any of the child nodes with singleton lifetime 
+    /// will always override the root registration.
+    /// </para>
+    /// <para>
+    /// When the <see cref="SingletonLifetimeManager"/> is disposed, the instance it holds 
+    /// is disposed with it.</para>
+    /// </remarks>
     public class SingletonLifetimeManager : SynchronizedLifetimeManager,
                                             IInstanceLifetimeManager,
                                             IFactoryLifetimeManager,
@@ -14,44 +29,33 @@ namespace Unity.Lifetime
     {
         #region Fields
 
+        /// <summary>
+        /// An instance of the singleton object this manager is associated with.
+        /// </summary>
+        /// <value>This field holds a strong reference to the singleton object.</value>
         protected object Value;
 
         #endregion
 
-        /// <summary>
-        /// Performs the actual retrieval of a value from the backing store associated 
-        /// with this WithLifetime policy.
-        /// </summary>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
-        /// after it has acquired its lock.</remarks>
+        /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return Value;
         }
 
-        /// <summary>
-        /// Performs the actual storage of the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="newValue">The object being stored.</param>
-        /// <param name="container"></param>
-        /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
-        /// before releasing its lock.</remarks>
+        /// <inheritdoc/>
         protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             Value = newValue;
         }
 
-
-        /// <summary>
-        /// Remove the given object from backing store.
-        /// </summary>
-        /// <param name="container">Instance of container</param>
+        /// <inheritdoc/>
         public override void RemoveValue(ILifetimeContainer container = null)
         {
             Dispose();
         }
 
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new SingletonLifetimeManager();
@@ -59,10 +63,7 @@ namespace Unity.Lifetime
 
         #region IDisposable
 
-        /// <summary>		
-        /// Standard Dispose pattern implementation.		
-        /// </summary>		
-        /// <param name="disposing">Always true, since we don't have a finalizer.</param>		
+        /// <inheritdoc/>		
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -80,6 +81,10 @@ namespace Unity.Lifetime
 
         #region Overrides
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:Singleton";
 
         #endregion

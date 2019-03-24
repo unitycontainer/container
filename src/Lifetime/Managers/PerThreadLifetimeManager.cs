@@ -4,10 +4,18 @@ using System.Collections.Generic;
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that holds the instances given to it, 
-    /// keeping one instance per thread.
+    /// A <see cref="LifetimeManager"/> that creates a new instance of 
+    /// the registered <see cref="Type"/> once per each thread.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// Per thread lifetime means a new instance of the registered <see cref="Type"/>
+    /// will be created once per each thread. In other words, if a Resolve{T}() method 
+    /// is called on a thread the first time, it will return a new object. Each
+    /// subsequent call to Resolve{T}(), or when the dependency mechanism injects 
+    /// instances of the type into other classes on the same thread, the container 
+    /// will return the same object.
+    /// </para>
     /// <para>
     /// This LifetimeManager does not dispose the instances it holds.
     /// </para>
@@ -28,13 +36,7 @@ namespace Unity.Lifetime
             _key = Guid.NewGuid();
         }
 
-        /// <summary>
-        /// Retrieve a value from the backing store associated with this WithLifetime policy for the 
-        /// current thread.
-        /// </summary>
-        /// <param name="container">Instance of container requesting the value</param>
-        /// <returns>the object desired, or <see langword="null"/> if no such object is currently 
-        /// stored for the current thread.</returns>
+        /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
             EnsureValues();
@@ -44,12 +46,7 @@ namespace Unity.Lifetime
             return result;
         }
 
-        /// <summary>
-        /// Stores the given value into backing store for retrieval later when requested
-        /// in the current thread.
-        /// </summary>
-        /// <param name="container">Instance of container which owns the value</param>
-        /// <param name="newValue">The object being stored.</param>
+        /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
             EnsureValues();
@@ -66,6 +63,7 @@ namespace Unity.Lifetime
             }
         }
 
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new PerThreadLifetimeManager();
@@ -74,6 +72,10 @@ namespace Unity.Lifetime
 
         #region Overrides
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:PerThread";
 
         #endregion

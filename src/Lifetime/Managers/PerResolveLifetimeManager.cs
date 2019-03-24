@@ -21,16 +21,13 @@
             value = null;
         }
 
-        /// <summary>
-        /// Retrieve a value from the backing store associated with this WithLifetime policy.
-        /// </summary>
-        /// <param name="container">Instance of container requesting the value</param>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
+        /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
             return value;
         }
 
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new PerResolveLifetimeManager();
@@ -39,6 +36,10 @@
 
         #region Overrides
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:PerResolve";
 
         #endregion

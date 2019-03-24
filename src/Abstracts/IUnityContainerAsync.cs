@@ -24,7 +24,7 @@ namespace Unity
         /// <param name="interfaces">Collection of interfaces that <paramref name="type"/> exposes to container</param>
         /// <param name="type"><see cref="Type"/> that will be used to instantiate object.</param>
         /// <param name="name">Name of the registration</param>
-        /// <param name="lifetimeManager">WithLifetime manager that will be responsible for managing created object's lifetime.</param>
+        /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns></returns>
         IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);

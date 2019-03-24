@@ -14,7 +14,7 @@ namespace Unity.Lifetime
         private WeakReference _value = new WeakReference(null);
 
         /// <summary>
-        /// Retrieve a value from the backing store associated with this WithLifetime policy.
+        /// Retrieve a value from the backing store associated with this Lifetime policy.
         /// </summary>
         /// <param name="container">Instance of container requesting the value</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
