@@ -24,20 +24,31 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private readonly object _lockObj = new object();
+        private readonly object _lock = new object();
+
+        /// <summary>
+        /// This field controlls how long the monitor will wait to 
+        /// enter the lock. It is <see cref="Timeout.Infinite"/> by default or number of 
+        /// milliseconds from 0 to 2147483647.
+        /// </summary>
+        public static int ResolveTimeout = Timeout.Infinite;
 
         #endregion
 
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            Monitor.Enter(_lockObj);
-            var result = SynchronizedGetValue(container);
-            if (NoValue != result)
+            if (Monitor.TryEnter(_lock, ResolveTimeout))
             {
-                Monitor.Exit(_lockObj);
+                var result = SynchronizedGetValue(container);
+                if (NoValue != result)
+                {
+                    Monitor.Exit(_lock);
+                }
+                return result;
             }
-            return result;
+            else
+                throw new TimeoutException($"Failed to enter a monitor");
         }
 
         /// <summary>
@@ -85,11 +96,11 @@ namespace Unity.Lifetime
         {
 #if !NET40
             // Prevent first chance exception when abandoning a lock that has not been entered
-            if (!Monitor.IsEntered(_lockObj)) return;
+            if (!Monitor.IsEntered(_lock)) return;
 #endif
             try
             {
-                Monitor.Exit(_lockObj);
+                Monitor.Exit(_lock);
             }
             catch (SynchronizationLockException)
             {
