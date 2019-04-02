@@ -10,16 +10,14 @@
                                              IFactoryLifetimeManager,
                                              ITypeLifetimeManager
     {
-        protected object value;
+        #region Fields
 
-        /// <summary>
-        /// Construct a new <see cref="PerResolveLifetimeManager"/> object that does not
-        /// itself manage an instance.
-        /// </summary>
-        public PerResolveLifetimeManager()
-        {
-            value = null;
-        }
+        protected object value = NoValue;
+
+        #endregion
+
+
+        #region Overrides
 
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
@@ -32,9 +30,6 @@
         {
             return new PerResolveLifetimeManager();
         }
-
-
-        #region Overrides
 
         /// <summary>
         /// This method provides human readable representation of the lifetime

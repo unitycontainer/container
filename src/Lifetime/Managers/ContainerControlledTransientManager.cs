@@ -19,34 +19,19 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        public override object GetValue(ILifetimeContainer container = null)
-        {
-            return null;
-        }
+        protected override LifetimeManager OnCreateLifetimeManager() => this;
 
         /// <inheritdoc/>
-        public override void RemoveValue(ILifetimeContainer container = null)
+        public override bool InUse
         {
+            get => false;
+            set { }
         }
-
-        /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return this;
-        }
-
-        /// <inheritdoc/>
-        public override bool InUse { get => false; set => base.InUse = false; }
-
-
-        #region Overrides
 
         /// <summary>
         /// This method provides human readable representation of the lifetime
         /// </summary>
         /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:PerContainerTransient";
-
-        #endregion
     }
 }

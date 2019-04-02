@@ -11,7 +11,14 @@ namespace Unity.Lifetime
                                                        ITypeLifetimeManager,
                                                        IFactoryLifetimeManager
     {
-        private WeakReference _value = new WeakReference(null);
+        #region Fields
+
+        private WeakReference _value = new WeakReference(NoValue);
+
+        #endregion
+
+
+        #region Overrides
 
         /// <summary>
         /// Retrieve a value from the backing store associated with this Lifetime policy.
@@ -37,9 +44,6 @@ namespace Unity.Lifetime
         {
             return new ExternallyControlledLifetimeManager();
         }
-
-
-        #region Overrides
 
         public override string ToString() => "Lifetime:External";
 

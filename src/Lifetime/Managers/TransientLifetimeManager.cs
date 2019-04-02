@@ -14,6 +14,8 @@
                                             IFactoryLifetimeManager,
                                             ITypeLifetimeManager
     {
+        #region Fields
+
         /// <summary>
         /// Globally unique transient lifetime manager singleton
         /// </summary>
@@ -21,7 +23,12 @@
         /// This instance is used for all transient lifetimes
         /// </remarks>
         /// <value>An instance of a <see cref="TransientLifetimeManager"/> object.</value>
-        public static TransientLifetimeManager Instance = new TransientLifetimeManager();
+        public static readonly TransientLifetimeManager Instance = new TransientLifetimeManager();
+
+        #endregion
+
+
+        #region Overrides
 
         /// <inheritdoc/>
         public override bool InUse
@@ -31,19 +38,7 @@
         }
 
         /// <inheritdoc/>
-        public override object GetValue(ILifetimeContainer container = null)
-        {
-            return null;
-        }
-
-        /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return Instance;
-        }
-
-
-        #region Overrides
+        protected override LifetimeManager OnCreateLifetimeManager() => Instance;
 
         /// <summary>
         /// This method provides human readable representation of the lifetime

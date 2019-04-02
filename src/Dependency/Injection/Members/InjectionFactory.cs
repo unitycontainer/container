@@ -79,9 +79,7 @@ namespace Unity.Injection
 
             ResolveDelegate<TContext> CreateLegacyPolicy()
             {
-                return (ref TContext c) =>
-                    _factoryFunc(c.Container, c.Type, c.Name) ??
-                    throw new InvalidOperationException("Injection Factory must return valid object or throw an exception");
+                return (ref TContext c) => _factoryFunc(c.Container, c.Type, c.Name);
             }
 
             ResolveDelegate<TContext> CreatePerResolveLegacyPolicy() 

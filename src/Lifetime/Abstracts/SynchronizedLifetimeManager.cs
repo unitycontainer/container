@@ -33,7 +33,7 @@ namespace Unity.Lifetime
         {
             Monitor.Enter(_lockObj);
             var result = SynchronizedGetValue(container);
-            if (result != null)
+            if (NoValue != result)
             {
                 Monitor.Exit(_lockObj);
             }

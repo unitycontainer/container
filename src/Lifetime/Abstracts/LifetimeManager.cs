@@ -9,6 +9,13 @@ namespace Unity.Lifetime
     public abstract class LifetimeManager 
     {
         /// <summary>
+        /// This value represents Invalid Value. Lifetime manager must return this value
+        /// unless value is set to valid object. Null is a valie value and is not equal 
+        /// to NoValue 
+        /// </summary>
+        public static readonly object NoValue = new InvalidValue();
+
+        /// <summary>
         /// A <see cref="Boolean"/> indicating if this manager is being used in 
         /// one of the registrations.
         /// </summary>
@@ -27,7 +34,7 @@ namespace Unity.Lifetime
         /// </summary>
         /// <param name="container">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public abstract object GetValue(ILifetimeContainer container = null);
+        public virtual object GetValue(ILifetimeContainer container = null) => NoValue;
 
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
@@ -53,13 +60,6 @@ namespace Unity.Lifetime
         /// <returns>A new instance of the appropriate lifetime manager</returns>
         public LifetimeManager CreateLifetimePolicy() => OnCreateLifetimeManager();
 
-        /// <summary>
-        /// Type of current lifetime manager
-        /// </summary>
-        /// <returns>The <see cref="Type"/> of the manager.</returns>
-        [Obsolete("This property will be removed in next major release. Use GetType() instead", false)]
-        public Type LifetimeType => GetType();
-
         #endregion
 
 
@@ -70,6 +70,24 @@ namespace Unity.Lifetime
         /// </summary>
         /// <returns>A new instance of the same lifetime manager of appropriate type</returns>
         protected abstract LifetimeManager OnCreateLifetimeManager();
+
+        #endregion
+
+
+        #region Nested Types
+
+        public class InvalidValue
+        {
+            public override bool Equals(object obj)
+            {
+                return ReferenceEquals(this, obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+        }
 
         #endregion
     }

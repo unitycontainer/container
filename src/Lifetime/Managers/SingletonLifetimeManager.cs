@@ -33,9 +33,12 @@ namespace Unity.Lifetime
         /// An instance of the singleton object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the singleton object.</value>
-        protected object Value;
+        protected object Value = NoValue;
 
         #endregion
+        
+        
+        #region Overrides
 
         /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
@@ -61,6 +64,15 @@ namespace Unity.Lifetime
             return new SingletonLifetimeManager();
         }
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
+        public override string ToString() => "Lifetime:Singleton";
+
+        #endregion
+
+
         #region IDisposable
 
         /// <inheritdoc/>		
@@ -68,24 +80,13 @@ namespace Unity.Lifetime
         {
             base.Dispose(disposing);
 
-            if (Value == null) return;
+            if (NoValue == Value) return;
             if (Value is IDisposable disposable)
             {
                 disposable.Dispose();
             }
-            Value = null;
+            Value = NoValue;
         }
-
-        #endregion
-
-
-        #region Overrides
-
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:Singleton";
 
         #endregion
     }

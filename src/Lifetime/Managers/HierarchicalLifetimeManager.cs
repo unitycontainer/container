@@ -35,11 +35,14 @@ namespace Unity.Lifetime
 
         #endregion
 
+
+        #region Overrides
+
         /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             return _values.TryGetValue(container ?? throw new ArgumentNullException(nameof(container)), 
-                                       out object value) ? value : null;
+                                       out object value) ? value : NoValue;
         }
 
         /// <inheritdoc/>
@@ -69,6 +72,14 @@ namespace Unity.Lifetime
             return new HierarchicalLifetimeManager();
         }
 
+        /// <summary>
+        /// This method provides human readable representation of the lifetime
+        /// </summary>
+        /// <returns>Name of the lifetime</returns>
+        public override string ToString() => "Lifetime:Hierarchical";
+
+        #endregion
+
 
         #region IDisposable
 
@@ -80,29 +91,18 @@ namespace Unity.Lifetime
                 if (0 == _values.Count) return;
 
                 foreach (var disposable in _values.Values
-                    .OfType<IDisposable>()
-                    .ToArray())
+                                                  .OfType<IDisposable>()
+                                                  .ToArray())
                 {
                     disposable.Dispose();
                 }
                 _values.Clear();
             }
-            finally 
+            finally
             {
                 base.Dispose(disposing);
             }
         }
-
-        #endregion
-
-
-        #region Overrides
-
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:Hierarchical";
 
         #endregion
 

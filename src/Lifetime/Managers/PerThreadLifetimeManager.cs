@@ -24,43 +24,33 @@ namespace Unity.Lifetime
                                             IFactoryLifetimeManager,
                                             ITypeLifetimeManager
     {
+        #region Fields
+
         [ThreadStatic]
         private static Dictionary<Guid, object> _values;
-        private readonly Guid _key;
+        private readonly Guid _key = Guid.NewGuid();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PerThreadLifetimeManager"/> class.
-        /// </summary>
-        public PerThreadLifetimeManager()
-        {
-            _key = Guid.NewGuid();
-        }
+        #endregion
+
+
+        #region Overrides
 
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            EnsureValues();
+            if (null == _values) return NoValue;
 
-            _values.TryGetValue(_key, out var result);
-
-            return result;
+            return _values.TryGetValue(_key, out var result) ? result : NoValue;
         }
 
         /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
-            EnsureValues();
-
-            _values[_key] = newValue;
-        }
-
-        private static void EnsureValues()
-        {
             // no need for locking, values is TLS
             if (_values == null)
-            {
                 _values = new Dictionary<Guid, object>();
-            }
+
+            _values[_key] = newValue;
         }
 
         /// <inheritdoc/>
@@ -70,7 +60,6 @@ namespace Unity.Lifetime
         }
 
 
-        #region Overrides
 
         /// <summary>
         /// This method provides human readable representation of the lifetime

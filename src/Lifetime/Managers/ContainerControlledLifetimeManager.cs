@@ -31,7 +31,7 @@ namespace Unity.Lifetime
         /// An instance of the object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
-        protected object Value;
+        protected object Value = NoValue;
 
         private Func<ILifetimeContainer, object> _currentGetValue;
         private Action<object, ILifetimeContainer> _currentSetValue;
@@ -105,12 +105,12 @@ namespace Unity.Lifetime
         {
             try
             {
-                if (Value == null) return;
+                if (NoValue == Value) return;
                 if (Value is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
-                Value = null;
+                Value = NoValue;
             }
             finally 
             {
