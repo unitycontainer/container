@@ -114,7 +114,7 @@ namespace Unity
             try
             {
                 // Validate input
-                if (null == instance) throw new ArgumentNullException(nameof(instance));
+                if (null == typeFrom) throw new InvalidOperationException($"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
 
                 if (null == lifetimeManager) lifetimeManager = new ContainerControlledLifetimeManager();
                 if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
