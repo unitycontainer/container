@@ -14,7 +14,7 @@ namespace Unity.Tests.v5.Container
     public class ContainerControlledLifetimeThreadingFixture
     {
         [TestMethod]
-        public void ContainerControlledLifetimeReturnsSameInstanceFromMultipleThreads()
+        public void SameInstanceFromMultipleThreads()
         {
             IUnityContainer container = new UnityContainer();
             container.AddExtension(new SpyExtension(new DelayStrategy(), UnityBuildStage.Lifetime));
@@ -23,12 +23,12 @@ namespace Unity.Tests.v5.Container
             object result1 = null;
             object result2 = null;
 
-            Thread thread1 = new Thread(delegate()
+            Thread thread1 = new Thread(delegate ()
             {
                 result1 = container.Resolve<object>();
             });
 
-            Thread thread2 = new Thread(delegate()
+            Thread thread2 = new Thread(delegate ()
             {
                 result2 = container.Resolve<object>();
             });
@@ -45,6 +45,7 @@ namespace Unity.Tests.v5.Container
             Assert.IsNotNull(result1);
             Assert.AreSame(result1, result2);
         }
+
 
         [TestMethod]
         public void ContainerControlledLifetimeDoesNotLeaveHangingLockIfBuildThrowsException()
