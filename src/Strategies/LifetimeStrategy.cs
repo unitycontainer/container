@@ -65,7 +65,7 @@ namespace Unity.Strategies
                 context.RequiresRecovery = recoveryPolicy;
 
             var existing = policy.GetValue(context.Lifetime);
-            if (existing != null)
+            if (LifetimeManager.NoValue != existing)
             {
                 context.Existing = existing;
                 context.BuildComplete = true;

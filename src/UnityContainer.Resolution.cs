@@ -440,7 +440,7 @@ namespace Unity
 
                     var lifetimeManager = (LifetimeManager)parentRef.Get(typeof(LifetimeManager));
                     var result = lifetimeManager?.GetValue();
-                    if (null != result) return result;
+                    if (LifetimeManager.NoValue != result) return result;
 
                     throw new InvalidOperationException($"Circular reference for Type: {parentRef.Type}, Name: {parentRef.Name}",
                             new CircularDependencyException());
