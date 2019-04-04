@@ -57,8 +57,8 @@ namespace Unity.Processors
                                     .FirstOrDefault();
 
             // Select constructor for the Type
-            ConstructorInfo info;
             object[] resolvers = null;
+            ConstructorInfo info = null;
             IEnumerable<Expression> parametersExpr;
 
             switch (selection)
@@ -73,6 +73,11 @@ namespace Unity.Processors
                     resolvers = injectionMember.Data;
                     parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
                     break;
+
+                case Exception exception:
+                    return new[] {Expression.IfThen(
+                        Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                        Expression.Throw(Expression.Constant(exception)))};
 
                 default:
                     return NoConstructorExpr;
