@@ -35,7 +35,7 @@ namespace Compiled.Constructor
     }
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Constructor.Validation.SpecificationTests
+    public class Injection : Unity.Specification.Diagnostic.Constructor.Injection.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -78,7 +78,7 @@ namespace Resolved.Constructor
     }
 
     [TestClass]
-    public class Validation : Unity.Specification.Diagnostic.Constructor.Validation.SpecificationTests
+    public class Injection : Unity.Specification.Diagnostic.Constructor.Injection.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

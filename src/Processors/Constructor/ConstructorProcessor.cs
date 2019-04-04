@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
@@ -113,24 +114,22 @@ namespace Unity.Processors
                     var paramLength = members[0].GetParameters().Length;
                     if (members[1].GetParameters().Length == paramLength)
                     {
-                        throw new InvalidOperationException(
+                        return new InvalidOperationException(
                             string.Format(
                                 CultureInfo.CurrentCulture,
                                 "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
                                 type.GetTypeInfo().Name,
-                                paramLength));
+                                paramLength), new InvalidRegistrationException());
                     }
                     return members[0];
             }
         }
 
-        private object SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected virtual object SmartSelector(Type type, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, (a, b) =>
             {
                 var qtd = b.GetParameters().Length.CompareTo(a.GetParameters().Length);
-
-
 
                 if (qtd == 0)
                 {
@@ -145,62 +144,24 @@ namespace Unity.Processors
                 return qtd;
             });
 
-            int parametersCount = 0;
-            ConstructorInfo bestCtor = null;
-            HashSet<Type> bestCtorParameters = null;
-
             foreach (var ctorInfo in constructors)
             {
                 var parameters = ctorInfo.GetParameters();
-
-                if (null != bestCtor && parametersCount > parameters.Length) return bestCtor;
-                parametersCount = parameters.Length;
-
 #if NET40
                 if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p.ParameterType)))
 #else
                 if (parameters.All(p => p.HasDefaultValue || CanResolve(p.ParameterType)))
 #endif
                 {
-                    if (bestCtor == null)
-                    {
-                        bestCtor = ctorInfo;
-                    }
-                    else
-                    {
-                        // Since we're visiting constructors in decreasing order of number of parameters,
-                        // we'll only see ambiguities or supersets once we've seen a 'bestConstructor'.
-
-                        if (null == bestCtorParameters)
-                        {
-                            bestCtorParameters = new HashSet<Type>(
-                                bestCtor.GetParameters().Select(p => p.ParameterType));
-                        }
-
-                        if (!bestCtorParameters.IsSupersetOf(parameters.Select(p => p.ParameterType)))
-                        {
-                            if (bestCtorParameters.All(p => p.GetTypeInfo().IsInterface) &&
-                                !parameters.All(p => p.ParameterType.GetTypeInfo().IsInterface))
-                                return bestCtor;
-
-                            throw new InvalidOperationException($"Failed to select a constructor for {type.FullName}");
-                        }
-
-                        return bestCtor;
-                    }
+                    return ctorInfo;
                 }
             }
 
-            if (bestCtor == null)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to select a constructor for {type.FullName}");
-            }
-
-            return bestCtor;
+            return new InvalidOperationException(
+                $"Failed to select a constructor for {type.FullName}", new InvalidRegistrationException());
         }
 
-        private bool CanResolve(Type type)
+        protected bool CanResolve(Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();

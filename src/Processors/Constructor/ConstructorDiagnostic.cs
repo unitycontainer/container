@@ -10,6 +10,7 @@ using Unity.Policy;
 using Unity.Resolution;
 using Unity.Registration;
 using Unity.Injection;
+using System.Text.RegularExpressions;
 
 namespace Unity.Processors
 {
@@ -102,7 +103,8 @@ namespace Unity.Processors
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Multiple Injection Constructors are registered for Type {type.FullName}");
+                    return new[] { new InvalidOperationException($"Multiple Injection Constructors are registered for Type {type.FullName}", 
+                        new InvalidRegistrationException()) };
             }
 
             // Enumerate to array
@@ -137,11 +139,68 @@ namespace Unity.Processors
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Multiple Constructors are annotated for injection on Type {type.FullName}");
+                    return new[] { new InvalidOperationException($"Multiple Constructors are annotated for injection on Type {type.FullName}", 
+                        new InvalidRegistrationException()) };
             }
 
             // Select default
             return new[] { SelectMethod(type, constructors) };
+        }
+
+        protected override object SmartSelector(Type type, ConstructorInfo[] constructors)
+        {
+            Array.Sort(constructors, (a, b) =>
+            {
+                var qtd = b.GetParameters().Length.CompareTo(a.GetParameters().Length);
+
+                if (qtd == 0)
+                {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    return b.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0)
+                        .CompareTo(a.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0));
+#else
+                    return b.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0)
+                        .CompareTo(a.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0));
+#endif
+                }
+                return qtd;
+            });
+
+            int parametersCount = 0;
+            ConstructorInfo bestCtor = null;
+
+            foreach (var ctorInfo in constructors)
+            {
+                var parameters = ctorInfo.GetParameters();
+
+                if (null != bestCtor && parametersCount > parameters.Length) return bestCtor;
+                parametersCount = parameters.Length;
+
+#if NET40
+                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p.ParameterType)))
+#else
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(p.ParameterType)))
+#endif
+                {
+                    if (bestCtor == null)
+                    {
+                        bestCtor = ctorInfo;
+                    }
+                    else
+                    {
+                        var message = $"Ambiguous constructor: Failed to choose between {type.Name}{Regex.Match(bestCtor.ToString(), @"\((.*?)\)")} and {type.Name}{Regex.Match(ctorInfo.ToString(), @"\((.*?)\)")}";
+                        return new InvalidOperationException(message, new InvalidRegistrationException());
+                    }
+                }
+            }
+
+            if (bestCtor == null)
+            {
+                return new InvalidOperationException(
+                    $"Failed to select a constructor for {type.FullName}", new InvalidRegistrationException());
+            }
+
+            return bestCtor;
         }
 
         #endregion

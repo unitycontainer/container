@@ -12,7 +12,7 @@ namespace Unity.Injection
                 ConstructorInfo selection = null;
                 var ctor = (InjectionMember<ConstructorInfo, object[]>)member;
 
-                if (ctor.IsInitialized) throw new InvalidOperationException("Sharing InjectionConstructor between registrations is not supported");
+                if (ctor.IsInitialized) throw new InvalidOperationException("Sharing an InjectionConstructor between registrations is not supported");
 
                 // Select Constructor
                 foreach (var info in ctor.DeclaredMembers(type))
@@ -42,7 +42,7 @@ namespace Unity.Injection
                 MethodInfo selection = null;
                 var method = (InjectionMember<MethodInfo, object[]>)member;
 
-                if (method.IsInitialized) throw new InvalidOperationException("Sharing InjectionMethod between registrations is not supported");
+                if (method.IsInitialized) throw new InvalidOperationException("Sharing an InjectionMethod between registrations is not supported");
 
                 // Select Method
                 foreach (var info in type.GetDeclaredMethods())
@@ -109,7 +109,7 @@ namespace Unity.Injection
                 var field = (InjectionMember<FieldInfo, object>)member;
 
                 if (field.IsInitialized) throw new InvalidOperationException(
-                    "Sharing InjectionField between registrations is not supported");
+                    "Sharing an InjectionField between registrations is not supported");
 
                 // Select Field
                 foreach (var info in type.GetDeclaredFields())
@@ -158,7 +158,7 @@ namespace Unity.Injection
                 PropertyInfo selection = null;
                 var property = (InjectionMember<PropertyInfo, object>)member;
 
-                if (property.IsInitialized) throw new InvalidOperationException("Sharing InjectionProperty between registrations is not supported");
+                if (property.IsInitialized) throw new InvalidOperationException("Sharing an InjectionProperty between registrations is not supported");
 
                 // Select Property
                 foreach (var info in type.GetDeclaredProperties())

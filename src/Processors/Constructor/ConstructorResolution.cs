@@ -36,6 +36,15 @@ namespace Unity.Processors
                     resolvers = injectionMember.Data;
                     break;
 
+                case Exception exception:
+                    return (ref BuilderContext c) =>
+                    {
+                        if (null == c.Existing)
+                            throw exception;
+
+                        return c.Existing;
+                    };
+
                 default:
                     return (ref BuilderContext c) =>
                     {
