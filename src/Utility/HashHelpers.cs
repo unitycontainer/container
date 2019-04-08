@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Security;
 
 namespace Unity.Utility
 {
+    [SecuritySafeCritical]
     internal static class HashHelpers
     {
         // Table of prime numbers to use as hash table sizes. 
@@ -74,5 +76,24 @@ namespace Unity.Utility
 
         // This is the maximum prime smaller than Array.MaxArrayLength
         public const int MaxPrimeArrayLength = 0x7FEFFFFD;
+
+        public static void FillArray(int[] array, int value)
+        {
+#if !NET40
+            unsafe
+            {
+                fixed (int* bucketsPtr = array)
+                {
+                    int* ptr = bucketsPtr;
+                    var end = bucketsPtr + array.Length;
+                    while (ptr < end) *ptr++ = value;
+                }
+            }
+#else
+            for(int i = 0; i < array.Length; i++)
+                array[i] = value;
+#endif
+        }
+
     }
 }

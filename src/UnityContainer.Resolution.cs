@@ -26,48 +26,6 @@ namespace Unity
     [SecuritySafeCritical]
     public partial class UnityContainer
     {
-        #region Dynamic Registrations
-
-        private IPolicySet GetDynamicRegistration(Type type, string name)
-        {
-            var registration = _get(type, name);
-            if (null != registration) return registration;
-
-            var info = type.GetTypeInfo();
-            return !info.IsGenericType
-                ? _root.GetOrAdd(type, name)
-                : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
-        }
-
-        private IPolicySet CreateRegistration(Type type, string name)
-        {
-
-            var registration = new InternalRegistration(type, name);
-
-            if (type.GetTypeInfo().IsGenericType)
-            {
-                var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name);
-                if (null != factory)
-                {
-                    registration.InjectionMembers = factory.InjectionMembers;
-                    registration.Map = factory.Map;
-                }
-            }
-
-            registration.BuildChain = GetBuilders(type, registration);
-            return registration;
-        }
-
-        private IPolicySet CreateRegistration(Type type, Type policyInterface, object policy)
-        {
-            var registration = new InternalRegistration(policyInterface, policy);
-            registration.BuildChain = GetBuilders(type, registration);
-            return registration;
-        }
-
-        #endregion
-
-
         #region Resolving Collections
 
         internal static object ResolveEnumerable<TElement>(ref BuilderContext context)

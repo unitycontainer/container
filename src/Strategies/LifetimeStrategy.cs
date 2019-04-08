@@ -28,38 +28,13 @@ namespace Unity.Strategies
         {
             LifetimeManager policy = null;
 
-            if (context.Registration is ContainerRegistration registration)
+            if (context.Registration is InternalRegistration registration)
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
                 policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
-            if (null == policy)
-            {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                if (!context.RegistrationType.GetTypeInfo().IsGenericType) return;
-#else
-                if (!context.RegistrationType.IsGenericType) return;
-#endif
-                var manager = (LifetimeManager)context.Get(context.Type.GetGenericTypeDefinition(),
-                                                           context.Name, typeof(LifetimeManager));
-                if (null == manager) return;
 
-                lock (_genericLifetimeManagerLock)
-                {
-                    // check whether the policy for closed-generic has been added since first checked
-                    policy = (LifetimeManager)context.Registration.Get(typeof(LifetimeManager));
-                    if (null == policy)
-                    {
-                        policy = manager.CreateLifetimePolicy();
-                        context.Registration.Set(typeof(LifetimeManager), policy);
-
-                        if (policy is IDisposable)
-                        {
-                            context.Lifetime.Add(policy);
-                        }
-                    }
-                }
-            }
+            if (null == policy) return;
 
             if (policy is SynchronizedLifetimeManager recoveryPolicy)
                 context.RequiresRecovery = recoveryPolicy;
@@ -76,7 +51,7 @@ namespace Unity.Strategies
         {
             LifetimeManager policy = null;
 
-            if (context.Registration is ContainerRegistration registration)
+            if (context.Registration is InternalRegistration registration)
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
@@ -92,7 +67,7 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, Type type, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
-            var policy = registration.Get(typeof(LifetimeManager));
+            var policy = registration.LifetimeManager;
             if (null != policy)
             {
                 return policy is TransientLifetimeManager ? false : true;

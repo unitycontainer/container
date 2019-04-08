@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
@@ -19,7 +21,18 @@ namespace Unity
         #endregion
 
 
+        #region Delegates
+
+        private delegate IPolicySet RegisterDelegate(ref NamedType key, InternalRegistration registration);
+
+        #endregion
+
+
         #region Registration Fields
+
+        // Register single type
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private RegisterDelegate Register;
 
         internal IPolicySet Defaults;
         private readonly object _syncRoot = new object();
@@ -339,9 +352,112 @@ namespace Unity
         #endregion
 
 
+        #region Dynamic Registrations
+
+        private IPolicySet GetDynamicRegistration(Type type, string name)
+        {
+            var registration = _get(type, name);
+            if (null != registration) return registration;
+
+            var info = type.GetTypeInfo();
+            return !info.IsGenericType
+                ? _root.GetOrAdd(type, name)
+                : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
+        }
+
+        private IPolicySet CreateRegistration(Type type, string name)
+        {
+            var registration = new InternalRegistration(type, name);
+
+            if (type.GetTypeInfo().IsGenericType)
+            {
+                var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name);
+                if (null != factory)
+                {
+                    registration.InjectionMembers = factory.InjectionMembers;
+                    registration.Map = factory.Map;
+                    var manager = factory.LifetimeManager;
+                    if (null != manager)
+                    {
+                        var policy = manager.CreateLifetimePolicy();
+                        registration.LifetimeManager = policy;
+                        if (policy is IDisposable) LifetimeContainer.Add(policy);
+                    }
+                }
+            }
+
+            registration.BuildChain = GetBuilders(type, registration);
+            return registration;
+        }
+
+        private IPolicySet CreateRegistration(Type type, Type policyInterface, object policy)
+        {
+            var registration = new InternalRegistration(policyInterface, policy);
+            registration.BuildChain = GetBuilders(type, registration);
+            return registration;
+        }
+
+        #endregion
+
+
         #region Registration manipulation
 
-        private IPolicySet AddOrUpdate(Type type, string name, InternalRegistration registration)
+        private IEnumerable<IPolicySet> AddOrReplaceRegistrations(IEnumerable<Type> interfaces, string name, ContainerRegistration registration)
+        {
+            NamedType key;
+            int count = 0;
+
+            key.Name = name;
+
+            if (null != interfaces)
+            {
+                foreach (var type in interfaces)
+                {
+                    // Type to register
+                    key.Type = type;
+
+                    // Add or replace existing 
+                    var previous = Register(ref key, registration);
+
+                    // Add reference count
+                    registration.AddRef();
+
+                    // Allow reference adjustment and disposal
+                    if (previous is ContainerRegistration old && 
+                        old.LifetimeManager is IDisposable disposable)
+                    {
+                        yield return previous;
+                    }
+
+                    count++;
+                }
+            }
+
+            if (0 == count)
+            {
+                // TODO: Move to diagnostic
+                if (null == registration.Type) throw new ArgumentNullException(nameof(interfaces));
+
+                // Type to register
+                key.Type = registration.Type;
+
+                // Add or replace existing 
+                var previous = Register(ref key, registration);
+
+                // Add reference count
+                registration.AddRef();
+
+                // Allow reference adjustment and disposal
+                if (previous is ContainerRegistration old &&
+                    old.LifetimeManager is IDisposable disposable)
+                {
+                    yield return previous;
+                }
+            }
+        }
+
+
+        private IPolicySet AddOrUpdateLegacy(Type type, string name, InternalRegistration registration)
         {
             var collisions = 0;
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;

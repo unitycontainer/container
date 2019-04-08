@@ -7,7 +7,6 @@ using Unity.Utility;
 
 namespace Unity.Storage
 {
-    [SecuritySafeCritical]
     [DebuggerDisplay("Registrations ({Count}) ")]
     internal class Registrations : IRegistry<Type, IRegistry<string, IPolicySet>>
     {
@@ -32,23 +31,11 @@ namespace Unity.Storage
         public Registrations(int capacity)
         {
             var size = HashHelpers.GetPrime(capacity);
+
             Buckets = new int[size];
             Entries = new Entry[size];
 
-#if !NET40
-            unsafe
-            {
-                fixed (int* bucketsPtr = Buckets)
-                {
-                    int* ptr = bucketsPtr;
-                    var end = bucketsPtr + Buckets.Length;
-                    while (ptr < end) *ptr++ = -1;
-                }
-            }
-#else
-            for(int i = 0; i < Buckets.Length; i++)
-                Buckets[i] = -1;
-#endif
+            HashHelpers.FillArray(Buckets, -1);
         }
 
         public Registrations(int capacity, LinkedNode<Type, IRegistry<string, IPolicySet>> head)
