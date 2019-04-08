@@ -32,6 +32,9 @@ namespace Unity
             // Context
             _context = new ContainerContext(this);
 
+            // Registry
+            Register = InitAndAdd;
+
             // Methods
             _get = Get;
             _getGenericRegistration = GetOrAddGeneric;
@@ -39,7 +42,7 @@ namespace Unity
             IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
 
             GetRegistration = GetOrAdd;
-            Register = AddOrUpdate;
+            RegisterLegacy = AddOrUpdateLegacy;
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
@@ -78,6 +81,7 @@ namespace Unity
 
             // Register this instance
             ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
+            ((IUnityContainerAsync)this).RegisterInstance(new[] { typeof(IUnityContainer) }, null, this, new ContainerLifetimeManager());
         }
 
         #endregion

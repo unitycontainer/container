@@ -58,7 +58,7 @@ namespace Unity
         internal Func<Type, string, IPolicySet> GetRegistration;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string, InternalRegistration, IPolicySet> Register;
+        internal Func<Type, string, InternalRegistration, IPolicySet> RegisterLegacy;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal GetPolicyDelegate GetPolicy;
@@ -98,6 +98,8 @@ namespace Unity
             _root = _parent._root;
             SetDefaultPolicies = parent.SetDefaultPolicies;
 
+            // Registry
+
             // Methods
             _get = _parent._get;
             _getGenericRegistration = _parent._getGenericRegistration;
@@ -105,7 +107,7 @@ namespace Unity
             IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
 
             GetRegistration = _parent.GetRegistration;
-            Register = CreateAndSetOrUpdate;
+            RegisterLegacy = CreateAndSetOrUpdate;
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
@@ -242,7 +244,7 @@ namespace Unity
                     SetupChildContainerBehaviors();
             }
 
-            return AddOrUpdate(type, name, registration);
+            return AddOrUpdateLegacy(type, name, registration);
         }
 
         private void SetupChildContainerBehaviors()
@@ -254,7 +256,7 @@ namespace Unity
                     _registrations = new Registrations(ContainerInitialCapacity);
                     Set(null, null, Defaults);
 
-                    Register = AddOrUpdate;
+                    RegisterLegacy = AddOrUpdateLegacy;
                     GetPolicy = Get;
                     SetPolicy = Set;
                     ClearPolicy = Clear;

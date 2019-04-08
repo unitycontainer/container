@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Storage;
 using Unity.Strategies;
@@ -11,16 +13,28 @@ namespace Unity.Registration
     public class InternalRegistration : LinkedNode<Type, object>,
                                         IPolicySet
     {
+        #region Fields
+
+        private int _refCount;
+
+        #endregion
+
         #region Constructors
 
         public InternalRegistration()
         {
+            Key = typeof(LifetimeManager);
         }
 
         public InternalRegistration(Type policyInterface, object policy)
         {
-            Key = policyInterface;
-            Value = policy;
+            Key = typeof(LifetimeManager);
+            Next = new LinkedNode<Type, object>
+            {
+                Key = policyInterface,
+                Value = policy,
+                Next = Next
+            };
         }
 
         #endregion
@@ -35,6 +49,17 @@ namespace Unity.Registration
         public bool BuildRequired { get; set; }
 
         public Converter<Type, Type> Map { get; set; }
+
+        // TODO: Streamline LifetimeManager usage
+        public LifetimeManager LifetimeManager
+        {
+            get => (LifetimeManager)Value;
+            set => Value = value;
+        }
+
+        public virtual int AddRef() => Interlocked.Increment(ref _refCount);
+
+        public virtual int Release() => Interlocked.Decrement(ref _refCount);
 
         #endregion
 
@@ -54,20 +79,12 @@ namespace Unity.Registration
 
         public virtual void Set(Type policyInterface, object policy)
         {
-            if (null == Value && null == Key)
+            Next = new LinkedNode<Type, object>
             {
-                Key = policyInterface;
-                Value = policy;
-            }
-            else
-            {
-                Next = new LinkedNode<Type, object>
-                {
-                    Key = policyInterface,
-                    Value = policy,
-                    Next = Next
-                };
-            }
+                Key = policyInterface,
+                Value = policy,
+                Next = Next
+            };
         }
 
         public virtual void Clear(Type policyInterface)

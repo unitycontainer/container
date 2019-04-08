@@ -45,7 +45,7 @@ namespace Unity
                 var registration = new ContainerRegistration(_validators, typeTo, (LifetimeManager)lifetimeManager, injectionMembers);
 
                 // Add or replace existing 
-                var previous = container.Register(registeredType, name, registration);
+                var previous = container.RegisterLegacy(registeredType, name, registration);
                 if (previous is ContainerRegistration old &&
                     old.LifetimeManager is IDisposable disposable)
                 {
@@ -125,7 +125,7 @@ namespace Unity
                 var registration = new ContainerRegistration(null, mappedToType, ((LifetimeManager)lifetimeManager));
 
                 // Add or replace existing 
-                var previous = container.Register(typeFrom, name, registration);
+                var previous = container.RegisterLegacy(typeFrom, name, registration);
                 if (previous is ContainerRegistration old &&
                     old.LifetimeManager is IDisposable disposable)
                 {
@@ -183,7 +183,7 @@ namespace Unity
             var registration = new ContainerRegistration(_validators, type, ((LifetimeManager)lifetimeManager), injectionMembers);
 
             // Add or replace existing 
-            var previous = container.Register(type, name, registration);
+            var previous = container.RegisterLegacy(type, name, registration);
             if (previous is ContainerRegistration old &&
                 old.LifetimeManager is IDisposable disposable)
             {
