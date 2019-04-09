@@ -23,7 +23,19 @@ namespace Unity
 
         #region Delegates
 
-        private delegate IPolicySet RegisterDelegate(ref NamedType key, InternalRegistration registration);
+        private delegate InternalRegistration RegisterDelegate(ref NamedType key, InternalRegistration registration);
+        internal delegate InternalRegistration GetRegistrationDelegate(ref NamedType key);
+
+        #endregion
+
+
+        #region Registration Methods
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private RegisterDelegate Register;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal GetRegistrationDelegate GetRegistration;
 
         #endregion
 
@@ -31,8 +43,6 @@ namespace Unity
         #region Registration Fields
 
         // Register single type
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private RegisterDelegate Register;
 
         internal IPolicySet Defaults;
         private readonly object _syncRoot = new object();
@@ -191,40 +201,15 @@ namespace Unity
             var seed = null != container._parent ? GetRegistrations(container._parent)
                                                  : new RegistrationSet();
 
-            if (null == container._registrations) return seed;
+            if (null == container._registry) return seed;
 
-            var length = container._registrations.Count;
-            var entries = container._registrations.Entries;
+            var registry = container._registry;
 
-            for (var i = null == container._parent ? GetStartIndex() : 0; i < length; i++)
+            for (var i = null == container._parent ? GetStartIndex() : 0; i < registry.Count; i++)
             {
-                ref var entry = ref entries[i];
-                var registry = entry.Value;
-
-                switch (registry)
-                {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                        {
-                            if (node.Value is ContainerRegistration containerRegistration)
-                                seed.Add(entry.Key, node.Key, containerRegistration);
-                        }
-                        break;
-
-                    case HashRegistry hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration)
-                                seed.Add(entry.Key, refNode.Key, containerRegistration);
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
-                }
+                ref var entry = ref registry.Entries[i];
+                if (entry.Registration is ContainerRegistration containerRegistration)
+                    seed.Add(entry.Key.Type, entry.Key.Name, containerRegistration);
             }
 
             return seed;
@@ -232,9 +217,9 @@ namespace Unity
             int GetStartIndex()
             {
                 int start = -1;
-                while (++start < length)
+                while (++start < registry.Count)
                 {
-                    if (typeof(IUnityContainer) != container._registrations.Entries[start].Key)
+                    if (typeof(IUnityContainer) != container._registry.Entries[start].Key.Type)
                         continue;
                     return start;
                 }
@@ -248,36 +233,17 @@ namespace Unity
             var seed = null != container._parent ? GetRegistrations(container._parent, types)
                                                  : new RegistrationSet();
 
-            if (null == container._registrations) return seed;
+            if (null == container._registry) return seed;
+
+            var registry = container._registry;
 
             foreach (var type in types)
             {
-                var registry = container.Get(type);
-                if (null == registry?.Values) continue;
-
-                switch (registry)
+                foreach (var i in container._metadata.Get(type))
                 {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                        {
-                            if (node.Value is ContainerRegistration containerRegistration)
-                                seed.Add(type, node.Key, containerRegistration);
-                        }
-                        break;
-
-                    case HashRegistry hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration)
-                                seed.Add(type, refNode.Key, containerRegistration);
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
+                    ref var entry = ref registry.Entries[i];
+                    if (entry.Registration is ContainerRegistration containerRegistration)
+                        seed.Add(entry.Key.Type, entry.Key.Name, containerRegistration);
                 }
             }
 
@@ -291,34 +257,15 @@ namespace Unity
 
             if (null == container._registrations) return seed;
 
+            var registry = container._registry;
+
             foreach (var type in types)
             {
-                var registry = container.Get(type);
-                if (null == registry?.Values) continue;
-
-                switch (registry)
+                foreach (var i in container._metadata.Get(type))
                 {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                        {
-                            if (node.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(node.Key))
-                                seed.Add(type, node.Key, containerRegistration);
-                        }
-                        break;
-
-                    case HashRegistry hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(refNode.Key))
-                                seed.Add(type, refNode.Key, containerRegistration);
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
+                    ref var entry = ref registry.Entries[i];
+                    if (entry.Registration is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(entry.Key.Name))
+                        seed.Add(entry.Key.Type, entry.Key.Name, containerRegistration);
                 }
             }
 
@@ -365,8 +312,36 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
+
+        private InternalRegistration CreateRegistration(ref NamedType key)
+        {
+            // TODO: Verify constructor
+            var registration = new InternalRegistration(key.Type, key.Name);
+
+            if (key.Type.GetTypeInfo().IsGenericType)
+            {
+                var factory = (InternalRegistration)_get(key.Type.GetGenericTypeDefinition(), key.Name);
+                if (null != factory)
+                {
+                    registration.InjectionMembers = factory.InjectionMembers;
+                    registration.Map = factory.Map;
+                    var manager = factory.LifetimeManager;
+                    if (null != manager)
+                    {
+                        var policy = manager.CreateLifetimePolicy();
+                        registration.LifetimeManager = policy;
+                        if (policy is IDisposable) LifetimeContainer.Add(policy);
+                    }
+                }
+            }
+
+            registration.BuildChain = GetBuilders(key.Type, registration);
+            return registration;
+        }
+
         private IPolicySet CreateRegistration(Type type, string name)
         {
+            // TODO: Verify constructor
             var registration = new InternalRegistration(type, name);
 
             if (type.GetTypeInfo().IsGenericType)
@@ -405,8 +380,8 @@ namespace Unity
         private IEnumerable<IPolicySet> AddOrReplaceRegistrations(IEnumerable<Type> interfaces, string name, ContainerRegistration registration)
         {
             NamedType key;
-            int count = 0;
 
+            int count = 0;
             key.Name = name;
 
             if (null != interfaces)
@@ -418,16 +393,7 @@ namespace Unity
 
                     // Add or replace existing 
                     var previous = Register(ref key, registration);
-
-                    // Add reference count
-                    registration.AddRef();
-
-                    // Allow reference adjustment and disposal
-                    if (previous is ContainerRegistration old && 
-                        old.LifetimeManager is IDisposable disposable)
-                    {
-                        yield return previous;
-                    }
+                    if (null != previous) yield return previous;
 
                     count++;
                 }
@@ -443,19 +409,15 @@ namespace Unity
 
                 // Add or replace existing 
                 var previous = Register(ref key, registration);
-
-                // Add reference count
-                registration.AddRef();
-
-                // Allow reference adjustment and disposal
-                if (previous is ContainerRegistration old &&
-                    old.LifetimeManager is IDisposable disposable)
-                {
-                    yield return previous;
-                }
+                if (null != previous) yield return previous;
             }
         }
 
+
+        #endregion
+
+
+        #region Legacy
 
         private IPolicySet AddOrUpdateLegacy(Type type, string name, InternalRegistration registration)
         {

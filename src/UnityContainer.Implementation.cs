@@ -54,11 +54,6 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         // Methods
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string, IPolicySet> GetRegistration;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string, InternalRegistration, IPolicySet> RegisterLegacy;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal GetPolicyDelegate GetPolicy;
@@ -107,7 +102,6 @@ namespace Unity
             IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
 
             GetRegistration = _parent.GetRegistration;
-            RegisterLegacy = CreateAndSetOrUpdate;
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
@@ -256,12 +250,9 @@ namespace Unity
                     _registrations = new Registrations(ContainerInitialCapacity);
                     Set(null, null, Defaults);
 
-                    RegisterLegacy = AddOrUpdateLegacy;
                     GetPolicy = Get;
                     SetPolicy = Set;
                     ClearPolicy = Clear;
-
-                    GetRegistration = GetDynamicRegistration;
 
                     _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
                     _getGenericRegistration = GetOrAddGeneric;

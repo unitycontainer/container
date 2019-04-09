@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 using Unity.Utility;
 
@@ -59,7 +59,7 @@ namespace Unity.Storage
             public int HashCode;
             public NamedType Key;
             public int Next;
-            public IPolicySet Reference;
+            public InternalRegistration Registration;
         }
 
         #endregion

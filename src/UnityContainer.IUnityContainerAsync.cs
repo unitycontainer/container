@@ -100,6 +100,9 @@ namespace Unity
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
             var registration = new ContainerRegistration(mappedToType, (LifetimeManager)lifetimeManager);
 
+            // If Disposable add to container's lifetime
+            if (lifetimeManager is IDisposable manager) container.LifetimeContainer.Add(manager);
+
             // Register interfaces
             var replaced = container.AddOrReplaceRegistrations(interfaces, name, registration)
                                     .ToArray();
