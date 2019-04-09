@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Unity.Utility;
 
 namespace Unity.Storage
@@ -12,6 +14,7 @@ namespace Unity.Storage
         private int[] Buckets;
         private Entry[] Entries;
         private int Count;
+        public static readonly int[] Empty = new int[0];
 
         #endregion
 
@@ -76,12 +79,31 @@ namespace Unity.Storage
 
             // Add new entry
             ref var entry = ref Entries[Count];
-            entry.HashCode = hashCode;
             entry.Next = Buckets[targetBucket];
             entry.Key = key;
             entry.Count = 1;
             entry.Data = new int[] { value, -1 };
+            entry.HashCode = hashCode;
             Buckets[targetBucket] = Count++;
+        }
+
+        // TODO: Performance
+        public IEnumerable<int> Get(Type key)
+        {
+            var hashCode = (key?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % Buckets.Length;
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.HashCode != hashCode || !Equals(candidate.Key, key)) continue;
+
+                var count = candidate.Count;
+                var data = candidate.Data;
+
+                return data.Take(count);
+            }
+
+            return Empty;
         }
 
         #endregion

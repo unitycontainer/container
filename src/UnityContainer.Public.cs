@@ -41,8 +41,6 @@ namespace Unity
             _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
             IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
 
-            GetRegistration = GetOrAdd;
-            RegisterLegacy = AddOrUpdateLegacy;
             GetPolicy = Get;
             SetPolicy = Set;
             ClearPolicy = Clear;
@@ -81,7 +79,6 @@ namespace Unity
 
             // Register this instance
             ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
-            ((IUnityContainerAsync)this).RegisterInstance(new[] { typeof(IUnityContainer) }, null, this, new ContainerLifetimeManager());
         }
 
         #endregion
