@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -13,6 +14,7 @@ namespace Unity
         private const int CollisionsCutPoint = 5;
 
         #endregion
+
 
         #region Fields
 
@@ -149,6 +151,68 @@ namespace Unity
                 return entry.Registration;
             }
         }
+
+        #endregion
+
+
+        #region Verification
+
+        internal bool RegistrationExists(ref NamedType key)
+        {
+            var hashCode = key.GetHashCode() & 0x7FFFFFFF;
+
+            Type type = null;
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var info = key.Type.GetTypeInfo();
+            if (info.IsGenericType) type = info.GetGenericTypeDefinition();
+#else
+            if (key.Type.IsGenericType) type = key.Type.GetGenericTypeDefinition();
+#endif
+            // Iterate through containers hierarchy
+            for (var container = this; null != container; container = container._parent)
+            {
+                var registry = container._registry;
+
+                if (null == registry) continue;
+
+                // Look for exact match
+                var targetBucket = hashCode % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key.Type != key.Type)
+                    {
+                        continue;
+                    }
+
+                    return true;    // Found a registration
+                }
+
+                if (null == type) continue;
+
+                var metadate = container._metadata;
+
+                // Look for generic factory
+                targetBucket = hashCode % metadate.Buckets.Length;
+                for (var i = metadate.Buckets[targetBucket]; i >= 0; i = metadate.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key.Type != key.Type)
+                    {
+                        continue;
+                    }
+
+                    return true;    // Found a registration
+                }
+
+
+            }
+
+            return false;
+        }
+
 
         #endregion
     }
