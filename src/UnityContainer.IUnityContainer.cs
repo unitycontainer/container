@@ -243,8 +243,7 @@ namespace Unity
             if (null == type) throw new ArgumentNullException(nameof(type));
             name = string.IsNullOrEmpty(name) ? null : name;
 
-            NamedType key = new NamedType { Name = name, Type = type };
-            var registration = (InternalRegistration)GetRegistration(ref key);
+            var registration = GetRegistration(type, name);
             var context = new BuilderContext
             {
                 List = new PolicyList(),
@@ -276,8 +275,7 @@ namespace Unity
             // Validate if they are assignable
             if (null != existing && null != TypeValidator) TypeValidator(type, existing.GetType());
 
-            NamedType key = new NamedType { Name = name, Type = type };
-            var registration = (InternalRegistration)GetRegistration(ref key);
+            var registration = GetRegistration(type, name);
             var context = new BuilderContext
             {
                 List = new PolicyList(),

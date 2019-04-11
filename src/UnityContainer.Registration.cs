@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -24,7 +25,6 @@ namespace Unity
         #region Delegates
 
         private delegate InternalRegistration RegisterDelegate(ref NamedType key, InternalRegistration registration);
-        internal delegate InternalRegistration GetRegistrationDelegate(ref NamedType key);
 
         #endregion
 
@@ -33,9 +33,6 @@ namespace Unity
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private RegisterDelegate Register;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal GetRegistrationDelegate GetRegistration;
 
         #endregion
 
@@ -122,73 +119,80 @@ namespace Unity
             return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
         }
 
-
-        internal bool RegistrationExists(Type type, string name)
+        internal bool RegistrationExists(ref BuilderContext context)
         {
-            IPolicySet defaultRegistration = null;
-            IPolicySet noNameRegistration = null;
 
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            for (var container = this; null != container; container = container._parent)
-            {
-                if (null == container._registrations) continue;
-
-                var targetBucket = hashCode % container._registrations.Buckets.Length;
-                for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
-                {
-                    ref var candidate = ref container._registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
-                    {
-                        continue;
-                    }
-
-                    var registry = candidate.Value;
-
-                    if (null != registry[name]) return true;
-                    if (null == defaultRegistration) defaultRegistration = registry[All];
-                    if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
-                }
-            }
-
-            if (null != defaultRegistration) return true;
-            if (null != noNameRegistration) return true;
+            Type generic = null;
+            int targetBucket, hashGeneric = -1, hashDefault = -1;
+            int hashExact = NamedType.GetHashCode(context.Type, context.Name) & 0x7FFFFFFF;
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            var info = type.GetTypeInfo();
-            if (!info.IsGenericType) return false;
-
-            type = info.GetGenericTypeDefinition();
+            var info = context.Type.GetTypeInfo();
+            if (info.IsGenericType)
+            {
+                generic = info.GetGenericTypeDefinition();
+                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
+                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & 0x7FFFFFFF : hashDefault;
+            }
 #else
-            if (!type?.IsGenericType ?? false) return false;
-
-            type = type?.GetGenericTypeDefinition();
+            if (context.Type.IsGenericType)
+            {
+                generic = context.Type.GetGenericTypeDefinition();
+                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
+                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & 0x7FFFFFFF : hashDefault;
+            }
 #endif
-            hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+
+            // Iterate through containers hierarchy
             for (var container = this; null != container; container = container._parent)
             {
-                if (null == container._registrations) continue;
+                // Skip to parent if no registrations
+                if (null == container._registry) continue;
 
-                var targetBucket = hashCode % container._registrations.Buckets.Length;
-                for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
+                var registry = container._registry;
+
+                // Check for exact match
+                targetBucket = hashExact % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
-                    ref var candidate = ref container._registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
-                    {
-                        continue;
-                    }
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.Key.Type != context.Type) continue;
 
-                    var registry = candidate.Value;
-
-                    if (null != registry[name]) return true;
-                    if (null == defaultRegistration) defaultRegistration = registry[All];
-                    if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
+                    // Found a registration
+                    return true;
                 }
+
+                // Skip to parent if not generic
+                if (null == generic) continue;
+
+                // Check for factory with same name
+                targetBucket = hashGeneric % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.Key.Type != generic) continue;
+
+                    // Found a factory
+                    return true;
+                }
+
+                // Skip to parent if not generic
+                if (hashGeneric == hashDefault) continue;
+
+                // Check for default factory
+                targetBucket = hashDefault % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.Key.Type != generic) continue;
+
+                    // Found a factory
+                    return true;
+                }
+
             }
 
-            if (null != defaultRegistration) return true;
-            return null != noNameRegistration;
+            return false;
         }
 
         #endregion
@@ -208,7 +212,7 @@ namespace Unity
             for (var i = null == container._parent ? GetStartIndex() : 0; i < registry.Count; i++)
             {
                 ref var entry = ref registry.Entries[i];
-                if (entry.Registration is ContainerRegistration containerRegistration)
+                if (entry.Value is ContainerRegistration containerRegistration)
                     seed.Add(entry.Key.Type, entry.Key.Name, containerRegistration);
             }
 
@@ -242,7 +246,7 @@ namespace Unity
                 foreach (var i in container._metadata.Get(type))
                 {
                     ref var entry = ref registry.Entries[i];
-                    if (entry.Registration is ContainerRegistration containerRegistration)
+                    if (entry.Value is ContainerRegistration containerRegistration)
                         seed.Add(entry.Key.Type, entry.Key.Name, containerRegistration);
                 }
             }
@@ -264,7 +268,7 @@ namespace Unity
                 foreach (var i in container._metadata.Get(type))
                 {
                     ref var entry = ref registry.Entries[i];
-                    if (entry.Registration is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(entry.Key.Name))
+                    if (entry.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(entry.Key.Name))
                         seed.Add(entry.Key.Type, entry.Key.Name, containerRegistration);
                 }
             }
@@ -301,6 +305,81 @@ namespace Unity
 
         #region Dynamic Registrations
 
+        internal InternalRegistration GetRegistration(Type type, string name)
+        {
+            Type generic = null;
+            int targetBucket, hashGeneric = -1, hashDefault = -1;
+            int hashExact = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var info = type.GetTypeInfo();
+            if (info.IsGenericType)
+            {
+                generic = info.GetGenericTypeDefinition();
+                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
+                hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & 0x7FFFFFFF : hashDefault;
+            }
+#else
+            if (type.IsGenericType)
+            {
+                generic = type.GetGenericTypeDefinition();
+                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
+                hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & 0x7FFFFFFF : hashDefault;
+            }
+#endif
+
+            // Iterate through containers hierarchy
+            for (var container = this; null != container; container = container._parent)
+            {
+                // Skip to parent if no registrations
+                if (null == container._registry) continue;
+
+                var registry = container._registry;
+
+                // Check for exact match
+                targetBucket = hashExact % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.Key.Type != type) continue;
+
+                    // Found a registration
+                    return candidate.Value;
+                }
+
+                // Skip to parent if not generic
+                if (null == generic) continue;
+
+                // Check for factory with same name
+                targetBucket = hashGeneric % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.Key.Type != generic) continue;
+
+                    // Found a factory
+                    return container.GetOrAdd(hashExact, type, name, candidate.Value);
+                }
+
+                // Skip to parent if not generic
+                if (hashGeneric == hashDefault) continue;
+
+                // Check for default factory
+                targetBucket = hashDefault % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.Key.Type != generic) continue;
+
+                    // Found a factory
+                    return container.GetOrAdd(hashExact, type, name, candidate.Value);
+                }
+
+            }
+
+            return _root.GetOrAdd(hashExact, type, name, null);
+        }
+
         private IPolicySet GetDynamicRegistration(Type type, string name)
         {
             var registration = _get(type, name);
@@ -312,30 +391,24 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
-
-        private InternalRegistration CreateRegistration(ref NamedType key)
+        private InternalRegistration CreateRegistration(Type type, string name, InternalRegistration factory)
         {
-            // TODO: Verify constructor
-            var registration = new InternalRegistration(key.Type, key.Name);
+            var registration = new InternalRegistration(type, name);
 
-            if (key.Type.GetTypeInfo().IsGenericType)
+            if (null != factory)
             {
-                var factory = (InternalRegistration)_get(key.Type.GetGenericTypeDefinition(), key.Name);
-                if (null != factory)
+                registration.InjectionMembers = factory.InjectionMembers;
+                registration.Map = factory.Map;
+                var manager = factory.LifetimeManager;
+                if (null != manager)
                 {
-                    registration.InjectionMembers = factory.InjectionMembers;
-                    registration.Map = factory.Map;
-                    var manager = factory.LifetimeManager;
-                    if (null != manager)
-                    {
-                        var policy = manager.CreateLifetimePolicy();
-                        registration.LifetimeManager = policy;
-                        if (policy is IDisposable) LifetimeContainer.Add(policy);
-                    }
+                    var policy = manager.CreateLifetimePolicy();
+                    registration.LifetimeManager = policy;
+                    if (policy is IDisposable) LifetimeContainer.Add(policy);
                 }
             }
 
-            registration.BuildChain = GetBuilders(key.Type, registration);
+            registration.BuildChain = GetBuilders(type, registration);
             return registration;
         }
 

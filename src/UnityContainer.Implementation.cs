@@ -101,7 +101,6 @@ namespace Unity
             _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
             IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
 
-            GetRegistration = _parent.GetRegistration;
             GetPolicy = parent.GetPolicy;
             SetPolicy = CreateAndSetPolicy;
             ClearPolicy = delegate { };
@@ -221,7 +220,7 @@ namespace Unity
 
         private void CreateAndSetPolicy(Type type, string name, Type policyInterface, object policy)
         {
-            lock (GetRegistration)
+            lock (LifetimeContainer)
             {
                 if (null == _registrations)
                     SetupChildContainerBehaviors();
@@ -232,7 +231,7 @@ namespace Unity
 
         private IPolicySet CreateAndSetOrUpdate(Type type, string name, InternalRegistration registration)
         {
-            lock (GetRegistration)
+            lock (LifetimeContainer)
             {
                 if (null == _registrations)
                     SetupChildContainerBehaviors();
@@ -360,7 +359,7 @@ namespace Unity
                 _extensions = null;
             }
 
-            lock (GetRegistration)
+            lock (LifetimeContainer)
             {
                 _registrations = new Registrations(1);
             }

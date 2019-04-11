@@ -76,8 +76,9 @@ namespace Unity.Strategies
             if (null != map) context.Type = map(context.Type);
 
             if (!((InternalRegistration)context.Registration).BuildRequired &&
-                ((UnityContainer)context.Container).RegistrationExists(context.Type, context.Name))
+                ((UnityContainer)context.Container).RegistrationExists(ref context))
             {
+                // TODO: Optimize call, no need for parameters
                 context.Existing = context.Resolve(context.Type, context.Name);
                 context.BuildComplete = true;
             }

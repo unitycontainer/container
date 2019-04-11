@@ -64,9 +64,7 @@ namespace Unity.Builder
                 }
             }
 
-            NamedType key = new NamedType { Name = name, Type = type };
-
-            return Resolve(type, name, (InternalRegistration)((UnityContainer)Container).GetRegistration(ref key));
+            return Resolve(type, name, (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
         }
 
         #endregion
