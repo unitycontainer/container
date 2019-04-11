@@ -7,6 +7,9 @@ namespace Unity.Resolution
         public Type Type;
         public string Name;
 
-        public override int GetHashCode() => ((Type?.GetHashCode() ?? 0) + 37) ^ ((Name?.GetHashCode() ?? 0) + 17);
+        public override int GetHashCode() => GetHashCode(Type, Name);
+
+        public static int GetHashCode(Type type, string name) => ((type?.GetHashCode() ?? 0) + 37) ^ ((name?.GetHashCode() ?? 0) + 17);
+
     }
 }
