@@ -53,6 +53,7 @@ namespace Unity
 
         private bool IsExplicitlyRegisteredLocally(Type type, string name)
         {
+            
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -200,9 +201,9 @@ namespace Unity
 
         #region Registrations Collections
 
-        private static RegistrationSet GetRegistrations(UnityContainer container)
+        private static RegistrationSet GetExplicitRegistrations(UnityContainer container)
         {
-            var seed = null != container._parent ? GetRegistrations(container._parent)
+            var seed = null != container._parent ? GetExplicitRegistrations(container._parent)
                                                  : new RegistrationSet();
 
             if (null == container._registry) return seed;
@@ -223,8 +224,9 @@ namespace Unity
                 int start = -1;
                 while (++start < registry.Count)
                 {
-                    if (typeof(IUnityContainer) != container._registry.Entries[start].Key.Type)
+                    if (typeof(IUnityContainer) != registry.Entries[start].Key.Type)
                         continue;
+
                     return start;
                 }
 

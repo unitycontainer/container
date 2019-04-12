@@ -7,6 +7,7 @@ using Unity.Extension;
 using Unity.Factories;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -80,6 +81,34 @@ namespace Unity
             // Register this instance
             ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
         }
+
+        #endregion
+
+
+        #region Registrations
+
+        /// <inheritdoc />
+        public bool IsRegistered(Type type, string name)
+        {
+            int hashCode = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
+
+            // Iterate through hierarchy and check if exists
+            for (var container = this; null != container; container = container._parent)
+            {
+                // Skip to parent if no registry
+                if (null == container._registry)
+                    continue;
+
+                // Look for exact match
+                if (container._registry.Contains(hashCode, type))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<IContainerRegistration> Registrations => GetExplicitRegistrations(this);
 
         #endregion
 

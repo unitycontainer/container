@@ -133,26 +133,6 @@ namespace Unity
         #endregion
 
 
-        #region Registrations
-
-        /// <inheritdoc />
-        IEnumerable<IContainerRegistration> IUnityContainerAsync.Registrations
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <inheritdoc />
-        bool IUnityContainerAsync.IsRegistered(Type type, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
         #region Hierarchy
 
         /// <inheritdoc />

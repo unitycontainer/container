@@ -223,17 +223,6 @@ namespace Unity
         #endregion
 
 
-        #region Registrations
-
-        /// <inheritdoc />
-        bool IUnityContainer.IsRegistered(Type type, string name) => ReferenceEquals(All, name) ? IsTypeExplicitlyRegistered(type)
-                                                                                                : _isExplicitlyRegistered(type, name);
-        /// <inheritdoc />
-        IEnumerable<IContainerRegistration> IUnityContainer.Registrations => GetRegistrations(this);
-
-        #endregion
-
-
         #region Getting objects
 
         /// <inheritdoc />

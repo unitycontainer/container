@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -26,6 +25,67 @@ namespace Unity
     [SecuritySafeCritical]
     public partial class UnityContainer
     {
+        #region Constants
+
+        private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
+        
+        #endregion
+
+
+        #region Check if can resolve
+
+        internal bool CanResolve(Type type, string name)
+        {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var info = type.GetTypeInfo();
+#else
+            var info = type;
+#endif
+            if (info.IsClass)
+            {
+                // Array could be either registered or Type can be resolved
+                if (type.IsArray)
+                {
+                    return IsRegistered(type, name) || CanResolve(type.GetElementType(), name);
+                }
+
+                // Type must be registered if:
+                // - String
+                // - Enumeration
+                // - Primitive
+                // - Abstract
+                // - Interface
+                // - No accessible constructor
+                if (DelegateType.IsAssignableFrom(info) ||
+                    typeof(string) == type || info.IsEnum || info.IsPrimitive || info.IsAbstract
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    || !info.DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
+#else
+                    || !type.GetTypeInfo().DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
+#endif
+                    return IsRegistered(type, name);
+
+                return true;
+            }
+
+            // Can resolve if IEnumerable or factory is registered
+            if (info.IsGenericType)
+            {
+                var genericType = type.GetGenericTypeDefinition();
+
+                if (genericType == typeof(IEnumerable<>) || CanResolve(genericType, name))
+                {
+                    return true;
+                }
+            }
+
+            // Check if Type is registered
+            return IsRegistered(type, name);
+        }
+
+        #endregion
+
+
         #region Resolving Collections
 
         internal static object ResolveEnumerable<TElement>(ref BuilderContext context)
