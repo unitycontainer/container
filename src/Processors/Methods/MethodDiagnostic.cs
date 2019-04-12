@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
@@ -17,8 +15,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public MethodDiagnostic(IPolicySet policySet) 
-            : base(policySet)
+        public MethodDiagnostic(IPolicySet policySet, UnityContainer container) 
+            : base(policySet, container)
         {
         }
 
