@@ -68,8 +68,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        public ConstructorDiagnostic(IPolicySet policySet, Func<Type, bool> isTypeRegistered) 
-            : base(policySet, isTypeRegistered)
+        public ConstructorDiagnostic(IPolicySet policySet, UnityContainer container) 
+            : base(policySet, container)
         {
         }
 
@@ -177,9 +177,9 @@ namespace Unity.Processors
                 parametersCount = parameters.Length;
 
 #if NET40
-                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p.ParameterType)))
+                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p)))
 #else
-                if (parameters.All(p => p.HasDefaultValue || CanResolve(p.ParameterType)))
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(p)))
 #endif
                 {
                     if (bestCtor == null)

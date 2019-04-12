@@ -13,8 +13,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public MethodProcessor(IPolicySet policySet)
-            : base(policySet, typeof(InjectionMethodAttribute))
+        public MethodProcessor(IPolicySet policySet, UnityContainer container)
+            : base(policySet, typeof(InjectionMethodAttribute), container)
         {
         }
 

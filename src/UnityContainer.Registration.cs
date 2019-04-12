@@ -74,32 +74,6 @@ namespace Unity
             return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
         }
 
-        protected bool IsTypeTypeExplicitlyRegisteredRecurcive(Type type)
-        {
-            if (null != _registrations)
-            {
-                var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-                var targetBucket = hashCode % _registrations.Buckets.Length;
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-                {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
-                    {
-                        continue;
-                    }
-
-                    return candidate.Value
-                               .Values
-                               .Any(v => v is ContainerRegistration) ||
-                           (_parent?.IsTypeExplicitlyRegistered(type) ?? false);
-                }
-            }
-
-            return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
-        }
-
-
         internal bool RegistrationExists(Type type, string name)
         {
             IPolicySet defaultRegistration = null;

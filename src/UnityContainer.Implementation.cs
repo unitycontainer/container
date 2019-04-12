@@ -70,7 +70,7 @@ namespace Unity
         internal ClearPolicyDelegate ClearPolicy;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, bool> _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, bool> _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
 
@@ -131,9 +131,9 @@ namespace Unity
 
             // Processors
             var fieldsProcessor = new FieldProcessor(container.Defaults);
-            var methodsProcessor = new MethodProcessor(container.Defaults);
+            var methodsProcessor = new MethodProcessor(container.Defaults, container);
             var propertiesProcessor = new PropertyProcessor(container.Defaults);
-            var constructorProcessor = new ConstructorProcessor(container.Defaults, container.IsTypeTypeExplicitlyRegisteredRecurcive);
+            var constructorProcessor = new ConstructorProcessor(container.Defaults, container);
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
@@ -168,9 +168,9 @@ namespace Unity
 
             // Processors
             var fieldsProcessor = new FieldDiagnostic(container.Defaults);
-            var methodsProcessor = new MethodDiagnostic(container.Defaults);
+            var methodsProcessor = new MethodDiagnostic(container.Defaults, container);
             var propertiesProcessor = new PropertyDiagnostic(container.Defaults);
-            var constructorProcessor = new ConstructorDiagnostic(container.Defaults, container.IsTypeTypeExplicitlyRegisteredRecurcive);
+            var constructorProcessor = new ConstructorDiagnostic(container.Defaults, container);
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>

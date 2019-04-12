@@ -12,20 +12,11 @@ namespace Unity.Processors
 {
     public partial class ConstructorProcessor : ParametersProcessor<ConstructorInfo>
     {
-        #region Fields
-
-        private readonly Func<Type, bool> _isTypeRegistered;
-        private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
-
-        #endregion
-
-
         #region Constructors
 
-        public ConstructorProcessor(IPolicySet policySet, Func<Type, bool> isTypeRegistered)
-            : base(policySet, typeof(InjectionConstructorAttribute))
+        public ConstructorProcessor(IPolicySet policySet, UnityContainer container)
+            : base(policySet, typeof(InjectionConstructorAttribute), container)
         {
-            _isTypeRegistered = isTypeRegistered;
             SelectMethod = SmartSelector;
         }
 
@@ -148,9 +139,9 @@ namespace Unity.Processors
             {
                 var parameters = ctorInfo.GetParameters();
 #if NET40
-                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p.ParameterType)))
+                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p)))
 #else
-                if (parameters.All(p => p.HasDefaultValue || CanResolve(p.ParameterType)))
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(p)))
 #endif
                 {
                     return ctorInfo;
@@ -159,55 +150,6 @@ namespace Unity.Processors
 
             return new InvalidOperationException(
                 $"Failed to select a constructor for {type.FullName}", new InvalidRegistrationException());
-        }
-
-        protected bool CanResolve(Type type)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var info = type.GetTypeInfo();
-#else
-            var info = type;
-#endif
-            if (info.IsClass)
-            {
-                // Array could be either registered or Type can be resolved
-                if (type.IsArray)
-                {
-                    return _isTypeRegistered(type) || CanResolve(type.GetElementType());
-                }
-
-                // Type must be registered if:
-                // - String
-                // - Enumeration
-                // - Primitive
-                // - Abstract
-                // - Interface
-                // - No accessible constructor
-                if (DelegateType.IsAssignableFrom(info) ||
-                    typeof(string) == type || info.IsEnum || info.IsPrimitive || info.IsAbstract
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                    || !info.DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
-#else
-                    || !type.GetTypeInfo().DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
-#endif
-                    return _isTypeRegistered(type);
-
-                return true;
-            }
-
-            // Can resolve if IEnumerable or factory is registered
-            if (info.IsGenericType)
-            {
-                var genericType = type.GetGenericTypeDefinition();
-
-                if (genericType == typeof(IEnumerable<>) || _isTypeRegistered(genericType))
-                {
-                    return true;
-                }
-            }
-
-            // Check if Type is registered
-            return _isTypeRegistered(type);
         }
 
         #endregion
