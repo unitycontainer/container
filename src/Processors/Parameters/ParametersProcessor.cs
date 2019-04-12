@@ -16,7 +16,6 @@ namespace Unity.Processors
         #region Fields
 
         protected readonly UnityContainer Container;
-        private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
 
         #endregion
 
@@ -25,10 +24,23 @@ namespace Unity.Processors
         #region Constructors
 
         protected ParametersProcessor(IPolicySet policySet, Type attribute, UnityContainer container)
-            : base(policySet, attribute)
+            : base(policySet)
         {
             Container = container;
+            Markers = new[] { attribute };
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        public void AddMarkers(IEnumerable<Type> attributes)
+        {
+            Markers = Markers.Concat(attributes).ToArray();
+        }
+
+        public Type[] Markers { get; private set; }
 
         #endregion
 
@@ -204,59 +216,10 @@ namespace Unity.Processors
                 if (null == attribute) continue;
 
                 // If found match, use provided factory to create expression
-                return CanResolve(info.ParameterType, node.Name(attribute));
+                return Container.CanResolve(info.ParameterType, node.Name(attribute));
             }
 
-            return CanResolve(info.ParameterType, null);
-        }
-
-        protected bool CanResolve(Type type, string name)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var info = type.GetTypeInfo();
-#else
-            var info = type;
-#endif
-            if (info.IsClass)
-            {
-                // Array could be either registered or Type can be resolved
-                if (type.IsArray)
-                {
-                    return Container._isExplicitlyRegistered(type, name) || CanResolve(type.GetElementType(), name);
-                }
-
-                // Type must be registered if:
-                // - String
-                // - Enumeration
-                // - Primitive
-                // - Abstract
-                // - Interface
-                // - No accessible constructor
-                if (DelegateType.IsAssignableFrom(info) ||
-                    typeof(string) == type || info.IsEnum || info.IsPrimitive || info.IsAbstract
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                    || !info.DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
-#else
-                    || !type.GetTypeInfo().DeclaredConstructors.Any(c => !c.IsFamily && !c.IsPrivate))
-#endif
-                    return Container._isExplicitlyRegistered(type, name);
-
-                return true;
-            }
-
-            // Can resolve if IEnumerable or factory is registered
-            if (info.IsGenericType)
-            {
-                var genericType = type.GetGenericTypeDefinition();
-
-                if (genericType == typeof(IEnumerable<>) || Container._isExplicitlyRegistered(genericType, name))
-                {
-                    return true;
-                }
-            }
-
-            // Check if Type is registered
-            return Container._isExplicitlyRegistered(type, name);
+            return Container.CanResolve(info.ParameterType, null);
         }
 
 

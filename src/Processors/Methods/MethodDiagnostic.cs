@@ -42,12 +42,12 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in type.GetDeclaredMethods())
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
+                foreach(var attribute in Markers)
                 {
 #if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
+                    if (!member.IsDefined(attribute, true) ||
 #else
-                    if (!member.IsDefined(AttributeFactories[i].Type) ||
+                    if (!member.IsDefined(attribute) ||
 #endif
                         !memberSet.Add(member)) continue;
 

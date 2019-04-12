@@ -4,7 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Injection;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -21,7 +23,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Selection
+        #region Overrides
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
@@ -31,7 +33,43 @@ namespace Unity.Processors
                                         !member.IsStatic);
         }
 
+        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        {
+            HashSet<object> memberSet = new HashSet<object>();
+
+            // Select Injected Members
+            if (null != ((InternalRegistration)registration).InjectionMembers)
+            {
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                {
+                    if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
+                        yield return injectionMember;
+                }
+            }
+
+            // Select Attributed members
+            IEnumerable<MethodInfo> members = DeclaredMembers(type);
+
+            if (null == members) yield break;
+            foreach (var member in members)
+            {
+                foreach (var attribute in Markers)
+                {
+#if NET40
+                    if (!member.IsDefined(attribute, true) ||
+#else
+                    if (!member.IsDefined(attribute) ||
+#endif
+                        !memberSet.Add(member)) continue;
+
+                    yield return member;
+                    break;
+                }
+            }
+        }
+
         #endregion
+
 
         #region Expression 
 
