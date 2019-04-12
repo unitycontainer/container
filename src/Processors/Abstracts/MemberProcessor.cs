@@ -77,8 +77,6 @@ namespace Unity.Processors
         #endregion
     }
 
-    public delegate ResolveDelegate<BuilderContext> AttributeResolverFactory(Attribute attribute, object info, object value = null);
-
     public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor,
                                                                         ISelect<TMemberInfo>
                                                     where TMemberInfo : MemberInfo
@@ -98,8 +96,8 @@ namespace Unity.Processors
             // Add Unity attribute factories
             AttributeFactories = new[]
             {
-                new AttributeFactoryNode(typeof(DependencyAttribute),         DependencyResolverFactory),
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), OptionalDependencyResolverFactory),
+                new AttributeFactoryNode(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
+                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
             };
 
             _policySet = policySet;
@@ -110,9 +108,9 @@ namespace Unity.Processors
             // Add Unity attribute factories
             AttributeFactories = new[]
             {
-                new AttributeFactoryNode(attribute,                           null),
-                new AttributeFactoryNode(typeof(DependencyAttribute),         DependencyResolverFactory),
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), OptionalDependencyResolverFactory),
+                new AttributeFactoryNode(attribute, (a)=>(a as DependencyResolutionAttribute)?.Name, null),
+                new AttributeFactoryNode(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
+                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
             };
             _policySet = policySet;
         }
@@ -122,7 +120,7 @@ namespace Unity.Processors
 
         #region Public Methods
 
-        public void Add(Type type, AttributeResolverFactory resolutionFactory)
+        public void Add(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> resolutionFactory)
         {
             for (var i = 0; i < AttributeFactories.Length; i++)
             {
@@ -134,7 +132,7 @@ namespace Unity.Processors
 
             var factories = new AttributeFactoryNode[AttributeFactories.Length + 1];
             Array.Copy(AttributeFactories, factories, AttributeFactories.Length);
-            factories[AttributeFactories.Length] = new AttributeFactoryNode(type, resolutionFactory);
+            factories[AttributeFactories.Length] = new AttributeFactoryNode(type, getName, resolutionFactory);
             AttributeFactories = factories;
         }
 
@@ -296,11 +294,13 @@ namespace Unity.Processors
         public struct AttributeFactoryNode
         {
             public readonly Type Type;
-            public AttributeResolverFactory Factory;
+            public Func<Attribute, object, object, ResolveDelegate<BuilderContext>> Factory;
+            public Func<Attribute, string> Name;
 
-            public AttributeFactoryNode(Type type, AttributeResolverFactory factory)
+            public AttributeFactoryNode(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> factory)
             {
                 Type = type;
+                Name = getName;
                 Factory = factory;
             }
         }

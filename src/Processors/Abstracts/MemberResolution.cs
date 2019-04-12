@@ -26,7 +26,7 @@ namespace Unity.Processors
                             var attribute = GetCustomAttribute(info, node.Type);
                             if (null == attribute) continue;
 
-                            value = null == node.Factory ? (object)attribute : node.Factory(attribute, info);
+                            value = null == node.Factory ? (object)attribute : node.Factory(attribute, info, null);
                             break;
                         }
                         yield return GetResolverDelegate(info, value);
