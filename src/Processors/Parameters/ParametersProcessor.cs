@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
@@ -22,10 +23,23 @@ namespace Unity.Processors
         #region Constructors
 
         protected ParametersProcessor(IPolicySet policySet, Type attribute, UnityContainer container)
-            : base(policySet, attribute)
+            : base(policySet)
         {
             Container = container;
+            Markers = new[] { attribute };
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        public void AddMarkers(IEnumerable<Type> attributes)
+        {
+            Markers = Markers.Concat(attributes).ToArray();
+        }
+
+        public Type[] Markers { get; private set; }
 
         #endregion
 

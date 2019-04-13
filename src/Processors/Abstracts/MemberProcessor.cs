@@ -84,7 +84,6 @@ namespace Unity.Processors
         #region Fields
 
         private readonly IPolicySet _policySet;
-        protected AttributeFactoryNode[] AttributeFactories;
 
         #endregion
 
@@ -93,48 +92,25 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicySet policySet)
         {
-            // Add Unity attribute factories
+            _policySet = policySet;
             AttributeFactories = new[]
             {
-                new AttributeFactoryNode(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
+                new AttributeFactory(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
+                new AttributeFactory(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
             };
-
-            _policySet = policySet;
-        }
-
-        protected MemberProcessor(IPolicySet policySet, Type attribute)
-        {
-            // Add Unity attribute factories
-            AttributeFactories = new[]
-            {
-                new AttributeFactoryNode(attribute, (a)=>(a as DependencyResolutionAttribute)?.Name, null),
-                new AttributeFactoryNode(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
-            };
-            _policySet = policySet;
         }
 
         #endregion
 
 
-        #region Public Methods
+        #region Public Members
 
-        public void Add(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> resolutionFactory)
+        public void AddFactories(IEnumerable<AttributeFactory> factories)
         {
-            for (var i = 0; i < AttributeFactories.Length; i++)
-            {
-                if (AttributeFactories[i].Type != type) continue;
-
-                AttributeFactories[i].Factory   = resolutionFactory;
-                return;
-            }
-
-            var factories = new AttributeFactoryNode[AttributeFactories.Length + 1];
-            Array.Copy(AttributeFactories, factories, AttributeFactories.Length);
-            factories[AttributeFactories.Length] = new AttributeFactoryNode(type, getName, resolutionFactory);
-            AttributeFactories = factories;
+            AttributeFactories = AttributeFactories.Concat(factories).ToArray();
         }
+
+        public AttributeFactory[] AttributeFactories { get; private set; }
 
         #endregion
 
@@ -190,12 +166,12 @@ namespace Unity.Processors
             if (null == members) yield break;
             foreach (var member in members)
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
+                foreach (var node in AttributeFactories)
                 {
 #if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
+                    if (!member.IsDefined(node.Type, true) ||
 #else
-                    if (!member.IsDefined(AttributeFactories[i].Type) || 
+                    if (!member.IsDefined(node.Type) || 
 #endif
                         !memberSet.Add(member)) continue;
 
@@ -291,13 +267,13 @@ namespace Unity.Processors
 
         #region Nested Types
 
-        public struct AttributeFactoryNode
+        public struct AttributeFactory
         {
             public readonly Type Type;
             public Func<Attribute, object, object, ResolveDelegate<BuilderContext>> Factory;
             public Func<Attribute, string> Name;
 
-            public AttributeFactoryNode(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> factory)
+            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> factory)
             {
                 Type = type;
                 Name = getName;

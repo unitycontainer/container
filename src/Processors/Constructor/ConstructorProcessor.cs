@@ -54,12 +54,12 @@ namespace Unity.Processors
             // Select Attributed constructors
             foreach (var constructor in constructors)
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
+                foreach(var attribute in Markers)
                 {
 #if NET40
-                    if (!constructor.IsDefined(AttributeFactories[i].Type, true))
+                    if (!constructor.IsDefined(attribute, true))
 #else
-                    if (!constructor.IsDefined(AttributeFactories[i].Type))
+                    if (!constructor.IsDefined(attribute))
 #endif
                         continue;
 

@@ -61,9 +61,9 @@ namespace Unity.Strategies
 
                 // Get resolver factory
                 var factory = context.Registration.Get<ResolveDelegateFactory>() ?? (ResolveDelegateFactory)(
-                              context.Get(context.Type, UnityContainer.All, typeof(ResolveDelegateFactory)) ??
+                              context.GetPolicy(context.Type, typeof(ResolveDelegateFactory)) ??
                               GetGeneric(ref context, typeof(ResolveDelegateFactory)) ?? 
-                              context.Get(null, null, typeof(ResolveDelegateFactory)));
+                              context.GetPolicy(typeof(ResolveDelegateFactory)));
 
                 // Create plan 
                 if (null != factory)
@@ -105,7 +105,7 @@ namespace Unity.Strategies
             {
                 var newType = context.RegistrationType.GetGenericTypeDefinition();
                 return context.Get(newType, context.Name, policyInterface) ??
-                       context.Get(newType, UnityContainer.All, policyInterface);
+                       context.GetPolicy(newType, policyInterface);
             }
 
             return null;
@@ -122,7 +122,7 @@ namespace Unity.Strategies
             {
                 var newType = type.GetGenericTypeDefinition();
                 return context.Get(newType, name, policyInterface) ??
-                       context.Get(newType, UnityContainer.All, policyInterface);
+                       context.GetPolicy(newType, policyInterface);
             }
 
             return null;

@@ -2,6 +2,7 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Resolution;
 using Unity.Strategies;
 
@@ -11,33 +12,33 @@ namespace Unity.Factories
     /// An Resolver Delegate Factory implementation
     /// that constructs a build plan for creating <see cref="Lazy{T}"/> objects.
     /// </summary>
-    internal class GenericLazyResolverFactory 
+    internal class LazyResolver 
     {
         #region Fields
 
-        private static readonly MethodInfo BuildResolveLazyMethod =
-            typeof(GenericLazyResolverFactory).GetTypeInfo()
-                .GetDeclaredMethod(nameof(BuildResolveLazy));
+        private static readonly MethodInfo ImplementationMethod =
+            typeof(LazyResolver).GetTypeInfo()
+                                       .GetDeclaredMethod(nameof(ResolverImplementation));
 
         #endregion
 
 
         #region ResolveDelegateFactory
 
-        public static ResolveDelegate<BuilderContext> GetResolver(ref BuilderContext context)
+        public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
         {
             var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
-            var lazyMethod = BuildResolveLazyMethod.MakeGenericMethod(itemType);
+            var lazyMethod = ImplementationMethod.MakeGenericMethod(itemType);
 
             return (ResolveDelegate<BuilderContext>)lazyMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
-        }
+        };
 
         #endregion
 
 
         #region Implementation
 
-        private static object BuildResolveLazy<T>(ref BuilderContext context)
+        private static object ResolverImplementation<T>(ref BuilderContext context)
         {
             var container = context.Container;
             var name = context.Name;

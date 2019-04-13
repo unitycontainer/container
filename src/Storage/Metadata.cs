@@ -52,6 +52,7 @@ namespace Unity.Storage
                 }
 
                 candidate.Data[candidate.Count++] = value;
+                return;
             }
 
             // Grow if required

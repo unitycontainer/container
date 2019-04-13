@@ -1,9 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using Unity.Factories;
+using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Strategies;
 
 namespace Unity
 {
@@ -11,8 +16,8 @@ namespace Unity
     {
         #region Constants
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private const int CollisionsCutPoint = 5;
+        internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
 
         #endregion
 
@@ -25,9 +30,46 @@ namespace Unity
         #endregion
 
 
+        #region Defaults
+
+        internal InternalRegistration Defaults => _root._registry.Entries[0].Value;
+
+        #endregion
+
+
         #region Registrations Manipulation
 
-        private InternalRegistration InitAndAdd(ref NamedType key, InternalRegistration registration)
+        private void InitializeRootRegistry()
+        {
+            Register = AddOrReplace;
+
+            // Create Registry
+            _metadata = new Metadata();
+            _registry = new Registry<NamedType, InternalRegistration>();
+
+            // Default Policies 
+            _registry.Set(new InternalRegistration());
+
+            // Register Container as IUnityContainer & IUnityContainerAsync
+            var container = new ContainerRegistration(typeof(UnityContainer), new ContainerLifetimeManager());
+            _registry.Set(typeof(IUnityContainer), null, container);
+            _registry.Set(typeof(IUnityContainerAsync), null, container);
+
+            // Func<> Factory
+            var funcBuiltInFctory = new InternalRegistration();
+            funcBuiltInFctory.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
+            funcBuiltInFctory.Set(typeof(ResolveDelegateFactory), FuncResolver.Factory);
+
+            // Setup Built-in Factories
+            _registry.Set(typeof(Func<>),        funcBuiltInFctory);
+            _registry.Set(typeof(Lazy<>),        new InternalRegistration(typeof(ResolveDelegateFactory), LazyResolver.Factory));
+            _registry.Set(typeof(IEnumerable<>), new InternalRegistration(typeof(ResolveDelegateFactory), EnumerableResolver.Factory));
+
+            // TODO: requires optimization
+            container.BuildChain = new[] { new LifetimeStrategy() };
+        }
+
+        private InternalRegistration InitAndAdd(Type type, string name, InternalRegistration registration)
         {
             lock (_syncRoot)
             {
@@ -40,12 +82,12 @@ namespace Unity
                 }
             }
 
-            return Register(ref key, registration);
+            return Register(type, name, registration);
         }
 
-        private InternalRegistration AddOrReplace(ref NamedType key, InternalRegistration registration)
+        private InternalRegistration AddOrReplace(Type type, string name, InternalRegistration registration)
         {
-            var hashCode = key.GetHashCode() & 0x7FFFFFFF;
+            var hashCode = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registry.Buckets.Length;
             var collisions = 0;
 
@@ -54,7 +96,7 @@ namespace Unity
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.Key.Type != key.Type)
+                    if (candidate.Key.Type != type)
                     {
                         collisions++;
                         continue;
@@ -80,13 +122,14 @@ namespace Unity
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registry.Buckets[targetBucket];
-                entry.Key = key;
+                entry.Key.Type = type;
+                entry.Key.Name = name;
                 entry.Value = registration;
                 entry.Value.AddRef();
 
                 var position = _registry.Count++;
                 _registry.Buckets[targetBucket] = position;
-                _metadata.Add(key.Type, position);
+                _metadata.Add(type, position);
 
                 return null;
             }
@@ -141,9 +184,9 @@ namespace Unity
     {
         #region Get
 
-        #if !NET40
+#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        #endif
+#endif
         public static InternalRegistration Get(this Registry<NamedType, InternalRegistration> registry, Type type, string name)
         {
             var hashCode = NamedType.GetHashCode(type, name);
@@ -159,9 +202,9 @@ namespace Unity
             return null;
         }
 
-        #if !NET40
+#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        #endif
+#endif
         public static InternalRegistration Get(this Registry<NamedType, InternalRegistration> registry, ref NamedType key)
         {
             var hashCode = key.GetHashCode();
@@ -177,9 +220,9 @@ namespace Unity
             return null;
         }
 
-        #if !NET40
+#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        #endif
+#endif
         public static InternalRegistration Get(this Registry<NamedType, InternalRegistration> registry, int hashCode, Type type)
         {
             var targetBucket = hashCode % registry.Buckets.Length;
@@ -193,6 +236,67 @@ namespace Unity
 
             return null;
         }
+
+        #endregion
+
+
+        #region Set
+
+        internal static void Set(this Registry<NamedType, InternalRegistration> registry, InternalRegistration registration)
+        {
+            var targetBucket = 0 % registry.Buckets.Length;
+
+            ref var entry = ref registry.Entries[0];
+            entry.Next = registry.Buckets[targetBucket];
+            entry.Value = registration;
+            registry.Buckets[targetBucket] = 0;
+
+            if (0 == registry.Count) registry.Count++;
+        }
+
+        internal static void Set(this Registry<NamedType, InternalRegistration> registry, Type type, InternalRegistration registration)
+        {
+            var hashCode = type.GetHashCode() & UnityContainer.HashMask;
+            var targetBucket = hashCode % registry.Buckets.Length;
+
+            for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+            {
+                ref var candidate = ref registry.Entries[i];
+                if (candidate.Key.Type != type) continue;
+                candidate.Value = registration;
+                return;
+            }
+
+            ref var entry = ref registry.Entries[registry.Count];
+            entry.HashCode = hashCode;
+            entry.Next = registry.Buckets[targetBucket];
+            entry.Key.Type = type;
+            entry.Value = registration;
+            registry.Buckets[targetBucket] = registry.Count++;
+        }
+
+        internal static void Set(this Registry<NamedType, InternalRegistration> registry, Type type, string name, InternalRegistration registration)
+        {
+            var hashCode = NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
+            var targetBucket = hashCode % registry.Buckets.Length;
+
+            for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+            {
+                ref var candidate = ref registry.Entries[i];
+                if (candidate.Key.Type != type) continue;
+                candidate.Value = registration;
+                return;
+            }
+
+            ref var entry = ref registry.Entries[registry.Count];
+            entry.HashCode = hashCode;
+            entry.Next = registry.Buckets[targetBucket];
+            entry.Key.Type = type;
+            entry.Key.Name = name;
+            entry.Value = registration;
+            registry.Buckets[targetBucket] = registry.Count++;
+        }
+
 
         #endregion
 

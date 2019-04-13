@@ -20,15 +20,6 @@ namespace Unity
     [CLSCompliant(true)]
     public partial class UnityContainer
     {
-        #region Delegates
-
-        internal delegate object GetPolicyDelegate(Type type, string name, Type policyInterface);
-        internal delegate void SetPolicyDelegate(Type type, string name, Type policyInterface, object policy);
-        internal delegate void ClearPolicyDelegate(Type type, string name, Type policyInterface);
-
-        #endregion
-
-
         #region Fields
 
         // Container specific
@@ -54,18 +45,7 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         // Methods
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal GetPolicyDelegate GetPolicy;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal SetPolicyDelegate SetPolicy;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal ClearPolicyDelegate ClearPolicy;
-
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, bool> _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
 
@@ -81,29 +61,29 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
-            // WithLifetime
+            // Parent
+            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            _parent.LifetimeContainer.Add(this);
+
+            // Root of the hierarchy
+            _root = _parent._root;
+
+            // Lifetime
             LifetimeContainer = new LifetimeContainer(this);
+
+            // Registry
+            Register = InitAndAdd;
+
+            /////////////////////////////////////////////////////////////
+
+            SetDefaultPolicies = parent.SetDefaultPolicies;
 
             // Context and policies
             _context = new ContainerContext(this);
 
-            // Parent
-            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            _parent.LifetimeContainer.Add(this);
-            _root = _parent._root;
-            SetDefaultPolicies = parent.SetDefaultPolicies;
-
-            // Registry
-
             // Methods
             _get = _parent._get;
             _getGenericRegistration = _parent._getGenericRegistration;
-            _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
-            IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
-
-            GetPolicy = parent.GetPolicy;
-            SetPolicy = CreateAndSetPolicy;
-            ClearPolicy = delegate { };
 
             // Strategies
             _strategies = _parent._strategies;
@@ -121,9 +101,6 @@ namespace Unity
 
         internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
         {
-            // Default policies
-            container.Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
-
             // Processors
             var fieldsProcessor = new FieldProcessor(container.Defaults);
             var methodsProcessor = new MethodProcessor(container.Defaults, container);
@@ -143,13 +120,12 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
+            container.Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             container.Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
             container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
             container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
             container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
             container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
-
-            if (null != container._registrations) container.Set(null, null, container.Defaults);
         };
 
         internal static void SetDiagnosticPolicies(UnityContainer container)
@@ -158,7 +134,8 @@ namespace Unity
             container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
             container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
-            container.Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
+
+
             if (null != container._registrations) container.Set(null, null, container.Defaults);
 
             // Processors
@@ -180,6 +157,7 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
+            container.Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             container.Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
             container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
             container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
@@ -209,36 +187,12 @@ namespace Unity
                     throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
                 }
             };
-
-            if (null != container._registrations) container.Set(null, null, container.Defaults);
         }
 
         #endregion
 
 
         #region Implementation
-
-        private void CreateAndSetPolicy(Type type, string name, Type policyInterface, object policy)
-        {
-            lock (LifetimeContainer)
-            {
-                if (null == _registrations)
-                    SetupChildContainerBehaviors();
-            }
-
-            Set(type, name, policyInterface, policy);
-        }
-
-        private IPolicySet CreateAndSetOrUpdate(Type type, string name, InternalRegistration registration)
-        {
-            lock (LifetimeContainer)
-            {
-                if (null == _registrations)
-                    SetupChildContainerBehaviors();
-            }
-
-            return AddOrUpdateLegacy(type, name, registration);
-        }
 
         private void SetupChildContainerBehaviors()
         {
@@ -249,14 +203,9 @@ namespace Unity
                     _registrations = new Registrations(ContainerInitialCapacity);
                     Set(null, null, Defaults);
 
-                    GetPolicy = Get;
-                    SetPolicy = Set;
-                    ClearPolicy = Clear;
-
                     _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
                     _getGenericRegistration = GetOrAddGeneric;
                     IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
-                    _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
                 }
             }
 
@@ -330,7 +279,6 @@ namespace Unity
 
             try
             {
-                GetPolicy = (type, name, policyInterface) => throw new ObjectDisposedException($"{DebugName()}");
                 _strategies.Invalidated -= OnStrategiesChanged;
                 _parent?.LifetimeContainer.Remove(this);
                 LifetimeContainer.Dispose();

@@ -49,8 +49,7 @@ namespace Unity
                     container.LifetimeContainer.Add(disposableManager);
 
                 // Add or replace existing 
-                NamedType key = new NamedType { Name = name, Type = registeredType };
-                var previous = container.Register(ref key, registration);
+                var previous = container.Register(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
                 if (null != previous && 0 == previous.Release()
@@ -132,8 +131,7 @@ namespace Unity
                     container.LifetimeContainer.Add(manager);
 
                 // Register type
-                NamedType key = new NamedType { Name = name, Type = registeredType };
-                var previous = container.Register(ref key, registration);
+                var previous = container.Register(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
                 if (null != previous && 0 == previous.Release() 
@@ -189,8 +187,7 @@ namespace Unity
             var registration = new ContainerRegistration(_validators, type, ((LifetimeManager)lifetimeManager), injectionMembers);
 
             // Add or replace existing 
-            NamedType key = new NamedType { Name = name, Type = type };
-            var previous = container.Register(ref key, registration);
+            var previous = container.Register(type, name, registration);
 
             // Allow reference adjustment and disposal
             if (null != previous && 0 == previous.Release()

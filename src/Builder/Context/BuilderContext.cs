@@ -317,6 +317,16 @@ namespace Unity.Builder
             return value;
         }
 
+        public object GetPolicy(Type type, Type policyInterface)
+        {
+            return ((UnityContainer)Container).GetPolicy(type, policyInterface);
+        }
+
+        public object GetPolicy(Type policyInterface)
+        {
+            return ((UnityContainer)Container).Defaults.Get(policyInterface);
+        }
+
         #endregion
     }
 }
