@@ -41,8 +41,10 @@ namespace Unity.Strategies
         public override void PreBuildUp(ref BuilderContext context)
         {
             // Get resolver if already created
-            var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>() ?? (ResolveDelegate<BuilderContext>) 
-                                   GetGeneric(ref context, typeof(ResolveDelegate<BuilderContext>));
+            //var resolver = context.Registration.Get<ResolveDelegate<BuilderContext>>() ?? (ResolveDelegate<BuilderContext>)
+            //                       GetGeneric(ref context, typeof(ResolveDelegate<BuilderContext>));
+
+            var resolver = context.GetPolicy<ResolveDelegate<BuilderContext>>();
 
             if (null == resolver)
             {
@@ -60,10 +62,7 @@ namespace Unity.Strategies
                 }
 
                 // Get resolver factory
-                var factory = context.Registration.Get<ResolveDelegateFactory>() ?? (ResolveDelegateFactory)(
-                              context.GetPolicy(context.Type, typeof(ResolveDelegateFactory)) ??
-                              GetGeneric(ref context, typeof(ResolveDelegateFactory)) ?? 
-                              context.GetPolicy(typeof(ResolveDelegateFactory)));
+                var factory = context.GetOrDefault<ResolveDelegateFactory>();
 
                 // Create plan 
                 if (null != factory)

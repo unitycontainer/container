@@ -165,18 +165,19 @@ namespace Unity
             return seed;
         }
 
-        private static RegistrationSet GetRegistrations(UnityContainer container, params Type[] types)
+        private static RegistrationSet EnumerableRegistrations(UnityContainer container, params Type[] types)
         {
-            var seed = null != container._parent ? GetRegistrations(container._parent, types)
+            var seed = null != container._parent ? EnumerableRegistrations(container._parent, types)
                                                  : new RegistrationSet();
 
             if (null == container._registry) return seed;
 
             var registry = container._registry;
+            var metadata = container._metadata;
 
             foreach (var type in types)
             {
-                foreach (var i in container._metadata.Get(type))
+                foreach (var i in metadata.GetEntries(type))
                 {
                     ref var entry = ref registry.Entries[i];
                     if (entry.Value is ContainerRegistration containerRegistration)
@@ -187,9 +188,9 @@ namespace Unity
             return seed;
         }
 
-        private static RegistrationSet GetNamedRegistrations(UnityContainer container, params Type[] types)
+        private static RegistrationSet NamedRegistrations(UnityContainer container, params Type[] types)
         {
-            var seed = null != container._parent ? GetNamedRegistrations(container._parent, types)
+            var seed = null != container._parent ? NamedRegistrations(container._parent, types)
                                                  : new RegistrationSet();
 
             if (null == container._registrations) return seed;
@@ -198,7 +199,7 @@ namespace Unity
 
             foreach (var type in types)
             {
-                foreach (var i in container._metadata.Get(type))
+                foreach (var i in container._metadata.GetEntries(type))
                 {
                     ref var entry = ref registry.Entries[i];
                     if (entry.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(entry.Key.Name))
@@ -630,95 +631,6 @@ namespace Unity
                 entry.Key = type;
                 entry.Value = new LinkedRegistry(name, value);
                 _registrations.Buckets[targetBucket] = _registrations.Count++;
-            }
-        }
-
-        #endregion
-
-
-        #region Local policy manipulation
-
-        internal object GetPolicy(Type type, Type policyInterface)
-        {
-            var hashCode = type.GetHashCode() & HashMask;
-
-            // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
-            {
-                // Skip to parent if no registrations
-                if (null == container._registry) continue;
-
-                // Skip to parent if nothing found
-                var registration = container._registry.Get(hashCode, type);
-                if (null == registration) continue;
-
-                // Get the policy
-                return registration.Get(policyInterface);
-            }
-
-            return null;
-        }
-
-        internal object GetPolicy(Type type, string name, Type policyInterface)
-        {
-            var hashCode = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
-
-            // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
-            {
-                // Skip to parent if no registrations
-                if (null == container._registry) continue;
-
-                // Skip to parent if nothing found
-                var registration = container._registry.Get(hashCode, type);
-                if (null == registration) continue;
-
-                // Get the policy
-                return registration.Get(policyInterface);
-            }
-
-            return null;
-        }
-
-        private void SetPolicy(Type type, string name, Type policyInterface, object policy)
-        {
-            var hashCode = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
-
-            // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
-            {
-                // Skip to parent if no registrations
-                if (null == container._registry) continue;
-
-                // Skip to parent if nothing found
-                var registration = container._registry.Get(hashCode, type);
-                if (null == registration) continue;
-
-                // Get the policy
-                registration.Set(policyInterface, policy);
-                return;
-            }
-
-            throw new InvalidOperationException("No Policy Set to add the policy to");
-        }
-
-        private void ClearPolicy(Type type, string name, Type policyInterface)
-        {
-            var hashCode = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
-
-            // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
-            {
-                // Skip to parent if no registrations
-                if (null == container._registry) continue;
-
-                // Skip to parent if nothing found
-                var registration = container._registry.Get(hashCode, type);
-                if (null == registration) continue;
-
-                // Get the policy
-                registration.Clear(policyInterface);
-                return;
             }
         }
 

@@ -4,7 +4,6 @@ using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
-using Unity.Strategies;
 
 namespace Unity.Factories
 {
@@ -12,7 +11,7 @@ namespace Unity.Factories
     /// An Resolver Delegate Factory implementation
     /// that constructs a build plan for creating <see cref="Lazy{T}"/> objects.
     /// </summary>
-    internal class LazyResolver 
+    public class LazyResolver 
     {
         #region Fields
 
@@ -42,10 +41,10 @@ namespace Unity.Factories
         {
             var container = context.Container;
             var name = context.Name;
+
             context.Existing = new Lazy<T>(() => container.Resolve<T>(name));
 
-            var lifetime = BuilderStrategy.GetPolicy<LifetimeManager>(ref context);
-
+            var lifetime = context.Get(typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
                 var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);

@@ -48,14 +48,8 @@ namespace Unity
             // Build Strategies
             _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
             {
-                {   // Array
-                    new ArrayResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
-                    UnityBuildStage.Enumerable
-                },
-                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
                 {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
+                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
                 {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
             };
 

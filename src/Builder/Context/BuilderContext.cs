@@ -8,6 +8,7 @@ using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Builder
@@ -22,7 +23,7 @@ namespace Unity.Builder
         #region Fields
 
         public ResolverOverride[] Overrides;
-        public IPolicyList List;
+        internal IPolicyList List;
 
         public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
         public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
@@ -64,7 +65,7 @@ namespace Unity.Builder
                 }
             }
 
-            return Resolve(type, name, (InternalRegistration)((UnityContainer)Container).GetRegistration(type, name));
+            return Resolve(type, name, ((UnityContainer)Container).GetRegistration(type, name));
         }
 
         #endregion
@@ -134,7 +135,7 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Public Methods
+        #region Resolve Methods
 
         public object Resolve(Type type, string name, InternalRegistration registration)
         {
@@ -316,6 +317,71 @@ namespace Unity.Builder
 
             return value;
         }
+
+        #endregion
+
+
+        #region Policy Methods
+
+        public TPolicy GetPolicy<TPolicy>()
+        {
+            // Get it from the list
+            TPolicy policy = (TPolicy)List?.Get(RegistrationType, Name, typeof(TPolicy));
+            if (default != policy) return policy;
+
+            // From registration
+            policy = Registration.Get<TPolicy>();
+            if (default != policy) return policy;
+
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+            if (RegistrationType.GetTypeInfo().IsGenericType)
+#else
+            if (RegistrationType.IsGenericType)
+#endif
+            {
+                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType.GetGenericTypeDefinition(), Name);
+            }
+            else if (RegistrationType.IsArray)
+            {
+                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(typeof(Array), Name);
+            }
+
+            return default;
+        }
+
+
+        public TPolicy GetOrDefault<TPolicy>()
+        {
+            // Get it from the list
+            TPolicy policy = (TPolicy)List?.Get(RegistrationType, Name, typeof(TPolicy));
+            if (null != policy) return policy;
+
+            // From registration
+            policy = Registration.Get<TPolicy>();
+            if (null != policy) return policy;
+
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+            if (RegistrationType.GetTypeInfo().IsGenericType)
+#else
+            if (RegistrationType.IsGenericType)
+#endif
+            {
+                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType.GetGenericTypeDefinition(), Name);
+            }
+            else if (RegistrationType.IsArray)
+            {
+                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(typeof(Array), Name);
+            }
+            else
+            {
+                policy = null == Name ? ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType)
+                                      : ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType, null);
+            }
+
+            return null != policy ? policy : ((UnityContainer)Container).Defaults.Get<TPolicy>();
+        }
+
+
 
         public object GetPolicy(Type type, Type policyInterface)
         {

@@ -6,7 +6,7 @@ using Unity.Resolution;
 
 namespace Unity.Factories
 {
-    internal class FuncResolver
+    public class FuncResolver
     {
         #region Fields
 

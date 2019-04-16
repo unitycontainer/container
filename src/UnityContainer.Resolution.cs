@@ -91,16 +91,72 @@ namespace Unity
         internal static object ResolveEnumerable<TElement>(ref BuilderContext context)
         {
             var type = typeof(TElement);
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var generic = type.GetTypeInfo().IsGenericType ? type.GetGenericTypeDefinition() : type;
-#else
-            var generic = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
-#endif
-            var set = generic == type ? GetRegistrations((UnityContainer)context.Container, type)
-                                      : GetRegistrations((UnityContainer)context.Container, type, generic);
+            RegistrationSet set;
 
-            return ResolveRegistrations<TElement>(ref context, set);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (type.GetTypeInfo().IsGenericType)
+#else
+            if (type.IsGenericType)
+#endif
+            {
+                set = EnumerableRegistrations((UnityContainer)context.Container, 
+                                       type, type.GetGenericTypeDefinition());
+            }
+            else
+            {
+                set = EnumerableRegistrations((UnityContainer)context.Container, type);
+            }
+
+            return EnumerationResolver<TElement>(context.Resolve, context.Resolve, context.Name, set);
         }
+
+
+        private static IEnumerable<TElement> EnumerationResolver<TElement>(Func<Type, string, object> resolve, 
+                                                                          Func<Type, string, InternalRegistration, object> resolveReg,  
+                                                                          string name,
+                                                                          RegistrationSet registrations)
+        {
+            var type = typeof(TElement);
+            TElement value;
+
+            if (0 == registrations.Count)
+            {
+                try
+                {
+                    value = (TElement)resolve(type, name);
+                }
+                catch
+                {
+                    yield break;
+                }
+
+                yield return value;
+            }
+            else
+            {
+                for (var i = 0; i < registrations.Count; i++)
+                {
+                    try
+                    {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                        if (registrations[i].RegisteredType.GetTypeInfo().IsGenericTypeDefinition)
+#else
+                        if (registrations[i].RegisteredType.IsGenericTypeDefinition)
+#endif
+                            value = (TElement)resolve(type, registrations[i].Name);
+                        else
+                            value = (TElement)resolveReg(type, registrations[i].Name, registrations[i].Registration);
+                    }
+                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                    {
+                        continue;
+                    }
+
+                    yield return value;
+                }
+            }
+        }
+
 
         internal static object ResolveArray<TElement>(ref BuilderContext context)
         {
@@ -110,52 +166,42 @@ namespace Unity
 #else
             var generic = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
 #endif
-            var set = generic == type ? GetNamedRegistrations((UnityContainer)context.Container, type)
-                                      : GetNamedRegistrations((UnityContainer)context.Container, type, generic);
-            return ResolveRegistrations<TElement>(ref context, set).ToArray();
+            var set = generic == type ? NamedRegistrations((UnityContainer)context.Container, type)
+                                      : NamedRegistrations((UnityContainer)context.Container, type, generic);
+
+            return ArrayResolver<TElement>(context.Resolve, context.Resolve, context.Name, set).ToArray();
         }
 
-        private static IEnumerable<TElement> ResolveRegistrations<TElement>(ref BuilderContext context, RegistrationSet registrations)
+        private static IEnumerable<TElement> ArrayResolver<TElement>(Func<Type, string, object> resolve,
+                                                                          Func<Type, string, InternalRegistration, object> resolveReg,
+                                                                          string name,
+                                                                          RegistrationSet registrations)
         {
             var type = typeof(TElement);
-            var list = new List<TElement>();
+            TElement value;
 
-            if (0 == registrations.Count)
+            for (var i = 0; i < registrations.Count; i++)
             {
                 try
                 {
-                    list.Add((TElement)context.Resolve(type, context.Name));
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
-            else
-            {
-                for (var i = 0; i < registrations.Count; i++)
-                {
-                    ref var entry = ref registrations[i];
-                    try
-                    {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                        if (entry.RegisteredType.GetTypeInfo().IsGenericTypeDefinition)
+                        if (registrations[i].RegisteredType.GetTypeInfo().IsGenericTypeDefinition)
 #else
-                        if (entry.RegisteredType.IsGenericTypeDefinition)
+                    if (registrations[i].RegisteredType.IsGenericTypeDefinition)
 #endif
-                            list.Add((TElement)context.Resolve(type, entry.Name));
-                        else
-                            list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
-                    }
-                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                    {
-                        // Ignore
-                    }
+                        value = (TElement)resolve(type, registrations[i].Name);
+                    else
+                        value = (TElement)resolveReg(type, registrations[i].Name, registrations[i].Registration);
                 }
-            }
+                catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                {
+                    continue;
+                }
 
-            return list;
+                yield return value;
+            }
         }
+
 
         #endregion
 
@@ -164,7 +210,7 @@ namespace Unity
 
         internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
         {
-            var set = GetNamedRegistrations((UnityContainer)context.Container, typeof(TElement), type);
+            var set = NamedRegistrations((UnityContainer)context.Container, typeof(TElement), type);
             return ResolveGenericRegistrations<TElement>(ref context, set).ToArray();
         }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
@@ -7,11 +6,9 @@ using Unity.Resolution;
 
 namespace Unity.Factories
 {
-    internal class EnumerableResolver
+    public class EnumerableResolver
     {
         #region Fields
-
-        private delegate object ResolveEnumerableDelegate(ref BuilderContext context, Type type);
 
         private static readonly MethodInfo ResolveMethod = 
             typeof(UnityContainer).GetTypeInfo()

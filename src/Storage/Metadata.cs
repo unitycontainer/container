@@ -7,7 +7,7 @@ using Unity.Utility;
 namespace Unity.Storage
 {
     [DebuggerDisplay("Metadata ({Count}) ")]
-    internal class Metadata
+    internal class MetadataLegacy
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace Unity.Storage
 
         #region Constructors
 
-        public Metadata()
+        public MetadataLegacy()
         {
             Buckets = new int[37];
             Entries = new Entry[37];

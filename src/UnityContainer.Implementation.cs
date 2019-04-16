@@ -7,11 +7,13 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Factories;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -98,6 +100,43 @@ namespace Unity
 
 
         #region Default Policies
+
+        private void InitializeRootRegistry()
+        {
+            Register = AddOrReplace;
+
+            // Create Registry
+            _metadata = new Registry<Type, Metadata>();
+            _registry = new Registry<NamedType, InternalRegistration>();
+
+            // Default Policies 
+            _registry.Set(new InternalRegistration());
+
+            // Register Container as IUnityContainer & IUnityContainerAsync
+            var container = new ContainerRegistration(typeof(UnityContainer), new ContainerLifetimeManager())
+            {
+                BuildChain = new[] { new LifetimeStrategy() }
+            };
+
+            // Built-In Features
+            _registry.Set(typeof(IUnityContainer), null, container);
+            _registry.Set(typeof(IUnityContainerAsync), null, container);
+
+            // Func<> Factory
+            var funcBuiltInFctory = new InternalRegistration();
+            funcBuiltInFctory.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
+            funcBuiltInFctory.Set(typeof(ResolveDelegateFactory), FuncResolver.Factory);
+            _registry.Set(typeof(Func<>), funcBuiltInFctory);
+
+            // Lazy<>
+            _registry.Set(typeof(Lazy<>), new InternalRegistration(typeof(ResolveDelegateFactory), LazyResolver.Factory));
+
+            // Array
+            _registry.Set(typeof(Array),  new InternalRegistration(typeof(ResolveDelegateFactory), Factories.ArrayResolver.Factory));
+
+            // Enumerable
+            _registry.Set(typeof(IEnumerable<>), new InternalRegistration(typeof(ResolveDelegateFactory), EnumerableResolver.Factory));
+        }
 
         internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
         {
