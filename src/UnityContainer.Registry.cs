@@ -405,6 +405,38 @@ namespace Unity
 
         #region Metadata
 
+        internal static int GetEntries<TElement>(this Registry<Type, UnityContainer.Metadata> metadata, int hashCode, out int[] data)
+        {
+            var targetBucket = hashCode % metadata.Buckets.Length;
+
+            for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
+            {
+                if (metadata.Entries[i].Key != typeof(TElement)) continue;
+
+                data = metadata.Entries[i].Value.Data;
+                return metadata.Entries[i].Value.Count;
+            }
+
+            data = null;
+            return 0;
+        }
+
+        internal static int GetEntries(this Registry<Type, UnityContainer.Metadata> metadata, int hashCode, Type type, out int[] data)
+        {
+            var targetBucket = hashCode % metadata.Buckets.Length;
+
+            for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
+            {
+                if (metadata.Entries[i].Key != type) continue;
+
+                data = metadata.Entries[i].Value.Data;
+                return metadata.Entries[i].Value.Count;
+            }
+
+            data = null;
+            return 0;
+        }
+
         internal static IEnumerable<int> GetEntries(this Registry<Type, UnityContainer.Metadata> metadata, Type type)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & UnityContainer.HashMask;
@@ -414,9 +446,9 @@ namespace Unity
                 if (metadata.Entries[i].Key != type) continue;
 
                 var count = metadata.Entries[i].Value.Count;
-                var data =  metadata.Entries[i].Value.Data;
+                var data = metadata.Entries[i].Value.Data;
 
-                for(var index = 0; index < count; index++)
+                for (var index = 0; index < count; index++)
                     yield return data[index];
 
                 yield break;

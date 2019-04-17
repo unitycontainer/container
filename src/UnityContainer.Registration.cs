@@ -393,53 +393,6 @@ namespace Unity
 
         #region Legacy
 
-        private IPolicySet AddOrUpdateLegacy(Type type, string name, InternalRegistration registration)
-        {
-            var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            lock (_syncRoot)
-            {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-                {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
-                    {
-                        collisions++;
-                        continue;
-                    }
-
-                    var existing = candidate.Value;
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry registry
-                                 ? new HashRegistry(registry)
-                                 : new HashRegistry(LinkedRegistry.ListToHashCutoverPoint * 2, (LinkedRegistry)existing);
-
-                        _registrations.Entries[i].Value = existing;
-                    }
-
-                    return existing.SetOrReplace(name, registration);
-                }
-
-                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
-                {
-                    _registrations = new Registrations(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
-                }
-
-                ref var entry = ref _registrations.Entries[_registrations.Count];
-                entry.HashCode = hashCode;
-                entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count++;
-
-                return null;
-            }
-        }
-
         private IPolicySet GetOrAdd(Type type, string name)
         {
             var collisions = 0;

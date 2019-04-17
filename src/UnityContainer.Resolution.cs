@@ -88,42 +88,47 @@ namespace Unity
 
         #region Resolving Collections
 
-        internal static object ResolveEnumerable<TElement>(ref BuilderContext context)
+        internal static IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, object> resolve,
+                                                                          Func<Type, string, InternalRegistration, object> resolveRegistration,
+                                                                          string name, UnityContainer unity)
         {
-            var type = typeof(TElement);
-            RegistrationSet set;
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (type.GetTypeInfo().IsGenericType)
-#else
-            if (type.IsGenericType)
-#endif
-            {
-                set = EnumerableRegistrations((UnityContainer)context.Container, 
-                                       type, type.GetGenericTypeDefinition());
-            }
-            else
-            {
-                set = EnumerableRegistrations((UnityContainer)context.Container, type);
-            }
-
-            return EnumerationResolver<TElement>(context.Resolve, context.Resolve, context.Name, set);
-        }
-
-
-        private static IEnumerable<TElement> EnumerationResolver<TElement>(Func<Type, string, object> resolve, 
-                                                                          Func<Type, string, InternalRegistration, object> resolveReg,  
-                                                                          string name,
-                                                                          RegistrationSet registrations)
-        {
-            var type = typeof(TElement);
             TElement value;
+            var set = new QuickSet();
+            int hashCode = typeof(TElement).GetHashCode() & HashMask;
 
-            if (0 == registrations.Count)
+            for (var container = unity; null != container; container = container._parent)
+            {
+                if (null == container._metadata) continue;
+
+                var registry = container._registry;
+                var max = container._metadata.GetEntries<TElement>(hashCode, out int[] data);
+                for (var i = 0; i < max; i++)
+                {
+                    var index = data[i];
+
+                    if (set.RequireToGrow) set = new QuickSet(set);
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    {
+
+                        try
+                        {
+                            value = (TElement)resolveRegistration(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                        }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            continue;
+                        }
+
+                        yield return value;
+                    }
+                }
+            }
+
+            if (0 == set.Count)
             {
                 try
                 {
-                    value = (TElement)resolve(type, name);
+                    value = (TElement)resolve(typeof(TElement), name);
                 }
                 catch
                 {
@@ -132,31 +137,82 @@ namespace Unity
 
                 yield return value;
             }
-            else
-            {
-                for (var i = 0; i < registrations.Count; i++)
-                {
-                    try
-                    {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                        if (registrations[i].RegisteredType.GetTypeInfo().IsGenericTypeDefinition)
-#else
-                        if (registrations[i].RegisteredType.IsGenericTypeDefinition)
-#endif
-                            value = (TElement)resolve(type, registrations[i].Name);
-                        else
-                            value = (TElement)resolveReg(type, registrations[i].Name, registrations[i].Registration);
-                    }
-                    catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                    {
-                        continue;
-                    }
-
-                    yield return value;
-                }
-            }
         }
 
+        internal static IEnumerable<TElement> ResolveEnumerableGeneric<TElement>(Func<Type, string, object> resolve,
+                                                                                 Func<Type, string, InternalRegistration, object> resolveRegistration,
+                                                                                 string name, UnityContainer unity)
+        {
+            TElement value;
+            var set = new QuickSet();
+            int hashCode = typeof(TElement).GetHashCode() & HashMask;
+            var type = typeof(TElement).GetGenericTypeDefinition();
+            int hashGenc = type.GetHashCode() & HashMask;
+
+            for (var container = unity; null != container; container = container._parent)
+            {
+                if (null == container._metadata) continue;
+
+                var registry = container._registry;
+                var max = container._metadata.GetEntries<TElement>(hashCode, out int[] data);
+                for (var i = 0; i < max; i++)
+                {
+                    var index = data[i];
+
+                    if (set.RequireToGrow) set = new QuickSet(set);
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    {
+
+                        try
+                        {
+                            value = (TElement)resolveRegistration(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                        }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            continue;
+                        }
+
+                        yield return value;
+                    }
+                }
+
+                max = container._metadata.GetEntries(hashGenc, type, out data);
+                for (var i = 0; i < max; i++)
+                {
+                    var index = data[i];
+
+                    if (set.RequireToGrow) set = new QuickSet(set);
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    {
+
+                        try
+                        {
+                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name);
+                        }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            continue;
+                        }
+
+                        yield return value;
+                    }
+                }
+            }
+
+            if (0 == set.Count)
+            {
+                try
+                {
+                    value = (TElement)resolve(typeof(TElement), name);
+                }
+                catch
+                {
+                    yield break;
+                }
+
+                yield return value;
+            }
+        }
 
         internal static object ResolveArray<TElement>(ref BuilderContext context)
         {

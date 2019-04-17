@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security;
+using System.Text;
 
 namespace Unity.Storage
 {
     [SecuritySafeCritical]
-    public class Registry<TKey, TValue>
+    public class QuickSet
     {
         #region Fields
 
@@ -18,7 +20,7 @@ namespace Unity.Storage
 
         #region Constructors
 
-        public Registry(int prime = 0)
+        public QuickSet(int prime = 0)
         {
             if (prime < 0 || prime >= Primes.Length) throw new ArgumentException("Capacity Overflow");
 
@@ -27,7 +29,6 @@ namespace Unity.Storage
             var size = Primes[_prime];
             Buckets = new int[size];
             Entries = new Entry[size];
-
 #if !NET40
             unsafe
             {
@@ -44,11 +45,11 @@ namespace Unity.Storage
 #endif
         }
 
-        public Registry(Registry<TKey, TValue> registry)
-            : this(registry._prime + 1)
+        public QuickSet(QuickSet set)
+            : this(set._prime + 1)
         {
-            Array.Copy(registry.Entries, 0, Entries, 0, registry.Count);
-            for (var i = 0; i < registry.Count; i++)
+            Array.Copy(set.Entries, 0, Entries, 0, set.Count);
+            for (var i = 0; i < set.Count; i++)
             {
                 var hashCode = Entries[i].HashCode;
                 if (hashCode < 0) continue;
@@ -57,7 +58,7 @@ namespace Unity.Storage
                 Entries[i].Next = Buckets[bucket];
                 Buckets[bucket] = i;
             }
-            Count = registry.Count;
+            Count = set.Count;
         }
 
         #endregion
@@ -65,7 +66,28 @@ namespace Unity.Storage
 
         #region Public Members
 
-        public bool RequireToGrow => (Entries.Length - Count) < 100 && 
+        public bool Add(int hashCode, Type type)
+        {
+            var targetBucket = hashCode % Buckets.Length;
+
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                if (Entries[i].Type != type) continue;
+
+                return false;
+            }
+
+            // Create new metadata entry
+            ref var entry = ref Entries[Count];
+            entry.Next = Buckets[targetBucket];
+            entry.HashCode = hashCode;
+            entry.Type = type;
+            Buckets[targetBucket] = Count++;
+
+            return true;
+        }
+
+        public bool RequireToGrow => (Entries.Length - Count) < 100 &&
                                      (float)Count / Entries.Length > 0.72f;
         #endregion
 
@@ -76,8 +98,7 @@ namespace Unity.Storage
         {
             public int HashCode;
             public int Next;
-            public TKey Key;
-            public TValue Value;
+            public Type Type;
         }
 
         #endregion
@@ -86,7 +107,7 @@ namespace Unity.Storage
         #region Prime Numbers
 
         public static readonly int[] Primes = {
-            37, 71, 107, 131, 163, 197, 239, 293, 353, 431, 521, 631, 761, 919, 1103, 1327, 1597,
+            37, 107, 163, 239, 353, 431, 521, 631, 761, 919, 1103, 1327, 1597,
             1931, 2333, 2801, 3371, 4049, 4861, 5839, 7013, 8419, 10103, 12143, 14591, 17519, 21023,
             25229, 30293, 36353, 43627, 52361, 62851, 75431, 90523, 108631, 130363, 156437, 187751,
             225307, 270371, 324449, 389357, 467237, 560689, 672827, 807403, 968897, 1162687, 1395263,
