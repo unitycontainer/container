@@ -106,7 +106,7 @@ namespace Unity
             Register = AddOrReplace;
 
             // Create Registry
-            _metadata = new Registry<Type, Metadata>();
+            _metadata = new Registry<Type, int[]>();
             _registry = new Registry<NamedType, InternalRegistration>();
 
             // Default Policies 

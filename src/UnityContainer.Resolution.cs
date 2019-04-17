@@ -86,30 +86,34 @@ namespace Unity
         #endregion
 
 
-        #region Resolving Collections
+        #region Resolving Enumerable
 
         internal static IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, object> resolve,
                                                                           Func<Type, string, InternalRegistration, object> resolveRegistration,
-                                                                          string name, UnityContainer unity)
+                                                                          int hashCode, string name, UnityContainer unity)
         {
             TElement value;
             var set = new QuickSet();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
 
+            // Iterate over hierarchy
             for (var container = unity; null != container; container = container._parent)
             {
+                // Skip to parent if no data
                 if (null == container._metadata) continue;
 
+                // Hold on to registries
                 var registry = container._registry;
-                var max = container._metadata.GetEntries<TElement>(hashCode, out int[] data);
-                for (var i = 0; i < max; i++)
+                var metadata = container._metadata;
+
+                // Get indexes and iterate over them
+                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
 
                     if (set.RequireToGrow) set = new QuickSet(set);
                     if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
-
                         try
                         {
                             value = (TElement)resolveRegistration(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
@@ -124,6 +128,7 @@ namespace Unity
                 }
             }
 
+            // If nothing registered attempt to resolve the type
             if (0 == set.Count)
             {
                 try
@@ -139,23 +144,27 @@ namespace Unity
             }
         }
 
-        internal static IEnumerable<TElement> ResolveEnumerableGeneric<TElement>(Func<Type, string, object> resolve,
+        internal static IEnumerable<TElement> ResolveGenericEnumerable<TElement>(Func<Type, string, object> resolve,
                                                                                  Func<Type, string, InternalRegistration, object> resolveRegistration,
+                                                                                 int hashCode, int hashGeneric, Type typeDefinition, 
                                                                                  string name, UnityContainer unity)
         {
             TElement value;
             var set = new QuickSet();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
-            var type = typeof(TElement).GetGenericTypeDefinition();
-            int hashGenc = type.GetHashCode() & HashMask;
 
+            // Iterate over hierarchy
             for (var container = unity; null != container; container = container._parent)
             {
+                // Skip to parent if no data
                 if (null == container._metadata) continue;
 
+                // Hold on to registries
                 var registry = container._registry;
-                var max = container._metadata.GetEntries<TElement>(hashCode, out int[] data);
-                for (var i = 0; i < max; i++)
+                var metadata = container._metadata;
+
+                // Get indexes for bound types and iterate over them
+                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
 
@@ -176,8 +185,9 @@ namespace Unity
                     }
                 }
 
-                max = container._metadata.GetEntries(hashGenc, type, out data);
-                for (var i = 0; i < max; i++)
+                // Get indexes for unbound types and iterate over them
+                length = metadata.GetEntries(hashGeneric, typeDefinition, out data);
+                for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
 
@@ -199,6 +209,7 @@ namespace Unity
                 }
             }
 
+            // If nothing registered attempt to resolve the type
             if (0 == set.Count)
             {
                 try
@@ -213,6 +224,11 @@ namespace Unity
                 yield return value;
             }
         }
+
+        #endregion
+
+
+        #region Resolving Array
 
         internal static object ResolveArray<TElement>(ref BuilderContext context)
         {
@@ -257,12 +273,6 @@ namespace Unity
                 yield return value;
             }
         }
-
-
-        #endregion
-
-
-        #region Resolving Generic Collections
 
         internal static object ResolveGenericArray<TElement>(ref BuilderContext context, Type type)
         {

@@ -22,7 +22,7 @@ namespace Unity
         private readonly object _syncRegistry = new object();
         private readonly object _syncMetadata = new object();
         private Registry<NamedType, InternalRegistration> _registry;
-        private Registry<Type, Metadata>                  _metadata;
+        private Registry<Type, int[]> _metadata;
 
         #endregion
 
@@ -43,7 +43,7 @@ namespace Unity
                 if (Register == InitAndAdd)
                 {
                     _registry = new Registry<NamedType, InternalRegistration>();
-                    _metadata = new Registry<Type, Metadata>();
+                    _metadata = new Registry<Type, int[]>();
 
                     Register = AddOrReplace;
                 }
@@ -117,15 +117,15 @@ namespace Unity
                     }
 
                     // Expand if required
-                    if (candidate.Value.Data.Length == candidate.Value.Count)
+                    if (candidate.Value.Length == candidate.Value[0])
                     {
-                        var source = candidate.Value.Data;
-                        candidate.Value.Data = new int[candidate.Value.Data.Length * 2];
-                        Array.Copy(source, candidate.Value.Data, candidate.Value.Count);
+                        var source = candidate.Value;
+                        candidate.Value = new int[source.Length * 2];
+                        Array.Copy(source, candidate.Value, source[0]);
                     }
 
                     // Add to existing
-                    candidate.Value.Data[candidate.Value.Count++] = position;
+                    candidate.Value[candidate.Value[0]++] = position;
 
                     return null;
                 }
@@ -133,7 +133,7 @@ namespace Unity
                 // Expand if required
                 if (_metadata.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _metadata = new Registry<Type, Metadata>(_metadata);
+                    _metadata = new Registry<Type, int[]>(_metadata);
                     targetBucket = hashCode % _metadata.Buckets.Length;
                 }
 
@@ -142,8 +142,7 @@ namespace Unity
                 entry.Next = _metadata.Buckets[targetBucket];
                 entry.HashCode = hashCode;
                 entry.Key = type;
-                entry.Value.Count = 1;
-                entry.Value.Data = new int[] { position, -1 };
+                entry.Value = new int[] { 2, position };
                 _metadata.Buckets[targetBucket] = _metadata.Count++;
             }
 
@@ -188,17 +187,6 @@ namespace Unity
 
                 return entry.Value;
             }
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        internal struct Metadata
-        {
-            public int Count;
-            public int[] Data;
         }
 
         #endregion
@@ -405,39 +393,45 @@ namespace Unity
 
         #region Metadata
 
-        internal static int GetEntries<TElement>(this Registry<Type, UnityContainer.Metadata> metadata, int hashCode, out int[] data)
+        internal static int GetEntries<TElement>(this Registry<Type, int[]> metadata, int hashCode, out int[] data)
         {
             var targetBucket = hashCode % metadata.Buckets.Length;
-
+            
+            // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
                 if (metadata.Entries[i].Key != typeof(TElement)) continue;
 
-                data = metadata.Entries[i].Value.Data;
-                return metadata.Entries[i].Value.Count;
+                // Get a fix on the buffer
+                data = metadata.Entries[i].Value;
+                return data[0];
             }
 
+            // Nothing is found
             data = null;
             return 0;
         }
 
-        internal static int GetEntries(this Registry<Type, UnityContainer.Metadata> metadata, int hashCode, Type type, out int[] data)
+        internal static int GetEntries(this Registry<Type, int[]> metadata, int hashCode, Type type, out int[] data)
         {
             var targetBucket = hashCode % metadata.Buckets.Length;
 
+            // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
                 if (metadata.Entries[i].Key != type) continue;
 
-                data = metadata.Entries[i].Value.Data;
-                return metadata.Entries[i].Value.Count;
+                // Get a fix on the buffer
+                data = metadata.Entries[i].Value;
+                return data[0];
             }
 
+            // Nothing is found
             data = null;
             return 0;
         }
 
-        internal static IEnumerable<int> GetEntries(this Registry<Type, UnityContainer.Metadata> metadata, Type type)
+        internal static IEnumerable<int> GetEntries(this Registry<Type, int[]> metadata, Type type)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & UnityContainer.HashMask;
             var targetBucket = hashCode % metadata.Buckets.Length;
@@ -445,10 +439,10 @@ namespace Unity
             {
                 if (metadata.Entries[i].Key != type) continue;
 
-                var count = metadata.Entries[i].Value.Count;
-                var data = metadata.Entries[i].Value.Data;
+                var data = metadata.Entries[i].Value;
+                var count = data[0];
 
-                for (var index = 0; index < count; index++)
+                for (var index = 1; index < count; index++)
                     yield return data[index];
 
                 yield break;
