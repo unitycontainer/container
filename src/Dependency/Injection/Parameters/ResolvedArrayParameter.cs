@@ -112,7 +112,7 @@ namespace Unity.Injection
         public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
             where TContext : IResolveContext
         {
-            var elementType = info.ParameterType.GetElementType();
+            var elementType = info.ParameterType.IsArray ? info.ParameterType.GetElementType() : _elementType;
             var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
                                                                    .CreateDelegate(typeof(Resolver<TContext>));
             var values = _values.Select(value =>

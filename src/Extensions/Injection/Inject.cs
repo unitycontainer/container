@@ -6,22 +6,33 @@ namespace Unity
 {
     public static partial class Inject
     {
+        #region Array
+
+        public static ParameterBase Array(Type elementType, params object[] elementValues) 
+            => new ResolvedArrayParameter(elementType, elementValues);
+
+        public static ParameterBase Array<TElement>(params object[] elementValues)
+            => new ResolvedArrayParameter(typeof(TElement), elementValues);
+
+        #endregion
+
+
         #region Parameter
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionParameter Parameter(object value) => new InjectionParameter(value);
+        public static ParameterBase Parameter(object value) => new InjectionParameter(value);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionParameter Parameter(Type type, object value) 
+        public static ParameterBase Parameter(Type type, object value) 
             => new InjectionParameter(type ?? throw new ArgumentNullException(nameof(type)), value);
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectionParameter Parameter<TTarget>(object value) => new InjectionParameter(typeof(TTarget), value);
+        public static ParameterBase Parameter<TTarget>(object value) => new InjectionParameter(typeof(TTarget), value);
 
         #endregion
 
