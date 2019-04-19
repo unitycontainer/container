@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -12,10 +11,13 @@ namespace Unity.Factories
     {
         #region Fields
 
-        private static readonly MethodInfo ResolveMethod =
-            typeof(UnityContainer).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(UnityContainer.GetArray));
+        private static readonly MethodInfo ResolverMethod =
+            typeof(ArrayResolver).GetTypeInfo()
+                                 .GetDeclaredMethod(nameof(ArrayResolver.ResolverFactory));
 
+        private static readonly MethodInfo BuiltInMethod =
+            typeof(ArrayResolver).GetTypeInfo()
+                                 .GetDeclaredMethod(nameof(ArrayResolver.BuiltInFactory));
         #endregion
 
 
@@ -27,12 +29,16 @@ namespace Unity.Factories
             var typeArgument = context.RegistrationType.GetElementType();
             var targetType = ((UnityContainer)context.Container).GetTargetType(typeArgument);
 
-            // Simple types
-            var method = (ResolveArray)
-                ResolveMethod.MakeGenericMethod(typeArgument)
-                             .CreateDelegate(typeof(ResolveArray));
+            if (typeArgument != targetType)
+            {
+                return ((BuiltInFactoryDelegate)BuiltInMethod
+                    .MakeGenericMethod(typeArgument)
+                    .CreateDelegate(typeof(BuiltInFactoryDelegate)))(targetType);
+            }
 
-            return (ref BuilderContext c) => method(c.Resolve, c.Resolve);
+            return ((ArrayFactoryDelegate)ResolverMethod
+                .MakeGenericMethod(typeArgument)
+                .CreateDelegate(typeof(ArrayFactoryDelegate)))();
         };
 
         #endregion
@@ -40,14 +46,48 @@ namespace Unity.Factories
 
         #region Implementation
 
-        
+        private static ResolveDelegate<BuilderContext> ResolverFactory<TElement>()
+        {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeof(TElement).GetTypeInfo().IsGenericType)
+#else
+            if (typeof(TElement).IsGenericType)
+#endif
+            {
+                var definition = typeof(TElement).GetGenericTypeDefinition();
+                return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveArray<TElement>(c.Resolve, typeof(TElement), definition)
+                                                                              .ToArray();
+            }
+
+            return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveArray<TElement>(c.Resolve, typeof(TElement))
+                                                                          .ToArray();
+        }
+
+        private static ResolveDelegate<BuilderContext> BuiltInFactory<TElement>(Type type)
+        {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var info = type.GetTypeInfo();
+            if (info.IsGenericType && !info.IsGenericTypeDefinition)
+#else
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+#endif
+            {
+                var definition = type.GetGenericTypeDefinition();
+                return (ref BuilderContext c) => ((UnityContainer)c.Container).ComplexArray<TElement>(c.Resolve, type, definition)
+                                                                              .ToArray();
+            }
+
+            return (ref BuilderContext c) => ((UnityContainer)c.Container).ComplexArray<TElement>(c.Resolve, type)
+                                                                          .ToArray();
+        }
+
         #endregion
 
 
         #region Nested Types
 
-
-        internal delegate object ResolveArray(Func<Type, string, object> resolve, Func<Type, string, InternalRegistration, object> resolveRegistration);
+        private delegate ResolveDelegate<BuilderContext> ArrayFactoryDelegate();
+        private delegate ResolveDelegate<BuilderContext> BuiltInFactoryDelegate(Type type);
 
         #endregion
     }

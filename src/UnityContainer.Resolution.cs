@@ -88,13 +88,12 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, object> resolve,
-                                                                   Func<Type, string, InternalRegistration, object> resolveRegistration,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
                                                                    string name)
         {
             TElement value;
-            var set = new QuickSet();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
+            var set = new HashSet<string>();
+            int hash = typeof(TElement).GetHashCode() & HashMask;
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -104,20 +103,19 @@ namespace Unity
 
                 // Hold on to registries
                 var registry = container._registry;
-                var metadata = container._metadata;
 
                 // Get indexes and iterate over them
-                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                var length = container._metadata.GetEntries<TElement>(hash, out int[] data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
+                    var key = registry.Entries[index].Key.Name;
 
-                    if (set.RequireToGrow) set = new QuickSet(set);
-                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    if (set.Add(key))
                     {
                         try
                         {
-                            value = (TElement)resolveRegistration(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -134,7 +132,8 @@ namespace Unity
             {
                 try
                 {
-                    value = (TElement)resolve(typeof(TElement), name);
+                    var registration = GetRegistration(typeof(TElement), name);
+                    value = (TElement)resolve(typeof(TElement), name, registration);
                 }
                 catch
                 {
@@ -145,12 +144,11 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, object> resolve,
-                                                                   Func<Type, string, InternalRegistration, object> resolveRegistration,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
                                                                    Type typeDefinition, string name)
         {
             TElement value;
-            var set = new QuickSet();
+            var set = new HashSet<string>();
             int hashCode = typeof(TElement).GetHashCode() & HashMask;
             int hashGeneric = typeDefinition.GetHashCode() & HashMask;
 
@@ -162,21 +160,19 @@ namespace Unity
 
                 // Hold on to registries
                 var registry = container._registry;
-                var metadata = container._metadata;
 
                 // Get indexes for bound types and iterate over them
-                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                var length = container._metadata.GetEntries<TElement>(hashCode, out int[] data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
+                    var key = registry.Entries[index].Key.Name;
 
-                    if (set.RequireToGrow) set = new QuickSet(set);
-                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    if (set.Add(key))
                     {
-
                         try
                         {
-                            value = (TElement)resolveRegistration(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -188,17 +184,19 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = metadata.GetEntries(hashGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(hashGeneric, typeDefinition, out data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
+                    var key = registry.Entries[index].Key.Name;
 
-                    if (set.RequireToGrow) set = new QuickSet(set);
-                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    if (set.Add(key))
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name);
+                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registration);
                         }
                         catch (MakeGenericTypeFailedException) { continue; }
                         catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -221,7 +219,8 @@ namespace Unity
             {
                 try
                 {
-                    value = (TElement)resolve(typeof(TElement), name);
+                    var registration = GetRegistration(typeof(TElement), name);
+                    value = (TElement)resolve(typeof(TElement), name, registration);
                 }
                 catch
                 {
@@ -267,12 +266,11 @@ namespace Unity
             return argType;
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, object> resolve,
-                                                              Func<Type, string, InternalRegistration, object> resolveRegistration)
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
         {
             TElement value;
-            var set = new QuickSet();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
+            var set = new HashSet<string>();
+            int hash = type.GetHashCode() & HashMask;
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -282,20 +280,19 @@ namespace Unity
 
                 // Hold on to registries
                 var registry = container._registry;
-                var metadata = container._metadata;
 
                 // Get indexes and iterate over them
-                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                var length = container._metadata.GetEntries(hash, type, out int[] data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-
-                    if (set.RequireToGrow) set = new QuickSet(set);
-                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                    var key = registry.Entries[index].Key.Name;
+                    if (null == key) continue;
+                    if (set.Add(key))
                     {
                         try
                         {
-                            value = (TElement)resolveRegistration(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -308,11 +305,13 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> GetArray<TElement>(Func<Type, string, InternalRegistration, object> resolve)
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, InternalRegistration, object> resolve,
+                                                              Type type, Type typeDefinition)
         {
             TElement value;
             var set = new HashSet<string>();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
+            int hashCode = type.GetHashCode() & HashMask;
+            int hashGeneric = typeDefinition.GetHashCode() & HashMask;
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -322,21 +321,92 @@ namespace Unity
 
                 // Hold on to registries
                 var registry = container._registry;
-                var metadata = container._metadata;
 
-                // Get indexes and iterate over them
-                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                // Get indexes for bound types and iterate over them
+                var length = container._metadata.GetEntries(hashCode, type, out int[] data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var name = registry.Entries[index].Key.Name;
+                    var key = registry.Entries[index].Key.Name;
 
-                    if (null == name) continue;
-                    if (set.Add(name))
+                    if (null == key) continue;
+                    if (set.Add(key))
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), name, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
+                        }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            continue;
+                        }
+
+                        yield return value;
+                    }
+                }
+
+                // Get indexes for unbound types and iterate over them
+                length = container._metadata.GetEntries(hashGeneric, typeDefinition, out data);
+                for (var i = 1; i < length; i++)
+                {
+                    var index = data[i];
+                    var key = registry.Entries[index].Key.Name;
+
+                    if (null == key) continue;
+                    if (set.Add(key))
+                    {
+                        try
+                        {
+                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registration);
+                        }
+                        catch (MakeGenericTypeFailedException) { continue; }
+                        catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
+                        {
+                            continue;
+                        }
+                        // TODO: Verify if required
+                        //catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        //{
+                        //    continue;
+                        //}
+
+                        yield return value;
+                    }
+                }
+            }
+        }
+
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
+        {
+            TElement value;
+            var set = new HashSet<string>();
+            int hashCode = type.GetHashCode() & HashMask;
+
+            // Iterate over hierarchy
+            for (var container = this; null != container; container = container._parent)
+            {
+                // Skip to parent if no data
+                if (null == container._metadata) continue;
+
+                // Hold on to registries
+                var registry = container._registry;
+
+                // Get indexes and iterate over them
+                var length = container._metadata.GetEntries(hashCode, type, out int[] data);
+                for (var i = 1; i < length; i++)
+                {
+                    var index = data[i];
+                    var key = registry.Entries[index].Key.Name;
+                    if (null == key) continue;
+                    if (set.Add(key))
+                    {
+                        try
+                        {
+                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -349,11 +419,13 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveArrayTarget<TElement, TTarget>(Func<Type, string, object> resolve)
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, InternalRegistration, object> resolve,
+                                                              Type type, Type typeDefinition)
         {
             TElement value;
             var set = new HashSet<string>();
-            int hashCode = typeof(TTarget).GetHashCode() & HashMask;
+            int hashCode = type.GetHashCode() & HashMask;
+            int hashGeneric = typeDefinition.GetHashCode() & HashMask;
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -363,21 +435,22 @@ namespace Unity
 
                 // Hold on to registries
                 var registry = container._registry;
-                var metadata = container._metadata;
 
-                // Get indexes and iterate over them
-                var length = metadata.GetEntries<TTarget>(hashCode, out int[] data);
+                // Get indexes for bound types and iterate over them
+                var length = container._metadata.GetEntries(hashCode, type, out int[] data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var name = registry.Entries[index].Key.Name;
+                    var key = registry.Entries[index].Key.Name;
 
-                    if (null == name) continue;
-                    if (set.Add(name))
+                    if (null == key) continue;
+                    if (set.Add(key))
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), name);
+                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -387,43 +460,33 @@ namespace Unity
                         yield return value;
                     }
                 }
-            }
-        }
 
-        internal IEnumerable<TElement> DefinitionArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
-        {
-            TElement value;
-            var set = new HashSet<string>();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
-
-            // Iterate over hierarchy
-            for (var container = this; null != container; container = container._parent)
-            {
-                // Skip to parent if no data
-                if (null == container._metadata) continue;
-
-                // Hold on to registries
-                var registry = container._registry;
-                var metadata = container._metadata;
-
-                // Get indexes and iterate over them
-                var length = metadata.GetEntries<TElement>(hashCode, out int[] data);
+                // Get indexes for unbound types and iterate over them
+                length = container._metadata.GetEntries(hashGeneric, typeDefinition, out data);
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var name = registry.Entries[index].Key.Name;
+                    var key = registry.Entries[index].Key.Name;
 
-                    if (null == name) continue;
-                    if (set.Add(name))
+                    if (null == key) continue;
+                    if (set.Add(key))
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), name, registry.Entries[index].Value);
+                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), key, registration);
                         }
-                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        catch (MakeGenericTypeFailedException) { continue; }
+                        catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
                         {
                             continue;
                         }
+                        // TODO: Verify if required
+                        //catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        //{
+                        //    continue;
+                        //}
 
                         yield return value;
                     }
