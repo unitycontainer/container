@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
-using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Factories
 {
@@ -12,12 +12,12 @@ namespace Unity.Factories
         #region Fields
 
         private static readonly MethodInfo EnumerableMethod =
-            typeof(UnityContainer).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(UnityContainer.ResolveEnumerable));
+            typeof(EnumerableResolver).GetTypeInfo()
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.ResolveEnumerable));
 
         private static readonly MethodInfo GenericEnumerable =
-            typeof(UnityContainer).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(UnityContainer.ResolveGenericEnumerable));
+            typeof(EnumerableResolver).GetTypeInfo()
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.ResolveGeneric));
 
         #endregion
 
@@ -26,7 +26,6 @@ namespace Unity.Factories
 
         public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
         {
-            Delegate method;
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40
             var typeArgument = context.Type.GetTypeInfo().GenericTypeArguments.First();
@@ -36,47 +35,47 @@ namespace Unity.Factories
             if (typeArgument.IsGenericType)
 #endif
             {
-                // Generic closures
-                method = GenericEnumerable.MakeGenericMethod(typeArgument)
-                                          .CreateDelegate(typeof(ResolveGenericEnumerableDelegate));
+                var method = (ResolveEnumerableDelegate)
+                    GenericEnumerable.MakeGenericMethod(typeArgument)
+                                     .CreateDelegate(typeof(ResolveEnumerableDelegate));
 
-                Type definition = typeArgument.GetGenericTypeDefinition();
-                int hashCode = typeArgument.GetHashCode() & UnityContainer.HashMask;
-                int hashGeneric = definition.GetHashCode() & UnityContainer.HashMask;
+                Type type = typeArgument.GetGenericTypeDefinition();
 
-                return (ref BuilderContext c) =>
-                {
-                    return ((ResolveGenericEnumerableDelegate)method)(c.Resolve, c.Resolve, hashCode, hashGeneric, definition, c.Name, (UnityContainer)c.Container);
-                };
+                return (ref BuilderContext c) => method(ref c, type);
             }
             else
             {
-                // Closures
-                method = EnumerableMethod.MakeGenericMethod(typeArgument)
-                                         .CreateDelegate(typeof(ResolveEnumerableDelegate));
-
-                int hashCode = typeArgument.GetHashCode() & UnityContainer.HashMask;
-
-                return (ref BuilderContext c) =>
-                {
-                    return ((ResolveEnumerableDelegate)method)(c.Resolve, c.Resolve, hashCode, c.Name, (UnityContainer)c.Container);
-                };
+                return (ResolveDelegate<BuilderContext>)EnumerableMethod.MakeGenericMethod(typeArgument)
+                                                                        .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
             }
         };
 
         #endregion
 
 
+        #region Implementation
+
+        private static object ResolveEnumerable<TElement>(ref BuilderContext context)
+        {
+            return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
+                                                                                   context.Resolve,
+                                                                                   context.Name);
+        }
+
+        private static object ResolveGeneric<TElement>(ref BuilderContext context, Type type)
+        {
+            return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
+                                                                                   context.Resolve,
+                                                                                   type, context.Name);
+        }
+
+        #endregion
+
+
         #region Nested Types
 
-        private delegate object ResolveEnumerableDelegate(Func<Type, string, object> resolve,
-                                                          Func<Type, string, InternalRegistration, object> resolveRegistration,
-                                                          int hashCode, string name, UnityContainer unity);
+        private delegate object ResolveEnumerableDelegate(ref BuilderContext context, Type type);
 
-        private delegate object ResolveGenericEnumerableDelegate(Func<Type, string, object> resolve,
-                                                                 Func<Type, string, InternalRegistration, object> resolveRegistration,
-                                                                 int hashCode, int hashGeneric, Type typeDefinition,
-                                                                 string name, UnityContainer unity);
         #endregion
     }
 }

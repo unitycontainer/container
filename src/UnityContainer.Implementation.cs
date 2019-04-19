@@ -49,7 +49,6 @@ namespace Unity
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
 
         #endregion
 
@@ -244,7 +243,6 @@ namespace Unity
 
                     _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
                     _getGenericRegistration = GetOrAddGeneric;
-                    IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
                 }
             }
 
@@ -265,36 +263,6 @@ namespace Unity
             return _strategiesChain.ToArray()
                               .Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
                               .ToArray();
-        }
-
-        internal Type GetFinalType(Type argType)
-        {
-            Type next;
-            for (var type = argType; null != type; type = next)
-            {
-                var info = type.GetTypeInfo();
-                if (info.IsGenericType)
-                {
-                    if (IsTypeExplicitlyRegistered(type)) return type;
-
-                    var definition = info.GetGenericTypeDefinition();
-                    if (IsTypeExplicitlyRegistered(definition)) return definition;
-
-                    next = info.GenericTypeArguments[0];
-                    if (IsTypeExplicitlyRegistered(next)) return next;
-                }
-                else if (type.IsArray)
-                {
-                    next = type.GetElementType();
-                    if (IsTypeExplicitlyRegistered(next)) return next;
-                }
-                else
-                {
-                    return type;
-                }
-            }
-
-            return argType;
         }
 
         #endregion

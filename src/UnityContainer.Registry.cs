@@ -340,14 +340,12 @@ namespace Unity
 #endif
         public static bool Contains(this Registry<NamedType, InternalRegistration> registry, Type type, string name)
         {
-            var hashCode = NamedType.GetHashCode(type, name);
+            var hashCode = NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
             var targetBucket = hashCode % registry.Buckets.Length;
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
-                ref var entry = ref registry.Entries[i];
-                if (entry.Key.Type != type) continue;
-                return true;
+                if (registry.Entries[i].Key.Type == type) return true;
             }
 
             return false;
@@ -358,14 +356,12 @@ namespace Unity
 #endif
         public static bool Contains(this Registry<NamedType, InternalRegistration> registry, ref NamedType key)
         {
-            var hashCode = key.GetHashCode();
+            var hashCode = key.GetHashCode() & UnityContainer.HashMask;
             var targetBucket = hashCode % registry.Buckets.Length;
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
-                ref var entry = ref registry.Entries[i];
-                if (entry.Key.Type != key.Type) continue;
-                return true;
+                if (registry.Entries[i].Key.Type == key.Type) return true;
             }
 
             return false;
@@ -380,9 +376,7 @@ namespace Unity
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
-                ref var entry = ref registry.Entries[i];
-                if (entry.Key.Type != type) continue;
-                return true;
+                if (registry.Entries[i].Key.Type == type) return true;
             }
 
             return false;
@@ -447,6 +441,21 @@ namespace Unity
 
                 yield break;
             }
+        }
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static bool Contains(this Registry<Type, int[]> metadata, int hashCode, Type type)
+        {
+            var targetBucket = hashCode % metadata.Buckets.Length;
+
+            for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
+            {
+                if (metadata.Entries[i].Key == type) return true;
+            }
+
+            return false;
         }
 
         #endregion

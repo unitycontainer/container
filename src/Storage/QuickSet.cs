@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security;
 using System.Text;
+using Unity.Resolution;
 
 namespace Unity.Storage
 {
@@ -68,6 +69,29 @@ namespace Unity.Storage
 
         public bool Add(int hashCode, Type type)
         {
+            var targetBucket = hashCode % Buckets.Length;
+
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                if (Entries[i].Type != type) continue;
+
+                return false;
+            }
+
+            // Create new metadata entry
+            ref var entry = ref Entries[Count];
+            entry.Next = Buckets[targetBucket];
+            entry.HashCode = hashCode;
+            entry.Type = type;
+            Buckets[targetBucket] = Count++;
+
+            return true;
+        }
+
+        // TODO: Redo the verification
+        public bool Add(Type type, string name)
+        {
+            var hashCode = NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
             var targetBucket = hashCode % Buckets.Length;
 
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)

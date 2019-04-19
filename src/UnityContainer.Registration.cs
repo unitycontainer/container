@@ -43,31 +43,24 @@ namespace Unity
 
         #region Check Registration
 
-        private bool IsTypeTypeExplicitlyRegisteredLocally(Type type)
+        internal bool IsRegistered(Type type)
         {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode ||
-                    candidate.Key != type)
-                {
-                    continue;
-                }
+            var hashCode = type?.GetHashCode() ?? 0 & UnityContainer.HashMask;
 
-                return candidate.Value
-                           .Values
-                           .Any(v => v is ContainerRegistration) ||
-                       (_parent?.IsTypeExplicitlyRegistered(type) ?? false);
+            // Iterate through containers hierarchy
+            for (var container = this; null != container; container = container._parent)
+            {
+                // Skip to parent if no registrations
+                if (null == container._metadata) continue;
+
+                if (container._metadata.Contains(hashCode, type)) return true;
             }
 
-            return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
+            return false;
         }
 
-        internal bool RegistrationExists(ref BuilderContext context)
+        internal bool IsRegistered(ref BuilderContext context)
         {
-
             Type generic = null;
             int targetBucket, hashGeneric = -1, hashDefault = -1;
             int hashExact = NamedType.GetHashCode(context.Type, context.Name) & 0x7FFFFFFF;

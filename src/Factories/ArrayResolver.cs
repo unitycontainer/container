@@ -1,6 +1,9 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -11,31 +14,40 @@ namespace Unity.Factories
 
         private static readonly MethodInfo ResolveMethod =
             typeof(UnityContainer).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(UnityContainer.ResolveArray));
+                                  .GetDeclaredMethod(nameof(UnityContainer.GetArray));
 
         #endregion
 
 
         #region ResolveDelegateFactory
 
+
         public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
         {
             var typeArgument = context.RegistrationType.GetElementType();
+            var targetType = ((UnityContainer)context.Container).GetTargetType(typeArgument);
 
-            return (ResolveDelegate<BuilderContext>)
+            // Simple types
+            var method = (ResolveArray)
                 ResolveMethod.MakeGenericMethod(typeArgument)
-                             .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
+                             .CreateDelegate(typeof(ResolveArray));
+
+            return (ref BuilderContext c) => method(c.Resolve, c.Resolve);
         };
 
         #endregion
 
 
-        #region Resolver
+        #region Implementation
 
-        public static ResolveDelegate<BuilderContext> Resolver = (ref BuilderContext context) =>
-        {
-            return null;
-        };
+        
+        #endregion
+
+
+        #region Nested Types
+
+
+        internal delegate object ResolveArray(Func<Type, string, object> resolve, Func<Type, string, InternalRegistration, object> resolveRegistration);
 
         #endregion
     }

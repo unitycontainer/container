@@ -43,7 +43,6 @@ namespace Unity
             // Methods
             _get = Get;
             _getGenericRegistration = GetOrAddGeneric;
-            IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
 
             // Build Strategies
             _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
