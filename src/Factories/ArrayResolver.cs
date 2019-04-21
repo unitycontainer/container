@@ -23,7 +23,6 @@ namespace Unity.Factories
 
         #region ResolveDelegateFactory
 
-
         public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
         {
             var typeArgument = context.RegistrationType.GetElementType();

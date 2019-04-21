@@ -59,7 +59,9 @@ namespace Unity.Tests.v5.CollectionSupport
             var container = new UnityContainer()
                 .RegisterType<IEnumerable<TestClass>, List<TestClass>>(new InjectionConstructor());
 
-            Assert.IsInstanceOfType(container.Resolve<IEnumerable<TestClass>>(), typeof(List<TestClass>));
+            var instance = container.Resolve<IEnumerable<TestClass>>();
+
+            Assert.IsInstanceOfType(instance, typeof(List<TestClass>));
         }
 
         [TestMethod]

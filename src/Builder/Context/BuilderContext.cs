@@ -4,11 +4,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using Unity.Exceptions;
+using Unity.Factories;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity.Builder
@@ -79,6 +79,15 @@ namespace Unity.Builder
                    Registration.Get(policyInterface);
         }
 
+
+        public object Get(Type type, Type policyInterface)
+        {
+            return List.Get(type, policyInterface) ??
+                   (type != RegistrationType
+                       ? ((UnityContainer)Container).GetPolicy(type, policyInterface)
+                       : Registration.Get(policyInterface));
+        }
+
         public object Get(Type type, string name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
@@ -90,6 +99,12 @@ namespace Unity.Builder
         public void Set(Type policyInterface, object policy)
         {
             List.Set(RegistrationType, Name, policyInterface, policy);
+        }
+
+
+        public void Set(Type type, Type policyInterface, object policy)
+        {
+            List.Set(type, policyInterface, policy);
         }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
@@ -323,74 +338,68 @@ namespace Unity.Builder
 
         #region Policy Methods
 
-        public TPolicy GetPolicy<TPolicy>()
+        public ResolveDelegate<BuilderContext> GetResolver()
         {
             // Get it from the list
-            TPolicy policy = (TPolicy)List?.Get(RegistrationType, Name, typeof(TPolicy));
-            if (default != policy) return policy;
-
-            // From registration
-            policy = Registration.Get<TPolicy>();
-            if (default != policy) return policy;
-
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-            if (RegistrationType.GetTypeInfo().IsGenericType)
-#else
-            if (RegistrationType.IsGenericType)
-#endif
-            {
-                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType.GetGenericTypeDefinition(), Name);
-            }
-            else if (RegistrationType.IsArray)
-            {
-                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(typeof(Array), Name);
-            }
-
-            return default;
-        }
-
-
-        public TPolicy GetOrDefault<TPolicy>()
-        {
-            // Get it from the list
-            TPolicy policy = (TPolicy)List?.Get(RegistrationType, Name, typeof(TPolicy));
+            ResolveDelegate<BuilderContext> policy = Registration.Get<ResolveDelegate<BuilderContext>>();
             if (null != policy) return policy;
 
-            // From registration
-            policy = Registration.Get<TPolicy>();
-            if (null != policy) return policy;
-
+            if (Registration is ContainerRegistration registration)
+            {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-            if (RegistrationType.GetTypeInfo().IsGenericType)
+                if (Type?.GetTypeInfo().IsGenericType ?? false)
 #else
-            if (RegistrationType.IsGenericType)
+                if (Type?.IsGenericType ?? false)
 #endif
-            {
-                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType.GetGenericTypeDefinition(), Name);
-            }
-            else if (RegistrationType.IsArray)
-            {
-                policy = ((UnityContainer)Container).GetPolicy<TPolicy>(typeof(Array), Name);
+                    policy = ((UnityContainer)Container).GetResolverPolicy(Type.GetGenericTypeDefinition(), Name);
             }
             else
             {
-                policy = null == Name ? ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType)
-                                      : ((UnityContainer)Container).GetPolicy<TPolicy>(RegistrationType, null);
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                if (RegistrationType.GetTypeInfo().IsGenericType)
+#else
+                if (RegistrationType.IsGenericType)
+#endif
+                    policy = ((UnityContainer)Container).GetResolverPolicy(RegistrationType.GetGenericTypeDefinition(), Name);
             }
 
-            return null != policy ? policy : ((UnityContainer)Container).Defaults.Get<TPolicy>();
+            return policy;
         }
 
-
-
-        public object GetPolicy(Type type, Type policyInterface)
+        public ResolveDelegateFactory GetFactory()
         {
-            return ((UnityContainer)Container).GetPolicy(type, policyInterface);
-        }
+            // From registration
+            ResolveDelegateFactory policy = Registration.Get<ResolveDelegateFactory>();
+            if (null != policy) return policy;
 
-        public object GetPolicy(Type policyInterface)
-        {
-            return ((UnityContainer)Container).Defaults.Get(policyInterface);
+            if (Registration is ContainerRegistration registration)
+            {
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                if (Type?.GetTypeInfo().IsGenericType ?? false)
+#else
+                if (Type?.IsGenericType ?? false)
+#endif
+                {
+                    policy = ((UnityContainer)Container).GetFactoryPolicy(Type.GetGenericTypeDefinition(), Name);
+                }
+                else if (RegistrationType.IsArray) return ArrayResolver.Factory;
+                else policy = ((UnityContainer)Container).GetFactoryPolicy(Type);
+            }
+            else
+            {
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                if (RegistrationType.GetTypeInfo().IsGenericType)
+#else
+                if (RegistrationType.IsGenericType)
+#endif
+                {
+                    policy = ((UnityContainer)Container).GetFactoryPolicy(RegistrationType.GetGenericTypeDefinition(), Name);
+                }
+                else if (RegistrationType.IsArray) return ArrayResolver.Factory;
+                else policy = ((UnityContainer)Container).GetFactoryPolicy(Type); 
+            }
+
+            return policy ?? ((UnityContainer)Container).Defaults.Get<ResolveDelegateFactory>();
         }
 
         #endregion

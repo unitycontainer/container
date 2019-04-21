@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity.Storage
 {
@@ -14,6 +15,7 @@ namespace Unity.Storage
         private readonly object _sync = new object();
         private readonly IPolicyList _innerPolicyList;
         private IDictionary<PolicyKey, object> _policies = null;
+        private const string All = "** ALL NAMES CONSTANT **";
 
         #endregion
 
@@ -54,13 +56,17 @@ namespace Unity.Storage
             _policies?.Remove(new PolicyKey(type, name, policyInterface));
         }
 
-        /// <summary>
-        /// Removes a default policy.
-        /// </summary>
-        /// <param name="policyInterface">The type the policy was registered as.</param>
-        public void ClearDefault(Type policyInterface)
+
+        public object Get(Type type, Type policyInterface)
         {
-            Clear(null, null, policyInterface);
+            object policy = null;
+
+            if (_policies?.TryGetValue(new PolicyKey(type, All, policyInterface), out policy) ?? false)
+            {
+                return policy;
+            }
+
+            return _innerPolicyList?.Get(type, policyInterface);
         }
 
 
@@ -74,6 +80,15 @@ namespace Unity.Storage
             }
 
             return _innerPolicyList?.Get(type, name, policyInterface);
+        }
+
+
+        public void Set(Type type, Type policyInterface, object policy)
+        {
+            if (null == _policies)
+                _policies = new Dictionary<PolicyKey, object>(PolicyKeyEqualityComparer.Default);
+
+            _policies[new PolicyKey(type, All, policyInterface)] = policy;
         }
 
 
@@ -106,9 +121,7 @@ namespace Unity.Storage
                 _policy = policyType;
                 _type = type;
                 _name = !string.IsNullOrEmpty(name) ? name : null;
-                _hash = (policyType?.GetHashCode() ?? 0) * 37 + 
-                    (ReferenceEquals(UnityContainer.All, name) ? type?.GetHashCode() ?? 0 
-                                                               : ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)));
+                _hash = NamedType.GetHashCode(type, name);
             }
 
             public override bool Equals(object obj)

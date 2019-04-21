@@ -26,6 +26,23 @@ namespace Unity.Registration
             Key = typeof(LifetimeManager);
         }
 
+        public InternalRegistration(InternalRegistration factory)
+        {
+            Key = typeof(LifetimeManager);
+
+            if (null != factory)
+            {
+                InjectionMembers = factory.InjectionMembers;
+                Map = factory.Map;
+
+                var manager = factory.LifetimeManager;
+                if (null != manager)
+                {
+                    LifetimeManager = manager.CreateLifetimePolicy();
+                }
+            }
+        }
+
         public InternalRegistration(Type policyInterface, object policy)
         {
             Key = typeof(LifetimeManager);

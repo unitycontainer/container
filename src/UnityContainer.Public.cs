@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Factories;
+using Unity.Extensions;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -34,15 +33,8 @@ namespace Unity
 
             /////////////////////////////////////////////////////////////
 
-            // Registrations
-            _registrations = new Registrations(ContainerInitialCapacity);
-
             // Context
             _context = new ContainerContext(this);
-
-            // Methods
-            _get = Get;
-            _getGenericRegistration = GetOrAddGeneric;
 
             // Build Strategies
             _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
@@ -75,7 +67,7 @@ namespace Unity
             for (var container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registry
-                if (null == container._registry)
+                if (null == container._metadata)
                     continue;
 
                 // Look for exact match
@@ -87,7 +79,61 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        public IEnumerable<IContainerRegistration> Registrations => GetExplicitRegistrations(this);
+        public IEnumerable<IContainerRegistration> Registrations
+        {
+            get
+            {
+                Type type;
+                var set = new QuickSet<Type>();
+
+                // IUnityContainer
+                type = _root._registry.Entries[1].Key.Type;
+                yield return new ContainerRegistrationStruct
+                {
+                    RegisteredType = type,
+                    MappedToType = typeof(UnityContainer),
+                    LifetimeManager = _root._registry.Entries[1].Value.LifetimeManager
+                };
+                set.Add(_root._registry.Entries[1].HashCode, type);
+
+                // IUnityContainerAsync
+                type = _root._registry.Entries[1].Key.Type;
+                yield return new ContainerRegistrationStruct
+                {
+                    RegisteredType = type,
+                    MappedToType = typeof(UnityContainer),
+                    LifetimeManager = _root._registry.Entries[2].Value.LifetimeManager
+                };
+                set.Add(_root._registry.Entries[2].HashCode, type);
+
+                // Scan containers for explicit registrations
+                for (var container = this; null != container; container = container._parent)
+                {
+                    // Skip to parent if no registrations
+                    if (null == container._metadata) continue;
+
+                    // Hold on to registries
+                    var registry = container._registry;
+
+                    for (var i = 0; i < registry.Count; i++)
+                    {
+                        if (!(registry.Entries[i].Value is ContainerRegistration registration)) continue;
+
+                        type = registry.Entries[i].Key.Type;
+                        if (set.Add(registry.Entries[i].HashCode, type))
+                        {
+                            yield return new ContainerRegistrationStruct
+                            {
+                                RegisteredType  = type,
+                                Name            = registry.Entries[i].Key.Name,
+                                LifetimeManager = registration.LifetimeManager,
+                                MappedToType    = registration.Type,
+                            };
+                        }
+                    }
+                }
+            }
+        }
 
         #endregion
 
@@ -148,6 +194,7 @@ namespace Unity
         /// </remarks>
         public void Dispose()
         {
+            // TODO: Dispose(true)
             Dispose(true);
             GC.SuppressFinalize(this);
         }

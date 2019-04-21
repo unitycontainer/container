@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Extensions;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
@@ -73,7 +74,7 @@ namespace Unity
             {
                 var genericType = type.GetGenericTypeDefinition();
 
-                if (genericType == typeof(IEnumerable<>) || CanResolve(genericType, name))
+                if (genericType == typeof(IEnumerable<>) || IsRegistered(genericType, name))
                 {
                     return true;
                 }
@@ -92,7 +93,7 @@ namespace Unity
                                                                    string name)
         {
             TElement value;
-            var set = new HashSet<string>();
+            var set = new QuickSet<Type>();
             int hash = typeof(TElement).GetHashCode() & HashMask;
 
             // Iterate over hierarchy
@@ -109,13 +110,12 @@ namespace Unity
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var key = registry.Entries[index].Key.Name;
 
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -148,7 +148,7 @@ namespace Unity
                                                                    Type typeDefinition, string name)
         {
             TElement value;
-            var set = new HashSet<string>();
+            var set = new QuickSet<Type>();
             int hashCode = typeof(TElement).GetHashCode() & HashMask;
             int hashGeneric = typeDefinition.GetHashCode() & HashMask;
 
@@ -166,13 +166,12 @@ namespace Unity
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var key = registry.Entries[index].Key.Name;
 
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -190,7 +189,7 @@ namespace Unity
                     var index = data[i];
                     var key = registry.Entries[index].Key.Name;
 
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
@@ -269,7 +268,7 @@ namespace Unity
         internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
         {
             TElement value;
-            var set = new HashSet<string>();
+            var set = new QuickSet<Type>();
             int hash = type.GetHashCode() & HashMask;
 
             // Iterate over hierarchy
@@ -288,7 +287,7 @@ namespace Unity
                     var index = data[i];
                     var key = registry.Entries[index].Key.Name;
                     if (null == key) continue;
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
@@ -309,7 +308,7 @@ namespace Unity
                                                               Type type, Type typeDefinition)
         {
             TElement value;
-            var set = new HashSet<string>();
+            var set = new QuickSet<Type>();
             int hashCode = type.GetHashCode() & HashMask;
             int hashGeneric = typeDefinition.GetHashCode() & HashMask;
 
@@ -330,7 +329,7 @@ namespace Unity
                     var key = registry.Entries[index].Key.Name;
 
                     if (null == key) continue;
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
@@ -353,7 +352,7 @@ namespace Unity
                     var key = registry.Entries[index].Key.Name;
 
                     if (null == key) continue;
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
@@ -381,7 +380,7 @@ namespace Unity
         internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
         {
             TElement value;
-            var set = new HashSet<string>();
+            var set = new QuickSet<Type>();
             int hashCode = type.GetHashCode() & HashMask;
 
             // Iterate over hierarchy
@@ -400,7 +399,7 @@ namespace Unity
                     var index = data[i];
                     var key = registry.Entries[index].Key.Name;
                     if (null == key) continue;
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
@@ -423,7 +422,7 @@ namespace Unity
                                                               Type type, Type typeDefinition)
         {
             TElement value;
-            var set = new HashSet<string>();
+            var set = new QuickSet<Type>();
             int hashCode = type.GetHashCode() & HashMask;
             int hashGeneric = typeDefinition.GetHashCode() & HashMask;
 
@@ -444,7 +443,7 @@ namespace Unity
                     var key = registry.Entries[index].Key.Name;
 
                     if (null == key) continue;
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
@@ -469,7 +468,7 @@ namespace Unity
                     var key = registry.Entries[index].Key.Name;
 
                     if (null == key) continue;
-                    if (set.Add(key))
+                    if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {

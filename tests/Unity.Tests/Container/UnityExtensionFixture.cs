@@ -70,6 +70,7 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
+        [Ignore]
         public void ExtensionCanAddPolicy()
         {
             SpyStrategy spy = new SpyStrategy();

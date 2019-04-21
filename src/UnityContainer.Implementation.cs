@@ -7,6 +7,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
+using Unity.Extensions;
 using Unity.Factories;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -46,10 +47,6 @@ namespace Unity
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
-        // Methods
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-
         #endregion
 
 
@@ -81,10 +78,6 @@ namespace Unity
 
             // Context and policies
             _context = new ContainerContext(this);
-
-            // Methods
-            _get = _parent._get;
-            _getGenericRegistration = _parent._getGenericRegistration;
 
             // Strategies
             _strategies = _parent._strategies;
@@ -130,9 +123,6 @@ namespace Unity
             // Lazy<>
             _registry.Set(typeof(Lazy<>), new InternalRegistration(typeof(ResolveDelegateFactory), LazyResolver.Factory));
 
-            // Array
-            _registry.Set(typeof(Array),  new InternalRegistration(typeof(ResolveDelegateFactory), Factories.ArrayResolver.Factory));
-
             // Enumerable
             _registry.Set(typeof(IEnumerable<>), new InternalRegistration(typeof(ResolveDelegateFactory), EnumerableResolver.Factory));
         }
@@ -172,9 +162,6 @@ namespace Unity
             container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
             container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
-
-
-            if (null != container._registrations) container.Set(null, null, container.Defaults);
 
             // Processors
             var fieldsProcessor = new FieldDiagnostic(container.Defaults);
@@ -232,37 +219,9 @@ namespace Unity
 
         #region Implementation
 
-        private void SetupChildContainerBehaviors()
-        {
-            lock (_syncRoot)
-            {
-                if (null == _registrations)
-                {
-                    _registrations = new Registrations(ContainerInitialCapacity);
-                    Set(null, null, Defaults);
-
-                    _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
-                    _getGenericRegistration = GetOrAddGeneric;
-                }
-            }
-
-        }
-
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
             _strategiesChain = _strategies.ToArray();
-
-            if (null != _parent && null == _registrations)
-            {
-                SetupChildContainerBehaviors();
-            }
-        }
-
-        private BuilderStrategy[] GetBuilders(Type type, InternalRegistration registration)
-        {
-            return _strategiesChain.ToArray()
-                              .Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
-                              .ToArray();
         }
 
         #endregion
@@ -314,11 +273,6 @@ namespace Unity
                 _extensions = null;
             }
 
-            lock (LifetimeContainer)
-            {
-                _registrations = new Registrations(1);
-            }
-
             if (null != exceptions && exceptions.Count == 1)
             {
                 throw exceptions[0];
@@ -334,50 +288,16 @@ namespace Unity
 
         #region Nested Types
 
-        private class RegistrationContext : IPolicyList
+        [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
+        private struct ContainerRegistrationStruct : IContainerRegistration
         {
-            private readonly InternalRegistration _registration;
-            private readonly UnityContainer _container;
-            private readonly Type _type;
-            private readonly string _name;
+            public Type RegisteredType { get; internal set; }
 
-            internal RegistrationContext(UnityContainer container, Type type, string name, InternalRegistration registration)
-            {
-                _registration = registration;
-                _container = container;
-                _type = type;
-                _name = name;
-            }
+            public string Name { get; internal set; }
 
+            public Type MappedToType { get; internal set; }
 
-            #region IPolicyList
-
-            public object Get(Type type, string name, Type policyInterface)
-            {
-                if (_type != type || _name != name)
-                    return _container.GetPolicy(type, name, policyInterface);
-
-                return _registration.Get(policyInterface);
-            }
-
-
-            public void Set(Type type, string name, Type policyInterface, object policy)
-            {
-                if (_type != type || _name != name)
-                    _container.SetPolicy(type, name, policyInterface, policy);
-                else
-                    _registration.Set(policyInterface, policy);
-            }
-
-            public void Clear(Type type, string name, Type policyInterface)
-            {
-                if (_type != type || _name != name)
-                    _container.ClearPolicy(type, name, policyInterface);
-                else
-                    _registration.Clear(policyInterface);
-            }
-
-            #endregion
+            public LifetimeManager LifetimeManager { get; internal set; }
         }
 
         #endregion
