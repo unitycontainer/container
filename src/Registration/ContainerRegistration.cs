@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Storage;
 
 namespace Unity.Registration
@@ -22,24 +23,24 @@ namespace Unity.Registration
         }
 
 
-        public ContainerRegistration(LinkedNode<Type, object> validators, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ContainerRegistration(IPolicySet validators, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
         {
             Type = null;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = validators;
+            Next = (LinkedNode<Type, object>)validators;
         }
 
-        public ContainerRegistration(LinkedNode<Type, object> validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ContainerRegistration(IPolicySet validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = validators;
+            Next = (LinkedNode<Type, object>)validators;
         }
 
         #endregion

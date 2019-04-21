@@ -10,8 +10,7 @@ using Unity.Strategies;
 namespace Unity.Registration
 {
     [DebuggerDisplay("InternalRegistration")]
-    public class InternalRegistration : LinkedNode<Type, object>,
-                                        IPolicySet
+    public class InternalRegistration : PolicySet
     {
         #region Fields
 
@@ -32,14 +31,11 @@ namespace Unity.Registration
 
             if (null != factory)
             {
-                InjectionMembers = factory.InjectionMembers;
                 Map = factory.Map;
-
-                var manager = factory.LifetimeManager;
-                if (null != manager)
-                {
-                    LifetimeManager = manager.CreateLifetimePolicy();
-                }
+                Next = factory.Next;
+                InjectionMembers = factory.InjectionMembers;
+                LifetimeManager  = factory.LifetimeManager?
+                                          .CreateLifetimePolicy();
             }
         }
 
@@ -83,18 +79,7 @@ namespace Unity.Registration
 
         #region IPolicySet
 
-        public virtual object Get(Type policyInterface)
-        {
-            for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
-            {
-                if (node.Key == policyInterface)
-                    return node.Value;
-            }
-
-            return null;
-        }
-
-        public virtual void Set(Type policyInterface, object policy)
+        public override void Set(Type policyInterface, object policy)
         {
             Next = new LinkedNode<Type, object>
             {
@@ -102,33 +87,6 @@ namespace Unity.Registration
                 Value = policy,
                 Next = Next
             };
-        }
-
-        public virtual void Clear(Type policyInterface)
-        {
-            LinkedNode<Type, object> node;
-            LinkedNode<Type, object> last = null;
-
-            for (node = this; node != null; node = node.Next)
-            {
-                if (node.Key == policyInterface)
-                {
-                    if (null == last)
-                    {
-                        Key = node.Next?.Key;
-                        Value = node.Next?.Value;
-                        Next = node.Next?.Next;
-                    }
-                    else
-                    {
-                        last.Key = node.Next?.Key;
-                        last.Value = node.Next?.Value;
-                        last.Next = node.Next?.Next;
-                    }
-                }
-
-                last = node;
-            }
         }
 
         #endregion

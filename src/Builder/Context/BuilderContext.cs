@@ -79,7 +79,6 @@ namespace Unity.Builder
                    Registration.Get(policyInterface);
         }
 
-
         public object Get(Type type, Type policyInterface)
         {
             return List.Get(type, policyInterface) ??
@@ -100,7 +99,6 @@ namespace Unity.Builder
         {
             List.Set(RegistrationType, Name, policyInterface, policy);
         }
-
 
         public void Set(Type type, Type policyInterface, object policy)
         {
@@ -341,9 +339,6 @@ namespace Unity.Builder
         public ResolveDelegate<BuilderContext> GetResolver()
         {
             // Get it from the list
-            ResolveDelegate<BuilderContext> policy = Registration.Get<ResolveDelegate<BuilderContext>>();
-            if (null != policy) return policy;
-
             if (Registration is ContainerRegistration registration)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
@@ -351,19 +346,11 @@ namespace Unity.Builder
 #else
                 if (Type?.IsGenericType ?? false)
 #endif
-                    policy = ((UnityContainer)Container).GetResolverPolicy(Type.GetGenericTypeDefinition(), Name);
-            }
-            else
-            {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (RegistrationType.GetTypeInfo().IsGenericType)
-#else
-                if (RegistrationType.IsGenericType)
-#endif
-                    policy = ((UnityContainer)Container).GetResolverPolicy(RegistrationType.GetGenericTypeDefinition(), Name);
+                    return Registration.Get<ResolveDelegate<BuilderContext>>() ??
+                        ((UnityContainer)Container).GetResolverPolicy(Type.GetGenericTypeDefinition(), Name);
             }
 
-            return policy;
+            return Registration.Get<ResolveDelegate<BuilderContext>>();
         }
 
         public ResolveDelegateFactory GetFactory()
@@ -396,7 +383,7 @@ namespace Unity.Builder
                     policy = ((UnityContainer)Container).GetFactoryPolicy(RegistrationType.GetGenericTypeDefinition(), Name);
                 }
                 else if (RegistrationType.IsArray) return ArrayResolver.Factory;
-                else policy = ((UnityContainer)Container).GetFactoryPolicy(Type); 
+                else policy = ((UnityContainer)Container).GetFactoryPolicy(Type);
             }
 
             return policy ?? ((UnityContainer)Container).Defaults.Get<ResolveDelegateFactory>();

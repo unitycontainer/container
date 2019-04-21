@@ -36,7 +36,8 @@ namespace Unity
 
         #region Defaults
 
-        internal InternalRegistration Defaults => _root._registry.Entries[0].Value;
+        internal IPolicySet Defaults => _root._registry.Entries[0].Value;
+        private  IPolicySet _validators;
 
         #endregion
 
@@ -314,25 +315,56 @@ namespace Unity
 
         internal InternalRegistration GetRegistration(Type type, string name)
         {
-            Type generic = null;
-            int targetBucket, hashGeneric = -1, hashDefault = -1;
-            int hashExact = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
-
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
-            if (info.IsGenericType)
-            {
-                generic = info.GetGenericTypeDefinition();
-                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
-                hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & 0x7FFFFFFF : hashDefault;
-            }
+            if (info.IsGenericType) return GetGenericRegistration(type, name, info); 
 #else
-            if (type.IsGenericType)
+            if (type.IsGenericType) return GetGenericRegistration(type, name);
+#endif
+            int hashExact = NamedType.GetHashCode(type, name) & HashMask;
+
+            // Iterate through containers hierarchy
+            for (var container = this; null != container; container = container._parent)
             {
-                generic = type.GetGenericTypeDefinition();
-                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
-                hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & 0x7FFFFFFF : hashDefault;
+                // Skip to parent if no registrations
+                if (null == container._metadata) continue;
+
+                var registry = container._registry;
+
+                // Check for exact match
+                for (var i = registry.Buckets[hashExact % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashExact || candidate.Key.Type != type)
+                        continue;
+
+                    // Found a registration
+                    return candidate.Value;
+                }
             }
+
+            return _root.GetOrAdd(hashExact, type, name, null);
+        }
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+        private InternalRegistration GetGenericRegistration(Type type, string name, TypeInfo info)
+#else
+        private InternalRegistration GetGenericRegistration(Type type, string name)
+#endif
+        {
+            int targetBucket;
+            int hashExact = NamedType.GetHashCode(type, name) & HashMask;
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var generic = info.GetGenericTypeDefinition();
+            var hashNull = NamedType.GetHashCode(generic, null) & HashMask;
+            var hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & HashMask : hashNull;
+            var hashDefault = generic?.GetHashCode() ?? 0 & HashMask;
+#else
+            var generic = type.GetGenericTypeDefinition();
+            var hashNull = NamedType.GetHashCode(generic, null) & HashMask;
+            var hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & HashMask : hashNull;
+            var hashDefault = generic?.GetHashCode() ?? 0 & HashMask;
 #endif
 
             // Iterate through containers hierarchy
@@ -355,9 +387,6 @@ namespace Unity
                     return candidate.Value;
                 }
 
-                // Skip to parent if not generic
-                if (null == generic) continue;
-
                 // Check for factory with same name
                 targetBucket = hashGeneric % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
@@ -370,8 +399,21 @@ namespace Unity
                     return container.GetOrAdd(hashExact, type, name, candidate.Value);
                 }
 
-                // Skip to parent if not generic
-                if (hashGeneric == hashDefault) continue;
+                // Skip if name is null, we just checked it above
+                if (hashGeneric != hashNull)
+                {
+                    // Check for factory with 'null'
+                    targetBucket = hashNull % registry.Buckets.Length;
+                    for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                    {
+                        ref var candidate = ref registry.Entries[i];
+                        if (candidate.HashCode != hashNull || candidate.Key.Type != generic)
+                            continue;
+
+                        // Found a factory
+                        return container.GetOrAdd(hashExact, type, name, candidate.Value);
+                    }
+                }
 
                 // Check for default factory
                 targetBucket = hashDefault % registry.Buckets.Length;
@@ -384,7 +426,6 @@ namespace Unity
                     // Found a factory
                     return container.GetOrAdd(hashExact, type, name, candidate.Value);
                 }
-
             }
 
             return _root.GetOrAdd(hashExact, type, name, null);

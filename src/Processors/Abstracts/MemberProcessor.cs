@@ -83,7 +83,7 @@ namespace Unity.Processors
     {
         #region Fields
 
-        private readonly IPolicySet _policySet;
+        protected readonly IPolicySet Defaults;
 
         #endregion
 
@@ -92,7 +92,7 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicySet policySet)
         {
-            _policySet = policySet;
+            Defaults = policySet;
             AttributeFactories = new[]
             {
                 new AttributeFactory(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
@@ -120,7 +120,7 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
+            var selector = GetOrDefault<ISelect<TMemberInfo>>(registration);
             var members = selector.Select(type, registration);
 
             return ExpressionsFromSelection(type, members);
@@ -129,7 +129,7 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
+            var selector = GetOrDefault<ISelect<TMemberInfo>>(registration);
             var members = selector.Select(type, registration);
             var resolvers = ResolversFromSelection(type, members).ToArray();
 
@@ -228,10 +228,10 @@ namespace Unity.Processors
 #endif
         }
 
-        public TPolicyInterface GetPolicy<TPolicyInterface>(IPolicySet registration)
+        public TPolicyInterface GetOrDefault<TPolicyInterface>(IPolicySet registration)
         {
             return (TPolicyInterface)(registration.Get(typeof(TPolicyInterface)) ??
-                                        _policySet.Get(typeof(TPolicyInterface)));
+                                          Defaults.Get(typeof(TPolicyInterface)));
         }
 
         #endregion

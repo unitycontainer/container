@@ -13,7 +13,6 @@ namespace Unity
         #region Fields
 
         internal ResolveDelegateFactory _buildStrategy = OptimizingFactory;
-        private LinkedNode<Type, object> _validators;
 
         #endregion
 

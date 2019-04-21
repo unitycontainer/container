@@ -29,6 +29,7 @@ namespace Unity
         private readonly UnityContainer _root;
         private readonly UnityContainer _parent;
         internal readonly LifetimeContainer LifetimeContainer;
+        private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
         private List<IUnityContainerExtensionConfigurator> _extensions;
 
         // Policies
@@ -105,7 +106,7 @@ namespace Unity
             _registry.Set(new InternalRegistration());
 
             // Register Container as IUnityContainer & IUnityContainerAsync
-            var container = new ContainerRegistration(typeof(UnityContainer), new ContainerLifetimeManager())
+            var container = new ContainerRegistration(typeof(UnityContainer), _containerManager)
             {
                 BuildChain = new[] { new LifetimeStrategy() }
             };
@@ -148,12 +149,11 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container.Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             container.Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
             container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
             container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
             container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+            container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
         };
 
         internal static void SetDiagnosticPolicies(UnityContainer container)
@@ -222,65 +222,6 @@ namespace Unity
         private void OnStrategiesChanged(object sender, EventArgs e)
         {
             _strategiesChain = _strategies.ToArray();
-        }
-
-        #endregion
-
-
-        #region IDisposable Implementation
-
-        /// <summary>
-        /// Dispose this container instance.
-        /// </summary>
-        /// <remarks>
-        /// This class doesn't have a finalizer, so <paramref name="disposing"/> will always be true.</remarks>
-        /// <param name="disposing">True if being called typeFrom the IDisposable.Dispose
-        /// method, false if being called typeFrom a finalizer.</param>
-        [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing) return;
-
-            List<Exception> exceptions = null;
-
-            try
-            {
-                _strategies.Invalidated -= OnStrategiesChanged;
-                _parent?.LifetimeContainer.Remove(this);
-                LifetimeContainer.Dispose();
-            }
-            catch (Exception exception)
-            {
-                exceptions = new List<Exception> { exception };
-            }
-
-            if (null != _extensions)
-            {
-                foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
-                                                              .ToList())
-                {
-                    try
-                    {
-                        disposable.Dispose();
-                    }
-                    catch (Exception e)
-                    {
-                        if (null == exceptions) exceptions = new List<Exception>();
-                        exceptions.Add(e);
-                    }
-                }
-
-                _extensions = null;
-            }
-
-            if (null != exceptions && exceptions.Count == 1)
-            {
-                throw exceptions[0];
-            }
-            else if (null != exceptions && exceptions.Count > 1)
-            {
-                throw new AggregateException(exceptions);
-            }
         }
 
         #endregion

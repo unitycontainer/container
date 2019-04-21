@@ -83,29 +83,27 @@ namespace Unity
         {
             get
             {
-                Type type;
                 var set = new QuickSet<Type>();
 
                 // IUnityContainer
-                type = _root._registry.Entries[1].Key.Type;
                 yield return new ContainerRegistrationStruct
                 {
-                    RegisteredType = type,
+                    RegisteredType = typeof(IUnityContainer),
                     MappedToType = typeof(UnityContainer),
-                    LifetimeManager = _root._registry.Entries[1].Value.LifetimeManager
+                    LifetimeManager = _containerManager
                 };
-                set.Add(_root._registry.Entries[1].HashCode, type);
+                set.Add(_root._registry.Entries[1].HashCode, typeof(IUnityContainer));
 
                 // IUnityContainerAsync
-                type = _root._registry.Entries[1].Key.Type;
                 yield return new ContainerRegistrationStruct
                 {
-                    RegisteredType = type,
+                    RegisteredType = typeof(IUnityContainerAsync),
                     MappedToType = typeof(UnityContainer),
-                    LifetimeManager = _root._registry.Entries[2].Value.LifetimeManager
+                    LifetimeManager = _containerManager
                 };
-                set.Add(_root._registry.Entries[2].HashCode, type);
+                set.Add(_root._registry.Entries[2].HashCode, typeof(IUnityContainerAsync));
 
+                Type type;
                 // Scan containers for explicit registrations
                 for (var container = this; null != container; container = container._parent)
                 {
@@ -194,9 +192,46 @@ namespace Unity
         /// </remarks>
         public void Dispose()
         {
-            // TODO: Dispose(true)
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            List<Exception> exceptions = null;
+
+            try
+            {
+                _strategies.Invalidated -= OnStrategiesChanged;
+                _parent?.LifetimeContainer.Remove(this);
+                LifetimeContainer.Dispose();
+            }
+            catch (Exception exception)
+            {
+                exceptions = new List<Exception> { exception };
+            }
+
+            if (null != _extensions)
+            {
+                foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
+                                                              .ToList())
+                {
+                    try
+                    {
+                        disposable.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        if (null == exceptions) exceptions = new List<Exception>();
+                        exceptions.Add(e);
+                    }
+                }
+
+                _extensions = null;
+            }
+
+            if (null != exceptions && exceptions.Count == 1)
+            {
+                throw exceptions[0];
+            }
+            else if (null != exceptions && exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
+            }
         }
 
         #endregion

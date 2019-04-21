@@ -52,7 +52,7 @@ namespace Unity.Processors
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
             // Select ConstructorInfo
-            var selector = GetPolicy<ISelect<ConstructorInfo>>(registration);
+            var selector = GetOrDefault<ISelect<ConstructorInfo>>(registration);
             var selection = selector.Select(type, registration)
                                     .FirstOrDefault();
 

@@ -6,6 +6,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
