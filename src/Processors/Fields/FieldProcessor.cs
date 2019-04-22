@@ -13,8 +13,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public FieldProcessor(IPolicySet policySet)
-            : base(policySet)
+        public FieldProcessor(DefaultPolicies defaults)
+            : base(defaults)
         {
         }
 
@@ -31,6 +31,9 @@ namespace Unity.Processors
         }
 
         protected override Type MemberType(FieldInfo info) => info.FieldType;
+
+        public override ISelect<FieldInfo> GetOrDefault(IPolicySet registration) => 
+            registration.Get<ISelect<FieldInfo>>() ?? Defaults.FieldsSelector;
 
         #endregion
 

@@ -14,8 +14,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public ConstructorProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet, typeof(InjectionConstructorAttribute), container)
+        public ConstructorProcessor(DefaultPolicies defaults, UnityContainer container)
+            : base(defaults, typeof(InjectionConstructorAttribute), container)
         {
             SelectMethod = SmartSelector;
         }
@@ -77,6 +77,9 @@ namespace Unity.Processors
                        .DeclaredConstructors
                        .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
         }
+
+        public override ISelect<ConstructorInfo> GetOrDefault(IPolicySet registration) => 
+            registration.Get<ISelect<ConstructorInfo>>() ?? Defaults.CtorSelector;
 
         #endregion
 

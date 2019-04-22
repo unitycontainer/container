@@ -22,8 +22,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        protected ParametersProcessor(IPolicySet policySet, Type attribute, UnityContainer container)
-            : base(policySet)
+        protected ParametersProcessor(DefaultPolicies defaults, Type attribute, UnityContainer container)
+            : base(defaults)
         {
             Container = container;
             Markers = new[] { attribute };

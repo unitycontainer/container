@@ -81,10 +81,7 @@ namespace Unity.Builder
 
         public object Get(Type type, Type policyInterface)
         {
-            return List.Get(type, policyInterface) ??
-                   (type != RegistrationType
-                       ? ((UnityContainer)Container).GetPolicy(type, policyInterface)
-                       : Registration.Get(policyInterface));
+            return ((UnityContainer)Container).GetPolicy(type, policyInterface);
         }
 
         public object Get(Type type, string name, Type policyInterface)
@@ -386,7 +383,7 @@ namespace Unity.Builder
                 else policy = ((UnityContainer)Container).GetFactoryPolicy(Type);
             }
 
-            return policy ?? ((UnityContainer)Container).Defaults.Get<ResolveDelegateFactory>();
+            return policy ?? ((UnityContainer)Container).Defaults.ResolveDelegateFactory;
         }
 
         public TPolicyInterface GetPolicy<TPolicyInterface>()

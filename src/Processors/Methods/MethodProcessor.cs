@@ -15,8 +15,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public MethodProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet, typeof(InjectionMethodAttribute), container)
+        public MethodProcessor(DefaultPolicies defaults, UnityContainer container)
+            : base(defaults, typeof(InjectionMethodAttribute), container)
         {
         }
 
@@ -67,6 +67,9 @@ namespace Unity.Processors
                 }
             }
         }
+
+        public override ISelect<MethodInfo> GetOrDefault(IPolicySet registration) => 
+            registration.Get<ISelect<MethodInfo>>() ?? Defaults.MethodsSelector;
 
         #endregion
 

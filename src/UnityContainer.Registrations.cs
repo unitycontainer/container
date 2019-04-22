@@ -137,13 +137,10 @@ namespace Unity
                         continue;
 
                     // Found a registration
-                    if (!(candidate.Value is ImplicitRegistration registration))
-                    {
-                        registration = CreateRegistration(type, candidate.Value);
-                        candidate.Value = registration;
-                    }
+                    if (!(candidate.Value is ImplicitRegistration))
+                        candidate.Value = CreateRegistration(type, candidate.Value);
 
-                    return registration;
+                    return (ImplicitRegistration)candidate.Value;
                 }
             }
 
@@ -188,13 +185,10 @@ namespace Unity
                         continue;
 
                     // Found a registration
-                    if (!(candidate.Value is ImplicitRegistration registration))
-                    {
-                        registration = CreateRegistration(type, candidate.Value);
-                        candidate.Value = registration;
-                    }
+                    if (!(candidate.Value is ImplicitRegistration))
+                        candidate.Value = CreateRegistration(type, candidate.Value);
 
-                    return registration;
+                    return (ImplicitRegistration)candidate.Value;
                 }
 
                 // Check for factory with same name
@@ -379,13 +373,10 @@ namespace Unity
                         continue;
                     }
 
-                    if (!(candidate.Value is ImplicitRegistration value))
-                    {
-                        value = CreateRegistration(type, candidate.Value);
-                        candidate.Value = value;
-                    }
+                    if (!(candidate.Value is ImplicitRegistration))
+                        candidate.Value = CreateRegistration(type, candidate.Value);
 
-                    return value;
+                    return (ImplicitRegistration)candidate.Value;
                 }
 
                 // Expand if required

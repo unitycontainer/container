@@ -12,8 +12,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public PropertyProcessor(IPolicySet policySet)
-            : base(policySet)
+        public PropertyProcessor(DefaultPolicies defaults)
+            : base(defaults)
         {
         }
 
@@ -38,6 +38,9 @@ namespace Unity.Processors
                 yield return member;
             }
         }
+
+        public override ISelect<PropertyInfo> GetOrDefault(IPolicySet registration) =>
+            registration.Get<ISelect<PropertyInfo>>() ?? Defaults.PropertiesSelector;
 
         #endregion
 

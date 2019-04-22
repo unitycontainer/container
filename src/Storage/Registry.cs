@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Security;
-using Unity.Policy;
 
 namespace Unity.Storage
 {
@@ -84,6 +84,7 @@ namespace Unity.Storage
 
         #region Nested Types
 
+        [DebuggerDisplay("{Value}", Name = "{Key}")]
         public struct Entry
         {
             public int HashCode;

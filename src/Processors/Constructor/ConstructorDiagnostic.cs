@@ -68,8 +68,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        public ConstructorDiagnostic(IPolicySet policySet, UnityContainer container) 
-            : base(policySet, container)
+        public ConstructorDiagnostic(DefaultPolicies defaults, UnityContainer container) 
+            : base(defaults, container)
         {
         }
 

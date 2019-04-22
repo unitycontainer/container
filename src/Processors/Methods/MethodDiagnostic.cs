@@ -15,8 +15,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public MethodDiagnostic(IPolicySet policySet, UnityContainer container) 
-            : base(policySet, container)
+        public MethodDiagnostic(DefaultPolicies defaults, UnityContainer container) 
+            : base(defaults, container)
         {
         }
 

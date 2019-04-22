@@ -99,8 +99,8 @@ namespace Unity
             Register = AddOrReplace;
 
             // Create Registry and set Factory strategy
-            _registry = new Registry<NamedType, IPolicySet>(new PolicySet(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory));
             _metadata = new Registry<Type, int[]>();
+            _registry = new Registry<NamedType, IPolicySet>(new DefaultPolicies(OptimizingFactory));
 
             // Register Container as IUnityContainer & IUnityContainerAsync
             var container = new ExplicitRegistration(typeof(UnityContainer), _containerManager)
@@ -146,10 +146,10 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
-            container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
+            container.Defaults.CtorSelector = constructorProcessor;
+            container.Defaults.PropertiesSelector = propertiesProcessor;
+            container.Defaults.MethodsSelector = methodsProcessor;
+            container.Defaults.FieldsSelector = fieldsProcessor;
         };
 
         internal static void SetDiagnosticPolicies(UnityContainer container)
@@ -178,11 +178,11 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container.Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
-            container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
-            container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+            container.Defaults.ResolveDelegateFactory     = container._buildStrategy;
+            container.Defaults.FieldsSelector      = fieldsProcessor;
+            container.Defaults.MethodsSelector     = methodsProcessor;
+            container.Defaults.PropertiesSelector  = propertiesProcessor;
+            container.Defaults.CtorSelector = constructorProcessor;
 
             var validators = new ImplicitRegistration();
 

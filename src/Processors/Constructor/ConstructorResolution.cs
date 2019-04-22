@@ -17,7 +17,7 @@ namespace Unity.Processors
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
         {
             // Select ConstructorInfo
-            var selector = GetOrDefault<ISelect<ConstructorInfo>>(registration);
+            var selector = GetOrDefault(registration);
             var selection = selector.Select(type, registration)
                                     .FirstOrDefault();
 

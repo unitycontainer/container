@@ -14,8 +14,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public PropertyDiagnostic(IPolicySet policySet) 
-            : base(policySet)
+        public PropertyDiagnostic(DefaultPolicies defaults) 
+            : base(defaults)
         {
         }
 

@@ -39,7 +39,7 @@ namespace Unity
 
         #region Defaults
 
-        internal IPolicySet Defaults => _root._registry.Entries[0].Value;
+        internal DefaultPolicies Defaults => (DefaultPolicies)_root._registry.Entries[0].Value;
         private  IPolicySet _validators;
 
         #endregion
