@@ -42,7 +42,7 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-                var registration = new ContainerRegistration(_validators, typeTo, (LifetimeManager)lifetimeManager, injectionMembers);
+                var registration = new ExplicitRegistration(_validators, typeTo, (LifetimeManager)lifetimeManager, injectionMembers);
 
                 // If Disposable add to container's lifetime
                 if (lifetimeManager is IDisposable disposableManager)
@@ -65,7 +65,7 @@ namespace Unity
                 {
                     foreach (var member in injectionMembers)
                     {
-                        member.AddPolicies<BuilderContext, ContainerRegistration>(
+                        member.AddPolicies<BuilderContext, ExplicitRegistration>(
                             registeredType, mappedToType, name, ref registration);
                     }
                 }
@@ -124,7 +124,7 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-                var registration = new ContainerRegistration(null, mappedToType, ((LifetimeManager)lifetimeManager));
+                var registration = new ExplicitRegistration(null, mappedToType, ((LifetimeManager)lifetimeManager));
 
                 // If Disposable add to container's lifetime
                 if (lifetimeManager is IDisposable manager)
@@ -184,7 +184,7 @@ namespace Unity
             var injectionFactory = new InjectionFactory(factory);
 #pragma warning restore CS0618
             var injectionMembers = new InjectionMember[] { injectionFactory };
-            var registration = new ContainerRegistration(_validators, type, ((LifetimeManager)lifetimeManager), injectionMembers);
+            var registration = new ExplicitRegistration(_validators, type, ((LifetimeManager)lifetimeManager), injectionMembers);
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
@@ -203,7 +203,7 @@ namespace Unity
                 container.LifetimeContainer.Add(manager);
 
             // Add Injection Members
-            injectionFactory.AddPolicies<BuilderContext, ContainerRegistration>(
+            injectionFactory.AddPolicies<BuilderContext, ExplicitRegistration>(
                 type, type, name, ref registration);
 
             // Check what strategies to run
@@ -240,7 +240,7 @@ namespace Unity
                 Name = name,
                 ExecutePlan = ContextExecutePlan,
                 ResolvePlan = ContextResolvePlan,
-                Type = registration is ContainerRegistration containerRegistration
+                Type = registration is ExplicitRegistration containerRegistration
                                      ? containerRegistration.Type : type,
             };
 
@@ -273,7 +273,7 @@ namespace Unity
                 Name = name,
                 ExecutePlan = ContextExecutePlan,
                 ResolvePlan = ContextResolvePlan,
-                Type = registration is ContainerRegistration containerRegistration
+                Type = registration is ExplicitRegistration containerRegistration
                                      ? containerRegistration.Type : type
             };
 

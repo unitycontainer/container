@@ -47,7 +47,7 @@ namespace Unity
             #pragma warning restore CS0618
 
             var injectionMembers = new InjectionMember[] { injectionFactory };
-            var registration = new ContainerRegistration(_validators, (LifetimeManager)lifetimeManager, injectionMembers);
+            var registration = new ExplicitRegistration(_validators, (LifetimeManager)lifetimeManager, injectionMembers);
 
             // Add Injection Members
             //injectionFactory.AddPolicies<BuilderContext, ContainerRegistration>(
@@ -62,7 +62,7 @@ namespace Unity
             {
                 Task.Factory.StartNew(() =>
                 {
-                    foreach (InternalRegistration previous in replaced)
+                    foreach (ImplicitRegistration previous in replaced)
                     {
                         if (0 == previous.Release() && previous.LifetimeManager is IDisposable disposable)
                         {
@@ -99,7 +99,7 @@ namespace Unity
             // Create registration and add to appropriate storage
             var mappedToType = instance?.GetType();
             var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            var registration = new ContainerRegistration(mappedToType, (LifetimeManager)lifetimeManager);
+            var registration = new ExplicitRegistration(mappedToType, (LifetimeManager)lifetimeManager);
 
             // If Disposable add to container's lifetime
             if (lifetimeManager is IDisposable manager) container.LifetimeContainer.Add(manager);
@@ -113,7 +113,7 @@ namespace Unity
             {
                 Task.Factory.StartNew(() => 
                 {
-                    foreach (InternalRegistration previous in replaced)
+                    foreach (ImplicitRegistration previous in replaced)
                     {
                         if (0 == previous.Release() && previous.LifetimeManager is IDisposable disposable)
                         {

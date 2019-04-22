@@ -6,6 +6,22 @@ namespace Unity.Storage
     public class PolicySet : LinkedNode<Type, object>,
                              IPolicySet
     {
+        #region Constructors
+
+        public PolicySet(Type type)
+        {
+            Key = type;
+        }
+
+        public PolicySet(Type type, object value)
+        {
+            Key = type;
+            Value = value;
+        }
+
+        #endregion
+
+
         #region IPolicySet
 
         public virtual object Get(Type policyInterface)

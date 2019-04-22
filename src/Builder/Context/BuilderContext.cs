@@ -150,7 +150,7 @@ namespace Unity.Builder
 
         #region Resolve Methods
 
-        public object Resolve(Type type, string name, InternalRegistration registration)
+        public object Resolve(Type type, string name, ImplicitRegistration registration)
         {
             unsafe
             {
@@ -161,7 +161,7 @@ namespace Unity.Builder
                     Registration = registration,
                     RegistrationType = type,
                     Name = name,
-                    Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
+                    Type = registration is ExplicitRegistration containerRegistration ? containerRegistration.Type : type,
                     ExecutePlan = ExecutePlan,
                     ResolvePlan = ResolvePlan,
                     List = List,
@@ -339,7 +339,7 @@ namespace Unity.Builder
         public ResolveDelegate<BuilderContext> GetResolver()
         {
             // Get it from the list
-            if (Registration is ContainerRegistration registration)
+            if (Registration is ExplicitRegistration registration)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                 if (Type?.GetTypeInfo().IsGenericType ?? false)
@@ -359,7 +359,7 @@ namespace Unity.Builder
             ResolveDelegateFactory policy = Registration.Get<ResolveDelegateFactory>();
             if (null != policy) return policy;
 
-            if (Registration is ContainerRegistration registration)
+            if (Registration is ExplicitRegistration registration)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                 if (Type?.GetTypeInfo().IsGenericType ?? false)
@@ -388,6 +388,20 @@ namespace Unity.Builder
 
             return policy ?? ((UnityContainer)Container).Defaults.Get<ResolveDelegateFactory>();
         }
+
+        public TPolicyInterface GetPolicy<TPolicyInterface>()
+        {
+            return (TPolicyInterface) (Get(typeof(TPolicyInterface)) ?? (
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                RegistrationType.GetTypeInfo().IsGenericType
+#else
+                RegistrationType.IsGenericType
+#endif
+                ? Get(RegistrationType.GetGenericTypeDefinition(), Name, typeof(TPolicyInterface)) ?? 
+                    ((UnityContainer)Container).Defaults.Get(typeof(TPolicyInterface))
+                : ((UnityContainer)Container).Defaults.Get(typeof(TPolicyInterface))));
+        }
+
 
         #endregion
     }

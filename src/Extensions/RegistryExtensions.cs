@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -9,7 +10,7 @@ namespace Unity.Extensions
     {
         #region Get
 
-        public static InternalRegistration Get(this Registry<NamedType, InternalRegistration> registry, int hashCode, Type type)
+        public static IPolicySet Get(this Registry<NamedType, IPolicySet> registry, int hashCode, Type type)
         {
             var targetBucket = hashCode % registry.Buckets.Length;
 
@@ -28,19 +29,7 @@ namespace Unity.Extensions
 
         #region Set
 
-        internal static void Set(this Registry<NamedType, InternalRegistration> registry, InternalRegistration registration)
-        {
-            var targetBucket = 0 % registry.Buckets.Length;
-
-            ref var entry = ref registry.Entries[0];
-            entry.Next = registry.Buckets[targetBucket];
-            entry.Value = registration;
-            registry.Buckets[targetBucket] = 0;
-
-            if (0 == registry.Count) registry.Count++;
-        }
-
-        internal static void Set(this Registry<NamedType, InternalRegistration> registry, Type type, InternalRegistration registration)
+        internal static void Set(this Registry<NamedType, IPolicySet> registry, Type type, ImplicitRegistration registration)
         {
             var hashCode = type.GetHashCode() & UnityContainer.HashMask;
             var targetBucket = hashCode % registry.Buckets.Length;
@@ -61,7 +50,7 @@ namespace Unity.Extensions
             registry.Buckets[targetBucket] = registry.Count++;
         }
 
-        internal static void Set(this Registry<NamedType, InternalRegistration> registry, Type type, string name, InternalRegistration registration)
+        internal static void Set(this Registry<NamedType, IPolicySet> registry, Type type, string name, ImplicitRegistration registration)
         {
             var hashCode = NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
             var targetBucket = hashCode % registry.Buckets.Length;
@@ -88,7 +77,7 @@ namespace Unity.Extensions
 
         #region Contains
 
-        public static bool Contains(this Registry<NamedType, InternalRegistration> registry, int hashCode, Type type)
+        public static bool Contains(this Registry<NamedType, IPolicySet> registry, int hashCode, Type type)
         {
             var targetBucket = hashCode % registry.Buckets.Length;
 

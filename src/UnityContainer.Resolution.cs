@@ -89,8 +89,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
-                                                                   string name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, ImplicitRegistration, object> resolve, string name)
         {
             TElement value;
             var set = new QuickSet<Type>();
@@ -115,7 +114,8 @@ namespace Unity
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                            var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -144,7 +144,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, ImplicitRegistration, object> resolve,
                                                                    Type typeDefinition, string name)
         {
             TElement value;
@@ -171,7 +171,8 @@ namespace Unity
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registry.Entries[index].Value);
+                            var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                            value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -265,7 +266,7 @@ namespace Unity
             return argType;
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, ImplicitRegistration, object> resolve, Type type)
         {
             TElement value;
             var set = new QuickSet<Type>();
@@ -291,7 +292,8 @@ namespace Unity
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
+                            var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                            value = (TElement)resolve(typeof(TElement), key, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -304,7 +306,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, InternalRegistration, object> resolve,
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string, ImplicitRegistration, object> resolve,
                                                               Type type, Type typeDefinition)
         {
             TElement value;
@@ -333,7 +335,8 @@ namespace Unity
                     {
                         try
                         {
-                            value = (TElement)resolve(typeof(TElement), key, registry.Entries[index].Value);
+                            var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                            value = (TElement)resolve(typeof(TElement), key, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -377,7 +380,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, InternalRegistration, object> resolve, Type type)
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, ImplicitRegistration, object> resolve, Type type)
         {
             TElement value;
             var set = new QuickSet<Type>();
@@ -418,7 +421,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, InternalRegistration, object> resolve,
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string, ImplicitRegistration, object> resolve,
                                                               Type type, Type typeDefinition)
         {
             TElement value;
@@ -581,7 +584,7 @@ namespace Unity
             (ref BuilderContext context) =>
             {
                 var i = -1;
-                BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+                BuilderStrategy[] chain = ((ImplicitRegistration)context.Registration).BuildChain;
                 try
                 {
                     while (!context.BuildComplete && ++i < chain.Length)
@@ -608,7 +611,7 @@ namespace Unity
         private object ExecuteValidatingPlan(ref BuilderContext context)
         {
             var i = -1;
-            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+            BuilderStrategy[] chain = ((ImplicitRegistration)context.Registration).BuildChain;
 
             try
             {

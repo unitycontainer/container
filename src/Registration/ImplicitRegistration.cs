@@ -9,8 +9,8 @@ using Unity.Strategies;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("InternalRegistration")]
-    public class InternalRegistration : PolicySet
+    [DebuggerDisplay("Registration (Implicit)")]
+    public class ImplicitRegistration : PolicySet
     {
         #region Fields
 
@@ -20,26 +20,32 @@ namespace Unity.Registration
 
         #region Constructors
 
-        public InternalRegistration()
+        public ImplicitRegistration()
+            : base(typeof(LifetimeManager))
         {
-            Key = typeof(LifetimeManager);
         }
 
-        public InternalRegistration(InternalRegistration factory)
+        public ImplicitRegistration(IPolicySet set)
+            : base(typeof(LifetimeManager))
         {
-            Key = typeof(LifetimeManager);
-
-            if (null != factory)
+            switch(set)
             {
-                Map = factory.Map;
-                Next = factory.Next;
-                InjectionMembers = factory.InjectionMembers;
-                LifetimeManager  = factory.LifetimeManager?
-                                          .CreateLifetimePolicy();
+                case ImplicitRegistration factory:
+                    Map = factory.Map;
+                    Next = factory.Next;
+                    InjectionMembers = factory.InjectionMembers;
+                    LifetimeManager = factory.LifetimeManager?
+                                              .CreateLifetimePolicy();
+                    break;
+
+                case LinkedNode<Type, object> node:
+                    Next = node;
+                    break;
             }
         }
 
-        public InternalRegistration(Type policyInterface, object policy)
+        public ImplicitRegistration(Type policyInterface, object policy)
+            : base(typeof(LifetimeManager))
         {
             Key = typeof(LifetimeManager);
             Next = new LinkedNode<Type, object>
@@ -68,6 +74,16 @@ namespace Unity.Registration
         {
             get => (LifetimeManager)Value;
             set => Value = value;
+        }
+
+        public virtual void Add(IPolicySet set)
+        {
+            if (set is LinkedNode<Type, object> policies)
+            {
+                var node = (LinkedNode<Type, object>)this;
+                while (null != node.Next) node = node.Next;
+                node.Next = policies;
+            }
         }
 
         public virtual int AddRef() => Interlocked.Increment(ref _refCount);

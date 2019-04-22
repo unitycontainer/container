@@ -7,12 +7,12 @@ using Unity.Storage;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("ContainerRegistration: MappedTo={Type?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
-    public class ContainerRegistration : InternalRegistration
+    [DebuggerDisplay("Explicit Registration: MappedTo={Type?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
+    public class ExplicitRegistration : ImplicitRegistration
     {
         #region Constructors
 
-        public ContainerRegistration(Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ExplicitRegistration(Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
@@ -23,7 +23,7 @@ namespace Unity.Registration
         }
 
 
-        public ContainerRegistration(IPolicySet validators, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ExplicitRegistration(IPolicySet validators, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
         {
             Type = null;
             Key = typeof(LifetimeManager);
@@ -33,7 +33,7 @@ namespace Unity.Registration
             Next = (LinkedNode<Type, object>)validators;
         }
 
-        public ContainerRegistration(IPolicySet validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ExplicitRegistration(IPolicySet validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);

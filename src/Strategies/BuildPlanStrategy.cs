@@ -19,11 +19,11 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[] injectionMembers)
         {
             // Require Re-Resolve if no injectors specified
             registration.BuildRequired = (injectionMembers?.Any(m => m.BuildRequired) ?? false) ||
-                                          registration is ContainerRegistration cr && cr.LifetimeManager is PerResolveLifetimeManager;
+                                          registration is ExplicitRegistration cr && cr.LifetimeManager is PerResolveLifetimeManager;
 
             return true;
         }
@@ -44,7 +44,7 @@ namespace Unity.Strategies
             if (null == resolver)
             {
                 // Check if can be created
-                if (!(context.Registration is ContainerRegistration) &&  
+                if (!(context.Registration is ExplicitRegistration) &&  
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                       context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
 #else

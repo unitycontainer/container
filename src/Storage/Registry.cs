@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security;
+using Unity.Policy;
 
 namespace Unity.Storage
 {
@@ -58,6 +59,17 @@ namespace Unity.Storage
                 Buckets[bucket] = i;
             }
             Count = registry.Count;
+        }
+
+        public Registry(TValue value)
+            : this(0)
+        {
+            ref var entry = ref Entries[0];
+            entry.Next = -1;
+            entry.Value = value;
+
+            Buckets[0] = 0;
+            Count++;
         }
 
         #endregion

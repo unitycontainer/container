@@ -28,9 +28,9 @@ namespace Unity.Processors
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
+            if (null != ((ImplicitRegistration)registration).InjectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
                         yield return injectionMember;

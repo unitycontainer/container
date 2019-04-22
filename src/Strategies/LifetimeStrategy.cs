@@ -28,7 +28,7 @@ namespace Unity.Strategies
         {
             LifetimeManager policy = null;
 
-            if (context.Registration is InternalRegistration registration)
+            if (context.Registration is ImplicitRegistration registration)
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
@@ -51,7 +51,7 @@ namespace Unity.Strategies
         {
             LifetimeManager policy = null;
 
-            if (context.Registration is InternalRegistration registration)
+            if (context.Registration is ImplicitRegistration registration)
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
@@ -65,7 +65,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[] injectionMembers)
         {
             var policy = registration.LifetimeManager;
             if (null != policy)
@@ -75,16 +75,16 @@ namespace Unity.Strategies
 
             // Dynamic registration
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (!(registration is ContainerRegistration) && null != type && type.GetTypeInfo().IsGenericType)
+            if (!(registration is ExplicitRegistration) && null != type && type.GetTypeInfo().IsGenericType)
                 return true;
 #else
-            if (!(registration is ContainerRegistration) && null != type && type.IsGenericType)
+            if (!(registration is ExplicitRegistration) && null != type && type.IsGenericType)
                 return true;
 #endif
             return false;
         }
 
-        public override bool RequiredToResolveInstance(IUnityContainer container, InternalRegistration registration) => true;
+        public override bool RequiredToResolveInstance(IUnityContainer container, ImplicitRegistration registration) => true;
 
         #endregion
     }

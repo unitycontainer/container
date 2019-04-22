@@ -98,15 +98,12 @@ namespace Unity
         {
             Register = AddOrReplace;
 
-            // Create Registry
+            // Create Registry and set Factory strategy
+            _registry = new Registry<NamedType, IPolicySet>(new PolicySet(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory));
             _metadata = new Registry<Type, int[]>();
-            _registry = new Registry<NamedType, InternalRegistration>();
-
-            // Default Policies 
-            _registry.Set(new InternalRegistration());
 
             // Register Container as IUnityContainer & IUnityContainerAsync
-            var container = new ContainerRegistration(typeof(UnityContainer), _containerManager)
+            var container = new ExplicitRegistration(typeof(UnityContainer), _containerManager)
             {
                 BuildChain = new[] { new LifetimeStrategy() }
             };
@@ -116,16 +113,16 @@ namespace Unity
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
             // Func<> Factory
-            var funcBuiltInFctory = new InternalRegistration();
+            var funcBuiltInFctory = new ImplicitRegistration();
             funcBuiltInFctory.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
             funcBuiltInFctory.Set(typeof(ResolveDelegateFactory), FuncResolver.Factory);
             _registry.Set(typeof(Func<>), funcBuiltInFctory);
 
             // Lazy<>
-            _registry.Set(typeof(Lazy<>), new InternalRegistration(typeof(ResolveDelegateFactory), LazyResolver.Factory));
+            _registry.Set(typeof(Lazy<>), new ImplicitRegistration(typeof(ResolveDelegateFactory), LazyResolver.Factory));
 
             // Enumerable
-            _registry.Set(typeof(IEnumerable<>), new InternalRegistration(typeof(ResolveDelegateFactory), EnumerableResolver.Factory));
+            _registry.Set(typeof(IEnumerable<>), new ImplicitRegistration(typeof(ResolveDelegateFactory), EnumerableResolver.Factory));
         }
 
         internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
@@ -149,7 +146,6 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container.Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
             container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
             container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
             container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
@@ -182,14 +178,13 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container.Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             container.Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
             container.Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
             container.Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
             container.Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
             container.Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
-            var validators = new InternalRegistration();
+            var validators = new ImplicitRegistration();
 
             validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
             validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);

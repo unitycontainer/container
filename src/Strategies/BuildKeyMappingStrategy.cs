@@ -14,9 +14,9 @@ namespace Unity.Strategies
     {
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, InternalRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[] injectionMembers)
         {
-            if (!(registration is ContainerRegistration containerRegistration)) return null != registration.Map;
+            if (!(registration is ExplicitRegistration containerRegistration)) return null != registration.Map;
 
             // Validate input  
             if (null == containerRegistration.Type || type == containerRegistration.Type) return false;
@@ -72,10 +72,10 @@ namespace Unity.Strategies
         /// <param name="context">The context for the operation.</param>
         public override void PreBuildUp(ref BuilderContext context)
         {
-            var map = ((InternalRegistration)context.Registration).Map;
+            var map = ((ImplicitRegistration)context.Registration).Map;
             if (null != map) context.Type = map(context.Type);
 
-            if (!((InternalRegistration)context.Registration).BuildRequired &&
+            if (!((ImplicitRegistration)context.Registration).BuildRequired &&
                 ((UnityContainer)context.Container).IsRegistered(ref context))
             {
                 // TODO: Optimize call, no need for parameters

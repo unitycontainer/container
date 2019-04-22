@@ -115,7 +115,7 @@ namespace Unity
 
                     for (var i = 0; i < registry.Count; i++)
                     {
-                        if (!(registry.Entries[i].Value is ContainerRegistration registration)) continue;
+                        if (!(registry.Entries[i].Value is ExplicitRegistration registration)) continue;
 
                         type = registry.Entries[i].Key.Type;
                         if (set.Add(registry.Entries[i].HashCode, type))
