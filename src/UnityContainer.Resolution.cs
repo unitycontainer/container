@@ -286,14 +286,14 @@ namespace Unity
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var key = registry.Entries[index].Key.Name;
-                    if (null == key) continue;
+                    var name = registry.Entries[index].Key.Name;
+                    if (null == name) continue;
                     if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
                             var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                            value = (TElement)resolve(typeof(TElement), key, registration);
+                            value = (TElement)resolve(typeof(TElement), name, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -328,15 +328,15 @@ namespace Unity
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var key = registry.Entries[index].Key.Name;
+                    var name = registry.Entries[index].Key.Name;
 
-                    if (null == key) continue;
+                    if (null == name) continue;
                     if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
                             var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                            value = (TElement)resolve(typeof(TElement), key, registration);
+                            value = (TElement)resolve(typeof(TElement), name, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -359,7 +359,7 @@ namespace Unity
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            int hash = NamedType.GetHashCode(typeof(TElement), key) & HashMask;
                             var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
                             value = (TElement)resolve(typeof(TElement), key, registration);
                         }
@@ -400,15 +400,15 @@ namespace Unity
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var key = registry.Entries[index].Key.Name;
-                    if (null == key) continue;
+                    var name = registry.Entries[index].Key.Name;
+                    if (null == name) continue;
                     if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
-                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
-                            value = (TElement)resolve(typeof(TElement), key, registration);
+                            int hash = NamedType.GetHashCode(typeof(TElement), name) & HashMask;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), name, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), name, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -443,16 +443,16 @@ namespace Unity
                 for (var i = 1; i < length; i++)
                 {
                     var index = data[i];
-                    var key = registry.Entries[index].Key.Name;
+                    var name = registry.Entries[index].Key.Name;
 
-                    if (null == key) continue;
+                    if (null == name) continue;
                     if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
-                            var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
-                            value = (TElement)resolve(typeof(TElement), key, registration);
+                            int hash = NamedType.GetHashCode(typeof(TElement), name) & HashMask;
+                            var registration = container.GetOrAdd(hash, typeof(TElement), name, registry.Entries[index].Value);
+                            value = (TElement)resolve(typeof(TElement), name, registration);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {

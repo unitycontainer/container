@@ -35,22 +35,22 @@ namespace Unity
         {
             Type generic = null;
             int targetBucket, hashGeneric = -1, hashDefault = -1;
-            int hashExact = NamedType.GetHashCode(context.Type, context.Name) & 0x7FFFFFFF;
+            int hashExact = NamedType.GetHashCode(context.Type, context.Name) & HashMask;
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = context.Type.GetTypeInfo();
             if (info.IsGenericType)
             {
                 generic = info.GetGenericTypeDefinition();
-                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
-                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & 0x7FFFFFFF : hashDefault;
+                hashDefault = NamedType.GetHashCode(generic, null) & HashMask;
+                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & HashMask : hashDefault;
             }
 #else
             if (context.Type.IsGenericType)
             {
                 generic = context.Type.GetGenericTypeDefinition();
-                hashDefault = NamedType.GetHashCode(generic, null) & 0x7FFFFFFF;
-                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & 0x7FFFFFFF : hashDefault;
+                hashDefault = NamedType.GetHashCode(generic, null) & HashMask;
+                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & HashMask : hashDefault;
             }
 #endif
 
@@ -67,7 +67,7 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key.Type != context.Type) continue;
+                    if (candidate.HashCode != hashExact || candidate.Key.Type != context.Type) continue;
 
                     // Found a registration
                     return true;
@@ -81,7 +81,7 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key.Type != generic) continue;
+                    if (candidate.HashCode != hashGeneric || candidate.Key.Type != generic) continue;
 
                     // Found a factory
                     return true;
@@ -95,7 +95,7 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key.Type != generic) continue;
+                    if (candidate.HashCode != hashDefault || candidate.Key.Type != generic) continue;
 
                     // Found a factory
                     return true;
