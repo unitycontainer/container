@@ -7,7 +7,8 @@ using Unity.Storage;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("Explicit Registration: MappedTo={Type?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
+    [DebuggerDisplay("Registration.Explicit({Count})")]
+    [DebuggerTypeProxy(typeof(ExplicitRegistrationDebugProxy))]
     public class ExplicitRegistration : ImplicitRegistration
     {
         #region Constructors
@@ -30,7 +31,7 @@ namespace Unity.Registration
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = (LinkedNode<Type, object>)validators;
+            Next = (PolicyEntry)validators;
         }
 
         public ExplicitRegistration(IPolicySet validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
@@ -40,7 +41,7 @@ namespace Unity.Registration
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = (LinkedNode<Type, object>)validators;
+            Next = (PolicyEntry)validators;
         }
 
         #endregion
@@ -53,6 +54,24 @@ namespace Unity.Registration
         /// <see cref="Type"/> property and this one will have the same value.
         /// </summary>
         public Type Type { get; }
+
+        #endregion
+
+
+        #region Debug Support
+
+        protected class ExplicitRegistrationDebugProxy : ImplicitRegistrationDebugProxy
+        {
+            private readonly ExplicitRegistration _registration;
+
+            public ExplicitRegistrationDebugProxy(ExplicitRegistration set)
+                : base(set)
+            {
+                _registration = set;
+            }
+
+            public Type Type => _registration.Type;
+        }
 
         #endregion
     }

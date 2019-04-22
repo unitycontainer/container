@@ -9,7 +9,8 @@ using Unity.Strategies;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("Registration (Implicit)")]
+    [DebuggerDisplay("Registration.Implicit({Count})")]
+    [DebuggerTypeProxy(typeof(ImplicitRegistrationDebugProxy))]
     public class ImplicitRegistration : PolicySet
     {
         #region Fields
@@ -17,6 +18,7 @@ namespace Unity.Registration
         private int _refCount;
 
         #endregion
+
 
         #region Constructors
 
@@ -26,29 +28,24 @@ namespace Unity.Registration
         }
 
         public ImplicitRegistration(IPolicySet set)
-            : base(typeof(LifetimeManager))
+            : base(typeof(LifetimeManager), null, (PolicyEntry)set)
         {
-            switch(set)
-            {
-                case ImplicitRegistration factory:
-                    Map = factory.Map;
-                    Next = factory.Next;
-                    InjectionMembers = factory.InjectionMembers;
-                    LifetimeManager = factory.LifetimeManager?
-                                              .CreateLifetimePolicy();
-                    break;
+        }
 
-                case LinkedNode<Type, object> node:
-                    Next = node;
-                    break;
-            }
+        public ImplicitRegistration(ImplicitRegistration factory)
+            : base(typeof(LifetimeManager), 
+                   factory.LifetimeManager?.CreateLifetimePolicy(), 
+                   factory.Next)
+        {
+            Map = factory.Map;
+            InjectionMembers = factory.InjectionMembers;
         }
 
         public ImplicitRegistration(Type policyInterface, object policy)
             : base(typeof(LifetimeManager))
         {
             Key = typeof(LifetimeManager);
-            Next = new LinkedNode<Type, object>
+            Next = new PolicyEntry
             {
                 Key = policyInterface,
                 Value = policy,
@@ -69,7 +66,6 @@ namespace Unity.Registration
 
         public Converter<Type, Type> Map { get; set; }
 
-        // TODO: Streamline LifetimeManager usage
         public LifetimeManager LifetimeManager
         {
             get => (LifetimeManager)Value;
@@ -78,12 +74,9 @@ namespace Unity.Registration
 
         public virtual void Add(IPolicySet set)
         {
-            if (set is LinkedNode<Type, object> policies)
-            {
-                var node = (LinkedNode<Type, object>)this;
-                while (null != node.Next) node = node.Next;
-                node.Next = policies;
-            }
+            var node = (PolicyEntry)this;
+            while (null != node.Next) node = node.Next;
+            node.Next = (PolicyEntry)set;
         }
 
         public virtual int AddRef() => Interlocked.Increment(ref _refCount);
@@ -97,12 +90,38 @@ namespace Unity.Registration
 
         public override void Set(Type policyInterface, object policy)
         {
-            Next = new LinkedNode<Type, object>
+            Next = new PolicyEntry
             {
                 Key = policyInterface,
                 Value = policy,
                 Next = Next
             };
+        }
+
+        #endregion
+
+
+        #region Debug Support
+
+        protected class ImplicitRegistrationDebugProxy : PolicySetDebugProxy
+        {
+            private readonly ImplicitRegistration _registration;
+
+            public ImplicitRegistrationDebugProxy(ImplicitRegistration set)
+                : base(set)
+            {
+                _registration = set;
+            }
+
+            public InjectionMember[] InjectionMembers => _registration.InjectionMembers;
+
+            public bool BuildRequired => _registration.BuildRequired;
+
+            public Converter<Type, Type> Map => _registration.Map;
+
+            public LifetimeManager LifetimeManager => null;
+
+            public int RefCount => _registration._refCount;
         }
 
         #endregion

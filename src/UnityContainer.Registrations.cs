@@ -442,9 +442,11 @@ namespace Unity
 
         #region Creating Implicit Registration
 
-        private ImplicitRegistration CreateRegistration(Type type, IPolicySet factory)
+        private ImplicitRegistration CreateRegistration(Type type, IPolicySet set)
         {
-            var registration = new ImplicitRegistration(factory);
+            var registration = set is ImplicitRegistration factory 
+                             ? new ImplicitRegistration(factory)
+                             : new ImplicitRegistration(set);
 
             registration.BuildChain = _strategiesChain.Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
                                                       .ToArray();

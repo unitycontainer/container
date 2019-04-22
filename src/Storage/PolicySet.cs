@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Unity.Policy;
 
 namespace Unity.Storage
 {
-    public class PolicySet : LinkedNode<Type, object>,
+    [DebuggerDisplay(nameof(PolicySet) + "({Count})")]
+    [DebuggerTypeProxy(typeof(PolicySetDebugProxy))]
+    public class PolicySet : PolicyEntry,
+                             IEnumerable<PolicyEntry>,
                              IPolicySet
     {
         #region Constructors
@@ -19,6 +26,14 @@ namespace Unity.Storage
             Value = value;
         }
 
+        public PolicySet(Type type, object value, PolicyEntry set)
+        {
+            var node = (PolicyEntry)this;
+            node.Key = type;
+            node.Next = set;
+            node.Value = value;
+        }
+
         #endregion
 
 
@@ -26,7 +41,7 @@ namespace Unity.Storage
 
         public virtual object Get(Type policyInterface)
         {
-            for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
+            for (var node = (PolicyEntry)this; node != null; node = node.Next)
             {
                 if (node.Key == policyInterface)
                     return node.Value;
@@ -37,7 +52,7 @@ namespace Unity.Storage
 
         public virtual void Set(Type policyInterface, object policy)
         {
-            for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
+            for (var node = (PolicyEntry)this; node != null; node = node.Next)
             {
                 if (node.Key == policyInterface)
                 {
@@ -46,7 +61,7 @@ namespace Unity.Storage
                 }
             }
 
-            Next = new LinkedNode<Type, object>
+            Next = new PolicyEntry
             {
                 Key = policyInterface,
                 Value = policy,
@@ -56,8 +71,8 @@ namespace Unity.Storage
 
         public virtual void Clear(Type policyInterface)
         {
-            LinkedNode<Type, object> node;
-            LinkedNode<Type, object> last = null;
+            PolicyEntry node;
+            PolicyEntry last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -82,5 +97,60 @@ namespace Unity.Storage
         }
 
         #endregion
+
+
+        #region IEnumerable
+
+
+        public IEnumerator<PolicyEntry> GetEnumerator()
+        {
+            for (var node = (PolicyEntry)this; node != null; node = node.Next)
+                yield return node;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        #endregion
+
+
+        #region Debug Support
+
+        protected int Count
+        {
+            get
+            {
+                var count = 0;
+                for (var node = (PolicyEntry)this; node != null; node = node.Next)
+                    count += 1;
+
+                return count;
+            }
+        }
+
+        protected class PolicySetDebugProxy
+        {
+            private readonly PolicySet _set;
+
+            public PolicySetDebugProxy(PolicySet set)
+            {
+                _set = set;
+                Policies = set.Select(p => new Policy(p))
+                              .ToArray();
+            }
+
+            public Policy[] Policies { get; }
+        }
+
+        [DebuggerDisplay("{Value}", Name = "{Interface.Name}", Type = nameof(PolicyEntry))]
+        public class Policy
+        {
+            PolicyEntry _node;
+            public Policy(PolicyEntry node) => _node = node;
+            public Type Interface => _node.Key;
+            public object Value => _node.Value;
+        }
+
+        #endregion
     }
+
 }
