@@ -45,7 +45,7 @@ namespace Unity
             };
 
             // Update on change
-            _strategies.Invalidated += OnStrategiesChanged;
+            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray(); 
             _strategiesChain = _strategies.ToArray();
 
 
@@ -196,7 +196,6 @@ namespace Unity
 
             try
             {
-                _strategies.Invalidated -= OnStrategiesChanged;
                 _parent?.LifetimeContainer.Remove(this);
                 LifetimeContainer.Dispose();
             }

@@ -83,7 +83,7 @@ namespace Unity
             // Strategies
             _strategies = _parent._strategies;
             _strategiesChain = _parent._strategiesChain;
-            _strategies.Invalidated += OnStrategiesChanged;
+            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray(); 
 
             // Caches
             SetDefaultPolicies(this);
@@ -207,16 +207,6 @@ namespace Unity
                     throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
                 }
             };
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        private void OnStrategiesChanged(object sender, EventArgs e)
-        {
-            _strategiesChain = _strategies.ToArray();
         }
 
         #endregion
