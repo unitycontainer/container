@@ -252,15 +252,15 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case DependencyAttribute dependencyAttribute:
-                    return Resolve(property.PropertyType, dependencyAttribute.Name);
+                case ResolutionOption option when option == ResolutionOption.Required:
+                    return Resolve(property.PropertyType, null);
 
-                case OptionalDependencyAttribute optionalAttribute:
+                case ResolutionOption option when option == ResolutionOption.Optional:
                     try
                     {
-                        return Resolve(property.PropertyType, optionalAttribute.Name);
+                        return Resolve(property.PropertyType, null);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     when (!(ex.InnerException is CircularDependencyException))
                     {
                         return null;
@@ -307,15 +307,15 @@ namespace Unity.Builder
             // Resolve from injectors
             switch (value)
             {
-                case DependencyAttribute dependencyAttribute:
-                    return Resolve(field.FieldType, dependencyAttribute.Name);
+                case ResolutionOption option when option == ResolutionOption.Required:
+                    return Resolve(field.FieldType, null);
 
-                case OptionalDependencyAttribute optionalAttribute:
+                case ResolutionOption option when option == ResolutionOption.Optional:
                     try
                     {
-                        return Resolve(field.FieldType, optionalAttribute.Name);
+                        return Resolve(field.FieldType, null);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     when (!(ex.InnerException is CircularDependencyException))
                     {
                         return null;

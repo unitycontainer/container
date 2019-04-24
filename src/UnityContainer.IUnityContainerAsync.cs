@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity
 {
@@ -153,7 +153,14 @@ namespace Unity
         /// <inheritdoc />
         Task<object> IUnityContainerAsync.Resolve(Type type, string name, params ResolverOverride[] overrides)
         {
-            return null;// _getPipeline(type, name).Invoke(this, overrides);
+            throw new NotImplementedException();
+        }
+
+
+        /// <inheritdoc />
+        Task<IEnumerable<object>> IUnityContainerAsync.Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
