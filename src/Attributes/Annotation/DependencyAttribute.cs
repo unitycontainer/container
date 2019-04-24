@@ -14,9 +14,6 @@ namespace Unity
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Field)]
     public sealed class DependencyAttribute : DependencyResolutionAttribute
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal static DependencyAttribute Instance = new DependencyAttribute();
-
         /// <summary>
         /// Create an instance of <see cref="DependencyAttribute"/> with no name.
         /// </summary>

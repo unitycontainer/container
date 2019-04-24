@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -13,10 +12,9 @@ namespace Unity.Injection
         /// Configure the container to inject the given field name.
         /// </summary>
         /// <param name="name">Name of property to inject.</param>
-        /// <param name="optional">Tells Unity if this field is optional.</param>
-        public InjectionField(string name, bool optional = false)
-            : base(name, optional ? OptionalDependencyAttribute.Instance 
-                                  : (object)DependencyAttribute.Instance)
+        /// <param name="option">Tells Unity if this field is required or optional.</param>
+        public InjectionField(string name, ResolutionOption option = ResolutionOption.Required)
+            : base(name, option)
         {
         }
 

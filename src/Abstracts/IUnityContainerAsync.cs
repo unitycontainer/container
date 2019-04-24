@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -95,6 +96,17 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         Task<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
+
+
+        /// <summary>
+        /// Resolve an instance of the requested type from the container.
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
+        /// <param name="regex">Pattern to match names to. Only these with successful 
+        /// <see cref="Regex.IsMatch(string name)"/> will be resolved</param>
+        /// <param name="overrides">Any overrides for the resolve call.</param>
+        /// <returns>The retrieved object.</returns>
+        Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides);
 
 
         /// <summary>
