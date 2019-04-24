@@ -405,6 +405,14 @@ namespace Unity
 
             #region IPolicyList
 
+            public object Get(Type type, Type policyInterface)
+            {
+                if (_type != type)
+                    return _container.GetPolicy(type, All, policyInterface);
+
+                return _registration.Get(policyInterface);
+            }
+
             public object Get(Type type, string name, Type policyInterface)
             {
                 if (_type != type || _name != name)
@@ -413,6 +421,13 @@ namespace Unity
                 return _registration.Get(policyInterface);
             }
 
+            public void Set(Type type, Type policyInterface, object policy)
+            {
+                if (_type != type)
+                    _container.SetPolicy(type, All, policyInterface, policy);
+                else
+                    _registration.Set(policyInterface, policy);
+            }
 
             public void Set(Type type, string name, Type policyInterface, object policy)
             {

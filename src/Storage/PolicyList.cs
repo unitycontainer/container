@@ -76,6 +76,25 @@ namespace Unity.Storage
             return _innerPolicyList?.Get(type, name, policyInterface);
         }
 
+        public object Get(Type type, Type policyInterface)
+        {
+            object policy = null;
+
+            if (_policies?.TryGetValue(new PolicyKey(type, UnityContainer.All, policyInterface), out policy) ?? false)
+            {
+                return policy;
+            }
+
+            return _innerPolicyList?.Get(type, UnityContainer.All, policyInterface);
+        }
+
+        public void Set(Type type, Type policyInterface, object policy)
+        {
+            if (null == _policies)
+                _policies = new Dictionary<PolicyKey, object>(PolicyKeyEqualityComparer.Default);
+
+            _policies[new PolicyKey(type, UnityContainer.All, policyInterface)] = policy;
+        }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
         {

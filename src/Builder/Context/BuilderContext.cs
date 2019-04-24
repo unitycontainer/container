@@ -86,9 +86,20 @@ namespace Unity.Builder
                        : Registration.Get(policyInterface));
         }
 
+        public object Get(Type type, Type policyInterface)
+        {
+            return List.Get(type, UnityContainer.All, policyInterface) ??
+                   ((UnityContainer)Container).GetPolicy(type, UnityContainer.All, policyInterface);
+        }
+
         public void Set(Type policyInterface, object policy)
         {
             List.Set(RegistrationType, Name, policyInterface, policy);
+        }
+
+        public void Set(Type type, Type policyInterface, object policy)
+        {
+            List.Set(type, UnityContainer.All, policyInterface, policy);
         }
 
         public void Set(Type type, string name, Type policyInterface, object policy)
