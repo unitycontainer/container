@@ -96,16 +96,33 @@ namespace Unity.Strategies
 
         protected static object GetGeneric(ref BuilderContext context, Type policyInterface)
         {
-            // Check if generic
+            if (context.Registration is ContainerRegistration registration && null != context.Type)
+            {
+                // Check if generic
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                if (context.Type.GetTypeInfo().IsGenericType)
+#else
+                if (context.Type.IsGenericType)
+#endif
+                {
+                    var newType = context.Type.GetGenericTypeDefinition();
+                    return context.Get(newType, context.Name, policyInterface) ??
+                           context.Get(newType, UnityContainer.All, policyInterface);
+                }
+            }
+            else
+            {
+                // Check if generic
 #if NETCOREAPP1_0 || NETSTANDARD1_0
             if (context.RegistrationType.GetTypeInfo().IsGenericType)
 #else
-            if (context.RegistrationType.IsGenericType)
+                if (context.RegistrationType.IsGenericType)
 #endif
-            {
-                var newType = context.RegistrationType.GetGenericTypeDefinition();
-                return context.Get(newType, context.Name, policyInterface) ??
-                       context.Get(newType, UnityContainer.All, policyInterface);
+                {
+                    var newType = context.RegistrationType.GetGenericTypeDefinition();
+                    return context.Get(newType, context.Name, policyInterface) ??
+                           context.Get(newType, UnityContainer.All, policyInterface);
+                }
             }
 
             return null;

@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -208,7 +209,7 @@ namespace Unity.Tests.v5.Generics
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void FailedResolveEnumerableTest()
         {
             var container = new UnityContainer();
@@ -216,7 +217,9 @@ namespace Unity.Tests.v5.Generics
             container.RegisterType<IFoo, Foo>("1");
             container.RegisterFactory<IFoo>("2", c => { throw new System.InvalidOperationException(); });
 
-            container.Resolve<IEnumerable<IFoo>>();
+            var instance = container.Resolve<IEnumerable<IFoo>>().ToArray();
+
+            Assert.Fail("Should never reach this line");
         }
 
         [TestMethod]

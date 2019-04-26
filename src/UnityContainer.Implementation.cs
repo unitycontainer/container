@@ -37,6 +37,10 @@ namespace Unity
         internal readonly LifetimeContainer LifetimeContainer;
         private List<IUnityContainerExtensionConfigurator> _extensions;
 
+        private LifetimeManager _typeLifetimeManager;
+        private LifetimeManager _factoryLifetimeManager;
+        private LifetimeManager _instanceLifetimeManager;
+
         // Policies
         private readonly ContainerContext _context;
 
@@ -73,6 +77,8 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, bool> _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
+
+        private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
 
         #endregion
 
@@ -194,9 +200,9 @@ namespace Unity
             var validators = new InternalRegistration();
 
             validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
+            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>), Validating.MethodSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>), Validating.FieldSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>), Validating.PropertySelector);
 
             container._validators = validators;
 
@@ -204,18 +210,44 @@ namespace Unity
             container.TypeValidator = (typeFrom, typeTo) =>
             {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
-                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
+                var infoFrom = typeFrom.GetTypeInfo();
+                var infoTo = typeTo.GetTypeInfo();
+
+                if (typeFrom != null && !infoFrom.IsGenericType && !infoTo.IsGenericType && !infoFrom.IsAssignableFrom(infoTo))
 #else
-                if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
-                    !typeFrom.IsAssignableFrom(typeTo))
+                if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
 #endif
                 {
                     throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
                 }
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                if (null == typeFrom && infoTo.IsInterface)
+#else
+                if (null == typeFrom && typeTo.IsInterface)
+#endif
+                    throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
             };
 
             if (null != container._registrations) container.Set(null, null, container.Defaults);
+        }
+
+        internal LifetimeManager TypeLifetimeManager
+        {
+            get => _typeLifetimeManager ?? _parent.TypeLifetimeManager;
+            set => _typeLifetimeManager = value;
+        }
+
+        internal LifetimeManager FactoryLifetimeManager
+        {
+            get => _factoryLifetimeManager ?? _parent.FactoryLifetimeManager;
+            set => _factoryLifetimeManager = value;
+        }
+
+        internal LifetimeManager InstanceLifetimeManager
+        {
+            get => _instanceLifetimeManager ?? _parent.InstanceLifetimeManager;
+            set => _instanceLifetimeManager = value;
         }
 
         #endregion
@@ -446,6 +478,18 @@ namespace Unity
             }
 
             #endregion
+        }
+
+        [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
+        private struct ContainerRegistrationStruct : IContainerRegistration
+        {
+            public Type RegisteredType { get; internal set; }
+
+            public string Name { get; internal set; }
+
+            public Type MappedToType { get; internal set; }
+
+            public LifetimeManager LifetimeManager { get; internal set; }
         }
 
         #endregion

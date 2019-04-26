@@ -19,5 +19,7 @@
         {
             return new ContainerLifetimeManager();
         }
+
+        public override bool InUse { get => false; set => base.InUse = false; }
     }
 }

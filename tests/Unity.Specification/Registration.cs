@@ -22,7 +22,7 @@ namespace Registration
     }
 
     [TestClass]
-    public class Syntax : Unity.Specification.Registration.Syntax.SpecificationTests
+    public class Validation : Unity.Specification.Registration.Syntax.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
