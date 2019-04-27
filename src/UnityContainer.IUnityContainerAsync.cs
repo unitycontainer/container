@@ -7,6 +7,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -153,12 +154,10 @@ namespace Unity
         /// <inheritdoc />
         Task<object> IUnityContainerAsync.Resolve(Type type, string name, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            return null;// _getPipeline(type, name).Invoke(this, overrides);
         }
 
-
-        /// <inheritdoc />
-        Task<IEnumerable<object>> IUnityContainerAsync.Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
+        public Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
         }
