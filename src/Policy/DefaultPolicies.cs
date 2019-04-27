@@ -41,16 +41,16 @@ namespace Unity.Policy
         {
             switch (policyInterface)
             {
-                case ISelect<ConstructorInfo> _:
+                case Type type when (typeof(ISelect<ConstructorInfo>) == type):
                     return CtorSelector;
 
-                case ISelect<PropertyInfo> _:
+                case Type type when (typeof(ISelect<PropertyInfo>) == type):
                     return PropertiesSelector;
 
-                case ISelect<MethodInfo> _:
+                case Type type when (typeof(ISelect<MethodInfo>) == type):
                     return MethodsSelector;
 
-                case ISelect<FieldInfo> _:
+                case Type type when (typeof(ISelect<FieldInfo>) == type):
                     return FieldsSelector;
 
                 default:

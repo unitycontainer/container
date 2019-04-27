@@ -364,10 +364,10 @@ namespace Unity.Builder
                 if (Type?.IsGenericType ?? false)
 #endif
                 {
-                    policy = ((UnityContainer)Container).GetFactoryPolicy(Type.GetGenericTypeDefinition(), Name);
+                    return ((UnityContainer)Container).GetFactoryPolicy(Type.GetGenericTypeDefinition(), Name) ?? 
+                           ((UnityContainer)Container).Defaults.ResolveDelegateFactory;
                 }
                 else if (RegistrationType.IsArray) return ArrayResolver.Factory;
-                else policy = ((UnityContainer)Container).GetFactoryPolicy(Type);
             }
             else
             {
@@ -377,13 +377,14 @@ namespace Unity.Builder
                 if (RegistrationType.IsGenericType)
 #endif
                 {
-                    policy = ((UnityContainer)Container).GetFactoryPolicy(RegistrationType.GetGenericTypeDefinition(), Name);
+                    return ((UnityContainer)Container).GetFactoryPolicy(RegistrationType.GetGenericTypeDefinition(), Name) ??
+                           ((UnityContainer)Container).Defaults.ResolveDelegateFactory;
                 }
                 else if (RegistrationType.IsArray) return ArrayResolver.Factory;
-                else policy = ((UnityContainer)Container).GetFactoryPolicy(Type);
             }
 
-            return policy ?? ((UnityContainer)Container).Defaults.ResolveDelegateFactory;
+            return ((UnityContainer)Container).GetFactoryPolicy(Type) ?? 
+                   ((UnityContainer)Container).Defaults.ResolveDelegateFactory;
         }
 
         public TPolicyInterface GetPolicy<TPolicyInterface>()

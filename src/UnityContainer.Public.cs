@@ -61,7 +61,7 @@ namespace Unity
         /// <inheritdoc />
         public bool IsRegistered(Type type, string name)
         {
-            int hashCode = NamedType.GetHashCode(type, name) & 0x7FFFFFFF;
+            int hashCode = NamedType.GetHashCode(type, name);
 
             // Iterate through hierarchy and check if exists
             for (var container = this; null != container; container = container._parent)

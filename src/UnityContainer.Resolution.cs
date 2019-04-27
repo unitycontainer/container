@@ -93,7 +93,7 @@ namespace Unity
         {
             TElement value;
             var set = new QuickSet<Type>();
-            int hash = typeof(TElement).GetHashCode() & HashMask;
+            int hash = typeof(TElement).GetHashCode();
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -149,8 +149,8 @@ namespace Unity
         {
             TElement value;
             var set = new QuickSet<Type>();
-            int hashCode = typeof(TElement).GetHashCode() & HashMask;
-            int hashGeneric = typeDefinition.GetHashCode() & HashMask;
+            int hashCode = typeof(TElement).GetHashCode();
+            int hashGeneric = typeDefinition.GetHashCode();
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -194,7 +194,7 @@ namespace Unity
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            int hash = NamedType.GetHashCode(typeof(TElement), key);
                             var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
                             value = (TElement)resolve(typeof(TElement), key, registration);
                         }
@@ -270,7 +270,7 @@ namespace Unity
         {
             TElement value;
             var set = new QuickSet<Type>();
-            int hash = type.GetHashCode() & HashMask;
+            int hash = type.GetHashCode();
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -311,8 +311,8 @@ namespace Unity
         {
             TElement value;
             var set = new QuickSet<Type>();
-            int hashCode = type.GetHashCode() & HashMask;
-            int hashGeneric = typeDefinition.GetHashCode() & HashMask;
+            int hashCode = type.GetHashCode();
+            int hashGeneric = typeDefinition.GetHashCode();
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -359,7 +359,7 @@ namespace Unity
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), key) & HashMask;
+                            int hash = NamedType.GetHashCode(typeof(TElement), key);
                             var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
                             value = (TElement)resolve(typeof(TElement), key, registration);
                         }
@@ -368,11 +368,6 @@ namespace Unity
                         {
                             continue;
                         }
-                        // TODO: Verify if required
-                        //catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                        //{
-                        //    continue;
-                        //}
 
                         yield return value;
                     }
@@ -384,7 +379,7 @@ namespace Unity
         {
             TElement value;
             var set = new QuickSet<Type>();
-            int hashCode = type.GetHashCode() & HashMask;
+            int hashCode = type.GetHashCode();
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -406,7 +401,7 @@ namespace Unity
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), name) & HashMask;
+                            int hash = NamedType.GetHashCode(typeof(TElement), name);
                             var registration = container.GetOrAdd(hash, typeof(TElement), name, registry.Entries[index].Value);
                             value = (TElement)resolve(typeof(TElement), name, registration);
                         }
@@ -426,8 +421,8 @@ namespace Unity
         {
             TElement value;
             var set = new QuickSet<Type>();
-            int hashCode = type.GetHashCode() & HashMask;
-            int hashGeneric = typeDefinition.GetHashCode() & HashMask;
+            int hashCode = type.GetHashCode();
+            int hashGeneric = typeDefinition.GetHashCode();
 
             // Iterate over hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -450,7 +445,7 @@ namespace Unity
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), name) & HashMask;
+                            int hash = NamedType.GetHashCode(typeof(TElement), name);
                             var registration = container.GetOrAdd(hash, typeof(TElement), name, registry.Entries[index].Value);
                             value = (TElement)resolve(typeof(TElement), name, registration);
                         }
@@ -475,7 +470,7 @@ namespace Unity
                     {
                         try
                         {
-                            int hash = NamedType.GetHashCode(typeof(TElement), key) & 0x7FFFFFFF;
+                            int hash = NamedType.GetHashCode(typeof(TElement), key);
                             var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
                             value = (TElement)resolve(typeof(TElement), key, registration);
                         }
@@ -484,11 +479,6 @@ namespace Unity
                         {
                             continue;
                         }
-                        // TODO: Verify if required
-                        //catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                        //{
-                        //    continue;
-                        //}
 
                         yield return value;
                     }

@@ -48,7 +48,7 @@ namespace Unity.Storage
         public bool Add(int hashCode, TValue value)
         {
             var collisions = 0;
-            var targetBucket = hashCode % Buckets.Length;
+            var targetBucket = (hashCode & UnityContainer.HashMask) % Buckets.Length;
 
             // Check for the existing 
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
@@ -68,7 +68,7 @@ namespace Unity.Storage
             if (Count >= Entries.Length || 3 < collisions)
             {
                 Expand();
-                targetBucket = hashCode % Buckets.Length;
+                targetBucket = (hashCode & UnityContainer.HashMask) % Buckets.Length;
             }
 
             // Add registration
@@ -125,7 +125,7 @@ namespace Unity.Storage
             Array.Copy(entries, 0, Entries, 0, Count);
             for (var i = 0; i < Count; i++)
             {
-                var hashCode = Entries[i].HashCode;
+                var hashCode = Entries[i].HashCode & UnityContainer.HashMask;
                 if (hashCode < 0) continue;
 
                 var bucket = hashCode % Buckets.Length;

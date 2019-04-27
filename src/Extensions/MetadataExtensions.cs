@@ -7,7 +7,7 @@ namespace Unity.Extensions
     {
         internal static int GetEntries<TElement>(this Registry<Type, int[]> metadata, int hashCode, out int[] data)
         {
-            var targetBucket = hashCode % metadata.Buckets.Length;
+            var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
             // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
@@ -30,7 +30,7 @@ namespace Unity.Extensions
 
         internal static int GetEntries(this Registry<Type, int[]> metadata, int hashCode, Type type, out int[] data)
         {
-            var targetBucket = hashCode % metadata.Buckets.Length;
+            var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
             // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
@@ -50,7 +50,7 @@ namespace Unity.Extensions
 
         public static bool Contains(this Registry<Type, int[]> metadata, int hashCode, Type type)
         {
-            var targetBucket = hashCode % metadata.Buckets.Length;
+            var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {

@@ -16,8 +16,6 @@ namespace Unity
         private const int CollisionsCutPoint = 5;
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
 
-        public string All { get; } = "ALL NAMES";
-
         #endregion
 
 
@@ -49,7 +47,7 @@ namespace Unity
 
         internal object GetPolicy(Type type, Type policyInterface)
         {
-            var hashCode = type?.GetHashCode() ?? 0 & HashMask;
+            var hashCode = type?.GetHashCode() ?? 0;
 
             // Iterate through containers hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -70,7 +68,7 @@ namespace Unity
 
         internal object GetPolicy(Type type, string name, Type policyInterface)
         {
-            var hashCode = NamedType.GetHashCode(type, name) & HashMask;
+            var hashCode = NamedType.GetHashCode(type, name);
 
             // Iterate through containers hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -91,15 +89,14 @@ namespace Unity
 
         private void SetPolicy(Type type, Type policyInterface, object policy)
         {
-            var hashCode = type?.GetHashCode() ?? 0 & HashMask;
+            var hashCode = type?.GetHashCode() ?? 0;
 
             lock (_syncRegistry)
             {
                 if (null == _registry) _registry = new Registry<NamedType, IPolicySet>();
 
-                var targetBucket = hashCode % _registry.Buckets.Length;
-
                 // Check for the existing 
+                var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
@@ -116,7 +113,7 @@ namespace Unity
                 if (_registry.Count >= _registry.Entries.Length)
                 {
                     _registry = new Registry<NamedType, IPolicySet>(_registry);
-                    targetBucket = hashCode % _registry.Buckets.Length;
+                    targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
                 // Add registration
@@ -131,13 +128,13 @@ namespace Unity
 
         private void SetPolicy(Type type, string name, Type policyInterface, object policy)
         {
-            var hashCode = NamedType.GetHashCode(type, name) & HashMask;
+            var hashCode = NamedType.GetHashCode(type, name);
 
             lock (_syncRegistry)
             {
                 if (null == _registry) _registry = new Registry<NamedType, IPolicySet>();
 
-                var targetBucket = hashCode % _registry.Buckets.Length;
+                var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
 
                 // Check for the existing 
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
@@ -156,7 +153,7 @@ namespace Unity
                 if (_registry.Count >= _registry.Entries.Length)
                 {
                     _registry = new Registry<NamedType, IPolicySet>(_registry);
-                    targetBucket = hashCode % _registry.Buckets.Length;
+                    targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
                 // Add registration
@@ -172,8 +169,8 @@ namespace Unity
 
         internal ResolveDelegate<BuilderContext> GetResolverPolicy(Type type, string name)
         {
-            var hashExact = NamedType.GetHashCode(type, name) & HashMask;
-            var hashAll = type?.GetHashCode() ?? 0 & HashMask;
+            var hashExact = NamedType.GetHashCode(type, name);
+            var hashAll = type?.GetHashCode() ?? 0;
 
             // Iterate though hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -199,7 +196,7 @@ namespace Unity
 
         internal ResolveDelegateFactory GetFactoryPolicy(Type type)
         {
-            var hashCode = type?.GetHashCode() ?? 0 & HashMask;
+            var hashCode = type?.GetHashCode() ?? 0;
             for (var container = this; null != container; container = container._parent)
             {
                 // Skip if no local registrations
@@ -220,9 +217,8 @@ namespace Unity
 
         internal ResolveDelegateFactory GetFactoryPolicy(Type type, string name)
         {
-            var hashExact = NamedType.GetHashCode(type, name) & HashMask;
-            var hashNull = NamedType.GetHashCode(type, null) & HashMask;
-            var hashAll = type?.GetHashCode() ?? 0 & HashMask;
+            var hashExact = NamedType.GetHashCode(type, name);
+            var hashAll = type?.GetHashCode() ?? 0;
 
             // Iterate though hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -237,15 +233,6 @@ namespace Unity
                           ?? container._registry.Get(hashAll, type)?
                                                 .Get(typeof(ResolveDelegateFactory));
                 // Return if found
-                if (null != policy) return (ResolveDelegateFactory)policy;
-
-                // Skip if name is 'null'
-                if (hashExact == hashNull) continue;
-
-                // Check for name 'null' entry
-                policy = container._registry.Get(hashNull, type)?
-                                            .Get(typeof(ResolveDelegateFactory));
-
                 if (null != policy) return (ResolveDelegateFactory)policy;
             }
 

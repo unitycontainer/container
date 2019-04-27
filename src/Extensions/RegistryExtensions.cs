@@ -12,7 +12,7 @@ namespace Unity.Extensions
 
         public static IPolicySet Get(this Registry<NamedType, IPolicySet> registry, int hashCode, Type type)
         {
-            var targetBucket = hashCode % registry.Buckets.Length;
+            var targetBucket = (hashCode & UnityContainer.HashMask) % registry.Buckets.Length;
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
@@ -31,8 +31,8 @@ namespace Unity.Extensions
 
         internal static void Set(this Registry<NamedType, IPolicySet> registry, Type type, ImplicitRegistration registration)
         {
-            var hashCode = type.GetHashCode() & UnityContainer.HashMask;
-            var targetBucket = hashCode % registry.Buckets.Length;
+            var hashCode = type.GetHashCode();
+            var targetBucket = (hashCode & UnityContainer.HashMask) % registry.Buckets.Length;
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
@@ -52,8 +52,8 @@ namespace Unity.Extensions
 
         internal static void Set(this Registry<NamedType, IPolicySet> registry, Type type, string name, ImplicitRegistration registration)
         {
-            var hashCode = NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
-            var targetBucket = hashCode % registry.Buckets.Length;
+            var hashCode = NamedType.GetHashCode(type, name);
+            var targetBucket = (hashCode & UnityContainer.HashMask) % registry.Buckets.Length;
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
@@ -79,7 +79,7 @@ namespace Unity.Extensions
 
         public static bool Contains(this Registry<NamedType, IPolicySet> registry, int hashCode, Type type)
         {
-            var targetBucket = hashCode % registry.Buckets.Length;
+            var targetBucket = (hashCode & UnityContainer.HashMask) % registry.Buckets.Length;
 
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {

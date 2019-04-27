@@ -17,7 +17,7 @@ namespace Unity
 
         internal bool IsRegistered(Type type)
         {
-            var hashCode = type?.GetHashCode() ?? 0 & UnityContainer.HashMask;
+            var hashCode = type?.GetHashCode() ?? 0;
 
             // Iterate through containers hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -34,23 +34,21 @@ namespace Unity
         internal bool IsRegistered(ref BuilderContext context)
         {
             Type generic = null;
-            int targetBucket, hashGeneric = -1, hashDefault = -1;
-            int hashExact = NamedType.GetHashCode(context.Type, context.Name) & HashMask;
+            int targetBucket, hashGeneric = -1;
+            int hashExact = NamedType.GetHashCode(context.Type, context.Name);
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = context.Type.GetTypeInfo();
             if (info.IsGenericType)
             {
                 generic = info.GetGenericTypeDefinition();
-                hashDefault = NamedType.GetHashCode(generic, null) & HashMask;
-                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & HashMask : hashDefault;
+                hashGeneric = NamedType.GetHashCode(generic, context.Name);
             }
 #else
             if (context.Type.IsGenericType)
             {
                 generic = context.Type.GetGenericTypeDefinition();
-                hashDefault = NamedType.GetHashCode(generic, null) & HashMask;
-                hashGeneric = (null != context.Name) ? NamedType.GetHashCode(generic, context.Name) & HashMask : hashDefault;
+                hashGeneric = NamedType.GetHashCode(generic, context.Name);
             }
 #endif
 
@@ -63,7 +61,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Check for exact match
-                targetBucket = hashExact % registry.Buckets.Length;
+                targetBucket = (hashExact & HashMask) % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
@@ -77,7 +75,7 @@ namespace Unity
                 if (null == generic) continue;
 
                 // Check for factory with same name
-                targetBucket = hashGeneric % registry.Buckets.Length;
+                targetBucket = (hashGeneric & HashMask) % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
@@ -86,21 +84,6 @@ namespace Unity
                     // Found a factory
                     return true;
                 }
-
-                // Skip to parent if not generic
-                if (hashGeneric == hashDefault) continue;
-
-                // Check for default factory
-                targetBucket = hashDefault % registry.Buckets.Length;
-                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
-                {
-                    ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashDefault || candidate.Key.Type != generic) continue;
-
-                    // Found a factory
-                    return true;
-                }
-
             }
 
             return false;
@@ -119,7 +102,7 @@ namespace Unity
 #else
             if (type.IsGenericType) return GetGenericRegistration(type, name);
 #endif
-            int hashExact = NamedType.GetHashCode(type, name) & HashMask;
+            int hashExact = NamedType.GetHashCode(type, name);
 
             // Iterate through containers hierarchy
             for (var container = this; null != container; container = container._parent)
@@ -130,7 +113,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Check for exact match
-                for (var i = registry.Buckets[hashExact % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
+                for (var i = registry.Buckets[(hashExact & HashMask) % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
                     if (candidate.HashCode != hashExact || candidate.Key.Type != type)
@@ -154,18 +137,16 @@ namespace Unity
 #endif
         {
             int targetBucket;
-            int hashExact = NamedType.GetHashCode(type, name) & HashMask;
+            int hashExact = NamedType.GetHashCode(type, name);
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var generic = info.GetGenericTypeDefinition();
-            var hashNull = NamedType.GetHashCode(generic, null) & HashMask;
-            var hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & HashMask : hashNull;
-            var hashDefault = generic?.GetHashCode() ?? 0 & HashMask;
+            var hashGeneric = NamedType.GetHashCode(generic, name);
+            var hashDefault = generic?.GetHashCode() ?? 0;
 #else
             var generic = type.GetGenericTypeDefinition();
-            var hashNull = NamedType.GetHashCode(generic, null) & HashMask;
-            var hashGeneric = (null != name) ? NamedType.GetHashCode(generic, name) & HashMask : hashNull;
-            var hashDefault = generic?.GetHashCode() ?? 0 & HashMask;
+            var hashGeneric = NamedType.GetHashCode(generic, name);
+            var hashDefault = generic?.GetHashCode() ?? 0;
 #endif
 
             // Iterate through containers hierarchy
@@ -177,7 +158,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Check for exact match
-                targetBucket = hashExact % registry.Buckets.Length;
+                targetBucket = (hashExact & HashMask) % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
@@ -192,7 +173,7 @@ namespace Unity
                 }
 
                 // Check for factory with same name
-                targetBucket = hashGeneric % registry.Buckets.Length;
+                targetBucket = (hashGeneric & HashMask) % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
@@ -203,24 +184,8 @@ namespace Unity
                     return container.GetOrAdd(hashExact, type, name, candidate.Value);
                 }
 
-                // Skip if name is null, we just checked it above
-                if (hashGeneric != hashNull)
-                {
-                    // Check for factory with 'null'
-                    targetBucket = hashNull % registry.Buckets.Length;
-                    for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
-                    {
-                        ref var candidate = ref registry.Entries[i];
-                        if (candidate.HashCode != hashNull || candidate.Key.Type != generic)
-                            continue;
-
-                        // Found a factory
-                        return container.GetOrAdd(hashExact, type, name, candidate.Value);
-                    }
-                }
-
                 // Check for default factory
-                targetBucket = hashDefault % registry.Buckets.Length;
+                targetBucket = (hashDefault & HashMask) % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
@@ -265,8 +230,8 @@ namespace Unity
             lock (_syncRegistry)
             {
                 registration.AddRef();
-                var hashCode = NamedType.GetHashCode(type, name) & HashMask;
-                var targetBucket = hashCode % _registry.Buckets.Length;
+                var hashCode = NamedType.GetHashCode(type, name);
+                var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
@@ -290,7 +255,7 @@ namespace Unity
                 if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
                     _registry = new Registry<NamedType, IPolicySet>(_registry);
-                    targetBucket = hashCode % _registry.Buckets.Length;
+                    targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
                 // Create new entry
@@ -309,8 +274,8 @@ namespace Unity
             // Metadata
             lock (_syncMetadata)
             {
-                var hashCode = type?.GetHashCode() ?? 0 & HashMask;
-                var targetBucket = hashCode % _metadata.Buckets.Length;
+                var hashCode = type?.GetHashCode() ?? 0;
+                var targetBucket = (hashCode & HashMask) % _metadata.Buckets.Length;
 
                 for (var i = _metadata.Buckets[targetBucket]; i >= 0; i = _metadata.Entries[i].Next)
                 {
@@ -340,7 +305,7 @@ namespace Unity
                 if (_metadata.RequireToGrow || CollisionsCutPoint < collisions)
                 {
                     _metadata = new Registry<Type, int[]>(_metadata);
-                    targetBucket = hashCode % _metadata.Buckets.Length;
+                    targetBucket = (hashCode & HashMask) % _metadata.Buckets.Length;
                 }
 
                 // Create new metadata entry
@@ -361,7 +326,7 @@ namespace Unity
             lock (_syncRegistry)
             {
                 var collisions = 0;
-                var targetBucket = hashCode % _registry.Buckets.Length;
+                var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
 
                 // Check for the existing 
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
@@ -383,7 +348,7 @@ namespace Unity
                 if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
                     _registry = new Registry<NamedType, IPolicySet>(_registry);
-                    targetBucket = hashCode % _registry.Buckets.Length;
+                    targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
                 // Add registration
