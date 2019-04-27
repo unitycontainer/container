@@ -19,7 +19,7 @@ namespace Unity.Processors
                 {
                     // TMemberInfo
                     case TMemberInfo info:
-                        object value = DependencyAttribute.Instance; 
+                        object value = ResolutionOption.Required; 
                         foreach (var node in AttributeFactories)
                         {
                             var attribute = GetCustomAttribute(info, node.Type);
