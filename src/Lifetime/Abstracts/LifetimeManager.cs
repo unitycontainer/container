@@ -10,7 +10,7 @@ namespace Unity.Lifetime
     {
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this value
-        /// unless value is set to valid object. Null is a valie value and is not equal 
+        /// unless value is set to valid object. Null is a valid value and is not equal 
         /// to NoValue 
         /// </summary>
         public static readonly object NoValue = new InvalidValue();
