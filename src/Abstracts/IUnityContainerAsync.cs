@@ -28,7 +28,7 @@ namespace Unity
         /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns></returns>
-        IUnityContainer RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainerAsync RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -48,8 +48,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> manager that controls how this instance will be managed by the container.
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainer RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager);
+        /// <returns>The <see cref="IUnityContainerAsync"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
+        IUnityContainerAsync RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager);
 
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace Unity
         /// <param name="factory"></param>
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        IUnityContainer RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
+        /// <returns>The <see cref="IUnityContainerAsync"/> object that this method was called on.</returns>
+        IUnityContainerAsync RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
 
 
         /// <summary>
@@ -101,6 +101,16 @@ namespace Unity
         /// <summary>
         /// Resolve an instance of the requested type from the container.
         /// </summary>
+        /// <param name="name">Name of the object to retrieve.</param>
+        /// <param name="overrides">Any overrides for the resolve call.</param>
+        /// <typeparam name="T"><see cref="Type"/> of object to get typeFrom the container.</typeparam>
+        /// <returns>The retrieved object.</returns>
+        Task<T> Resolve<T>(string name, params ResolverOverride[] overrides);
+
+
+        /// <summary>
+        /// Resolve an instance of the requested type from the container.
+        /// </summary>
         /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
         /// <param name="regex">Pattern to match names to. Only these with successful 
         /// <see cref="Regex.IsMatch(string name)"/> will be resolved</param>
@@ -110,10 +120,21 @@ namespace Unity
 
 
         /// <summary>
+        /// Resolve an instance of the requested type from the container.
+        /// </summary>
+        /// <param name="regex">Pattern to match names to. Only these with successful 
+        /// <see cref="Regex.IsMatch(string name)"/> will be resolved</param>
+        /// <param name="overrides">Any overrides for the resolve call.</param>
+        /// <typeparam name="T"><see cref="Type"/> of object to get typeFrom the container.</typeparam>
+        /// <returns>The retrieved object.</returns>
+        Task<IEnumerable<T>> Resolve<T>(Regex regex, params ResolverOverride[] overrides);
+
+
+        /// <summary>
         /// The parent of this container.
         /// </summary>
         /// <value>The parent container, or null if this container doesn't have one.</value>
-        IUnityContainer Parent { get; }
+        IUnityContainerAsync Parent { get; }
 
 
         /// <summary>
@@ -123,6 +144,6 @@ namespace Unity
         /// A child container shares the parent's configuration, but can be configured with different
         /// settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
-        IUnityContainer CreateChildContainer();
+        IUnityContainerAsync CreateChildContainer();
     }
 }
