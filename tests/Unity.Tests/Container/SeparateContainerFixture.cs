@@ -10,7 +10,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void GetObject()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             object obj = uc.Resolve<object>();
 
             Assert.IsNotNull(obj);
@@ -63,7 +63,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void Check2PropertyDependencyBuildUpWorks()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             My2PropertyDependencyClass obj1 = new My2PropertyDependencyClass();
 
             Assert.IsNotNull(obj1);
@@ -79,7 +79,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void CheckMultipleDependencyNonDependencyInjectionWorks()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             MySetterDependencyNonDependencyClass obj1 = uc.Resolve<MySetterDependencyNonDependencyClass>();
             
             Assert.IsNotNull(obj1);
@@ -91,7 +91,7 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void TwoInstancesAreNotSame()
         {
-            UnityContainer uc = new UnityContainer();
+            IUnityContainer uc = new UnityContainer();
             object obj1 = uc.Resolve<object>();
             object obj2 = uc.Resolve<object>();
 
@@ -101,8 +101,8 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void SingletonsAreSame()
         {
-            IUnityContainer uc = new UnityContainer()
-                .RegisterType<object>(new ContainerControlledLifetimeManager());
+            IUnityContainer uc = new UnityContainer();
+            uc.RegisterType<object>(new ContainerControlledLifetimeManager());
             object obj1 = uc.Resolve<object>();
             object obj2 = uc.Resolve<object>();
             
@@ -113,7 +113,8 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void NamedUnnamedSingletonareNotSame()
         {
-            IUnityContainer uc = new UnityContainer()
+            IUnityContainer uc = new UnityContainer();
+            uc
                 .RegisterType<object>(new ContainerControlledLifetimeManager())
                 .RegisterType<object>("MyObject", new ContainerControlledLifetimeManager());
 

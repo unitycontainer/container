@@ -51,7 +51,8 @@ namespace Unity.Tests.v5.Container
         public void ContainerControlledLifetimeDoesNotLeaveHangingLockIfBuildThrowsException()
         {
             IUnityContainer container = new UnityContainer()
-                .AddExtension(new SpyExtension(new ThrowingStrategy(), UnityBuildStage.PostInitialization))
+                .AddExtension(new SpyExtension(new ThrowingStrategy(), UnityBuildStage.PostInitialization));
+            container
                 .RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;

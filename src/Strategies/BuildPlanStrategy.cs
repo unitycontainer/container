@@ -17,9 +17,61 @@ namespace Unity.Strategies
     /// </summary>
     public class BuildPlanStrategy : BuilderStrategy
     {
+        #region Composition
+
+        public override ResolveDelegate<BuilderContext>? BuildResolver(UnityContainer container, Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        {
+            ResolveDelegate<BuilderContext>? storedResolver = null;
+
+            return (ref BuilderContext context) => 
+            {
+                var resolver = storedResolver ?? context.GetResolver();
+
+                if (null == resolver)
+                {
+                    // Check if can be created
+                    if (!(context.Registration is ExplicitRegistration) &&
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                      context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
+#else
+                      context.RegistrationType.IsGenericTypeDefinition)
+#endif
+                    {
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+                            "The type {0} is an open generic type. An open generic type cannot be resolved.",
+                            context.RegistrationType.FullName));
+                    }
+
+                    // Get resolver factory
+                    var factory = context.GetFactory();
+
+                    // Create plan 
+                    if (null != factory)
+                    {
+                        storedResolver = factory(ref context);
+
+                        context.Registration.Set(typeof(ResolveDelegate<BuilderContext>), storedResolver);
+                        context.Existing = storedResolver(ref context);
+                    }
+                    else
+                        throw new ResolutionFailedException(context.Type, context.Name, $"Failed to find Resolve Delegate Factory for Type {context.Type}");
+                }
+                else
+                {
+                    // Plan has been already created, just build the object
+                    context.Existing = resolver(ref context);
+                }
+
+                return null == seed ? context.Existing : seed(ref context);
+            };
+        }
+
+        #endregion
+
+
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[]? injectionMembers)
         {
             // Require Re-Resolve if no injectors specified
             registration.BuildRequired = (injectionMembers?.Any(m => m.BuildRequired) ?? false) ||

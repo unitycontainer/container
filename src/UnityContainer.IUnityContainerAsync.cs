@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Unity.Composition;
+using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
+    
 namespace Unity
 {
+
     public partial class UnityContainer : IUnityContainerAsync
     {
         #region Registration
@@ -18,7 +21,7 @@ namespace Unity
         #region Type
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainerAsync.RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        IUnityContainerAsync IUnityContainerAsync.RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             throw new NotImplementedException();
         }
@@ -29,7 +32,7 @@ namespace Unity
         #region Factory
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainerAsync.RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
+        IUnityContainerAsync IUnityContainerAsync.RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
         {
             // Validate input
             // TODO: Move to diagnostic
@@ -85,7 +88,7 @@ namespace Unity
         #region Instance
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainerAsync.RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager)
+        IUnityContainerAsync IUnityContainerAsync.RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager)
         {
             // Validate input
             // TODO: Move to diagnostic
@@ -135,33 +138,70 @@ namespace Unity
         #endregion
 
 
-        #region Hierarchy
-
-        /// <inheritdoc />
-        IUnityContainer IUnityContainerAsync.Parent => throw new NotImplementedException();
-
-        /// <inheritdoc />
-        IUnityContainer IUnityContainerAsync.CreateChildContainer()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
         #region Resolution
 
+            
+
         /// <inheritdoc />
-        Task<object> IUnityContainerAsync.Resolve(Type type, string name, params ResolverOverride[] overrides)
+        Task<object> IUnityContainerAsync.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            return null;// _getPipeline(type, name).Invoke(this, overrides);
+            // TODO: Suppression
+            #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+
+            if (GetPolicy(type, name, typeof(CompositionDelegate)) is CompositionDelegate factory)
+            {
+                return Task.FromResult(factory(this, null, overrides));
+            }
+
+            return Task.Factory.StartNew(() => Compose(type, name, overrides));
+            
+            #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+        }
+
+
+        public Task<T> Resolve<T>(string name, params ResolverOverride[] overrides)
+        {
+            // TODO: Suppression
+            #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+
+            if (GetPolicy(typeof(T), name, typeof(CompositionDelegate)) is CompositionDelegate factory)
+            {
+                return Task.FromResult((T)factory(this, null, overrides));
+            }
+
+            return Task.Factory.StartNew(() => (T)Compose(typeof(T), name, overrides));
+            
+            #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+            #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
 
         public Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
+            //var composer = (CompositionDelegate)GetPolicy(typeof(IRegex<>), typeof(CompositionDelegate));
+            //return null == composer 
+            //    ? Task.Factory.StartNew(() => (IEnumerable<object>)Defaults.ComposeMethod(this, type, regex, overrides))
+            //    : Task.Factory.StartNew(() => (IEnumerable<object>)composer(this, type, regex, overrides));
+        }
+
+        public Task<IEnumerable<T>> Resolve<T>(Regex regex, params ResolverOverride[] overrides)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
+
+
+        #region Child container management
+
+        /// <inheritdoc />
+        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer() => CreateChildContainer();
+
+        /// <inheritdoc />
+        IUnityContainerAsync IUnityContainerAsync.Parent => _parent;
+
+        #endregion
     }
+
 }

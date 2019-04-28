@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Abstracts;
 using Unity.Builder;
+using Unity.Composition;
+using Unity.Events;
 using Unity.Extension;
 using Unity.Extensions;
+using Unity.Factories;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -22,16 +27,44 @@ namespace Unity
         /// </summary>
         public UnityContainer()
         {
-            // Root of the hierarchy
+            /////////////////////////////////////////////////////////////
+            // Initialize Root 
+
             _root = this;
+
+            // Create Registry and set Factory strategy
+            _metadata = new Registry<Type, int[]>();
+            _registry = new Registry<NamedType, IPolicySet>();
+
+
+            // Defaults
+            _registry.Entries[0].Value = new DefaultPolicies(OptimizingFactory);
+
+
+            // Register Container as IUnityContainer & IUnityContainerAsync
+            var container = new ImplicitRegistration((c, e, o) => c);
+            _registry.Set(typeof(IUnityContainer), null, container);
+            _registry.Set(typeof(IUnityContainerAsync), null, container);
+
+            // Built-In Features
+            var func = new PolicySet(typeof(ResolveDelegateFactory), FuncResolver.Factory);
+                func.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
+
+            _registry.Set(typeof(Func<>),        func);                                                                      // Func<> Factory
+            _registry.Set(typeof(Lazy<>),        new PolicySet(typeof(ResolveDelegateFactory), LazyResolver.Factory));       // Lazy<>
+            _registry.Set(typeof(IEnumerable<>), new PolicySet(typeof(ResolveDelegateFactory), EnumerableResolver.Factory)); // Enumerable
+            _registry.Set(typeof(IRegex<>),      new PolicySet(typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
+
+
+
+            // Register method
+            Register = AddOrReplace;
+            
+            /////////////////////////////////////////////////////////////
+            // Container Specific
 
             // Lifetime Container
             LifetimeContainer = new LifetimeContainer(this);
-
-            // Registry
-            InitializeRootRegistry();
-
-            /////////////////////////////////////////////////////////////
 
             // Context
             _context = new ContainerContext(this);
@@ -47,7 +80,6 @@ namespace Unity
             // Update on change
             _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray(); 
             _strategiesChain = _strategies.ToArray();
-
 
             // Default Policies and Strategies
             SetDefaultPolicies(this);
@@ -90,7 +122,7 @@ namespace Unity
                 {
                     RegisteredType = typeof(IUnityContainer),
                     MappedToType = typeof(UnityContainer),
-                    LifetimeManager = _containerManager
+                    LifetimeManager = TransientLifetimeManager.Instance
                 };
                 set.Add(_root._registry.Entries[1].HashCode, typeof(IUnityContainer));
 
@@ -99,7 +131,7 @@ namespace Unity
                 {
                     RegisteredType = typeof(IUnityContainerAsync),
                     MappedToType = typeof(UnityContainer),
-                    LifetimeManager = _containerManager
+                    LifetimeManager = TransientLifetimeManager.Instance
                 };
                 set.Add(_root._registry.Entries[2].HashCode, typeof(IUnityContainerAsync));
 
@@ -124,7 +156,7 @@ namespace Unity
                             {
                                 RegisteredType  = type,
                                 Name            = registry.Entries[i].Key.Name,
-                                LifetimeManager = registration.LifetimeManager,
+                                LifetimeManager = registration.LifetimeManager ?? TransientLifetimeManager.Instance,
                                 MappedToType    = registration.Type,
                             };
                         }
@@ -143,7 +175,7 @@ namespace Unity
         /// </summary>
         /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        public IUnityContainer AddExtension(IUnityContainerExtensionConfigurator extension)
+        public UnityContainer AddExtension(IUnityContainerExtensionConfigurator extension)
         {
             lock (LifetimeContainer)
             {

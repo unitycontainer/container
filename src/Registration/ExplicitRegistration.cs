@@ -13,7 +13,7 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ExplicitRegistration(Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ExplicitRegistration(Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
@@ -24,24 +24,24 @@ namespace Unity.Registration
         }
 
 
-        public ExplicitRegistration(IPolicySet validators, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ExplicitRegistration(IPolicySet? validators, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
         {
             Type = null;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = (PolicyEntry)validators;
+            Next = (PolicyEntry?)validators;
         }
 
-        public ExplicitRegistration(IPolicySet validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ExplicitRegistration(IPolicySet? validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = (PolicyEntry)validators;
+            Next = (PolicyEntry?)validators;
         }
 
         #endregion
@@ -53,7 +53,7 @@ namespace Unity.Registration
         /// The type that this registration is mapped to. If no type mapping was done, the
         /// <see cref="Type"/> property and this one will have the same value.
         /// </summary>
-        public Type Type { get; }
+        public Type? Type { get; }
 
         #endregion
 
@@ -70,7 +70,7 @@ namespace Unity.Registration
                 _registration = set;
             }
 
-            public Type Type => _registration.Type;
+            public Type? Type => _registration.Type;
         }
 
         #endregion

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +22,6 @@ namespace Unity
     /// <summary>
     /// A simple, extensible dependency injection container.
     /// </summary>
-    [SecuritySafeCritical]
     public partial class UnityContainer
     {
         #region Constants

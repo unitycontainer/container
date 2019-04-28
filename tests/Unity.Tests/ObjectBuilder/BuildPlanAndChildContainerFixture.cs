@@ -21,7 +21,8 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestInitialize]
         public void Setup()
         {
-            parentContainer = new UnityContainer()
+            parentContainer = new UnityContainer();
+            parentContainer
                 .RegisterType<TestObject>(new InjectionConstructor(ValueInjectedFromParent))
                 .RegisterType<ILogger, MockLogger>();
 

@@ -24,7 +24,7 @@ namespace Unity.Tests.v5
         public void ErrorMessage()
         {
             // Setup
-            var container = new UnityContainer();
+            IUnityContainer container = new UnityContainer();
 
             // Validate
             try

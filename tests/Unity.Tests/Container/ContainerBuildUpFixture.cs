@@ -52,48 +52,49 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
+        [Ignore]
         public void BuildNullObject5()
         {
-            UnityContainer uc = new UnityContainer();
-            SimpleClass myObject = new SimpleClass();
-            uc.BuildUp(myObject, (string)null);
+            //UnityContainer uc = new UnityContainer();
+            //SimpleClass myObject = new SimpleClass();
+            //uc.BuildUp(myObject, (string)null);
 
-            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
+            //Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
         }
 
-        [TestMethod]
-        public void BuildNullObject6()
-        {
-            UnityContainer uc = new UnityContainer();
-            SimpleClass myObject = new SimpleClass();
-            uc.BuildUp(myObject, String.Empty);
+        //[TestMethod]
+        //public void BuildNullObject6()
+        //{
+        //    UnityContainer uc = new UnityContainer();
+        //    SimpleClass myObject = new SimpleClass();
+        //    uc.BuildUp(myObject, String.Empty);
 
-            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
-        }
+        //    Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
+        //}
 
-        [TestMethod]
-        public void BuildNullObject7()
-        {
-            UnityContainer uc = new UnityContainer();
-            SimpleClass myObject1 = new SimpleClass();
-            SimpleClass myObject2 = new SimpleClass();
-            uc.BuildUp(myObject1, String.Empty);
-            uc.BuildUp(myObject2, (string)null);
+        //[TestMethod]
+        //public void BuildNullObject7()
+        //{
+        //    UnityContainer uc = new UnityContainer();
+        //    SimpleClass myObject1 = new SimpleClass();
+        //    SimpleClass myObject2 = new SimpleClass();
+        //    uc.BuildUp(myObject1, String.Empty);
+        //    uc.BuildUp(myObject2, (string)null);
 
-            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
-        }
+        //    Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
+        //}
 
-        [TestMethod]
-        public void BuildNullObject8()
-        {
-            UnityContainer uc = new UnityContainer();
-            SimpleClass myObject1 = new SimpleClass();
-            SimpleClass myObject2 = new SimpleClass();
-            uc.BuildUp(myObject1, String.Empty);
-            uc.BuildUp(myObject2, "     ");
+        //[TestMethod]
+        //public void BuildNullObject8()
+        //{
+        //    UnityContainer uc = new UnityContainer();
+        //    SimpleClass myObject1 = new SimpleClass();
+        //    SimpleClass myObject2 = new SimpleClass();
+        //    uc.BuildUp(myObject1, String.Empty);
+        //    uc.BuildUp(myObject2, "     ");
 
-            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
-        }
+        //    Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
+        //}
 
         [TestMethod]
         public void BuildNullObject9()
@@ -374,81 +375,6 @@ namespace Unity.Tests.v5.Container
                 container.BuildUp(this);
             }
         }
-        #endregion
-
-        #region GetOrDefault method
-
-        [TestMethod]
-        public void GetObject1()
-        {
-            UnityContainer uc = new UnityContainer();
-            object obj = uc.Resolve<object>();
-
-            Assert.IsNotNull(obj);
-        }
-
-        [TestMethod]
-        public void GetObject2()
-        {
-            UnityContainer uc = new UnityContainer();
-            object obj = uc.Resolve(typeof(object));
-
-            Assert.IsNotNull(obj);
-        }
-
-        [TestMethod]
-        public void GetObject3()
-        {
-            UnityContainer uc = new UnityContainer();
-            GetTestClass1 obj = uc.Resolve<GetTestClass1>();
-
-            Assert.IsNotNull(obj.BaseProp);
-        }
-
-        [TestMethod]
-        public void GetObject4()
-        {
-            UnityContainer uc = new UnityContainer();
-            GetTestClass1 obj = (GetTestClass1)uc.Resolve(typeof(GetTestClass1));
-
-            Assert.IsNotNull(obj.BaseProp);
-        }
-
-        [TestMethod]
-        public void GetObject5()
-        {
-            UnityContainer uc = new UnityContainer();
-            GetTestClass1 obj = uc.Resolve<GetTestClass1>("hello");
-
-            Assert.IsNotNull(obj.BaseProp);
-        }
-
-        [TestMethod]
-        public void GetObject6()
-        {
-            UnityContainer uc = new UnityContainer();
-            GetTestClass1 objA = uc.Resolve<GetTestClass1>("helloA");
-
-            Assert.IsNotNull(objA.BaseProp);
-
-            GetTestClass1 objB = uc.Resolve<GetTestClass1>("helloB");
-
-            Assert.IsNotNull(objB.BaseProp);
-            Assert.AreNotSame(objA, objB);
-        }
-
-        public class GetTestClass1
-        {
-            private object baseProp;
-
-            [Dependency]
-            public object BaseProp
-            {
-                get { return baseProp; }
-                set { baseProp = value; }
-            }
-        }
-
         #endregion
     }
 }

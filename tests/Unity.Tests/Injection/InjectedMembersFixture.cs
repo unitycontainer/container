@@ -10,7 +10,8 @@ namespace Unity.Tests.v5.Injection
         [TestMethod]
         public void CanConfigureContainerToCallDefaultConstructor()
         {
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<GuineaPig>(new InjectionConstructor());
 
             GuineaPig pig = container.Resolve<GuineaPig>();
@@ -24,7 +25,8 @@ namespace Unity.Tests.v5.Injection
             string expectedString = "Hey there";
             double expectedDouble = Math.PI;
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<GuineaPig>(
                             new InjectionConstructor(expectedInt, expectedString, expectedDouble));
 
@@ -40,7 +42,8 @@ namespace Unity.Tests.v5.Injection
         {
             object expectedObject = new object();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance<object>(expectedObject)
                 .RegisterType<GuineaPig>(
                         new InjectionConstructor(),
@@ -56,7 +59,8 @@ namespace Unity.Tests.v5.Injection
         {
             int expectedInt = 82;
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<GuineaPig>(
                         new InjectionConstructor(),
                         new InjectionProperty("IntProperty", expectedInt));
@@ -73,7 +77,8 @@ namespace Unity.Tests.v5.Injection
             object expectedObjectZero = new object();
             object expectedObjectOne = new object();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType(typeof(GuineaPig), "one",
                     new InjectionConstructor(expectedObjectOne),
                     new InjectionProperty("IntProperty", 35))
@@ -95,7 +100,8 @@ namespace Unity.Tests.v5.Injection
         [TestMethod]
         public void CanConfigureInjectionWithGenericProperty()
         {
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance<int>(35)
                 .RegisterType(typeof(GenericGuineaPig<>),
                     new InjectionProperty("GenericProperty"));
@@ -110,7 +116,8 @@ namespace Unity.Tests.v5.Injection
         {
             string expectedString = "expected string";
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<GuineaPig>(
                         new InjectionConstructor(),
                         new InjectionMethod("InjectMeHerePlease", expectedString));
@@ -124,7 +131,8 @@ namespace Unity.Tests.v5.Injection
         [TestMethod]
         public void ConfiguringInjectionAfterResolvingTakesEffect()
         {
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<GuineaPig>(new InjectionConstructor());
 
             container.Resolve<GuineaPig>();

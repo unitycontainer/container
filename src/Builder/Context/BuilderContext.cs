@@ -22,10 +22,10 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public ResolverOverride[] Overrides;
+        public ResolverOverride[]? Overrides;
         internal IPolicyList List;
 
-        public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
+        public delegate object ExecutePlanDelegate(BuilderStrategy[]? chain, ref BuilderContext context);
         public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
@@ -35,11 +35,42 @@ namespace Unity.Builder
 
         public IUnityContainer Container => Lifetime?.Container;
 
-        public Type Type { get; set; }
+        public Type? Type { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public object Resolve(Type type, string name)
+        public object? Resolve()
+        {
+            if (null == Type) return null;
+
+            // Process overrides if any
+            if (null != Overrides)
+            {
+                NamedType namedType = new NamedType
+                {
+                    Type = Type,
+                    Name = Name
+                };
+
+                // Check if this parameter is overridden
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+                    // If matches with current parameter
+                    if (resolverOverride is IResolve resolverPolicy &&
+                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
+                    {
+                        var context = this;
+
+                        return ResolvePlan(ref context, resolverPolicy.Resolve);
+                    }
+                }
+            }
+
+            return Resolve(Type, Name, ((UnityContainer)Container).GetRegistration(Type, Name));
+        }
+
+        public object Resolve(Type type, string? name)
         {
             // Process overrides if any
             if (null != Overrides)
@@ -79,12 +110,12 @@ namespace Unity.Builder
                    Registration.Get(policyInterface);
         }
 
-        public object Get(Type type, Type policyInterface)
+        public object? Get(Type type, Type policyInterface)
         {
             return ((UnityContainer)Container).GetPolicy(type, policyInterface);
         }
 
-        public object Get(Type type, string name, Type policyInterface)
+        public object? Get(Type type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
@@ -102,12 +133,12 @@ namespace Unity.Builder
             List.Set(type, policyInterface, policy);
         }
 
-        public void Set(Type type, string name, Type policyInterface, object policy)
+        public void Set(Type type, string? name, Type policyInterface, object policy)
         {
             List.Set(type, name, policyInterface, policy);
         }
 
-        public void Clear(Type type, string name, Type policyInterface)
+        public void Clear(Type type, string? name, Type policyInterface)
         {
             List.Clear(type, name, policyInterface);
         }
@@ -126,7 +157,7 @@ namespace Unity.Builder
 
         #region Public Properties
 
-        public object Existing { get; set; }
+        public object? Existing { get; set; }
 
         public ILifetimeContainer Lifetime;
 
@@ -134,7 +165,7 @@ namespace Unity.Builder
 
         public bool BuildComplete;
 
-        public Type DeclaringType;
+        public Type? DeclaringType;
 #if !NET40
         public IntPtr Parent;
 #endif
@@ -147,7 +178,7 @@ namespace Unity.Builder
 
         #region Resolve Methods
 
-        public object Resolve(Type type, string name, ImplicitRegistration registration)
+        public object Resolve(Type type, string? name, ImplicitRegistration registration)
         {
             unsafe
             {
@@ -218,7 +249,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(PropertyInfo property, object value)
+        public object? Resolve(PropertyInfo property, object value)
         {
             var context = this;
 
@@ -273,7 +304,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(FieldInfo field, object value)
+        public object? Resolve(FieldInfo field, object value)
         {
             var context = this;
 
@@ -339,9 +370,9 @@ namespace Unity.Builder
             if (Registration is ExplicitRegistration registration)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (Type?.GetTypeInfo().IsGenericType ?? false)
+                if (null != Type && Type.GetTypeInfo().IsGenericType)
 #else
-                if (Type?.IsGenericType ?? false)
+                if (null != Type && Type.IsGenericType)
 #endif
                     return Registration.Get<ResolveDelegate<BuilderContext>>() ??
                         ((UnityContainer)Container).GetResolverPolicy(Type.GetGenericTypeDefinition(), Name);
@@ -359,9 +390,9 @@ namespace Unity.Builder
             if (Registration is ExplicitRegistration registration)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (Type?.GetTypeInfo().IsGenericType ?? false)
+                if (null != Type && Type.GetTypeInfo().IsGenericType)
 #else
-                if (Type?.IsGenericType ?? false)
+                if (null != Type && Type.IsGenericType)
 #endif
                 {
                     return ((UnityContainer)Container).GetFactoryPolicy(Type.GetGenericTypeDefinition(), Name) ?? 

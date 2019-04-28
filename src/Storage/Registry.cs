@@ -19,7 +19,32 @@ namespace Unity.Storage
 
         #region Constructors
 
-        public Registry(int prime = 0)
+
+        public Registry()
+        {
+            var size = Primes[0];
+
+            Buckets = new int[size];
+            Entries = new Entry[size];
+            Count = 1;
+
+#if !NET40
+            unsafe
+            {
+                fixed (int* bucketsPtr = Buckets)
+                {
+                    int* ptr = bucketsPtr;
+                    var end = bucketsPtr + Buckets.Length;
+                    while (ptr < end) *ptr++ = -1;
+                }
+            }
+#else
+            for(int i = 0; i < Buckets.Length; i++)
+                Buckets[i] = -1;
+#endif
+        }
+
+        public Registry(int prime)
         {
             if (prime < 0 || prime >= Primes.Length) throw new ArgumentException("Capacity Overflow");
 

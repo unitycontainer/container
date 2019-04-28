@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Unity.Builder;
+using Unity.Composition;
 using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -108,7 +109,7 @@ namespace Unity
         #region Instance Registration
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterInstance(Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager)
+        IUnityContainer IUnityContainer.RegisterInstance(Type type, string? name, object instance, IInstanceLifetimeManager lifetimeManager)
         {
             var mappedToType = instance?.GetType();
             var registeredType = type ?? mappedToType;
@@ -124,7 +125,7 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-                var registration = new ExplicitRegistration(null, mappedToType, ((LifetimeManager)lifetimeManager));
+                var registration = new ExplicitRegistration(null, mappedToType, (LifetimeManager)lifetimeManager);
 
                 // If Disposable add to container's lifetime
                 if (lifetimeManager is IDisposable manager)
@@ -134,7 +135,7 @@ namespace Unity
                 var previous = container.Register(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
-                if (null != previous && 0 == previous.Release() 
+                if (null != previous && 0 == previous.Release()
                     && previous.LifetimeManager is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
@@ -223,12 +224,8 @@ namespace Unity
         #region Getting objects
 
         /// <inheritdoc />
-        object IUnityContainer.Resolve(Type type, string name, params ResolverOverride[] overrides)
+        object IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            // Verify arguments
-            if (null == type) throw new ArgumentNullException(nameof(type));
-            name = string.IsNullOrEmpty(name) ? null : name;
-
             var registration = GetRegistration(type, name);
             var context = new BuilderContext
             {
@@ -253,7 +250,7 @@ namespace Unity
         #region BuildUp existing object
 
         /// <inheritdoc />
-        object IUnityContainer.BuildUp(Type type, object existing, string name, params ResolverOverride[] overrides)
+        public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
             // Verify arguments
             if (null == type) throw new ArgumentNullException(nameof(type));
@@ -286,12 +283,7 @@ namespace Unity
         #region Child container management
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.CreateChildContainer()
-        {
-            var child = new UnityContainer(this);
-            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
-            return child;
-        }
+        IUnityContainer IUnityContainer.CreateChildContainer() => CreateChildContainer();
 
         /// <inheritdoc />
         IUnityContainer IUnityContainer.Parent => _parent;

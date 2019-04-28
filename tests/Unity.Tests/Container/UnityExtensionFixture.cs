@@ -99,39 +99,41 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
+        [Ignore]
         public void ContainerRaisesChildContainerCreatedToExtension()
         {
-            bool childContainerEventRaised = false;
-            var mockExtension = new MockContainerExtension();
+            //bool childContainerEventRaised = false;
+            //var mockExtension = new MockContainerExtension();
 
-            var container = new UnityContainer()
-                .AddExtension(mockExtension);
+            //var container = new UnityContainer()
+            //    .AddExtension(mockExtension);
 
-            mockExtension.Context.ChildContainerCreated += (sender, ev) =>
-                {
-                    childContainerEventRaised = true;
-                };
+            //mockExtension.Context.ChildContainerCreated += (sender, ev) =>
+            //    {
+            //        childContainerEventRaised = true;
+            //    };
 
-            var child = container.CreateChildContainer();
-            Assert.IsTrue(childContainerEventRaised);
+            //var child = container.CreateChildContainer();
+            //Assert.IsTrue(childContainerEventRaised);
         }
 
         [TestMethod]
+        [Ignore]
         public void ChildContainerCreatedEventGivesChildContainerToExtension()
         {
-            var mockExtension = new MockContainerExtension();
-            ExtensionContext childContext = null;
+            //var mockExtension = new MockContainerExtension();
+            //ExtensionContext childContext = null;
 
-            var container = new UnityContainer()
-                .AddExtension(mockExtension);
+            //var container = new UnityContainer()
+            //    .AddExtension(mockExtension);
 
-            mockExtension.Context.ChildContainerCreated += (sender, ev) =>
-            {
-                childContext = ev.ChildContext;
-            };
+            //mockExtension.Context.ChildContainerCreated += (sender, ev) =>
+            //{
+            //    childContext = ev.ChildContext;
+            //};
 
-            var child = container.CreateChildContainer();
-            Assert.AreSame(child, childContext.Container);
+            //var child = container.CreateChildContainer();
+            //Assert.AreSame(child, childContext.Container);
         }
 
         [TestMethod]

@@ -81,7 +81,7 @@ namespace Unity.Tests.v5.Override
         [TestMethod]
         public void WhenResolvingAnOpenGenericType()
         {
-            var container = new UnityContainer();
+            IUnityContainer container = new UnityContainer();
 
             try
             {
@@ -114,7 +114,7 @@ namespace Unity.Tests.v5.Override
                 typeof(string)
             };
 
-            var container = new UnityContainer();
+            IUnityContainer container = new UnityContainer();
 
             foreach (Type t in primitive)
             {

@@ -20,13 +20,13 @@ namespace Unity.Storage
             Key = type;
         }
 
-        public PolicySet(Type type, object value)
+        public PolicySet(Type type, object? value)
         {
             Key = type;
             Value = value;
         }
 
-        public PolicySet(Type type, object value, PolicyEntry set)
+        public PolicySet(Type type, object? value, PolicyEntry? set)
         {
             var node = (PolicyEntry)this;
             node.Key = type;
@@ -39,9 +39,9 @@ namespace Unity.Storage
 
         #region IPolicySet
 
-        public virtual object Get(Type policyInterface)
+        public virtual object? Get(Type policyInterface)
         {
-            for (var node = (PolicyEntry)this; node != null; node = node.Next)
+            for (PolicyEntry? node = this; node != null; node = node.Next)
             {
                 if (node.Key == policyInterface)
                     return node.Value;
@@ -52,7 +52,7 @@ namespace Unity.Storage
 
         public virtual void Set(Type policyInterface, object policy)
         {
-            for (var node = (PolicyEntry)this; node != null; node = node.Next)
+            for (PolicyEntry? node = this; node != null; node = node.Next)
             {
                 if (node.Key == policyInterface)
                 {
@@ -71,8 +71,8 @@ namespace Unity.Storage
 
         public virtual void Clear(Type policyInterface)
         {
-            PolicyEntry node;
-            PolicyEntry last = null;
+            PolicyEntry? node;
+            PolicyEntry? last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -104,7 +104,7 @@ namespace Unity.Storage
 
         public IEnumerator<PolicyEntry> GetEnumerator()
         {
-            for (var node = (PolicyEntry)this; node != null; node = node.Next)
+            for (PolicyEntry? node = this; node != null; node = node.Next)
                 yield return node;
         }
 
@@ -120,7 +120,7 @@ namespace Unity.Storage
             get
             {
                 var count = 0;
-                for (var node = (PolicyEntry)this; node != null; node = node.Next)
+                for (PolicyEntry? node = this; node != null; node = node.Next)
                     count += 1;
 
                 return count;
@@ -146,8 +146,8 @@ namespace Unity.Storage
         {
             PolicyEntry _node;
             public Policy(PolicyEntry node) => _node = node;
-            public Type Interface => _node.Key;
-            public object Value => _node.Value;
+            public Type? Interface => _node.Key;
+            public object? Value => _node.Value;
         }
 
         #endregion

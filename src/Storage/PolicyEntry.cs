@@ -4,8 +4,8 @@ namespace Unity.Storage
 {
     public class PolicyEntry
     {
-        public Type Key;
-        public object Value;
-        public PolicyEntry Next;
+        public Type? Key;
+        public object? Value;
+        public PolicyEntry? Next;
     }
 }

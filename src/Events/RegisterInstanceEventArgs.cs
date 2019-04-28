@@ -24,7 +24,7 @@ namespace Unity.Events
         /// <param name="name">Name to register under, null if default registration.</param>
         /// <param name="lifetimeManager"><see cref="LifetimeManager"/> object that handles how
         /// the instance will be owned.</param>
-        public RegisterInstanceEventArgs(Type registeredType, object instance, string name, LifetimeManager lifetimeManager)
+        public RegisterInstanceEventArgs(Type? registeredType, object? instance, string? name, LifetimeManager? lifetimeManager)
             : base(name)
         {
             RegisteredType = registeredType;
@@ -38,18 +38,18 @@ namespace Unity.Events
         /// <value>
         /// Type of instance being registered.
         /// </value>
-        public Type RegisteredType { get; }
+        public Type? RegisteredType { get; }
 
         /// <summary>
         /// Instance object being registered.
         /// </summary>
         /// <value>Instance object being registered</value>
-        public object Instance { get; }
+        public object? Instance { get; }
 
         /// <summary>
         /// <see cref="Unity.LifetimeManager"/> that controls ownership of
         /// this instance.
         /// </summary>
-        public LifetimeManager LifetimeManager { get; }
+        public LifetimeManager? LifetimeManager { get; }
     }
 }

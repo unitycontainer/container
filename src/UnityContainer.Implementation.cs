@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
+using System.Security;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Extensions;
-using Unity.Factories;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Processors;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity
 {
     [CLSCompliant(true)]
+    [SecuritySafeCritical]
     public partial class UnityContainer
     {
         #region Fields
@@ -29,7 +25,6 @@ namespace Unity
         private readonly UnityContainer _root;
         private readonly UnityContainer _parent;
         internal readonly LifetimeContainer LifetimeContainer;
-        private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
         private List<IUnityContainerExtensionConfigurator> _extensions;
 
         // Policies
@@ -94,37 +89,7 @@ namespace Unity
 
         #region Default Policies
 
-        private void InitializeRootRegistry()
-        {
-            Register = AddOrReplace;
-
-            // Create Registry and set Factory strategy
-            _metadata = new Registry<Type, int[]>();
-            _registry = new Registry<NamedType, IPolicySet>(new DefaultPolicies(OptimizingFactory));
-
-            // Register Container as IUnityContainer & IUnityContainerAsync
-            var container = new ExplicitRegistration(typeof(UnityContainer), _containerManager)
-            {
-                BuildChain = new[] { new LifetimeStrategy() }
-            };
-
-            // Built-In Features
-            _registry.Set(typeof(IUnityContainer), null, container);
-            _registry.Set(typeof(IUnityContainerAsync), null, container);
-
-            // Func<> Factory
-            var funcBuiltInFctory = new ImplicitRegistration();
-            funcBuiltInFctory.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
-            funcBuiltInFctory.Set(typeof(ResolveDelegateFactory), FuncResolver.Factory);
-            _registry.Set(typeof(Func<>), funcBuiltInFctory);
-
-            // Lazy<>
-            _registry.Set(typeof(Lazy<>), new ImplicitRegistration(typeof(ResolveDelegateFactory), LazyResolver.Factory));
-
-            // Enumerable
-            _registry.Set(typeof(IEnumerable<>), new ImplicitRegistration(typeof(ResolveDelegateFactory), EnumerableResolver.Factory));
-        }
-
+        // TODO: Requires refactoring
         internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
         {
             // Processors
@@ -212,6 +177,17 @@ namespace Unity
         #endregion
 
 
+        #region Implementation
+        private UnityContainer CreateChildContainer()
+        {
+            var child = new UnityContainer(this);
+            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
+            return child;
+        }
+
+        #endregion
+
+
         #region Nested Types
 
         [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
@@ -221,7 +197,7 @@ namespace Unity
 
             public string Name { get; internal set; }
 
-            public Type MappedToType { get; internal set; }
+            public Type? MappedToType { get; internal set; }
 
             public LifetimeManager LifetimeManager { get; internal set; }
         }

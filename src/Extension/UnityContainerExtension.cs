@@ -1,17 +1,15 @@
-﻿
-
-using System;
+﻿using System;
 
 namespace Unity.Extension
 {
+    #pragma warning disable CS8618
+
+    // Non-nullable field is uninitialized.
     /// <summary>
     /// Base class for all <see cref="IUnityContainer"/> extension objects.
     /// </summary>
     public abstract class UnityContainerExtension : IUnityContainerExtensionConfigurator
     {
-        private IUnityContainer _container;
-        private ExtensionContext _context;
-
         /// <summary>
         /// The container calls this method when the extension is added.
         /// </summary>
@@ -24,8 +22,9 @@ namespace Unity.Extension
                 throw new ArgumentNullException(nameof(context));
             }
 
-            _container = context.Container;
-            _context = context;
+            Container = context.Container;
+            Context = context;
+
             Initialize();
         }
 
@@ -33,13 +32,13 @@ namespace Unity.Extension
         /// The container this extension has been added to.
         /// </summary>
         /// <value>The <see cref="IUnityContainer"/> that this extension has been added to.</value>
-        public IUnityContainer Container => _container;
+        public IUnityContainer Container { get; private set; }
 
         /// <summary>
         /// The <see cref="ExtensionContext"/> object used to manipulate
         /// the inner state of the container.
         /// </summary>
-        protected ExtensionContext Context => _context;
+        protected ExtensionContext Context { get; private set; }
 
         /// <summary>
         /// Initial the container with this extension's functionality.
@@ -49,22 +48,7 @@ namespace Unity.Extension
         /// <see cref="ExtensionContext"/> by adding strategies, policies, etc. to
         /// install it's functions into the container.</remarks>
         protected abstract void Initialize();
-
-        /// <summary>
-        /// Removes the extension's functions from the container.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is called when extensions are being removed from the container. It can be
-        /// used to do things like disconnect event handlers or clean up member state. You do not
-        /// need to remove strategies or policies here; the container will do that automatically.
-        /// </para>
-        /// <para>
-        /// The default implementation of this method does nothing.</para>
-        /// </remarks>
-        public virtual void Remove()
-        {
-            // Do nothing by default, can be overridden to do whatever you want.
-        }
     }
+
+    #pragma warning restore CS8618 // Non-nullable field is uninitialized.
 }

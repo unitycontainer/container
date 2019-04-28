@@ -33,7 +33,7 @@ namespace Unity
 
         internal bool IsRegistered(ref BuilderContext context)
         {
-            Type generic = null;
+            Type? generic = null;
             int targetBucket, hashGeneric = -1;
             int hashExact = NamedType.GetHashCode(context.Type, context.Name);
 
@@ -94,7 +94,7 @@ namespace Unity
 
         #region Getting Registration During Resolution
 
-        internal ImplicitRegistration GetRegistration(Type type, string name)
+        internal ImplicitRegistration GetRegistration(Type type, string? name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
@@ -131,9 +131,9 @@ namespace Unity
         }
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-        private ImplicitRegistration GetGenericRegistration(Type type, string name, TypeInfo info)
+        private ImplicitRegistration GetGenericRegistration(Type type, string? name, TypeInfo info)
 #else
-        private ImplicitRegistration GetGenericRegistration(Type type, string name)
+        private ImplicitRegistration GetGenericRegistration(Type type, string? name)
 #endif
         {
             int targetBucket;
@@ -205,7 +205,7 @@ namespace Unity
 
         #region Registration manipulations
 
-        private ImplicitRegistration InitAndAdd(Type type, string name, ImplicitRegistration registration)
+        private ImplicitRegistration? InitAndAdd(Type type, string? name, ImplicitRegistration registration)
         {
             lock (_syncRegistry)
             {
@@ -221,7 +221,7 @@ namespace Unity
             return Register(type, name, registration);
         }
 
-        private ImplicitRegistration AddOrReplace(Type type, string name, ImplicitRegistration registration)
+        private ImplicitRegistration? AddOrReplace(Type type, string? name, ImplicitRegistration registration)
         {
             int position = -1;
             var collisions = 0;
@@ -321,7 +321,7 @@ namespace Unity
             return null;
         }
 
-        private ImplicitRegistration GetOrAdd(int hashCode, Type type, string name, IPolicySet factory)
+        private ImplicitRegistration GetOrAdd(int hashCode, Type type, string? name, IPolicySet? factory)
         {
             lock (_syncRegistry)
             {
@@ -366,7 +366,7 @@ namespace Unity
             }
         }
 
-        private IEnumerable<IPolicySet> AddOrReplaceRegistrations(IEnumerable<Type> interfaces, string name, ExplicitRegistration registration)
+        private IEnumerable<IPolicySet> AddOrReplaceRegistrations(IEnumerable<Type> interfaces, string? name, ExplicitRegistration registration)
         {
             int count = 0;
 
@@ -398,7 +398,7 @@ namespace Unity
 
         #region Creating Implicit Registration
 
-        private ImplicitRegistration CreateRegistration(Type type, IPolicySet set)
+        private ImplicitRegistration CreateRegistration(Type type, IPolicySet? set)
         {
             var registration = set is ImplicitRegistration factory 
                              ? new ImplicitRegistration(factory)

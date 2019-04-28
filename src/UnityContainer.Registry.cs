@@ -27,7 +27,7 @@ namespace Unity
         private Registry<Type, int[]> _metadata;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private Func<Type, string, ImplicitRegistration, ImplicitRegistration> Register;
+        private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
 
         //[DebuggerBrowsable(DebuggerBrowsableState.Never)]
         //private Func<IEnumerable<Type>, string, InternalRegistration, IEnumerable<InternalRegistration>> RegisterAsync;
@@ -45,7 +45,7 @@ namespace Unity
 
         #region Policy manipulation
 
-        internal object GetPolicy(Type type, Type policyInterface)
+        internal object? GetPolicy(Type type, Type policyInterface)
         {
             var hashCode = type?.GetHashCode() ?? 0;
 
@@ -66,7 +66,7 @@ namespace Unity
             return null;
         }
 
-        internal object GetPolicy(Type type, string name, Type policyInterface)
+        internal object? GetPolicy(Type type, string? name, Type policyInterface)
         {
             var hashCode = NamedType.GetHashCode(type, name);
 
@@ -126,7 +126,7 @@ namespace Unity
             }
         }
 
-        private void SetPolicy(Type type, string name, Type policyInterface, object policy)
+        private void SetPolicy(Type type, string? name, Type policyInterface, object policy)
         {
             var hashCode = NamedType.GetHashCode(type, name);
 
@@ -167,7 +167,7 @@ namespace Unity
             }
         }
 
-        internal ResolveDelegate<BuilderContext> GetResolverPolicy(Type type, string name)
+        internal ResolveDelegate<BuilderContext>? GetResolverPolicy(Type? type, string? name)
         {
             var hashExact = NamedType.GetHashCode(type, name);
             var hashAll = type?.GetHashCode() ?? 0;
@@ -194,7 +194,7 @@ namespace Unity
             return default;
         }
 
-        internal ResolveDelegateFactory GetFactoryPolicy(Type type)
+        internal ResolveDelegateFactory? GetFactoryPolicy(Type? type)
         {
             var hashCode = type?.GetHashCode() ?? 0;
             for (var container = this; null != container; container = container._parent)
@@ -215,7 +215,7 @@ namespace Unity
             return null;
         }
 
-        internal ResolveDelegateFactory GetFactoryPolicy(Type type, string name)
+        internal ResolveDelegateFactory? GetFactoryPolicy(Type type, string? name)
         {
             var hashExact = NamedType.GetHashCode(type, name);
             var hashAll = type?.GetHashCode() ?? 0;

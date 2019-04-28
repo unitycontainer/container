@@ -15,7 +15,8 @@ namespace Unity.Tests.v5.Injection
             ILogger o2 = new SpecialLogger();
 
             IUnityContainer container
-                = new UnityContainer()
+                = new UnityContainer();
+            container
                 .RegisterType<TypeWithArrayConstructorParameter>(
                     new InjectionConstructor(typeof(ILogger[])))
                 .RegisterInstance<ILogger>("o1", o1)
@@ -35,7 +36,8 @@ namespace Unity.Tests.v5.Injection
             ILogger o1 = new MockLogger();
             ILogger o2 = new SpecialLogger();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<TypeWithArrayConstructorParameter>(new InjectionConstructor(typeof(ILogger[])))
                 .RegisterInstance<ILogger>("o1", o1)
                 .RegisterInstance<ILogger>("o2", o2);
@@ -53,7 +55,8 @@ namespace Unity.Tests.v5.Injection
         {
             ILogger logger2 = new SpecialLogger();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<TypeWithArrayConstructorParameter>(
                 new InjectionConstructor(
                     new ResolvedArrayParameter<ILogger>(
@@ -76,7 +79,8 @@ namespace Unity.Tests.v5.Injection
         {
             ILogger logger2 = new SpecialLogger();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterType<TypeWithArrayConstructorParameter>(
                 new InjectionConstructor(
                     new ResolvedArrayParameter(
@@ -113,7 +117,8 @@ namespace Unity.Tests.v5.Injection
         public void ContainerAutomaticallyResolvesAllWhenInjectingArrays()
         {
             ILogger[] expected = new ILogger[] { new MockLogger(), new SpecialLogger() };
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance("one", expected[0])
                 .RegisterInstance("two", expected[1]);
 
@@ -126,7 +131,8 @@ namespace Unity.Tests.v5.Injection
         public void ContainerAutomaticallyResolvesAllWhenInjectingGenericArrays()
         {
             ILogger[] expected = new ILogger[] { new MockLogger(), new SpecialLogger() };
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance("one", expected[0])
                 .RegisterInstance("two", expected[1])
                 .RegisterType(typeof(GenericTypeWithArrayProperty<>),

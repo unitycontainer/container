@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Unity.Composition;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -27,8 +28,8 @@ namespace Unity.Registration
         {
         }
 
-        public ImplicitRegistration(IPolicySet set)
-            : base(typeof(LifetimeManager), null, (PolicyEntry)set)
+        public ImplicitRegistration(IPolicySet? set)
+            : base(typeof(LifetimeManager), null, (PolicyEntry?)set)
         {
         }
 
@@ -41,16 +42,10 @@ namespace Unity.Registration
             InjectionMembers = factory.InjectionMembers;
         }
 
-        public ImplicitRegistration(Type policyInterface, object policy)
+        public ImplicitRegistration(CompositionDelegate factory)
             : base(typeof(LifetimeManager))
         {
-            Key = typeof(LifetimeManager);
-            Next = new PolicyEntry
-            {
-                Key = policyInterface,
-                Value = policy,
-                Next = Next
-            };
+            Factory = factory;
         }
 
         #endregion
@@ -58,17 +53,19 @@ namespace Unity.Registration
 
         #region Public Members
 
-        public virtual BuilderStrategy[] BuildChain { get; set; }
+        public virtual CompositionDelegate? Factory { get; set; }
 
-        public InjectionMember[] InjectionMembers { get; set; }
+        public virtual BuilderStrategy[]? BuildChain { get; set; }
+
+        public InjectionMember[]? InjectionMembers { get; set; }
 
         public bool BuildRequired { get; set; }
 
-        public Converter<Type, Type> Map { get; set; }
+        public Converter<Type, Type?>? Map { get; set; }
 
-        public LifetimeManager LifetimeManager
+        public LifetimeManager? LifetimeManager
         {
-            get => (LifetimeManager)Value;
+            get => Value as LifetimeManager; 
             set => Value = value;
         }
 
@@ -88,14 +85,25 @@ namespace Unity.Registration
 
         #region IPolicySet
 
+        public override object? Get(Type policyInterface)
+        {
+            if (typeof(CompositionDelegate) == policyInterface)
+                return Factory;
+            else
+                return base.Get(policyInterface);
+        }
+
         public override void Set(Type policyInterface, object policy)
         {
-            Next = new PolicyEntry
-            {
-                Key = policyInterface,
-                Value = policy,
-                Next = Next
-            };
+            if (typeof(CompositionDelegate) == policyInterface)
+                Factory = (CompositionDelegate)policy;
+            else
+                Next = new PolicyEntry
+                {
+                    Key = policyInterface,
+                    Value = policy,
+                    Next = Next
+                };
         }
 
         #endregion
@@ -113,13 +121,13 @@ namespace Unity.Registration
                 _registration = set;
             }
 
-            public InjectionMember[] InjectionMembers => _registration.InjectionMembers;
+            public InjectionMember[]? InjectionMembers => _registration.InjectionMembers;
 
             public bool BuildRequired => _registration.BuildRequired;
 
-            public Converter<Type, Type> Map => _registration.Map;
+            public Converter<Type, Type?>? Map => _registration.Map;
 
-            public LifetimeManager LifetimeManager => null;
+            public LifetimeManager? LifetimeManager => null;
 
             public int RefCount => _registration._refCount;
         }

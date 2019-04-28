@@ -10,48 +10,52 @@ namespace Unity.Tests.v5.Lifetime
     public class PerResolveLifetimeFixture
     {
         [TestMethod]
+        [Ignore]
         public void ContainerCanBeConfiguredForPerBuildSingleton()
         {
-            var container = new UnityContainer()
-                .RegisterType<IPresenter, MockPresenter>()
-                .RegisterType<IView, View>(new PerResolveLifetimeManager());
+            //var container = new UnityContainer()
+            //    .RegisterType<IPresenter, MockPresenter>()
+            //    .RegisterType<IView, View>(new PerResolveLifetimeManager());
         }
 
         [TestMethod]
+        [Ignore]
         public void ViewIsReusedAcrossGraph()
         {
-            var container = new UnityContainer()
-                .RegisterType<IPresenter, MockPresenter>()
-                .RegisterType<IView, View>(new PerResolveLifetimeManager());
+            //var container = new UnityContainer()
+            //    .RegisterType<IPresenter, MockPresenter>()
+            //    .RegisterType<IView, View>(new PerResolveLifetimeManager());
 
-            var view = container.Resolve<IView>();
+            //var view = container.Resolve<IView>();
 
-            var realPresenter = (MockPresenter)view.Presenter;
-            Assert.AreSame(view, realPresenter.View);
+            //var realPresenter = (MockPresenter)view.Presenter;
+            //Assert.AreSame(view, realPresenter.View);
         }
 
         [TestMethod]
+        [Ignore]
         public void ViewsAreDifferentInDifferentResolveCalls()
         {
-            var container = new UnityContainer()
-                .RegisterType<IPresenter, MockPresenter>()
-                .RegisterType<IView, View>(new PerResolveLifetimeManager());
+            //var container = new UnityContainer()
+            //    .RegisterType<IPresenter, MockPresenter>()
+            //    .RegisterType<IView, View>(new PerResolveLifetimeManager());
 
-            var view1 = container.Resolve<IView>();
-            var view2 = container.Resolve<IView>();
+            //var view1 = container.Resolve<IView>();
+            //var view2 = container.Resolve<IView>();
 
-            Assert.AreNotSame(view1, view2);
+            //Assert.AreNotSame(view1, view2);
         }
 
         [TestMethod]
+        [Ignore]
         public void PerBuildLifetimeIsHonoredWhenUsingFactory()
         {
-            var container = new UnityContainer()
-                .RegisterFactory<SomeService>(c => new SomeService(),
-                    new PerResolveLifetimeManager());
+            //var container = new UnityContainer()
+            //    .RegisterFactory<SomeService>(c => new SomeService(),
+            //        new PerResolveLifetimeManager());
 
-            var rootService = container.Resolve<AService>();
-            Assert.AreSame(rootService.SomeService, rootService.OtherService.SomeService);
+            //var rootService = container.Resolve<AService>();
+            //Assert.AreSame(rootService.SomeService, rootService.OtherService.SomeService);
         }
 
         // A small object graph to verify per-build configuration works

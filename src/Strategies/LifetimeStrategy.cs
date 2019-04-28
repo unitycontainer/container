@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Composition;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Strategies
 {
@@ -22,11 +24,37 @@ namespace Unity.Strategies
         #endregion
 
 
+        #region Composition
+
+        public override ResolveDelegate<BuilderContext>? BuildResolver(UnityContainer container, Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        {
+            var lifetime = registration.LifetimeManager;
+
+            if (null == lifetime || lifetime is TransientLifetimeManager) return seed;
+
+            return (ref BuilderContext context) => 
+            {
+                // Return if holds value
+                var value = lifetime.GetValue(context.Lifetime);
+                if (LifetimeManager.NoValue != value) return value;
+
+                // Compose down the chain
+                value = seed?.Invoke(ref context);
+                lifetime.SetValue(value, context.Lifetime);
+
+                return value;
+            };
+        }
+
+
+        #endregion
+
+
         #region Build
 
         public override void PreBuildUp(ref BuilderContext context)
         {
-            LifetimeManager policy = null;
+            LifetimeManager? policy = null;
 
             if (context.Registration is ImplicitRegistration registration)
                 policy = registration.LifetimeManager;
@@ -49,7 +77,7 @@ namespace Unity.Strategies
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            LifetimeManager policy = null;
+            LifetimeManager? policy = null;
 
             if (context.Registration is ImplicitRegistration registration)
                 policy = registration.LifetimeManager;
@@ -65,7 +93,7 @@ namespace Unity.Strategies
 
         #region Registration and Analysis
 
-        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[] injectionMembers)
+        public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[]? injectionMembers)
         {
             var policy = registration.LifetimeManager;
             if (null != policy)

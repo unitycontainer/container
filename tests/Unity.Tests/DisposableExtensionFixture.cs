@@ -55,11 +55,6 @@ namespace Unity.Tests.v5
             {
             }
 
-            public override void Remove()
-            {
-                this.Removed = true;
-            }
-
             public void Dispose()
             {
                 if (this.Disposed)

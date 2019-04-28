@@ -89,10 +89,10 @@ namespace Unity
 
             #region IPolicyList
 
-            public virtual object Get(Type type, Type policyInterface)
+            public virtual object? Get(Type type, Type policyInterface)
                 => _container.GetPolicy(type, policyInterface);
 
-            public virtual object Get(Type type, string name, Type policyInterface)
+            public virtual object? Get(Type type, string name, Type policyInterface)
                 => _container.GetPolicy(type, name, policyInterface);
 
             public virtual void Set(Type type, Type policyInterface, object policy)

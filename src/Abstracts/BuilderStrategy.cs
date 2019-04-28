@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Strategies
 {
@@ -12,6 +12,13 @@ namespace Unity.Strategies
     /// </summary>
     public abstract class BuilderStrategy
     {
+        #region Composition
+
+        public virtual ResolveDelegate<BuilderContext>? BuildResolver(UnityContainer container, Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed) => seed;
+
+        #endregion
+
+
         #region Build
 
         /// <summary>
@@ -48,7 +55,7 @@ namespace Unity.Strategies
         /// <param name="registration">Reference to registration</param>
         /// <param name="injectionMembers"></param>
         /// <returns>Returns true if this strategy will participate in building of registered type</returns>
-        public virtual bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[] injectionMembers)
+        public virtual bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[]? injectionMembers)
         {
             return true;
         }

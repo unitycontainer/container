@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Composition;
 using Unity.Storage;
 
 namespace Unity.Policy
@@ -17,6 +18,8 @@ namespace Unity.Policy
 
 
         #region Public Members
+
+        public CompositionDelegate ComposeMethod { get; set; }
 
         public ISelect<ConstructorInfo> CtorSelector { get; set; }
 
@@ -39,43 +42,45 @@ namespace Unity.Policy
 
         public override object Get(Type policyInterface)
         {
-            switch (policyInterface)
+            return policyInterface switch
             {
-                case Type type when (typeof(ISelect<ConstructorInfo>) == type):
-                    return CtorSelector;
+                Type type when typeof(ISelect<ConstructorInfo>) == type => CtorSelector,
+                Type type when typeof(ISelect<PropertyInfo>) == type => PropertiesSelector,
+                Type type when typeof(ISelect<MethodInfo>) == type => MethodsSelector,
+                Type type when typeof(ISelect<FieldInfo>) == type => FieldsSelector,
+                Type type when typeof(ResolveDelegateFactory) == type => ResolveDelegateFactory,
+                Type type when typeof(CompositionDelegate) == type => ComposeMethod,
 
-                case Type type when (typeof(ISelect<PropertyInfo>) == type):
-                    return PropertiesSelector;
-
-                case Type type when (typeof(ISelect<MethodInfo>) == type):
-                    return MethodsSelector;
-
-                case Type type when (typeof(ISelect<FieldInfo>) == type):
-                    return FieldsSelector;
-
-                default:
-                    return base.Get(policyInterface);
-            }
+                _ => base.Get(policyInterface)
+            };
         }
 
         public override void Set(Type policyInterface, object policy)
         {
             switch (policyInterface)
             {
-                case ISelect<ConstructorInfo> constructor:
-                    CtorSelector = constructor;
+                case Type type when typeof(ISelect<ConstructorInfo>) == type:
+                    CtorSelector = (ISelect<ConstructorInfo>)policy;
                     break;
 
-                case ISelect<PropertyInfo> property:
-                    PropertiesSelector = property;
+                case Type type when typeof(ISelect<PropertyInfo>) == type:
+                    PropertiesSelector = (ISelect<PropertyInfo>)policy;
                     break;
 
-                case ISelect<MethodInfo> method:
-                    MethodsSelector = method;
+                case Type type when typeof(ISelect<MethodInfo>) == type:
+                    MethodsSelector = (ISelect<MethodInfo>)policy;
                     break;
 
-                case ISelect<FieldInfo> field:
-                    FieldsSelector = field;
+                case Type type when typeof(ISelect<FieldInfo>) == type:
+                    FieldsSelector = (ISelect<FieldInfo>)policy;
+                    break;
+
+                case Type type when typeof(ResolveDelegateFactory) == type:
+                    ResolveDelegateFactory = (ResolveDelegateFactory)policy;
+                    break;
+
+                case Type type when typeof(CompositionDelegate) == type:
+                    ComposeMethod = (CompositionDelegate)policy;
                     break;
 
                 default:

@@ -5,7 +5,7 @@ namespace Unity.Extensions
 {
     internal static class MetadataExtensions
     {
-        internal static int GetEntries<TElement>(this Registry<Type, int[]> metadata, int hashCode, out int[] data)
+        internal static int GetEntries<TElement>(this Registry<Type, int[]> metadata, int hashCode, out int[]? data)
         {
             var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
@@ -28,7 +28,7 @@ namespace Unity.Extensions
             return 0;
         }
 
-        internal static int GetEntries(this Registry<Type, int[]> metadata, int hashCode, Type type, out int[] data)
+        internal static int GetEntries(this Registry<Type, int[]> metadata, int hashCode, Type type, out int[]? data)
         {
             var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
