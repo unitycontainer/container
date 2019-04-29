@@ -27,8 +27,8 @@ namespace Unity
         /// <param name="name">Name of the registration</param>
         /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns></returns>
-        IUnityContainerAsync RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        /// <returns>Returns <see cref="Task"/> indicating when registration is done</returns>
+        Task RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -48,8 +48,8 @@ namespace Unity
         /// <see cref="LifetimeManager"/> manager that controls how this instance will be managed by the container.
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
-        /// <returns>The <see cref="IUnityContainerAsync"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-        IUnityContainerAsync RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager);
+        /// <returns>Returns <see cref="Task"/> indicating when registration is done</returns>
+        Task RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager);
 
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace Unity
         /// <param name="factory"></param>
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance.</param>
-        /// <returns>The <see cref="IUnityContainerAsync"/> object that this method was called on.</returns>
-        IUnityContainerAsync RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
+        /// <returns>Returns <see cref="Task"/> indicating when registration is done</returns>
+        Task RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
 
 
         /// <summary>
