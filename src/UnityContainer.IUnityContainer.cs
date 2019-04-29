@@ -144,6 +144,7 @@ namespace Unity
                 }
 
                 // Check what strategies to run
+                registration.Processors = _processorsInstance.ToArray(); // TODO: Requires optimization
                 registration.BuildChain = _strategiesChain.ToArray()
                                                           .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
                                                           .ToArray();
@@ -208,6 +209,7 @@ namespace Unity
                 type, type, name, ref registration);
 
             // Check what strategies to run
+            registration.Processors = _processorsFactory.ToArray(); // TODO: Requires optimization
             registration.BuildChain = _strategiesChain.ToArray()
                                                       .Where(strategy => strategy.RequiredToBuildType(this,
                                                           type, registration, injectionMembers))
@@ -224,24 +226,39 @@ namespace Unity
         #region Getting objects
 
         /// <inheritdoc />
-        object IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
+            // Setup Context
             var registration = GetRegistration(type, name);
             var context = new BuilderContext
             {
                 List = new PolicyList(),
+                RegistrationType = type ?? throw new ArgumentNullException(nameof(type)),
+                Name = name,
+                Type = registration is ExplicitRegistration explicitRegistration
+                     ? explicitRegistration.Type ?? type 
+                     : type,
                 Lifetime = LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
-                RegistrationType = type,
-                Name = name,
                 ExecutePlan = ContextExecutePlan,
                 ResolvePlan = ContextResolvePlan,
-                Type = registration is ExplicitRegistration containerRegistration
-                                     ? containerRegistration.Type : type,
             };
 
-            return ExecutePlan(ref context);
+            // Create Pipeline if required
+            if (null == registration.Pipeline)
+            {
+                // Double Check Lock
+                lock (registration)
+                {
+                    // Make sure build plan was not yet created
+                    if (null == registration.Pipeline)
+                        registration.Pipeline = ComposerFactory(ref context);
+                }
+            }
+
+            // Create an object
+            return Compose(ref context);
         }
 
         #endregion
@@ -271,7 +288,7 @@ namespace Unity
                 ExecutePlan = ContextExecutePlan,
                 ResolvePlan = ContextResolvePlan,
                 Type = registration is ExplicitRegistration containerRegistration
-                                     ? containerRegistration.Type : type
+                                     ? containerRegistration.Type ?? type : type
             };
 
             return ExecutePlan(ref context);

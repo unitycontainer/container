@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,77 +12,14 @@ using Unity.Resolution;
 
 namespace Unity.Processors
 {
-    public abstract class MemberProcessor
-    {
-        #region Fields
-
-        protected static readonly MethodInfo StringFormat =
-            typeof(string).GetTypeInfo()
-                .DeclaredMethods
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-                    return m.Name == nameof(string.Format) &&
-                           m.GetParameters().Length == 2 &&
-                           typeof(object) == parameters[1].ParameterType;
-                });
-
-        protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
-
-        protected static readonly Expression NewGuid = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)));
-
-        protected static readonly PropertyInfo DataProperty = typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data));
-
-        protected static readonly MethodInfo AddMethod = typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add));
-
-        #endregion
-
-
-        #region Public Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetExpressions"/>  
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ExpressionsFromSelected"/>
-        ///     + <see cref="BuildMemberExpression"/>
-        ///       + <see cref="GetResolverExpression"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <returns></returns>
-        public abstract IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetResolver"/>
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ResolversFromSelected"/>
-        ///     + <see cref="BuildMemberResolver"/>
-        ///       + <see cref="GetResolverDelegate"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <param name="seed"></param>
-        /// <returns></returns>
-        public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed);
-
-        #endregion
-    }
-
-    public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor,
+    public abstract partial class MemberProcessor<TMemberInfo, TData> : PipelineProcessor,
                                                                         ISelect<TMemberInfo>
                                                     where TMemberInfo : MemberInfo
     {
         #region Fields
 
         protected readonly DefaultPolicies Defaults;
+        protected static readonly IEnumerable<InjectionMember> EmptyCollection = Enumerable.Empty<InjectionMember>();
 
         #endregion
 
@@ -118,8 +54,21 @@ namespace Unity.Processors
 
         #region MemberProcessor
 
-        /// <inheritdoc />
-        public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Call hierarchy:
+        /// <see cref="GetExpressions"/>  
+        /// + <see cref="SelectMembers"/>
+        ///   + <see cref="ExpressionsFromSelected"/>
+        ///     + <see cref="BuildMemberExpression"/>
+        ///       + <see cref="GetResolverExpression"/>
+        /// </remarks>
+        /// <param name="type"></param>
+        /// <param name="registration"></param>
+        /// <returns></returns>
+        public override IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
         {
             var selector = GetOrDefault(registration);
             var members = selector.Select(type, registration);
@@ -127,8 +76,22 @@ namespace Unity.Processors
             return ExpressionsFromSelection(type, members);
         }
 
-        /// <inheritdoc />
-        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Call hierarchy:
+        /// <see cref="GetResolver"/>
+        /// + <see cref="SelectMembers"/>
+        ///   + <see cref="ResolversFromSelected"/>
+        ///     + <see cref="BuildMemberResolver"/>
+        ///       + <see cref="GetResolverDelegate"/>
+        /// </remarks>
+        /// <param name="type"></param>
+        /// <param name="registration"></param>
+        /// <param name="seed"></param>
+        /// <returns></returns>
+        public override ResolveDelegate<BuilderContext>? GetResolver(Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
         {
             var selector = GetOrDefault(registration);
             var members = selector.Select(type, registration);
@@ -136,7 +99,7 @@ namespace Unity.Processors
 
             return (ref BuilderContext c) =>
             {
-                if (null == (c.Existing = seed(ref c))) return null;
+                if (null == (c.Existing = seed?.Invoke(ref c))) return null;
                 foreach (var resolver in resolvers) resolver(ref c);
                 return c.Existing;
             };
@@ -152,13 +115,10 @@ namespace Unity.Processors
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((ImplicitRegistration)registration).InjectionMembers)
+            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
-                {
-                    if (injectionMember is InjectionMember<TMemberInfo, TData> && memberSet.Add(injectionMember))
-                        yield return injectionMember;
-                }
+                if (injectionMember is InjectionMember<TMemberInfo, TData> && memberSet.Add(injectionMember))
+                    yield return injectionMember;
             }
 
             // Select Attributed members
@@ -191,7 +151,7 @@ namespace Unity.Processors
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-        protected object PreProcessResolver(TMemberInfo info, object resolver)
+        protected object? PreProcessResolver(TMemberInfo info, object? resolver)
         {
             switch (resolver)
             {
@@ -240,13 +200,13 @@ namespace Unity.Processors
 
         #region Attribute Resolver Factories
 
-        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             var type = MemberType((TMemberInfo)info);
             return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
         }
 
-        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             var type = MemberType((TMemberInfo)info);
             return (ref BuilderContext context) =>
@@ -271,10 +231,10 @@ namespace Unity.Processors
         public struct AttributeFactory
         {
             public readonly Type Type;
-            public Func<Attribute, object, object, ResolveDelegate<BuilderContext>> Factory;
+            public Func<Attribute, object, object?, ResolveDelegate<BuilderContext>> Factory;
             public Func<Attribute, string> Name;
 
-            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> factory)
+            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, object, object?, ResolveDelegate<BuilderContext>> factory)
             {
                 Type = type;
                 Name = getName;

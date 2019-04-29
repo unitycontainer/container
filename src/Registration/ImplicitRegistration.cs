@@ -1,10 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Unity.Builder;
 using Unity.Composition;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Processors;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -42,10 +45,10 @@ namespace Unity.Registration
             InjectionMembers = factory.InjectionMembers;
         }
 
-        public ImplicitRegistration(CompositionDelegate factory)
+        public ImplicitRegistration(ResolveDelegate<BuilderContext> pipeline)
             : base(typeof(LifetimeManager))
         {
-            Factory = factory;
+            Pipeline = pipeline;
         }
 
         #endregion
@@ -53,7 +56,9 @@ namespace Unity.Registration
 
         #region Public Members
 
-        public virtual CompositionDelegate? Factory { get; set; }
+        public virtual ResolveDelegate<BuilderContext> Pipeline { get; set; }
+
+        public virtual PipelineProcessor[]? Processors { get; set; }
 
         public virtual BuilderStrategy[]? BuildChain { get; set; }
 
@@ -87,16 +92,16 @@ namespace Unity.Registration
 
         public override object? Get(Type policyInterface)
         {
-            if (typeof(CompositionDelegate) == policyInterface)
-                return Factory;
+            if (typeof(ResolveDelegate<BuilderContext>) == policyInterface)
+                return Pipeline;
             else
                 return base.Get(policyInterface);
         }
 
         public override void Set(Type policyInterface, object policy)
         {
-            if (typeof(CompositionDelegate) == policyInterface)
-                Factory = (CompositionDelegate)policy;
+            if (typeof(ResolveDelegate<BuilderContext>) == policyInterface)
+                Pipeline = (ResolveDelegate<BuilderContext>)policy;
             else
                 Next = new PolicyEntry
                 {

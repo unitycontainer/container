@@ -5,7 +5,7 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -14,7 +14,7 @@ namespace Unity.Processors
     {
         #region Overrides
 
-        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
+        public override ResolveDelegate<BuilderContext>? GetResolver(Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
         {
             // Select ConstructorInfo
             var selector = GetOrDefault(registration);
@@ -23,7 +23,7 @@ namespace Unity.Processors
 
             // Select constructor for the Type
             ConstructorInfo info;
-            object[] resolvers = null;
+            object[]? resolvers = null;
 
             switch (selection)
             {
@@ -57,14 +57,14 @@ namespace Unity.Processors
             }
 
             // Get lifetime manager
-            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
                 ? GetPerResolveDelegate(info, resolvers)
                 : GetResolverDelegate(info, resolvers);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
@@ -88,7 +88,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object resolvers)
+        protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime

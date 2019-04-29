@@ -28,13 +28,10 @@ namespace Unity.Processors
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((ImplicitRegistration)registration).InjectionMembers)
+            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
-                {
-                    if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
-                        yield return injectionMember;
-                }
+                if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
+                    yield return injectionMember;
             }
 
             // Select Attributed members
@@ -71,7 +68,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(FieldInfo field, object resolver)
+        protected override Expression GetResolverExpression(FieldInfo field, object? resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -86,7 +83,7 @@ namespace Unity.Processors
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

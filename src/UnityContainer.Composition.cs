@@ -1,123 +1,155 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
 using Unity.Builder;
 using Unity.Composition;
-using Unity.Registration;
+using Unity.Policy;
+using Unity.Processors;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
+        // TODO: Remove
         internal delegate CompositionDelegate CompositionFactoryDelegate(ref CompositionContext context);
+        private delegate object ComposeObjectDelegate(ref BuilderContext context);
+
+
+
 
         #region Fields
 
-        internal CompositionFactoryDelegate _factory = ResolvedComposition;
+        private StagedStrategyChain<PipelineProcessor, CompositionStage> _processors;
+        private StagedStrategyChain<PipelineProcessor, CompositionStage> _processorsFactory;
+        private StagedStrategyChain<PipelineProcessor, CompositionStage> _processorsInstance;
 
         #endregion
 
 
+        #region Object Composition
 
-        #region Composition
-
-        private object? Compose(Type type, string? name, params ResolverOverride[] overrides)
-        {
-            var registration = GetRegistration(type, name);
-
-            // Double-check lock
-            lock (registration)
+        private ComposeObjectDelegate Compose { get; set; } =
+            (ref BuilderContext context) =>
             {
-                // Make sure build plan was not yet created
-                if (null == registration.Factory)
+                try
                 {
-                    // Create build plan
-                    var context = new CompositionContext
-                    {
-                        Type = type,
-                        Name = name,
-                        Overrides = overrides,
-                        Registration = registration,
-                        Container = this,
-                    };
-
-                    registration.Factory = _factory.Invoke(ref context);
+                    return context.Registration.Pipeline(ref context);
                 }
+                catch (Exception ex)
+                {
+                    context.RequiresRecovery?.Recover();
+
+                    throw new ResolutionFailedException(context.RegistrationType, context.Name,
+                        "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())", ex);
+                }
+            };
+
+        private object ValidatingComposePlan(ref BuilderContext context)
+        {
+            try
+            {
+                return context.Registration.Pipeline(ref context);
+            }
+            catch (Exception ex)
+            {
+                context.RequiresRecovery?.Recover();
+                ex.Data.Add(Guid.NewGuid(), null == context.Name
+                    ? context.RegistrationType == context.Type
+                        ? (object)context.Type
+                        : new Tuple<Type, Type>(context.RegistrationType, context.Type)
+                    : context.RegistrationType == context.Type
+                        ? (object)new Tuple<Type, string>(context.Type, context.Name)
+                        : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
+
+                var builder = new StringBuilder();
+                builder.AppendLine(ex.Message);
+                builder.AppendLine("_____________________________________________________");
+                builder.AppendLine("Exception occurred while:");
+                builder.AppendLine();
+
+                var indent = 0;
+                foreach (DictionaryEntry item in ex.Data)
+                {
+                    for (var c = 0; c < indent; c++) builder.Append(" ");
+                    builder.AppendLine(CreateErrorMessage(item.Value));
+                    indent += 1;
+                }
+
+                var message = builder.ToString();
+
+                throw new ResolutionFailedException(context.RegistrationType, context.Name, message, ex);
             }
 
-            // Execute the plan
-            return registration.Factory.Invoke(this, null, overrides);
+            string CreateErrorMessage(object value)
+            {
+                switch (value)
+                {
+                    case ParameterInfo parameter:
+                        return $" for parameter:  '{parameter.Name}'";
+
+                    case ConstructorInfo constructor:
+                        var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+                        return $"on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
+
+                    case MethodInfo method:
+                        var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+                        return $"     on method:  {method.Name}({methodSignature})";
+
+                    case PropertyInfo property:
+                        return $"  for property:  '{property.Name}'";
+
+                    case FieldInfo field:
+                        return $"     for field:  '{field.Name}'";
+
+                    case Type type:
+                        return $"·resolving type:  '{type.Name}'";
+
+                    case Tuple<Type, string> tuple:
+                        return $"•resolving type:  '{tuple.Item1.Name}' registered with name: '{tuple.Item2}'";
+
+                    case Tuple<Type, Type> tuple:
+                        return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}'";
+
+                    case Tuple<Type, Type, string> tuple:
+                        return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}' and registered with name: '{tuple.Item3}'";
+                }
+
+                return value.ToString();
+            }
         }
 
         #endregion
 
 
-        #region Build Plan
+        #region Composition Plan
 
-
-        internal static CompositionDelegate CompiledComposition(ref CompositionContext context)
+        internal ResolveDelegateFactory ComposerFactory = (ref BuilderContext context) =>
         {
-            var expressions = new List<Expression>();
-            //var type = context.Type;
-            //var registration = context.Registration;
-
-            //foreach (var processor in _processorsChain)
-            //{
-            //    foreach (var step in processor.GetExpressions(type, registration))
-            //        expressions.Add(step);
-            //}
-
-            expressions.Add(BuilderContextExpression.Existing);
-
-            var lambda = Expression.Lambda<CompositionDelegate>(
-                Expression.Block(expressions), BuilderContextExpression.Context);
-
-            return lambda.Compile();
-        }
-
-        internal static CompositionDelegate ResolvedComposition(ref CompositionContext context)
-        {
-            // Closures
+            var container = (UnityContainer)context.Container;
             ResolveDelegate<BuilderContext>? seedMethod = null;
 
-            var type = context.Type;
-            var name = context.Name;
-            var overrides = context.Overrides;
-            var registration = context.Registration;
-            var typeMapped = registration is ExplicitRegistration containerRegistration
-                ? containerRegistration.Type : context.Type;
-
-            // Build chain
-            foreach (var strategy in registration?.BuildChain ?? throw new ArgumentNullException(nameof(registration.BuildChain)))
-                seedMethod = strategy.BuildResolver(context.Container, type, registration, seedMethod);
+            //// Build chain
+            foreach (var strategy in context.Registration.Processors ?? container._processorsChain)
+                seedMethod = strategy.GetResolver(context.RegistrationType, context.Registration, seedMethod);
 
             // Assemble composer
-            return (null == seedMethod)
-                ? (CompositionDelegate)((c, e, o) => null)
-                : ((UnityContainer container, object? existing, ResolverOverride[] overrides) => 
-                {
-                    var context = new BuilderContext
-                    {
-                        RegistrationType = type,
-                        Name = name,
-                        Type = typeMapped,
-                        Registration = registration,
-                        Lifetime = container.LifetimeContainer,
-                        Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
+            return seedMethod ?? ((ref BuilderContext c) => null); 
+        };
 
-                        List = new PolicyList(),
-                        ExecutePlan = container.ContextExecutePlan,
-                        ResolvePlan = container.ContextResolvePlan,
-                    };
 
-                    return seedMethod(ref context);
-                });
+        internal ResolveDelegate<BuilderContext> CompilingComposition(ref BuilderContext context)
+        {
+            throw new NotImplementedException();
         }
 
+        internal ResolveDelegate<BuilderContext> ResolvingComposition(ref BuilderContext context)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

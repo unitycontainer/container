@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Composition;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
-using Unity.Resolution;
 
 namespace Unity.Strategies
 {
@@ -20,32 +18,6 @@ namespace Unity.Strategies
         #region Fields
 
         private readonly object _genericLifetimeManagerLock = new object();
-
-        #endregion
-
-
-        #region Composition
-
-        public override ResolveDelegate<BuilderContext>? BuildResolver(UnityContainer container, Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
-        {
-            var lifetime = registration.LifetimeManager;
-
-            if (null == lifetime || lifetime is TransientLifetimeManager) return seed;
-
-            return (ref BuilderContext context) => 
-            {
-                // Return if holds value
-                var value = lifetime.GetValue(context.Lifetime);
-                if (LifetimeManager.NoValue != value) return value;
-
-                // Compose down the chain
-                value = seed?.Invoke(ref context);
-                lifetime.SetValue(value, context.Lifetime);
-
-                return value;
-            };
-        }
-
 
         #endregion
 

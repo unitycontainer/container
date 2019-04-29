@@ -6,7 +6,7 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Processors
 {
@@ -49,7 +49,7 @@ namespace Unity.Processors
 
         #region Overrides
 
-        public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
+        public override IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
         {
             // Select ConstructorInfo
             var selector = GetOrDefault(registration);
@@ -57,8 +57,8 @@ namespace Unity.Processors
                                     .FirstOrDefault();
 
             // Select constructor for the Type
-            object[] resolvers = null;
-            ConstructorInfo info = null;
+            object[]? resolvers = null;
+            ConstructorInfo? info = null;
             IEnumerable<Expression> parametersExpr;
 
             switch (selection)
@@ -84,14 +84,14 @@ namespace Unity.Processors
             }
 
             // Get lifetime manager
-            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
                 ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }
                 : new Expression[] { GetResolverExpression(info, resolvers) };
         }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {
             var variable = Expression.Variable(info.DeclaringType);
             var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);

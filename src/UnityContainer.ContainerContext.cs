@@ -54,7 +54,7 @@ namespace Unity
                 }
             }
 
-            public override IStagedStrategyChain<MemberProcessor, BuilderStage> BuildPlanStrategies
+            public override IStagedStrategyChain<PipelineProcessor, CompositionStage> BuildPlanStrategies
             {
                 get
                 {

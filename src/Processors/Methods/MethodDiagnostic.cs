@@ -30,13 +30,10 @@ namespace Unity.Processors
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((ImplicitRegistration)registration).InjectionMembers)
+            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
-                {
-                    if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
-                        yield return injectionMember;
-                }
+                if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
+                    yield return injectionMember;
             }
 
             // Select Attributed members
@@ -91,7 +88,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(MethodInfo info, object resolvers)
+        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -109,7 +106,7 @@ namespace Unity.Processors
                 Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>

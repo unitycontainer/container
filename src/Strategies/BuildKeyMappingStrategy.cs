@@ -4,7 +4,6 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Registration;
-using Unity.Resolution;
 
 namespace Unity.Strategies
 {
@@ -13,35 +12,6 @@ namespace Unity.Strategies
     /// </summary>
     public class BuildKeyMappingStrategy : BuilderStrategy
     {
-        #region Composition
-
-        public override ResolveDelegate<BuilderContext>? BuildResolver(UnityContainer container, Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
-        {
-            var required = registration is ExplicitRegistration explicitRegistration
-                         ? RequiredToBuildType(container, type, registration, explicitRegistration.InjectionMembers)
-                         : RequiredToBuildType(container, type, registration);
-
-            return !required ? seed : 
-                (ref BuilderContext context) => 
-                {
-                    var map = ((ImplicitRegistration)context.Registration).Map;
-                    if (null != map && null != context.Type) context.Type = map(context.Type);
-
-                    if (!((ImplicitRegistration)context.Registration).BuildRequired &&
-                        ((UnityContainer)context.Container).IsRegistered(ref context) &&
-                        null != context.Type)
-                    {
-                        return context.Resolve();
-                    }
-
-                    // Compose down the chain
-                    return seed?.Invoke(ref context);
-                }; 
-        }
-
-        #endregion
-
-
         #region Registration and Analysis
 
         public override bool RequiredToBuildType(IUnityContainer container, Type type, ImplicitRegistration registration, params InjectionMember[]? injectionMembers)

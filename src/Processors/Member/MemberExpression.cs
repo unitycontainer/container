@@ -52,7 +52,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract Expression GetResolverExpression(TMemberInfo info, object resolver);
+        protected abstract Expression GetResolverExpression(TMemberInfo info, object? resolver);
 
         #endregion
     }

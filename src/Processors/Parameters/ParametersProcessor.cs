@@ -53,9 +53,9 @@ namespace Unity.Processors
 
         #region Expression 
 
-        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -113,9 +113,9 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -226,12 +226,12 @@ namespace Unity.Processors
 
         #region Attribute Factories
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             return (ref BuilderContext context) => context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             return (ref BuilderContext context) =>
             {

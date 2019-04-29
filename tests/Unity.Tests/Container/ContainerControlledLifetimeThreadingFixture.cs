@@ -3,6 +3,8 @@ using System;
 using System.Threading;
 using Unity.Builder;
 using Unity.Lifetime;
+using Unity.Registration;
+using Unity.Resolution;
 using Unity.Strategies;
 using Unity.Tests.v5.TestDoubles;
 
@@ -51,9 +53,8 @@ namespace Unity.Tests.v5.Container
         public void ContainerControlledLifetimeDoesNotLeaveHangingLockIfBuildThrowsException()
         {
             IUnityContainer container = new UnityContainer()
-                .AddExtension(new SpyExtension(new ThrowingStrategy(), UnityBuildStage.PostInitialization));
-            container
-                .RegisterType<object>(new ContainerControlledLifetimeManager());
+                     .AddExtension(new SpyExtension(new ThrowingStrategy(), UnityBuildStage.PostInitialization));
+            container.RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;
             object result2 = null;
@@ -85,7 +86,8 @@ namespace Unity.Tests.v5.Container
             // Run thread2, and if it finished, we're ok.
 
             thread2.Start();
-            thread2.Join(1000);
+            thread2.Join(5000);
+            //thread2.Join();
 
             Assert.IsTrue(thread2Finished);
             Assert.IsNull(result1);
@@ -105,7 +107,7 @@ namespace Unity.Tests.v5.Container
             }
         }
 
-        // Another test strategy that throws an exeception the
+        // Another test strategy that throws an exception the
         // first time it is executed.
         private class ThrowingStrategy : BuilderStrategy
         {

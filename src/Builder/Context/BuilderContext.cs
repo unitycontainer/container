@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using Unity.Composition;
 using Unity.Exceptions;
 using Unity.Factories;
 using Unity.Lifetime;
@@ -25,8 +26,8 @@ namespace Unity.Builder
         public ResolverOverride[]? Overrides;
         internal IPolicyList List;
 
-        public delegate object ExecutePlanDelegate(BuilderStrategy[]? chain, ref BuilderContext context);
-        public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
+        public delegate object? ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
+        public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
 
@@ -35,7 +36,7 @@ namespace Unity.Builder
 
         public IUnityContainer Container => Lifetime?.Container;
 
-        public Type? Type { get; set; }
+        public Type Type { get; set; }
 
         public string? Name { get; set; }
 
@@ -70,7 +71,7 @@ namespace Unity.Builder
             return Resolve(Type, Name, ((UnityContainer)Container).GetRegistration(Type, Name));
         }
 
-        public object Resolve(Type type, string? name)
+        public object? Resolve(Type type, string? name)
         {
             // Process overrides if any
             if (null != Overrides)
@@ -96,6 +97,9 @@ namespace Unity.Builder
                 }
             }
 
+            if (((UnityContainer)Container).GetPolicy(type, name, typeof(CompositionDelegate)) is CompositionDelegate factory)
+                return factory((UnityContainer)Container, null);
+
             return Resolve(type, name, ((UnityContainer)Container).GetRegistration(type, name));
         }
 
@@ -104,10 +108,9 @@ namespace Unity.Builder
 
         #region IPolicyList
 
-        public object Get(Type policyInterface)
+        public object? Get(Type policyInterface)
         {
-            return List.Get(RegistrationType, Name, policyInterface) ??
-                   Registration.Get(policyInterface);
+            return List.Get(RegistrationType, Name, policyInterface) ?? Registration.Get(policyInterface);
         }
 
         public object? Get(Type type, Type policyInterface)
@@ -150,7 +153,7 @@ namespace Unity.Builder
 
         public Type RegistrationType { get; set; }
 
-        public IPolicySet Registration { get; set; }
+        public ImplicitRegistration Registration { get; set; }
 
         #endregion
 
@@ -178,7 +181,7 @@ namespace Unity.Builder
 
         #region Resolve Methods
 
-        public object Resolve(Type type, string? name, ImplicitRegistration registration)
+        public object? Resolve(Type type, string? name, ImplicitRegistration registration)
         {
             unsafe
             {
@@ -189,7 +192,8 @@ namespace Unity.Builder
                     Registration = registration,
                     RegistrationType = type,
                     Name = name,
-                    Type = registration is ExplicitRegistration containerRegistration ? containerRegistration.Type : type,
+                    Type = registration is ExplicitRegistration containerRegistration 
+                         ? containerRegistration.Type ?? type : type,
                     ExecutePlan = ExecutePlan,
                     ResolvePlan = ResolvePlan,
                     List = List,
@@ -200,11 +204,11 @@ namespace Unity.Builder
 #endif
                 };
 
-                return ExecutePlan(registration.BuildChain, ref context);
+                return ExecutePlan(registration.BuildChain ?? new BuilderStrategy[0], ref context);
             }
         }
 
-        public object Resolve(ParameterInfo parameter, object value)
+        public object? Resolve(ParameterInfo parameter, object? value)
         {
             var context = this;
 
@@ -249,7 +253,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object? Resolve(PropertyInfo property, object value)
+        public object? Resolve(PropertyInfo property, object? value)
         {
             var context = this;
 
@@ -304,7 +308,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object? Resolve(FieldInfo field, object value)
+        public object? Resolve(FieldInfo field, object? value)
         {
             var context = this;
 
@@ -430,7 +434,6 @@ namespace Unity.Builder
                     ((UnityContainer)Container).Defaults.Get(typeof(TPolicyInterface))
                 : ((UnityContainer)Container).Defaults.Get(typeof(TPolicyInterface))));
         }
-
 
         #endregion
     }

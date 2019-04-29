@@ -26,7 +26,7 @@ namespace Unity.Storage
 
             Buckets = new int[size];
             Entries = new Entry[size];
-            Count = 1;
+            Count = 0;
 
 #if !NET40
             unsafe

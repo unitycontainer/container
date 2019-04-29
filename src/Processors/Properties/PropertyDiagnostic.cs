@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
@@ -29,13 +30,10 @@ namespace Unity.Processors
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((ImplicitRegistration)registration).InjectionMembers)
+            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
-                {
-                    if (injectionMember is InjectionMember<PropertyInfo, object> && memberSet.Add(injectionMember))
-                        yield return injectionMember;
-                }
+                if (injectionMember is InjectionMember<PropertyInfo, object> && memberSet.Add(injectionMember))
+                    yield return injectionMember;
             }
 
             // Select Attributed members

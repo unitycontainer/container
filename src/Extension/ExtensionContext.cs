@@ -46,7 +46,7 @@ namespace Unity.Extension
         /// </summary>
         /// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that this container uses when creating
         /// build plans.</value>
-        public abstract IStagedStrategyChain<MemberProcessor, BuilderStage> BuildPlanStrategies { get; }
+        public abstract IStagedStrategyChain<PipelineProcessor, CompositionStage> BuildPlanStrategies { get; }
 
         #endregion
 

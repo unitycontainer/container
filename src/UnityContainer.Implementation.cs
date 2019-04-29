@@ -23,20 +23,19 @@ namespace Unity
 
         // Container specific
         private readonly UnityContainer _root;
-        private readonly UnityContainer _parent;
+        private readonly UnityContainer? _parent;
         internal readonly LifetimeContainer LifetimeContainer;
-        private List<IUnityContainerExtensionConfigurator> _extensions;
+        private List<IUnityContainerExtensionConfigurator>? _extensions;
 
         // Policies
         private readonly ContainerContext _context;
 
         // Strategies
         private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-        private StagedStrategyChain<MemberProcessor, BuilderStage> _processors;
 
         // Caches
         private BuilderStrategy[] _strategiesChain;
-        private MemberProcessor[] _processorsChain;
+        private PipelineProcessor[] _processorsChain;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -97,14 +96,31 @@ namespace Unity
             var methodsProcessor = new MethodProcessor(container.Defaults, container);
             var propertiesProcessor = new PropertyProcessor(container.Defaults);
             var constructorProcessor = new ConstructorProcessor(container.Defaults, container);
+            var lifetimeProcessor = new LifetimeProcessor();
+            var mappingProcessor = new MappingProcessor();
 
-            // Processors chain
-            container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
+            // Processors for implicit registrations
+            container._processors = new StagedStrategyChain<PipelineProcessor, CompositionStage>
             {
-                { constructorProcessor, BuilderStage.Creation },
-                { fieldsProcessor,      BuilderStage.Fields },
-                { propertiesProcessor,  BuilderStage.Properties },
-                { methodsProcessor,     BuilderStage.Methods }
+                { lifetimeProcessor,    CompositionStage.Lifetime },
+                { mappingProcessor,     CompositionStage.TypeMapping },
+                { constructorProcessor, CompositionStage.Creation },
+                { fieldsProcessor,      CompositionStage.Fields },
+                { propertiesProcessor,  CompositionStage.Properties },
+                { methodsProcessor,     CompositionStage.Methods }
+            };
+
+            // Processors for Factory Registrations
+            container._processorsFactory = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            {
+                { lifetimeProcessor,      CompositionStage.Lifetime },
+                { new FactoryProcessor(), CompositionStage.Creation },
+            };
+
+            // Processors for Instance Registrations
+            container._processorsInstance = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            {
+                { lifetimeProcessor,    CompositionStage.Lifetime },
             };
 
             // Caches
@@ -120,8 +136,9 @@ namespace Unity
         internal static void SetDiagnosticPolicies(UnityContainer container)
         {
             // Default policies
-            container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
-            container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
+            container.Compose = container.ValidatingComposePlan;
+            container.ContextExecutePlan = ContextValidatingExecutePlan;
+            container.ContextResolvePlan = ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
 
             // Processors
@@ -129,14 +146,31 @@ namespace Unity
             var methodsProcessor = new MethodDiagnostic(container.Defaults, container);
             var propertiesProcessor = new PropertyDiagnostic(container.Defaults);
             var constructorProcessor = new ConstructorDiagnostic(container.Defaults, container);
+            var lifetimeProcessor = new LifetimeProcessor();
+            var mappingProcessor = new MappingProcessor();
 
-            // Processors chain
-            container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
+            // Processors for implicit registrations
+            container._processors = new StagedStrategyChain<PipelineProcessor, CompositionStage>
             {
-                { constructorProcessor, BuilderStage.Creation },
-                { fieldsProcessor,      BuilderStage.Fields },
-                { propertiesProcessor,  BuilderStage.Properties },
-                { methodsProcessor,     BuilderStage.Methods }
+                { lifetimeProcessor,    CompositionStage.Lifetime },
+                { mappingProcessor,     CompositionStage.TypeMapping },
+                { constructorProcessor, CompositionStage.Creation },
+                { fieldsProcessor,      CompositionStage.Fields },
+                { propertiesProcessor,  CompositionStage.Properties },
+                { methodsProcessor,     CompositionStage.Methods }
+            };
+
+            // Processors for Factory Registrations
+            container._processorsFactory = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            {
+                { lifetimeProcessor,      CompositionStage.Lifetime },
+                { new FactoryProcessor(), CompositionStage.Creation },
+            };
+
+            // Processors for Instance Registrations
+            container._processorsInstance = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            {
+                { lifetimeProcessor,    CompositionStage.Lifetime },
             };
 
             // Caches
@@ -172,17 +206,6 @@ namespace Unity
                     throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
                 }
             };
-        }
-
-        #endregion
-
-
-        #region Implementation
-        private UnityContainer CreateChildContainer()
-        {
-            var child = new UnityContainer(this);
-            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
-            return child;
         }
 
         #endregion

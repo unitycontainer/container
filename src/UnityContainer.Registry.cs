@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Unity.Builder;
 using Unity.Extensions;
 using Unity.Policy;
@@ -23,22 +22,23 @@ namespace Unity
 
         private readonly object _syncRegistry = new object();
         private readonly object _syncMetadata = new object();
-        private Registry<NamedType, IPolicySet> _registry;
-        private Registry<Type, int[]> _metadata;
+        private Registry<NamedType, IPolicySet>? _registry;
+        private Registry<Type, int[]>?           _metadata;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private  IPolicySet _validators;
+
         private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
-
-        //[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        //private Func<IEnumerable<Type>, string, InternalRegistration, IEnumerable<InternalRegistration>> RegisterAsync;
 
         #endregion
 
 
         #region Defaults
 
+        #pragma warning disable CS8602
+
         internal DefaultPolicies Defaults => (DefaultPolicies)_root._registry.Entries[0].Value;
-        private  IPolicySet _validators;
+        
+        #pragma warning restore CS8602
 
         #endregion
 
@@ -50,7 +50,7 @@ namespace Unity
             var hashCode = type?.GetHashCode() ?? 0;
 
             // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
                 if (null == container._registry) continue;
@@ -71,7 +71,7 @@ namespace Unity
             var hashCode = NamedType.GetHashCode(type, name);
 
             // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
                 if (null == container._registry) continue;
@@ -173,7 +173,7 @@ namespace Unity
             var hashAll = type?.GetHashCode() ?? 0;
 
             // Iterate though hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip if no local registrations
                 if (null == container._registry) continue;
@@ -197,7 +197,7 @@ namespace Unity
         internal ResolveDelegateFactory? GetFactoryPolicy(Type? type)
         {
             var hashCode = type?.GetHashCode() ?? 0;
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip if no local registrations
                 if (null == container._registry) continue;
@@ -221,7 +221,7 @@ namespace Unity
             var hashAll = type?.GetHashCode() ?? 0;
 
             // Iterate though hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip if no local registrations
                 if (null == container._registry) continue;

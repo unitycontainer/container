@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Abstracts;
 using Unity.Builder;
-using Unity.Composition;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Extensions;
@@ -38,28 +37,27 @@ namespace Unity
 
 
             // Defaults
-            _registry.Entries[0].Value = new DefaultPolicies(OptimizingFactory);
-
+            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(OptimizingFactory));
 
             // Register Container as IUnityContainer & IUnityContainerAsync
-            var container = new ImplicitRegistration((c, e, o) => c);
+            var container = new ImplicitRegistration((ref BuilderContext c) => c.Container);
             _registry.Set(typeof(IUnityContainer), null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
             // Built-In Features
             var func = new PolicySet(typeof(ResolveDelegateFactory), FuncResolver.Factory);
-                func.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
+            func.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
 
-            _registry.Set(typeof(Func<>),        func);                                                                      // Func<> Factory
-            _registry.Set(typeof(Lazy<>),        new PolicySet(typeof(ResolveDelegateFactory), LazyResolver.Factory));       // Lazy<>
+            _registry.Set(typeof(Func<>), func);                                                                      // Func<> Factory
+            _registry.Set(typeof(Lazy<>), new PolicySet(typeof(ResolveDelegateFactory), LazyResolver.Factory));       // Lazy<>
             _registry.Set(typeof(IEnumerable<>), new PolicySet(typeof(ResolveDelegateFactory), EnumerableResolver.Factory)); // Enumerable
-            _registry.Set(typeof(IRegex<>),      new PolicySet(typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
+            _registry.Set(typeof(IRegex<>), new PolicySet(typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
 
 
 
             // Register method
             Register = AddOrReplace;
-            
+
             /////////////////////////////////////////////////////////////
             // Container Specific
 
@@ -78,7 +76,7 @@ namespace Unity
             };
 
             // Update on change
-            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray(); 
+            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray();
             _strategiesChain = _strategies.ToArray();
 
             // Default Policies and Strategies
@@ -91,19 +89,19 @@ namespace Unity
         #region Registrations
 
         /// <inheritdoc />
-        public bool IsRegistered(Type type, string name)
+        public bool IsRegistered(Type type, string? name)
         {
             int hashCode = NamedType.GetHashCode(type, name);
 
             // Iterate through hierarchy and check if exists
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registry
                 if (null == container._metadata)
                     continue;
 
                 // Look for exact match
-                if (container._registry.Contains(hashCode, type))
+                if (container._registry?.Contains(hashCode, type) ?? false)
                     return true;
             }
 
@@ -113,10 +111,12 @@ namespace Unity
         /// <inheritdoc />
         public IEnumerable<IContainerRegistration> Registrations
         {
+            #pragma warning disable CS8602
+
             get
             {
                 var set = new QuickSet<Type>();
-
+                
                 // IUnityContainer
                 yield return new ContainerRegistrationStruct
                 {
@@ -137,14 +137,13 @@ namespace Unity
 
                 Type type;
                 // Scan containers for explicit registrations
-                for (var container = this; null != container; container = container._parent)
+                for (UnityContainer? container = this; null != container; container = container._parent)
                 {
                     // Skip to parent if no registrations
                     if (null == container._metadata) continue;
 
                     // Hold on to registries
                     var registry = container._registry;
-
                     for (var i = 0; i < registry.Count; i++)
                     {
                         if (!(registry.Entries[i].Value is ExplicitRegistration registration)) continue;
@@ -154,16 +153,34 @@ namespace Unity
                         {
                             yield return new ContainerRegistrationStruct
                             {
-                                RegisteredType  = type,
-                                Name            = registry.Entries[i].Key.Name,
+                                RegisteredType = type,
+                                Name = registry.Entries[i].Key.Name,
                                 LifetimeManager = registration.LifetimeManager ?? TransientLifetimeManager.Instance,
-                                MappedToType    = registration.Type,
+                                MappedToType = registration.Type,
                             };
                         }
                     }
                 }
             }
+            
+            #pragma warning restore CS8602
         }
+
+        #endregion
+
+
+        #region Child container management
+
+        /// <inheritdoc />
+        public UnityContainer CreateChildContainer()
+        {
+            var child = new UnityContainer(this);
+            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
+            return child;
+        }
+
+        /// <inheritdoc />
+        UnityContainer? Parent => _parent;
 
         #endregion
 
@@ -198,7 +215,7 @@ namespace Unity
         /// </remarks>
         /// <param name="configurationInterface"><see cref="Type"/> of configuration interface required.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public object Configure(Type configurationInterface)
+        public object? Configure(Type configurationInterface)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             return _extensions?.FirstOrDefault(ex => configurationInterface.GetTypeInfo()
@@ -224,7 +241,7 @@ namespace Unity
         /// </remarks>
         public void Dispose()
         {
-            List<Exception> exceptions = null;
+            List<Exception>? exceptions = null;
 
             try
             {
@@ -239,7 +256,7 @@ namespace Unity
             if (null != _extensions)
             {
                 foreach (IDisposable disposable in _extensions.OfType<IDisposable>()
-                                                              .ToList())
+                                                              .ToArray())
                 {
                     try
                     {

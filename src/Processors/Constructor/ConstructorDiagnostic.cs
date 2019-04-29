@@ -83,14 +83,11 @@ namespace Unity.Processors
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            if (null != ((ImplicitRegistration)registration).InjectionMembers)
+            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
+                if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                 {
-                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
-                    {
-                        members.Add(injectionMember);
-                    }
+                    members.Add(injectionMember);
                 }
             }
 
@@ -147,7 +144,7 @@ namespace Unity.Processors
             return new[] { SelectMethod(type, constructors) };
         }
 
-        protected override object SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected override object? SmartSelector(Type type, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, (a, b) =>
             {
@@ -167,7 +164,7 @@ namespace Unity.Processors
             });
 
             int parametersCount = 0;
-            ConstructorInfo bestCtor = null;
+            ConstructorInfo? bestCtor = null;
 
             foreach (var ctorInfo in constructors)
             {
@@ -208,7 +205,7 @@ namespace Unity.Processors
 
         #region Expression Overrides
 
-        public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
+        public override IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
@@ -230,7 +227,7 @@ namespace Unity.Processors
             return base.GetExpressions(type, registration);
         }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -278,7 +275,7 @@ namespace Unity.Processors
 
         #region Resolver Overrides
 
-        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
+        public override ResolveDelegate<BuilderContext>? GetResolver(Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
@@ -338,7 +335,7 @@ namespace Unity.Processors
             return base.GetResolver(type, registration, seed);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
@@ -365,7 +362,7 @@ namespace Unity.Processors
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime

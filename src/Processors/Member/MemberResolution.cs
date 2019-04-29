@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -34,8 +33,7 @@ namespace Unity.Processors
 
                     // Injection Member
                     case InjectionMember<TMemberInfo, TData> injectionMember:
-                        yield return GetResolverDelegate(injectionMember.MemberInfo(type), 
-                                                         injectionMember.Data);
+                        yield return GetResolverDelegate(injectionMember.MemberInfo(type), injectionMember.Data);
                         break;
 
                     // Unknown
@@ -50,7 +48,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object resolver);
+        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? resolver);
 
         #endregion
     }

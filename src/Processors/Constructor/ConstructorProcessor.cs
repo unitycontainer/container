@@ -25,7 +25,7 @@ namespace Unity.Processors
 
         #region Public Properties
 
-        public Func<Type, ConstructorInfo[], object> SelectMethod { get; set; }
+        public Func<Type, ConstructorInfo[], object?> SelectMethod { get; set; }
 
         #endregion
 
@@ -35,14 +35,11 @@ namespace Unity.Processors
         public override IEnumerable<object> Select(Type type, IPolicySet registration)
         {
             // Select Injected Members
-            if (null != ((ImplicitRegistration)registration).InjectionMembers)
+            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers)
+                if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                 {
-                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
-                    {
-                        return new[] { injectionMember };
-                    }
+                    return new[] { injectionMember };
                 }
             }
 
@@ -92,7 +89,7 @@ namespace Unity.Processors
         /// <param name="type"><see cref="Type"/> to be built</param>
         /// <param name="members">All public constructors this type implements</param>
         /// <returns></returns>
-        public object LegacySelector(Type type, ConstructorInfo[] members)
+        public object? LegacySelector(Type type, ConstructorInfo[] members)
         {
             Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
 
@@ -119,7 +116,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual object SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected virtual object? SmartSelector(Type type, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, (a, b) =>
             {

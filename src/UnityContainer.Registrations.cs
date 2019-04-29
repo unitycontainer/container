@@ -98,10 +98,14 @@ namespace Unity
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
-            if (info.IsGenericType) return GetGenericRegistration(type, name, info); 
+            return info.IsGenericType ? GetGenericRegistration(type, name, info) : GetSimpleRegistration(type, name);
 #else
-            if (type.IsGenericType) return GetGenericRegistration(type, name);
+            return type.IsGenericType ? GetGenericRegistration(type, name) : GetSimpleRegistration(type, name);
 #endif
+        }
+
+        private ImplicitRegistration GetSimpleRegistration(Type type, string? name)
+        {
             int hashExact = NamedType.GetHashCode(type, name);
 
             // Iterate through containers hierarchy
@@ -129,6 +133,7 @@ namespace Unity
 
             return _root.GetOrAdd(hashExact, type, name, null);
         }
+
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
         private ImplicitRegistration GetGenericRegistration(Type type, string? name, TypeInfo info)

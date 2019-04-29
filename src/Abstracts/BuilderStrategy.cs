@@ -2,7 +2,6 @@
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Registration;
-using Unity.Resolution;
 
 namespace Unity.Strategies
 {
@@ -12,13 +11,6 @@ namespace Unity.Strategies
     /// </summary>
     public abstract class BuilderStrategy
     {
-        #region Composition
-
-        public virtual ResolveDelegate<BuilderContext>? BuildResolver(UnityContainer container, Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed) => seed;
-
-        #endregion
-
-
         #region Build
 
         /// <summary>
