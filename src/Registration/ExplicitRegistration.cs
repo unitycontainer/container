@@ -13,35 +13,35 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ExplicitRegistration(Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+        public ExplicitRegistration(UnityContainer owner, string? name, Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+            : base(owner, name)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             Next = null;
-            LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
         }
 
 
-        public ExplicitRegistration(IPolicySet? validators, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+        public ExplicitRegistration(UnityContainer owner, string? name, IPolicySet? validators, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+            : base(owner, name)
         {
             Type = null;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             InjectionMembers = injectionMembers;
             Next = (PolicyEntry?)validators;
-            LifetimeManager.InUse = true;
         }
 
-        public ExplicitRegistration(IPolicySet? validators, Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+        public ExplicitRegistration(UnityContainer owner, string? name, IPolicySet? validators, Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+            : base(owner, name)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             InjectionMembers = injectionMembers;
             Next = (PolicyEntry?)validators;
-            LifetimeManager.InUse = true;
         }
 
         #endregion

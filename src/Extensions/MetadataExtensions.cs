@@ -5,7 +5,7 @@ namespace Unity.Extensions
 {
     internal static class MetadataExtensions
     {
-        internal static int GetEntries<TElement>(this Registry<Type, int[]> metadata, int hashCode, out int[]? data)
+        internal static int GetEntries<TElement>(this Registry<int[]> metadata, int hashCode, out int[]? data)
         {
             var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
@@ -13,7 +13,7 @@ namespace Unity.Extensions
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
                 if (metadata.Entries[i].HashCode != hashCode ||
-                    metadata.Entries[i].Key != typeof(TElement))
+                    metadata.Entries[i].Type != typeof(TElement))
                 {
                     continue;
                 }
@@ -28,7 +28,7 @@ namespace Unity.Extensions
             return 0;
         }
 
-        internal static int GetEntries(this Registry<Type, int[]> metadata, int hashCode, Type type, out int[]? data)
+        internal static int GetEntries(this Registry<int[]> metadata, int hashCode, Type type, out int[]? data)
         {
             var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
@@ -36,7 +36,7 @@ namespace Unity.Extensions
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
                 if (metadata.Entries[i].HashCode != hashCode ||
-                    metadata.Entries[i].Key != type) continue;
+                    metadata.Entries[i].Type != type) continue;
 
                 // Get a fix on the buffer
                 data = metadata.Entries[i].Value;
@@ -48,14 +48,14 @@ namespace Unity.Extensions
             return 0;
         }
 
-        public static bool Contains(this Registry<Type, int[]> metadata, int hashCode, Type type)
+        public static bool Contains(this Registry<int[]> metadata, int hashCode, Type type)
         {
             var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
 
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
                 if (metadata.Entries[i].HashCode == hashCode &&
-                    metadata.Entries[i].Key == type)
+                    metadata.Entries[i].Type == type)
                 {
                     return true;
                 }

@@ -15,25 +15,33 @@ namespace Unity.Storage
     {
         #region Constructors
 
-        public PolicySet(Type type)
-        {
-            Key = type;
-        }
-
-        public PolicySet(Type type, object? value)
-        {
-            Key = type;
-            Value = value;
-        }
-
-        public PolicySet(Type type, object? value, PolicyEntry? set)
+        public PolicySet(UnityContainer owner)
         {
             var node = (PolicyEntry)this;
-            node.Key = type;
-            node.Next = set;
-            node.Value = value;
+            node.Key = typeof(UnityContainer);
+            node.Value = owner;
         }
 
+        public PolicySet(UnityContainer owner, Type type, object? value)
+        {
+            var node = (PolicyEntry)this;
+            node.Key = typeof(UnityContainer);
+            node.Value = owner;
+            node.Next = new PolicyEntry()
+            {
+                Key = type,
+                Value = value
+            };
+        }
+
+        #endregion
+
+
+        #region Public Properties
+
+        public UnityContainer Owner => (UnityContainer)(Value ?? 
+            throw new InvalidOperationException("Invalid Policy Set"));
+        
         #endregion
 
 
@@ -100,7 +108,6 @@ namespace Unity.Storage
 
 
         #region IEnumerable
-
 
         public IEnumerator<PolicyEntry> GetEnumerator()
         {

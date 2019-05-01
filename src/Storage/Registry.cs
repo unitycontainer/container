@@ -5,7 +5,7 @@ using System.Security;
 namespace Unity.Storage
 {
     [SecuritySafeCritical]
-    public class Registry<TKey, TValue>
+    public class Registry<TValue>
     {
         #region Fields
 
@@ -70,7 +70,7 @@ namespace Unity.Storage
 #endif
         }
 
-        public Registry(Registry<TKey, TValue> registry)
+        public Registry(Registry<TValue> registry)
             : this(registry._prime + 1)
         {
             Array.Copy(registry.Entries, 0, Entries, 0, registry.Count);
@@ -114,7 +114,7 @@ namespace Unity.Storage
         {
             public int HashCode;
             public int Next;
-            public TKey Key;
+            public Type Type;
             public TValue Value;
         }
 

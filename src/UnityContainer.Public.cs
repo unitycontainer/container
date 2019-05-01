@@ -33,8 +33,8 @@ namespace Unity
             _root = this;
 
             // Create Registry and set Factory strategy
-            _metadata = new Registry<Type, int[]>();
-            _registry = new Registry<NamedType, IPolicySet>();
+            _metadata = new Registry<int[]>();
+            _registry = new Registry<IPolicySet>();
 
             Register = AddOrReplace;
 
@@ -52,7 +52,7 @@ namespace Unity
             var methodsBuilder     = new MethodBuilder(this);
 
             // Add Defaults to Registry
-            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(OptimizingFactory)
+            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(this, OptimizingFactory)
             {
                 // Build Stages
                 TypeStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
@@ -94,18 +94,18 @@ namespace Unity
             //Built-In Registrations
 
             // Register Container as IUnityContainer & IUnityContainerAsync
-            var container = new ImplicitRegistration((ref BuilderContext c) => c.Container);
+            var container = new ImplicitRegistration(this, null, (ref BuilderContext c) => c.Container);
             _registry.Set(typeof(IUnityContainer), null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
             // Built-In Features
-            var func = new PolicySet(typeof(ResolveDelegateFactory), FuncResolver.Factory);
+            var func = new PolicySet(this, typeof(ResolveDelegateFactory), FuncResolver.Factory);
             func.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
 
-            _registry.Set(typeof(Func<>), func);                                                                      // Func<> Factory
-            _registry.Set(typeof(Lazy<>), new PolicySet(typeof(ResolveDelegateFactory), LazyResolver.Factory));       // Lazy<>
-            _registry.Set(typeof(IEnumerable<>), new PolicySet(typeof(ResolveDelegateFactory), EnumerableResolver.Factory)); // Enumerable
-            _registry.Set(typeof(IRegex<>), new PolicySet(typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
+            _registry.Set(typeof(Func<>), func);                                                                                   // Func<> Factory
+            _registry.Set(typeof(Lazy<>),        new PolicySet(this, typeof(ResolveDelegateFactory), LazyResolver.Factory));       // Lazy<>
+            _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(ResolveDelegateFactory), EnumerableResolver.Factory)); // Enumerable
+            _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
 
 
             /////////////////////////////////////////////////////////////
@@ -195,13 +195,13 @@ namespace Unity
                     {
                         if (!(registry.Entries[i].Value is ExplicitRegistration registration)) continue;
 
-                        type = registry.Entries[i].Key.Type;
+                        type = registry.Entries[i].Type;
                         if (set.Add(registry.Entries[i].HashCode, type))
                         {
                             yield return new ContainerRegistrationStruct
                             {
                                 RegisteredType = type,
-                                Name = registry.Entries[i].Key.Name,
+                                Name = registry.Entries[i].Type.Name,
                                 LifetimeManager = registration.LifetimeManager ?? TransientLifetimeManager.Instance,
                                 MappedToType = registration.Type,
                             };

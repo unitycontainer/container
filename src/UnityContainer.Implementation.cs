@@ -126,7 +126,7 @@ namespace Unity
             Defaults.PropertiesSelector = propertiesBuilder;
             Defaults.MethodsSelector = methodsBuilder;
 
-            var validators = new ImplicitRegistration();
+            var validators = new PolicySet(this);
 
             validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
             validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>), Validating.MethodSelector);

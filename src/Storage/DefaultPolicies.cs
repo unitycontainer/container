@@ -23,8 +23,8 @@ namespace Unity.Storage
         // Non-nullable field is uninitialized.
         #pragma warning disable CS8618 
 
-        public DefaultPolicies(ResolveDelegateFactory factory)
-            : base(typeof(ResolveDelegateFactory), factory)
+        public DefaultPolicies(UnityContainer owner, ResolveDelegateFactory factory)
+            : base(owner, typeof(ResolveDelegateFactory), factory)
         {
         }
 

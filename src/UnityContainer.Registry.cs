@@ -22,8 +22,8 @@ namespace Unity
 
         private readonly object _syncRegistry = new object();
         private readonly object _syncMetadata = new object();
-        private Registry<NamedType, IPolicySet>? _registry;
-        private Registry<Type, int[]>?           _metadata;
+        private Registry<IPolicySet>? _registry;
+        private Registry<int[]>?      _metadata;
 
         private  IPolicySet _validators;
 
@@ -93,14 +93,14 @@ namespace Unity
 
             lock (_syncRegistry)
             {
-                if (null == _registry) _registry = new Registry<NamedType, IPolicySet>();
+                if (null == _registry) _registry = new Registry<IPolicySet>();
 
                 // Check for the existing 
                 var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Key.Type != type)
+                    if (candidate.HashCode != hashCode || candidate.Type != type)
                     {
                         continue;
                     }
@@ -112,16 +112,16 @@ namespace Unity
                 // Expand only if no more space
                 if (_registry.Count >= _registry.Entries.Length)
                 {
-                    _registry = new Registry<NamedType, IPolicySet>(_registry);
+                    _registry = new Registry<IPolicySet>(_registry);
                     targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
                 // Add registration
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.HashCode = hashCode;
-                entry.Key.Type = type;
+                entry.Type = type;
                 entry.Next = _registry.Buckets[targetBucket];
-                entry.Value = new PolicySet(policyInterface, policy);
+                entry.Value = new PolicySet(this, policyInterface, policy);
                 _registry.Buckets[targetBucket] = _registry.Count++;
             }
         }
@@ -132,7 +132,7 @@ namespace Unity
 
             lock (_syncRegistry)
             {
-                if (null == _registry) _registry = new Registry<NamedType, IPolicySet>();
+                if (null == _registry) _registry = new Registry<IPolicySet>();
 
                 var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
 
@@ -140,7 +140,7 @@ namespace Unity
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Key.Type != type)
+                    if (candidate.HashCode != hashCode || candidate.Type != type)
                     {
                         continue;
                     }
@@ -152,17 +152,16 @@ namespace Unity
                 // Expand only if no more space
                 if (_registry.Count >= _registry.Entries.Length)
                 {
-                    _registry = new Registry<NamedType, IPolicySet>(_registry);
+                    _registry = new Registry<IPolicySet>(_registry);
                     targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
                 // Add registration
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.HashCode = hashCode;
-                entry.Key.Type = type;
-                entry.Key.Name = name;
+                entry.Type = type;
                 entry.Next = _registry.Buckets[targetBucket];
-                entry.Value = new PolicySet(policyInterface, policy);
+                entry.Value = new PolicySet(this, policyInterface, policy);
                 _registry.Buckets[targetBucket] = _registry.Count++;
             }
         }

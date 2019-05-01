@@ -112,12 +112,12 @@ namespace Unity
                     {
                         var index = data[i];
 
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
                                 var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registration);
+                                value = (TElement)resolve(typeof(TElement), registry.Entries[index].Type.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -172,12 +172,12 @@ namespace Unity
                     {
                         var index = data[i];
 
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
                                 var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), registry.Entries[index].Key.Name, registration);
+                                value = (TElement)resolve(typeof(TElement), registry.Entries[index].Type.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -196,9 +196,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Key.Name;
+                        var key = registry.Entries[index].Type.Name;
 
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
@@ -297,9 +297,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Key.Name;
+                        var name = registry.Entries[index].Type.Name;
                         if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
@@ -342,10 +342,10 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Key.Name;
+                        var name = registry.Entries[index].Type.Name;
 
                         if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
@@ -369,10 +369,10 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Key.Name;
+                        var key = registry.Entries[index].Type.Name;
 
                         if (null == key) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
@@ -415,9 +415,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Key.Name;
+                        var name = registry.Entries[index].Type.Name;
                         if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
@@ -461,10 +461,10 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Key.Name;
+                        var name = registry.Entries[index].Type.Name;
 
                         if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {
@@ -489,10 +489,10 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Key.Name;
+                        var key = registry.Entries[index].Type.Name;
 
                         if (null == key) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Key.Type))
+                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
                             try
                             {

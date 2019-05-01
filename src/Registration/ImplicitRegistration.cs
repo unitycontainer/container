@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Unity.Builder;
-using Unity.Composition;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Policy;
-using Unity.Processors;
 using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
@@ -28,28 +26,33 @@ namespace Unity.Registration
 
         #region Constructors
 
-        public ImplicitRegistration()
-            : base(typeof(LifetimeManager))
+        public ImplicitRegistration(UnityContainer owner, string? name)
+            : base(owner)
         {
+            Name = name;
         }
 
-        public ImplicitRegistration(IPolicySet? set)
-            : base(typeof(LifetimeManager), null, (PolicyEntry?)set)
+        public ImplicitRegistration(UnityContainer owner, string? name, IPolicySet? set)
+            : base(owner)
         {
+            Name = name;
+            Next = (PolicyEntry?)set;
         }
 
-        public ImplicitRegistration(ImplicitRegistration factory)
-            : base(typeof(LifetimeManager), 
-                   factory.LifetimeManager?.CreateLifetimePolicy(), 
-                   factory.Next)
+        public ImplicitRegistration(UnityContainer owner, string? name, ImplicitRegistration factory)
+            : base(owner)
         {
+            Name = name;
             Map = factory.Map;
+            Next = factory.Next;
+            LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
             InjectionMembers = factory.InjectionMembers;
         }
 
-        public ImplicitRegistration(ResolveDelegate<BuilderContext> pipeline)
-            : base(typeof(LifetimeManager))
+        public ImplicitRegistration(UnityContainer owner, string? name, ResolveDelegate<BuilderContext> pipeline)
+            : base(owner)
         {
+            Name = name;
             Pipeline = pipeline;
         }
 
@@ -58,11 +61,13 @@ namespace Unity.Registration
 
         #region Public Members
 
-        public virtual ResolveDelegate<BuilderContext>? Pipeline { get; set; }
+        public string? Name { get; }
 
-        public virtual IEnumerable<PipelineBuilder>? Processors { get; set; }
+        public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
-        public virtual BuilderStrategy[]? BuildChain { get; set; } // TODO: Remove
+        public IEnumerable<PipelineBuilder>? Processors { get; set; }
+
+        public BuilderStrategy[]? BuildChain { get; set; } // TODO: Remove
 
         public InjectionMember[]? InjectionMembers { get; set; }
 
@@ -70,11 +75,7 @@ namespace Unity.Registration
 
         public Converter<Type, Type>? Map { get; set; }
 
-        public LifetimeManager LifetimeManager
-        {
-            get => (LifetimeManager)(Value ?? TransientLifetimeManager.Instance); 
-            set => Value = value;
-        }
+        public LifetimeManager? LifetimeManager { get; set; }
 
         public virtual void Add(IPolicySet set)
         {
@@ -94,10 +95,11 @@ namespace Unity.Registration
 
         public override object? Get(Type policyInterface)
         {
-            if (typeof(ResolveDelegate<BuilderContext>) == policyInterface)
-                return Pipeline;
-            else
-                return base.Get(policyInterface);
+            return policyInterface switch
+            {
+                Type type when typeof(LifetimeManager) == type => LifetimeManager, 
+                _ => base.Get(policyInterface)
+            };
         }
 
         public override void Set(Type policyInterface, object policy)

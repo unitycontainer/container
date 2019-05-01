@@ -38,13 +38,14 @@ namespace Unity
                 // Lifetime Manager
                 var manager = (LifetimeManager)(lifetimeManager ?? Defaults.TypeLifetimeManager);
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                manager.InUse = true;
 
                 // Validate if they are assignable
                 TypeValidator?.Invoke(typeFrom, typeTo);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                var registration = new ExplicitRegistration(_validators, typeTo, manager, injectionMembers);
+                var registration = new ExplicitRegistration(container, name, _validators, typeTo, manager, injectionMembers);
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
@@ -125,11 +126,12 @@ namespace Unity
                 var manager = (LifetimeManager)(lifetimeManager ?? Defaults.InstanceLifetimeManager);
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
+                manager.InUse = true;
                 manager.SetValue(instance, LifetimeContainer);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                var registration = new ExplicitRegistration(null, mappedToType ?? registeredType, manager);
+                var registration = new ExplicitRegistration(container, name, null, mappedToType ?? registeredType, manager);
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
@@ -180,10 +182,11 @@ namespace Unity
             // Lifetime Manager
             var manager = (LifetimeManager)(lifetimeManager ?? Defaults.FactoryLifetimeManager);
             if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+            manager.InUse = true;
 
             // Create registration and add to appropriate storage
             var container = manager is SingletonLifetimeManager ? _root : this;
-            var registration = new ExplicitRegistration(_validators, type, manager);
+            var registration = new ExplicitRegistration(container, name, _validators, type, manager);
 
             registration.Set(typeof(ResolveDelegate<BuilderContext>), 
                             (ResolveDelegate<BuilderContext>)((ref BuilderContext c) => factory(c.Container, c.Type, c.Name)));
