@@ -8,7 +8,7 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Processors;
+using Unity.Pipeline;
 using Unity.Registration;
 using Unity.Storage;
 using Unity.Strategies;
@@ -35,7 +35,6 @@ namespace Unity
 
         // Caches
         private BuilderStrategy[] _strategiesChain;
-        private PipelineProcessor[] _processorsChain;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -67,20 +66,13 @@ namespace Unity
             // Registry
             Register = InitAndAdd;
 
-            /////////////////////////////////////////////////////////////
-
-            SetDefaultPolicies = parent.SetDefaultPolicies;
-
             // Context and policies
             _context = new ContainerContext(this);
 
             // Strategies
             _strategies = _parent._strategies;
             _strategiesChain = _parent._strategiesChain;
-            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray(); 
-
-            // Caches
-            SetDefaultPolicies(this);
+            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray();
         }
 
         #endregion
@@ -88,112 +80,63 @@ namespace Unity
 
         #region Default Policies
 
-        // TODO: Requires refactoring
-        internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
-        {
-            // Processors
-            var fieldsProcessor = new FieldProcessor(container.Defaults);
-            var methodsProcessor = new MethodProcessor(container.Defaults, container);
-            var propertiesProcessor = new PropertyProcessor(container.Defaults);
-            var constructorProcessor = new ConstructorProcessor(container.Defaults, container);
-            var lifetimeProcessor = new LifetimeProcessor();
-            var mappingProcessor = new MappingProcessor();
-
-            // Processors for implicit registrations
-            container._processors = new StagedStrategyChain<PipelineProcessor, CompositionStage>
-            {
-                { lifetimeProcessor,    CompositionStage.Lifetime },
-                { mappingProcessor,     CompositionStage.TypeMapping },
-                { constructorProcessor, CompositionStage.Creation },
-                { fieldsProcessor,      CompositionStage.Fields },
-                { propertiesProcessor,  CompositionStage.Properties },
-                { methodsProcessor,     CompositionStage.Methods }
-            };
-
-            // Processors for Factory Registrations
-            container._processorsFactory = new StagedStrategyChain<PipelineProcessor, CompositionStage>
-            {
-                { lifetimeProcessor,      CompositionStage.Lifetime },
-                { new FactoryProcessor(), CompositionStage.Creation },
-            };
-
-            // Processors for Instance Registrations
-            container._processorsInstance = new StagedStrategyChain<PipelineProcessor, CompositionStage>
-            {
-                { lifetimeProcessor,    CompositionStage.Lifetime },
-            };
-
-            // Caches
-            container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
-            container._processorsChain = container._processors.ToArray();
-
-            container.Defaults.CtorSelector = constructorProcessor;
-            container.Defaults.PropertiesSelector = propertiesProcessor;
-            container.Defaults.MethodsSelector = methodsProcessor;
-            container.Defaults.FieldsSelector = fieldsProcessor;
-        };
-
-        internal static void SetDiagnosticPolicies(UnityContainer container)
+        internal void SetDiagnosticPolicies()
         {
             // Default policies
-            container.Compose = container.ValidatingComposePlan;
-            container.ContextExecutePlan = ContextValidatingExecutePlan;
-            container.ContextResolvePlan = ContextValidatingResolvePlan;
-            container.ExecutePlan = container.ExecuteValidatingPlan;
+            Compose = ValidatingComposePlan;
+            ContextExecutePlan = ContextValidatingExecutePlan;
+            ContextResolvePlan = ContextValidatingResolvePlan;
+            ExecutePlan = ExecuteValidatingPlan;
 
-            // Processors
-            var fieldsProcessor = new FieldDiagnostic(container.Defaults);
-            var methodsProcessor = new MethodDiagnostic(container.Defaults, container);
-            var propertiesProcessor = new PropertyDiagnostic(container.Defaults);
-            var constructorProcessor = new ConstructorDiagnostic(container.Defaults, container);
-            var lifetimeProcessor = new LifetimeProcessor();
-            var mappingProcessor = new MappingProcessor();
+            // Builders
+            var lifetimeBuilder    = new LifetimeBuilder();
+            var mappingBuilder     = new MappingBuilder();
+            var factoryBuilder     = new FactoryBuilder();
+            var constructorBuilder = new ConstructorDiagnostic(this);
+            var fieldsBuilder      = new FieldDiagnostic(this);
+            var propertiesBuilder  = new PropertyDiagnostic(this);
+            var methodsBuilder     = new MethodDiagnostic(this);
 
-            // Processors for implicit registrations
-            container._processors = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            Defaults.TypeStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
             {
-                { lifetimeProcessor,    CompositionStage.Lifetime },
-                { mappingProcessor,     CompositionStage.TypeMapping },
-                { constructorProcessor, CompositionStage.Creation },
-                { fieldsProcessor,      CompositionStage.Fields },
-                { propertiesProcessor,  CompositionStage.Properties },
-                { methodsProcessor,     CompositionStage.Methods }
+                { lifetimeBuilder,    PipelineStage.Lifetime },
+                { mappingBuilder,     PipelineStage.TypeMapping },
+                { factoryBuilder, PipelineStage.Factory },
+                { constructorBuilder, PipelineStage.Creation },
+                { fieldsBuilder,      PipelineStage.Fields },
+                { propertiesBuilder,  PipelineStage.Properties },
+                { methodsBuilder,     PipelineStage.Methods }
             };
 
-            // Processors for Factory Registrations
-            container._processorsFactory = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            Defaults.FactoryStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
             {
-                { lifetimeProcessor,      CompositionStage.Lifetime },
-                { new FactoryProcessor(), CompositionStage.Creation },
+                { lifetimeBuilder, PipelineStage.Lifetime },
+                { factoryBuilder,  PipelineStage.Factory }
             };
 
-            // Processors for Instance Registrations
-            container._processorsInstance = new StagedStrategyChain<PipelineProcessor, CompositionStage>
+            Defaults.InstanceStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
             {
-                { lifetimeProcessor,    CompositionStage.Lifetime },
+                { lifetimeBuilder, PipelineStage.Lifetime },
+                { factoryBuilder,  PipelineStage.Factory },
             };
 
-            // Caches
-            container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
-            container._processorsChain = container._processors.ToArray();
-
-            container.Defaults.ResolveDelegateFactory     = container._buildStrategy;
-            container.Defaults.FieldsSelector      = fieldsProcessor;
-            container.Defaults.MethodsSelector     = methodsProcessor;
-            container.Defaults.PropertiesSelector  = propertiesProcessor;
-            container.Defaults.CtorSelector = constructorProcessor;
+            // Selectors
+            Defaults.CtorSelector = constructorBuilder;
+            Defaults.FieldsSelector = fieldsBuilder;
+            Defaults.PropertiesSelector = propertiesBuilder;
+            Defaults.MethodsSelector = methodsBuilder;
 
             var validators = new ImplicitRegistration();
 
             validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
+            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>), Validating.MethodSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>), Validating.FieldSelector);
+            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>), Validating.PropertySelector);
 
-            container._validators = validators;
+            _validators = validators;
 
             // Registration Validator
-            container.TypeValidator = (typeFrom, typeTo) =>
+            TypeValidator = (typeFrom, typeTo) =>
             {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 

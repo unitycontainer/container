@@ -7,15 +7,15 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class FieldDiagnostic : FieldProcessor
+    public class PropertyDiagnostic : PropertyBuilder
     {
         #region Constructors
 
-        public FieldDiagnostic(DefaultPolicies defaults) : base(defaults)
+        public PropertyDiagnostic(UnityContainer container) 
+            : base(container)
         {
         }
 
@@ -31,12 +31,12 @@ namespace Unity.Processors
             // Select Injected Members
             foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
             {
-                if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
+                if (injectionMember is InjectionMember<PropertyInfo, object> && memberSet.Add(injectionMember))
                     yield return injectionMember;
             }
 
             // Select Attributed members
-            foreach (var member in type.GetDeclaredFields())
+            foreach (var member in type.GetDeclaredProperties())
             {
                 foreach(var node in AttributeFactories)
                 {
@@ -47,21 +47,26 @@ namespace Unity.Processors
 #endif
                         !memberSet.Add(member)) continue;
 
-                    if (member.IsStatic)
+                    if (!member.CanWrite)
                         throw new InvalidOperationException(
-                            $"Static field '{member.Name}' on type '{type?.Name}' is marked for injection. Static fields cannot be injected");
+                            $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly properties cannot be injected");
 
-                    if (member.IsInitOnly)
+                    if (0 != member.GetIndexParameters().Length)
                         throw new InvalidOperationException(
-                            $"Readonly field '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly fields cannot be injected");
+                            $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
-                    if (member.IsPrivate)
+                    var setter = member.GetSetMethod(true);
+                    if (setter.IsStatic)
                         throw new InvalidOperationException(
-                            $"Private field '{member.Name}' on type '{type?.Name}' is marked for injection. Private fields cannot be injected");
+                            $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
 
-                    if (member.IsFamily)
+                    if (setter.IsPrivate)
                         throw new InvalidOperationException(
-                            $"Protected field '{member.Name}' on type '{type?.Name}' is marked for injection. Protected fields cannot be injected");
+                            $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
+
+                    if (setter.IsFamily)
+                        throw new InvalidOperationException(
+                            $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
 
                     yield return member;
                     break;
@@ -69,29 +74,33 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(FieldInfo field, object? resolver)
+        protected override Expression GetResolverExpression(PropertyInfo property, object resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
             var block = 
-                Expression.Block(field.FieldType,
+                Expression.Block(property.PropertyType,
                     Expression.Call(exData, AddMethod,
                         Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(field, typeof(object))),
-                Expression.Rethrow(field.FieldType));
+                        Expression.Constant(property, typeof(object))),
+                Expression.Rethrow(property.PropertyType));
 
-            return Expression.TryCatch(base.GetResolverExpression(field, resolver),
+            return Expression.TryCatch(base.GetResolverExpression(property, resolver),
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>
             {
                 try
                 {
+#if NET40
+                    info.SetValue(context.Existing, context.Resolve(info, value), null);
+#else
                     info.SetValue(context.Existing, context.Resolve(info, value));
+#endif
                     return context.Existing;
                 }
                 catch (Exception ex)

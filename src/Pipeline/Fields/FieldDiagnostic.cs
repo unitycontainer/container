@@ -7,15 +7,14 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class FieldDiagnostic : FieldProcessor
+    public class FieldDiagnostic : FieldBuilder
     {
         #region Constructors
 
-        public FieldDiagnostic(DefaultPolicies defaults) : base(defaults)
+        public FieldDiagnostic(UnityContainer container) : base(container)
         {
         }
 

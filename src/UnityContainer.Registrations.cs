@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Extensions;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -409,11 +410,9 @@ namespace Unity
                              ? new ImplicitRegistration(factory)
                              : new ImplicitRegistration(set);
 
-            registration.BuildChain = _strategiesChain.Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
-                                                      .ToArray();
+            registration.Processors = Defaults.TypePipeline;
 
-            if (registration.LifetimeManager is IDisposable)
-                LifetimeContainer.Add(registration.LifetimeManager);
+            if (registration.LifetimeManager is IDisposable) LifetimeContainer.Add(registration.LifetimeManager);
 
             return registration;
         }

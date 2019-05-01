@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Policy;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public abstract partial class ParametersProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
+    public abstract partial class ParametersBuilder<TMemberInfo> : MemberBuilder<TMemberInfo, object[]>
                                                  where TMemberInfo : MethodBase
     {
         #region Fields
@@ -22,8 +22,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        protected ParametersProcessor(DefaultPolicies defaults, Type attribute, UnityContainer container)
-            : base(defaults)
+        protected ParametersBuilder(Type attribute, UnityContainer container)
+            : base(container)
         {
             Container = container;
             Markers = new[] { attribute };

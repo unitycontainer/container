@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Unity.Builder;
-using Unity.Exceptions;
-using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Exceptions;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
+using Unity.Registration;
+using Unity.Injection;
+using System.Text.RegularExpressions;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class ConstructorDiagnostic : ConstructorProcessor
+    public class ConstructorDiagnostic : ConstructorBuilder
     {
         #region Fields
 
@@ -69,8 +68,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        public ConstructorDiagnostic(DefaultPolicies defaults, UnityContainer container) 
-            : base(defaults, container)
+        public ConstructorDiagnostic(UnityContainer container) 
+            : base(container)
         {
         }
 
@@ -206,7 +205,7 @@ namespace Unity.Processors
 
         #region Expression Overrides
 
-        public override IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
+        public  IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
@@ -276,8 +275,11 @@ namespace Unity.Processors
 
         #region Resolver Overrides
 
-        public override ResolveDelegate<BuilderContext>? GetResolver(Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        public override ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
+                                                               Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
         {
+            var pipeline = Pipeline(container, enumerator, type, registration, seed);
+
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
 #else
@@ -286,71 +288,70 @@ namespace Unity.Processors
             // Validate if Type could be created
             if (typeInfo.IsInterface)
             {
-                return (ref BuilderContext c) =>
+                return (ref BuilderContext context) =>
                 {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructInterface, c.Type),
+                    if (null == context.Existing)
+                        throw new InvalidOperationException(string.Format(CannotConstructInterface, context.Type),
                             new InvalidRegistrationException());
 
-                    return c.Existing;
+                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
                 };
             }
 
             if (typeInfo.IsAbstract)
             {
-                return (ref BuilderContext c) =>
+                return (ref BuilderContext context) =>
                 {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, c.Type),
+                    if (null == context.Existing)
+                        throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, context.Type),
                             new InvalidRegistrationException());
 
-                    return c.Existing;
+                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
                 };
             }
 
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
             {
-                return (ref BuilderContext c) =>
+                return (ref BuilderContext context) =>
                 {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructDelegate, c.Type),
+                    if (null == context.Existing)
+                        throw new InvalidOperationException(string.Format(CannotConstructDelegate, context.Type),
                             new InvalidRegistrationException());
 
-                    return c.Existing;
+                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
                 };
             }
 
             if (type == typeof(string))
             {
-                return (ref BuilderContext c) =>
+                return (ref BuilderContext context) =>
                 {
-                    if (null == c.Existing)
-                        throw new InvalidOperationException(string.Format(TypeIsNotConstructable, c.Type),
+                    if (null == context.Existing)
+                        throw new InvalidOperationException(string.Format(TypeIsNotConstructable, context.Type),
                             new InvalidRegistrationException());
 
-                    return c.Existing;
+                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
                 };
             }
 
-
-            return base.GetResolver(type, registration, seed);
+            return base.Build(container, enumerator, type, registration, pipeline);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
-            return (ref BuilderContext c) =>
+            return (ref BuilderContext context) =>
             {
-                if (null == c.Existing)
+                if (null == context.Existing)
                 {
                     try
                     {
                         var dependencies = new object[parameterResolvers.Length];
                         for (var i = 0; i < dependencies.Length; i++)
-                            dependencies[i] = parameterResolvers[i](ref c);
+                            dependencies[i] = parameterResolvers[i](ref context);
 
-                        c.Existing = info.Invoke(dependencies);
+                        context.Existing = info.Invoke(dependencies);
                     }
                     catch (Exception ex)
                     {
@@ -359,25 +360,25 @@ namespace Unity.Processors
                     }
                 }
 
-                return c.Existing;
+                return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
+        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime
-            return (ref BuilderContext c) =>
+            return (ref BuilderContext context) =>
             {
-                if (null == c.Existing)
+                if (null == context.Existing)
                 {
                     try
                     {
                         var dependencies = new object[parameterResolvers.Length];
                         for (var i = 0; i < dependencies.Length; i++)
-                            dependencies[i] = parameterResolvers[i](ref c);
+                            dependencies[i] = parameterResolvers[i](ref context);
 
-                        c.Existing = info.Invoke(dependencies);
+                        context.Existing = info.Invoke(dependencies);
                     }
                     catch (Exception ex)
                     {
@@ -385,11 +386,11 @@ namespace Unity.Processors
                         throw;
                     }
 
-                    c.Set(typeof(LifetimeManager),
-                          new InternalPerResolveLifetimeManager(c.Existing));
+                    context.Set(typeof(LifetimeManager),
+                          new InternalPerResolveLifetimeManager(context.Existing));
                 }
 
-                return c.Existing;
+                return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
             };
         }
 

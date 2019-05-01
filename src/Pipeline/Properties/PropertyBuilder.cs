@@ -4,17 +4,17 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class PropertyProcessor : MemberProcessor<PropertyInfo, object>
+    public class PropertyBuilder : MemberBuilder<PropertyInfo, object>
     {
         #region Constructors
 
-        public PropertyProcessor(DefaultPolicies defaults)
-            : base(defaults)
+        public PropertyBuilder(UnityContainer container)
+            : base(container)
         {
         }
 

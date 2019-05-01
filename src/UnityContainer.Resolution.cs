@@ -524,75 +524,78 @@ namespace Unity
 
         private static ResolveDelegate<BuilderContext> OptimizingFactory(ref BuilderContext context)
         {
-            var counter = 3;
-            var type = context.Type;
-            var registration = context.Registration;
-            ResolveDelegate<BuilderContext>? seed = null;
-            var chain = ((UnityContainer) context.Container)._processorsChain;
+            throw new NotImplementedException();
+            //var counter = 3;
+            //var type = context.Type;
+            //var registration = context.Registration;
+            //ResolveDelegate<BuilderContext>? seed = null;
+            //var chain = ((UnityContainer) context.Container)._processorsChain;
 
-            // Generate build chain
-            foreach (var processor in chain) seed = processor.GetResolver(type, registration, seed);
+            //// Generate build chain
+            //foreach (var processor in chain) seed = processor.GetResolver(type, registration, seed);
 
-            // Return delegate
-            return (ref BuilderContext c) => 
-            {
-                // Check if optimization is required
-                if (0 == Interlocked.Decrement(ref counter))
-                {
-                    Task.Factory.StartNew(() => {
+            //// Return delegate
+            //return (ref BuilderContext c) => 
+            //{
+            //    // Check if optimization is required
+            //    if (0 == Interlocked.Decrement(ref counter))
+            //    {
+            //        Task.Factory.StartNew(() => {
 
-                        // Compile build plan on worker thread
-                        var expressions = new List<Expression>();
-                        foreach (var processor in chain)
-                        {
-                            foreach (var step in processor.GetExpressions(type, registration))
-                                expressions.Add(step);
-                        }
+            //            // Compile build plan on worker thread
+            //            var expressions = new List<Expression>();
+            //            foreach (var processor in chain)
+            //            {
+            //                foreach (var step in processor.GetExpressions(type, registration))
+            //                    expressions.Add(step);
+            //            }
 
-                        expressions.Add(BuilderContextExpression.Existing);
+            //            expressions.Add(BuilderContextExpression.Existing);
 
-                        var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
-                            Expression.Block(expressions), BuilderContextExpression.Context);
+            //            var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
+            //                Expression.Block(expressions), BuilderContextExpression.Context);
 
-                        // Replace this build plan with compiled
-                        registration.Set(typeof(ResolveDelegate<BuilderContext>), lambda.Compile());
-                    });
-                }
+            //            // Replace this build plan with compiled
+            //            registration.Set(typeof(ResolveDelegate<BuilderContext>), lambda.Compile());
+            //        });
+            //    }
 
-                return seed?.Invoke(ref c);
-            };
+            //    return seed?.Invoke(ref c);
+            //};
         }
 
         internal ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
         {
-            var expressions = new List<Expression>();
-            var type = context.Type;
-            var registration = context.Registration;
+            throw new NotImplementedException();
+            //var expressions = new List<Expression>();
+            //var type = context.Type;
+            //var registration = context.Registration;
 
-            foreach (var processor in _processorsChain)
-            {
-                foreach (var step in processor.GetExpressions(type, registration))
-                    expressions.Add(step);
-            }
+            //foreach (var processor in _processorsChain)
+            //{
+            //    foreach (var step in processor.GetExpressions(type, registration))
+            //        expressions.Add(step);
+            //}
 
-            expressions.Add(BuilderContextExpression.Existing);
+            //expressions.Add(BuilderContextExpression.Existing);
 
-            var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
-                Expression.Block(expressions), BuilderContextExpression.Context);
+            //var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
+            //    Expression.Block(expressions), BuilderContextExpression.Context);
 
-            return lambda.Compile();
+            //return lambda.Compile();
         }
 
         internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
         {
-            ResolveDelegate<BuilderContext>? seed = null;
-            var type = context.Type;
-            var registration = context.Registration;
+            throw new NotImplementedException();
+            //ResolveDelegate<BuilderContext>? seed = null;
+            //var type = context.Type;
+            //var registration = context.Registration;
 
-            foreach (var processor in _processorsChain)
-                seed = processor.GetResolver(type, registration, seed);
+            //foreach (var processor in _processorsChain)
+            //    seed = processor.GetResolver(type, registration, seed);
 
-            return seed ?? ((ref BuilderContext c) => null);
+            //return seed ?? ((ref BuilderContext c) => null);
         }
 
         #endregion
@@ -833,7 +836,7 @@ namespace Unity
                     RegistrationType = thisContext.Type,
                     Name = thisContext.Name,
                     Type = thisContext.Type,
-                    ExecutePlan = thisContext.ExecutePlan,
+                    Compose = thisContext.Compose,
                     ResolvePlan = thisContext.ResolvePlan,
                     List = thisContext.List,
                     Overrides = thisContext.Overrides,

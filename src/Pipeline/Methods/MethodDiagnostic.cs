@@ -8,16 +8,15 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class MethodDiagnostic : MethodProcessor
+    public class MethodDiagnostic : MethodBuilder
     {
         #region Constructors
 
-        public MethodDiagnostic(DefaultPolicies defaults, UnityContainer container) 
-            : base(defaults, container)
+        public MethodDiagnostic(UnityContainer container) 
+            : base(container)
         {
         }
 

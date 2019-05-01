@@ -18,9 +18,9 @@ namespace Unity.Registration
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
+            Next = null;
             LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
-            Next = null;
         }
 
 
@@ -29,19 +29,19 @@ namespace Unity.Registration
             Type = null;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
-            LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
             Next = (PolicyEntry?)validators;
+            LifetimeManager.InUse = true;
         }
 
-        public ExplicitRegistration(IPolicySet? validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+        public ExplicitRegistration(IPolicySet? validators, Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
-            LifetimeManager.InUse = true;
             InjectionMembers = injectionMembers;
             Next = (PolicyEntry?)validators;
+            LifetimeManager.InUse = true;
         }
 
         #endregion

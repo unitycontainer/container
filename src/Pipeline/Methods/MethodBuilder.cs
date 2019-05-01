@@ -8,16 +8,15 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class MethodProcessor : ParametersProcessor<MethodInfo>
+    public class MethodBuilder : ParametersBuilder<MethodInfo>
     {
         #region Constructors
 
-        public MethodProcessor(DefaultPolicies defaults, UnityContainer container)
-            : base(defaults, typeof(InjectionMethodAttribute), container)
+        public MethodBuilder(UnityContainer container)
+            : base(typeof(InjectionMethodAttribute), container)
         {
         }
 

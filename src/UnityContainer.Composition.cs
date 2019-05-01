@@ -5,10 +5,9 @@ using System.Reflection;
 using System.Text;
 using Unity.Builder;
 using Unity.Composition;
+using Unity.Pipeline;
 using Unity.Policy;
-using Unity.Processors;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity
 {
@@ -20,21 +19,25 @@ namespace Unity
 
 
 
-
-        #region Fields
-
-        private StagedStrategyChain<PipelineProcessor, CompositionStage> _processors;
-        private StagedStrategyChain<PipelineProcessor, CompositionStage> _processorsFactory;
-        private StagedStrategyChain<PipelineProcessor, CompositionStage> _processorsInstance;
-
-        #endregion
-
-
         #region Object Composition
 
-        private ComposeObjectDelegate Compose { get; set; } =
+        private ResolveDelegate<BuilderContext> Compose { get; set; } =
             (ref BuilderContext context) =>
             {
+                // Create Pipeline if required
+                if (null == context.Registration.Pipeline)
+                {
+                    // Double Check Lock
+                    lock (context.Registration)
+                    {
+                        // Make sure build plan was not yet created
+                        if (null == context.Registration.Pipeline)
+                        {
+                            context.Registration.Pipeline = ((UnityContainer)context.Container).ComposerFactory(ref context);
+                        }
+                    }
+                }
+
                 try
                 {
                     return context.Registration.Pipeline(ref context);
@@ -129,15 +132,13 @@ namespace Unity
 
         internal ResolveDelegateFactory ComposerFactory = (ref BuilderContext context) =>
         {
-            var container = (UnityContainer)context.Container;
-            ResolveDelegate<BuilderContext>? seedMethod = null;
+            var enumerator = context.Registration.Processors?.GetEnumerator();
 
-            //// Build chain
-            foreach (var strategy in context.Registration.Processors ?? container._processorsChain)
-                seedMethod = strategy.GetResolver(context.RegistrationType, context.Registration, seedMethod);
+            //PipelineContext pipeline = new PipelineContext(ref context);
 
-            // Assemble composer
-            return seedMethod ?? ((ref BuilderContext c) => null); 
+            return enumerator?.MoveNext() ?? false 
+                ? enumerator.Current.Build((UnityContainer)context.Container, enumerator, context.Type, context.Registration, null)
+                : ((ref BuilderContext c) => null);
         };
 
 

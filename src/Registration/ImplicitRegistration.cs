@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Unity.Builder;
 using Unity.Composition;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Processors;
 using Unity.Resolution;
@@ -56,21 +58,21 @@ namespace Unity.Registration
 
         #region Public Members
 
-        public virtual ResolveDelegate<BuilderContext> Pipeline { get; set; }
+        public virtual ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
-        public virtual PipelineProcessor[]? Processors { get; set; }
+        public virtual IEnumerable<PipelineBuilder>? Processors { get; set; }
 
-        public virtual BuilderStrategy[]? BuildChain { get; set; }
+        public virtual BuilderStrategy[]? BuildChain { get; set; } // TODO: Remove
 
         public InjectionMember[]? InjectionMembers { get; set; }
 
         public bool BuildRequired { get; set; }
 
-        public Converter<Type, Type?>? Map { get; set; }
+        public Converter<Type, Type>? Map { get; set; }
 
-        public LifetimeManager? LifetimeManager
+        public LifetimeManager LifetimeManager
         {
-            get => Value as LifetimeManager; 
+            get => (LifetimeManager)(Value ?? TransientLifetimeManager.Instance); 
             set => Value = value;
         }
 

@@ -4,7 +4,6 @@ using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Processors;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -40,13 +39,6 @@ namespace Unity.Extension
         /// </summary>
         /// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that the container uses to build objects.</value>
         public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies { get; }
-
-        /// <summary>
-        /// The strategies this container uses to construct build plans.
-        /// </summary>
-        /// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that this container uses when creating
-        /// build plans.</value>
-        public abstract IStagedStrategyChain<PipelineProcessor, CompositionStage> BuildPlanStrategies { get; }
 
         #endregion
 

@@ -6,16 +6,15 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public class FieldProcessor : MemberProcessor<FieldInfo, object>
+    public class FieldBuilder : MemberBuilder<FieldInfo, object>
     {
         #region Constructors
 
-        public FieldProcessor(DefaultPolicies defaults)
-            : base(defaults)
+        public FieldBuilder(UnityContainer container)
+            : base(container)
         {
         }
 

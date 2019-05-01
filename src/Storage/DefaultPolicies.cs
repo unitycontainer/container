@@ -1,20 +1,92 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Composition;
-using Unity.Storage;
+using Unity.Lifetime;
+using Unity.Pipeline;
+using Unity.Policy;
 
-namespace Unity.Policy
+namespace Unity.Storage
 {
     public class DefaultPolicies : PolicySet
     {
+        #region Fields
+
+        private StagedStrategyChain<PipelineBuilder, PipelineStage> _typeStages;
+        private StagedStrategyChain<PipelineBuilder, PipelineStage> _factoryStages;
+        private StagedStrategyChain<PipelineBuilder, PipelineStage> _instanceStages;
+
+        #endregion
+
+
         #region Constructors
+
+        // Non-nullable field is uninitialized.
+        #pragma warning disable CS8618 
 
         public DefaultPolicies(ResolveDelegateFactory factory)
             : base(typeof(ResolveDelegateFactory), factory)
         {
         }
 
+
+        #pragma warning restore CS8618
         #endregion
+
+
+        #region Pipelines
+
+        public PipelineBuilder[] TypePipeline { get; private set; }
+        public StagedStrategyChain<PipelineBuilder, PipelineStage> TypeStages
+        {
+            get => _typeStages;
+            set
+            {
+                _typeStages = value;
+                _typeStages.Invalidated += (s, e) => TypePipeline = _typeStages.ToArray();
+
+                TypePipeline = _typeStages.ToArray();
+            }
+        }
+
+        public PipelineBuilder[] FactoryPipeline { get; private set; }
+        public StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryStages
+        {
+            get => _factoryStages;
+            set
+            {
+                _factoryStages = value;
+                _factoryStages.Invalidated += (s, e) => FactoryPipeline = _factoryStages.ToArray();
+
+                FactoryPipeline = _factoryStages.ToArray();
+            }
+        }
+
+        public PipelineBuilder[] InstancePipeline { get; private set; }
+        public StagedStrategyChain<PipelineBuilder, PipelineStage> InstanceStages
+        {
+            get => _instanceStages;
+            set
+            {
+                _instanceStages = value;
+                _instanceStages.Invalidated += (s, e) => InstancePipeline = _instanceStages.ToArray();
+
+                InstancePipeline = _instanceStages.ToArray();
+            }
+        }
+
+        #endregion
+
+
+        #region Default Lifetime
+
+        public ITypeLifetimeManager TypeLifetimeManager { get; set; }
+
+        public IFactoryLifetimeManager FactoryLifetimeManager { get; set; }
+
+        public IInstanceLifetimeManager InstanceLifetimeManager { get; set; }
+
+        #endregion
+
 
 
         #region Public Members
@@ -29,9 +101,9 @@ namespace Unity.Policy
 
         public ISelect<FieldInfo> FieldsSelector { get; set; }
 
-        public ResolveDelegateFactory ResolveDelegateFactory
+        public ResolveDelegateFactory? ResolveDelegateFactory
         {
-            get => (ResolveDelegateFactory)Value;
+            get => (ResolveDelegateFactory?)Value;
             set => Value = value;
         }
 
@@ -40,7 +112,7 @@ namespace Unity.Policy
 
         #region PolicySet
 
-        public override object Get(Type policyInterface)
+        public override object? Get(Type policyInterface)
         {
             return policyInterface switch
             {

@@ -172,7 +172,7 @@ namespace Unity.Builder
 #if !NET40
         public IntPtr Parent;
 #endif
-        public ExecutePlanDelegate ExecutePlan;
+        public ResolveDelegate<BuilderContext> Compose;
 
         public ResolvePlanDelegate ResolvePlan;
 
@@ -194,17 +194,17 @@ namespace Unity.Builder
                     Name = name,
                     Type = registration is ExplicitRegistration containerRegistration 
                          ? containerRegistration.Type ?? type : type,
-                    ExecutePlan = ExecutePlan,
                     ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
+                    Compose = Compose,
 #if !NET40
                     Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
 #endif
                 };
 
-                return ExecutePlan(registration.BuildChain ?? new BuilderStrategy[0], ref context);
+                return Compose(ref context);
             }
         }
 

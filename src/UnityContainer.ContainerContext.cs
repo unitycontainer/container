@@ -54,14 +54,6 @@ namespace Unity
                 }
             }
 
-            public override IStagedStrategyChain<PipelineProcessor, CompositionStage> BuildPlanStrategies
-            {
-                get
-                {
-                    return _container._processors;
-                }
-            }
-
             public override IPolicyList Policies { get; }
 
             public override ILifetimeContainer Lifetime => _container.LifetimeContainer;

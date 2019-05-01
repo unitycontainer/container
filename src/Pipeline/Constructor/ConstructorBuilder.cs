@@ -7,16 +7,15 @@ using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Storage;
 
-namespace Unity.Processors
+namespace Unity.Pipeline
 {
-    public partial class ConstructorProcessor : ParametersProcessor<ConstructorInfo>
+    public partial class ConstructorBuilder : ParametersBuilder<ConstructorInfo>
     {
         #region Constructors
 
-        public ConstructorProcessor(DefaultPolicies defaults, UnityContainer container)
-            : base(defaults, typeof(InjectionConstructorAttribute), container)
+        public ConstructorBuilder(UnityContainer container)
+            : base(typeof(InjectionConstructorAttribute), container)
         {
             SelectMethod = SmartSelector;
         }

@@ -9,6 +9,7 @@ using Unity.Extension;
 using Unity.Extensions;
 using Unity.Factories;
 using Unity.Lifetime;
+using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -35,9 +36,62 @@ namespace Unity
             _metadata = new Registry<Type, int[]>();
             _registry = new Registry<NamedType, IPolicySet>();
 
+            Register = AddOrReplace;
 
+
+            /////////////////////////////////////////////////////////////
             // Defaults
-            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(OptimizingFactory));
+
+            // Builders
+            var lifetimeBuilder    = new LifetimeBuilder();
+            var mappingBuilder     = new MappingBuilder();
+            var factoryBuilder     = new FactoryBuilder();
+            var constructorBuilder = new ConstructorBuilder(this);
+            var fieldsBuilder      = new FieldBuilder(this);
+            var propertiesBuilder  = new PropertyBuilder(this);
+            var methodsBuilder     = new MethodBuilder(this);
+
+            // Add Defaults to Registry
+            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(OptimizingFactory)
+            {
+                // Build Stages
+                TypeStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                {
+                    { lifetimeBuilder,    PipelineStage.Lifetime },
+                    { mappingBuilder,     PipelineStage.TypeMapping },
+                    { factoryBuilder, PipelineStage.Factory },
+                    { constructorBuilder, PipelineStage.Creation },
+                    { fieldsBuilder,      PipelineStage.Fields },
+                    { propertiesBuilder,  PipelineStage.Properties },
+                    { methodsBuilder,     PipelineStage.Methods }
+                },
+
+                FactoryStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                {
+                    { lifetimeBuilder, PipelineStage.Lifetime },
+                    { factoryBuilder,  PipelineStage.Factory }
+                },
+
+                InstanceStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                {
+                    { lifetimeBuilder, PipelineStage.Lifetime },
+                },
+
+                // Selectors
+                CtorSelector       = constructorBuilder,
+                FieldsSelector     = fieldsBuilder,
+                PropertiesSelector = propertiesBuilder,
+                MethodsSelector    = methodsBuilder,
+
+                // Default registration lifetime
+                TypeLifetimeManager     = TransientLifetimeManager.Instance,
+                FactoryLifetimeManager  = TransientLifetimeManager.Instance,
+                InstanceLifetimeManager = InstanceLifetime.PerContainer,
+            });
+
+            
+            /////////////////////////////////////////////////////////////
+            //Built-In Registrations
 
             // Register Container as IUnityContainer & IUnityContainerAsync
             var container = new ImplicitRegistration((ref BuilderContext c) => c.Container);
@@ -53,10 +107,6 @@ namespace Unity
             _registry.Set(typeof(IEnumerable<>), new PolicySet(typeof(ResolveDelegateFactory), EnumerableResolver.Factory)); // Enumerable
             _registry.Set(typeof(IRegex<>), new PolicySet(typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
 
-
-
-            // Register method
-            Register = AddOrReplace;
 
             /////////////////////////////////////////////////////////////
             // Container Specific
@@ -78,9 +128,6 @@ namespace Unity
             // Update on change
             _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray();
             _strategiesChain = _strategies.ToArray();
-
-            // Default Policies and Strategies
-            SetDefaultPolicies(this);
         }
 
         #endregion

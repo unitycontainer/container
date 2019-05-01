@@ -1,6 +1,6 @@
 ﻿
 
-namespace Unity
+namespace Unity.Pipeline
 {
     /// <summary>
     /// Enumeration to represent the object composition stages.
@@ -8,7 +8,7 @@ namespace Unity
     /// <remarks>
     /// <para>The order of the values in the enumeration is the order in which the stages are run.</para>
     /// </remarks>
-    public enum CompositionStage
+    public enum PipelineStage
     {
         /// <summary>
         /// First stage. By default, nothing happens here.
@@ -30,6 +30,16 @@ namespace Unity
         /// Type mapping and type conversion occurs here.
         /// </summary>
         TypeMapping,
+
+        /// <summary>
+        /// Stage where Resolver is located if present.
+        /// </summary>
+        Resolver,
+
+        /// <summary>
+        /// Stage where Resolver Factory is located if present.
+        /// </summary>
+        Factory,
 
         /// <summary>
         /// Strategies in this stage run before creation. Typical work done in this stage might
