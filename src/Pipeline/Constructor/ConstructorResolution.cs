@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Pipeline
@@ -18,15 +16,14 @@ namespace Unity.Pipeline
         #region PipelineBuilder
 
 
-        public override ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
-                                                               Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            if (null != seed) return Pipeline(container, enumerator, type, registration, seed);
+            if (null != builder.Seed) return builder.Pipeline();
 
             // Select ConstructorInfo
-            var pipeline = Pipeline(container, enumerator, type, registration, seed);
-            var selector = GetOrDefault(registration);
-            var selection = selector.Select(type, registration)
+            var pipeline = builder.Pipeline();
+            var selector = GetOrDefault(builder.Registration);
+            var selection = selector.Select(builder.Type, builder.Registration)
                                     .FirstOrDefault();
 
             // Select constructor for the Type
@@ -40,7 +37,7 @@ namespace Unity.Pipeline
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
-                    info = injectionMember.MemberInfo(type);
+                    info = injectionMember.MemberInfo(builder.Type);
                     resolvers = injectionMember.Data;
                     break;
 
@@ -64,7 +61,7 @@ namespace Unity.Pipeline
                     };
             }
 
-            var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager?)builder.Registration.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
                 ? GetPerResolveDelegate(info, resolvers, pipeline)

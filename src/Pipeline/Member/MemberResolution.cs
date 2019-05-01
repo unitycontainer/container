@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Pipeline
@@ -15,15 +14,14 @@ namespace Unity.Pipeline
 
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
-                                                               Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            if (null != seed) return Pipeline(container, enumerator, type, registration, seed);
+            if (null != builder.Seed) return builder.Pipeline();
 
-            var pipeline = Pipeline(container, enumerator, type, registration, seed);
-            var selector = GetOrDefault(registration);
-            var members = selector.Select(type, registration);
-            var resolvers = ResolversFromSelection(type, members).ToArray();
+            var pipeline = builder.Pipeline();
+            var selector = GetOrDefault(builder.Registration);
+            var members = selector.Select(builder.Type, builder.Registration);
+            var resolvers = ResolversFromSelection(builder.Type, members).ToArray();
 
             return 0 == resolvers.Length 
                 ? pipeline 

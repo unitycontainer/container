@@ -14,17 +14,7 @@ namespace Unity.Pipeline
         public abstract IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
                                                       Type type, ImplicitRegistration registration);
 
-        public abstract ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
-                                                              Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed);
-
-        #endregion
-
-
-        #region Implementation
-
-        protected virtual ResolveDelegate<BuilderContext>? Pipeline(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
-                                                                   Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed) 
-            => enumerator.MoveNext() ? enumerator.Current.Build(container, enumerator, type, registration, seed) : seed;
+        public virtual ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder) => builder.Pipeline();
 
         #endregion
     }

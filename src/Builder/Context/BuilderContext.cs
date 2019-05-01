@@ -422,19 +422,6 @@ namespace Unity.Builder
                    ((UnityContainer)Container).Defaults.ResolveDelegateFactory;
         }
 
-        public TPolicyInterface GetPolicy<TPolicyInterface>()
-        {
-            return (TPolicyInterface) (Get(typeof(TPolicyInterface)) ?? (
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                RegistrationType.GetTypeInfo().IsGenericType
-#else
-                RegistrationType.IsGenericType
-#endif
-                ? Get(RegistrationType.GetGenericTypeDefinition(), Name, typeof(TPolicyInterface)) ?? 
-                    ((UnityContainer)Container).Defaults.Get(typeof(TPolicyInterface))
-                : ((UnityContainer)Container).Defaults.Get(typeof(TPolicyInterface))));
-        }
-
         #endregion
     }
 }

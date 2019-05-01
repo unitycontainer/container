@@ -17,11 +17,10 @@ namespace Unity.Pipeline
             yield break;
         }
 
-        public override ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
-                                                               Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            var lifetime = registration.LifetimeManager;
-            var pipeline = Pipeline(container, enumerator, type, registration, seed);
+            var lifetime = builder.Registration.LifetimeManager;
+            var pipeline = builder.Pipeline();
 
             if (null == lifetime || lifetime is TransientLifetimeManager) return pipeline;
 

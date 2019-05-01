@@ -275,10 +275,11 @@ namespace Unity.Pipeline
 
         #region Resolver Overrides
 
-        public override ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
-                                                               Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            var pipeline = Pipeline(container, enumerator, type, registration, seed);
+            if (null != builder.Seed) return builder.Pipeline();
+
+            var type = builder.Type;
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
@@ -288,6 +289,7 @@ namespace Unity.Pipeline
             // Validate if Type could be created
             if (typeInfo.IsInterface)
             {
+                var pipeline = builder.Pipeline();
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
@@ -300,6 +302,7 @@ namespace Unity.Pipeline
 
             if (typeInfo.IsAbstract)
             {
+                var pipeline = builder.Pipeline();
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
@@ -312,6 +315,7 @@ namespace Unity.Pipeline
 
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
             {
+                var pipeline = builder.Pipeline();
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
@@ -324,6 +328,7 @@ namespace Unity.Pipeline
 
             if (type == typeof(string))
             {
+                var pipeline = builder.Pipeline();
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
@@ -334,7 +339,7 @@ namespace Unity.Pipeline
                 };
             }
 
-            return base.Build(container, enumerator, type, registration, pipeline);
+            return base.Build(ref builder);
         }
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)

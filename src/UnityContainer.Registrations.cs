@@ -21,7 +21,7 @@ namespace Unity
             var hashCode = type?.GetHashCode() ?? 0;
 
             // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
                 if (null == container._metadata) continue;
@@ -54,10 +54,10 @@ namespace Unity
 #endif
 
             // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
-                if (null == container._metadata) continue;
+                if (null == container._metadata || null == container._registry) continue;
 
                 var registry = container._registry;
 
@@ -110,10 +110,10 @@ namespace Unity
             int hashExact = NamedType.GetHashCode(type, name);
 
             // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
-                if (null == container._metadata) continue;
+                if (null == container._metadata || null == container._registry) continue;
 
                 var registry = container._registry;
 
@@ -156,10 +156,10 @@ namespace Unity
 #endif
 
             // Iterate through containers hierarchy
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
-                if (null == container._metadata) continue;
+                if (null == container._metadata || null == container._registry) continue;
 
                 var registry = container._registry;
 
@@ -210,6 +210,10 @@ namespace Unity
 
 
         #region Registration manipulations
+
+        // Possible dereference of a null reference.
+        #pragma warning disable CS8602
+
 
         private ImplicitRegistration? InitAndAdd(Type type, string? name, ImplicitRegistration registration)
         {
@@ -372,33 +376,7 @@ namespace Unity
             }
         }
 
-        private IEnumerable<IPolicySet> AddOrReplaceRegistrations(IEnumerable<Type> interfaces, string? name, ExplicitRegistration registration)
-        {
-            int count = 0;
-
-            if (null != interfaces)
-            {
-                foreach (var type in interfaces)
-                {
-                    // Add or replace existing 
-                    var previous = Register(type, name, registration);
-                    if (null != previous) yield return previous;
-
-                    count++;
-                }
-            }
-
-            if (0 == count)
-            {
-                // TODO: Move to diagnostic
-                if (null == registration.Type) throw new ArgumentNullException(nameof(interfaces));
-
-                // Add or replace existing 
-                var previous = Register(registration.Type, name, registration);
-                if (null != previous) yield return previous;
-            }
-        }
-
+        #pragma warning restore CS8602
         #endregion
 
 

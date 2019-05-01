@@ -17,28 +17,29 @@ namespace Unity.Pipeline
             yield break;
         }
 
-        public override ResolveDelegate<BuilderContext>? Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
-                                                               Type type, ImplicitRegistration registration, ResolveDelegate<BuilderContext>? seed)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            var request = type;
+            var request = builder.Type;
 
             // Implicit Registration
-            if (registration is ExplicitRegistration explicitRegistration)
+            if (builder.Registration is ExplicitRegistration explicitRegistration)
             {
-                type = explicitRegistration.Type ?? type;
+                builder.Type = explicitRegistration.Type ?? builder.Type;
             }
             else
             {
-                if (null != registration.Map) type = registration.Map(type);
+                if (null != builder.Registration.Map) builder.Type = builder.Registration.Map(builder.Type);
             }
 
-            if (registration.BuildRequired || request == type)
-                return Pipeline(container, enumerator, type, registration, seed);
+            if (builder.Registration.BuildRequired || request == builder.Type)
+                return builder.Pipeline();
 
-            if (container.IsRegistered(type))
+            var type = builder.Type;
+
+            if (builder.Container.IsRegistered(type))
                 return (ref BuilderContext context) => context.Resolve(type, context.Name);
 
-            var pipeline = Pipeline(container, enumerator, type, registration, seed);
+            var pipeline = builder.Pipeline();
             return (ref BuilderContext context) =>
             {
                 if (context.Container.IsRegistered(context.Type, context.Name))

@@ -132,13 +132,9 @@ namespace Unity
 
         internal ResolveDelegateFactory ComposerFactory = (ref BuilderContext context) =>
         {
-            var enumerator = context.Registration.Processors?.GetEnumerator();
+            PipelineContext builder = new PipelineContext(ref context);
 
-            //PipelineContext pipeline = new PipelineContext(ref context);
-
-            return enumerator?.MoveNext() ?? false 
-                ? enumerator.Current.Build((UnityContainer)context.Container, enumerator, context.Type, context.Registration, null)
-                : ((ref BuilderContext c) => null);
+            return builder.Pipeline();
         };
 
 
