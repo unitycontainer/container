@@ -9,8 +9,7 @@ namespace Unity.Extension
     {
         protected override void Initialize()
         {
-            var strategies = (StagedStrategyChain<MemberProcessor, BuilderStage>)Context.BuildPlanStrategies;
-            var processor = (ConstructorProcessor)strategies.First(s => s is ConstructorProcessor);
+            var processor = (ConstructorProcessor)Context.BuildPlanStrategies.First(s => s is ConstructorProcessor);
 
             processor.SelectMethod = processor.LegacySelector;
         }

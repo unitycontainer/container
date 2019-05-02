@@ -11,8 +11,7 @@ namespace Unity.Storage
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"></typeparam>
-    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>, 
-                                                                  IEnumerable<TStrategyType>
+    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>
     {
         #region Fields
 
