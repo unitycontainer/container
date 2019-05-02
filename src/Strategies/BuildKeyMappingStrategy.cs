@@ -40,7 +40,7 @@ namespace Unity.Strategies
                     if (targetTypeInfo.IsGenericTypeDefinition)
                     {
                         // No need to perform a mapping - the source type is an open generic
-                        return containerRegistration.Type;
+                        return containerRegistration.Type ?? throw new InvalidOperationException("Should never be null");
                     }
 
                     if (targetTypeInfo.GenericTypeArguments.Length != containerRegistration.Type.GetTypeInfo().GenericTypeParameters.Length)
@@ -48,7 +48,8 @@ namespace Unity.Strategies
 
                     try
                     {
-                        return containerRegistration.Type?.MakeGenericType(targetTypeInfo.GenericTypeArguments);
+                        return containerRegistration.Type?.MakeGenericType(targetTypeInfo.GenericTypeArguments) ?? 
+                            throw new InvalidOperationException("Should never be null");
                     }
                     catch (ArgumentException ae)
                     {

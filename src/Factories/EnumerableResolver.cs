@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Factories
 {
@@ -22,16 +22,15 @@ namespace Unity.Factories
         #endregion
 
 
-        #region ResolveDelegateFactory
+        #region TypeResolverFactory
 
-        public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
+        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
         {
-
 #if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40
-            var typeArgument = context.Type.GetTypeInfo().GenericTypeArguments.First();
+            var typeArgument = type.GetTypeInfo().GenericTypeArguments.First();
             if (typeArgument.GetTypeInfo().IsGenericType)
 #else
-            var typeArgument = context.Type.GenericTypeArguments.First();
+            var typeArgument = type.GenericTypeArguments.First();
             if (typeArgument.IsGenericType)
 #endif
             {

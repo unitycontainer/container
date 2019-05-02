@@ -52,6 +52,45 @@ namespace Unity.Pipeline
         public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
                                                       Type type, ImplicitRegistration registration)
         {
+            //// Select ConstructorInfo
+            //var selector = GetOrDefault(registration);
+            //var selection = selector.Select(type, registration)
+            //                        .FirstOrDefault();
+
+            //// Select constructor for the Type
+            //object[]? resolvers = null;
+            //ConstructorInfo? info = null;
+            //IEnumerable<Expression> parametersExpr;
+
+            //switch (selection)
+            //{
+            //    case ConstructorInfo memberInfo:
+            //        info = memberInfo;
+            //        parametersExpr = CreateParameterExpressions(info.GetParameters());
+            //        break;
+
+            //    case MethodBase<ConstructorInfo> injectionMember:
+            //        info = injectionMember.MemberInfo(type);
+            //        resolvers = injectionMember.Data;
+            //        parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
+            //        break;
+
+            //    case Exception exception:
+            //        return new[] {Expression.IfThen(
+            //            Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            //            Expression.Throw(Expression.Constant(exception)))};
+
+            //    default:
+            //        return NoConstructorExpr;
+            //}
+
+            //// Get lifetime manager
+            //var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
+
+            //return lifetimeManager is PerResolveLifetimeManager
+            //    ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }
+            //    : new Expression[] { GetResolverExpression(info, resolvers) };
+
             yield break;
         }
 
@@ -59,48 +98,6 @@ namespace Unity.Pipeline
 
 
         #region Overrides
-
-        public IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
-        {
-            // Select ConstructorInfo
-            var selector = GetOrDefault(registration);
-            var selection = selector.Select(type, registration)
-                                    .FirstOrDefault();
-
-            // Select constructor for the Type
-            object[]? resolvers = null;
-            ConstructorInfo? info = null;
-            IEnumerable<Expression> parametersExpr;
-
-            switch (selection)
-            {
-                case ConstructorInfo memberInfo:
-                    info = memberInfo;
-                    parametersExpr = CreateParameterExpressions(info.GetParameters());
-                    break;
-
-                case MethodBase<ConstructorInfo> injectionMember:
-                    info = injectionMember.MemberInfo(type);
-                    resolvers = injectionMember.Data;
-                    parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
-                    break;
-
-                case Exception exception:
-                    return new[] {Expression.IfThen(
-                        Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                        Expression.Throw(Expression.Constant(exception)))};
-
-                default:
-                    return NoConstructorExpr;
-            }
-
-            // Get lifetime manager
-            var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
-
-            return lifetimeManager is PerResolveLifetimeManager
-                ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }
-                : new Expression[] { GetResolverExpression(info, resolvers) };
-        }
 
         protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {

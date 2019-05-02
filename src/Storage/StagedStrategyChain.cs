@@ -18,10 +18,10 @@ namespace Unity.Storage
 
         private static readonly int _size = typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         private readonly object _lockObject = new object();
-        private readonly StagedStrategyChain<TStrategyType, TStageEnum> _innerChain;
-        private readonly IList<TStrategyType>[] _stages =  new IList<TStrategyType>[_size];
+        private readonly StagedStrategyChain<TStrategyType, TStageEnum>? _innerChain;
+        private readonly IList<TStrategyType>[] _stages = new IList<TStrategyType>[_size];
 
-        private TStrategyType[] _cache;
+        private TStrategyType[]? _cache;
 
         #endregion
 
@@ -32,8 +32,11 @@ namespace Unity.Storage
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType,TStageEnum}"/> class.
         /// </summary>
         public StagedStrategyChain()
-            : this(null)
         {
+            for (var i = 0; i < _stages.Length; ++i)
+            {
+                _stages[i] = new List<TStrategyType>();
+            }
         }
 
         /// <summary>

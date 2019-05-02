@@ -32,7 +32,7 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
+                policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
             if (null == policy) return;
 
@@ -55,7 +55,7 @@ namespace Unity.Strategies
                 policy = registration.LifetimeManager;
 
             if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
+                policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
             policy?.SetValue(context.Existing, context.Lifetime);
         }

@@ -192,7 +192,7 @@ namespace Unity
         IUnityContainerAsync IUnityContainerAsync.CreateChildContainer() => CreateChildContainer();
 
         /// <inheritdoc />
-        IUnityContainerAsync IUnityContainerAsync.Parent => _parent;
+        IUnityContainerAsync? IUnityContainerAsync.Parent => _parent;
 
         #endregion
     }

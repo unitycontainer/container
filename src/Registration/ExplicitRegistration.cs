@@ -16,10 +16,9 @@ namespace Unity.Registration
         public ExplicitRegistration(UnityContainer owner, string? name, Type? mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
             : base(owner, name)
         {
-            Type = mappedTo;
-            Key = typeof(LifetimeManager);
-            Value = lifetimeManager;
             Next = null;
+            Type = mappedTo;
+            LifetimeManager = lifetimeManager;
             InjectionMembers = injectionMembers;
         }
 
@@ -28,8 +27,7 @@ namespace Unity.Registration
             : base(owner, name)
         {
             Type = null;
-            Key = typeof(LifetimeManager);
-            Value = lifetimeManager;
+            LifetimeManager = lifetimeManager;
             InjectionMembers = injectionMembers;
             Next = (PolicyEntry?)validators;
         }
@@ -38,8 +36,7 @@ namespace Unity.Registration
             : base(owner, name)
         {
             Type = mappedTo;
-            Key = typeof(LifetimeManager);
-            Value = lifetimeManager;
+            LifetimeManager = lifetimeManager;
             InjectionMembers = injectionMembers;
             Next = (PolicyEntry?)validators;
         }

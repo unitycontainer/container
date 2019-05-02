@@ -52,7 +52,7 @@ namespace Unity
             var methodsBuilder     = new MethodBuilder(this);
 
             // Add Defaults to Registry
-            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(this, OptimizingFactory)
+            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(this)
             {
                 // Build Stages
                 TypeStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
@@ -99,13 +99,13 @@ namespace Unity
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
             // Built-In Features
-            var func = new PolicySet(this, typeof(ResolveDelegateFactory), FuncResolver.Factory);
-            func.Set(typeof(LifetimeManager), new PerResolveLifetimeManager());
-
-            _registry.Set(typeof(Func<>), func);                                                                                   // Func<> Factory
-            _registry.Set(typeof(Lazy<>),        new PolicySet(this, typeof(ResolveDelegateFactory), LazyResolver.Factory));       // Lazy<>
-            _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(ResolveDelegateFactory), EnumerableResolver.Factory)); // Enumerable
-            _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(ResolveDelegateFactory), RegExResolver.Factory));      // Regular Expression Enumerable
+            var func = new PolicySet(this);
+            _registry.Set(typeof(Func<>), func);  
+                 func.Set(typeof(LifetimeManager),     new PerResolveLifetimeManager());
+                 func.Set(typeof(TypeResolverFactory), FuncResolver.Factory);                                                   // Func<> Factory
+            _registry.Set(typeof(Lazy<>),        new PolicySet(this, typeof(TypeResolverFactory), LazyResolver.Factory));       // Lazy<>
+            _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(TypeResolverFactory), EnumerableResolver.Factory)); // Enumerable
+            _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(TypeResolverFactory), RegExResolver.Factory));      // Regular Expression Enumerable
 
 
             /////////////////////////////////////////////////////////////
@@ -122,7 +122,6 @@ namespace Unity
             {
                 {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
                 {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
-                {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
             };
 
             // Update on change
@@ -182,7 +181,6 @@ namespace Unity
                 };
                 set.Add(_root._registry.Entries[2].HashCode, typeof(IUnityContainerAsync));
 
-                Type type;
                 // Scan containers for explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
                 {
@@ -193,19 +191,19 @@ namespace Unity
                     var registry = container._registry;
                     for (var i = 0; i < registry.Count; i++)
                     {
-                        if (!(registry.Entries[i].Value is ExplicitRegistration registration)) continue;
+                        var type = registry.Entries[i].Type;
+                        var registration = registry.Entries[i].Value as ExplicitRegistration;
 
-                        type = registry.Entries[i].Type;
-                        if (set.Add(registry.Entries[i].HashCode, type))
+                        if (null == registration || !set.Add(registry.Entries[i].HashCode, type))
+                            continue;
+
+                        yield return new ContainerRegistrationStruct
                         {
-                            yield return new ContainerRegistrationStruct
-                            {
-                                RegisteredType = type,
-                                Name = registry.Entries[i].Type.Name,
-                                LifetimeManager = registration.LifetimeManager ?? TransientLifetimeManager.Instance,
-                                MappedToType = registration.Type,
-                            };
-                        }
+                            RegisteredType = type,
+                            Name = registration.Name,
+                            MappedToType = registration.Type,
+                            LifetimeManager = registration.LifetimeManager ?? TransientLifetimeManager.Instance,
+                        };
                     }
                 }
             }

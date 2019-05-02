@@ -41,7 +41,8 @@ namespace Unity.Pipeline
 
 
             // Try finding factory
-            ResolveDelegateFactory? factory = builder.Registration.Get<ResolveDelegateFactory>();
+            TypeResolverFactory? factory = builder.Registration.Get<TypeResolverFactory>();
+
             if (builder.Registration is ExplicitRegistration registration)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
@@ -50,10 +51,14 @@ namespace Unity.Pipeline
                 if (null != builder.Type && builder.Type.IsGenericType)
 #endif
                 {
-                    factory = (ResolveDelegateFactory?)builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(),
-                                                                                   typeof(ResolveDelegateFactory));
+                    factory = (TypeResolverFactory?)builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(),
+                                                                                   typeof(TypeResolverFactory));
                 }
-                else if (builder.Type.IsArray) return builder.Pipeline((ref BuilderContext context) => ArrayResolver.Factory(ref context)(ref context));
+                else if (builder.Type.IsArray)
+                {
+                    var resolve = ArrayResolver.Factory(builder.Type, builder.Registration);
+                    return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
+                }
             }
             else
             {
@@ -63,14 +68,17 @@ namespace Unity.Pipeline
                 if (builder.Type.IsGenericType)
 #endif
                 {
-                    factory = (ResolveDelegateFactory?)builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(),
-                                                                                   typeof(ResolveDelegateFactory));
+                    factory = (TypeResolverFactory?)builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(),
+                                                                                   typeof(TypeResolverFactory));
                 }
-                else if (builder.Type.IsArray) return builder.Pipeline((ref BuilderContext context) => ArrayResolver.Factory(ref context)(ref context));
+                else if (builder.Type.IsArray)
+                {
+                    return builder.Pipeline(ArrayResolver.Factory(builder.Type, builder.Registration));
+                }
             }
 
-            return null != factory 
-                ? builder.Pipeline((ref BuilderContext context) => factory(ref context))
+            return null != factory
+                ? builder.Pipeline(factory(builder.Type, builder.Registration))
                 : builder.Pipeline();
         }
 

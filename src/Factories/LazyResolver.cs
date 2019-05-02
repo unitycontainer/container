@@ -2,8 +2,8 @@
 using System.Reflection;
 using Unity.Builder;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Factories
 {
@@ -22,11 +22,11 @@ namespace Unity.Factories
         #endregion
 
 
-        #region ResolveDelegateFactory
+        #region TypeResolverFactory
 
-        public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
+        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
         {
-            var itemType = context.Type.GetTypeInfo().GenericTypeArguments[0];
+            var itemType = type.GetTypeInfo().GenericTypeArguments[0];
             var lazyMethod = ImplementationMethod.MakeGenericMethod(itemType);
 
             return (ResolveDelegate<BuilderContext>)lazyMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));

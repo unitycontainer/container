@@ -17,7 +17,7 @@ namespace Unity.Lifetime
     {
         private readonly List<object> _items = new List<object>();
 
-        public LifetimeContainer(IUnityContainer owner = null)
+        public LifetimeContainer(UnityContainer owner)
         {
             Container = owner;
         }

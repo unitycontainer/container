@@ -51,11 +51,13 @@ namespace Unity
                 }
             };
 
-        private object ValidatingComposePlan(ref BuilderContext context)
+        private object? ValidatingComposePlan(ref BuilderContext context)
         {
             try
             {
+#pragma warning disable CS8602 // Possible dereference of a null reference.
                 return context.Registration.Pipeline(ref context);
+#pragma warning restore CS8602 // Possible dereference of a null reference.
             }
             catch (Exception ex)
             {

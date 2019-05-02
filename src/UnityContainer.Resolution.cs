@@ -2,12 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extensions;
@@ -117,7 +114,7 @@ namespace Unity
                             try
                             {
                                 var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), registry.Entries[index].Type.Name, registration);
+                                value = (TElement)resolve(typeof(TElement), registration.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -177,7 +174,7 @@ namespace Unity
                             try
                             {
                                 var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), registry.Entries[index].Type.Name, registration);
+                                value = (TElement)resolve(typeof(TElement), registration.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -196,7 +193,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Type.Name;
+                        var key = registry.Entries[index].Value is ImplicitRegistration policySet 
+                                ? policySet.Name 
+                                : null;
 
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
@@ -297,7 +296,10 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Type.Name;
+                        var name = registry.Entries[index].Value is ImplicitRegistration policySet 
+                                 ? policySet.Name 
+                                 : null;
+
                         if (null == name) continue;
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
@@ -342,7 +344,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Type.Name;
+                        var name = registry.Entries[index].Value is ImplicitRegistration policySet
+                                 ? policySet.Name
+                                 : null;
 
                         if (null == name) continue;
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
@@ -369,7 +373,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Type.Name;
+                        var key = registry.Entries[index].Value is ImplicitRegistration policySet
+                                ? policySet.Name
+                                : null;
 
                         if (null == key) continue;
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
@@ -415,7 +421,10 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Type.Name;
+                        var name = registry.Entries[index].Value is ImplicitRegistration policySet
+                                 ? policySet.Name
+                                 : null;
+
                         if (null == name) continue;
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
                         {
@@ -461,7 +470,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Type.Name;
+                        var name = registry.Entries[index].Value is ImplicitRegistration policySet
+                                 ? policySet.Name
+                                 : null;
 
                         if (null == name) continue;
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
@@ -489,7 +500,9 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Type.Name;
+                        var key = registry.Entries[index].Value is ImplicitRegistration policySet
+                                ? policySet.Name
+                                : null;
 
                         if (null == key) continue;
                         if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))

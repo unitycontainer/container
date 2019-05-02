@@ -12,9 +12,8 @@ namespace Unity.Storage
     {
         #region Fields
 
-        private readonly object _sync = new object();
-        private readonly IPolicyList _innerPolicyList;
-        private IDictionary<PolicyKey, object> _policies = null;
+        private readonly IPolicyList?           _innerPolicyList;
+        private IDictionary<PolicyKey, object>? _policies;
         private const string All = "** ALL NAMES CONSTANT **";
 
         #endregion
@@ -26,7 +25,8 @@ namespace Unity.Storage
         /// Initialize a new instance of a <see cref="PolicyList"/> class.
         /// </summary>
         public PolicyList()
-            : this(null) { }
+        {
+        }
 
         /// <summary>
         /// Initialize a new instance of a <see cref="PolicyList"/> class with another policy list.
@@ -57,9 +57,9 @@ namespace Unity.Storage
         }
 
 
-        public object Get(Type type, Type policyInterface)
+        public object? Get(Type type, Type policyInterface)
         {
-            object policy = null;
+            object? policy = null;
 
             if (_policies?.TryGetValue(new PolicyKey(type, All, policyInterface), out policy) ?? false)
             {
@@ -70,9 +70,9 @@ namespace Unity.Storage
         }
 
 
-        public object Get(Type type, string name, Type policyInterface)
+        public object? Get(Type type, string name, Type policyInterface)
         {
-            object policy = null;
+            object? policy = null;
 
             if (_policies?.TryGetValue(new PolicyKey(type, name, policyInterface), out policy) ?? false)
             {
@@ -111,7 +111,7 @@ namespace Unity.Storage
 
             private readonly int _hash;
             private readonly Type _type;
-            private readonly string _name;
+            private readonly string? _name;
             private readonly Type _policy;
 
             #endregion

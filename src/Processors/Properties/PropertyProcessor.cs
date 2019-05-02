@@ -48,7 +48,7 @@ namespace Unity.Processors
 
         #region Expression 
 
-        protected override Expression GetResolverExpression(PropertyInfo info, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo info, object? resolver)
         {
             return Expression.Assign(
                 Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
@@ -65,7 +65,7 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

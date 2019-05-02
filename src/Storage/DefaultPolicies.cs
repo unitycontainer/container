@@ -23,8 +23,8 @@ namespace Unity.Storage
         // Non-nullable field is uninitialized.
         #pragma warning disable CS8618 
 
-        public DefaultPolicies(UnityContainer owner, ResolveDelegateFactory factory)
-            : base(owner, typeof(ResolveDelegateFactory), factory)
+        public DefaultPolicies(UnityContainer owner)
+            : base(owner)
         {
         }
 
@@ -101,12 +101,6 @@ namespace Unity.Storage
 
         public ISelect<FieldInfo> FieldsSelector { get; set; }
 
-        public ResolveDelegateFactory? ResolveDelegateFactory
-        {
-            get => (ResolveDelegateFactory?)Value;
-            set => Value = value;
-        }
-
         #endregion
 
 
@@ -120,7 +114,6 @@ namespace Unity.Storage
                 Type type when typeof(ISelect<PropertyInfo>) == type => PropertiesSelector,
                 Type type when typeof(ISelect<MethodInfo>) == type => MethodsSelector,
                 Type type when typeof(ISelect<FieldInfo>) == type => FieldsSelector,
-                Type type when typeof(ResolveDelegateFactory) == type => ResolveDelegateFactory,
                 Type type when typeof(CompositionDelegate) == type => ComposeMethod,
 
                 _ => base.Get(policyInterface)
@@ -145,10 +138,6 @@ namespace Unity.Storage
 
                 case Type type when typeof(ISelect<FieldInfo>) == type:
                     FieldsSelector = (ISelect<FieldInfo>)policy;
-                    break;
-
-                case Type type when typeof(ResolveDelegateFactory) == type:
-                    ResolveDelegateFactory = (ResolveDelegateFactory)policy;
                     break;
 
                 case Type type when typeof(CompositionDelegate) == type:

@@ -289,7 +289,7 @@ namespace Unity
         IUnityContainer IUnityContainer.CreateChildContainer() => CreateChildContainer();
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.Parent => _parent;
+        IUnityContainer? IUnityContainer.Parent => _parent;
 
         #endregion
     }

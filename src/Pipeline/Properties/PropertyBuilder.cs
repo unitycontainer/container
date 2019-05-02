@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Pipeline
@@ -48,7 +47,7 @@ namespace Unity.Pipeline
 
         #region Expression 
 
-        protected override Expression GetResolverExpression(PropertyInfo info, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo info, object? resolver)
         {
             return Expression.Assign(
                 Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
@@ -65,7 +64,7 @@ namespace Unity.Pipeline
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

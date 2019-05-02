@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Builder;
 using Unity.Extensions;
 using Unity.Policy;
 using Unity.Registration;
@@ -12,16 +11,16 @@ namespace Unity
     {
         #region Constants
 
-        private const int CollisionsCutPoint = 5;
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
+        private readonly object _syncRegistry = new object();
+        private readonly object _syncMetadata = new object();
+        private const int CollisionsCutPoint = 5;
 
         #endregion
 
 
         #region Fields
 
-        private readonly object _syncRegistry = new object();
-        private readonly object _syncMetadata = new object();
         private Registry<IPolicySet>? _registry;
         private Registry<int[]>?      _metadata;
 
@@ -164,79 +163,6 @@ namespace Unity
                 entry.Value = new PolicySet(this, policyInterface, policy);
                 _registry.Buckets[targetBucket] = _registry.Count++;
             }
-        }
-
-        internal ResolveDelegate<BuilderContext>? GetResolverPolicy(Type? type, string? name)
-        {
-            var hashExact = NamedType.GetHashCode(type, name);
-            var hashAll = type?.GetHashCode() ?? 0;
-
-            // Iterate though hierarchy
-            for (UnityContainer? container = this; null != container; container = container._parent)
-            {
-                // Skip if no local registrations
-                if (null == container._registry) continue;
-
-                // Check for exact entry
-                var policy = container._registry.Get(hashExact, type)?
-                                                .Get(typeof(ResolveDelegate<BuilderContext>));
-                if (null != policy) return (ResolveDelegate<BuilderContext>)policy;
-
-                // Check for 'Cover it All' entry
-                policy = container._registry.Get(hashAll, type)?
-                                            .Get(typeof(ResolveDelegate<BuilderContext>));
-
-                if (null != policy) return (ResolveDelegate<BuilderContext>)policy;
-            }
-
-            // Nothing found
-            return default;
-        }
-
-        internal ResolveDelegateFactory? GetFactoryPolicy(Type? type)
-        {
-            var hashCode = type?.GetHashCode() ?? 0;
-            for (UnityContainer? container = this; null != container; container = container._parent)
-            {
-                // Skip if no local registrations
-                if (null == container._registry) continue;
-
-                // Check for 'Cover it All' entry
-                var policy = container._registry
-                                      .Get(hashCode, type)?
-                                      .Get(typeof(ResolveDelegateFactory));
-
-                // Skip to parent if nothing
-                if (null != policy) return (ResolveDelegateFactory)policy;
-            }
-
-            // Nothing found
-            return null;
-        }
-
-        internal ResolveDelegateFactory? GetFactoryPolicy(Type type, string? name)
-        {
-            var hashExact = NamedType.GetHashCode(type, name);
-            var hashAll = type?.GetHashCode() ?? 0;
-
-            // Iterate though hierarchy
-            for (UnityContainer? container = this; null != container; container = container._parent)
-            {
-                // Skip if no local registrations
-                if (null == container._registry) continue;
-
-                // Check for exact entry
-                var policy = container._registry.Get(hashExact, type)?
-                                                .Get(typeof(ResolveDelegateFactory))
-                // Check for 'Cover it All' entry
-                          ?? container._registry.Get(hashAll, type)?
-                                                .Get(typeof(ResolveDelegateFactory));
-                // Return if found
-                if (null != policy) return (ResolveDelegateFactory)policy;
-            }
-
-            // Nothing found
-            return null;
         }
 
         #endregion

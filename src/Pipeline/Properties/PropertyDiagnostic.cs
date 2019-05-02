@@ -74,7 +74,7 @@ namespace Unity.Pipeline
             }
         }
 
-        protected override Expression GetResolverExpression(PropertyInfo property, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo property, object? resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -89,7 +89,7 @@ namespace Unity.Pipeline
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

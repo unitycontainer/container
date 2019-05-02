@@ -26,15 +26,15 @@ namespace Unity.Processors
                 return (ref BuilderContext context) =>
                 {
                     // Get it from context
-                    var policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
+                    var policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
                     // Return if holds value
-                    var value = policy.GetValue(context.Lifetime);
+                    var value = policy?.GetValue(context.Lifetime) ?? LifetimeManager.NoValue;
                     if (LifetimeManager.NoValue != value) return value;
 
                     // Compose down the chain
                     value = seed?.Invoke(ref context);
-                    policy.SetValue(value, context.Lifetime);
+                    policy?.SetValue(value, context.Lifetime);
 
                     return value;
                 };

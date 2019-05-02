@@ -193,7 +193,8 @@ namespace Unity.Processors
         public virtual ISelect<TMemberInfo> GetOrDefault(IPolicySet registration)
         {
             return (ISelect<TMemberInfo>)(registration.Get(typeof(ISelect<TMemberInfo>)) ??
-                                              Defaults.Get(typeof(ISelect<TMemberInfo>)));
+                                              Defaults.Get(typeof(ISelect<TMemberInfo>)) ??
+                                              throw new InvalidOperationException("Should never be null"));
         }
 
         #endregion

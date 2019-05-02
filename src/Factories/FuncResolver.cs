@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Factories
 {
@@ -16,11 +16,11 @@ namespace Unity.Factories
         #endregion
 
 
-        #region ResolveDelegateFactory
+        #region TypeResolverFactory
 
-        public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
+        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
         {
-            var typeToBuild = context.Type.GetTypeInfo().GenericTypeArguments[0];
+            var typeToBuild = type.GetTypeInfo().GenericTypeArguments[0];
             var factoryMethod = ImplementationMethod.MakeGenericMethod(typeToBuild);
 
             return (ResolveDelegate<BuilderContext>)factoryMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));

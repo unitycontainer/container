@@ -161,7 +161,7 @@ namespace Unity
         {
             public Type RegisteredType { get; internal set; }
 
-            public string Name { get; internal set; }
+            public string? Name { get; internal set; }
 
             public Type? MappedToType { get; internal set; }
 

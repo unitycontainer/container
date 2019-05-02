@@ -57,7 +57,8 @@ namespace Unity.Extensions
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
                 ref var candidate = ref registry.Entries[i];
-                if (candidate.HashCode != hashCode || candidate.Type != type || candidate.Type.Name != name) continue;
+                if (candidate.HashCode != hashCode || candidate.Type != type) continue;
+
                 candidate.Value = set;
                 return;
             }

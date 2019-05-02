@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.Factories
 {
@@ -21,12 +21,12 @@ namespace Unity.Factories
         #endregion
 
 
-        #region ResolveDelegateFactory
+        #region TypeResolverFactory
 
-        public static ResolveDelegateFactory Factory = (ref BuilderContext context) =>
+        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
         {
-            var typeArgument = context.RegistrationType.GetElementType();
-            var targetType = ((UnityContainer)context.Container).GetTargetType(typeArgument);
+            var typeArgument = type.GetElementType();
+            var targetType = policies.Owner.GetTargetType(typeArgument);
 
             if (typeArgument != targetType)
             {

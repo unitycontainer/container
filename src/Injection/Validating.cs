@@ -9,7 +9,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, ConstructorInfo> ConstructorSelector =
             (Type type, InjectionMember member) =>
             {
-                ConstructorInfo selection = null;
+                ConstructorInfo? selection = null;
                 var ctor = (InjectionMember<ConstructorInfo, object[]>)member;
 
                 if (ctor.IsInitialized) throw new InvalidOperationException("Sharing an InjectionConstructor between registrations is not supported");
@@ -39,7 +39,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, MethodInfo> MethodSelector =
             (Type type, InjectionMember member) =>
             {
-                MethodInfo selection = null;
+                MethodInfo? selection = null;
                 var method = (InjectionMember<MethodInfo, object[]>)member;
 
                 if (method.IsInitialized) throw new InvalidOperationException("Sharing an InjectionMethod between registrations is not supported");
@@ -105,7 +105,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, FieldInfo> FieldSelector =
             (Type type, InjectionMember member) =>
             {
-                FieldInfo selection = null;
+                FieldInfo? selection = null;
                 var field = (InjectionMember<FieldInfo, object>)member;
 
                 if (field.IsInitialized) throw new InvalidOperationException(
@@ -155,7 +155,7 @@ namespace Unity.Injection
         public static Func<Type, InjectionMember, PropertyInfo> PropertySelector =
             (Type type, InjectionMember member) =>
             {
-                PropertyInfo selection = null;
+                PropertyInfo? selection = null;
                 var property = (InjectionMember<PropertyInfo, object>)member;
 
                 if (property.IsInitialized) throw new InvalidOperationException("Sharing an InjectionProperty between registrations is not supported");
