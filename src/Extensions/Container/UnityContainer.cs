@@ -1024,7 +1024,8 @@ namespace Unity
         public static T BuildUp<T>(this IUnityContainer container, T existing, string name, params ResolverOverride[] resolverOverrides)
         {
             if (null == existing) throw new ArgumentNullException(nameof(existing));
-            return (T)(container ?? throw new ArgumentNullException(nameof(container))).BuildUp(typeof(T), existing, name, resolverOverrides);
+            if (null == container) throw new ArgumentNullException(nameof(container));
+            return (T)container.BuildUp(typeof(T), existing, name, resolverOverrides);
         }
 
         /// <summary>

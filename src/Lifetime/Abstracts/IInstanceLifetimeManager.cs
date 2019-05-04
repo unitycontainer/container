@@ -10,5 +10,6 @@
     /// </remarks>
     public interface IInstanceLifetimeManager
     {
+        LifetimeManager CreateLifetimePolicy();
     }
 }

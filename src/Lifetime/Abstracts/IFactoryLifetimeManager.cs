@@ -10,5 +10,6 @@
     /// </remarks>
     public interface IFactoryLifetimeManager
     {
+        LifetimeManager CreateLifetimePolicy();
     }
 }
