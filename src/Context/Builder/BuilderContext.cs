@@ -5,12 +5,12 @@ using System.Runtime.CompilerServices;
 using System.Security;
 using Unity.Composition;
 using Unity.Exceptions;
-using Unity.Factories;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Strategies;
+using static Unity.UnityContainer;
 
 namespace Unity.Builder
 {
@@ -34,42 +34,11 @@ namespace Unity.Builder
 
         #region IResolveContext
 
-        public IUnityContainer Container => Lifetime?.Container;
+        public IUnityContainer Container => ContainerContext.Container;
 
         public Type Type { get; set; }
 
         public string? Name { get; set; }
-
-        public object? Resolve()
-        {
-            if (null == Type) return null;
-
-            // Process overrides if any
-            if (null != Overrides)
-            {
-                NamedType namedType = new NamedType
-                {
-                    Type = Type,
-                    Name = Name
-                };
-
-                // Check if this parameter is overridden
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-                    // If matches with current parameter
-                    if (resolverOverride is IResolve resolverPolicy &&
-                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
-                    {
-                        var context = this;
-
-                        return ResolvePlan(ref context, resolverPolicy.Resolve);
-                    }
-                }
-            }
-
-            return Resolve(Type, Name, ((UnityContainer)Container).GetRegistration(Type, Name));
-        }
 
         public object? Resolve(Type type, string? name)
         {
@@ -97,7 +66,7 @@ namespace Unity.Builder
                 }
             }
 
-            if (((UnityContainer)Container).GetPolicy(type, name, typeof(CompositionDelegate)) is CompositionDelegate factory)
+            if (ContainerContext.Get(type, name, typeof(CompositionDelegate)) is CompositionDelegate factory)
                 return factory((UnityContainer)Container, null);
 
             return Resolve(type, name, ((UnityContainer)Container).GetRegistration(type, name));
@@ -115,14 +84,14 @@ namespace Unity.Builder
 
         public object? Get(Type type, Type policyInterface)
         {
-            return ((UnityContainer)Container).GetPolicy(type, policyInterface);
+            return ContainerContext.Get(type, policyInterface);
         }
 
         public object? Get(Type type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
-                       ? ((UnityContainer)Container).GetPolicy(type, name, policyInterface)
+                       ? ContainerContext.Get(type, name, policyInterface)
                        : Registration.Get(policyInterface));
         }
 
@@ -162,9 +131,9 @@ namespace Unity.Builder
 
         public object? Existing { get; set; }
 
-        public ILifetimeContainer Lifetime;
+        public ContainerContext ContainerContext { get; set; }
 
-        public SynchronizedLifetimeManager RequiresRecovery;
+        public SynchronizedLifetimeManager? RequiresRecovery;
 
         public bool BuildComplete;
 
@@ -181,6 +150,67 @@ namespace Unity.Builder
 
         #region Resolve Methods
 
+
+        public object? Resolve()
+        {
+            if (null == Type) return null;
+
+            // Process overrides if any
+            if (null != Overrides)
+            {
+                NamedType namedType = new NamedType
+                {
+                    Type = Type,
+                    Name = Name
+                };
+
+                // Check if this parameter is overridden
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+                    // If matches with current parameter
+                    if (resolverOverride is IResolve resolverPolicy &&
+                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
+                    {
+                        var context = this;
+
+                        return ResolvePlan(ref context, resolverPolicy.Resolve);
+                    }
+                }
+            }
+
+            return Resolve(Type, Name, ((UnityContainer)Container).GetRegistration(Type, Name));
+        }
+
+        public object? Resolve(Type type)
+        {
+            // Process overrides if any
+            if (null != Overrides)
+            {
+                NamedType namedType = new NamedType
+                {
+                    Type = type,
+                    Name = Name
+                };
+
+                // Check if this parameter is overridden
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+                    // If matches with current parameter
+                    if (resolverOverride is IResolve resolverPolicy &&
+                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
+                    {
+                        var context = this;
+
+                        return ResolvePlan(ref context, resolverPolicy.Resolve);
+                    }
+                }
+            }
+
+            return Resolve(type, Name, ((UnityContainer)Container).GetRegistration(type, Name));
+        }
+
         public object? Resolve(Type type, string? name, ImplicitRegistration registration)
         {
             unsafe
@@ -188,12 +218,11 @@ namespace Unity.Builder
                 var thisContext = this;
                 var context = new BuilderContext
                 {
-                    Lifetime = Lifetime,
+                    ContainerContext = ContainerContext,
                     Registration = registration,
                     RegistrationType = type,
                     Name = name,
-                    Type = registration is ExplicitRegistration containerRegistration 
-                         ? containerRegistration.Type ?? type : type,
+                    Type = type,
                     ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,

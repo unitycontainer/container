@@ -66,7 +66,7 @@ namespace Unity.Pipeline
         }
 
         public override ISelect<MethodInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<ISelect<MethodInfo>>() ?? Defaults.MethodsSelector;
+            registration.Get<ISelect<MethodInfo>>() ?? Defaults.SelectMethod;
 
         #endregion
 

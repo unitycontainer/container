@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
@@ -19,34 +20,31 @@ namespace Unity.Pipeline
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            var request = builder.Type;
-
-            // Implicit Registration
-            if (builder.Registration is ExplicitRegistration explicitRegistration)
+            var requestedType = builder.Type;
+            
+            if (builder.Registration is ExplicitRegistration registration)
             {
-                builder.Type = explicitRegistration.Type ?? builder.Type;
+                // Explicit Registration
+                if (null == registration.Type) return builder.Pipeline();
+
+                builder.Type = (null == registration.BuildType)
+                    ? registration.Type
+                    : registration.BuildType(registration.Type);
             }
             else
             {
-                if (null != builder.Registration.Map) builder.Type = builder.Registration.Map(builder.Type);
+                // Implicit Registration
+                if (null != builder.Registration.BuildType)
+                    builder.Type = builder.Registration.BuildType(builder.Type);
             }
 
-            if (builder.Registration.BuildRequired || request == builder.Type)
+            // If nothing to map or build required, just create it
+            if (builder.Registration.BuildRequired || requestedType == builder.Type)
                 return builder.Pipeline();
 
             var type = builder.Type;
 
-            if (builder.Container.IsRegistered(type))
-                return (ref BuilderContext context) => context.Resolve(type, context.Name);
-
-            var pipeline = builder.Pipeline();
-            return (ref BuilderContext context) =>
-            {
-                if (context.Container.IsRegistered(context.Type, context.Name))
-                    return context.Resolve(type, context.Name);
-                else
-                    return pipeline?.Invoke(ref context);
-            };
+            return builder.Pipeline((ref BuilderContext context) => context.Resolve(type));
         }
 
         #endregion

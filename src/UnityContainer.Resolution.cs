@@ -1,21 +1,21 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extensions;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 using Unity.Strategies;
 
 namespace Unity
 {
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+
     /// <summary>
     /// A simple, extensible dependency injection container.
     /// </summary>
@@ -24,7 +24,46 @@ namespace Unity
         #region Constants
 
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
-        
+
+        #endregion
+
+
+        #region Pipeline
+
+        internal ResolveDelegate<BuilderContext> DefaultPipeline => (ref BuilderContext context) =>
+        {
+            try
+            {
+                if (null == context.Registration.Pipeline)
+                {
+                    lock (context.Registration)
+                    {
+                        if (null == context.Registration.Pipeline)
+                        {
+                            context.Registration.Pipeline = ((UnityContainer)context.Container).ComposerFactory(ref context);
+                        }
+                    }
+                }
+
+                return context.Registration.Pipeline(ref context);
+            }
+            catch (MemberAccessException ex)
+            {
+                context.RequiresRecovery?.Recover();
+                throw new ResolutionFailedException(context.RegistrationType, context.Name, error, ex);
+            }
+            catch (Exception ex) when (ex.InnerException is InvalidRegistrationException)
+            {
+                context.RequiresRecovery?.Recover();
+                throw new ResolutionFailedException(context.RegistrationType, context.Name, error, ex);
+            }
+            catch
+            {
+                context.RequiresRecovery?.Recover();
+                throw;
+            }
+        };
+
         #endregion
 
 
@@ -81,15 +120,13 @@ namespace Unity
 
         #endregion
 
-        #pragma warning disable CS8603 // Possible null reference return.
-        #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
         #region Resolving Enumerable
 
         internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve, string? name)
         {
-            TElement value;
-            var set = new QuickSet<Type>();
+            object? value;
+            var set = new HashSet<string?>();
             int hash = typeof(TElement).GetHashCode();
 
             // Iterate over hierarchy
@@ -108,20 +145,20 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (set.Add(registration.Name))
                         {
                             try
                             {
-                                var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -133,22 +170,22 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, registration);
+                    value = resolve(typeof(TElement), name, registration);
                 }
                 catch
                 {
                     yield break;
                 }
 
-                yield return value;
+                yield return (TElement)value;
             }
         }
 
         internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve,
                                                                    Type typeDefinition, string? name)
         {
-            TElement value;
-            var set = new QuickSet<Type>();
+            object? value;
+            var set = new HashSet<string?>();
             int hashCode = typeof(TElement).GetHashCode();
             int hashGeneric = typeDefinition.GetHashCode();
 
@@ -168,20 +205,20 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (set.Add(registration.Name))
                         {
                             try
                             {
-                                var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -193,17 +230,14 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Value is ImplicitRegistration policySet 
-                                ? policySet.Name 
-                                : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (set.Add(registration.Name))
                         {
                             try
                             {
-                                int hash = NamedType.GetHashCode(typeof(TElement), key);
-                                var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
-                                value = (TElement)resolve(typeof(TElement), key, registration);
+                                var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration.Name, item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -216,7 +250,7 @@ namespace Unity
                             //    continue;
                             //}
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -228,14 +262,14 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, registration);
+                    value = resolve(typeof(TElement), name, registration);
                 }
                 catch
                 {
                     yield break;
                 }
 
-                yield return value;
+                yield return (TElement)value;
             }
         }
 
@@ -276,8 +310,8 @@ namespace Unity
 
         internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve, Type type)
         {
-            TElement value;
-            var set = new QuickSet<Type>();
+            object? value;
+            var set = new HashSet<string?>();
             int hash = type.GetHashCode();
 
             // Iterate over hierarchy
@@ -296,24 +330,20 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Value is ImplicitRegistration policySet 
-                                 ? policySet.Name 
-                                 : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (null != registration.Name && set.Add(registration.Name))
                         {
                             try
                             {
-                                var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), name, registration);
+                                value = resolve(typeof(TElement), registration.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -323,8 +353,8 @@ namespace Unity
         internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
-            TElement value;
-            var set = new QuickSet<Type>();
+            object? value;
+            var set = new HashSet<string>();
             int hashCode = type.GetHashCode();
             int hashGeneric = typeDefinition.GetHashCode();
 
@@ -344,24 +374,20 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Value is ImplicitRegistration policySet
-                                 ? policySet.Name
-                                 : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (null != registration.Name && set.Add(registration.Name))
                         {
                             try
                             {
-                                var registration = (ExplicitRegistration)registry.Entries[index].Value;
-                                value = (TElement)resolve(typeof(TElement), name, registration);
+                                value = resolve(typeof(TElement), registration.Name, registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -373,18 +399,14 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Value is ImplicitRegistration policySet
-                                ? policySet.Name
-                                : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (null == key) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (null != registration.Name && set.Add(registration.Name))
                         {
                             try
                             {
-                                int hash = NamedType.GetHashCode(typeof(TElement), key);
-                                var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
-                                value = (TElement)resolve(typeof(TElement), key, registration);
+                                var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration.Name, item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -392,7 +414,7 @@ namespace Unity
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -401,8 +423,8 @@ namespace Unity
 
         internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve, Type type)
         {
-            TElement value;
-            var set = new QuickSet<Type>();
+            object? value;
+            var set = new HashSet<string?>();
             int hashCode = type.GetHashCode();
 
             // Iterate over hierarchy
@@ -421,25 +443,21 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Value is ImplicitRegistration policySet
-                                 ? policySet.Name
-                                 : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (null != registration.Name && set.Add(registration.Name))
                         {
                             try
                             {
-                                int hash = NamedType.GetHashCode(typeof(TElement), name);
-                                var registration = container.GetOrAdd(hash, typeof(TElement), name, registry.Entries[index].Value);
-                                value = (TElement)resolve(typeof(TElement), name, registration);
+                                var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration.Name, item);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -449,8 +467,8 @@ namespace Unity
         internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
-            TElement value;
-            var set = new QuickSet<Type>();
+            object? value;
+            var set = new HashSet<string?>();
             int hashCode = type.GetHashCode();
             int hashGeneric = typeDefinition.GetHashCode();
 
@@ -470,25 +488,21 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var name = registry.Entries[index].Value is ImplicitRegistration policySet
-                                 ? policySet.Name
-                                 : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (null == name) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (null != registration.Name && set.Add(registration.Name))
                         {
                             try
                             {
-                                int hash = NamedType.GetHashCode(typeof(TElement), name);
-                                var registration = container.GetOrAdd(hash, typeof(TElement), name, registry.Entries[index].Value);
-                                value = (TElement)resolve(typeof(TElement), name, registration);
+                                var item = container.GetOrAdd(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), registration.Name, item);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -500,18 +514,14 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var key = registry.Entries[index].Value is ImplicitRegistration policySet
-                                ? policySet.Name
-                                : null;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (null == key) continue;
-                        if (set.Add(registry.Entries[index].HashCode, registry.Entries[index].Type))
+                        if (null != registration.Name && set.Add(registration.Name))
                         {
                             try
                             {
-                                int hash = NamedType.GetHashCode(typeof(TElement), key);
-                                var registration = container.GetOrAdd(hash, typeof(TElement), key, registry.Entries[index].Value);
-                                value = (TElement)resolve(typeof(TElement), key, registration);
+                                var item = container.GetOrAdd(typeof(TElement), registration.Name);
+                                value = (TElement)resolve(typeof(TElement), registration.Name, item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -519,7 +529,7 @@ namespace Unity
                                 continue;
                             }
 
-                            yield return value;
+                            yield return (TElement)value;
                         }
                     }
                 }
@@ -530,8 +540,6 @@ namespace Unity
 
         #endregion
 
-        #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-        #pragma warning restore CS8603 // Possible null reference return.
 
         #region Resolve Delegate Factories
 
@@ -616,121 +624,121 @@ namespace Unity
 
         #region Build Plans
 
-        private ResolveDelegate<BuilderContext> ExecutePlan { get; set; } =
-            (ref BuilderContext context) =>
-            {
-                var i = -1;
-                BuilderStrategy[] chain = ((ImplicitRegistration)context.Registration).BuildChain;
-                try
-                {
-                    while (!context.BuildComplete && ++i < chain.Length)
-                    {
-                        chain[i].PreBuildUp(ref context);
-                    }
+        //private ResolveDelegate<BuilderContext> ExecutePlan { get; set; } =
+        //    (ref BuilderContext context) =>
+        //    {
+        //        var i = -1;
+        //        BuilderStrategy[] chain = ((ImplicitRegistration)context.Registration).BuildChain;
+        //        try
+        //        {
+        //            while (!context.BuildComplete && ++i < chain.Length)
+        //            {
+        //                chain[i].PreBuildUp(ref context);
+        //            }
 
-                    while (--i >= 0)
-                    {
-                        chain[i].PostBuildUp(ref context);
-                    }
-                }
-                catch (Exception ex) 
-                {
-                    context.RequiresRecovery?.Recover();
+        //            while (--i >= 0)
+        //            {
+        //                chain[i].PostBuildUp(ref context);
+        //            }
+        //        }
+        //        catch (Exception ex) 
+        //        {
+        //            context.RequiresRecovery?.Recover();
 
-                    throw new ResolutionFailedException(context.RegistrationType, context.Name,
-                        "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())", ex);
-                }
+        //            throw new ResolutionFailedException(context.RegistrationType, context.Name,
+        //                "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())", ex);
+        //        }
 
-                return context.Existing;
-            };
+        //        return context.Existing;
+        //    };
 
-        private object? ExecuteValidatingPlan(ref BuilderContext context)
-        {
-            var i = -1;
-            BuilderStrategy[] chain = context.Registration.BuildChain ?? _strategiesChain;
+        //private object? ExecuteValidatingPlan(ref BuilderContext context)
+        //{
+        //    var i = -1;
+        //    BuilderStrategy[] chain = context.Registration.BuildChain ?? _strategiesChain;
 
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
+        //    try
+        //    {
+        //        while (!context.BuildComplete && ++i < chain.Length)
+        //        {
+        //            chain[i].PreBuildUp(ref context);
+        //        }
 
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception ex)
-            {
-                context.RequiresRecovery?.Recover();
-                ex.Data.Add(Guid.NewGuid(), null == context.Name
-                    ? context.RegistrationType == context.Type
-                        ? (object)context.Type
-                        : new Tuple<Type, Type>(context.RegistrationType, context.Type)
-                    : context.RegistrationType == context.Type
-                        ? (object)new Tuple<Type, string>(context.Type, context.Name)
-                        : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
+        //        while (--i >= 0)
+        //        {
+        //            chain[i].PostBuildUp(ref context);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        context.RequiresRecovery?.Recover();
+        //        ex.Data.Add(Guid.NewGuid(), null == context.Name
+        //            ? context.RegistrationType == context.Type
+        //                ? (object)context.Type
+        //                : new Tuple<Type, Type>(context.RegistrationType, context.Type)
+        //            : context.RegistrationType == context.Type
+        //                ? (object)new Tuple<Type, string>(context.Type, context.Name)
+        //                : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
 
-                var builder = new StringBuilder();
-                builder.AppendLine(ex.Message);
-                builder.AppendLine("_____________________________________________________");
-                builder.AppendLine("Exception occurred while:");
-                builder.AppendLine();
+        //        var builder = new StringBuilder();
+        //        builder.AppendLine(ex.Message);
+        //        builder.AppendLine("_____________________________________________________");
+        //        builder.AppendLine("Exception occurred while:");
+        //        builder.AppendLine();
 
-                var indent = 0;
-                foreach (DictionaryEntry item in ex.Data)
-                {
-                    for (var c = 0; c < indent; c++) builder.Append(" ");
-                    builder.AppendLine(CreateErrorMessage(item.Value));
-                    indent += 1;
-                }
+        //        var indent = 0;
+        //        foreach (DictionaryEntry item in ex.Data)
+        //        {
+        //            for (var c = 0; c < indent; c++) builder.Append(" ");
+        //            builder.AppendLine(CreateErrorMessage(item.Value));
+        //            indent += 1;
+        //        }
 
-                var message = builder.ToString();
+        //        var message = builder.ToString();
 
-                throw new ResolutionFailedException( context.RegistrationType, context.Name, message, ex);
-            }
+        //        throw new ResolutionFailedException( context.RegistrationType, context.Name, message, ex);
+        //    }
 
-            return context.Existing;
+        //    return context.Existing;
 
 
-            string CreateErrorMessage(object value)
-            {
-                switch (value)
-                {
-                    case ParameterInfo parameter:
-                        return $" for parameter:  '{parameter.Name}'";
+        //    string CreateErrorMessage(object value)
+        //    {
+        //        switch (value)
+        //        {
+        //            case ParameterInfo parameter:
+        //                return $" for parameter:  '{parameter.Name}'";
 
-                    case ConstructorInfo constructor:
-                        var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-                        return $"on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
+        //            case ConstructorInfo constructor:
+        //                var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+        //                return $"on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
 
-                    case MethodInfo method:
-                        var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-                        return $"     on method:  {method.Name}({methodSignature})";
+        //            case MethodInfo method:
+        //                var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+        //                return $"     on method:  {method.Name}({methodSignature})";
 
-                    case PropertyInfo property:
-                        return $"  for property:  '{property.Name}'";
+        //            case PropertyInfo property:
+        //                return $"  for property:  '{property.Name}'";
 
-                    case FieldInfo field:
-                        return $"     for field:  '{field.Name}'";
+        //            case FieldInfo field:
+        //                return $"     for field:  '{field.Name}'";
 
-                    case Type type:
-                        return $"·resolving type:  '{type.Name}'";
+        //            case Type type:
+        //                return $"·resolving type:  '{type.Name}'";
 
-                    case Tuple<Type, string> tuple:
-                        return $"•resolving type:  '{tuple.Item1.Name}' registered with name: '{tuple.Item2}'";
+        //            case Tuple<Type, string> tuple:
+        //                return $"•resolving type:  '{tuple.Item1.Name}' registered with name: '{tuple.Item2}'";
 
-                    case Tuple<Type, Type> tuple:
-                        return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}'";
+        //            case Tuple<Type, Type> tuple:
+        //                return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}'";
 
-                    case Tuple<Type, Type, string> tuple:
-                        return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}' and registered with name: '{tuple.Item3}'";
-                }
+        //            case Tuple<Type, Type, string> tuple:
+        //                return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}' and registered with name: '{tuple.Item3}'";
+        //        }
 
-                return value.ToString();
-            }
-        }
+        //        return value.ToString();
+        //    }
+        //}
 
         #endregion
 
@@ -844,7 +852,7 @@ namespace Unity
 
                 var context = new BuilderContext
                 {
-                    Lifetime = thisContext.Lifetime,
+                    ContainerContext = thisContext.ContainerContext,
                     Registration = thisContext.Registration,
                     RegistrationType = thisContext.Type,
                     Name = thisContext.Name,
@@ -864,4 +872,7 @@ namespace Unity
 
         #endregion
     }
+    
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8603 // Possible null reference return.
 }

@@ -77,7 +77,7 @@ namespace Unity.Processors
         }
 
         public override ISelect<ConstructorInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<ISelect<ConstructorInfo>>() ?? Defaults.CtorSelector;
+            registration.Get<ISelect<ConstructorInfo>>() ?? Defaults.SelectConstructor;
 
         #endregion
 

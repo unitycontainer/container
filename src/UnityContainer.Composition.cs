@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Unity.Builder;
-using Unity.Composition;
 using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Resolution;
@@ -13,10 +12,11 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        // TODO: Remove
-        internal delegate CompositionDelegate CompositionFactoryDelegate(ref CompositionContext context);
-        private delegate object ComposeObjectDelegate(ref BuilderContext context);
+        #region Constants
 
+        private const string error = "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())";
+
+        #endregion
 
 
         #region Object Composition
@@ -24,30 +24,28 @@ namespace Unity
         private ResolveDelegate<BuilderContext> Compose { get; set; } =
             (ref BuilderContext context) =>
             {
-                // Create Pipeline if required
-                if (null == context.Registration.Pipeline)
-                {
-                    // Double Check Lock
-                    lock (context.Registration)
-                    {
-                        // Make sure build plan was not yet created
-                        if (null == context.Registration.Pipeline)
-                        {
-                            context.Registration.Pipeline = ((UnityContainer)context.Container).ComposerFactory(ref context);
-                        }
-                    }
-                }
-
                 try
                 {
+                    // Create Pipeline if required
+                    if (null == context.Registration.Pipeline)
+                    {
+                        // Double Check Lock
+                        lock (context.Registration)
+                        {
+                            // Make sure build plan was not yet created
+                            if (null == context.Registration.Pipeline)
+                            {
+                                context.Registration.Pipeline = ((UnityContainer)context.Container).ComposerFactory(ref context);
+                            }
+                        }
+                    }
+
                     return context.Registration.Pipeline(ref context);
                 }
-                catch (Exception ex)
+                catch when (null != context.RequiresRecovery)
                 {
                     context.RequiresRecovery?.Recover();
-
-                    throw new ResolutionFailedException(context.RegistrationType, context.Name,
-                        "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())", ex);
+                    throw;
                 }
             };
 
@@ -132,6 +130,7 @@ namespace Unity
 
         #region Composition Plan
 
+
         internal ResolveDelegateFactory ComposerFactory = (ref BuilderContext context) =>
         {
             PipelineContext builder = new PipelineContext(ref context);
@@ -139,6 +138,11 @@ namespace Unity
             return builder.Pipeline();
         };
 
+
+        #endregion
+
+
+        #region Factories
 
         internal ResolveDelegate<BuilderContext> CompilingComposition(ref BuilderContext context)
         {

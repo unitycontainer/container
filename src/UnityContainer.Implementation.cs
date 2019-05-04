@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security;
-using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Pipeline;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity
 {
@@ -19,6 +18,39 @@ namespace Unity
     [SecuritySafeCritical]
     public partial class UnityContainer
     {
+        #region Constants
+
+        internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
+        private readonly object _syncRegistry = new object();
+        private readonly object _syncMetadata = new object();
+        private const int CollisionsCutPoint = 5;
+
+        #endregion
+
+
+        #region Fields
+
+        private Registry<IPolicySet>? _registry;
+        private Registry<int[]>? _metadata;
+
+        private IPolicySet _validators;
+
+        private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
+
+        #endregion
+
+
+        #region Defaults
+
+#pragma warning disable CS8602
+
+        internal DefaultPolicies Defaults => (DefaultPolicies)_root._registry.Entries[0].Value;
+
+#pragma warning restore CS8602
+
+        #endregion
+
+
         #region Fields
 
         // Container specific
@@ -27,14 +59,7 @@ namespace Unity
         internal readonly LifetimeContainer LifetimeContainer;
         private List<IUnityContainerExtensionConfigurator>? _extensions;
 
-        // Policies
-        private readonly ContainerContext _context;
-
-        // Strategies
-        private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
-
-        // Caches
-        private BuilderStrategy[] _strategiesChain;
+        internal readonly ContainerContext Context;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -67,12 +92,7 @@ namespace Unity
             Register = InitAndAdd;
 
             // Context and policies
-            _context = new ContainerContext(this);
-
-            // Strategies
-            _strategies = _parent._strategies;
-            _strategiesChain = _parent._strategiesChain;
-            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray();
+            Context = new ContainerContext(this);
         }
 
         #endregion
@@ -86,7 +106,6 @@ namespace Unity
             Compose = ValidatingComposePlan;
             ContextExecutePlan = ContextValidatingExecutePlan;
             ContextResolvePlan = ContextValidatingResolvePlan;
-            ExecutePlan = ExecuteValidatingPlan;
 
             // Builders
             var lifetimeBuilder    = new LifetimeBuilder();
@@ -97,7 +116,8 @@ namespace Unity
             var propertiesBuilder  = new PropertyDiagnostic(this);
             var methodsBuilder     = new MethodDiagnostic(this);
 
-            Defaults.TypeStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
+            // Pipelines
+            Context.TypePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>
             {
                 { lifetimeBuilder,    PipelineStage.Lifetime },
                 { mappingBuilder,     PipelineStage.TypeMapping },
@@ -108,24 +128,26 @@ namespace Unity
                 { methodsBuilder,     PipelineStage.Methods }
             };
 
-            Defaults.FactoryStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
+            Context.FactoryPipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>
             {
                 { lifetimeBuilder, PipelineStage.Lifetime },
                 { factoryBuilder,  PipelineStage.Factory }
             };
 
-            Defaults.InstanceStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
+            Context.InstancePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>
             {
                 { lifetimeBuilder, PipelineStage.Lifetime },
                 { factoryBuilder,  PipelineStage.Factory },
             };
 
-            // Selectors
-            Defaults.CtorSelector = constructorBuilder;
-            Defaults.FieldsSelector = fieldsBuilder;
-            Defaults.PropertiesSelector = propertiesBuilder;
-            Defaults.MethodsSelector = methodsBuilder;
 
+            // Selectors
+            Defaults.SelectConstructor = constructorBuilder;
+            Defaults.SelectProperty    = propertiesBuilder;
+            Defaults.SelectMethod      = methodsBuilder;
+            Defaults.SelectField       = fieldsBuilder;
+
+            // Validators
             var validators = new PolicySet(this);
 
             validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);

@@ -32,12 +32,15 @@ namespace Unity.Tests.v5.TestDoubles
 
         protected override void Initialize()
         {
-            Context.Strategies.Add(this.strategy, this.stage);
+            // TODO: Reaquired Reimplementation
+            throw new NotImplementedException();
 
-            if (this.policy != null)
-            {
-                Context.Policies.Set(null, null, this.policyType, this.policy);
-            }
+            //Context.Strategies.Add(this.strategy, this.stage);
+
+            //if (this.policy != null)
+            //{
+            //    Context.Policies.Set(null, null, this.policyType, this.policy);
+            //}
         }
     }
 }

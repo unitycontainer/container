@@ -37,7 +37,7 @@ namespace Unity.Processors
 
             return (ref BuilderContext context) =>
             {
-                var map = context.Registration.Map;
+                var map = context.Registration.BuildType;
                 if (null != map && null != context.Type) context.Type = map(context.Type);
 
                 if (!(context.Registration).BuildRequired &&

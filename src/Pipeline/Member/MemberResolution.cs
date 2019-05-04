@@ -31,7 +31,7 @@ namespace Unity.Pipeline
                     foreach (var resolver in resolvers) resolver(ref context);
 
                     // Process rest of the initialization
-                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
         }
 

@@ -36,7 +36,7 @@ namespace Unity
             try
             {
                 // Lifetime Manager
-                var manager = (LifetimeManager)(lifetimeManager ?? Defaults.TypeLifetimeManager);
+                var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.CreateLifetimePolicy();
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
                 manager.InUse = true;
 
@@ -74,11 +74,8 @@ namespace Unity
                 }
 
                 // Check what strategies to run
-                registration.Processors = Defaults.TypePipeline;
-                registration.BuildChain = _strategiesChain.ToArray()
-                                                          .Where(strategy => strategy.RequiredToBuildType(this,
-                                                              registeredType, registration, injectionMembers))
-                                                          .ToArray();
+                registration.Processors = Context.TypePipelineCache;
+
                 // Raise event
                 container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
                                                                           mappedToType,
@@ -123,7 +120,7 @@ namespace Unity
             try
             {
                 // Lifetime Manager
-                var manager = (LifetimeManager)(lifetimeManager ?? Defaults.InstanceLifetimeManager);
+                var manager = lifetimeManager as LifetimeManager ?? Context.InstanceLifetimeManager.CreateLifetimePolicy();
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
                 manager.InUse = true;
@@ -150,7 +147,7 @@ namespace Unity
                 }
 
                 // Check what strategies to run
-                registration.Processors = Defaults.InstancePipeline;
+                registration.Processors = Context.InstancePipelineCache;
 
                 // Raise event
                 container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registeredType, instance, name, manager));
@@ -180,7 +177,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             // Lifetime Manager
-            var manager = (LifetimeManager)(lifetimeManager ?? Defaults.FactoryLifetimeManager);
+            var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.CreateLifetimePolicy();
             if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
             manager.InUse = true;
 
@@ -208,7 +205,7 @@ namespace Unity
                 container.LifetimeContainer.Add(managerDisposable);
 
             // Check what strategies to run
-            registration.Processors = Defaults.FactoryPipeline;
+            registration.Processors = Context.FactoryPipelineCache;
 
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
@@ -226,25 +223,25 @@ namespace Unity
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
-            var registration = GetRegistration(type, name);
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                RegistrationType = type ?? throw new ArgumentNullException(nameof(type)),
+                Type = type,
                 Name = name,
+                RegistrationType = type,
+                ContainerContext = Context,
+                Registration = registration,
+                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
+                ResolvePlan = ContextResolvePlan,
+                Compose = Compose
                 //Type = registration is ExplicitRegistration explicitRegistration
                 //     ? explicitRegistration.Type ?? type
                 //     : type,
-                Type = type,
-                Lifetime = LifetimeContainer,
-                Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
-                Registration = registration,
-                ResolvePlan = ContextResolvePlan,
-                Compose = Compose
             };
 
             // Create an object
-            return Compose(ref context);
+            return DefaultPipeline(ref context);
         }
 
         #endregion
@@ -255,29 +252,27 @@ namespace Unity
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            // Verify arguments
-            if (null == type) throw new ArgumentNullException(nameof(type));
-
-            // Validate if they are assignable
-            if (null != existing && null != TypeValidator) TypeValidator(type, existing.GetType());
-
-            var registration = GetRegistration(type, name);
+            // Setup Context
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = LifetimeContainer,
-                Existing = existing,
-                Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
-                Registration = registration,
-                RegistrationType = type,
+                Type = type,
                 Name = name,
-                Compose = Compose,
+                Existing = existing,
+                RegistrationType = type,
+                ContainerContext = Context,
+                Registration = registration,
+                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
                 ResolvePlan = ContextResolvePlan,
-                Type = registration is ExplicitRegistration containerRegistration
-                                     ? containerRegistration.Type ?? type : type
+                Compose = Compose
+                //Type = registration is ExplicitRegistration explicitRegistration
+                //     ? explicitRegistration.Type ?? type
+                //     : type,
             };
 
-            return ExecutePlan(ref context);
+            // Initialize an object
+            return DefaultPipeline(ref context);
         }
 
         #endregion

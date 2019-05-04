@@ -106,7 +106,7 @@ namespace Unity
 
         private ImplicitRegistration GetSimpleRegistration(Type type, string? name)
         {
-            int hashExact = NamedType.GetHashCode(type, name);
+            int hashCode = NamedType.GetHashCode(type, name);
 
             // Iterate through containers hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -117,10 +117,11 @@ namespace Unity
                 var registry = container._registry;
 
                 // Check for exact match
-                for (var i = registry.Buckets[(hashExact & HashMask) % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
+                for (var i = registry.Buckets[(hashCode & HashMask) % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashExact || candidate.Type != type)
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                         continue;
 
                     // Found a registration
@@ -131,7 +132,7 @@ namespace Unity
                 }
             }
 
-            return _root.GetOrAdd(hashExact, type, name, null);
+            return _root.GetOrAdd(hashCode, type, name, null);
         }
 
 
@@ -167,7 +168,8 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashExact || candidate.Type != type)
+                    if (candidate.HashCode != hashExact || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                         continue;
 
                     // Found a registration
@@ -182,7 +184,8 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashGeneric || candidate.Type != generic)
+                    if (candidate.HashCode != hashGeneric || candidate.Type != generic ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                         continue;
 
                     // Found a factory
@@ -194,7 +197,8 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashDefault || candidate.Type != generic)
+                    if (candidate.HashCode != hashDefault || candidate.Type != generic ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                         continue;
 
                     // Found a factory
@@ -244,7 +248,8 @@ namespace Unity
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Type != type)
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                     {
                         collisions++;
                         continue;
@@ -329,6 +334,9 @@ namespace Unity
             return null;
         }
 
+        private ImplicitRegistration GetOrAdd(Type type, string? name, IPolicySet? factory = null)
+            => GetOrAdd(NamedType.GetHashCode(type, name), type, name, factory);
+
         private ImplicitRegistration GetOrAdd(int hashCode, Type type, string? name, IPolicySet? factory)
         {
             lock (_syncRegistry)
@@ -340,7 +348,8 @@ namespace Unity
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Type != type)
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                     {
                         collisions++;
                         continue;
@@ -385,7 +394,7 @@ namespace Unity
                              ? new ImplicitRegistration(this, name, factory)
                              : new ImplicitRegistration(this, name, set);
 
-            registration.Processors = Defaults.TypePipeline;
+            registration.Processors = Context.TypePipelineCache;
 
             if (registration.LifetimeManager is IDisposable) LifetimeContainer.Add(registration.LifetimeManager);
 

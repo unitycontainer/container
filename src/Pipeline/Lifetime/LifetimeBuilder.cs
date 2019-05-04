@@ -28,7 +28,7 @@ namespace Unity.Pipeline
             if (null == pipeline)
                 return (ref BuilderContext context) =>
                 {
-                    var value = lifetime.GetValue(context.Lifetime);
+                    var value = lifetime.GetValue(context.ContainerContext.Lifetime);
                     return LifetimeManager.NoValue != value ? value : null;
                 };
 
@@ -44,13 +44,13 @@ namespace Unity.Pipeline
                     // Return if holds value
                     if (null != policy)
                     {
-                        value = policy.GetValue(context.Lifetime);
+                        value = policy.GetValue(context.ContainerContext.Lifetime);
                         if (LifetimeManager.NoValue != value) return value;
                     }
 
                     // Compose down the chain
                     value = pipeline(ref context);
-                    policy?.SetValue(value, context.Lifetime);
+                    policy?.SetValue(value, context.ContainerContext.Lifetime);
 
                     return value;
                 };
@@ -62,12 +62,12 @@ namespace Unity.Pipeline
                     context.RequiresRecovery = recovery;
 
                     // Return if holds value
-                    var value = lifetime.GetValue(context.Lifetime);
+                    var value = lifetime.GetValue(context.ContainerContext.Lifetime);
                     if (LifetimeManager.NoValue != value) return value;
 
                     // Compose down the chain
                     value = pipeline(ref context);
-                    lifetime.SetValue(value, context.Lifetime);
+                    lifetime.SetValue(value, context.ContainerContext.Lifetime);
 
                     return value;
                 };
@@ -75,12 +75,12 @@ namespace Unity.Pipeline
             return (ref BuilderContext context) =>
             {
                 // Return if holds value
-                var value = lifetime.GetValue(context.Lifetime);
+                var value = lifetime.GetValue(context.ContainerContext.Lifetime);
                 if (LifetimeManager.NoValue != value) return value;
 
                 // Compose down the chain
                 value = pipeline(ref context);
-                lifetime.SetValue(value, context.Lifetime);
+                lifetime.SetValue(value, context.ContainerContext.Lifetime);
 
                 return value;
             };

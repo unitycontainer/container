@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Factories;
 using Unity.Policy;
 using Unity.Registration;
@@ -23,17 +24,22 @@ namespace Unity.Pipeline
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
             // Try to get resolver
+            Type generic;
             var resolver = builder.Registration.Get(typeof(ResolveDelegate<BuilderContext>)) ??
-                           builder.Container.GetPolicy(builder.Type, typeof(ResolveDelegate<BuilderContext>));
+                           builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<BuilderContext>));
 
-            if (null == resolver && builder.Registration is ExplicitRegistration explicitRegistration)
+            if (null == resolver)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                 if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
 #else
                 if (null != builder.Type && builder.Type.IsGenericType)
 #endif
-                    resolver = builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(), typeof(ResolveDelegate<BuilderContext>));
+                {
+                    generic = builder.Type.GetGenericTypeDefinition();
+                    resolver = builder.ContainerContext.Get(generic, builder.Registration.Name, typeof(ResolveDelegate<BuilderContext>)) ??
+                               builder.ContainerContext.Get(generic, typeof(ResolveDelegate<BuilderContext>));
+                }
             }
 
             // Process if found
@@ -51,13 +57,22 @@ namespace Unity.Pipeline
                 if (null != builder.Type && builder.Type.IsGenericType)
 #endif
                 {
-                    factory = (TypeResolverFactory?)builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(),
-                                                                                   typeof(TypeResolverFactory));
+                    factory = (TypeResolverFactory?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
+                                                                                 typeof(TypeResolverFactory));
                 }
                 else if (builder.Type.IsArray)
                 {
-                    var resolve = ArrayResolver.Factory(builder.Type, builder.Registration);
-                    return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
+                    if (builder.Type.GetArrayRank() == 1)
+                    {
+                        var resolve = ArrayResolver.Factory(builder.Type, builder.Registration);
+                        return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
+                    }
+                    else
+                    {
+                        var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
+                        return (ref BuilderContext context) => throw new InvalidOperationException(message,
+                            new InvalidRegistrationException());
+                    }
                 }
             }
             else
@@ -68,12 +83,19 @@ namespace Unity.Pipeline
                 if (builder.Type.IsGenericType)
 #endif
                 {
-                    factory = (TypeResolverFactory?)builder.Container.GetPolicy(builder.Type.GetGenericTypeDefinition(),
-                                                                                   typeof(TypeResolverFactory));
+                    factory = (TypeResolverFactory?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
+                                                                                 typeof(TypeResolverFactory));
                 }
                 else if (builder.Type.IsArray)
                 {
-                    return builder.Pipeline(ArrayResolver.Factory(builder.Type, builder.Registration));
+                    if (builder.Type.GetArrayRank() == 1)
+                        return builder.Pipeline(ArrayResolver.Factory(builder.Type, builder.Registration));
+                    else
+                    {
+                        var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
+                        return (ref BuilderContext context) => throw new InvalidOperationException(message,
+                            new InvalidRegistrationException());
+                    }
                 }
             }
 

@@ -29,12 +29,12 @@ namespace Unity.Processors
                     var policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
                     // Return if holds value
-                    var value = policy?.GetValue(context.Lifetime) ?? LifetimeManager.NoValue;
+                    var value = policy?.GetValue(context.ContainerContext.Lifetime) ?? LifetimeManager.NoValue;
                     if (LifetimeManager.NoValue != value) return value;
 
                     // Compose down the chain
                     value = seed?.Invoke(ref context);
-                    policy?.SetValue(value, context.Lifetime);
+                    policy?.SetValue(value, context.ContainerContext.Lifetime);
 
                     return value;
                 };
@@ -45,12 +45,12 @@ namespace Unity.Processors
                     context.RequiresRecovery = recovery;
 
                     // Return if holds value
-                    var value = lifetime.GetValue(context.Lifetime);
+                    var value = lifetime.GetValue(context.ContainerContext.Lifetime);
                     if (LifetimeManager.NoValue != value) return value;
 
                     // Compose down the chain
                     value = seed?.Invoke(ref context);
-                    lifetime.SetValue(value, context.Lifetime);
+                    lifetime.SetValue(value, context.ContainerContext.Lifetime);
 
                     return value;
                 };
@@ -58,12 +58,12 @@ namespace Unity.Processors
             return (ref BuilderContext context) =>
             {
                 // Return if holds value
-                var value = lifetime.GetValue(context.Lifetime);
+                var value = lifetime.GetValue(context.ContainerContext.Lifetime);
                 if (LifetimeManager.NoValue != value) return value;
 
                 // Compose down the chain
                 value = seed?.Invoke(ref context);
-                lifetime.SetValue(value, context.Lifetime);
+                lifetime.SetValue(value, context.ContainerContext.Lifetime);
 
                 return value;
             };

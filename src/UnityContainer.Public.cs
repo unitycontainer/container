@@ -52,43 +52,7 @@ namespace Unity
             var methodsBuilder     = new MethodBuilder(this);
 
             // Add Defaults to Registry
-            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(this)
-            {
-                // Build Stages
-                TypeStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
-                {
-                    { lifetimeBuilder,    PipelineStage.Lifetime },
-                    { mappingBuilder,     PipelineStage.TypeMapping },
-                    { factoryBuilder, PipelineStage.Factory },
-                    { constructorBuilder, PipelineStage.Creation },
-                    { fieldsBuilder,      PipelineStage.Fields },
-                    { propertiesBuilder,  PipelineStage.Properties },
-                    { methodsBuilder,     PipelineStage.Methods }
-                },
-
-                FactoryStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
-                {
-                    { lifetimeBuilder, PipelineStage.Lifetime },
-                    { factoryBuilder,  PipelineStage.Factory }
-                },
-
-                InstanceStages = new StagedStrategyChain<PipelineBuilder, PipelineStage>
-                {
-                    { lifetimeBuilder, PipelineStage.Lifetime },
-                },
-
-                // Selectors
-                CtorSelector       = constructorBuilder,
-                FieldsSelector     = fieldsBuilder,
-                PropertiesSelector = propertiesBuilder,
-                MethodsSelector    = methodsBuilder,
-
-                // Default registration lifetime
-                TypeLifetimeManager     = TransientLifetimeManager.Instance,
-                FactoryLifetimeManager  = TransientLifetimeManager.Instance,
-                InstanceLifetimeManager = InstanceLifetime.PerContainer,
-            });
-
+            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(this));
             
             /////////////////////////////////////////////////////////////
             //Built-In Registrations
@@ -114,19 +78,38 @@ namespace Unity
             // Lifetime Container
             LifetimeContainer = new LifetimeContainer(this);
 
-            // Context
-            _context = new ContainerContext(this);
+            // Create Local Context
+            Context = new ContainerContext(this,
 
-            // Build Strategies
-            _strategies = new StagedStrategyChain<BuilderStrategy, UnityBuildStage>
-            {
-                {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // Lifetime
-                {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
-            };
+                // Type Build Pipeline
+                new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                {
+                    { lifetimeBuilder,    PipelineStage.Lifetime },
+                    { mappingBuilder,     PipelineStage.TypeMapping },
+                    { factoryBuilder, PipelineStage.Factory },
+                    { constructorBuilder, PipelineStage.Creation },
+                    { fieldsBuilder,      PipelineStage.Fields },
+                    { propertiesBuilder,  PipelineStage.Properties },
+                    { methodsBuilder,     PipelineStage.Methods }
+                },
 
-            // Update on change
-            _strategies.Invalidated += (s, e) => _strategiesChain = _strategies.ToArray();
-            _strategiesChain = _strategies.ToArray();
+                // Factory Resolve Pipeline
+                new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                {
+                    { lifetimeBuilder, PipelineStage.Lifetime },
+                    { factoryBuilder,  PipelineStage.Factory }
+                },
+
+                // Instance Resolve Pipeline
+                new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                {
+                    { lifetimeBuilder, PipelineStage.Lifetime },
+                });
+            // Selectors
+            Defaults.SelectConstructor = constructorBuilder;
+            Defaults.SelectProperty    = propertiesBuilder;
+            Defaults.SelectMethod      = methodsBuilder;
+            Defaults.SelectField       = fieldsBuilder;
         }
 
         #endregion
@@ -143,12 +126,21 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registry
-                if (null == container._metadata)
+                if (null == container._metadata || null == container._registry)
                     continue;
 
                 // Look for exact match
-                if (container._registry?.Contains(hashCode, type) ?? false)
+                var registry = container._registry;
+                var targetBucket = (hashCode & HashMask) % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
+                        continue;
+
                     return true;
+                }
             }
 
             return false;
@@ -157,12 +149,16 @@ namespace Unity
         /// <inheritdoc />
         public IEnumerable<IContainerRegistration> Registrations
         {
-            #pragma warning disable CS8602
-
             get
             {
                 var set = new QuickSet<Type>();
-                
+                var registry = _root._registry ?? throw new InvalidOperationException();
+
+                // First, add the built-in registrations
+                set.Add(registry.Entries[1].HashCode, typeof(IUnityContainer));
+                set.Add(registry.Entries[2].HashCode, typeof(IUnityContainerAsync));
+
+
                 // IUnityContainer
                 yield return new ContainerRegistrationStruct
                 {
@@ -170,7 +166,6 @@ namespace Unity
                     MappedToType = typeof(UnityContainer),
                     LifetimeManager = TransientLifetimeManager.Instance
                 };
-                set.Add(_root._registry.Entries[1].HashCode, typeof(IUnityContainer));
 
                 // IUnityContainerAsync
                 yield return new ContainerRegistrationStruct
@@ -179,16 +174,17 @@ namespace Unity
                     MappedToType = typeof(UnityContainer),
                     LifetimeManager = TransientLifetimeManager.Instance
                 };
-                set.Add(_root._registry.Entries[2].HashCode, typeof(IUnityContainerAsync));
-
-                // Scan containers for explicit registrations
+                
+                
+                // Explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
                 {
                     // Skip to parent if no registrations
-                    if (null == container._metadata) continue;
+                    if (null == container._metadata || null == container._registry)
+                        continue;
 
                     // Hold on to registries
-                    var registry = container._registry;
+                    registry = container._registry;
                     for (var i = 0; i < registry.Count; i++)
                     {
                         var type = registry.Entries[i].Type;
@@ -207,8 +203,6 @@ namespace Unity
                     }
                 }
             }
-            
-            #pragma warning restore CS8602
         }
 
         #endregion
@@ -220,7 +214,7 @@ namespace Unity
         public UnityContainer CreateChildContainer()
         {
             var child = new UnityContainer(this);
-            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
+            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child.Context));
             return child;
         }
 
@@ -246,7 +240,7 @@ namespace Unity
 
                 _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
             }
-            (extension as UnityContainerExtension)?.InitializeExtension(_context);
+            (extension as UnityContainerExtension)?.InitializeExtension(Context);
 
             return this;
         }

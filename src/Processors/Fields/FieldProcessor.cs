@@ -34,7 +34,7 @@ namespace Unity.Processors
         protected override Type MemberType(FieldInfo info) => info.FieldType;
 
         public override ISelect<FieldInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<ISelect<FieldInfo>>() ?? Defaults.FieldsSelector;
+            registration.Get<ISelect<FieldInfo>>() ?? Defaults.SelectField;
 
         #endregion
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using Unity.Builder;
 using Unity.Injection;
@@ -43,10 +44,11 @@ namespace Unity.Registration
             : base(owner)
         {
             Name = name;
-            Map = factory.Map;
+            BuildType = factory.BuildType;
             Next = factory.Next;
             LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
             InjectionMembers = factory.InjectionMembers;
+            BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
         }
 
         public ImplicitRegistration(UnityContainer owner, string? name, ResolveDelegate<BuilderContext> pipeline)
@@ -67,13 +69,11 @@ namespace Unity.Registration
 
         public IEnumerable<PipelineBuilder>? Processors { get; set; }
 
-        public BuilderStrategy[]? BuildChain { get; set; } // TODO: Remove
-
         public InjectionMember[]? InjectionMembers { get; set; }
 
-        public bool BuildRequired { get; set; }
+        public virtual bool BuildRequired { get; }
 
-        public Converter<Type, Type>? Map { get; set; }
+        public virtual Converter<Type, Type>? BuildType { get; }
 
         public LifetimeManager? LifetimeManager { get; set; }
 
@@ -97,22 +97,19 @@ namespace Unity.Registration
         {
             return policyInterface switch
             {
-                Type type when typeof(LifetimeManager) == type => LifetimeManager, 
+                Type type when typeof(LifetimeManager) == type => base.Get(policyInterface) ?? LifetimeManager, 
                 _ => base.Get(policyInterface)
             };
         }
 
         public override void Set(Type policyInterface, object policy)
         {
-            if (typeof(ResolveDelegate<BuilderContext>) == policyInterface)
-                Pipeline = (ResolveDelegate<BuilderContext>)policy;
-            else
-                Next = new PolicyEntry
-                {
-                    Key = policyInterface,
-                    Value = policy,
-                    Next = Next
-                };
+            Next = new PolicyEntry
+            {
+                Key = policyInterface,
+                Value = policy,
+                Next = Next
+            };
         }
 
         #endregion
@@ -134,7 +131,7 @@ namespace Unity.Registration
 
             public bool BuildRequired => _registration.BuildRequired;
 
-            public Converter<Type, Type?>? Map => _registration.Map;
+            public Converter<Type, Type?>? Map => _registration.BuildType;
 
             public LifetimeManager? LifetimeManager => null;
 

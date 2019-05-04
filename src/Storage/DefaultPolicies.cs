@@ -1,106 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Unity.Composition;
-using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Policy;
 
 namespace Unity.Storage
 {
-    public class DefaultPolicies : PolicySet
+    public class DefaultPolicies : PolicySet, 
+                                   ISelect<ConstructorInfo>,
+                                   ISelect<PropertyInfo>,
+                                   ISelect<MethodInfo>,
+                                   ISelect<FieldInfo>
     {
         #region Fields
 
-        private StagedStrategyChain<PipelineBuilder, PipelineStage> _typeStages;
-        private StagedStrategyChain<PipelineBuilder, PipelineStage> _factoryStages;
-        private StagedStrategyChain<PipelineBuilder, PipelineStage> _instanceStages;
-
+        private ISelect<ConstructorInfo> _selectConstructor;
+        private ISelect<PropertyInfo> _selectProperty;
+        private ISelect<MethodInfo> _selectMethod;
+        private ISelect<FieldInfo> _selectField;
+        
         #endregion
 
 
         #region Constructors
 
-        // Non-nullable field is uninitialized.
-        #pragma warning disable CS8618 
-
         public DefaultPolicies(UnityContainer owner)
             : base(owner)
         {
+            _selectConstructor = this;
+            _selectProperty = this;
+            _selectMethod = this;
+            _selectField = this;
         }
-
-
-        #pragma warning restore CS8618
-        #endregion
-
-
-        #region Pipelines
-
-        public PipelineBuilder[] TypePipeline { get; private set; }
-        public StagedStrategyChain<PipelineBuilder, PipelineStage> TypeStages
-        {
-            get => _typeStages;
-            set
-            {
-                _typeStages = value;
-                _typeStages.Invalidated += (s, e) => TypePipeline = _typeStages.ToArray();
-
-                TypePipeline = _typeStages.ToArray();
-            }
-        }
-
-        public PipelineBuilder[] FactoryPipeline { get; private set; }
-        public StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryStages
-        {
-            get => _factoryStages;
-            set
-            {
-                _factoryStages = value;
-                _factoryStages.Invalidated += (s, e) => FactoryPipeline = _factoryStages.ToArray();
-
-                FactoryPipeline = _factoryStages.ToArray();
-            }
-        }
-
-        public PipelineBuilder[] InstancePipeline { get; private set; }
-        public StagedStrategyChain<PipelineBuilder, PipelineStage> InstanceStages
-        {
-            get => _instanceStages;
-            set
-            {
-                _instanceStages = value;
-                _instanceStages.Invalidated += (s, e) => InstancePipeline = _instanceStages.ToArray();
-
-                InstancePipeline = _instanceStages.ToArray();
-            }
-        }
-
-        #endregion
-
-
-        #region Default Lifetime
-
-        public ITypeLifetimeManager TypeLifetimeManager { get; set; }
-
-        public IFactoryLifetimeManager FactoryLifetimeManager { get; set; }
-
-        public IInstanceLifetimeManager InstanceLifetimeManager { get; set; }
-
-        #endregion
-
-
-
-        #region Public Members
-
-        public CompositionDelegate ComposeMethod { get; set; }
-
-        public ISelect<ConstructorInfo> CtorSelector { get; set; }
-
-        public ISelect<PropertyInfo> PropertiesSelector { get; set; }
-
-        public ISelect<MethodInfo> MethodsSelector { get; set; }
-
-        public ISelect<FieldInfo> FieldsSelector { get; set; }
-
+        
         #endregion
 
 
@@ -110,11 +42,10 @@ namespace Unity.Storage
         {
             return policyInterface switch
             {
-                Type type when typeof(ISelect<ConstructorInfo>) == type => CtorSelector,
-                Type type when typeof(ISelect<PropertyInfo>) == type => PropertiesSelector,
-                Type type when typeof(ISelect<MethodInfo>) == type => MethodsSelector,
-                Type type when typeof(ISelect<FieldInfo>) == type => FieldsSelector,
-                Type type when typeof(CompositionDelegate) == type => ComposeMethod,
+                Type type when typeof(ISelect<ConstructorInfo>) == type => SelectConstructor,
+                Type type when typeof(ISelect<PropertyInfo>) == type => SelectProperty,
+                Type type when typeof(ISelect<MethodInfo>) == type => SelectMethod,
+                Type type when typeof(ISelect<FieldInfo>) == type => SelectField,
 
                 _ => base.Get(policyInterface)
             };
@@ -125,23 +56,19 @@ namespace Unity.Storage
             switch (policyInterface)
             {
                 case Type type when typeof(ISelect<ConstructorInfo>) == type:
-                    CtorSelector = (ISelect<ConstructorInfo>)policy;
+                    SelectConstructor = (ISelect<ConstructorInfo>)policy;
                     break;
 
                 case Type type when typeof(ISelect<PropertyInfo>) == type:
-                    PropertiesSelector = (ISelect<PropertyInfo>)policy;
+                    SelectProperty = (ISelect<PropertyInfo>)policy;
                     break;
 
                 case Type type when typeof(ISelect<MethodInfo>) == type:
-                    MethodsSelector = (ISelect<MethodInfo>)policy;
+                    SelectMethod = (ISelect<MethodInfo>)policy;
                     break;
 
                 case Type type when typeof(ISelect<FieldInfo>) == type:
-                    FieldsSelector = (ISelect<FieldInfo>)policy;
-                    break;
-
-                case Type type when typeof(CompositionDelegate) == type:
-                    ComposeMethod = (CompositionDelegate)policy;
+                    SelectField = (ISelect<FieldInfo>)policy;
                     break;
 
                 default:
@@ -149,6 +76,46 @@ namespace Unity.Storage
                     break;
             }
         }
+
+        #endregion
+
+
+        #region Default Policies
+
+        public ISelect<ConstructorInfo> SelectConstructor
+        {
+            get => _selectConstructor;
+            set => _selectConstructor = value ?? 
+                throw new ArgumentNullException("Constructor Selector must not be null");
+        }
+
+        public ISelect<PropertyInfo> SelectProperty
+        {
+            get => _selectProperty;
+            set => _selectProperty = value ?? 
+                throw new ArgumentNullException("Property Selector must not be null");
+        }
+
+        public ISelect<MethodInfo> SelectMethod
+        {
+            get => _selectMethod;
+            set => _selectMethod = value ?? 
+                throw new ArgumentNullException("Method Selector must not be null");
+        }
+
+        public ISelect<FieldInfo> SelectField
+        {
+            get => _selectField;
+            set => _selectField = value 
+                ?? throw new ArgumentNullException("Field Selector must not be null");
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        public IEnumerable<object> Select(Type type, IPolicySet registration) => throw new NotImplementedException();
 
         #endregion
     }

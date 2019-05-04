@@ -43,7 +43,7 @@ namespace Unity.Storage
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType, TStageEnum}"/> class with an inner strategy chain to use when building.
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
-        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum> innerChain)
+        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum>? innerChain = null)
         {
             if (null != innerChain)
             {

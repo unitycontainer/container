@@ -47,7 +47,7 @@ namespace Unity.Pipeline
                         if (null == c.Existing)
                             throw exception;
 
-                        return pipeline?.Invoke(ref c);
+                        return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
                     };
 
                 default:
@@ -57,7 +57,7 @@ namespace Unity.Pipeline
                             throw new InvalidOperationException($"No public constructor is available for type {c.Type}.",
                                 new InvalidRegistrationException());
 
-                        return pipeline?.Invoke(ref c);
+                        return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
                     };
             }
 
@@ -88,7 +88,7 @@ namespace Unity.Pipeline
                     context.Existing = info.Invoke(dependencies);
                 }
 
-                return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
             };
         }
 
@@ -109,7 +109,7 @@ namespace Unity.Pipeline
                           new InternalPerResolveLifetimeManager(context.Existing));
                 }
 
-                return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
             };
         }
         
