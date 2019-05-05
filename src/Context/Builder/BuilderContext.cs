@@ -120,6 +120,7 @@ namespace Unity.Builder
 
         #region Registration
 
+        // TODO: Remove
         public Type RegistrationType { get; set; }
 
         public ImplicitRegistration Registration { get; set; }

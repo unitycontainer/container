@@ -53,9 +53,9 @@ namespace Unity
         private readonly UnityContainer? _parent;
         private List<IUnityContainerExtensionConfigurator>? _extensions;
 
+        internal readonly DefaultPolicies Defaults;
         internal readonly ContainerContext Context;
         internal readonly LifetimeContainer LifetimeContainer;
-        internal readonly DefaultPolicies Defaults;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;

@@ -8,6 +8,7 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Extensions;
 using Unity.Factories;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Policy;
@@ -24,7 +25,7 @@ namespace Unity
         /// <summary>
         /// Create a default <see cref="UnityContainer"/>.
         /// </summary>
-        public UnityContainer()
+        public UnityContainer(bool diagnostic = false)
         {
             /////////////////////////////////////////////////////////////
             // Initialize Root 
@@ -34,6 +35,7 @@ namespace Unity
             // Create storage
             Defaults = new DefaultPolicies(this);
             LifetimeContainer = new LifetimeContainer(this);
+            Register = AddOrReplace;
 
             // Create Registry and set Factory strategy
             _metadata = new Registry<int[]>();
@@ -55,38 +57,106 @@ namespace Unity
             _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(TypeResolverFactory), EnumerableResolver.Factory)); // Enumerable
             _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(TypeResolverFactory), RegExResolver.Factory));      // Regular Expression Enumerable
 
-            /////////////////////////////////////////////////////////////
-            // Setup Pipelines
-
+            // Pipeline
             var lifetimeBuilder = new LifetimeBuilder();
+            var mappingBuilder = new MappingBuilder();
             var factoryBuilder = new FactoryBuilder();
 
-            // Create Local Context
-            Context = new ContainerContext(this,
-                new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
-                {
-                    { lifetimeBuilder,              PipelineStage.Lifetime },
-                    { new MappingBuilder(),         PipelineStage.TypeMapping },
-                    { factoryBuilder,               PipelineStage.Factory },
-                    { new ConstructorBuilder(this), PipelineStage.Creation },
-                    { new FieldBuilder(this),       PipelineStage.Fields },
-                    { new PropertyBuilder(this),    PipelineStage.Properties },
-                    { new MethodBuilder(this),      PipelineStage.Methods }
-                },
-                new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
-                {
-                    { lifetimeBuilder, PipelineStage.Lifetime },
-                    { factoryBuilder,  PipelineStage.Factory }
-                },
-                new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
-                {
-                    { lifetimeBuilder, PipelineStage.Lifetime },
-                });
+            // Mode of operation
+            if (!diagnostic)
+            {
+                /////////////////////////////////////////////////////////////
+                // Setup Optimized mode
 
-            /////////////////////////////////////////////////////////////
-            // Container Specific
+                var setupBuilder = new ErrorHandlerBuilder();
 
-            Register = AddOrReplace;
+                // Create Context
+                Context = new ContainerContext(this,
+                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
+                    {
+                        { setupBuilder,    PipelineStage.Setup },
+                        { lifetimeBuilder, PipelineStage.Lifetime },
+                        { mappingBuilder,  PipelineStage.TypeMapping },
+                        { factoryBuilder,  PipelineStage.Factory },
+                        { new ConstructorBuilder(this), PipelineStage.Creation },
+                        { new FieldBuilder(this),       PipelineStage.Fields },
+                        { new PropertyBuilder(this),    PipelineStage.Properties },
+                        { new MethodBuilder(this),      PipelineStage.Methods }
+                    },
+                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
+                    {
+                        { setupBuilder,    PipelineStage.Setup },
+                        { lifetimeBuilder, PipelineStage.Lifetime },
+                        { factoryBuilder,  PipelineStage.Factory }
+                    },
+                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
+                    {
+                        { setupBuilder,    PipelineStage.Setup },
+                        { lifetimeBuilder, PipelineStage.Lifetime },
+                    });
+            }
+            else
+            {
+                /////////////////////////////////////////////////////////////
+                // Setup Diagnostic mode
+
+                var setupBuilder = new ErrorHandlerDiagnostic();
+
+                // Create Context
+                Context = new ContainerContext(this,
+                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
+                    {
+                        { setupBuilder,    PipelineStage.Setup },
+                        { lifetimeBuilder, PipelineStage.Lifetime },
+                        { mappingBuilder,  PipelineStage.TypeMapping },
+                        { factoryBuilder,  PipelineStage.Factory },
+                        { new ConstructorDiagnostic(this), PipelineStage.Creation },
+                        { new FieldDiagnostic(this),       PipelineStage.Fields },
+                        { new PropertyDiagnostic(this),    PipelineStage.Properties },
+                        { new MethodDiagnostic(this),      PipelineStage.Methods }
+                    },
+                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
+                    {
+                        { setupBuilder,    PipelineStage.Setup },
+                        { lifetimeBuilder, PipelineStage.Lifetime },
+                        { factoryBuilder,  PipelineStage.Factory }
+                    },
+                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
+                    {
+                        { setupBuilder,    PipelineStage.Setup },
+                        { lifetimeBuilder, PipelineStage.Lifetime },
+                    });
+
+                // Build process
+                Compose = ValidatingComposePlan;
+                ContextResolvePlan = ContextValidatingResolvePlan;
+
+                // Validators
+                var validators = new PolicySet(this);
+
+                // TODO: Integrate with builder
+                validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
+                validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);
+                validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
+                validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
+
+                _validators = validators;
+
+                // Registration Validator
+                TypeValidator = (typeFrom, typeTo) =>
+                {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
+                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
+#else
+                    if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
+                        !typeFrom.IsAssignableFrom(typeTo))
+#endif
+                    {
+                        throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
+                    }
+                };
+            }
         }
 
         #endregion
@@ -129,7 +199,7 @@ namespace Unity
             get
             {
                 var set = new QuickSet<Type>();
-                var registry = _root._registry ?? throw new InvalidOperationException();
+                var registry = _root?._registry ?? throw new InvalidOperationException();
 
                 // First, add the built-in registrations
                 set.Add(registry.Entries[1].HashCode, typeof(IUnityContainer));

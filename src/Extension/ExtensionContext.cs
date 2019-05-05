@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -34,9 +33,9 @@ namespace Unity.Extension
 
         #region Pipeline Build Chains
 
-        public abstract StagedStrategyChain<PipelineBuilder, PipelineStage> TypePipeline { get; set; }
-        public abstract StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryPipeline { get; set; }
-        public abstract StagedStrategyChain<PipelineBuilder, PipelineStage> InstancePipeline { get; set; }
+        public abstract StagedStrategyChain<PipelineBuilder, PipelineStage> TypePipeline { get; }
+        public abstract StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryPipeline { get; }
+        public abstract StagedStrategyChain<PipelineBuilder, PipelineStage> InstancePipeline { get; }
 
         #endregion
 

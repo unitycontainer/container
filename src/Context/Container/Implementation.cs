@@ -15,9 +15,6 @@ namespace Unity
             private LifetimeManager _factoryLifetimeManager;
             private LifetimeManager _instanceLifetimeManager;
             private const string error = "Lifetime Manager must not be null";
-            private StagedStrategyChain<PipelineBuilder, PipelineStage> _typePipeline;
-            private StagedStrategyChain<PipelineBuilder, PipelineStage> _factoryPipeline;
-            private StagedStrategyChain<PipelineBuilder, PipelineStage> _instancePipeline;
 
             #endregion
 
@@ -38,17 +35,17 @@ namespace Unity
                 _instanceLifetimeManager = new ContainerControlledLifetimeManager();
 
                 // Initialize Pipelines
-                _typePipeline = type;
-                _typePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
-                TypePipelineCache = _typePipeline.ToArray();
+                TypePipeline = type;
+                TypePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
+                TypePipelineCache = TypePipeline.ToArray();
 
-                _factoryPipeline = factory;
-                _factoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
-                FactoryPipelineCache = _factoryPipeline.ToArray();
+                FactoryPipeline = factory;
+                FactoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
+                FactoryPipelineCache = FactoryPipeline.ToArray();
 
-                _instancePipeline = instance;
-                _instancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
-                InstancePipelineCache = _instancePipeline.ToArray();
+                InstancePipeline = instance;
+                InstancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
+                InstancePipelineCache = InstancePipeline.ToArray();
             }
 
             // Child Container Constructor
@@ -67,23 +64,20 @@ namespace Unity
                 // TODO: Create on demand
 
                 // Initialize Pipelines
-                _typePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.TypePipeline);
-                _typePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
-                TypePipelineCache = _typePipeline.ToArray();
+                TypePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.TypePipeline);
+                TypePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
+                TypePipelineCache = TypePipeline.ToArray();
 
-                _factoryPipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.FactoryPipeline);
-                _factoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
-                FactoryPipelineCache = _factoryPipeline.ToArray();
+                FactoryPipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.FactoryPipeline);
+                FactoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
+                FactoryPipelineCache = FactoryPipeline.ToArray();
 
-                _instancePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.InstancePipeline);
-                _instancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
-                InstancePipelineCache = _instancePipeline.ToArray();
+                InstancePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.InstancePipeline);
+                InstancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
+                InstancePipelineCache = InstancePipeline.ToArray();
             }
 
             #endregion
-
-
-
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unity.Tests.v5.TestDoubles
+namespace Unity.Tests.TestDoubles
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class DependencyAttribute : Attribute

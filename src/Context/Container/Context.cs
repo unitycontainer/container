@@ -24,35 +24,11 @@ namespace Unity
 
             #region Pipelines
 
-            public override StagedStrategyChain<PipelineBuilder, PipelineStage> TypePipeline
-            {
-                get => _typePipeline; set
-                {
-                    _typePipeline = value;
-                    _typePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
-                    TypePipelineCache = _typePipeline.ToArray();
-                }
-            }
+            public override StagedStrategyChain<PipelineBuilder, PipelineStage> TypePipeline { get; }
 
-            public override StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryPipeline
-            {
-                get => _factoryPipeline; set
-                {
-                    _factoryPipeline = value;
-                    _factoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
-                    FactoryPipelineCache = _factoryPipeline.ToArray();
-                }
-            }
+            public override StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryPipeline { get; }
 
-            public override StagedStrategyChain<PipelineBuilder, PipelineStage> InstancePipeline
-            {
-                get => _instancePipeline; set
-                {
-                    _instancePipeline = value;
-                    _instancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
-                    InstancePipelineCache = _instancePipeline.ToArray();
-                }
-            }
+            public override StagedStrategyChain<PipelineBuilder, PipelineStage> InstancePipeline { get; }
 
             #endregion
 

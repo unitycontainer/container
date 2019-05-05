@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.Container
+namespace Unity.Tests.Container
 {
     [TestClass]
     public class SeperateContainerFixture

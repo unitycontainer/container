@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Pipeline;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -235,13 +236,24 @@ namespace Unity
                 Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
                 ResolvePlan = ContextResolvePlan,
                 Compose = Compose
-                //Type = registration is ExplicitRegistration explicitRegistration
-                //     ? explicitRegistration.Type ?? type
-                //     : type,
             };
 
+            if (null == registration.Pipeline)
+            {
+                // TODO: Add timeout
+                lock (registration)
+                {
+                    if (null == registration.Pipeline)
+                    {
+                        PipelineContext builder = new PipelineContext(ref context);
+
+                        registration.Pipeline = builder.Pipeline() ?? DefaultResolver;
+                    }
+                }
+            }
+
             // Create an object
-            return BuildPipeline(ref context);
+            return registration.Pipeline(ref context);
         }
 
         #endregion
@@ -266,13 +278,24 @@ namespace Unity
                 Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
                 ResolvePlan = ContextResolvePlan,
                 Compose = Compose
-                //Type = registration is ExplicitRegistration explicitRegistration
-                //     ? explicitRegistration.Type ?? type
-                //     : type,
             };
 
+            if (null == registration.Pipeline)
+            {
+                // TODO: Add timeout
+                lock (registration)
+                {
+                    if (null == registration.Pipeline)
+                    {
+                        PipelineContext builder = new PipelineContext(ref context);
+
+                        registration.Pipeline = builder.Pipeline() ?? DefaultResolver;
+                    }
+                }
+            }
+
             // Initialize an object
-            return BuildPipeline(ref context);
+            return registration.Pipeline(ref context);
         }
 
         #endregion

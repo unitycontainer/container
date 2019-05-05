@@ -1,9 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Tests.v5.TestDoubles;
+using Unity.Pipeline;
+using Unity.Tests.TestDoubles;
 
-namespace Unity.Tests.v5.Container
+namespace Unity.Tests.Container
 {
     [TestClass]
     public class UnityExtensionFixture
@@ -56,11 +57,10 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
-        [Ignore]
         public void ExtensionCanAddStrategy()
         {
-            SpyStrategy spy = new SpyStrategy();
-            SpyExtension extension = new SpyExtension(spy, UnityBuildStage.PreCreation);
+            var spy = new SpyStrategy();
+            SpyExtension extension = new SpyExtension(spy, PipelineStage.PreCreation);
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);
@@ -71,14 +71,13 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
-        [Ignore]
         public void ExtensionCanAddPolicy()
         {
-            SpyStrategy spy = new SpyStrategy();
+            var spy = new SpyStrategy();
             SpyPolicy spyPolicy = new SpyPolicy();
 
             SpyExtension extension =
-                new SpyExtension(spy, UnityBuildStage.PreCreation, spyPolicy, typeof(SpyPolicy));
+                new SpyExtension(spy, PipelineStage.PreCreation, spyPolicy, typeof(SpyPolicy));
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);
@@ -101,41 +100,39 @@ namespace Unity.Tests.v5.Container
         }
 
         [TestMethod]
-        [Ignore]
         public void ContainerRaisesChildContainerCreatedToExtension()
         {
-            //bool childContainerEventRaised = false;
-            //var mockExtension = new MockContainerExtension();
+            bool childContainerEventRaised = false;
+            var mockExtension = new MockContainerExtension();
 
-            //var container = new UnityContainer()
-            //    .AddExtension(mockExtension);
+            var container = new UnityContainer()
+                .AddExtension(mockExtension);
 
-            //mockExtension.Context.ChildContainerCreated += (sender, ev) =>
-            //    {
-            //        childContainerEventRaised = true;
-            //    };
+            mockExtension.Context.ChildContainerCreated += (sender, ev) =>
+                {
+                    childContainerEventRaised = true;
+                };
 
-            //var child = container.CreateChildContainer();
-            //Assert.IsTrue(childContainerEventRaised);
+            var child = container.CreateChildContainer();
+            Assert.IsTrue(childContainerEventRaised);
         }
 
         [TestMethod]
-        [Ignore]
         public void ChildContainerCreatedEventGivesChildContainerToExtension()
         {
-            //var mockExtension = new MockContainerExtension();
-            //ExtensionContext childContext = null;
+            var mockExtension = new MockContainerExtension();
+            ExtensionContext childContext = null;
 
-            //var container = new UnityContainer()
-            //    .AddExtension(mockExtension);
+            var container = new UnityContainer()
+                .AddExtension(mockExtension);
 
-            //mockExtension.Context.ChildContainerCreated += (sender, ev) =>
-            //{
-            //    childContext = ev.ChildContext;
-            //};
+            mockExtension.Context.ChildContainerCreated += (sender, ev) =>
+            {
+                childContext = ev.ChildContext;
+            };
 
-            //var child = container.CreateChildContainer();
-            //Assert.AreSame(child, childContext.Container);
+            var child = container.CreateChildContainer();
+            Assert.AreSame(child, childContext.Container);
         }
 
         [TestMethod]

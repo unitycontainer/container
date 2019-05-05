@@ -1,4 +1,4 @@
-namespace Unity.Tests.v5.Override
+namespace Unity.Tests.Override
 {
     public class SubjectType3ToInject : ISubjectTypeToInject
     {

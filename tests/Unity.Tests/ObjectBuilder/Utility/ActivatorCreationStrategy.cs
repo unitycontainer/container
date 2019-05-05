@@ -2,7 +2,7 @@
 using Unity.Builder;
 using Unity.Strategies;
 
-namespace Unity.Tests.v5.ObjectBuilder.Utility
+namespace Unity.Tests.ObjectBuilder.Utility
 {
     internal class ActivatorCreationStrategy : BuilderStrategy
     {

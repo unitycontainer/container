@@ -18,10 +18,29 @@ namespace Unity.Pipeline
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
-            if (null != builder.Seed) return builder.Pipeline();
+            var pipeline = builder.Pipeline();
+
+            if (null != builder.Seed) return pipeline;
+
+            // Verify if can build
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (builder.Type.GetTypeInfo().IsGenericTypeDefinition)
+#else
+            if (builder.Type.IsGenericTypeDefinition)
+#endif
+            {
+                return (ref BuilderContext context) =>
+                {
+                    if (null == context.Existing)
+                        throw new InvalidOperationException(
+                            $"The type {context.Type} is an open generic. An open generic type cannot be created.",
+                            new InvalidRegistrationException());
+
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
 
             // Select ConstructorInfo
-            var pipeline = builder.Pipeline();
             var selector = GetOrDefault(builder.Registration);
             var selection = selector.Select(builder.Type, builder.Registration)
                                     .FirstOrDefault();

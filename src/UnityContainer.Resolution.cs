@@ -2,15 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extensions;
-using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Strategies;
 
 namespace Unity
 {
@@ -25,49 +21,6 @@ namespace Unity
         #region Constants
 
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
-
-        #endregion
-
-
-        #region Pipeline
-
-        internal ResolveDelegate<BuilderContext> BuildPipeline = (ref BuilderContext context) =>
-        {
-            try
-            {
-                if (null == context.Registration.Pipeline)
-                {
-                    lock (context.Registration)
-                    {
-                        if (null == context.Registration.Pipeline)
-                        {
-                            PipelineContext builder = new PipelineContext(ref context);
-
-                            context.Registration.Pipeline = builder.Pipeline() ?? DefaultResolver;
-                        }
-                    }
-                }
-
-                return context.Registration.Pipeline(ref context);
-            }
-            catch (MemberAccessException ex)
-            {
-                context.RequiresRecovery?.Recover();
-                throw new ResolutionFailedException(context.RegistrationType, context.Name, error, ex);
-            }
-            catch (Exception ex) when (ex.InnerException is InvalidRegistrationException)
-            {
-                context.RequiresRecovery?.Recover();
-                throw new ResolutionFailedException(context.RegistrationType, context.Name, error, ex);
-            }
-            catch
-            {
-                context.RequiresRecovery?.Recover();
-                throw;
-            }
-        };
-
-
 
         #endregion
 

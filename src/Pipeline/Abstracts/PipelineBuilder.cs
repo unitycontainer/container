@@ -11,8 +11,8 @@ namespace Unity.Pipeline
     {
         #region Public Members
 
-        public abstract IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
-                                                      Type type, ImplicitRegistration registration);
+        public virtual IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
+                                                      Type type, ImplicitRegistration registration) => throw new NotImplementedException();
 
         public virtual ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder) => builder.Pipeline();
 

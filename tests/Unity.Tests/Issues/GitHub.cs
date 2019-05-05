@@ -1,10 +1,13 @@
+using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using Unity.Lifetime;
+using Unity.Pipeline;
 using Unity.Resolution;
+using Unity.Tests.TestObjects;
 
-namespace Unity.Tests.v5.Issues
+namespace Unity.Tests.Issues
 {
     [TestClass]
     public class GitHubIssues
@@ -24,63 +27,67 @@ namespace Unity.Tests.v5.Issues
             }
         }
 
-        //[TestMethod]
-        //public void unitycontainer_container_108_without_any_registrations()
-        //{
-        //    var ioc = new UnityContainer();
-        //    var child = ioc.CreateChildContainer();
-        //    var spyStrategy = new TestDoubles.SpyStrategy();
-        //    child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
 
-        //    child.Resolve<EmailService>();
+        [TestMethod]
+        // https://github.com/unitycontainer/container/issues/126
+        public void Issue_126()
+        {
+            IUnityContainer Container = new UnityContainer();
+            Container.AddExtension(new SpyExtension(new SpyStrategy(), PipelineStage.Creation));
 
-        //    Assert.AreEqual(typeof(EmailService), spyStrategy.BuildKey.Type);
-        //}
+            // Setup
+            Container.RegisterSingleton<MockLogger>();
+            Container.Resolve<MockLogger>();
+            Container.RegisterType<ILogger, MockLogger>();
+            Container.RegisterType<ObjectOfDependencies>();
 
-        //[TestMethod]
-        //public void unitycontainer_container_108_with_some_existing_registration()
-        //{
-        //    var ioc = new UnityContainer();
-        //    var child = ioc.CreateChildContainer();
-        //    var spyStrategy = new TestDoubles.SpyStrategy();
-        //    child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+            // Act
+            Container.Resolve<MockLogger>();
+            Container.Resolve<ObjectOfDependencies>();
+            Container.Resolve<ILogger>();
+            Container.Resolve<ObjectOfDependencies>();
 
-        //    child.RegisterType<IService, EmailService>();
-        //    child.Resolve<IService>();
-        //    child.Resolve<EmailService>();
+            // Validate
+            Assert.IsTrue(((SpyStrategy)Container.Configure<SpyExtension>().PipelineBuilder).BuildUpCallCount.ContainsKey((typeof(MockLogger), null)));
+            var count = ((SpyStrategy)Container.Configure<SpyExtension>().PipelineBuilder).BuildUpCallCount[(typeof(MockLogger), null)];
+            Assert.AreEqual(1, count);
+        }
 
-        //    Assert.AreEqual(typeof(EmailService), spyStrategy.BuildKey.Type);
-        //}
 
-        //[TestMethod]
-        //public void unitycontainer_container_108_with_some_preexisting_registration()
-        //{
-        //    var ioc = new UnityContainer();
-        //    var child = ioc.CreateChildContainer();
-        //    var spyStrategy = new TestDoubles.SpyStrategy();
-        //    child.RegisterType<IService, EmailService>();
+        public interface ILogger
+        {
+        }
 
-        //    child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+        public class MockLogger : ILogger
+        {
+        }
 
-        //    child.Resolve<IService>();
-        //    child.Resolve<EmailService>();
 
-        //    Assert.AreEqual(typeof(EmailService), spyStrategy.BuildKey.Type);
-        //}
+        public class ObjectOfDependencies
+        {
+            public ObjectOfDependencies(ILogger logger)
+            {
+                CtorLogger = logger;
+            }
 
-        //[TestMethod]
-        //public void unitycontainer_container_108_for_dependencies()
-        //{
-        //    var child = new UnityContainer().CreateChildContainer();
-        //    var spyStrategy = new TestDoubles.SpyStrategy();
-        //    child.AddExtension(new TestDoubles.SpyExtension(spyStrategy, UnityBuildStage.PreCreation));
+            public void Validate()
+            {
+                Assert.IsNotNull(CtorLogger);
+            }
 
-        //    child.RegisterType<ObjectWithOneDependency, ObjectWithOneDependency>();
-        //    child.Resolve<ObjectWithOneDependency>();
+            public ILogger CtorLogger { get; }
+        }
 
-        //    var innerDependencyType = typeof(object);
-        //    Assert.AreEqual(innerDependencyType, spyStrategy.BuildKey.Type);
-        //}
+        [TestMethod]
+        public void unitycontainer_container_108_for_dependencies()
+        {
+            IUnityContainer child = new UnityContainer().CreateChildContainer();
+
+            child.RegisterType<ObjectWithOneDependency, ObjectWithOneDependency>();
+            var instance = child.Resolve<ObjectWithOneDependency>();
+
+            Assert.IsInstanceOfType(instance.InnerObject, typeof(object));
+        }
 
         [TestMethod]
         public void unitycontainer_container_88()
@@ -105,59 +112,56 @@ namespace Unity.Tests.v5.Issues
         }
 
         [TestMethod]
-        [Ignore]
         public void unitycontainer_container_92()
         {
-            //var ioc = new UnityContainer();
-            //ioc.RegisterFactory<IFoo>(
-            //    string.Empty, 
-            //    c => { throw new InvalidOperationException(); },
-            //    new SingletonLifetimeManager());
+            IUnityContainer ioc = new UnityContainer();
+            ioc.RegisterFactory<IFoo>(
+                string.Empty,
+                c => { throw new InvalidOperationException(); },
+                new SingletonLifetimeManager());
 
-            //Assert.ThrowsException<ResolutionFailedException>(() => ioc.Resolve<IFoo>());
+            Assert.ThrowsException<ResolutionFailedException>(() => ioc.Resolve<IFoo>());
         }
 
         [TestMethod]
-        [Ignore]
         public void unitycontainer_unity_204_1()
         {
-            //var container = new UnityContainer();
+            IUnityContainer container = new UnityContainer();
 
-            //container.RegisterType(typeof(ContextFactory), new PerResolveLifetimeManager());
-            //container.RegisterType<Service1>();
-            //container.RegisterType<Service2>();
-            //container.RegisterType<Repository1>();
-            //container.RegisterType<Repository2>();
+            container.RegisterType(typeof(ContextFactory), new PerResolveLifetimeManager());
+            container.RegisterType<Service1>();
+            container.RegisterType<Service2>();
+            container.RegisterType<Repository1>();
+            container.RegisterType<Repository2>();
 
-            //var service1 = container.Resolve<Service1>();
+            var service1 = container.Resolve<Service1>();
 
-            //Assert.AreEqual(service1.Repository1.Factory.Identity, service1.Repository2.Factory.Identity, "case1");
+            Assert.AreEqual(service1.Repository1.Factory.Identity, service1.Repository2.Factory.Identity, "case1");
 
-            //var service2 = container.Resolve<Service2>();
+            var service2 = container.Resolve<Service2>();
 
-            //Assert.AreEqual(service2.Service.Repository1.Factory.Identity, service2.Service.Repository2.Factory.Identity, "case2");
+            Assert.AreEqual(service2.Service.Repository1.Factory.Identity, service2.Service.Repository2.Factory.Identity, "case2");
         }
 
 
 
         [TestMethod]
-        [Ignore]
         public void unitycontainer_unity_204_2()
         {
-            //var container = new UnityContainer();
-            //container.RegisterType(typeof(ContextFactory), new PerResolveLifetimeManager());
-            //container.RegisterType(typeof(Service1),       new PerResolveLifetimeManager());
-            //container.RegisterType(typeof(Service2),       new PerResolveLifetimeManager());
-            //container.RegisterType(typeof(Repository1),    new PerResolveLifetimeManager());
-            //container.RegisterType(typeof(Repository2),    new PerResolveLifetimeManager());
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType(typeof(ContextFactory), new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Service1), new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Service2), new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Repository1), new PerResolveLifetimeManager());
+            container.RegisterType(typeof(Repository2), new PerResolveLifetimeManager());
 
-            //var service1 = container.Resolve<Service1>();
+            var service1 = container.Resolve<Service1>();
 
-            //Assert.AreEqual(service1.Repository1.Factory.Identity, service1.Repository2.Factory.Identity, "case1");
+            Assert.AreEqual(service1.Repository1.Factory.Identity, service1.Repository2.Factory.Identity, "case1");
 
-            //var service2 = container.Resolve<Service2>();
+            var service2 = container.Resolve<Service2>();
 
-            //Assert.AreEqual(service2.Service.Repository1.Factory.Identity, service2.Service.Repository2.Factory.Identity, "case2");
+            Assert.AreEqual(service2.Service.Repository1.Factory.Identity, service2.Service.Repository2.Factory.Identity, "case2");
         }
 
 

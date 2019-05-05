@@ -1,4 +1,4 @@
-namespace Unity.Tests.v5.Lifetime
+namespace Unity.Tests.Lifetime
 {
     public interface I2
     {

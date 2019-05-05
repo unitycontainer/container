@@ -2,7 +2,7 @@
 using System;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.Lifetime
+namespace Unity.Tests.Lifetime
 {
     [TestClass]
     public class WhenUsingHierarchicalLifetimeWithChildContainers

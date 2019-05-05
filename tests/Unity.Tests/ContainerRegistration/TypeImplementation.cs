@@ -1,4 +1,4 @@
-﻿namespace Unity.Tests.v5.ContainerRegistration
+﻿namespace Unity.Tests.ContainerRegistration
 {
     internal class TypeImplementation : ITypeInterface
     {

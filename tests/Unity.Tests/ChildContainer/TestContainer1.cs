@@ -1,4 +1,4 @@
-namespace Unity.Tests.v5.ChildContainer
+namespace Unity.Tests.ChildContainer
 {
     public class TestContainer1 : ITestContainer
     { }

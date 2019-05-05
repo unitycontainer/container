@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.ObjectBuilder.Utility
+namespace Unity.Tests.ObjectBuilder.Utility
 {
     internal class AssertActualExpectedException : AssertFailedException
     {

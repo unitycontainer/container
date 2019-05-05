@@ -64,9 +64,15 @@ namespace Unity.Pipeline
                         yield return GetResolverDelegate(injectionMember.MemberInfo(type), injectionMember.Data);
                         break;
 
+                    case Exception exception:
+                        yield return (ref BuilderContext c) => throw exception;
+                        break;
+
                     // Unknown
                     default:
-                        throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
+                        yield return (ref BuilderContext c) => 
+                            throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
+                        break;
                 }
             }
         }

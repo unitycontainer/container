@@ -1,5 +1,5 @@
 ﻿
-namespace Unity.Tests.v5.ContainerRegistration
+namespace Unity.Tests.ContainerRegistration
 {
     internal interface ITypeAnotherInterface
     {

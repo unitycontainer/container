@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.TestObjects
+namespace Unity.Tests.TestObjects
 {
     public interface ISomeCommonProperties
     {

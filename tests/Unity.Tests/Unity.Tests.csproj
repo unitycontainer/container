@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Unity.Tests.v5</RootNamespace>
+    <RootNamespace>Unity.Tests</RootNamespace>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 

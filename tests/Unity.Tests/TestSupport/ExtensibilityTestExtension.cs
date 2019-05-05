@@ -1,7 +1,7 @@
 ﻿
 using Unity.Extension;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unity.Tests.TestSupport
 {
     public interface IConfigOne : IUnityContainerExtensionConfigurator
     {

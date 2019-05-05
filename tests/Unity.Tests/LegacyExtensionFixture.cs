@@ -2,7 +2,7 @@
 using System;
 using Unity.Extension;
 
-namespace Unity.Tests.v5
+namespace Unity.Tests
 {
     [TestClass]
     public class LegacyExtensionFixture

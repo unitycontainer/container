@@ -1,12 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading;
-using Unity.Builder;
 using Unity.Lifetime;
-using Unity.Strategies;
-using Unity.Tests.v5.TestDoubles;
+using Unity.Pipeline;
 
-namespace Unity.Tests.v5.Container
+namespace Unity.Tests.Container
 {
     // Test for a race condition in the ContainerControlledLifetime
     // class.
@@ -14,11 +11,10 @@ namespace Unity.Tests.v5.Container
     public class ContainerControlledLifetimeThreadingFixture
     {
         [TestMethod]
-        [Ignore]
         public void SameInstanceFromMultipleThreads()
         {
             IUnityContainer container = new UnityContainer();
-            container.AddExtension(new SpyExtension(new DelayStrategy(), UnityBuildStage.Lifetime));
+            container.AddExtension(new SpyExtension(new DelayStrategy(), PipelineStage.Lifetime));
             container.RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;
@@ -49,11 +45,10 @@ namespace Unity.Tests.v5.Container
 
 
         [TestMethod]
-        [Ignore]
         public void ContainerControlledLifetimeDoesNotLeaveHangingLockIfBuildThrowsException()
         {
             IUnityContainer container = new UnityContainer()
-                     .AddExtension(new SpyExtension(new ThrowingStrategy(), UnityBuildStage.PostInitialization));
+                     .AddExtension(new SpyExtension(new ThrowingStrategy(), PipelineStage.PostInitialization));
             container.RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;
@@ -92,35 +87,6 @@ namespace Unity.Tests.v5.Container
             Assert.IsTrue(thread2Finished);
             Assert.IsNull(result1);
             Assert.IsNotNull(result2);
-        }
-
-        // A test strategy that introduces a variable delay in
-        // the strategy chain to work out 
-        private class DelayStrategy : BuilderStrategy
-        {
-            private int delayMS = 500;
-
-            public override void PreBuildUp(ref BuilderContext context)
-            {
-                Thread.Sleep(this.delayMS);
-                this.delayMS = this.delayMS == 0 ? 500 : 0;
-            }
-        }
-
-        // Another test strategy that throws an exception the
-        // first time it is executed.
-        private class ThrowingStrategy : BuilderStrategy
-        {
-            private bool shouldThrow = true;
-
-            public override void PreBuildUp(ref BuilderContext context)
-            {
-                if (this.shouldThrow)
-                {
-                    this.shouldThrow = false;
-                    throw new Exception("Throwing from buildup chain");
-                }
-            }
         }
     }
 }

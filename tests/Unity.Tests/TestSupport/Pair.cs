@@ -1,5 +1,5 @@
 ﻿
-namespace Unity.Tests.v5.TestSupport
+namespace Unity.Tests.TestSupport
 {
     /// <summary>
     /// A helper class that encapsulates two different

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Injection;
 using Unity.Lifetime;
 
-namespace Unity.Tests.v5.CollectionSupport
+namespace Unity.Tests.CollectionSupport
 {
     [TestClass]
     public class CollectionSupportFixture

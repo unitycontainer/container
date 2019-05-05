@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.IO;
 
-namespace Unity.Tests.v5.TestSupport.Configuration
+namespace Unity.Tests.TestSupport.Configuration
 {
     public class ConfigFileLoader<TResourceLocator>
     {

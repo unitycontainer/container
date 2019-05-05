@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unity.Tests.TestSupport
 {
     public static class TypeReflectionExtensions
     {

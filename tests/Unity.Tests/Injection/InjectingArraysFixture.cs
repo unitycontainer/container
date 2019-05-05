@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Unity.Injection;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.Injection
+namespace Unity.Tests.Injection
 {
     [TestClass]
     public class InjectingArraysFixture

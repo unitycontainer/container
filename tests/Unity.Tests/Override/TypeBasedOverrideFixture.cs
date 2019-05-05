@@ -4,9 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.Override
+namespace Unity.Tests.Override
 {
 #pragma warning disable 618
     /// <summary>
@@ -16,32 +16,35 @@ namespace Unity.Tests.v5.Override
     public class TypeBasedOverrideFixture
     {
         [TestMethod]
-        [Ignore]
         public void OverrideComparison()
         {
             var name = "name";
             var instance = this;
 
-            Assert.AreEqual(new ParameterOverride(name, instance), new ParameterOverride(name, instance));
+            var value1 = new ParameterOverride(name, instance);
+            var value2 = new ParameterOverride(name, instance);
+
+            Assert.AreEqual(value1, value2);
             Assert.AreEqual(new PropertyOverride(name, instance), new PropertyOverride(name, instance));
             Assert.AreNotEqual(new ParameterOverride(name, instance), new PropertyOverride(name, instance));
         }
 
-        //[TestMethod]
-        //public void TypeBasedOverrideWithConstructorExactTypeMatch()
-        //{
-        //    TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
-        //    TypeToInject2ForTypeOverride overrideValue = new TypeToInject2ForTypeOverride(222);
-        //    ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
-        //    TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToToUndergoeTypeBasedInject2), overrideParam);
+        [TestMethod]
+        [Ignore]
+        public void TypeBasedOverrideWithConstructorExactTypeMatch()
+        {
+            //TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
+            //TypeToInject2ForTypeOverride overrideValue = new TypeToInject2ForTypeOverride(222);
+            //ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
+            //TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToToUndergoeTypeBasedInject2), overrideParam);
 
-        //    IUnityContainer container = new UnityContainer();
+            //IUnityContainer container = new UnityContainer();
 
-        //    container.RegisterType<IForToUndergoeInject, TypeToToUndergoeTypeBasedInject2>(new InjectionConstructor(defaultValue));
-        //    var result = container.Resolve<IForToUndergoeInject>(overrideDecorator);
+            //container.RegisterType<IForToUndergoeInject, TypeToToUndergoeTypeBasedInject2>(new InjectionConstructor(defaultValue));
+            //var result = container.Resolve<IForToUndergoeInject>(overrideDecorator);
 
-        //    Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
-        //}
+            //Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
+        }
 
         //[TestMethod]
         //public void TypeBasedOverrideWithBuildUp()
@@ -79,57 +82,42 @@ namespace Unity.Tests.v5.Override
         //    Assert.AreEqual("TestOverrideProp", overriddenProperty.PropertyToInject);
         //}
 
-        //[TestMethod]
-        //public void WhenResolvingAnOpenGenericType()
-        //{
-        //    IUnityContainer container = new UnityContainer();
+        [TestMethod]
+        public void WhenTryingToResolveAPrimitiveType()
+        {
+            Type[] primitive = new Type[]
+            {
+                typeof(decimal),
+                typeof(sbyte),
+                typeof(byte),
+                typeof(short),
+                typeof(ushort),
+                typeof(int),
+                typeof(uint),
+                typeof(long),
+                typeof(ulong),
+                typeof(char),
+                typeof(float),
+                typeof(double),
+                typeof(bool),
+                typeof(string)
+            };
 
-        //    try
-        //    {
-        //        container.Resolve(typeof(List<>));
-        //    }
-        //    catch (ResolutionFailedException ex)
-        //    {
-        //        Assert.AreEqual(typeof(ArgumentException), ex.InnerException.GetType());
-        //    }
-        //}
+            IUnityContainer container = new UnityContainer();
 
-        //[TestMethod]
-        //public void WhenTryingToResolveAPrimitiveType()
-        //{
-        //    Type[] primitive = new Type[]
-        //    {
-        //        typeof(decimal),
-        //        typeof(sbyte),
-        //        typeof(byte),
-        //        typeof(short),
-        //        typeof(ushort),
-        //        typeof(int),
-        //        typeof(uint),
-        //        typeof(long),
-        //        typeof(ulong),
-        //        typeof(char),
-        //        typeof(float),
-        //        typeof(double),
-        //        typeof(bool),
-        //        typeof(string)
-        //    };
-
-        //    IUnityContainer container = new UnityContainer();
-
-        //    foreach (Type t in primitive)
-        //    {
-        //        try
-        //        {
-        //            container.Resolve(t);
-        //            Assert.Fail("Cannot resolve a primitive type");
-        //        }
-        //        catch (ResolutionFailedException ex)
-        //        {
-        //            Assert.AreEqual(typeof(InvalidOperationException), ex.InnerException.GetType());
-        //        }
-        //    }
-        //}
+            foreach (Type t in primitive)
+            {
+                try
+                {
+                    container.Resolve(t);
+                    Assert.Fail("Cannot resolve a primitive type");
+                }
+                catch (ResolutionFailedException ex)
+                {
+                    Assert.AreEqual(typeof(InvalidOperationException), ex.InnerException.GetType());
+                }
+            }
+        }
 
         //[TestMethod]
         //public void TypeBasedOverrideCollectionInCompositeOverrideInjectionTest()

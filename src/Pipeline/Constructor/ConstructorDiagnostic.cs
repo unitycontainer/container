@@ -296,7 +296,7 @@ namespace Unity.Pipeline
                         throw new InvalidOperationException(string.Format(CannotConstructInterface, context.Type),
                             new InvalidRegistrationException());
 
-                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
             }
 
@@ -309,7 +309,7 @@ namespace Unity.Pipeline
                         throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, context.Type),
                             new InvalidRegistrationException());
 
-                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
             }
 
@@ -322,7 +322,7 @@ namespace Unity.Pipeline
                         throw new InvalidOperationException(string.Format(CannotConstructDelegate, context.Type),
                             new InvalidRegistrationException());
 
-                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
             }
 
@@ -335,7 +335,7 @@ namespace Unity.Pipeline
                         throw new InvalidOperationException(string.Format(TypeIsNotConstructable, context.Type),
                             new InvalidRegistrationException());
 
-                    return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
             }
 

@@ -24,7 +24,7 @@ namespace Unity.Pipeline
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
             // Try to get resolver
-            Type generic;
+            Type? generic = null;
             var resolver = builder.Registration.Get(typeof(ResolveDelegate<BuilderContext>)) ??
                            builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<BuilderContext>));
 
@@ -44,8 +44,7 @@ namespace Unity.Pipeline
 
             // Process if found
             if (null != resolver) return builder.Pipeline((ResolveDelegate<BuilderContext>)resolver);
-
-
+            
             // Try finding factory
             TypeResolverFactory? factory = builder.Registration.Get<TypeResolverFactory>();
 
