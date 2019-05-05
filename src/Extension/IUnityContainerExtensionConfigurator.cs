@@ -11,6 +11,6 @@ namespace Unity.Extension
         /// <summary>
         /// Retrieve the container instance that we are currently configuring.
         /// </summary>
-        IUnityContainer Container { get; }
+        UnityContainer Container { get; }
     }
 }

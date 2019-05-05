@@ -241,7 +241,7 @@ namespace Unity
             };
 
             // Create an object
-            return DefaultPipeline(ref context);
+            return BuildPipeline(ref context);
         }
 
         #endregion
@@ -272,7 +272,7 @@ namespace Unity
             };
 
             // Initialize an object
-            return DefaultPipeline(ref context);
+            return BuildPipeline(ref context);
         }
 
         #endregion

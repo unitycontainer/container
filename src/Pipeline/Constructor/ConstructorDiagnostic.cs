@@ -365,7 +365,7 @@ namespace Unity.Pipeline
                     }
                 }
 
-                return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
             };
         }
 
@@ -395,7 +395,7 @@ namespace Unity.Pipeline
                           new InternalPerResolveLifetimeManager(context.Existing));
                 }
 
-                return null == pipeline ? context.Existing : pipeline?.Invoke(ref context);
+                return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
             };
         }
 

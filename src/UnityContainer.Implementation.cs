@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Security;
+using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
@@ -20,6 +19,7 @@ namespace Unity
     {
         #region Constants
 
+        internal static readonly ResolveDelegate<BuilderContext> DefaultResolver = (ref BuilderContext c) => c.Existing;
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
         private readonly object _syncRegistry = new object();
         private readonly object _syncMetadata = new object();
@@ -42,11 +42,6 @@ namespace Unity
 
         #region Defaults
 
-#pragma warning disable CS8602
-
-        internal DefaultPolicies Defaults => (DefaultPolicies)_root._registry.Entries[0].Value;
-
-#pragma warning restore CS8602
 
         #endregion
 
@@ -54,12 +49,13 @@ namespace Unity
         #region Fields
 
         // Container specific
-        private readonly UnityContainer _root;
+        private readonly UnityContainer? _root;
         private readonly UnityContainer? _parent;
-        internal readonly LifetimeContainer LifetimeContainer;
         private List<IUnityContainerExtensionConfigurator>? _extensions;
 
         internal readonly ContainerContext Context;
+        internal readonly LifetimeContainer LifetimeContainer;
+        internal readonly DefaultPolicies Defaults;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
@@ -80,97 +76,18 @@ namespace Unity
         {
             // Parent
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            _root   = parent._root ?? throw new ArgumentNullException(nameof(parent));
+
+            // Register with parent
             _parent.LifetimeContainer.Add(this);
 
-            // Root of the hierarchy
-            _root = _parent._root;
-
-            // Lifetime
+            // Context and policies
             LifetimeContainer = new LifetimeContainer(this);
+            Defaults = _root.Defaults;
+            Context = new ContainerContext(this);
 
             // Registry
             Register = InitAndAdd;
-
-            // Context and policies
-            Context = new ContainerContext(this);
-        }
-
-        #endregion
-
-
-        #region Default Policies
-
-        internal void SetDiagnosticPolicies()
-        {
-            // Default policies
-            Compose = ValidatingComposePlan;
-            ContextExecutePlan = ContextValidatingExecutePlan;
-            ContextResolvePlan = ContextValidatingResolvePlan;
-
-            // Builders
-            var lifetimeBuilder    = new LifetimeBuilder();
-            var mappingBuilder     = new MappingBuilder();
-            var factoryBuilder     = new FactoryBuilder();
-            var constructorBuilder = new ConstructorDiagnostic(this);
-            var fieldsBuilder      = new FieldDiagnostic(this);
-            var propertiesBuilder  = new PropertyDiagnostic(this);
-            var methodsBuilder     = new MethodDiagnostic(this);
-
-            // Pipelines
-            Context.TypePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>
-            {
-                { lifetimeBuilder,    PipelineStage.Lifetime },
-                { mappingBuilder,     PipelineStage.TypeMapping },
-                { factoryBuilder, PipelineStage.Factory },
-                { constructorBuilder, PipelineStage.Creation },
-                { fieldsBuilder,      PipelineStage.Fields },
-                { propertiesBuilder,  PipelineStage.Properties },
-                { methodsBuilder,     PipelineStage.Methods }
-            };
-
-            Context.FactoryPipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>
-            {
-                { lifetimeBuilder, PipelineStage.Lifetime },
-                { factoryBuilder,  PipelineStage.Factory }
-            };
-
-            Context.InstancePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>
-            {
-                { lifetimeBuilder, PipelineStage.Lifetime },
-                { factoryBuilder,  PipelineStage.Factory },
-            };
-
-
-            // Selectors
-            Defaults.SelectConstructor = constructorBuilder;
-            Defaults.SelectProperty    = propertiesBuilder;
-            Defaults.SelectMethod      = methodsBuilder;
-            Defaults.SelectField       = fieldsBuilder;
-
-            // Validators
-            var validators = new PolicySet(this);
-
-            validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>), Validating.MethodSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>), Validating.FieldSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>), Validating.PropertySelector);
-
-            _validators = validators;
-
-            // Registration Validator
-            TypeValidator = (typeFrom, typeTo) =>
-            {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
-                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
-#else
-                if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
-                    !typeFrom.IsAssignableFrom(typeTo))
-#endif
-                {
-                    throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
-                }
-            };
         }
 
         #endregion

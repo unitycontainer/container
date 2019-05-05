@@ -7,6 +7,7 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Extensions;
 using Unity.Lifetime;
+using Unity.Pipeline;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Strategies;
@@ -30,7 +31,7 @@ namespace Unity
 
         #region Pipeline
 
-        internal ResolveDelegate<BuilderContext> DefaultPipeline => (ref BuilderContext context) =>
+        internal ResolveDelegate<BuilderContext> BuildPipeline = (ref BuilderContext context) =>
         {
             try
             {
@@ -40,7 +41,9 @@ namespace Unity
                     {
                         if (null == context.Registration.Pipeline)
                         {
-                            context.Registration.Pipeline = ((UnityContainer)context.Container).ComposerFactory(ref context);
+                            PipelineContext builder = new PipelineContext(ref context);
+
+                            context.Registration.Pipeline = builder.Pipeline() ?? DefaultResolver;
                         }
                     }
                 }
@@ -63,6 +66,8 @@ namespace Unity
                 throw;
             }
         };
+
+
 
         #endregion
 
@@ -739,136 +744,6 @@ namespace Unity
         //        return value.ToString();
         //    }
         //}
-
-        #endregion
-
-
-        #region BuilderContext
-
-        internal BuilderContext.ExecutePlanDelegate ContextExecutePlan { get; set; } =
-            (BuilderStrategy[] chain, ref BuilderContext context) =>
-            {
-                var i = -1;
-
-                try
-                {
-                    while (!context.BuildComplete && ++i < chain.Length)
-                    {
-                        chain[i].PreBuildUp(ref context);
-                    }
-
-                    while (--i >= 0)
-                    {
-                        chain[i].PostBuildUp(ref context);
-                    }
-                }
-                catch when (null != context.RequiresRecovery)
-                {
-                    context.RequiresRecovery.Recover();
-                    throw;
-                }
-
-                return context.Existing;
-            };
-
-        internal static object? ContextValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
-        {
-            var i = -1;
-#if !NET40
-            var value = GetPerResolveValue(context.Parent, context.RegistrationType, context.Name);
-            if (null != value) return value;
-#endif
-            try
-            {
-                while (!context.BuildComplete && ++i < chain.Length)
-                {
-                    chain[i].PreBuildUp(ref context);
-                }
-
-                while (--i >= 0)
-                {
-                    chain[i].PostBuildUp(ref context);
-                }
-            }
-            catch (Exception ex)
-            {
-                context.RequiresRecovery?.Recover();
-                ex.Data.Add(Guid.NewGuid(), null == context.Name
-                    ? context.RegistrationType == context.Type 
-                        ? (object)context.Type 
-                        : new Tuple<Type, Type>(context.RegistrationType, context.Type)
-                    : context.RegistrationType == context.Type 
-                        ? (object)new Tuple<Type, string>(context.Type, context.Name) 
-                        : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
-                throw;
-            }
-
-            return context.Existing;
-
-#if !NET40
-            object? GetPerResolveValue(IntPtr parent, Type registrationType, string? name)
-            {
-                if (IntPtr.Zero == parent) return null;
-
-                unsafe
-                {
-                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                    if (registrationType != parentRef.RegistrationType || name != parentRef.Name)
-                        return GetPerResolveValue(parentRef.Parent, registrationType, name);
-
-                    var lifetimeManager = (LifetimeManager?)parentRef.Get(typeof(LifetimeManager));
-                    var result = lifetimeManager?.GetValue();
-                    if (LifetimeManager.NoValue != result) return result;
-
-                    throw new InvalidOperationException($"Circular reference for Type: {parentRef.Type}, Name: {parentRef.Name}",
-                            new CircularDependencyException());
-                }
-            }
-#endif
-        }
-
-        internal BuilderContext.ResolvePlanDelegate ContextResolvePlan { get; set; } =
-            (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
-
-        internal static object ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
-        {
-            if (null == resolver) throw new ArgumentNullException(nameof(resolver));
-
-#if NET40
-            return resolver(ref thisContext);
-#else
-            unsafe
-            {
-                var parent = thisContext.Parent;
-                while(IntPtr.Zero != parent)
-                {
-                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                    if (thisContext.RegistrationType == parentRef.RegistrationType && thisContext.Name == parentRef.Name)
-                        throw new InvalidOperationException($"Circular reference for Type: {thisContext.Type}, Name: {thisContext.Name}",
-                            new CircularDependencyException());
-
-                    parent = parentRef.Parent;
-                }
-
-                var context = new BuilderContext
-                {
-                    ContainerContext = thisContext.ContainerContext,
-                    Registration = thisContext.Registration,
-                    RegistrationType = thisContext.Type,
-                    Name = thisContext.Name,
-                    Type = thisContext.Type,
-                    Compose = thisContext.Compose,
-                    ResolvePlan = thisContext.ResolvePlan,
-                    List = thisContext.List,
-                    Overrides = thisContext.Overrides,
-                    DeclaringType = thisContext.Type,
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-                };
-
-                return resolver(ref context);
-            }
-#endif
-        }
 
         #endregion
     }

@@ -80,12 +80,17 @@ namespace Unity.Pipeline
                 new AttributeFactory(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
                 new AttributeFactory(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
             };
+
+            container.Defaults.Set(typeof(ISelect<TMemberInfo>), this);
+            container.Defaults.Set(typeof(MemberSelectDelegate<TMemberInfo>), (MemberSelectDelegate<TMemberInfo>)Select);
         }
 
         #endregion
 
 
         #region Public Members
+
+        public MemberSelectDelegate<TMemberInfo> MemberSelector => Select;
 
         public void AddFactories(IEnumerable<AttributeFactory> factories)
         {
@@ -119,43 +124,6 @@ namespace Unity.Pipeline
             var members = selector.Select(type, registration);
 
             return ExpressionsFromSelection(type, members);
-        }
-
-        #endregion
-
-
-        #region ISelect
-
-        public virtual IEnumerable<object> Select(Type type, IPolicySet registration)
-        {
-            HashSet<object> memberSet = new HashSet<object>();
-
-            // Select Injected Members
-            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
-            {
-                if (injectionMember is InjectionMember<TMemberInfo, TData> && memberSet.Add(injectionMember))
-                    yield return injectionMember;
-            }
-
-            // Select Attributed members
-            IEnumerable<TMemberInfo> members = DeclaredMembers(type);
-
-            if (null == members) yield break;
-            foreach (var member in members)
-            {
-                foreach (var node in AttributeFactories)
-                {
-#if NET40
-                    if (!member.IsDefined(node.Type, true) ||
-#else
-                    if (!member.IsDefined(node.Type) ||
-#endif
-                        !memberSet.Add(member)) continue;
-
-                    yield return member;
-                    break;
-                }
-            }
         }
 
         #endregion

@@ -11,6 +11,13 @@ namespace Unity
         public partial class ContainerContext : IPolicyList
         {
             /// <inheritdoc />
+            public object? Get(Type policyInterface)
+            {
+                var registry = Container._root._registry ?? throw new InvalidOperationException();
+                return registry.Entries[0].Value.Get(policyInterface);
+            }
+
+            /// <inheritdoc />
             public object? Get(Type type, Type policyInterface)
             {
                 var hashCode = type?.GetHashCode() ?? 0;
@@ -61,6 +68,13 @@ namespace Unity
                 }
 
                 return null;
+            }
+
+            /// <inheritdoc />
+            public void Set(Type policyInterface, object policy)
+            {
+                var registry = Container._root._registry ?? throw new InvalidOperationException();
+                registry.Entries[0].Value.Set(policyInterface, policy);
             }
 
             /// <inheritdoc />

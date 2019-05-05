@@ -10,8 +10,6 @@ namespace Unity.Pipeline
 {
     public abstract partial class MemberBuilder<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
-
-
         #region PipelineBuilder
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)

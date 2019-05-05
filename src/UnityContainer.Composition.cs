@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using Unity.Builder;
 using Unity.Pipeline;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
@@ -35,7 +34,10 @@ namespace Unity
                             // Make sure build plan was not yet created
                             if (null == context.Registration.Pipeline)
                             {
-                                context.Registration.Pipeline = ((UnityContainer)context.Container).ComposerFactory(ref context);
+                                PipelineContext builder = new PipelineContext(ref context);
+
+                                context.Registration.Pipeline = builder.Pipeline() ??
+                                    throw new InvalidOperationException("Should have created the pipeline");
                             }
                         }
                     }
@@ -53,9 +55,24 @@ namespace Unity
         {
             try
             {
-#pragma warning disable CS8602 // Possible dereference of a null reference.
+                // Create Pipeline if required
+                if (null == context.Registration.Pipeline)
+                {
+                    // Double Check Lock
+                    lock (context.Registration)
+                    {
+                        // Make sure build plan was not yet created
+                        if (null == context.Registration.Pipeline)
+                        {
+                            PipelineContext builder = new PipelineContext(ref context);
+
+                            context.Registration.Pipeline = builder.Pipeline() ?? 
+                                throw new InvalidOperationException("Should have created the pipeline");
+                        }
+                    }
+                }
+
                 return context.Registration.Pipeline(ref context);
-#pragma warning restore CS8602 // Possible dereference of a null reference.
             }
             catch (Exception ex)
             {
@@ -124,20 +141,6 @@ namespace Unity
                 return value.ToString();
             }
         }
-
-        #endregion
-
-
-        #region Composition Plan
-
-
-        internal ResolveDelegateFactory ComposerFactory = (ref BuilderContext context) =>
-        {
-            PipelineContext builder = new PipelineContext(ref context);
-
-            return builder.Pipeline();
-        };
-
 
         #endregion
 

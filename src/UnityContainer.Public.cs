@@ -14,7 +14,6 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity
 {
@@ -32,29 +31,14 @@ namespace Unity
 
             _root = this;
 
+            // Create storage
+            Defaults = new DefaultPolicies(this);
+            LifetimeContainer = new LifetimeContainer(this);
+
             // Create Registry and set Factory strategy
             _metadata = new Registry<int[]>();
-            _registry = new Registry<IPolicySet>();
+            _registry = new Registry<IPolicySet>(Defaults);
 
-            Register = AddOrReplace;
-
-
-            /////////////////////////////////////////////////////////////
-            // Defaults
-
-            // Builders
-            var lifetimeBuilder    = new LifetimeBuilder();
-            var mappingBuilder     = new MappingBuilder();
-            var factoryBuilder     = new FactoryBuilder();
-            var constructorBuilder = new ConstructorBuilder(this);
-            var fieldsBuilder      = new FieldBuilder(this);
-            var propertiesBuilder  = new PropertyBuilder(this);
-            var methodsBuilder     = new MethodBuilder(this);
-
-            // Add Defaults to Registry
-            _registry.Set(typeof(DefaultPolicies), new DefaultPolicies(this));
-            
-            /////////////////////////////////////////////////////////////
             //Built-In Registrations
 
             // Register Container as IUnityContainer & IUnityContainerAsync
@@ -71,45 +55,38 @@ namespace Unity
             _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(TypeResolverFactory), EnumerableResolver.Factory)); // Enumerable
             _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(TypeResolverFactory), RegExResolver.Factory));      // Regular Expression Enumerable
 
-
             /////////////////////////////////////////////////////////////
-            // Container Specific
+            // Setup Pipelines
 
-            // Lifetime Container
-            LifetimeContainer = new LifetimeContainer(this);
+            var lifetimeBuilder = new LifetimeBuilder();
+            var factoryBuilder = new FactoryBuilder();
 
             // Create Local Context
             Context = new ContainerContext(this,
-
-                // Type Build Pipeline
-                new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
                 {
-                    { lifetimeBuilder,    PipelineStage.Lifetime },
-                    { mappingBuilder,     PipelineStage.TypeMapping },
-                    { factoryBuilder, PipelineStage.Factory },
-                    { constructorBuilder, PipelineStage.Creation },
-                    { fieldsBuilder,      PipelineStage.Fields },
-                    { propertiesBuilder,  PipelineStage.Properties },
-                    { methodsBuilder,     PipelineStage.Methods }
+                    { lifetimeBuilder,              PipelineStage.Lifetime },
+                    { new MappingBuilder(),         PipelineStage.TypeMapping },
+                    { factoryBuilder,               PipelineStage.Factory },
+                    { new ConstructorBuilder(this), PipelineStage.Creation },
+                    { new FieldBuilder(this),       PipelineStage.Fields },
+                    { new PropertyBuilder(this),    PipelineStage.Properties },
+                    { new MethodBuilder(this),      PipelineStage.Methods }
                 },
-
-                // Factory Resolve Pipeline
-                new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
                 {
                     { lifetimeBuilder, PipelineStage.Lifetime },
                     { factoryBuilder,  PipelineStage.Factory }
                 },
-
-                // Instance Resolve Pipeline
-                new StagedStrategyChain<PipelineBuilder, PipelineStage>
+                new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
                 {
                     { lifetimeBuilder, PipelineStage.Lifetime },
                 });
-            // Selectors
-            Defaults.SelectConstructor = constructorBuilder;
-            Defaults.SelectProperty    = propertiesBuilder;
-            Defaults.SelectMethod      = methodsBuilder;
-            Defaults.SelectField       = fieldsBuilder;
+
+            /////////////////////////////////////////////////////////////
+            // Container Specific
+
+            Register = AddOrReplace;
         }
 
         #endregion

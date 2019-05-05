@@ -42,7 +42,7 @@ namespace Unity
     {
         protected override void Initialize()
         {
-            ((UnityContainer)Container).SetDiagnosticPolicies();
+            Container.SetDiagnosticPolicies();
         }
     }
 

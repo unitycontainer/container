@@ -32,7 +32,7 @@ namespace Unity.Extension
         /// The container this extension has been added to.
         /// </summary>
         /// <value>The <see cref="IUnityContainer"/> that this extension has been added to.</value>
-        public IUnityContainer Container { get; private set; }
+        public UnityContainer Container { get; private set; }
 
         /// <summary>
         /// The <see cref="ExtensionContext"/> object used to manipulate

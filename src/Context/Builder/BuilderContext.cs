@@ -211,32 +211,6 @@ namespace Unity.Builder
             return Resolve(type, Name, ((UnityContainer)Container).GetRegistration(type, Name));
         }
 
-        public object? Resolve(Type type, string? name, ImplicitRegistration registration)
-        {
-            unsafe
-            {
-                var thisContext = this;
-                var context = new BuilderContext
-                {
-                    ContainerContext = ContainerContext,
-                    Registration = registration,
-                    RegistrationType = type,
-                    Name = name,
-                    Type = type,
-                    ResolvePlan = ResolvePlan,
-                    List = List,
-                    Overrides = Overrides,
-                    DeclaringType = Type,
-                    Compose = Compose,
-#if !NET40
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-#endif
-                };
-
-                return Compose(ref context);
-            }
-        }
-
         public object? Resolve(ParameterInfo parameter, object? value)
         {
             var context = this;
@@ -390,6 +364,34 @@ namespace Unity.Builder
             }
 
             return value;
+        }
+
+        public object? Resolve(Type type, string? name, ImplicitRegistration registration)
+        {
+            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException();
+
+            unsafe
+            {
+                var thisContext = this;
+                var context = new BuilderContext
+                {
+                    ContainerContext = ContainerContext,
+                    Registration = registration,
+                    RegistrationType = type,
+                    Name = name,
+                    Type = type,
+                    ResolvePlan = ResolvePlan,
+                    List = List,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+                    Compose = Compose,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
+
+                return Compose(ref context);
+            }
         }
 
         #endregion

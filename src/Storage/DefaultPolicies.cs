@@ -85,28 +85,28 @@ namespace Unity.Storage
         public ISelect<ConstructorInfo> SelectConstructor
         {
             get => _selectConstructor;
-            set => _selectConstructor = value ?? 
+            private set => _selectConstructor = value ?? 
                 throw new ArgumentNullException("Constructor Selector must not be null");
         }
 
         public ISelect<PropertyInfo> SelectProperty
         {
             get => _selectProperty;
-            set => _selectProperty = value ?? 
+            private set => _selectProperty = value ?? 
                 throw new ArgumentNullException("Property Selector must not be null");
         }
 
         public ISelect<MethodInfo> SelectMethod
         {
             get => _selectMethod;
-            set => _selectMethod = value ?? 
+            private set => _selectMethod = value ?? 
                 throw new ArgumentNullException("Method Selector must not be null");
         }
 
         public ISelect<FieldInfo> SelectField
         {
             get => _selectField;
-            set => _selectField = value 
+            private set => _selectField = value 
                 ?? throw new ArgumentNullException("Field Selector must not be null");
         }
 
