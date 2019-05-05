@@ -73,17 +73,26 @@ namespace Unity.Resolution
 
         public override bool Equals(object other)
         {
-            if (other is ParameterInfo info)
-                return Equals(info);
+            switch (other)
+            {
+                case ParameterInfo info:
+                    return Equals(info);
 
-            return base.Equals(other);
+                case ParameterOverride parameter:
+                    return (null == Target || parameter.Target == Target) &&
+                           (null == Type   || parameter.Type == Type) &&
+                           (null == Name   || parameter.Name == Name);
+                default:
+                    return base.Equals(other);
+            }
         }
 
         public bool Equals(ParameterInfo other)
         {
-            return (null == Target || other?.Member.DeclaringType == Target) &&
-                   (null == Type   || other?.ParameterType == Type) &&
-                   (null == Name   || other?.Name == Name);
+            return null != other && 
+                  (null == Target || other.Member.DeclaringType == Target) &&
+                  (null == Type   || other.ParameterType == Type) &&
+                  (null == Name   || other.Name == Name);
         }
 
 

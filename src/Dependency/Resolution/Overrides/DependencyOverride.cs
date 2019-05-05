@@ -60,9 +60,16 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            return false;
+            switch (other)
+            {
+                case DependencyOverride dependency:
+                    return (dependency.Type == Type) &&
+                           (dependency.Name == Name);
+                default:
+                    return false;
+            }
         }
 
         public bool Equals(NamedType other)

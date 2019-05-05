@@ -41,19 +41,28 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            if (obj is FieldInfo info)
-                return Equals(info);
+            switch (other)
+            {
+                case FieldInfo info:
+                    return Equals(info);
 
-            return base.Equals(obj);
+                case FieldOverride field:
+                    return (null == Target || field.Target == Target) &&
+                           (null == Type   || field.Type == Type) &&
+                           (null == Name   || field.Name == Name);
+                default:
+                    return base.Equals(other);
+            }
         }
 
         public bool Equals(FieldInfo other)
         {
-            return (null == Target || other?.DeclaringType == Target) &&
-                   (null == Type || other?.FieldType == Type) &&
-                   (null == Name || other?.Name == Name);
+            return null != other && 
+                  (null == Target || other.DeclaringType == Target) &&
+                  (null == Type   || other.FieldType == Type) &&
+                  (null == Name   || other.Name == Name);
         }
 
         #endregion
