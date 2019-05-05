@@ -22,7 +22,7 @@ namespace Unity.Pipeline
 
         public PipelineContext(ref BuilderContext context)
         {
-            Type = context.RegistrationType;
+            Type = context.Type;
             Registration = context.Registration;
             ContainerContext = context.ContainerContext;
 

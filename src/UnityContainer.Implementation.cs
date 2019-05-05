@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Security;
 using Unity.Builder;
 using Unity.Events;
@@ -20,6 +21,7 @@ namespace Unity
         #region Constants
 
         internal static readonly ResolveDelegate<BuilderContext> DefaultResolver = (ref BuilderContext c) => c.Existing;
+        private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
         private readonly object _syncRegistry = new object();
         private readonly object _syncMetadata = new object();
@@ -30,37 +32,26 @@ namespace Unity
 
         #region Fields
 
-        private Registry<IPolicySet>? _registry;
-        private Registry<int[]>? _metadata;
-
-        private IPolicySet _validators;
-
-        private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
-
-        #endregion
-
-
-        #region Defaults
-
-
-        #endregion
-
-
-        #region Fields
-
-        // Container specific
+        // Essentials
+        private Registry<int[]>?         _metadata;
+        private Registry<IPolicySet>?    _registry;
         private readonly UnityContainer? _root;
         private readonly UnityContainer? _parent;
-        private List<IUnityContainerExtensionConfigurator>? _extensions;
 
-        internal readonly DefaultPolicies Defaults;
-        internal readonly ContainerContext Context;
+        internal readonly DefaultPolicies   Defaults;
+        internal readonly ContainerContext  Context;
         internal readonly LifetimeContainer LifetimeContainer;
+
+        private List<IUnityContainerExtensionConfigurator>? _extensions;
 
         // Events
         private event EventHandler<RegisterEventArgs> Registering;
         private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+
+        // Dynamic Members
+        private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
+        private IPolicySet _validators;
 
         #endregion
 
@@ -74,9 +65,13 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
+            // Validate input
+            Debug.Assert(null != parent, nameof(parent));
+            Debug.Assert(null != parent._root, nameof(parent._root));
+
             // Parent
-            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            _root   = parent._root ?? throw new ArgumentNullException(nameof(parent));
+            _parent = parent;
+            _root   = parent._root;
 
             // Register with parent
             _parent.LifetimeContainer.Add(this);
@@ -86,8 +81,9 @@ namespace Unity
             Defaults = _root.Defaults;
             Context = new ContainerContext(this);
 
-            // Registry
+            // Pointers
             Register = InitAndAdd;
+            ContextResolvePlan = _root.ContextResolvePlan;
         }
 
         #endregion

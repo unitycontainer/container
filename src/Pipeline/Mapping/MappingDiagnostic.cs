@@ -1,17 +1,17 @@
-﻿using Unity.Builder;
+﻿using System;
+using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Pipeline
 {
-    public class MappingBuilder : PipelineBuilder
+    public class MappingDiagnostic : MappingBuilder
     {
-        #region PipelineBuilder
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
             var requestedType = builder.Type;
-            
+
             if (builder.Registration is ExplicitRegistration registration)
             {
                 // Explicit Registration
@@ -34,9 +34,19 @@ namespace Unity.Pipeline
 
             var type = builder.Type;
 
-            return builder.Pipeline((ref BuilderContext context) => context.Resolve(type));
+            return builder.Pipeline((ref BuilderContext context) => 
+            {
+                try
+                {
+                    return context.Resolve(type);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add(Guid.NewGuid(), new Tuple<Type, Type>(requestedType, type));
+                    throw;
+                }
+            });
         }
 
-        #endregion
     }
 }

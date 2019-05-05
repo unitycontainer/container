@@ -59,7 +59,6 @@ namespace Unity
 
             // Pipeline
             var lifetimeBuilder = new LifetimeBuilder();
-            var mappingBuilder = new MappingBuilder();
             var factoryBuilder = new FactoryBuilder();
 
             // Mode of operation
@@ -68,16 +67,13 @@ namespace Unity
                 /////////////////////////////////////////////////////////////
                 // Setup Optimized mode
 
-                var setupBuilder = new ErrorHandlerBuilder();
-
                 // Create Context
                 Context = new ContainerContext(this,
                     new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
                     {
-                        { setupBuilder,    PipelineStage.Setup },
-                        { lifetimeBuilder, PipelineStage.Lifetime },
-                        { mappingBuilder,  PipelineStage.TypeMapping },
-                        { factoryBuilder,  PipelineStage.Factory },
+                        { lifetimeBuilder,              PipelineStage.Lifetime },
+                        { factoryBuilder,               PipelineStage.Factory },
+                        { new MappingBuilder(),         PipelineStage.TypeMapping },
                         { new ConstructorBuilder(this), PipelineStage.Creation },
                         { new FieldBuilder(this),       PipelineStage.Fields },
                         { new PropertyBuilder(this),    PipelineStage.Properties },
@@ -85,13 +81,11 @@ namespace Unity
                     },
                     new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
                     {
-                        { setupBuilder,    PipelineStage.Setup },
                         { lifetimeBuilder, PipelineStage.Lifetime },
                         { factoryBuilder,  PipelineStage.Factory }
                     },
                     new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
                     {
-                        { setupBuilder,    PipelineStage.Setup },
                         { lifetimeBuilder, PipelineStage.Lifetime },
                     });
             }
@@ -100,16 +94,16 @@ namespace Unity
                 /////////////////////////////////////////////////////////////
                 // Setup Diagnostic mode
 
-                var setupBuilder = new ErrorHandlerDiagnostic();
+                var diagnosticBuilder = new DiagnosticBuilder();
 
                 // Create Context
                 Context = new ContainerContext(this,
                     new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
                     {
-                        { setupBuilder,    PipelineStage.Setup },
-                        { lifetimeBuilder, PipelineStage.Lifetime },
-                        { mappingBuilder,  PipelineStage.TypeMapping },
-                        { factoryBuilder,  PipelineStage.Factory },
+                        { diagnosticBuilder,               PipelineStage.Diagnostic },
+                        { lifetimeBuilder,                 PipelineStage.Lifetime },
+                        { factoryBuilder,                  PipelineStage.Factory },
+                        { new MappingDiagnostic(),         PipelineStage.TypeMapping },
                         { new ConstructorDiagnostic(this), PipelineStage.Creation },
                         { new FieldDiagnostic(this),       PipelineStage.Fields },
                         { new PropertyDiagnostic(this),    PipelineStage.Properties },
@@ -117,19 +111,19 @@ namespace Unity
                     },
                     new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
                     {
-                        { setupBuilder,    PipelineStage.Setup },
+                        { diagnosticBuilder, PipelineStage.Diagnostic },
                         { lifetimeBuilder, PipelineStage.Lifetime },
                         { factoryBuilder,  PipelineStage.Factory }
                     },
                     new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
                     {
-                        { setupBuilder,    PipelineStage.Setup },
+                        { diagnosticBuilder, PipelineStage.Diagnostic },
                         { lifetimeBuilder, PipelineStage.Lifetime },
                     });
 
                 // Build process
-                Compose = ValidatingComposePlan;
                 ContextResolvePlan = ContextValidatingResolvePlan;
+                ExecutePipeline = ExecuteValidatingPipeline;
 
                 // Validators
                 var validators = new PolicySet(this);
@@ -140,7 +134,7 @@ namespace Unity
                 validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
                 validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
 
-                _validators = validators;
+                //_validators = validators;
 
                 // Registration Validator
                 TypeValidator = (typeFrom, typeTo) =>

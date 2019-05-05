@@ -18,13 +18,6 @@ namespace Unity
     /// </summary>
     public partial class UnityContainer
     {
-        #region Constants
-
-        private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
-
-        #endregion
-
-
         #region Check if can resolve
 
         internal bool CanResolve(Type type, string? name)
@@ -81,7 +74,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve, string? name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, ImplicitRegistration, object?> resolve, string? name)
         {
             object? value;
             var set = new HashSet<string?>();
@@ -109,7 +102,7 @@ namespace Unity
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -128,7 +121,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = resolve(typeof(TElement), name, registration);
+                    value = resolve(typeof(TElement), registration);
                 }
                 catch
                 {
@@ -139,7 +132,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, ImplicitRegistration, object?> resolve,
                                                                    Type typeDefinition, string? name)
         {
             object? value;
@@ -169,7 +162,7 @@ namespace Unity
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -195,18 +188,13 @@ namespace Unity
                             try
                             {
                                 var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
-                                value = resolve(typeof(TElement), registration.Name, item);
+                                value = resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
                             {
                                 continue;
                             }
-                            // TODO: Verify if required
-                            //catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                            //{
-                            //    continue;
-                            //}
 
                             yield return (TElement)value;
                         }
@@ -220,7 +208,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = resolve(typeof(TElement), name, registration);
+                    value = resolve(typeof(TElement), registration);
                 }
                 catch
                 {
@@ -266,7 +254,7 @@ namespace Unity
             return argType;
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve, Type type)
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve, Type type)
         {
             object? value;
             var set = new HashSet<string?>();
@@ -294,7 +282,7 @@ namespace Unity
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -308,7 +296,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve,
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
             object? value;
@@ -338,7 +326,7 @@ namespace Unity
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name, registration);
+                                value = resolve(typeof(TElement), registration);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -364,7 +352,7 @@ namespace Unity
                             try
                             {
                                 var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
-                                value = resolve(typeof(TElement), registration.Name, item);
+                                value = resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -379,7 +367,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve, Type type)
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve, Type type)
         {
             object? value;
             var set = new HashSet<string?>();
@@ -408,7 +396,7 @@ namespace Unity
                             try
                             {
                                 var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
-                                value = resolve(typeof(TElement), registration.Name, item);
+                                value = resolve(typeof(TElement), item);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -422,7 +410,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string?, ImplicitRegistration, object?> resolve,
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
             object? value;
@@ -453,7 +441,7 @@ namespace Unity
                             try
                             {
                                 var item = container.GetOrAdd(typeof(TElement), registration.Name);
-                                value = resolve(typeof(TElement), registration.Name, item);
+                                value = resolve(typeof(TElement), item);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -479,7 +467,7 @@ namespace Unity
                             try
                             {
                                 var item = container.GetOrAdd(typeof(TElement), registration.Name);
-                                value = (TElement)resolve(typeof(TElement), registration.Name, item);
+                                value = (TElement)resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -576,127 +564,6 @@ namespace Unity
 
             //return seed ?? ((ref BuilderContext c) => null);
         }
-
-        #endregion
-
-
-        #region Build Plans
-
-        //private ResolveDelegate<BuilderContext> ExecutePlan { get; set; } =
-        //    (ref BuilderContext context) =>
-        //    {
-        //        var i = -1;
-        //        BuilderStrategy[] chain = ((ImplicitRegistration)context.Registration).BuildChain;
-        //        try
-        //        {
-        //            while (!context.BuildComplete && ++i < chain.Length)
-        //            {
-        //                chain[i].PreBuildUp(ref context);
-        //            }
-
-        //            while (--i >= 0)
-        //            {
-        //                chain[i].PostBuildUp(ref context);
-        //            }
-        //        }
-        //        catch (Exception ex) 
-        //        {
-        //            context.RequiresRecovery?.Recover();
-
-        //            throw new ResolutionFailedException(context.RegistrationType, context.Name,
-        //                "For more information add Diagnostic extension: Container.AddExtension(new Diagnostic())", ex);
-        //        }
-
-        //        return context.Existing;
-        //    };
-
-        //private object? ExecuteValidatingPlan(ref BuilderContext context)
-        //{
-        //    var i = -1;
-        //    BuilderStrategy[] chain = context.Registration.BuildChain ?? _strategiesChain;
-
-        //    try
-        //    {
-        //        while (!context.BuildComplete && ++i < chain.Length)
-        //        {
-        //            chain[i].PreBuildUp(ref context);
-        //        }
-
-        //        while (--i >= 0)
-        //        {
-        //            chain[i].PostBuildUp(ref context);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        context.RequiresRecovery?.Recover();
-        //        ex.Data.Add(Guid.NewGuid(), null == context.Name
-        //            ? context.RegistrationType == context.Type
-        //                ? (object)context.Type
-        //                : new Tuple<Type, Type>(context.RegistrationType, context.Type)
-        //            : context.RegistrationType == context.Type
-        //                ? (object)new Tuple<Type, string>(context.Type, context.Name)
-        //                : new Tuple<Type, Type, string>(context.RegistrationType, context.Type, context.Name));
-
-        //        var builder = new StringBuilder();
-        //        builder.AppendLine(ex.Message);
-        //        builder.AppendLine("_____________________________________________________");
-        //        builder.AppendLine("Exception occurred while:");
-        //        builder.AppendLine();
-
-        //        var indent = 0;
-        //        foreach (DictionaryEntry item in ex.Data)
-        //        {
-        //            for (var c = 0; c < indent; c++) builder.Append(" ");
-        //            builder.AppendLine(CreateErrorMessage(item.Value));
-        //            indent += 1;
-        //        }
-
-        //        var message = builder.ToString();
-
-        //        throw new ResolutionFailedException( context.RegistrationType, context.Name, message, ex);
-        //    }
-
-        //    return context.Existing;
-
-
-        //    string CreateErrorMessage(object value)
-        //    {
-        //        switch (value)
-        //        {
-        //            case ParameterInfo parameter:
-        //                return $" for parameter:  '{parameter.Name}'";
-
-        //            case ConstructorInfo constructor:
-        //                var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-        //                return $"on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
-
-        //            case MethodInfo method:
-        //                var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-        //                return $"     on method:  {method.Name}({methodSignature})";
-
-        //            case PropertyInfo property:
-        //                return $"  for property:  '{property.Name}'";
-
-        //            case FieldInfo field:
-        //                return $"     for field:  '{field.Name}'";
-
-        //            case Type type:
-        //                return $"·resolving type:  '{type.Name}'";
-
-        //            case Tuple<Type, string> tuple:
-        //                return $"•resolving type:  '{tuple.Item1.Name}' registered with name: '{tuple.Item2}'";
-
-        //            case Tuple<Type, Type> tuple:
-        //                return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}'";
-
-        //            case Tuple<Type, Type, string> tuple:
-        //                return $"•resolving type:  '{tuple.Item1?.Name}' mapped to '{tuple.Item2?.Name}' and registered with name: '{tuple.Item3}'";
-        //        }
-
-        //        return value.ToString();
-        //    }
-        //}
 
         #endregion
     }

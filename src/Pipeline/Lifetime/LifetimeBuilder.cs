@@ -56,21 +56,29 @@ namespace Unity.Pipeline
                 };
 
             // Requires Recovery during resolution
-            if (lifetime is SynchronizedLifetimeManager recovery)
+            if (lifetime is SynchronizedLifetimeManager recoverableManager)
+            {
                 return (ref BuilderContext context) =>
                 {
-                    context.RequiresRecovery = recovery;
+                    try
+                    {
+                        // Return if holds value
+                        var value = lifetime.GetValue(context.ContainerContext.Lifetime);
+                        if (LifetimeManager.NoValue != value) return value;
 
-                    // Return if holds value
-                    var value = lifetime.GetValue(context.ContainerContext.Lifetime);
-                    if (LifetimeManager.NoValue != value) return value;
+                        // Compose down the chain
+                        value = pipeline(ref context);
+                        lifetime.SetValue(value, context.ContainerContext.Lifetime);
 
-                    // Compose down the chain
-                    value = pipeline(ref context);
-                    lifetime.SetValue(value, context.ContainerContext.Lifetime);
-
-                    return value;
+                        return value;
+                    }
+                    catch when (null != recoverableManager)
+                    {
+                        recoverableManager.Recover();
+                        throw;
+                    }
                 };
+            }
 
             return (ref BuilderContext context) =>
             {

@@ -6,7 +6,6 @@ using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -18,7 +17,7 @@ namespace Unity
         #region Fields
 
         const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
-        private Action<Type, Type> TypeValidator;
+        private Action<Type, Type>? TypeValidator;
 
         #endregion
 
@@ -224,36 +223,19 @@ namespace Unity
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
-            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
             var context = new BuilderContext
             {
-                List = new PolicyList(),
-                Type = type,
-                Name = name,
-                RegistrationType = type,
+                List             = new PolicyList(),
+                Type             = type,
+                Name             = name,
                 ContainerContext = Context,
-                Registration = registration,
-                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
-                ResolvePlan = ContextResolvePlan,
-                Compose = Compose
+                Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
+                ResolvePlan      = ContextResolvePlan,
             };
 
-            if (null == registration.Pipeline)
-            {
-                // TODO: Add timeout
-                lock (registration)
-                {
-                    if (null == registration.Pipeline)
-                    {
-                        PipelineContext builder = new PipelineContext(ref context);
-
-                        registration.Pipeline = builder.Pipeline() ?? DefaultResolver;
-                    }
-                }
-            }
-
             // Create an object
-            return registration.Pipeline(ref context);
+            return ExecutePipeline(ref context);
         }
 
         #endregion
@@ -265,37 +247,23 @@ namespace Unity
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
-            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
             var context = new BuilderContext
             {
-                List = new PolicyList(),
-                Type = type,
-                Name = name,
-                Existing = existing,
-                RegistrationType = type,
+                List             = new PolicyList(),
+                Type             = type,
+                Name             = name,
+                Existing         = existing ?? throw new ArgumentNullException(nameof(existing)),
                 ContainerContext = Context,
-                Registration = registration,
-                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
-                ResolvePlan = ContextResolvePlan,
-                Compose = Compose
+                Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
+                ResolvePlan      = ContextResolvePlan,
             };
 
-            if (null == registration.Pipeline)
-            {
-                // TODO: Add timeout
-                lock (registration)
-                {
-                    if (null == registration.Pipeline)
-                    {
-                        PipelineContext builder = new PipelineContext(ref context);
-
-                        registration.Pipeline = builder.Pipeline() ?? DefaultResolver;
-                    }
-                }
-            }
+            // Validate if they are assignable
+            TypeValidator?.Invoke(type, existing.GetType());
 
             // Initialize an object
-            return registration.Pipeline(ref context);
+            return ExecutePipeline(ref context);
         }
 
         #endregion

@@ -182,7 +182,7 @@ namespace Unity.Pipeline
 
         private object FromType(Type type)
         {
-            return (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Resolve(type, null));
+            return (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Resolve(type, (string?)null));
         }
 
         private object FromAttribute(ParameterInfo info)

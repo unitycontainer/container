@@ -6,6 +6,7 @@ using System.Security;
 using Unity.Composition;
 using Unity.Exceptions;
 using Unity.Lifetime;
+using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -23,10 +24,8 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public ResolverOverride[]? Overrides;
         internal IPolicyList List;
 
-        public delegate object? ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
         public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
@@ -66,10 +65,7 @@ namespace Unity.Builder
                 }
             }
 
-            if (ContainerContext.Get(type, name, typeof(CompositionDelegate)) is CompositionDelegate factory)
-                return factory((UnityContainer)Container, null);
-
-            return Resolve(type, name, ((UnityContainer)Container).GetRegistration(type, name));
+            return Resolve(type, ((UnityContainer)Container).GetRegistration(type, name));
         }
 
         #endregion
@@ -79,7 +75,7 @@ namespace Unity.Builder
 
         public object? Get(Type policyInterface)
         {
-            return List.Get(RegistrationType, Name, policyInterface) ?? Registration.Get(policyInterface);
+            return List.Get(Type, Name, policyInterface) ?? Registration.Get(policyInterface);
         }
 
         public object? Get(Type type, Type policyInterface)
@@ -90,14 +86,14 @@ namespace Unity.Builder
         public object? Get(Type type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
-                   (type != RegistrationType || name != Name
+                   (type != Type || name != Name
                        ? ContainerContext.Get(type, name, policyInterface)
                        : Registration.Get(policyInterface));
         }
 
         public void Set(Type policyInterface, object policy)
         {
-            List.Set(RegistrationType, Name, policyInterface, policy);
+            List.Set(Type, Name, policyInterface, policy);
         }
 
         public void Set(Type type, Type policyInterface, object policy)
@@ -120,9 +116,6 @@ namespace Unity.Builder
 
         #region Registration
 
-        // TODO: Remove
-        public Type RegistrationType { get; set; }
-
         public ImplicitRegistration Registration { get; set; }
 
         #endregion
@@ -130,58 +123,22 @@ namespace Unity.Builder
 
         #region Public Properties
 
+        public ResolverOverride[]? Overrides;
+
         public object? Existing { get; set; }
 
         public ContainerContext ContainerContext { get; set; }
-
-        public SynchronizedLifetimeManager? RequiresRecovery;
-
-        public bool BuildComplete;
 
         public Type? DeclaringType;
 #if !NET40
         public IntPtr Parent;
 #endif
-        public ResolveDelegate<BuilderContext> Compose;
-
         public ResolvePlanDelegate ResolvePlan;
 
         #endregion
 
 
         #region Resolve Methods
-
-
-        public object? Resolve()
-        {
-            if (null == Type) return null;
-
-            // Process overrides if any
-            if (null != Overrides)
-            {
-                NamedType namedType = new NamedType
-                {
-                    Type = Type,
-                    Name = Name
-                };
-
-                // Check if this parameter is overridden
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-                    // If matches with current parameter
-                    if (resolverOverride is IResolve resolverPolicy &&
-                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
-                    {
-                        var context = this;
-
-                        return ResolvePlan(ref context, resolverPolicy.Resolve);
-                    }
-                }
-            }
-
-            return Resolve(Type, Name, ((UnityContainer)Container).GetRegistration(Type, Name));
-        }
 
         public object? Resolve(Type type)
         {
@@ -209,7 +166,50 @@ namespace Unity.Builder
                 }
             }
 
-            return Resolve(type, Name, ((UnityContainer)Container).GetRegistration(type, Name));
+            return Resolve(type, ((UnityContainer)Container).GetRegistration(type, Name));
+        }
+
+        public object? Resolve(Type type, ImplicitRegistration registration)
+        {
+            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException();
+
+            unsafe
+            {
+                var thisContext = this;
+                var context = new BuilderContext
+                {
+                    ContainerContext = ContainerContext,
+                    Registration = registration,
+                    Name = registration.Name,
+                    Type = type,
+                    ResolvePlan = ResolvePlan,
+                    List = List,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
+
+                // Create Pipeline if required
+                if (null == context.Registration.Pipeline)
+                {
+                    // Double Check Lock
+                    lock (context.Registration)
+                    {
+                        // Make sure build plan was not yet created
+                        if (null == context.Registration.Pipeline)
+                        {
+                            PipelineContext builder = new PipelineContext(ref context);
+
+                            context.Registration.Pipeline = builder.Pipeline() ??
+                                throw new InvalidOperationException("Failed to create pipeline");
+                        }
+                    }
+                }
+
+                return context.Registration.Pipeline(ref context);
+            }
         }
 
         public object? Resolve(ParameterInfo parameter, object? value)
@@ -248,7 +248,7 @@ namespace Unity.Builder
             {
                 case ParameterInfo info
                 when ReferenceEquals(info, parameter):
-                    return Resolve(parameter.ParameterType, null);
+                    return Resolve(parameter.ParameterType, (string?)null);
 
                 case ResolveDelegate<BuilderContext> resolver:
                     return resolver(ref context);
@@ -299,7 +299,7 @@ namespace Unity.Builder
                     {
                         return Resolve(property.PropertyType, optionalAttribute.Name);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     when (!(ex.InnerException is CircularDependencyException))
                     {
                         return null;
@@ -354,7 +354,7 @@ namespace Unity.Builder
                     {
                         return Resolve(field.FieldType, optionalAttribute.Name);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     when (!(ex.InnerException is CircularDependencyException))
                     {
                         return null;
@@ -365,34 +365,6 @@ namespace Unity.Builder
             }
 
             return value;
-        }
-
-        public object? Resolve(Type type, string? name, ImplicitRegistration registration)
-        {
-            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException();
-
-            unsafe
-            {
-                var thisContext = this;
-                var context = new BuilderContext
-                {
-                    ContainerContext = ContainerContext,
-                    Registration = registration,
-                    RegistrationType = type,
-                    Name = name,
-                    Type = type,
-                    ResolvePlan = ResolvePlan,
-                    List = List,
-                    Overrides = Overrides,
-                    DeclaringType = Type,
-                    Compose = Compose,
-#if !NET40
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-#endif
-                };
-
-                return Compose(ref context);
-            }
         }
 
         #endregion

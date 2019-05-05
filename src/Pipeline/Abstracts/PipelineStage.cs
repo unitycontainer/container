@@ -16,6 +16,11 @@ namespace Unity.Pipeline
         Setup,
 
         /// <summary>
+        /// Stem where diagnostic information is injected.
+        /// </summary>
+        Diagnostic,
+
+        /// <summary>
         /// At this point pipeline intercepts Instances.
         /// </summary>
         Instance,
