@@ -38,8 +38,9 @@ namespace Unity.Injection
 #if NETSTANDARD1_0
             var typeInfo = type.GetTypeInfo();
             var parameterTypes = Selection.GetParameters()
-                                           .Select(pi => GetClosedParameterType(pi.ParameterType, typeInfo.GenericTypeArguments))
-                                           .ToArray();
+                                          .Select(pi => GetClosedParameterType(pi.ParameterType, typeInfo.GenericTypeArguments))
+                                          .ToArray();
+
             var member = DeclaredMembers(type).Single(m => m.Name.Equals(Selection.Name) && ParametersMatch(m.GetParameters(), parameterTypes));
             if (null != member) return member;
 
@@ -53,7 +54,6 @@ namespace Unity.Injection
 
                 return !parameters.Where((t, i) => !t.ParameterType.Equals(closedConstructorParameterTypes[i])).Any();
             }
-
 
             Type GetClosedParameterType(Type typeToReflect, Type[] genericArguments)
             {
