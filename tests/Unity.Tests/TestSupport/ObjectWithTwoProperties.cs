@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unity.Tests.TestSupport
 {
     public class ObjectWithTwoProperties
     {

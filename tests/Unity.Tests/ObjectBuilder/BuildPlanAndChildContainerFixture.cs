@@ -1,10 +1,10 @@
 ﻿using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Injection;
-using Unity.Tests.v5.TestObjects;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestObjects;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.ObjectBuilder
+namespace Unity.Tests.ObjectBuilder
 {
     /// <summary>
     /// Summary description for BuildPlanAndChildContainerFixture
@@ -21,7 +21,8 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestInitialize]
         public void Setup()
         {
-            parentContainer = new UnityContainer()
+            parentContainer = new UnityContainer();
+            parentContainer
                 .RegisterType<TestObject>(new InjectionConstructor(ValueInjectedFromParent))
                 .RegisterType<ILogger, MockLogger>();
 

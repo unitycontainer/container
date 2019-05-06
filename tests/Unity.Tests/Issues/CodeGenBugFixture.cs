@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Unity.Tests.v5.Issues
+namespace Unity.Tests.Issues
 {
     /// <summary>
     /// Test for dynamic method creation and the CLR bug. This test will only

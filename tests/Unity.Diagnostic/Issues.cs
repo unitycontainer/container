@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Builder;
 using Unity.Specification.Diagnostic.Issues.GitHub;
 
 namespace GitHub
@@ -10,9 +9,7 @@ namespace GitHub
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
-                                       .AddExtension(new Diagnostic())
-                                       .AddExtension(new SpyExtension(new SpyStrategy(), UnityBuildStage.Initialization));
+            return new UnityContainer(true).AddExtension(new ForceCompillation());
         }
     }
 

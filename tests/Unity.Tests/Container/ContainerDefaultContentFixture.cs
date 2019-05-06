@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.Container
+namespace Unity.Tests.Container
 {
     [TestClass]
     public class ContainerDefaultContentFixture

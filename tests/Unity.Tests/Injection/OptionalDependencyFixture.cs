@@ -2,7 +2,7 @@
 using System;
 using Unity.Injection;
 
-namespace Unity.Tests.v5.Injection
+namespace Unity.Tests.Injection
 {
     /// <summary>
     /// Summary description for OptionalDependencyFixture

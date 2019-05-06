@@ -1,5 +1,4 @@
 ﻿using Unity.Extension;
-using Unity.Policy;
 
 namespace Unity
 {
@@ -16,8 +15,7 @@ namespace Unity
         {
             var unity = (UnityContainer)Container;
 
-            unity._buildStrategy = unity.ResolvingFactory;
-            unity.Defaults.Set(typeof(ResolveDelegateFactory), unity._buildStrategy);
+            // TODO: unity._buildStrategy = unity.ResolvingFactory;
         }
     }
 
@@ -30,9 +28,7 @@ namespace Unity
         {
             var unity = (UnityContainer)Container;
 
-            unity._buildStrategy = unity.CompilingFactory;
-            unity.Defaults.Set(typeof(ResolveDelegateFactory), unity._buildStrategy);
-
+            // TODO: unity._buildStrategy = unity.CompilingFactory;
         }
     }
 

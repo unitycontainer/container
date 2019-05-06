@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Unity.Builder;
@@ -17,7 +18,7 @@ namespace Unity
         #region Fields
 
         const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
-        private Action<Type, Type> TypeValidator;
+        private Action<Type, Type>? TypeValidator;
 
         #endregion
 
@@ -27,57 +28,61 @@ namespace Unity
         /// <inheritdoc />
         IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
+            var mappedToType = typeTo;
+            var registeredType = typeFrom ?? typeTo;
+
+            // Validate input
+            if (null == registeredType) throw new InvalidOperationException($"At least one of Type arguments '{nameof(typeFrom)}' or '{nameof(typeTo)}' must be not 'null'");
+
             try
             {
-                var mappedToType = typeTo;
-                var registeredType = typeFrom ?? typeTo;
-
-                // Validate input
-                if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
-                if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
-                if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                // Lifetime Manager
+                var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.CreateLifetimePolicy();
+                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                manager.InUse = true;
 
                 // Validate if they are assignable
                 TypeValidator?.Invoke(typeFrom, typeTo);
 
                 // Create registration and add to appropriate storage
-                var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-                var registration = new ContainerRegistration(_validators, typeTo, (LifetimeManager)lifetimeManager, injectionMembers);
+                var container = manager is SingletonLifetimeManager ? _root : this;
+                Debug.Assert(null != container);
+
+                // If Disposable add to container's lifetime
+                if (manager is IDisposable disposableManager)
+                    container.LifetimeContainer.Add(disposableManager);
 
                 // Add or replace existing 
+                var registration = new ExplicitRegistration(container, name, typeTo, manager, injectionMembers);
                 var previous = container.Register(registeredType, name, registration);
-                if (previous is ContainerRegistration old &&
-                    old.LifetimeManager is IDisposable disposable)
+
+                // Allow reference adjustment and disposal
+                if (null != previous && 0 == previous.Release()
+                    && previous.LifetimeManager is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
                     container.LifetimeContainer.Remove(disposable);
                     disposable.Dispose();
                 }
 
-                // If Disposable add to container's lifetime
-                if (lifetimeManager is IDisposable disposableManager)
-                    container.LifetimeContainer.Add(disposableManager);
-
                 // Add Injection Members
                 if (null != injectionMembers && injectionMembers.Length > 0)
                 {
                     foreach (var member in injectionMembers)
                     {
-                        member.AddPolicies<BuilderContext, ContainerRegistration>(
+                        member.AddPolicies<BuilderContext, ExplicitRegistration>(
                             registeredType, mappedToType, name, ref registration);
                     }
                 }
 
                 // Check what strategies to run
-                registration.BuildChain = _strategiesChain.ToArray()
-                                                          .Where(strategy => strategy.RequiredToBuildType(this,
-                                                              registeredType, registration, injectionMembers))
-                                                          .ToArray();
+                registration.Processors = Context.TypePipelineCache;
+
                 // Raise event
                 container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
                                                                           mappedToType,
                                                                           name,
-                                                                          ((LifetimeManager)lifetimeManager)));
+                                                                          manager));
             }
             catch (Exception ex)
             {
@@ -106,54 +111,56 @@ namespace Unity
         #region Instance Registration
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterInstance(Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager)
+        IUnityContainer IUnityContainer.RegisterInstance(Type? type, string? name, object? instance, IInstanceLifetimeManager? lifetimeManager)
         {
             var mappedToType = instance?.GetType();
-            var typeFrom = type ?? mappedToType;
+            var registeredType = type ?? mappedToType;
+
+            // Validate input
+            if (null == registeredType) throw new InvalidOperationException($"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
 
             try
             {
-                // Validate input
-                if (null == typeFrom) throw new InvalidOperationException($"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
+                // Lifetime Manager
+                var manager = lifetimeManager as LifetimeManager ?? Context.InstanceLifetimeManager.CreateLifetimePolicy();
+                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
-                if (null == lifetimeManager) lifetimeManager = new ContainerControlledLifetimeManager();
-                if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-                ((LifetimeManager)lifetimeManager).SetValue(instance, LifetimeContainer);
+                manager.InUse = true;
+                manager.SetValue(instance, LifetimeContainer);
 
                 // Create registration and add to appropriate storage
-                var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-                var registration = new ContainerRegistration(null, mappedToType, ((LifetimeManager)lifetimeManager));
+                var container = manager is SingletonLifetimeManager ? _root : this;
+                Debug.Assert(null != container);
 
-                // Add or replace existing 
-                var previous = container.Register(typeFrom, name, registration);
-                if (previous is ContainerRegistration old &&
-                    old.LifetimeManager is IDisposable disposable)
+                // If Disposable add to container's lifetime
+                if (manager is IDisposable disposableManager)
+                    container.LifetimeContainer.Add(disposableManager);
+
+                // Register type
+                var registration = new ExplicitRegistration(container, name, mappedToType ?? registeredType, manager);
+                var previous = container.Register(registeredType, name, registration);
+
+                // Allow reference adjustment and disposal
+                if (null != previous && 0 == previous.Release()
+                    && previous.LifetimeManager is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
                     container.LifetimeContainer.Remove(disposable);
                     disposable.Dispose();
                 }
 
-                // If Disposable add to container's lifetime
-                if (lifetimeManager is IDisposable manager)
-                    container.LifetimeContainer.Add(manager);
-
                 // Check what strategies to run
-                registration.BuildChain = _strategiesChain.ToArray()
-                                                     .Where(strategy => strategy.RequiredToResolveInstance(this, registration))
-                                                     .ToArray();
+                registration.Processors = Context.InstancePipelineCache;
+
                 // Raise event
-                container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(typeFrom, instance,
-                                                                       name, ((LifetimeManager)lifetimeManager)));
+                container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registeredType, instance, name, manager));
             }
             catch (Exception ex)
             {
                 var parts = new List<string>();
 
                 if (null != name) parts.Add($" '{name}'");
-                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
-
-                var message = $"Error in  RegisterInstance<{typeFrom?.Name}>({string.Join(", ", parts)})";
+                var message = $"Error in  RegisterInstance<{registeredType?.Name}>({string.Join(", ", parts)})";
                 throw new InvalidOperationException(message, ex);
             }
 
@@ -166,26 +173,31 @@ namespace Unity
         #region Factory Registration
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
+        public IUnityContainer RegisterFactory(Type type, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager)
         {
             // Validate input
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
-            if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+
+            // Lifetime Manager
+            var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.CreateLifetimePolicy();
+            if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+            manager.InUse = true;
 
             // Create registration and add to appropriate storage
-            var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-#pragma warning disable CS0618 // TODO: InjectionFactory
-            var injectionFactory = new InjectionFactory(factory);
-#pragma warning restore CS0618
-            var injectionMembers = new InjectionMember[] { injectionFactory };
-            var registration = new ContainerRegistration(_validators, type, ((LifetimeManager)lifetimeManager), injectionMembers);
+            var container = manager is SingletonLifetimeManager ? _root : this;
+            Debug.Assert(null != container);
+
+            var registration = new ExplicitRegistration(container, name, type, manager);
+            registration.Set(typeof(ResolveDelegate<BuilderContext>), 
+                            (ResolveDelegate<BuilderContext>)((ref BuilderContext c) => factory(c.Container, c.Type, c.Name)));
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
-            if (previous is ContainerRegistration old &&
-                old.LifetimeManager is IDisposable disposable)
+
+            // Allow reference adjustment and disposal
+            if (null != previous && 0 == previous.Release()
+                && previous.LifetimeManager is IDisposable disposable)
             {
                 // Dispose replaced lifetime manager
                 container.LifetimeContainer.Remove(disposable);
@@ -193,34 +205,18 @@ namespace Unity
             }
 
             // If Disposable add to container's lifetime
-            if (lifetimeManager is IDisposable manager)
-                container.LifetimeContainer.Add(manager);
-
-            // Add Injection Members
-            injectionFactory.AddPolicies<BuilderContext, ContainerRegistration>(
-                type, type, name, ref registration);
+            if (manager is IDisposable managerDisposable)
+                container.LifetimeContainer.Add(managerDisposable);
 
             // Check what strategies to run
-            registration.BuildChain = _strategiesChain.ToArray()
-                                                      .Where(strategy => strategy.RequiredToBuildType(this,
-                                                          type, registration, injectionMembers))
-                                                      .ToArray();
+            registration.Processors = Context.FactoryPipelineCache;
+
             // Raise event
-            container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name,
-                                                                      ((LifetimeManager)lifetimeManager)));
+            container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
+
+            // Return Container
             return this;
         }
-
-        #endregion
-
-
-        #region Registrations
-
-        /// <inheritdoc />
-        bool IUnityContainer.IsRegistered(Type type, string name) => ReferenceEquals(All, name) ? IsTypeExplicitlyRegistered(type)
-                                                                                                : _isExplicitlyRegistered(type, name);
-        /// <inheritdoc />
-        IEnumerable<IContainerRegistration> IUnityContainer.Registrations => GetRegistrations(this);
 
         #endregion
 
@@ -228,28 +224,22 @@ namespace Unity
         #region Getting objects
 
         /// <inheritdoc />
-        object IUnityContainer.Resolve(Type type, string name, params ResolverOverride[] overrides)
+        object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            // Verify arguments
-            if (null == type) throw new ArgumentNullException(nameof(type));
-            name = string.IsNullOrEmpty(name) ? null : name;
-
-            var registration = (InternalRegistration)GetRegistration(type, name);
+            // Setup Context
             var context = new BuilderContext
             {
-                List = new PolicyList(),
-                Lifetime = LifetimeContainer,
-                Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
-                Registration = registration,
-                RegistrationType = type,
-                Name = name,
-                ExecutePlan = ContextExecutePlan,
-                ResolvePlan = ContextResolvePlan,
-                Type = registration is ContainerRegistration containerRegistration
-                                     ? containerRegistration.Type : type,
+                List             = new PolicyList(),
+                Type             = type,
+                Name             = name,
+                ContainerContext = Context,
+                Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
+                ResolvePlan      = ContextResolvePlan,
             };
 
-            return ExecutePlan(ref context);
+            // Create an object
+            return ExecutePipeline(ref context);
         }
 
         #endregion
@@ -258,31 +248,26 @@ namespace Unity
         #region BuildUp existing object
 
         /// <inheritdoc />
-        object IUnityContainer.BuildUp(Type type, object existing, string name, params ResolverOverride[] overrides)
+        public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            // Verify arguments
-            if (null == type) throw new ArgumentNullException(nameof(type));
-
-            // Validate if they are assignable
-            if (null != existing && null != TypeValidator) TypeValidator(type, existing.GetType());
-
-            var registration = (InternalRegistration)GetRegistration(type, name);
+            // Setup Context
             var context = new BuilderContext
             {
-                List = new PolicyList(),
-                Lifetime = LifetimeContainer,
-                Existing = existing,
-                Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
-                Registration = registration,
-                RegistrationType = type,
-                Name = name,
-                ExecutePlan = ContextExecutePlan,
-                ResolvePlan = ContextResolvePlan,
-                Type = registration is ContainerRegistration containerRegistration
-                                     ? containerRegistration.Type : type
+                List             = new PolicyList(),
+                Type             = type,
+                Name             = name,
+                Existing         = existing ?? throw new ArgumentNullException(nameof(existing)),
+                ContainerContext = Context,
+                Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
+                ResolvePlan      = ContextResolvePlan,
             };
 
-            return ExecutePlan(ref context);
+            // Validate if they are assignable
+            TypeValidator?.Invoke(type, existing.GetType());
+
+            // Initialize an object
+            return ExecutePipeline(ref context);
         }
 
         #endregion
@@ -291,15 +276,10 @@ namespace Unity
         #region Child container management
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.CreateChildContainer()
-        {
-            var child = new UnityContainer(this);
-            ChildContainerCreated?.Invoke(this, new ChildContainerCreatedEventArgs(child._context));
-            return child;
-        }
+        IUnityContainer IUnityContainer.CreateChildContainer() => CreateChildContainer();
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.Parent => _parent;
+        IUnityContainer? IUnityContainer.Parent => _parent;
 
         #endregion
     }

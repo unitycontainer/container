@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Unity.Builder;
-using Unity.Processors;
 using Unity.Storage;
 
 namespace Unity.Extension
@@ -9,10 +8,12 @@ namespace Unity.Extension
     {
         protected override void Initialize()
         {
-            var strategies = (StagedStrategyChain<MemberProcessor, BuilderStage>)Context.BuildPlanStrategies;
-            var processor = (ConstructorProcessor)strategies.First(s => s is ConstructorProcessor);
+            //var strategies = (StagedStrategyChain<PipelineProcessor, BuilderStage>)Context.BuildPlanStrategies;
+            //var processor = (ConstructorProcessor)strategies.First(s => s is ConstructorProcessor);
 
-            processor.SelectMethod = processor.LegacySelector;
+            //processor.SelectMethod = processor.LegacySelector;
+
+            // TODO: Requires reimplementation
         }
     }
 }

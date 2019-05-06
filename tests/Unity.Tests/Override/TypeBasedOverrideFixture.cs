@@ -4,9 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.Override
+namespace Unity.Tests.Override
 {
 #pragma warning disable 618
     /// <summary>
@@ -21,83 +21,73 @@ namespace Unity.Tests.v5.Override
             var name = "name";
             var instance = this;
 
-            Assert.AreEqual(new ParameterOverride(name, instance), new ParameterOverride(name, instance));
+            var value1 = new ParameterOverride(name, instance);
+            var value2 = new ParameterOverride(name, instance);
+
+            Assert.AreEqual(value1, value2);
             Assert.AreEqual(new PropertyOverride(name, instance), new PropertyOverride(name, instance));
             Assert.AreNotEqual(new ParameterOverride(name, instance), new PropertyOverride(name, instance));
         }
 
         [TestMethod]
+        [Ignore]
         public void TypeBasedOverrideWithConstructorExactTypeMatch()
         {
-            TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
-            TypeToInject2ForTypeOverride overrideValue = new TypeToInject2ForTypeOverride(222);
-            ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
-            TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToToUndergoeTypeBasedInject2), overrideParam);
+            //TypeToInject2ForTypeOverride defaultValue = new TypeToInject2ForTypeOverride(111);
+            //TypeToInject2ForTypeOverride overrideValue = new TypeToInject2ForTypeOverride(222);
+            //ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
+            //TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToToUndergoeTypeBasedInject2), overrideParam);
 
-            IUnityContainer container = new UnityContainer();
+            //IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<IForToUndergoeInject, TypeToToUndergoeTypeBasedInject2>(new InjectionConstructor(defaultValue));
-            var result = container.Resolve<IForToUndergoeInject>(overrideDecorator);
+            //container.RegisterType<IForToUndergoeInject, TypeToToUndergoeTypeBasedInject2>(new InjectionConstructor(defaultValue));
+            //var result = container.Resolve<IForToUndergoeInject>(overrideDecorator);
 
-            Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
+            //Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
         }
 
-        [TestMethod]
-        public void TypeBasedOverrideWithBuildUp()
-        {
-            MySimpleType instance = new MySimpleType();
-            instance.X = 111;
+        //[TestMethod]
+        //public void TypeBasedOverrideWithBuildUp()
+        //{
+        //    MySimpleType instance = new MySimpleType();
+        //    instance.X = 111;
 
-            PropertyOverride overrideParam = new PropertyOverride("X", 222);
-            TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(MySimpleType), overrideParam);
+        //    PropertyOverride overrideParam = new PropertyOverride("X", 222);
+        //    TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(MySimpleType), overrideParam);
 
-            UnityContainer container = new UnityContainer();
+        //    UnityContainer container = new UnityContainer();
 
-            var result = container.BuildUp<MySimpleType>(instance, overrideDecorator);
-            Assert.AreEqual<int>(222, result.X);
-        }
+        //    var result = container.BuildUp<MySimpleType>(instance, overrideDecorator);
+        //    Assert.AreEqual<int>(222, result.X);
+        //}
 
-        [TestMethod]
-        public void TypeBasedOverrideInjectsDependentTypeProperty()
-        {
-            ParameterOverride overrideParam = new ParameterOverride("value", 222);
-            PropertyOverride overrideProp = new PropertyOverride("PropertyToInject", "TestOverrideProp");
-            TypeBasedOverride typeOverrideConstructor = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideParam);
-            TypeBasedOverride typeOverrideProp = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideProp);
+        //[TestMethod]
+        //public void TypeBasedOverrideInjectsDependentTypeProperty()
+        //{
+        //    ParameterOverride overrideParam = new ParameterOverride("value", 222);
+        //    PropertyOverride overrideProp = new PropertyOverride("PropertyToInject", "TestOverrideProp");
+        //    TypeBasedOverride typeOverrideConstructor = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideParam);
+        //    TypeBasedOverride typeOverrideProp = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideProp);
 
-            IUnityContainer container = new UnityContainer();
+        //    IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<TypeToUndergoeTypeBasedInject1>()
-                     .RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), 
-                                                                                   new InjectionProperty("PropertyToInject", "DefaultValue"));
+        //    container.RegisterType<TypeToUndergoeTypeBasedInject1>()
+        //             .RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), 
+        //                                                                           new InjectionProperty("PropertyToInject", "DefaultValue"));
 
-            var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
-            var overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
+        //    var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
+        //    var overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
 
-            Assert.AreEqual(222, overriddenProperty.Value);
-            Assert.AreEqual("TestOverrideProp", overriddenProperty.PropertyToInject);
-        }
-
-        [TestMethod]
-        public void WhenResolvingAnOpenGenericType()
-        {
-            var container = new UnityContainer();
-
-            try
-            {
-                container.Resolve(typeof(List<>));
-            }
-            catch (ResolutionFailedException ex)
-            {
-                Assert.AreEqual(typeof(ArgumentException), ex.InnerException.GetType());
-            }
-        }
+        //    Assert.AreEqual(222, overriddenProperty.Value);
+        //    Assert.AreEqual("TestOverrideProp", overriddenProperty.PropertyToInject);
+        //}
 
         [TestMethod]
         public void WhenTryingToResolveAPrimitiveType()
         {
             Type[] primitive = new Type[]
             {
+                typeof(decimal),
                 typeof(sbyte),
                 typeof(byte),
                 typeof(short),
@@ -110,11 +100,10 @@ namespace Unity.Tests.v5.Override
                 typeof(float),
                 typeof(double),
                 typeof(bool),
-                typeof(decimal),
                 typeof(string)
             };
 
-            var container = new UnityContainer();
+            IUnityContainer container = new UnityContainer();
 
             foreach (Type t in primitive)
             {
@@ -130,78 +119,78 @@ namespace Unity.Tests.v5.Override
             }
         }
 
-        [TestMethod]
-        public void TypeBasedOverrideCollectionInCompositeOverrideInjectionTest()
-        {
-            ParameterOverride overrideParam = new ParameterOverride("value", 222);
-            PropertyOverride overrideProp = new PropertyOverride("PropertyToInject", "TestOverrideProp");
-            TypeBasedOverride typeOverrideConstructor = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideParam);
-            TypeBasedOverride typeOverrideProp = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideProp);
+        //[TestMethod]
+        //public void TypeBasedOverrideCollectionInCompositeOverrideInjectionTest()
+        //{
+        //    ParameterOverride overrideParam = new ParameterOverride("value", 222);
+        //    PropertyOverride overrideProp = new PropertyOverride("PropertyToInject", "TestOverrideProp");
+        //    TypeBasedOverride typeOverrideConstructor = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideParam);
+        //    TypeBasedOverride typeOverrideProp = new TypeBasedOverride(typeof(TypeToInject3ForTypeOverride), overrideProp);
 
-            IUnityContainer container = new UnityContainer();
+        //    IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<TypeToUndergoeTypeBasedInject1>().RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), new InjectionProperty("PropertyToInject", "DefaultValue"));
-            var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
-            TypeToInject3ForTypeOverride overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
+        //    container.RegisterType<TypeToUndergoeTypeBasedInject1>().RegisterType<IForTypeToInject, TypeToInject3ForTypeOverride>(new InjectionConstructor(111), new InjectionProperty("PropertyToInject", "DefaultValue"));
+        //    var result = container.Resolve<TypeToUndergoeTypeBasedInject1>(typeOverrideConstructor, typeOverrideProp);
+        //    TypeToInject3ForTypeOverride overriddenProperty = (TypeToInject3ForTypeOverride)result.IForTypeToInject;
 
-            Assert.AreEqual<int>(222, overriddenProperty.Value);
-            Assert.AreEqual<string>("TestOverrideProp", overriddenProperty.PropertyToInject);
-        }
+        //    Assert.AreEqual<int>(222, overriddenProperty.Value);
+        //    Assert.AreEqual<string>("TestOverrideProp", overriddenProperty.PropertyToInject);
+        //}
 
-        [TestMethod]
-        public void TypeBasedOverrideNullCheckForResolverOverride()
-        {
-            AssertHelper.ThrowsException<ArgumentNullException>(() => new TypeBasedOverride(typeof(TypeToInject2ForTypeOverride), null));
-        }
+        //[TestMethod]
+        //public void TypeBasedOverrideNullCheckForResolverOverride()
+        //{
+        //    AssertHelper.ThrowsException<ArgumentNullException>(() => new TypeBasedOverride(typeof(TypeToInject2ForTypeOverride), null));
+        //}
 
-        [TestMethod]
-        public void TypeBasedOverrideInjectsDependentTypeConstructor()
-        {
-            ParameterOverride overrideParam = new ParameterOverride("value", 222);
-            TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToInject2ForTypeOverride), overrideParam);
+        //[TestMethod]
+        //public void TypeBasedOverrideInjectsDependentTypeConstructor()
+        //{
+        //    ParameterOverride overrideParam = new ParameterOverride("value", 222);
+        //    TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToInject2ForTypeOverride), overrideParam);
 
-            IUnityContainer container = new UnityContainer();
+        //    IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<TypeToToUndergoeTypeBasedInject2>().RegisterType<TypeToInject2ForTypeOverride>(new InjectionConstructor(111));
-            var result = container.Resolve<TypeToToUndergoeTypeBasedInject2>(overrideDecorator);
+        //    container.RegisterType<TypeToToUndergoeTypeBasedInject2>().RegisterType<TypeToInject2ForTypeOverride>(new InjectionConstructor(111));
+        //    var result = container.Resolve<TypeToToUndergoeTypeBasedInject2>(overrideDecorator);
 
-            Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
-        }
+        //    Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
+        //}
 
-        [TestMethod]
-        public void TypeBasedOverrideWithResolveAll()
-        {
-            IForTypeToInject defaultValue = new TypeToInject1ForTypeOverride(111);
-            IForTypeToInject overrideValue = new TypeToInject1ForTypeOverride(222);
-            ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
-            TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToUndergoeTypeBasedInject1), overrideParam);
+        //[TestMethod]
+        //public void TypeBasedOverrideWithResolveAll()
+        //{
+        //    IForTypeToInject defaultValue = new TypeToInject1ForTypeOverride(111);
+        //    IForTypeToInject overrideValue = new TypeToInject1ForTypeOverride(222);
+        //    ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
+        //    TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(TypeToUndergoeTypeBasedInject1), overrideParam);
 
-            IUnityContainer container = new UnityContainer();
+        //    IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<IForToUndergoeInject, TypeToUndergoeTypeBasedInject1>(new InjectionConstructor(defaultValue)).RegisterType<IForToUndergoeInject, TypeToUndergoeTypeBasedInject1>("Named", new InjectionConstructor(defaultValue));
-            var resultList = container.ResolveAll<IForToUndergoeInject>(overrideDecorator);
+        //    container.RegisterType<IForToUndergoeInject, TypeToUndergoeTypeBasedInject1>(new InjectionConstructor(defaultValue)).RegisterType<IForToUndergoeInject, TypeToUndergoeTypeBasedInject1>("Named", new InjectionConstructor(defaultValue));
+        //    var resultList = container.ResolveAll<IForToUndergoeInject>(overrideDecorator);
 
-            foreach (var result in resultList)
-            {
-                Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
-            }
-        }
+        //    foreach (var result in resultList)
+        //    {
+        //        Assert.AreEqual<int>(222, result.IForTypeToInject.Value);
+        //    }
+        //}
 
-        [TestMethod]
-        public void TypeBasedOverrideConstructorWithNoTypeMatch()
-        {
-            IForTypeToInject defaultValue = new TypeToInject1ForTypeOverride(111);
-            IForTypeToInject overrideValue = new TypeToInject2ForTypeOverride(222);
-            ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
-            TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(int), overrideParam);
+        //[TestMethod]
+        //public void TypeBasedOverrideConstructorWithNoTypeMatch()
+        //{
+        //    IForTypeToInject defaultValue = new TypeToInject1ForTypeOverride(111);
+        //    IForTypeToInject overrideValue = new TypeToInject2ForTypeOverride(222);
+        //    ParameterOverride overrideParam = new ParameterOverride("injectedObject", overrideValue);
+        //    TypeBasedOverride overrideDecorator = new TypeBasedOverride(typeof(int), overrideParam);
 
-            IUnityContainer container = new UnityContainer();
+        //    IUnityContainer container = new UnityContainer();
 
-            container.RegisterType<IForToUndergoeInject, TypeToUndergoeTypeBasedInject1>(new InjectionConstructor(defaultValue));
-            var result = container.Resolve<IForToUndergoeInject>(overrideDecorator);
+        //    container.RegisterType<IForToUndergoeInject, TypeToUndergoeTypeBasedInject1>(new InjectionConstructor(defaultValue));
+        //    var result = container.Resolve<IForToUndergoeInject>(overrideDecorator);
 
-            Assert.AreEqual<int>(111, result.IForTypeToInject.Value);
-        }
+        //    Assert.AreEqual<int>(111, result.IForTypeToInject.Value);
+        //}
     }
 #pragma warning restore 618
 }

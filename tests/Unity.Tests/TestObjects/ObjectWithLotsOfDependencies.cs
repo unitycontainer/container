@@ -1,8 +1,8 @@
 ﻿using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.TestObjects
+namespace Unity.Tests.TestObjects
 {
     // An object that has constructor, property, and method injection dependencies.
     public class ObjectWithLotsOfDependencies

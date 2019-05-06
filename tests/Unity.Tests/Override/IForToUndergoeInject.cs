@@ -1,5 +1,5 @@
 
-namespace Unity.Tests.v5.Override
+namespace Unity.Tests.Override
 {
     public interface IForToUndergoeInject
     {

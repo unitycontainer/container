@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Tests.v5.Injection
+namespace Unity.Tests.Injection
 {
     /// <summary>
     /// Summary description for OptionalDependencyAttributeFixture
@@ -20,7 +20,8 @@ namespace Unity.Tests.v5.Injection
         public void OptionalDependencyParameterIsResolvedIfRegisteredInContainer()
         {
             ISomeInterface expectedSomeInterface = new SomeInterfaceMock();
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance<ISomeInterface>(expectedSomeInterface);
 
             var result = container.Resolve<ObjectWithOptionalConstructorParameter>();
@@ -34,7 +35,8 @@ namespace Unity.Tests.v5.Injection
             ISomeInterface namedSomeInterface = new SomeInterfaceMock();
             ISomeInterface defaultSomeInterface = new SomeInterfaceMock();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance<ISomeInterface>(defaultSomeInterface)
                 .RegisterInstance<ISomeInterface>("named", namedSomeInterface);
 
@@ -57,7 +59,8 @@ namespace Unity.Tests.v5.Injection
         public void OptionalPropertiesAreInjectedWhenRegisteredInContainer()
         {
             ISomeInterface expected = new SomeInterfaceMock();
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance(expected);
 
             var result = container.Resolve<ObjectWithOptionalProperty>();
@@ -71,7 +74,8 @@ namespace Unity.Tests.v5.Injection
             ISomeInterface namedSomeInterface = new SomeInterfaceMock();
             ISomeInterface defaultSomeInterface = new SomeInterfaceMock();
 
-            IUnityContainer container = new UnityContainer()
+            IUnityContainer container = new UnityContainer();
+            container
                 .RegisterInstance<ISomeInterface>(defaultSomeInterface)
                 .RegisterInstance<ISomeInterface>("named", namedSomeInterface);
 

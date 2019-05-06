@@ -18,10 +18,10 @@ namespace Unity.Storage
 
         private static readonly int _size = typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         private readonly object _lockObject = new object();
-        private readonly StagedStrategyChain<TStrategyType, TStageEnum> _innerChain;
-        private readonly IList<TStrategyType>[] _stages =  new IList<TStrategyType>[_size];
+        private readonly StagedStrategyChain<TStrategyType, TStageEnum>? _innerChain;
+        private readonly IList<TStrategyType>[] _stages = new IList<TStrategyType>[_size];
 
-        private TStrategyType[] _cache;
+        private TStrategyType[]? _cache;
 
         #endregion
 
@@ -32,15 +32,18 @@ namespace Unity.Storage
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType,TStageEnum}"/> class.
         /// </summary>
         public StagedStrategyChain()
-            : this(null)
         {
+            for (var i = 0; i < _stages.Length; ++i)
+            {
+                _stages[i] = new List<TStrategyType>();
+            }
         }
 
         /// <summary>
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType, TStageEnum}"/> class with an inner strategy chain to use when building.
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
-        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum> innerChain)
+        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum>? innerChain = null)
         {
             if (null != innerChain)
             {

@@ -1,7 +1,7 @@
 ﻿
-using Unity.Tests.v5.TestDoubles;
+using Unity.Tests.TestDoubles;
 
-namespace Unity.Tests.v5.TestObjects
+namespace Unity.Tests.TestObjects
 {
     internal class ObjectWithMarkedConstructor
     {

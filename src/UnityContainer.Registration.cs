@@ -1,313 +1,217 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
+using Unity.Utility;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
+using System.Diagnostics;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Constants
+        #region Check if registered
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ContainerInitialCapacity = 37;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ListToHashCutPoint = 8;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] public const string All = "ALL";
-
-        #endregion
-
-
-        #region Registration Fields
-
-        internal IPolicySet Defaults;
-        private readonly object _syncRoot = new object();
-        private  LinkedNode<Type, object> _validators;
-        private Registrations _registrations;
-
-        #endregion
-
-
-        #region Check Registration
-
-        private bool IsExplicitlyRegisteredLocally(Type type, string name)
+        internal bool IsRegistered(Type type)
         {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode ||
-                    candidate.Key != type)
-                {
-                    continue;
-                }
+            var hashCode = type?.GetHashCode() ?? 0;
 
-                var registry = candidate.Value;
-                return registry?[name] is ContainerRegistration ||
-                       (((IUnityContainer)_parent)?.IsRegistered(type, name) ?? false);
+            // Iterate through containers hierarchy
+            for (UnityContainer? container = this; null != container; container = container._parent)
+            {
+                // Skip to parent if no registrations
+                if (null == container._metadata) continue;
+
+                if (container._metadata.Contains(hashCode, type)) return true;
             }
 
-            return ((IUnityContainer)_parent)?.IsRegistered(type, name) ?? false;
+            return false;
         }
 
-        private bool IsTypeTypeExplicitlyRegisteredLocally(Type type)
+        internal bool IsRegistered(ref BuilderContext context)
         {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode ||
-                    candidate.Key != type)
-                {
-                    continue;
-                }
-
-                return candidate.Value
-                           .Values
-                           .Any(v => v is ContainerRegistration) ||
-                       (_parent?.IsTypeExplicitlyRegistered(type) ?? false);
-            }
-
-            return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
-        }
-
-        internal bool RegistrationExists(Type type, string name)
-        {
-            IPolicySet defaultRegistration = null;
-            IPolicySet noNameRegistration = null;
-
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            for (var container = this; null != container; container = container._parent)
-            {
-                if (null == container._registrations) continue;
-
-                var targetBucket = hashCode % container._registrations.Buckets.Length;
-                for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
-                {
-                    ref var candidate = ref container._registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
-                    {
-                        continue;
-                    }
-
-                    var registry = candidate.Value;
-
-                    if (null != registry[name]) return true;
-                    if (null == defaultRegistration) defaultRegistration = registry[All];
-                    if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
-                }
-            }
-
-            if (null != defaultRegistration) return true;
-            if (null != noNameRegistration) return true;
+            Type? generic = null;
+            int targetBucket, hashGeneric = -1;
+            int hashExact = NamedType.GetHashCode(context.Type, context.Name);
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            var info = type.GetTypeInfo();
-            if (!info.IsGenericType) return false;
-
-            type = info.GetGenericTypeDefinition();
+            var info = context.Type.GetTypeInfo();
+            if (info.IsGenericType)
+            {
+                generic = info.GetGenericTypeDefinition();
+                hashGeneric = NamedType.GetHashCode(generic, context.Name);
+            }
 #else
-            if (!type?.IsGenericType ?? false) return false;
-
-            type = type?.GetGenericTypeDefinition();
+            if (context.Type.IsGenericType)
+            {
+                generic = context.Type.GetGenericTypeDefinition();
+                hashGeneric = NamedType.GetHashCode(generic, context.Name);
+            }
 #endif
-            hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            for (var container = this; null != container; container = container._parent)
+
+            // Iterate through containers hierarchy
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
-                if (null == container._registrations) continue;
+                // Skip to parent if no registrations
+                if (null == container._metadata || null == container._registry) continue;
 
-                var targetBucket = hashCode % container._registrations.Buckets.Length;
-                for (var i = container._registrations.Buckets[targetBucket]; i >= 0; i = container._registrations.Entries[i].Next)
+                var registry = container._registry;
+
+                // Check for exact match
+                targetBucket = (hashExact & HashMask) % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
-                    ref var candidate = ref container._registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
-                    {
-                        continue;
-                    }
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashExact || candidate.Type != context.Type) continue;
 
-                    var registry = candidate.Value;
+                    // Found a registration
+                    return true;
+                }
 
-                    if (null != registry[name]) return true;
-                    if (null == defaultRegistration) defaultRegistration = registry[All];
-                    if (null != name && null == noNameRegistration) noNameRegistration = registry[null];
+                // Skip to parent if not generic
+                if (null == generic) continue;
+
+                // Check for factory with same name
+                targetBucket = (hashGeneric & HashMask) % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashGeneric || candidate.Type != generic) continue;
+
+                    // Found a factory
+                    return true;
                 }
             }
 
-            if (null != defaultRegistration) return true;
-            return null != noNameRegistration;
+            return false;
         }
 
         #endregion
 
 
-        #region Registrations Collections
+        #region Getting Registration During Resolution
 
-        private static RegistrationSet GetRegistrations(UnityContainer container)
+        internal ImplicitRegistration GetRegistration(Type type, string? name)
         {
-            var seed = null != container._parent ? GetRegistrations(container._parent)
-                                                 : new RegistrationSet();
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var info = type.GetTypeInfo();
+            return info.IsGenericType ? GetGenericRegistration(type, name, info) : GetSimpleRegistration(type, name);
+#else
+            return type.IsGenericType ? GetGenericRegistration(type, name) : GetSimpleRegistration(type, name);
+#endif
+        }
 
-            if (null == container._registrations) return seed;
+        private ImplicitRegistration GetSimpleRegistration(Type type, string? name)
+        {
+            int hashCode = NamedType.GetHashCode(type, name);
 
-            var length = container._registrations.Count;
-            var entries = container._registrations.Entries;
-
-            for (var i = null == container._parent ? GetStartIndex() : 0; i < length; i++)
+            // Iterate through containers hierarchy
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
-                ref var entry = ref entries[i];
-                var registry = entry.Value;
+                // Skip to parent if no registrations
+                if (null == container._metadata || null == container._registry) continue;
 
-                switch (registry)
+                var registry = container._registry;
+
+                // Check for exact match
+                for (var i = registry.Buckets[(hashCode & HashMask) % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
                 {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                        {
-                            if (node.Value is ContainerRegistration containerRegistration)
-                                seed.Add(entry.Key, node.Key, containerRegistration);
-                        }
-                        break;
-
-                    case HashRegistry hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration)
-                                seed.Add(entry.Key, refNode.Key, containerRegistration);
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
-                }
-            }
-
-            return seed;
-
-            int GetStartIndex()
-            {
-                int start = -1;
-                while (++start < length)
-                {
-                    if (typeof(IUnityContainer) != container._registrations.Entries[start].Key)
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                         continue;
-                    return start;
-                }
 
-                return 0;
+                    // Found a registration
+                    if (!(candidate.Value is ImplicitRegistration))
+                        candidate.Value = container.CreateRegistration(type, name, candidate.Value);
+
+                    return (ImplicitRegistration)candidate.Value;
+                }
             }
+
+            Debug.Assert(null != _root);
+
+            return _root.GetOrAdd(hashCode, type, name, null);
         }
 
-        private static RegistrationSet GetRegistrations(UnityContainer container, params Type[] types)
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+        private ImplicitRegistration GetGenericRegistration(Type type, string? name, TypeInfo info)
+#else
+        private ImplicitRegistration GetGenericRegistration(Type type, string? name)
+#endif
         {
-            var seed = null != container._parent ? GetRegistrations(container._parent, types)
-                                                 : new RegistrationSet();
+            int targetBucket;
+            int hashExact = NamedType.GetHashCode(type, name);
 
-            if (null == container._registrations) return seed;
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var generic = info.GetGenericTypeDefinition();
+            var hashGeneric = NamedType.GetHashCode(generic, name);
+            var hashDefault = generic?.GetHashCode() ?? 0;
+#else
+            var generic = type.GetGenericTypeDefinition();
+            var hashGeneric = NamedType.GetHashCode(generic, name);
+            var hashDefault = generic?.GetHashCode() ?? 0;
+#endif
 
-            foreach (var type in types)
+            // Iterate through containers hierarchy
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
-                var registry = container.Get(type);
-                if (null == registry?.Values) continue;
+                // Skip to parent if no registrations
+                if (null == container._metadata || null == container._registry) continue;
 
-                switch (registry)
+                var registry = container._registry;
+
+                // Check for exact match
+                targetBucket = (hashExact & HashMask) % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                        {
-                            if (node.Value is ContainerRegistration containerRegistration)
-                                seed.Add(type, node.Key, containerRegistration);
-                        }
-                        break;
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashExact || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
+                        continue;
 
-                    case HashRegistry hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration)
-                                seed.Add(type, refNode.Key, containerRegistration);
-                        }
-                        break;
+                    // Found a registration
+                    if (!(candidate.Value is ImplicitRegistration))
+                        candidate.Value = container.CreateRegistration(type, name, candidate.Value);
 
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
+                    return (ImplicitRegistration)candidate.Value;
+                }
+
+                // Check for factory with same name
+                targetBucket = (hashGeneric & HashMask) % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashGeneric || candidate.Type != generic ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
+                        continue;
+
+                    // Found a factory
+                    return container.GetOrAdd(hashExact, type, name, candidate.Value);
+                }
+
+                // Check for default factory
+                targetBucket = (hashDefault & HashMask) % registry.Buckets.Length;
+                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                {
+                    ref var candidate = ref registry.Entries[i];
+                    if (candidate.HashCode != hashDefault || candidate.Type != generic ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
+                        continue;
+
+                    // Found a factory
+                    return container.GetOrAdd(hashExact, type, name, candidate.Value);
                 }
             }
 
-            return seed;
-        }
+            Debug.Assert(null != _root);
 
-        private static RegistrationSet GetNamedRegistrations(UnityContainer container, params Type[] types)
-        {
-            var seed = null != container._parent ? GetNamedRegistrations(container._parent, types)
-                                                 : new RegistrationSet();
-
-            if (null == container._registrations) return seed;
-
-            foreach (var type in types)
-            {
-                var registry = container.Get(type);
-                if (null == registry?.Values) continue;
-
-                switch (registry)
-                {
-                    case LinkedRegistry linkedRegistry:
-                        for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
-                        {
-                            if (node.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(node.Key))
-                                seed.Add(type, node.Key, containerRegistration);
-                        }
-                        break;
-
-                    case HashRegistry hashRegistry:
-                        var count = hashRegistry.Count;
-                        var nodes = hashRegistry.Entries;
-                        for (var j = 0; j < count; j++)
-                        {
-                            ref var refNode = ref nodes[j];
-                            if (refNode.Value is ContainerRegistration containerRegistration && !string.IsNullOrEmpty(refNode.Key))
-                                seed.Add(type, refNode.Key, containerRegistration);
-                        }
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Unknown type of registry");
-                }
-            }
-
-            return seed;
-        }
-
-        #endregion
-
-
-        #region Type of named registrations
-
-        private IRegistry<string, IPolicySet> Get(Type type)
-        {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode ||
-                    candidate.Key != type)
-                {
-                    continue;
-                }
-
-                return candidate.Value;
-            }
-
-            return null;
+            return _root.GetOrAdd(hashExact, type, name, null);
         }
 
         #endregion
@@ -315,341 +219,191 @@ namespace Unity
 
         #region Registration manipulation
 
-        private IPolicySet AddOrUpdate(Type type, string name, InternalRegistration registration)
+        private ImplicitRegistration? InitAndAdd(Type type, string? name, ImplicitRegistration registration)
         {
-            var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            lock (_syncRoot)
+            lock (_syncRegistry)
             {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                if (null == _registry) _registry = new Registry<IPolicySet>();
+                if (null == _metadata)
                 {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode ||
-                        candidate.Key != type)
+                    _metadata = new Registry<int[]>();
+
+                    Register = AddOrReplace;
+                }
+            }
+
+            return Register(type, name, registration);
+        }
+
+        private ImplicitRegistration? AddOrReplace(Type type, string? name, ImplicitRegistration registration)
+        {
+            int position = -1;
+            var collisions = 0;
+
+            Debug.Assert(null != _registry);
+            Debug.Assert(null != _metadata);
+
+            // Registry
+            lock (_syncRegistry)
+            {
+                registration.AddRef();
+                var hashCode = NamedType.GetHashCode(type, name);
+                var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
+                for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
+                {
+                    ref var candidate = ref _registry.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry registry
-                                 ? new HashRegistry(registry)
-                                 : new HashRegistry(LinkedRegistry.ListToHashCutoverPoint * 2, (LinkedRegistry)existing);
+                    // Swap the registration
+                    var existing = candidate.Value as ImplicitRegistration;
 
-                        _registrations.Entries[i].Value = existing;
-                    }
+                    if (null == existing) registration.Add(candidate.Value);
+                    candidate.Value = registration;
 
-                    return existing.SetOrReplace(name, registration);
+                    // Replaced registration
+                    return existing;
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
+                // Expand if required
+                if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _registrations = new Registrations(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
+                    _registry = new Registry<IPolicySet>(_registry);
+                    targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
-                ref var entry = ref _registrations.Entries[_registrations.Count];
+                // Create new entry
+                ref var entry = ref _registry.Entries[_registry.Count];
                 entry.HashCode = hashCode;
-                entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count++;
-
-                return null;
-            }
-        }
-
-        private IPolicySet GetOrAdd(Type type, string name)
-        {
-            var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode || candidate.Key != type)
-                {
-                    continue;
-                }
-
-                var policy = candidate.Value?[name];
-                if (null != policy) return policy;
+                entry.Next = _registry.Buckets[targetBucket];
+                entry.Type = type;
+                entry.Value = registration;
+                position = _registry.Count++;
+                _registry.Buckets[targetBucket] = position;
             }
 
-            lock (_syncRoot)
+            collisions = 0;
+
+            // Metadata
+            lock (_syncMetadata)
             {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                var hashCode = type?.GetHashCode() ?? 0;
+                var targetBucket = (hashCode & HashMask) % _metadata.Buckets.Length;
+
+                for (var i = _metadata.Buckets[targetBucket]; i >= 0; i = _metadata.Entries[i].Next)
                 {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Key != type)
+                    ref var candidate = ref _metadata.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Type != type)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    if (existing.RequireToGrow)
+                    // Expand if required
+                    if (candidate.Value.Length == candidate.Value[0])
                     {
-                        existing = existing is HashRegistry registry
-                                 ? new HashRegistry(registry)
-                                 : new HashRegistry(LinkedRegistry.ListToHashCutoverPoint * 2,
-                                                   (LinkedRegistry)existing);
-                        _registrations.Entries[i].Value = existing;
+                        var source = candidate.Value;
+                        candidate.Value = new int[source.Length * 2];
+                        Array.Copy(source, candidate.Value, source[0]);
                     }
 
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                    // Add to existing
+                    candidate.Value[candidate.Value[0]++] = position;
+
+                    // Nothing to replace
+                    return null;
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
+                // Expand if required
+                if (_metadata.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _registrations = new Registrations(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
+                    _metadata = new Registry<int[]>(_metadata);
+                    targetBucket = (hashCode & HashMask) % _metadata.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
-                ref var entry = ref _registrations.Entries[_registrations.Count];
+                // Create new metadata entry
+                ref var entry = ref _metadata.Entries[_metadata.Count];
+                entry.Next = _metadata.Buckets[targetBucket];
                 entry.HashCode = hashCode;
-                entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count++;
-                return registration;
-            }
-        }
-
-        private IPolicySet GetOrAddGeneric(Type type, string name, Type definition)
-        {
-            var collisions = 0;
-            int hashCode;
-            int targetBucket;
-
-            if (null != _parent)
-            {
-                hashCode = (definition?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-                targetBucket = hashCode % _registrations.Buckets.Length;
-                for (var j = _registrations.Buckets[targetBucket]; j >= 0; j = _registrations.Entries[j].Next)
-                {
-                    ref var candidate = ref _registrations.Entries[j];
-                    if (candidate.HashCode != hashCode || candidate.Key != definition)
-                    {
-                        continue;
-                    }
-
-                    if (null != candidate.Value?[name]) break;
-
-                    return _parent._getGenericRegistration(type, name, definition);
-                }
+                entry.Type = type;
+                entry.Value = new int[] { 2, position };
+                _metadata.Buckets[targetBucket] = _metadata.Count++;
             }
 
-            hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            targetBucket = hashCode % _registrations.Buckets.Length;
-
-            lock (_syncRoot)
-            {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-                {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Key != type)
-                    {
-                        collisions++;
-                        continue;
-                    }
-
-                    var existing = candidate.Value;
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry registry
-                                 ? new HashRegistry(registry)
-                                 : new HashRegistry(LinkedRegistry.ListToHashCutoverPoint * 2,
-                                                   (LinkedRegistry)existing);
-
-                        _registrations.Entries[i].Value = existing;
-                    }
-
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
-                }
-
-                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
-                {
-                    _registrations = new Registrations(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
-                }
-
-                var registration = CreateRegistration(type, name);
-                ref var entry = ref _registrations.Entries[_registrations.Count];
-                entry.HashCode = hashCode;
-                entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count++;
-                return registration;
-            }
-
-
-        }
-
-        private IPolicySet Get(Type type, string name)
-        {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode || candidate.Key != type)
-                {
-                    continue;
-                }
-
-                return candidate.Value?[name];
-            }
-
+            // Nothing to replace
             return null;
         }
 
-        private void Set(Type type, string name, IPolicySet value)
+        private ImplicitRegistration GetOrAdd(Type type, string? name, IPolicySet? factory = null)
+            => GetOrAdd(NamedType.GetHashCode(type, name), type, name, factory);
+
+        private ImplicitRegistration GetOrAdd(int hashCode, Type type, string? name, IPolicySet? factory)
         {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            var collisions = 0;
-            lock (_syncRoot)
+            Debug.Assert(null != _registry);
+
+            lock (_syncRegistry)
             {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                var collisions = 0;
+                var targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
+
+                // Check for the existing 
+                for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Key != type)
+                    ref var candidate = ref _registry.Entries[i];
+                    if (candidate.HashCode != hashCode || candidate.Type != type ||
+                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
                     {
                         collisions++;
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry registry
-                            ? new HashRegistry(registry)
-                            : new HashRegistry(LinkedRegistry.ListToHashCutoverPoint * 2,
-                                (LinkedRegistry)existing);
+                    if (!(candidate.Value is ImplicitRegistration))
+                        candidate.Value = CreateRegistration(type, name, candidate.Value);
 
-                        _registrations.Entries[i].Value = existing;
-                    }
-
-                    existing[name] = value;
-                    return;
+                    return (ImplicitRegistration)candidate.Value;
                 }
 
-                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
+                // Expand if required
+                if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _registrations = new Registrations(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
+                    _registry = new Registry<IPolicySet>(_registry);
+                    targetBucket = (hashCode & HashMask) % _registry.Buckets.Length;
                 }
 
-                ref var entry = ref _registrations.Entries[_registrations.Count];
+                // Add registration
+                var registration = CreateRegistration(type, name, factory);
+                registration.AddRef();
+                ref var entry = ref _registry.Entries[_registry.Count];
                 entry.HashCode = hashCode;
-                entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, value);
-                _registrations.Buckets[targetBucket] = _registrations.Count++;
+                entry.Type = type;
+                entry.Next = _registry.Buckets[targetBucket];
+                entry.Value = registration;
+                _registry.Buckets[targetBucket] = _registry.Count++;
+
+                return (ImplicitRegistration)entry.Value;
             }
         }
 
         #endregion
 
 
-        #region Local policy manipulation
+        #region Creating Implicit Registration
 
-        private object Get(Type type, string name, Type policyInterface)
+        private ImplicitRegistration CreateRegistration(Type type, string? name, IPolicySet? set)
         {
-            object policy = null;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode || candidate.Key != type)
-                {
-                    continue;
-                }
+            var registration = set is ImplicitRegistration factory 
+                             ? new ImplicitRegistration(this, name, factory)
+                             : new ImplicitRegistration(this, name, set);
 
-                policy = candidate.Value?[name]?.Get(policyInterface);
-                break;
-            }
+            registration.Processors = Context.TypePipelineCache;
 
-            return policy ?? _parent?.GetPolicy(type, name, policyInterface);
-        }
+            if (registration.LifetimeManager is IDisposable) LifetimeContainer.Add(registration.LifetimeManager);
 
-        private void Set(Type type, string name, Type policyInterface, object policy)
-        {
-            var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            lock (_syncRoot)
-            {
-                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-                {
-                    ref var candidate = ref _registrations.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Key != type)
-                    {
-                        collisions++;
-                        continue;
-                    }
-
-                    var existing = candidate.Value;
-                    var policySet = existing[name];
-                    if (null != policySet)
-                    {
-                        policySet.Set(policyInterface, policy);
-                        return;
-                    }
-
-                    if (existing.RequireToGrow)
-                    {
-                        existing = existing is HashRegistry registry
-                                 ? new HashRegistry(registry)
-                                 : new HashRegistry(LinkedRegistry.ListToHashCutoverPoint * 2,
-                                                   (LinkedRegistry)existing);
-
-                        _registrations.Entries[i].Value = existing;
-                    }
-
-                    existing.GetOrAdd(name, () => CreateRegistration(type, policyInterface, policy));
-                    return;
-                }
-
-                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
-                {
-                    _registrations = new Registrations(_registrations);
-                    targetBucket = hashCode % _registrations.Buckets.Length;
-                }
-
-                var registration = CreateRegistration(type, policyInterface, policy);
-                ref var entry = ref _registrations.Entries[_registrations.Count];
-                entry.HashCode = hashCode;
-                entry.Next = _registrations.Buckets[targetBucket];
-                entry.Key = type;
-                entry.Value = new LinkedRegistry(name, registration);
-                _registrations.Buckets[targetBucket] = _registrations.Count++;
-            }
-        }
-
-        private void Clear(Type type, string name, Type policyInterface)
-        {
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            var targetBucket = hashCode % _registrations.Buckets.Length;
-            for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
-            {
-                ref var candidate = ref _registrations.Entries[i];
-                if (candidate.HashCode != hashCode || candidate.Key != type)
-                {
-                    continue;
-                }
-
-                candidate.Value?[name]?.Clear(policyInterface);
-                return;
-            }
+            return registration;
         }
 
         #endregion

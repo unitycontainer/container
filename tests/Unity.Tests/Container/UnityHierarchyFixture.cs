@@ -1,9 +1,9 @@
 ﻿using Microsoft.Practices.Unity.Tests.TestObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Unity.Tests.v5.TestSupport;
+using Unity.Tests.TestSupport;
 
-namespace Unity.Tests.v5.Container
+namespace Unity.Tests.Container
 {
     /// <summary>
     /// Tests for the hierarchical features of the UnityContainer.

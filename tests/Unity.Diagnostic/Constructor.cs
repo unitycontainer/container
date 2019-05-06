@@ -9,8 +9,7 @@ namespace Compiled.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceCompillation());
         }
     }
 
@@ -19,8 +18,7 @@ namespace Compiled.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceCompillation());
         }
     }
 
@@ -29,8 +27,7 @@ namespace Compiled.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceCompillation());
         }
     }
 
@@ -39,8 +36,7 @@ namespace Compiled.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceCompillation());
         }
     }
 }
@@ -52,8 +48,7 @@ namespace Resolved.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceCompillation());
         }
     }
 
@@ -62,8 +57,7 @@ namespace Resolved.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceActivation());
         }
     }
 
@@ -72,8 +66,7 @@ namespace Resolved.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceActivation());
         }
     }
 
@@ -82,8 +75,7 @@ namespace Resolved.Constructor
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation())
-                                       .AddExtension(new Diagnostic());
+            return new UnityContainer(true).AddExtension(new ForceActivation());
         }
     }
 }

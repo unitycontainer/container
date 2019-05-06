@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Unity.Tests.v5.TestSupport
+namespace Unity.Tests.TestSupport
 {
     /// <summary>
     /// A series of helper methods to deal with sequences -

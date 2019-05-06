@@ -1,9 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Tests.v5.TestDoubles;
+using Unity.Pipeline;
+using Unity.Tests.TestDoubles;
 
-namespace Unity.Tests.v5.Container
+namespace Unity.Tests.Container
 {
     [TestClass]
     public class UnityExtensionFixture
@@ -58,8 +59,8 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void ExtensionCanAddStrategy()
         {
-            SpyStrategy spy = new SpyStrategy();
-            SpyExtension extension = new SpyExtension(spy, UnityBuildStage.PreCreation);
+            var spy = new SpyStrategy();
+            SpyExtension extension = new SpyExtension(spy, PipelineStage.PreCreation);
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);
@@ -72,11 +73,11 @@ namespace Unity.Tests.v5.Container
         [TestMethod]
         public void ExtensionCanAddPolicy()
         {
-            SpyStrategy spy = new SpyStrategy();
+            var spy = new SpyStrategy();
             SpyPolicy spyPolicy = new SpyPolicy();
 
             SpyExtension extension =
-                new SpyExtension(spy, UnityBuildStage.PreCreation, spyPolicy, typeof(SpyPolicy));
+                new SpyExtension(spy, PipelineStage.PreCreation, spyPolicy, typeof(SpyPolicy));
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);

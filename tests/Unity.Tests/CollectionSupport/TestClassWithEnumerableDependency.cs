@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Unity.Tests.v5.CollectionSupport
+namespace Unity.Tests.CollectionSupport
 {
     public class TestClassWithEnumerableDependency
     {
