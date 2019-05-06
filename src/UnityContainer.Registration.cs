@@ -2,12 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Extensions;
+using Unity.Utility;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
+using System.Diagnostics;
 
 namespace Unity
 {
@@ -132,6 +133,8 @@ namespace Unity
                 }
             }
 
+            Debug.Assert(null != _root);
+
             return _root.GetOrAdd(hashCode, type, name, null);
         }
 
@@ -206,17 +209,15 @@ namespace Unity
                 }
             }
 
+            Debug.Assert(null != _root);
+
             return _root.GetOrAdd(hashExact, type, name, null);
         }
 
         #endregion
 
 
-        #region Registration manipulations
-
-        // Possible dereference of a null reference.
-        #pragma warning disable CS8602
-
+        #region Registration manipulation
 
         private ImplicitRegistration? InitAndAdd(Type type, string? name, ImplicitRegistration registration)
         {
@@ -238,6 +239,9 @@ namespace Unity
         {
             int position = -1;
             var collisions = 0;
+
+            Debug.Assert(null != _registry);
+            Debug.Assert(null != _metadata);
 
             // Registry
             lock (_syncRegistry)
@@ -339,6 +343,8 @@ namespace Unity
 
         private ImplicitRegistration GetOrAdd(int hashCode, Type type, string? name, IPolicySet? factory)
         {
+            Debug.Assert(null != _registry);
+
             lock (_syncRegistry)
             {
                 var collisions = 0;
@@ -382,7 +388,6 @@ namespace Unity
             }
         }
 
-        #pragma warning restore CS8602
         #endregion
 
 

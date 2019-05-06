@@ -11,13 +11,14 @@ using Unity.Resolution;
 
 namespace Unity.Pipeline
 {
-    public class MethodDiagnostic : MethodBuilder
+    public partial class MethodDiagnostic : MethodBuilder
     {
         #region Constructors
 
         public MethodDiagnostic(UnityContainer container) 
             : base(container)
         {
+            container.Defaults.Set(typeof(Func<Type, InjectionMember, MethodInfo>), InjectionValidatingSelector);
         }
 
         #endregion

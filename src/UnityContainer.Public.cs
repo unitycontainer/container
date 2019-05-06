@@ -2,19 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Abstracts;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Extensions;
 using Unity.Factories;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Utility;
 
 namespace Unity
 {
@@ -25,7 +23,7 @@ namespace Unity
         /// <summary>
         /// Create a default <see cref="UnityContainer"/>.
         /// </summary>
-        public UnityContainer(bool diagnostic = false)
+        public UnityContainer(bool enableDiagnostic = false)
         {
             /////////////////////////////////////////////////////////////
             // Initialize Root 
@@ -52,17 +50,19 @@ namespace Unity
             var func = new PolicySet(this);
             _registry.Set(typeof(Func<>), func);  
                  func.Set(typeof(LifetimeManager),     new PerResolveLifetimeManager());
-                 func.Set(typeof(TypeResolverFactory), FuncResolver.Factory);                                                   // Func<> Factory
-            _registry.Set(typeof(Lazy<>),        new PolicySet(this, typeof(TypeResolverFactory), LazyResolver.Factory));       // Lazy<>
-            _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(TypeResolverFactory), EnumerableResolver.Factory)); // Enumerable
-            _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(TypeResolverFactory), RegExResolver.Factory));      // Regular Expression Enumerable
+                 func.Set(typeof(TypeFactoryDelegate), FuncResolver.Factory);                                                   // Func<> Factory
+            _registry.Set(typeof(Lazy<>),        new PolicySet(this, typeof(TypeFactoryDelegate), LazyResolver.Factory));       // Lazy<>
+            _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(TypeFactoryDelegate), EnumerableResolver.Factory)); // Enumerable
+            _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(TypeFactoryDelegate), RegExResolver.Factory));      // Regular Expression Enumerable
 
-            // Pipeline
+            /////////////////////////////////////////////////////////////
+            // Pipelines
+
             var lifetimeBuilder = new LifetimeBuilder();
             var factoryBuilder = new FactoryBuilder();
 
             // Mode of operation
-            if (!diagnostic)
+            if (!enableDiagnostic)
             {
                 /////////////////////////////////////////////////////////////
                 // Setup Optimized mode
@@ -122,29 +122,18 @@ namespace Unity
                     });
 
                 // Build process
-                ContextResolvePlan = ContextValidatingResolvePlan;
                 ExecutePipeline = ExecuteValidatingPipeline;
-
-                // Validators
-                var validators = new PolicySet(this);
-
-                // TODO: Integrate with builder
-                validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
-                validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>),      Validating.MethodSelector);
-                validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>),       Validating.FieldSelector);
-                validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>),    Validating.PropertySelector);
-
-                //_validators = validators;
+                ContextResolvePlan = ContextValidatingResolvePlan;
 
                 // Registration Validator
                 TypeValidator = (typeFrom, typeTo) =>
                 {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
-                                    !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
+                    if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
+                       !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
 #else
                     if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
-                        !typeFrom.IsAssignableFrom(typeTo))
+                       !typeFrom.IsAssignableFrom(typeTo))
 #endif
                     {
                         throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");

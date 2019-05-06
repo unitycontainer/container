@@ -23,7 +23,7 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, PolicySet policies) =>
         {
             var typeArgument = type.GetElementType();
             var targetType = policies.Owner.GetTargetType(typeArgument);

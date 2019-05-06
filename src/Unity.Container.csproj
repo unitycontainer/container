@@ -27,10 +27,6 @@
     <NullableContextOptions>enable</NullableContextOptions>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0' AND '$(TargetFramework)' != 'netstandard1.0' ">
-    <Compile Remove="Policy\Converter.cs" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="Utility\ConcurrentDictionary.cs" />
   </ItemGroup>

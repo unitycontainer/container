@@ -46,7 +46,7 @@ namespace Unity.Pipeline
             if (null != resolver) return builder.Pipeline((ResolveDelegate<BuilderContext>)resolver);
             
             // Try finding factory
-            TypeResolverFactory? factory = builder.Registration.Get<TypeResolverFactory>();
+            TypeFactoryDelegate? factory = builder.Registration.Get<TypeFactoryDelegate>();
 
             if (builder.Registration is ExplicitRegistration registration)
             {
@@ -56,8 +56,8 @@ namespace Unity.Pipeline
                 if (null != builder.Type && builder.Type.IsGenericType)
 #endif
                 {
-                    factory = (TypeResolverFactory?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
-                                                                                 typeof(TypeResolverFactory));
+                    factory = (TypeFactoryDelegate?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
+                                                                                 typeof(TypeFactoryDelegate));
                 }
                 else if (builder.Type.IsArray)
                 {
@@ -82,8 +82,8 @@ namespace Unity.Pipeline
                 if (builder.Type.IsGenericType)
 #endif
                 {
-                    factory = (TypeResolverFactory?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
-                                                                                 typeof(TypeResolverFactory));
+                    factory = (TypeFactoryDelegate?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
+                                                                                 typeof(TypeFactoryDelegate));
                 }
                 else if (builder.Type.IsArray)
                 {

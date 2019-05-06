@@ -3,6 +3,7 @@ using System.Security;
 
 namespace Unity.Storage
 {
+    // Requires more work
     [SecuritySafeCritical]
     public class QuickSet<TValue>
     {

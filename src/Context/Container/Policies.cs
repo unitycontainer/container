@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -13,7 +14,10 @@ namespace Unity
             /// <inheritdoc />
             public object? Get(Type policyInterface)
             {
-                var registry = Container._root._registry ?? throw new InvalidOperationException();
+                Debug.Assert(null != Container._root);
+                Debug.Assert(null != Container._root._registry);
+
+                var registry = Container._root._registry;
                 return registry.Entries[0].Value.Get(policyInterface);
             }
 
@@ -73,7 +77,10 @@ namespace Unity
             /// <inheritdoc />
             public void Set(Type policyInterface, object policy)
             {
-                var registry = Container._root._registry ?? throw new InvalidOperationException();
+                Debug.Assert(null != Container._root);
+                Debug.Assert(null != Container._root._registry);
+
+                var registry = Container._root._registry;
                 registry.Entries[0].Value.Set(policyInterface, policy);
             }
 

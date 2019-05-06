@@ -39,8 +39,8 @@ namespace Unity.Pipeline
             }
         }
 
-        public override ISelect<PropertyInfo> GetOrDefault(IPolicySet registration) =>
-            registration.Get<ISelect<PropertyInfo>>() ?? Defaults.SelectProperty;
+        public override MemberSelector<PropertyInfo> GetOrDefault(IPolicySet registration) =>
+            registration.Get<MemberSelector<PropertyInfo>>() ?? Defaults.SelectProperty;
 
         #endregion
 

@@ -18,7 +18,7 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, PolicySet policies) =>
         {
             var typeToBuild = type.GetTypeInfo().GenericTypeArguments[0];
             var factoryMethod = ImplementationMethod.MakeGenericMethod(typeToBuild);

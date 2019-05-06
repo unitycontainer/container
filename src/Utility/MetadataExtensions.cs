@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Storage;
 
-namespace Unity.Extensions
+namespace Unity.Utility
 {
     internal static class MetadataExtensions
     {

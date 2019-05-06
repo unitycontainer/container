@@ -7,6 +7,10 @@ using Unity.Storage;
 
 namespace Unity.Factories
 {
+    public interface IRegex<TType>
+    {
+    }
+
     public class RegExResolver
     {
         #region Fields
@@ -24,7 +28,7 @@ namespace Unity.Factories
 
         #region ResolveDelegateFactory
 
-        public static TypeResolverFactory Factory = (Type type, PolicySet policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, PolicySet policies) =>
         {
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40

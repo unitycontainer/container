@@ -42,7 +42,7 @@ namespace Unity.Pipeline
 
             // Select ConstructorInfo
             var selector = GetOrDefault(builder.Registration);
-            var selection = selector.Select(builder.Type, builder.Registration)
+            var selection = selector.Invoke(builder.Type, builder.Registration)
                                     .FirstOrDefault();
 
             // Select constructor for the Type

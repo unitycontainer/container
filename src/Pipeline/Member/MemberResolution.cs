@@ -18,7 +18,7 @@ namespace Unity.Pipeline
 
             var pipeline = builder.Pipeline();
             var selector = GetOrDefault(builder.Registration);
-            var members = selector.Select(builder.Type, builder.Registration);
+            var members = selector.Invoke(builder.Type, builder.Registration);
             var resolvers = ResolversFromSelection(builder.Type, members).ToArray();
 
             return 0 == resolvers.Length 

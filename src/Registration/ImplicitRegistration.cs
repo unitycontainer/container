@@ -10,7 +10,6 @@ using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity.Registration
 {
@@ -18,6 +17,7 @@ namespace Unity.Registration
     [DebuggerTypeProxy(typeof(ImplicitRegistrationDebugProxy))]
     public class ImplicitRegistration : PolicySet
     {
+
         #region Fields
 
         private int _refCount;
@@ -140,4 +140,8 @@ namespace Unity.Registration
 
         #endregion
     }
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+    public delegate TOutput Converter<in TInput, out TOutput>(TInput input);
+#endif
 }

@@ -31,8 +31,8 @@ namespace Unity.Pipeline
                                         !member.IsStatic);
         }
 
-        public override ISelect<MethodInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<ISelect<MethodInfo>>() ?? Defaults.SelectMethod;
+        public override MemberSelector<MethodInfo> GetOrDefault(IPolicySet registration) => 
+            registration.Get<MemberSelector<MethodInfo>>() ?? Defaults.SelectMethod;
 
         #endregion
 

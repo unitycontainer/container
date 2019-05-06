@@ -59,8 +59,7 @@ namespace Unity.Pipeline
         #endregion
     }
 
-    public abstract partial class MemberBuilder<TMemberInfo, TData> : MemberBuilder,
-                                                                      ISelect<TMemberInfo>
+    public abstract partial class MemberBuilder<TMemberInfo, TData> : MemberBuilder
                                                   where TMemberInfo : MemberInfo
     {
         #region Fields
@@ -81,8 +80,7 @@ namespace Unity.Pipeline
                 new AttributeFactory(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
             };
 
-            container.Defaults.Set(typeof(ISelect<TMemberInfo>), this);
-            container.Defaults.Set(typeof(MemberSelectDelegate<TMemberInfo>), (MemberSelectDelegate<TMemberInfo>)Select);
+            container.Defaults.Set(typeof(MemberSelector<TMemberInfo>), (MemberSelector<TMemberInfo>)Select);
         }
 
         #endregion
@@ -90,7 +88,7 @@ namespace Unity.Pipeline
 
         #region Public Members
 
-        public MemberSelectDelegate<TMemberInfo> MemberSelector => Select;
+        public MemberSelector<TMemberInfo> MemberSelector => Select;
 
         public void AddFactories(IEnumerable<AttributeFactory> factories)
         {
@@ -121,7 +119,7 @@ namespace Unity.Pipeline
         public IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
         {
             var selector = GetOrDefault(registration);
-            var members = selector.Select(type, registration);
+            var members = selector(type, registration);
 
             return ExpressionsFromSelection(type, members);
         }
@@ -173,11 +171,11 @@ namespace Unity.Pipeline
 #endif
         }
 
-        public virtual ISelect<TMemberInfo> GetOrDefault(IPolicySet registration)
+        public virtual MemberSelector<TMemberInfo> GetOrDefault(IPolicySet registration)
         {
-            return (ISelect<TMemberInfo>)(registration.Get(typeof(ISelect<TMemberInfo>)) ??
-                                              Defaults.Get(typeof(ISelect<TMemberInfo>)) ??
-                                              throw new InvalidOperationException("Should never be null"));
+            return (MemberSelector<TMemberInfo>)(registration.Get(typeof(MemberSelector<TMemberInfo>)) ??
+                                                     Defaults.Get(typeof(MemberSelector<TMemberInfo>)) ??
+                                                     throw new InvalidOperationException("Should never be null"));
         }
 
         #endregion

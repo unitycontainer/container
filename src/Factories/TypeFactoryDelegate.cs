@@ -5,5 +5,5 @@ using Unity.Storage;
 
 namespace Unity
 {
-    public delegate ResolveDelegate<BuilderContext> TypeResolverFactory(Type type, PolicySet policies);
+    public delegate ResolveDelegate<BuilderContext> TypeFactoryDelegate(Type type, PolicySet policies);
 }

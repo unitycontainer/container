@@ -32,8 +32,8 @@ namespace Unity.Pipeline
 
         protected override Type MemberType(FieldInfo info) => info.FieldType;
 
-        public override ISelect<FieldInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<ISelect<FieldInfo>>() ?? Defaults.SelectField;
+        public override MemberSelector<FieldInfo> GetOrDefault(IPolicySet registration) => 
+            registration.Get<MemberSelector<FieldInfo>>() ?? Defaults.SelectField;
 
         #endregion
 

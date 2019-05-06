@@ -10,13 +10,14 @@ using Unity.Resolution;
 
 namespace Unity.Pipeline
 {
-    public class PropertyDiagnostic : PropertyBuilder
+    public partial class PropertyDiagnostic : PropertyBuilder
     {
         #region Constructors
 
         public PropertyDiagnostic(UnityContainer container) 
             : base(container)
         {
+            container.Defaults.Set(typeof(Func<Type, InjectionMember, PropertyInfo>), InjectionValidatingSelector);
         }
 
         #endregion

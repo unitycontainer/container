@@ -1,24 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
-using Unity.Composition;
 using Unity.Policy;
 
 namespace Unity.Storage
 {
-    public class DefaultPolicies : PolicySet, 
-                                   ISelect<ConstructorInfo>,
-                                   ISelect<PropertyInfo>,
-                                   ISelect<MethodInfo>,
-                                   ISelect<FieldInfo>
+    public class DefaultPolicies : PolicySet
     {
         #region Fields
 
-        private ISelect<ConstructorInfo> _selectConstructor;
-        private ISelect<PropertyInfo> _selectProperty;
-        private ISelect<MethodInfo> _selectMethod;
-        private ISelect<FieldInfo> _selectField;
-        
+        private MemberSelector<ConstructorInfo>? _selectConstructor;
+        private MemberSelector<PropertyInfo>? _selectProperty;
+        private MemberSelector<MethodInfo>? _selectMethod;
+        private MemberSelector<FieldInfo>? _selectField;
+
         #endregion
 
 
@@ -27,10 +22,6 @@ namespace Unity.Storage
         public DefaultPolicies(UnityContainer owner)
             : base(owner)
         {
-            _selectConstructor = this;
-            _selectProperty = this;
-            _selectMethod = this;
-            _selectField = this;
         }
         
         #endregion
@@ -42,10 +33,10 @@ namespace Unity.Storage
         {
             return policyInterface switch
             {
-                Type type when typeof(ISelect<ConstructorInfo>) == type => SelectConstructor,
-                Type type when typeof(ISelect<PropertyInfo>) == type => SelectProperty,
-                Type type when typeof(ISelect<MethodInfo>) == type => SelectMethod,
-                Type type when typeof(ISelect<FieldInfo>) == type => SelectField,
+                Type type when typeof(MemberSelector<ConstructorInfo>) == type => SelectConstructor,
+                Type type when typeof(MemberSelector<PropertyInfo>) == type => SelectProperty,
+                Type type when typeof(MemberSelector<MethodInfo>) == type => SelectMethod,
+                Type type when typeof(MemberSelector<FieldInfo>) == type => SelectField,
 
                 _ => base.Get(policyInterface)
             };
@@ -55,20 +46,20 @@ namespace Unity.Storage
         {
             switch (policyInterface)
             {
-                case Type type when typeof(ISelect<ConstructorInfo>) == type:
-                    SelectConstructor = (ISelect<ConstructorInfo>)policy;
+                case Type type when typeof(MemberSelector<ConstructorInfo>) == type:
+                    SelectConstructor = (MemberSelector<ConstructorInfo>)policy;
                     break;
 
-                case Type type when typeof(ISelect<PropertyInfo>) == type:
-                    SelectProperty = (ISelect<PropertyInfo>)policy;
+                case Type type when typeof(MemberSelector<PropertyInfo>) == type:
+                    SelectProperty = (MemberSelector<PropertyInfo>)policy;
                     break;
 
-                case Type type when typeof(ISelect<MethodInfo>) == type:
-                    SelectMethod = (ISelect<MethodInfo>)policy;
+                case Type type when typeof(MemberSelector<MethodInfo>) == type:
+                    SelectMethod = (MemberSelector<MethodInfo>)policy;
                     break;
 
-                case Type type when typeof(ISelect<FieldInfo>) == type:
-                    SelectField = (ISelect<FieldInfo>)policy;
+                case Type type when typeof(MemberSelector<FieldInfo>) == type:
+                    SelectField = (MemberSelector<FieldInfo>)policy;
                     break;
 
                 default:
@@ -82,40 +73,53 @@ namespace Unity.Storage
 
         #region Default Policies
 
-        public ISelect<ConstructorInfo> SelectConstructor
+        public MemberSelector<ConstructorInfo> SelectConstructor
         {
-            get => _selectConstructor;
-            private set => _selectConstructor = value ?? 
-                throw new ArgumentNullException("Constructor Selector must not be null");
+            get
+            {
+                Debug.Assert(null != _selectConstructor);
+                return _selectConstructor;
+            }
+
+            private set => _selectConstructor = value ??
+               throw new ArgumentNullException("Constructor Selector must not be null");
         }
 
-        public ISelect<PropertyInfo> SelectProperty
+        public MemberSelector<PropertyInfo> SelectProperty
         {
-            get => _selectProperty;
-            private set => _selectProperty = value ?? 
-                throw new ArgumentNullException("Property Selector must not be null");
+            get
+            {
+                Debug.Assert(null != _selectProperty);
+                return _selectProperty;
+            }
+
+            private set => _selectProperty = value ??
+               throw new ArgumentNullException("Property Selector must not be null");
         }
 
-        public ISelect<MethodInfo> SelectMethod
+        public MemberSelector<MethodInfo> SelectMethod
         {
-            get => _selectMethod;
-            private set => _selectMethod = value ?? 
-                throw new ArgumentNullException("Method Selector must not be null");
+            get
+            {
+                Debug.Assert(null != _selectMethod);
+                return _selectMethod;
+            }
+
+            private set => _selectMethod = value ??
+               throw new ArgumentNullException("Method Selector must not be null");
         }
 
-        public ISelect<FieldInfo> SelectField
+        public MemberSelector<FieldInfo> SelectField
         {
-            get => _selectField;
-            private set => _selectField = value 
-                ?? throw new ArgumentNullException("Field Selector must not be null");
+            get
+            {
+                Debug.Assert(null != _selectField);
+                return _selectField;
+            }
+
+            private set => _selectField = value
+               ?? throw new ArgumentNullException("Field Selector must not be null");
         }
-
-        #endregion
-
-
-        #region Implementation
-
-        public IEnumerable<object> Select(Type type, IPolicySet registration) => throw new NotImplementedException();
 
         #endregion
     }

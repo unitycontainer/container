@@ -10,12 +10,13 @@ using Unity.Resolution;
 
 namespace Unity.Pipeline
 {
-    public class FieldDiagnostic : FieldBuilder
+    public partial class FieldDiagnostic : FieldBuilder
     {
         #region Constructors
 
         public FieldDiagnostic(UnityContainer container) : base(container)
         {
+            container.Defaults.Set(typeof(Func<Type, InjectionMember, FieldInfo>), InjectionValidatingSelector);
         }
 
         #endregion

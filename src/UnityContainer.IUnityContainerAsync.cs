@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Unity.Composition;
-using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Registration;
 using Unity.Resolution;
 
-    
+
 namespace Unity
 {
 

@@ -51,7 +51,6 @@ namespace Unity
 
         // Dynamic Members
         private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
-        private IPolicySet _validators;
 
         #endregion
 

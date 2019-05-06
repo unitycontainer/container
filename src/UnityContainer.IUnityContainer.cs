@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Unity.Builder;
@@ -45,13 +46,14 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                var registration = new ExplicitRegistration(container, name, _validators, typeTo, manager, injectionMembers);
+                Debug.Assert(null != container);
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
                     container.LifetimeContainer.Add(disposableManager);
 
                 // Add or replace existing 
+                var registration = new ExplicitRegistration(container, name, typeTo, manager, injectionMembers);
                 var previous = container.Register(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
@@ -128,13 +130,14 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                var registration = new ExplicitRegistration(container, name, null, mappedToType ?? registeredType, manager);
+                Debug.Assert(null != container);
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
                     container.LifetimeContainer.Add(disposableManager);
 
                 // Register type
+                var registration = new ExplicitRegistration(container, name, mappedToType ?? registeredType, manager);
                 var previous = container.Register(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
@@ -183,8 +186,9 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = manager is SingletonLifetimeManager ? _root : this;
-            var registration = new ExplicitRegistration(container, name, _validators, type, manager);
+            Debug.Assert(null != container);
 
+            var registration = new ExplicitRegistration(container, name, type, manager);
             registration.Set(typeof(ResolveDelegate<BuilderContext>), 
                             (ResolveDelegate<BuilderContext>)((ref BuilderContext c) => factory(c.Container, c.Type, c.Name)));
 

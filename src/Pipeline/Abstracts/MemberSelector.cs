@@ -5,6 +5,6 @@ using Unity.Policy;
 
 namespace Unity
 {
-    public delegate IEnumerable<object> MemberSelectDelegate<TMember>(Type type, IPolicySet set)
+    public delegate IEnumerable<object> MemberSelector<TMember>(Type type, IPolicySet set)
         where TMember : MemberInfo;
 }

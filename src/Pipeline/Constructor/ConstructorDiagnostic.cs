@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace Unity.Pipeline
 {
-    public class ConstructorDiagnostic : ConstructorBuilder
+    public partial class ConstructorDiagnostic : ConstructorBuilder
     {
         #region Fields
 
@@ -71,6 +71,7 @@ namespace Unity.Pipeline
         public ConstructorDiagnostic(UnityContainer container) 
             : base(container)
         {
+            container.Defaults.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), InjectionValidatingSelector);
         }
 
         #endregion
@@ -239,7 +240,8 @@ namespace Unity.Pipeline
                 
                 // Report error
                 ? (Expression)Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Error.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
+                        Expression.Constant(CreateErrorMessage("The constructor {1} selected for type {0} has ref or out parameters. Such parameters are not supported for constructor injection.", 
+                        info.DeclaringType, info)),
                         InvalidRegistrationExpression))
                 
                 // Create new instance

@@ -4,7 +4,7 @@ using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 
-namespace Unity.Extensions
+namespace Unity.Utility
 {
     internal static class RegistryExtensions
     {

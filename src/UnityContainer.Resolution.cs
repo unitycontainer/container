@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
-using Unity.Extensions;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Utility;
 
 namespace Unity
 {
