@@ -4,7 +4,7 @@ using Unity;
 namespace Registration
 {
     [TestClass]
-    public class AsyncType : Unity.Specification.Async.Registration.Types.SpecificationTests
+    public class Types : Unity.Specification.Async.Registration.Types.SpecificationTests
     {
         public override IUnityContainerAsync GetContainer()
         {
@@ -13,7 +13,7 @@ namespace Registration
     }
 
     [TestClass]
-    public class AsyncFactory : Unity.Specification.Async.Registration.Factory.SpecificationTests
+    public class Factory : Unity.Specification.Async.Registration.Factory.SpecificationTests
     {
         public override IUnityContainerAsync GetContainer()
         {
@@ -22,7 +22,7 @@ namespace Registration
     }
 
     [TestClass]
-    public class AsyncInstance : Unity.Specification.Async.Registration.Instance.SpecificationTests
+    public class Instance : Unity.Specification.Async.Registration.Instance.SpecificationTests
     {
         public override IUnityContainerAsync GetContainer()
         {

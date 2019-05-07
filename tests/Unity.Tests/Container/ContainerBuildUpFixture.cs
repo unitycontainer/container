@@ -52,49 +52,48 @@ namespace Unity.Tests.Container
         }
 
         [TestMethod]
-        [Ignore]
         public void BuildNullObject5()
         {
-            //UnityContainer uc = new UnityContainer();
-            //SimpleClass myObject = new SimpleClass();
-            //uc.BuildUp(myObject, (string)null);
+            IUnityContainer uc = new UnityContainer();
+            SimpleClass myObject = new SimpleClass();
+            uc.BuildUp(myObject, (string)null);
 
-            //Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
+            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
         }
 
-        //[TestMethod]
-        //public void BuildNullObject6()
-        //{
-        //    UnityContainer uc = new UnityContainer();
-        //    SimpleClass myObject = new SimpleClass();
-        //    uc.BuildUp(myObject, String.Empty);
+        [TestMethod]
+        public void BuildNullObject6()
+        {
+            IUnityContainer uc = new UnityContainer();
+            SimpleClass myObject = new SimpleClass();
+            uc.BuildUp(myObject, String.Empty);
 
-        //    Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
-        //}
+            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject);
+        }
 
-        //[TestMethod]
-        //public void BuildNullObject7()
-        //{
-        //    UnityContainer uc = new UnityContainer();
-        //    SimpleClass myObject1 = new SimpleClass();
-        //    SimpleClass myObject2 = new SimpleClass();
-        //    uc.BuildUp(myObject1, String.Empty);
-        //    uc.BuildUp(myObject2, (string)null);
+        [TestMethod]
+        public void BuildNullObject7()
+        {
+            IUnityContainer uc = new UnityContainer();
+            SimpleClass myObject1 = new SimpleClass();
+            SimpleClass myObject2 = new SimpleClass();
+            uc.BuildUp(myObject1, String.Empty);
+            uc.BuildUp(myObject2, (string)null);
 
-        //    Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
-        //}
+            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
+        }
 
-        //[TestMethod]
-        //public void BuildNullObject8()
-        //{
-        //    UnityContainer uc = new UnityContainer();
-        //    SimpleClass myObject1 = new SimpleClass();
-        //    SimpleClass myObject2 = new SimpleClass();
-        //    uc.BuildUp(myObject1, String.Empty);
-        //    uc.BuildUp(myObject2, "     ");
+        [TestMethod]
+        public void BuildNullObject8()
+        {
+            IUnityContainer uc = new UnityContainer();
+            SimpleClass myObject1 = new SimpleClass();
+            SimpleClass myObject2 = new SimpleClass();
+            uc.BuildUp(myObject1, String.Empty);
+            uc.BuildUp(myObject2, "     ");
 
-        //    Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
-        //}
+            Assert.AreNotEqual(uc.Resolve<SimpleClass>(), myObject2);
+        }
 
         [TestMethod]
         public void BuildNullObject9()

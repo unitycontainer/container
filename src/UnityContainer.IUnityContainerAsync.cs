@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Unity.Builder;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Registration;
 using Unity.Resolution;
-
+using Unity.Storage;
 
 namespace Unity
 {
@@ -17,9 +22,83 @@ namespace Unity
         #region Type
 
         /// <inheritdoc />
-        Task IUnityContainerAsync.RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        Task IUnityContainerAsync.RegisterType(IEnumerable<Type>? interfaces, Type type, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew((object status) =>
+            {
+                var types = status as Type[];
+
+                Type? typeFrom = null;
+                var registeredType = typeFrom ?? type;
+
+                // Validate input
+                //if (null == registeredType) throw new InvalidOperationException($"At least one of Type arguments '{nameof(typeFrom)}' or '{nameof(typeTo)}' must be not 'null'");
+
+                try
+                {
+                    // Lifetime Manager
+                    var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                    manager.InUse = true;
+
+                    // Create registration and add to appropriate storage
+                    var container = manager is SingletonLifetimeManager ? _root : this;
+                    Debug.Assert(null != container);
+
+                    // If Disposable add to container's lifetime
+                    if (manager is IDisposable disposableManager)
+                        container.LifetimeContainer.Add(disposableManager);
+
+                    // Add or replace existing 
+                    var registration = new ExplicitRegistration(container, name, type, manager, injectionMembers);
+                    var previous = container.Register(registeredType, name, registration);
+
+                    // Allow reference adjustment and disposal
+                    if (null != previous && 0 == previous.Release()
+                        && previous.LifetimeManager is IDisposable disposable)
+                    {
+                        // Dispose replaced lifetime manager
+                        container.LifetimeContainer.Remove(disposable);
+                        disposable.Dispose();
+                    }
+
+                    // Add Injection Members
+                    if (null != injectionMembers && injectionMembers.Length > 0)
+                    {
+                        foreach (var member in injectionMembers)
+                        {
+                            member.AddPolicies<BuilderContext, ExplicitRegistration>(
+                                registeredType, type, name, ref registration);
+                        }
+                    }
+
+                    // Check what strategies to run
+                    registration.Processors = Context.TypePipelineCache;
+
+                    // Raise event
+                    //container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
+                    //                                                          typeTo,
+                    //                                                          name,
+                    //                                                          manager));
+                }
+                catch (Exception ex)
+                {
+                    var builder = new StringBuilder();
+
+                    builder.AppendLine(ex.Message);
+                    builder.AppendLine();
+
+                    var parts = new List<string>();
+                    var generics = null == typeFrom ? type?.Name : $"{typeFrom?.Name},{type?.Name}";
+                    if (null != name) parts.Add($" '{name}'");
+                    if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
+                    if (null != injectionMembers && 0 != injectionMembers.Length)
+                        parts.Add(string.Join(" ,", injectionMembers.Select(m => m.ToString())));
+
+                    builder.AppendLine($"  Error in:  RegisterType<{generics}>({string.Join(", ", parts)})");
+                    throw new InvalidOperationException(builder.ToString(), ex);
+                }
+            }, ValidateTypes(interfaces, type));
         }
 
         #endregion
@@ -140,41 +219,46 @@ namespace Unity
 
         #region Resolution
 
-            
-
         /// <inheritdoc />
-        Task<object> IUnityContainerAsync.Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        Task<object?> IUnityContainerAsync.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            // Verify arguments
-            if (null == type) throw new ArgumentNullException(nameof(type));
+            // Setup Context
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
 
-            throw new NotImplementedException();
+            // Check if pipeline exists
+            if (null == registration.Pipeline)
+            {
+                // Start a new Task to create and execute pipeline
+                return Task.Factory.StartNew(() =>
+                {
+                    var context = new BuilderContext
+                    {
+                        List = new PolicyList(),
+                        Type = type,
+                        ContainerContext = Context,
+                        Registration = registration,
+                        Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
+                    };
 
-//            // TODO: Suppression
-//#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                    return ComposePipeline(ref context);
+                });
+            }
 
-//            if (GetPolicy(type, name, typeof(CompositionDelegate)) is CompositionDelegate factory)
-//            {
-//                return Task.FromResult(factory(this, null, overrides));
-//            }
+            // Execute existing pipeline
+            var context = new BuilderContext
+            {
+                List = new PolicyList(),
+                Async = true,
+                Type = type,
+                ContainerContext = Context,
+                Registration = registration,
+                Overrides = overrides,
+            };
 
-//            return Task.Factory.StartNew(() => ExecCompose(type, name, overrides));
-            
-//            #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
-        }
-
-
-        public Task<T> Resolve<T>(string name, params ResolverOverride[] overrides)
-        {
-            throw new NotImplementedException();
+            return (Task<object?>)ExecutePipeline(ref context);
         }
 
         public Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<T>> Resolve<T>(Regex regex, params ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
         }

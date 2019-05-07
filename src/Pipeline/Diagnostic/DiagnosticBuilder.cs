@@ -28,7 +28,7 @@ namespace Unity.Pipeline
                 {
                     ex.Data.Add(Guid.NewGuid(), null == context.Name
                         ? (object)context.Type
-                        : new Tuple<Type, string>(context.Type, context.Name));
+                        : new Tuple<Type, string?>(context.Type, context.Name));
 
                     throw;
                 }

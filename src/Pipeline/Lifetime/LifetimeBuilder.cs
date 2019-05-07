@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Security;
+using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Registration;
@@ -8,8 +11,11 @@ using Unity.Resolution;
 
 namespace Unity.Pipeline
 {
+    [SecuritySafeCritical]
     public class LifetimeBuilder : PipelineBuilder
     {
+        private readonly Task<object?> _nullTask = Task.FromResult<object?>(null);
+
         #region PipelineBuilder
 
         public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, Type type, ImplicitRegistration registration)
@@ -21,16 +27,58 @@ namespace Unity.Pipeline
         {
             var lifetime = builder.Registration.LifetimeManager;
             var pipeline = builder.Pipeline();
+            var parent   = IntPtr.Zero;
+            var type     = builder.Type;
+            var registration = builder.Registration;
 
-            if (null == lifetime || lifetime is TransientLifetimeManager) return pipeline;
+            //var resolver = lifetime switch
+            //{
+            //    PerResolveLifetimeManager   _ => ((ref BuilderContext context) => context.Existing),
+            //    SynchronizedLifetimeManager _ => ((ref BuilderContext context) => context.Existing),
+            //    _                             => (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Existing)
+            //};
 
-            // The last builder in the Pipeline, just get the value
-            if (null == pipeline)
-                return (ref BuilderContext context) =>
+
+            
+            // No Lifetime Manager
+            if (null == lifetime || lifetime is TransientLifetimeManager)
+            {
+                return (ref BuilderContext context) => 
                 {
-                    var value = lifetime.GetValue(context.ContainerContext.Lifetime);
-                    return LifetimeManager.NoValue != value ? value : null;
+                    // In Sync mode just execute pipeline
+                    if (!context.Async) return pipeline(ref context);
+
+                    // Async mode
+                    var list = context.List;
+                    var unity = context.ContainerContext;
+                    var overrides = context.Overrides;
+#if !NET40
+                    unsafe
+                    {
+                        var thisContext = this;
+                        parent = new IntPtr(Unsafe.AsPointer(ref thisContext));
+                    }
+#endif
+                    // Create and return a task that creates an object
+                    return Task.Factory.StartNew(() => 
+                    {
+                        var c = new BuilderContext
+                        {
+                            List             = list,
+                            Type             = type,
+                            ContainerContext = unity,
+                            Registration     = registration,
+                            Overrides        = overrides,
+                            DeclaringType    = type,
+                            Parent           = parent,
+                        };
+
+                        // Execute pipeline
+                        return pipeline(ref c);
+                    });
                 };
+            }
+
 
             // Per Resolve Lifetime Manager
             if (lifetime is PerResolveLifetimeManager)

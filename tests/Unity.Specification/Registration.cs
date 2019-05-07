@@ -56,5 +56,4 @@ namespace Registration
             return new UnityContainer();
         }
     }
-   
 }

@@ -19,6 +19,19 @@ namespace Unity.Pipeline
 
         #endregion
 
+        
+        #region Constructors
+
+        public PipelineContext(Type type, ImplicitRegistration registration, UnityContainer container)
+        {
+            Type = type;
+            Registration = registration;
+            ContainerContext = container.Context;
+
+            Seed = null;
+            _enumerator = registration.Processors?.GetEnumerator()
+                        ?? throw new InvalidOperationException("Processors must be initialized");
+        }
 
         public PipelineContext(ref BuilderContext context)
         {
@@ -30,6 +43,8 @@ namespace Unity.Pipeline
             _enumerator = context.Registration.Processors?.GetEnumerator() 
                         ?? throw new InvalidOperationException("Processors must be initialized");
         }
+
+        #endregion
 
         #region Public Members
 
