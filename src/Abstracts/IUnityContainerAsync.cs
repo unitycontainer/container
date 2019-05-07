@@ -101,33 +101,12 @@ namespace Unity
         /// <summary>
         /// Resolve an instance of the requested type from the container.
         /// </summary>
-        /// <param name="name">Name of the object to retrieve.</param>
-        /// <param name="overrides">Any overrides for the resolve call.</param>
-        /// <typeparam name="T"><see cref="Type"/> of object to get typeFrom the container.</typeparam>
-        /// <returns>The retrieved object.</returns>
-        Task<T> Resolve<T>(string name, params ResolverOverride[] overrides);
-
-
-        /// <summary>
-        /// Resolve an instance of the requested type from the container.
-        /// </summary>
         /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
         /// <param name="regex">Pattern to match names to. Only these with successful 
         /// <see cref="Regex.IsMatch(string name)"/> will be resolved</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides);
-
-
-        /// <summary>
-        /// Resolve an instance of the requested type from the container.
-        /// </summary>
-        /// <param name="regex">Pattern to match names to. Only these with successful 
-        /// <see cref="Regex.IsMatch(string name)"/> will be resolved</param>
-        /// <param name="overrides">Any overrides for the resolve call.</param>
-        /// <typeparam name="T"><see cref="Type"/> of object to get typeFrom the container.</typeparam>
-        /// <returns>The retrieved object.</returns>
-        Task<IEnumerable<T>> Resolve<T>(Regex regex, params ResolverOverride[] overrides);
 
 
         /// <summary>
