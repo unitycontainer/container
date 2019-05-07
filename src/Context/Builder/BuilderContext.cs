@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using System.Threading;
 using Unity.Exceptions;
 using Unity.Pipeline;
 using Unity.Policy;
@@ -132,7 +133,8 @@ namespace Unity.Builder
 #if !NET40
         public IntPtr Parent;
 #endif
-        public ResolvePlanDelegate ResolvePipeline;
+        public ResolvePlanDelegate ResolvePipeline => 
+            ContainerContext.Container.BuilderContextPipeline;
 
         #endregion
 
@@ -180,7 +182,6 @@ namespace Unity.Builder
                     ContainerContext = ContainerContext,
                     Registration = registration,
                     Type = type,
-                    ResolvePipeline = ResolvePipeline,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -192,20 +193,30 @@ namespace Unity.Builder
                 // Create Pipeline if required
                 if (null == context.Registration.Pipeline)
                 {
-                    // Double Check Lock
-                    lock (context.Registration)
-                    {
-                        // Make sure build plan was not yet created
-                        if (null == context.Registration.Pipeline)
-                        {
-                            PipelineContext builder = new PipelineContext(ref context);
+                    bool locked = false;
 
-                            context.Registration.Pipeline = builder.Pipeline() ??
-                                throw new InvalidOperationException("Failed to create pipeline");
-                        }
+                    try
+                    {
+                        // We will wait reasonable time to acquire the lock
+                        Monitor.TryEnter(context.Registration, DefaultTimeOut, ref locked);
+
+                        // TODO: Make sure build plan was not yet created
+                        
+                        // Create the pipeline
+                        PipelineContext builder = new PipelineContext(ref context);
+                        var pipeline = builder.Pipeline();
+
+                        // Check again, just in case
+                        if (null == context.Registration.Pipeline)
+                            context.Registration.Pipeline = pipeline;
+                    }
+                    finally
+                    {
+                        if (locked) Monitor.Exit(context.Registration);
                     }
                 }
 
+                Debug.Assert(null != context.Registration.Pipeline);
                 return context.Registration.Pipeline(ref context);
             }
         }

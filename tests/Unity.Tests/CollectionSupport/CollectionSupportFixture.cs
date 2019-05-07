@@ -26,45 +26,42 @@ namespace Unity.Tests.CollectionSupport
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolvingAnArrayWithFactory()
         {
-            //var name = "test";
-            //var data = new [] { new TestClass(), new TestClass() };
+            var name = "test";
+            var data = new[] { new TestClass(), new TestClass() };
 
-            //var container = new UnityContainer()
-            //    .RegisterFactory<TestClass[]>(c => data)
-            //    .RegisterFactory<TestClass[]>(name, c => data);
+            IUnityContainer container = new UnityContainer();
+            container.RegisterFactory(typeof(TestClass[]), null, (c, t, n) => data)
+                     .RegisterFactory<TestClass[]>(name, c => data);
 
-            //Assert.AreSame(data, container.Resolve<TestClass[]>());
-            //Assert.AreSame(data, container.Resolve<TestClass[]>(name));
+            Assert.AreSame(data, container.Resolve<TestClass[]>());
+            Assert.AreSame(data, container.Resolve<TestClass[]>(name));
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolvingEnumWithFactory()
         {
-            //var name = "test";
-            //var data = new [] { new TestClass(), new TestClass() };
+            var name = "test";
+            var data = new[] { new TestClass(), new TestClass() };
 
-            //var container = new UnityContainer()
-            //    .RegisterFactory<IEnumerable<TestClass>>(c => data)
-            //    .RegisterFactory<IEnumerable<TestClass>>(name, c => data);
+            IUnityContainer container = new UnityContainer();
+            container.RegisterFactory<IEnumerable<TestClass>>(c => data)
+                     .RegisterFactory<IEnumerable<TestClass>>(name, c => data);
 
-            //Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>());
-            //Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>(name));
+            Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>());
+            Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>(name));
         }
 
         [TestMethod]
-        [Ignore]
         public void ResolvingEnumWithMap()
         {
-            //var container = new UnityContainer()
-            //    .RegisterType<IEnumerable<TestClass>, List<TestClass>>(new InjectionConstructor());
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType<IEnumerable<TestClass>, List<TestClass>>(new InjectionConstructor());
 
-            //var instance = container.Resolve<IEnumerable<TestClass>>();
+            var instance = container.Resolve<IEnumerable<TestClass>>();
 
-            //Assert.IsInstanceOfType(instance, typeof(List<TestClass>));
+            Assert.IsInstanceOfType(instance, typeof(List<TestClass>));
         }
 
         [TestMethod]

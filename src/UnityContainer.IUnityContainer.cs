@@ -175,8 +175,15 @@ namespace Unity
             Debug.Assert(null != container);
 
             var registration = new ExplicitRegistration(container, name, type, manager);
-            registration.Set(typeof(ResolveDelegate<BuilderContext>), 
-                            (ResolveDelegate<BuilderContext>)((ref BuilderContext c) => factory(c.Container, c.Type, c.Name)));
+            var resolver = lifetimeManager is PerResolveLifetimeManager
+                ? (ResolveDelegate<BuilderContext>)((ref BuilderContext c) =>
+                {
+                    c.Existing = factory(c.Container, c.Type, c.Name);
+                    c.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(c.Existing));
+                    return c.Existing;
+                })
+                : ((ref BuilderContext c) => factory(c.Container, c.Type, c.Name));
+            registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
@@ -215,12 +222,11 @@ namespace Unity
             // Setup Context
             var context = new BuilderContext
             {
-                List             = new PolicyList(),
-                Type             = type,
+                List = new PolicyList(),
+                Type = type,
                 ContainerContext = Context,
-                Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
-                Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
-                ResolvePipeline  = BuilderContextPipeline,
+                Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
             };
 
             // Create an object
@@ -240,13 +246,12 @@ namespace Unity
             // Setup Context
             var context = new BuilderContext
             {
-                List             = new PolicyList(),
-                Existing         = existing ?? throw new ArgumentNullException(nameof(existing)),
-                Type             = ValidateType(type, existing.GetType()),
+                List = new PolicyList(),
+                Existing = existing ?? throw new ArgumentNullException(nameof(existing)),
+                Type = ValidateType(type, existing.GetType()),
                 ContainerContext = Context,
-                Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
-                Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
-                ResolvePipeline  = BuilderContextPipeline,
+                Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
             };
 
             // Initialize an object

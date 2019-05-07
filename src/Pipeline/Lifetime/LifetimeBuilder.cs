@@ -27,6 +27,9 @@ namespace Unity.Pipeline
         {
             var lifetime = builder.Registration.LifetimeManager;
             var pipeline = builder.Pipeline();
+            var parent   = IntPtr.Zero;
+            var type     = builder.Type;
+            var registration = builder.Registration;
 
             //var resolver = lifetime switch
             //{
@@ -35,11 +38,8 @@ namespace Unity.Pipeline
             //    _                             => (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Existing)
             //};
 
-            var parent       = IntPtr.Zero;
-            var type         = builder.Type;
-            var plan         = builder.ContainerContext.Container.BuilderContextPipeline;
-            var registration = builder.Registration;
 
+            
             // No Lifetime Manager
             if (null == lifetime || lifetime is TransientLifetimeManager)
             {
@@ -69,7 +69,6 @@ namespace Unity.Pipeline
                             ContainerContext = unity,
                             Registration     = registration,
                             Overrides        = overrides,
-                            ResolvePipeline  = plan,
                             DeclaringType    = type,
                             Parent           = parent,
                         };

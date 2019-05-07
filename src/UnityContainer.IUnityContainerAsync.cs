@@ -238,7 +238,6 @@ namespace Unity
                         ContainerContext = Context,
                         Registration = registration,
                         Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
-                        ResolvePipeline = BuilderContextPipeline,
                     };
 
                     return ComposePipeline(ref context);
@@ -254,7 +253,6 @@ namespace Unity
                 ContainerContext = Context,
                 Registration = registration,
                 Overrides = overrides,
-                ResolvePipeline = BuilderContextPipeline,
             };
 
             return (Task<object?>)ExecutePipeline(ref context);

@@ -11,8 +11,6 @@ namespace Unity.Pipeline
 {
     public partial class ConstructorBuilder
     {
-
-
         #region PipelineBuilder
 
 

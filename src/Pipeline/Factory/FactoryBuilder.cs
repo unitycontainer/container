@@ -23,6 +23,9 @@ namespace Unity.Pipeline
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
         {
+            // Skip if already have a resolver
+            if (null != builder.Seed) return builder.Pipeline();
+
             // Try to get resolver
             Type? generic = null;
             var resolver = builder.Registration.Get(typeof(ResolveDelegate<BuilderContext>)) ??

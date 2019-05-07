@@ -44,7 +44,6 @@ namespace Unity
                     ContainerContext = thisContext.ContainerContext,
                     Registration = thisContext.Registration,
                     Type = thisContext.Type,
-                    ResolvePipeline = thisContext.ResolvePipeline,
                     List = thisContext.List,
                     Overrides = thisContext.Overrides,
                     DeclaringType = thisContext.Type,
@@ -61,7 +60,7 @@ namespace Unity
 
         #region Execution
 
-        private static object? ComposePipeline(ref BuilderContext context)
+        internal static object? ComposePipeline(ref BuilderContext context)
         {
             bool locked = false;
 
@@ -86,7 +85,7 @@ namespace Unity
             return ExecutePipeline(ref context);
         }
 
-        private static ResolveDelegate<BuilderContext> ExecutePipeline { get; set; } =
+        internal static ResolveDelegate<BuilderContext> ExecutePipeline { get; set; } =
             (ref BuilderContext context) =>
             {
                 Debug.Assert(null != context.Registration.Pipeline);

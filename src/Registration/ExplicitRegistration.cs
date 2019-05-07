@@ -31,7 +31,7 @@ namespace Unity.Registration
             LifetimeManager = lifetimeManager;
             Next = owner.Defaults;
             InjectionMembers = null != injectionMembers && 0 < injectionMembers.Length ? injectionMembers : null;
-            BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
+            BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired) || lifetimeManager is PerResolveLifetimeManager;
             BuildType = GetTypeConverter();
         }
 
