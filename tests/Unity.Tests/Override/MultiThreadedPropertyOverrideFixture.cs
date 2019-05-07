@@ -12,7 +12,7 @@ namespace Unity.Tests.Override
     public class MultiThreadedPropertyOverrideTests
     {
         private static IUnityContainer container = new UnityContainer();
-        private static List<SubjectType1ToInjectForPropertyOverride> defaultInjectedObjectList = new List<SubjectType1ToInjectForPropertyOverride>();
+        private static List<SubjectType1ToInjectForPropertyOverride> defaultInjectedObjectList   = new List<SubjectType1ToInjectForPropertyOverride>();
         private static List<SubjectType1ToInjectForPropertyOverride> override1InjectedObjectList = new List<SubjectType1ToInjectForPropertyOverride>();
         private static List<SubjectType1ToInjectForPropertyOverride> override2InjectedObjectList = new List<SubjectType1ToInjectForPropertyOverride>();
         private static int iterationCount = 200;

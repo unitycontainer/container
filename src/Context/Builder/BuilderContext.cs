@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Unity.Exceptions;
 using Unity.Pipeline;
@@ -58,7 +59,7 @@ namespace Unity.Builder
                     {
                         var context = this;
 
-                        return ResolvePipeline(ref context, resolverPolicy.Resolve);
+                        return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
                     }
                 }
             }
@@ -73,7 +74,8 @@ namespace Unity.Builder
 
         public object? Get(Type policyInterface)
         {
-            return List.Get(Type, Name, policyInterface) ?? Registration.Get(policyInterface);
+            return List.Get(Type, Name, policyInterface) ?? 
+                Registration.Get(policyInterface);
         }
 
         public object? Get(Type type, Type policyInterface)
@@ -112,14 +114,9 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Registration
-
-        public ImplicitRegistration Registration { get; set; }
-
-        #endregion
-
-
         #region Public Properties
+
+        public Regex Regex;
 
         public bool Async;
 
@@ -127,19 +124,54 @@ namespace Unity.Builder
 
         public object? Existing { get; set; }
 
+        public ImplicitRegistration Registration { get; set; }
+
         public ContainerContext ContainerContext { get; set; }
 
         public Type? DeclaringType;
 #if !NET40
         public IntPtr Parent;
 #endif
-        public ResolvePlanDelegate ResolvePipeline => 
-            ContainerContext.Container.BuilderContextPipeline;
+        public ResolveDelegate<BuilderContext> Pipeline
+        {
+            get
+            {
+                ResolveDelegate<BuilderContext>? pipeline = Registration.Pipeline;
+
+                if (null == pipeline)
+                {
+                    bool locked = false;
+                    try
+                    {
+                        // We will wait reasonable time to acquire the lock
+                        Monitor.TryEnter(Registration, DefaultTimeOut, ref locked);
+
+                        // Double check lock
+                        if (null != Registration.Pipeline) return Registration.Pipeline;
+
+                        // Create a pipeline
+                        var context = this;
+                        PipelineContext builder = new PipelineContext(ref context);
+                        pipeline = builder.Pipeline() ?? throw new InvalidOperationException("Invalid Pipeline");
+
+                        // Save is lock is acquired
+                        if (locked) Registration.Pipeline = pipeline;
+                    }
+                    finally
+                    {
+                        // Release, if lock is acquired
+                        if (locked) Monitor.Exit(Registration);
+                    }
+                }
+
+                return pipeline;
+            }
+        }
 
         #endregion
 
 
-        #region Resolve Methods
+        #region Public Methods
 
         public object? Resolve(Type type)
         {
@@ -162,7 +194,7 @@ namespace Unity.Builder
                     {
                         var context = this;
 
-                        return ResolvePipeline(ref context, resolverPolicy.Resolve);
+                        return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
                     }
                 }
             }
@@ -190,34 +222,7 @@ namespace Unity.Builder
 #endif
                 };
 
-                // Create Pipeline if required
-                if (null == context.Registration.Pipeline)
-                {
-                    bool locked = false;
-
-                    try
-                    {
-                        // We will wait reasonable time to acquire the lock
-                        Monitor.TryEnter(context.Registration, DefaultTimeOut, ref locked);
-
-                        // TODO: Make sure build plan was not yet created
-                        
-                        // Create the pipeline
-                        PipelineContext builder = new PipelineContext(ref context);
-                        var pipeline = builder.Pipeline();
-
-                        // Check again, just in case
-                        if (null == context.Registration.Pipeline)
-                            context.Registration.Pipeline = pipeline;
-                    }
-                    finally
-                    {
-                        if (locked) Monitor.Exit(context.Registration);
-                    }
-                }
-
-                Debug.Assert(null != context.Registration.Pipeline);
-                return context.Registration.Pipeline(ref context);
+                return context.Pipeline(ref context);
             }
         }
 
@@ -239,14 +244,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return ResolvePipeline(ref context, resolverPolicy.Resolve);
+                            return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                         if (null != resolveDelegate)
                         {
-                            return ResolvePipeline(ref context, resolveDelegate);
+                            return DependencyResolvePipeline(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -284,14 +289,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return ResolvePipeline(ref context, resolverPolicy.Resolve);
+                            return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                         if (null != resolveDelegate)
                         {
-                            return ResolvePipeline(ref context, resolveDelegate);
+                            return DependencyResolvePipeline(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -339,14 +344,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return ResolvePipeline(ref context, resolverPolicy.Resolve);
+                            return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                         if (null != resolveDelegate)
                         {
-                            return ResolvePipeline(ref context, resolveDelegate);
+                            return DependencyResolvePipeline(ref context, resolveDelegate);
                         }
                     }
                 }

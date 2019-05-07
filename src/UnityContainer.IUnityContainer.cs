@@ -222,17 +222,14 @@ namespace Unity
             // Setup Context
             var context = new BuilderContext
             {
-                List = new PolicyList(),
                 Type = type,
-                ContainerContext = Context,
+                Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
-                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
+                ContainerContext = Context,
             };
 
             // Create an object
-            return null == context.Registration.Pipeline
-                ? ComposePipeline(ref context)
-                : ExecutePipeline(ref context);
+            return context.Pipeline(ref context);
         }
 
         #endregion
@@ -246,18 +243,16 @@ namespace Unity
             // Setup Context
             var context = new BuilderContext
             {
-                List = new PolicyList(),
                 Existing = existing ?? throw new ArgumentNullException(nameof(existing)),
+
                 Type = ValidateType(type, existing.GetType()),
-                ContainerContext = Context,
+                Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
-                Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
+                ContainerContext = Context,
             };
 
             // Initialize an object
-            return null == context.Registration.Pipeline
-                ? ComposePipeline(ref context)
-                : ExecutePipeline(ref context);
+            return context.Pipeline(ref context);
         }
 
         #endregion

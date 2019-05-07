@@ -10,7 +10,6 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity
 {
@@ -190,7 +189,7 @@ namespace Unity
             //// Register interfaces
             //var replaced = container.AddOrReplaceRegistrations(interfaces, name, registration)
             //                        .ToArray();
-            
+
             //// Release replaced registrations
             //if (0 != replaced.Length)
             //{
@@ -233,29 +232,35 @@ namespace Unity
                 {
                     var context = new BuilderContext
                     {
-                        List = new PolicyList(),
                         Type = type,
-                        ContainerContext = Context,
+                        Overrides = overrides,
                         Registration = registration,
-                        Overrides = null != overrides && 0 < overrides.Length ? overrides : null,
+                        ContainerContext = Context,
                     };
 
-                    return ComposePipeline(ref context);
+                    return context.Pipeline(ref context);
                 });
             }
 
-            // Execute existing pipeline
+            // Existing pipeline
             var context = new BuilderContext
             {
-                List = new PolicyList(),
                 Async = true,
+
                 Type = type,
-                ContainerContext = Context,
-                Registration = registration,
                 Overrides = overrides,
+                Registration = registration,
+                ContainerContext = Context,
             };
 
-            return (Task<object?>)ExecutePipeline(ref context);
+            // Execute the pipeline
+            var task = context.Pipeline(ref context);
+
+            // Make sure it is indeed a Task
+            Debug.Assert(task is Task<object?>);
+
+            // Return Task
+            return (Task<object?>)task;
         }
 
         public Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)

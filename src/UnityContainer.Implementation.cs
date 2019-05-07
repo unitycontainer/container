@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security;
-using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Events;
+using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -83,12 +84,54 @@ namespace Unity
             Context = new ContainerContext(this);
 
             // Dynamic Members
-            Register           = InitAndAdd;
-            BuilderContextPipeline = _root.BuilderContextPipeline;
+            Register = InitAndAdd;
 
             // Validators
             ValidateType = _root.ValidateType;
             ValidateTypes = _root.ValidateTypes;
+        }
+
+        #endregion
+
+
+        #region BuilderContext
+
+        internal static BuilderContext.ResolvePlanDelegate DependencyResolvePipeline { get; set; } =
+            (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
+
+        private static object ValidatingDependencyResolvePipeline(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
+        {
+            if (null == resolver) throw new ArgumentNullException(nameof(resolver));
+#if NET40
+            return resolver(ref thisContext);
+#else
+            unsafe
+            {
+                var parent = thisContext.Parent;
+                while (IntPtr.Zero != parent)
+                {
+                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                    if (thisContext.Type == parentRef.Type && thisContext.Name == parentRef.Name)
+                        throw new InvalidOperationException($"Circular reference for Type: {thisContext.Type}, Name: {thisContext.Name}",
+                            new CircularDependencyException());
+
+                    parent = parentRef.Parent;
+                }
+
+                var context = new BuilderContext
+                {
+                    ContainerContext = thisContext.ContainerContext,
+                    Registration = thisContext.Registration,
+                    Type = thisContext.Type,
+                    List = thisContext.List,
+                    Overrides = thisContext.Overrides,
+                    DeclaringType = thisContext.Type,
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+                };
+
+                return resolver(ref context);
+            }
+#endif
         }
 
         #endregion
