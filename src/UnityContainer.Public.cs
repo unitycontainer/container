@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
@@ -18,6 +19,14 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Constants
+
+        // The default timeout for pipeline lock
+        public static int DefaultTimeOut = 500;
+
+        #endregion
+
+
         #region Constructors
 
         /// <summary>
@@ -39,10 +48,14 @@ namespace Unity
             _metadata = new Registry<int[]>();
             _registry = new Registry<IPolicySet>(Defaults);
 
+            /////////////////////////////////////////////////////////////
             //Built-In Registrations
 
-            // Register Container as IUnityContainer & IUnityContainerAsync
-            var container = new ImplicitRegistration(this, null, (ref BuilderContext c) => c.Container);
+            // IUnityContainer, IUnityContainerAsync
+            var container = new ImplicitRegistration(this, null)
+            {
+                Pipeline = (ref BuilderContext c) => c.Async ? (object)Task.FromResult<object>(c.Container) : c.Container
+            };
             _registry.Set(typeof(IUnityContainer), null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
@@ -123,22 +136,11 @@ namespace Unity
 
                 // Build process
                 ExecutePipeline = ExecuteValidatingPipeline;
-                ContextResolvePlan = ContextValidatingResolvePlan;
+                BuilderContextPipeline = BuilderContextValidatingPipeline;
 
-                // Registration Validator
-                TypeValidator = (typeFrom, typeTo) =>
-                {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                    if (typeFrom != null && !typeFrom.GetTypeInfo().IsGenericType && !typeTo.GetTypeInfo().IsGenericType && 
-                       !typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo()))
-#else
-                    if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType &&
-                       !typeFrom.IsAssignableFrom(typeTo))
-#endif
-                    {
-                        throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
-                    }
-                };
+                // Validators
+                ValidateType = DiagnosticValidateType;
+                ValidateTypes = DiagnosticValidateTypes;
             }
         }
 

@@ -34,7 +34,7 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string? Name { get; set; }
+        public string? Name => Registration.Name;
 
         public object? Resolve(Type type, string? name)
         {
@@ -57,7 +57,7 @@ namespace Unity.Builder
                     {
                         var context = this;
 
-                        return ResolvePlan(ref context, resolverPolicy.Resolve);
+                        return ResolvePipeline(ref context, resolverPolicy.Resolve);
                     }
                 }
             }
@@ -120,6 +120,8 @@ namespace Unity.Builder
 
         #region Public Properties
 
+        public bool Async;
+
         public ResolverOverride[]? Overrides;
 
         public object? Existing { get; set; }
@@ -130,7 +132,7 @@ namespace Unity.Builder
 #if !NET40
         public IntPtr Parent;
 #endif
-        public ResolvePlanDelegate ResolvePlan;
+        public ResolvePlanDelegate ResolvePipeline;
 
         #endregion
 
@@ -158,7 +160,7 @@ namespace Unity.Builder
                     {
                         var context = this;
 
-                        return ResolvePlan(ref context, resolverPolicy.Resolve);
+                        return ResolvePipeline(ref context, resolverPolicy.Resolve);
                     }
                 }
             }
@@ -177,9 +179,8 @@ namespace Unity.Builder
                 {
                     ContainerContext = ContainerContext,
                     Registration = registration,
-                    Name = registration.Name,
                     Type = type,
-                    ResolvePlan = ResolvePlan,
+                    ResolvePipeline = ResolvePipeline,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -227,14 +228,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return ResolvePlan(ref context, resolverPolicy.Resolve);
+                            return ResolvePipeline(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                         if (null != resolveDelegate)
                         {
-                            return ResolvePlan(ref context, resolveDelegate);
+                            return ResolvePipeline(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -272,14 +273,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return ResolvePlan(ref context, resolverPolicy.Resolve);
+                            return ResolvePipeline(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                         if (null != resolveDelegate)
                         {
-                            return ResolvePlan(ref context, resolveDelegate);
+                            return ResolvePipeline(ref context, resolveDelegate);
                         }
                     }
                 }
@@ -327,14 +328,14 @@ namespace Unity.Builder
                         // Check if itself is a value 
                         if (resolverOverride is IResolve resolverPolicy)
                         {
-                            return ResolvePlan(ref context, resolverPolicy.Resolve);
+                            return ResolvePipeline(ref context, resolverPolicy.Resolve);
                         }
 
                         // Try to create value
                         var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                         if (null != resolveDelegate)
                         {
-                            return ResolvePlan(ref context, resolveDelegate);
+                            return ResolvePipeline(ref context, resolveDelegate);
                         }
                     }
                 }

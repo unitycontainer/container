@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Utility;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
-using System.Diagnostics;
+using Unity.Utility;
 
 namespace Unity
 {

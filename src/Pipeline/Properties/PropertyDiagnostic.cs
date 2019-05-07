@@ -48,25 +48,25 @@ namespace Unity.Pipeline
 #endif
                         !memberSet.Add(member)) continue;
 
-                    if (!member.CanWrite)
-                        throw new InvalidOperationException(
+                    var setter = member.GetSetMethod(true);
+                    if (!member.CanWrite || null == setter)
+                        yield return new InvalidOperationException(
                             $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly properties cannot be injected");
 
                     if (0 != member.GetIndexParameters().Length)
-                        throw new InvalidOperationException(
+                        yield return new InvalidOperationException(
                             $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
-                    var setter = member.GetSetMethod(true);
                     if (setter.IsStatic)
-                        throw new InvalidOperationException(
+                        yield return new InvalidOperationException(
                             $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
 
                     if (setter.IsPrivate)
-                        throw new InvalidOperationException(
+                        yield return new InvalidOperationException(
                             $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
 
                     if (setter.IsFamily)
-                        throw new InvalidOperationException(
+                        yield return new InvalidOperationException(
                             $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
 
                     yield return member;

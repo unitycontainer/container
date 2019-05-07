@@ -15,24 +15,13 @@ namespace Unity
 {
     public partial class UnityContainer : IUnityContainer
     {
-        #region Fields
-
-        const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
-        private Action<Type, Type>? TypeValidator;
-
-        #endregion
-
-
         #region Type Registration
 
         /// <inheritdoc />
         IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
-            var mappedToType = typeTo;
-            var registeredType = typeFrom ?? typeTo;
-
             // Validate input
-            if (null == registeredType) throw new InvalidOperationException($"At least one of Type arguments '{nameof(typeFrom)}' or '{nameof(typeTo)}' must be not 'null'");
+            var registeredType = ValidateType(typeFrom, typeTo);
 
             try
             {
@@ -40,9 +29,6 @@ namespace Unity
                 var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.CreateLifetimePolicy();
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
                 manager.InUse = true;
-
-                // Validate if they are assignable
-                TypeValidator?.Invoke(typeFrom, typeTo);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
@@ -71,7 +57,7 @@ namespace Unity
                     foreach (var member in injectionMembers)
                     {
                         member.AddPolicies<BuilderContext, ExplicitRegistration>(
-                            registeredType, mappedToType, name, ref registration);
+                            registeredType, typeTo, name, ref registration);
                     }
                 }
 
@@ -80,7 +66,7 @@ namespace Unity
 
                 // Raise event
                 container.Registering?.Invoke(this, new RegisterEventArgs(registeredType,
-                                                                          mappedToType,
+                                                                          typeTo,
                                                                           name,
                                                                           manager));
             }
@@ -231,15 +217,16 @@ namespace Unity
             {
                 List             = new PolicyList(),
                 Type             = type,
-                Name             = name,
                 ContainerContext = Context,
                 Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
                 Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
-                ResolvePlan      = ContextResolvePlan,
+                ResolvePipeline  = BuilderContextPipeline,
             };
 
             // Create an object
-            return ExecutePipeline(ref context);
+            return null == context.Registration.Pipeline
+                ? ComposePipeline(ref context)
+                : ExecutePipeline(ref context);
         }
 
         #endregion
@@ -248,26 +235,24 @@ namespace Unity
         #region BuildUp existing object
 
         /// <inheritdoc />
-        public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
+        public object? BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
             var context = new BuilderContext
             {
                 List             = new PolicyList(),
-                Type             = type,
-                Name             = name,
                 Existing         = existing ?? throw new ArgumentNullException(nameof(existing)),
+                Type             = ValidateType(type, existing.GetType()),
                 ContainerContext = Context,
                 Registration     = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
                 Overrides        = null != overrides && 0 < overrides.Length ? overrides : null,
-                ResolvePlan      = ContextResolvePlan,
+                ResolvePipeline  = BuilderContextPipeline,
             };
 
-            // Validate if they are assignable
-            TypeValidator?.Invoke(type, existing.GetType());
-
             // Initialize an object
-            return ExecutePipeline(ref context);
+            return null == context.Registration.Pipeline
+                ? ComposePipeline(ref context)
+                : ExecutePipeline(ref context);
         }
 
         #endregion

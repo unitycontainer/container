@@ -66,13 +66,13 @@ namespace Unity.Pipeline
 
                     case Exception exception:
                         yield return (ref BuilderContext c) => throw exception;
-                        break;
+                        yield break;
 
                     // Unknown
                     default:
                         yield return (ref BuilderContext c) => 
                             throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
-                        break;
+                        yield break;
                 }
             }
         }

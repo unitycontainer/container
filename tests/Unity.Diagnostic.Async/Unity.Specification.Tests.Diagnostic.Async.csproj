@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SpecificationTests\diagnostic\Unity.Specification.Diagnostic.csproj" />
+    <ProjectReference Include="..\..\..\SpecificationTestsAsync\diagnostic\Unity.Specification.Diagnostic.Async.csproj" />
     <ProjectReference Include="..\..\src\Unity.Container.csproj" />
   </ItemGroup>
 

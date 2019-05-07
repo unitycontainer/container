@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security;
+using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
@@ -20,6 +21,7 @@ namespace Unity
     {
         #region Constants
 
+        const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
         internal static readonly ResolveDelegate<BuilderContext> DefaultResolver = (ref BuilderContext c) => c.Existing;
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
@@ -33,13 +35,13 @@ namespace Unity
         #region Fields
 
         // Essentials
-        private Registry<int[]>?         _metadata;
-        private Registry<IPolicySet>?    _registry;
+        private Registry<int[]>? _metadata;
+        private Registry<IPolicySet>? _registry;
         private readonly UnityContainer? _root;
         private readonly UnityContainer? _parent;
 
-        internal readonly DefaultPolicies   Defaults;
-        internal readonly ContainerContext  Context;
+        internal readonly DefaultPolicies Defaults;
+        internal readonly ContainerContext Context;
         internal readonly LifetimeContainer LifetimeContainer;
 
         private List<IUnityContainerExtensionConfigurator>? _extensions;
@@ -70,7 +72,7 @@ namespace Unity
 
             // Parent
             _parent = parent;
-            _root   = parent._root;
+            _root = parent._root;
 
             // Register with parent
             _parent.LifetimeContainer.Add(this);
@@ -80,9 +82,13 @@ namespace Unity
             Defaults = _root.Defaults;
             Context = new ContainerContext(this);
 
-            // Pointers
-            Register = InitAndAdd;
-            ContextResolvePlan = _root.ContextResolvePlan;
+            // Dynamic Members
+            Register           = InitAndAdd;
+            BuilderContextPipeline = _root.BuilderContextPipeline;
+
+            // Validators
+            ValidateType = _root.ValidateType;
+            ValidateTypes = _root.ValidateTypes;
         }
 
         #endregion
