@@ -9,13 +9,12 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class SetupDiagnostic : SetupBuilder
+    public class SetupDiagnostic : SetupPipeline
     {
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             // Pipeline
             var type = builder.Type;
@@ -24,12 +23,6 @@ namespace Unity.Pipeline
 
             return (ref BuilderContext context) =>
             {
-                // Setup Root Context
-                if (null == context.DeclaringType)
-                {
-                    context.List = new PolicyList();
-                    if (null != context.Overrides && 0 == context.Overrides.Length) context.Overrides = null;
-                }
 #if !NET40
                 // Check call stack for cyclic references
                 var value = GetPerResolveValue(context.Parent, context.Type, context.Name);
@@ -40,22 +33,16 @@ namespace Unity.Pipeline
                     // Build the type
                     return pipeline(ref context);
                 }
-                catch (Exception ex) when (null == context.DeclaringType)
-                {
-                    ex.Data.Add(Guid.NewGuid(), null == context.Name
-                        ? (object)context.Type
-                        : new Tuple<Type, string?>(context.Type, context.Name));
-
-                    var message = CreateMessage(ex);
-                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-                }
                 catch (Exception ex)
                 {
                     ex.Data.Add(Guid.NewGuid(), null == context.Name
                         ? (object)context.Type
                         : new Tuple<Type, string?>(context.Type, context.Name));
 
-                    throw;
+                    if (null != context.DeclaringType) throw;
+
+                    var message = CreateMessage(ex);
+                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
                 }
             };
         }

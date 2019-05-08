@@ -5,9 +5,9 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract partial class MemberBuilder<TMemberInfo, TData>
+    public abstract partial class MemberPipeline<TMemberInfo, TData>
     {
         public virtual IEnumerable<object> Select(Type type, IPolicySet registration)
         {

@@ -5,9 +5,9 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class MethodBuilder
+    public partial class MethodPipeline
     {
 
         public override IEnumerable<object> Select(Type type, IPolicySet registration)

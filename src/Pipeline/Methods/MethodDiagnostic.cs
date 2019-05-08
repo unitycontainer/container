@@ -9,9 +9,9 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class MethodDiagnostic : MethodBuilder
+    public partial class MethodDiagnostic : MethodPipeline
     {
         #region Constructors
 

@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity.Builder;
 using Unity.Extension;
-using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity.Tests
 {
     public class SpyExtension : UnityContainerExtension
     {
-        private PipelineStage _stage;
+        private Stage _stage;
         private object _policy;
         private Type _policyType;
 
-        public SpyExtension(PipelineBuilder builder, PipelineStage stage)
+        public SpyExtension(Pipeline builder, Stage stage)
         {
             PipelineBuilder = builder;
             this._stage = stage;
         }
 
-        public SpyExtension(PipelineBuilder builder, PipelineStage stage, object policy, Type policyType)
+        public SpyExtension(Pipeline builder, Stage stage, object policy, Type policyType)
         {
             PipelineBuilder = builder;
             this._stage = stage;
@@ -30,9 +29,9 @@ namespace Unity.Tests
 
         protected override void Initialize()
         {
-            Context.TypePipeline.Add(PipelineBuilder, _stage);
-            Context.FactoryPipeline.Add(PipelineBuilder, _stage);
-            Context.InstancePipeline.Add(PipelineBuilder, _stage);
+            Context.TypePipeline.Add((Pipeline)PipelineBuilder, _stage);
+            Context.FactoryPipeline.Add((Pipeline)PipelineBuilder, _stage);
+            Context.InstancePipeline.Add((Pipeline)PipelineBuilder, _stage);
 
             if (_policy != null)
             {
@@ -40,17 +39,17 @@ namespace Unity.Tests
             }
         }
 
-        public PipelineBuilder PipelineBuilder { get; }
+        public Pipeline PipelineBuilder { get; }
     }
 
 
     // A test strategy that introduces a variable delay in
     // the strategy chain to work out 
-    public class DelayStrategy : PipelineBuilder
+    public class DelayStrategy : Pipeline
     {
         private int delayMS = 500;
 
-        public override ResolveDelegate<BuilderContext> Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
         {
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);
 
@@ -66,11 +65,11 @@ namespace Unity.Tests
 
     // Another test strategy that throws an exception the
     // first time it is executed.
-    public class ThrowingStrategy : PipelineBuilder
+    public class ThrowingStrategy : Pipeline
     {
         private bool shouldThrow = true;
 
-        public override ResolveDelegate<BuilderContext> Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
         {
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);
 
@@ -87,11 +86,11 @@ namespace Unity.Tests
         }
     }
 
-    public class SpyStrategy : PipelineBuilder
+    public class SpyStrategy : Pipeline
     {
         public Dictionary<(Type, string), int> BuildUpCallCount { get; private set; } = new Dictionary<(Type, string), int>(); 
 
-        public override ResolveDelegate<BuilderContext> Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
         {
 
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);

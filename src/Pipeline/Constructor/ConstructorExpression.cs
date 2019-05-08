@@ -8,9 +8,9 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class ConstructorBuilder
+    public partial class ConstructorPipeline
     {
         #region Fields
 
@@ -49,7 +49,7 @@ namespace Unity.Pipeline
 
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
+        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator,
                                                       Type type, ImplicitRegistration registration)
         {
             //// Select ConstructorInfo

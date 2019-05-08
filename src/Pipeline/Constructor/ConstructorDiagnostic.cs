@@ -12,9 +12,9 @@ using Unity.Registration;
 using Unity.Injection;
 using System.Text.RegularExpressions;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class ConstructorDiagnostic : ConstructorBuilder
+    public partial class ConstructorDiagnostic : ConstructorPipeline
     {
         #region Fields
 
@@ -277,7 +277,7 @@ namespace Unity.Pipeline
 
         #region Resolver Overrides
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             if (null != builder.Seed) return builder.Pipeline();
 

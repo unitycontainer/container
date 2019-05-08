@@ -7,13 +7,13 @@ using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class MethodBuilder : ParametersBuilder<MethodInfo>
+    public partial class MethodPipeline : ParametersPipeline<MethodInfo>
     {
         #region Constructors
 
-        public MethodBuilder(UnityContainer container)
+        public MethodPipeline(UnityContainer container)
             : base(typeof(InjectionMethodAttribute), container)
         {
         }

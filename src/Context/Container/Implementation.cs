@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Storage;
 
 namespace Unity
@@ -22,9 +21,9 @@ namespace Unity
             #region Constructors
 
             // Root Container Constructor
-            internal ContainerContext(UnityContainer container, StagedStrategyChain<PipelineBuilder, PipelineStage> type,
-                                                                StagedStrategyChain<PipelineBuilder, PipelineStage> factory,
-                                                                StagedStrategyChain<PipelineBuilder, PipelineStage> instance)
+            internal ContainerContext(UnityContainer container, StagedStrategyChain<Pipeline, Stage> type,
+                                                                StagedStrategyChain<Pipeline, Stage> factory,
+                                                                StagedStrategyChain<Pipeline, Stage> instance)
             {
                 // Container this context represents
                 Container = container;
@@ -64,15 +63,15 @@ namespace Unity
                 // TODO: Create on demand
 
                 // Initialize Pipelines
-                TypePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.TypePipeline);
+                TypePipeline = new StagedStrategyChain<Pipeline, Stage>(parent.Context.TypePipeline);
                 TypePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
                 TypePipelineCache = TypePipeline.ToArray();
 
-                FactoryPipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.FactoryPipeline);
+                FactoryPipeline = new StagedStrategyChain<Pipeline, Stage>(parent.Context.FactoryPipeline);
                 FactoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
                 FactoryPipelineCache = FactoryPipeline.ToArray();
 
-                InstancePipeline = new StagedStrategyChain<PipelineBuilder, PipelineStage>(parent.Context.InstancePipeline);
+                InstancePipeline = new StagedStrategyChain<Pipeline, Stage>(parent.Context.InstancePipeline);
                 InstancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
                 InstancePipelineCache = InstancePipeline.ToArray();
             }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Storage;
 
@@ -24,11 +23,11 @@ namespace Unity
 
             #region Pipelines
 
-            public override StagedStrategyChain<PipelineBuilder, PipelineStage> TypePipeline { get; }
+            public override StagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
 
-            public override StagedStrategyChain<PipelineBuilder, PipelineStage> FactoryPipeline { get; }
+            public override StagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
 
-            public override StagedStrategyChain<PipelineBuilder, PipelineStage> InstancePipeline { get; }
+            public override StagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
 
             #endregion
 

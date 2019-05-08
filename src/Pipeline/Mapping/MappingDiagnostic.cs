@@ -3,12 +3,12 @@ using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class MappingDiagnostic : MappingBuilder
+    public class MappingDiagnostic : MappingPipeline
     {
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             var requestedType = builder.Type;
 

@@ -1,4 +1,4 @@
-﻿using Unity.Pipeline;
+﻿
 
 namespace Unity
 {
@@ -8,9 +8,9 @@ namespace Unity
         {
             #region Pipeline Caches
 
-            internal PipelineBuilder[] TypePipelineCache     { get; private set; }
-            internal PipelineBuilder[] FactoryPipelineCache  { get; private set; }
-            internal PipelineBuilder[] InstancePipelineCache { get; private set; }
+            internal Pipeline[] TypePipelineCache     { get; private set; }
+            internal Pipeline[] FactoryPipelineCache  { get; private set; }
+            internal Pipeline[] InstancePipelineCache { get; private set; }
 
             #endregion
 

@@ -3,9 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Resolution;
-using Unity.Tests.TestObjects;
 
 namespace Unity.Tests.Issues
 {
@@ -33,7 +31,7 @@ namespace Unity.Tests.Issues
         public void Issue_126()
         {
             IUnityContainer Container = new UnityContainer();
-            Container.AddExtension(new SpyExtension(new SpyStrategy(), PipelineStage.Creation));
+            Container.AddExtension(new SpyExtension(new SpyStrategy(), Stage.Creation));
 
             // Setup
             Container.RegisterSingleton<MockLogger>();

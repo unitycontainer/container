@@ -222,6 +222,7 @@ namespace Unity
             // Setup Context
             var context = new BuilderContext
             {
+                List = new PolicyList(),
                 Type = type,
                 Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
@@ -245,6 +246,7 @@ namespace Unity
             {
                 Existing = existing ?? throw new ArgumentNullException(nameof(existing)),
 
+                List = new PolicyList(),
                 Type = ValidateType(type, existing.GetType()),
                 Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),

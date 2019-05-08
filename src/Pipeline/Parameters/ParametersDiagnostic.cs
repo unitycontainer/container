@@ -5,9 +5,9 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract partial class ParametersBuilder<TMemberInfo>
+    public abstract partial class ParametersPipeline<TMemberInfo>
     {
         #region Diagnostic Parameter Factories
 

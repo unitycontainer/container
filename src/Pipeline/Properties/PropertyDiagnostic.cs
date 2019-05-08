@@ -8,9 +8,9 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class PropertyDiagnostic : PropertyBuilder
+    public partial class PropertyDiagnostic : PropertyPipeline
     {
         #region Constructors
 

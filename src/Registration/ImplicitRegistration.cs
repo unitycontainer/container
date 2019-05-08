@@ -6,7 +6,6 @@ using System.Threading;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Resolution;
 using Unity.Storage;
@@ -67,7 +66,7 @@ namespace Unity.Registration
 
         public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
-        public IEnumerable<PipelineBuilder>? Processors { get; set; }
+        public IEnumerable<Pipeline>? Processors { get; set; }
 
         public InjectionMember[]? InjectionMembers { get; set; }
 

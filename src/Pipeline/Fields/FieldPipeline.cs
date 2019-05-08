@@ -7,13 +7,13 @@ using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class FieldBuilder : MemberBuilder<FieldInfo, object>
+    public class FieldPipeline : MemberPipeline<FieldInfo, object>
     {
         #region Constructors
 
-        public FieldBuilder(UnityContainer container)
+        public FieldPipeline(UnityContainer container)
             : base(container)
         {
         }

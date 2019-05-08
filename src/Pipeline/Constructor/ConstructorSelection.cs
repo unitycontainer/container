@@ -8,9 +8,9 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class ConstructorBuilder
+    public partial class ConstructorPipeline
     {
 
         public override IEnumerable<object> Select(Type type, IPolicySet registration)

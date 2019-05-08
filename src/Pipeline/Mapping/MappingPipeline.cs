@@ -2,13 +2,13 @@
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class MappingBuilder : PipelineBuilder
+    public class MappingPipeline : Pipeline
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             var requestedType = builder.Type;
             

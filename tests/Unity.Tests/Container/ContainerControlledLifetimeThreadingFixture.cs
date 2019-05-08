@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using Unity.Lifetime;
-using Unity.Pipeline;
 
 namespace Unity.Tests.Container
 {
@@ -14,7 +13,7 @@ namespace Unity.Tests.Container
         public void SameInstanceFromMultipleThreads()
         {
             IUnityContainer container = new UnityContainer();
-            container.AddExtension(new SpyExtension(new DelayStrategy(), PipelineStage.Lifetime));
+            container.AddExtension(new SpyExtension(new DelayStrategy(), Stage.Lifetime));
             container.RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;
@@ -48,7 +47,7 @@ namespace Unity.Tests.Container
         public void ContainerControlledLifetimeDoesNotLeaveHangingLockIfBuildThrowsException()
         {
             IUnityContainer container = new UnityContainer()
-                     .AddExtension(new SpyExtension(new ThrowingStrategy(), PipelineStage.PostInitialization));
+                     .AddExtension(new SpyExtension(new ThrowingStrategy(), Stage.PostInitialization));
             container.RegisterType<object>(new ContainerControlledLifetimeManager());
 
             object result1 = null;

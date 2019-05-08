@@ -9,19 +9,19 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class FactoryBuilder : PipelineBuilder
+    public class FactoryPipeline : Pipeline
     {
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
+        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator, 
                                                       Type type, ImplicitRegistration registration)
         {
             yield break;
         }
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             // Skip if already have a resolver
             if (null != builder.Seed) return builder.Pipeline();

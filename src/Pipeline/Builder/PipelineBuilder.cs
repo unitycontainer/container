@@ -6,23 +6,23 @@ using Unity.Registration;
 using Unity.Resolution;
 using static Unity.UnityContainer;
 
-namespace Unity.Pipeline
+namespace Unity
 {
 
     [DebuggerDisplay("Type: {Type?.Name} Name: {Registration?.Name}    Stage: {_enumerator.Current?.GetType().Name}")]
-    public ref struct PipelineContext
+    public ref struct PipelineBuilder
     {
         #region Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private IEnumerator<PipelineBuilder> _enumerator;
+        private IEnumerator<Pipeline> _enumerator;
 
         #endregion
 
         
         #region Constructors
 
-        public PipelineContext(Type type, ImplicitRegistration registration, UnityContainer container)
+        public PipelineBuilder(Type type, ImplicitRegistration registration, UnityContainer container)
         {
             Type = type;
             Registration = registration;
@@ -33,7 +33,7 @@ namespace Unity.Pipeline
                         ?? throw new InvalidOperationException("Processors must be initialized");
         }
 
-        public PipelineContext(ref BuilderContext context)
+        public PipelineBuilder(ref BuilderContext context)
         {
             Type = context.Type;
             Registration = context.Registration;
@@ -45,6 +45,7 @@ namespace Unity.Pipeline
         }
 
         #endregion
+
 
         #region Public Members
 

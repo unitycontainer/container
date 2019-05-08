@@ -5,16 +5,16 @@ using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract class PipelineBuilder
+    public abstract class Pipeline
     {
         #region Public Members
 
-        public virtual IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, 
+        public virtual IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator, 
                                                       Type type, ImplicitRegistration registration) => throw new NotImplementedException();
 
-        public virtual ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder) => builder.Pipeline();
+        public virtual ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder) => builder.Pipeline();
 
         #endregion
     }

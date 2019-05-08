@@ -12,9 +12,9 @@ using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract class MemberBuilder : PipelineBuilder
+    public abstract class MemberPipeline : Pipeline
     {
         #region Fields
 
@@ -44,7 +44,7 @@ namespace Unity.Pipeline
 
         #region Constructor
 
-        public MemberBuilder(UnityContainer container)
+        public MemberPipeline(UnityContainer container)
         {
             _container = container;
         }
@@ -59,8 +59,8 @@ namespace Unity.Pipeline
         #endregion
     }
 
-    public abstract partial class MemberBuilder<TMemberInfo, TData> : MemberBuilder
-                                                  where TMemberInfo : MemberInfo
+    public abstract partial class MemberPipeline<TMemberInfo, TData> : MemberPipeline
+                                                   where TMemberInfo : MemberInfo
     {
         #region Fields
 
@@ -71,7 +71,7 @@ namespace Unity.Pipeline
 
         #region Constructors
 
-        protected MemberBuilder(UnityContainer container)
+        protected MemberPipeline(UnityContainer container)
             : base(container)
         {
             AttributeFactories = new[]

@@ -8,9 +8,9 @@ using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class FieldDiagnostic : FieldBuilder
+    public partial class FieldDiagnostic : FieldPipeline
     {
         #region Constructors
 

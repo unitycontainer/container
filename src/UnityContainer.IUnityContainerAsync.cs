@@ -10,6 +10,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -232,6 +233,7 @@ namespace Unity
                 {
                     var context = new BuilderContext
                     {
+                        List = new PolicyList(),
                         Type = type,
                         Overrides = overrides,
                         Registration = registration,
@@ -247,6 +249,7 @@ namespace Unity
             {
                 Async = true,
 
+                List = new PolicyList(),
                 Type = type,
                 Overrides = overrides,
                 Registration = registration,

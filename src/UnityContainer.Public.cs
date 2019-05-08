@@ -9,7 +9,6 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Factories;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -23,7 +22,7 @@ namespace Unity
         #region Constants
 
         // The default timeout for pipeline lock
-        public static int DefaultTimeOut = Timeout.Infinite;
+        public static int DefaultTimeOut = 1000;    // One second
 
         #endregion
 
@@ -49,6 +48,7 @@ namespace Unity
             _metadata = new Registry<int[]>();
             _registry = new Registry<IPolicySet>(Defaults);
 
+            
             /////////////////////////////////////////////////////////////
             //Built-In Registrations
 
@@ -57,7 +57,7 @@ namespace Unity
             {
                 Pipeline = (ref BuilderContext c) => c.Async ? (object)Task.FromResult<object>(c.Container) : c.Container
             };
-            _registry.Set(typeof(IUnityContainer), null, container);
+            _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
             // Built-In Features
@@ -65,15 +65,16 @@ namespace Unity
             _registry.Set(typeof(Func<>), func);  
                  func.Set(typeof(LifetimeManager),     new PerResolveLifetimeManager());
                  func.Set(typeof(TypeFactoryDelegate), FuncResolver.Factory);                                                   // Func<> Factory
-            _registry.Set(typeof(Lazy<>),        new PolicySet(this, typeof(TypeFactoryDelegate), LazyResolver.Factory));       // Lazy<>
-            _registry.Set(typeof(IEnumerable<>), new PolicySet(this, typeof(TypeFactoryDelegate), EnumerableResolver.Factory)); // Enumerable
-            _registry.Set(typeof(IRegex<>),      new PolicySet(this, typeof(TypeFactoryDelegate), RegExResolver.Factory));      // Regular Expression Enumerable
+            _registry.Set(typeof(Lazy<>),              new PolicySet(this, typeof(TypeFactoryDelegate), LazyResolver.Factory));       // Lazy<>
+            _registry.Set(typeof(IEnumerable<>),       new PolicySet(this, typeof(TypeFactoryDelegate), EnumerableResolver.Factory)); // Enumerable
+            _registry.Set(typeof(IRegex<>),            new PolicySet(this, typeof(TypeFactoryDelegate), RegExResolver.Factory));      // Regular Expression Enumerable
 
+            
             /////////////////////////////////////////////////////////////
             // Pipelines
 
-            var lifetimeBuilder = new LifetimeBuilder();
-            var factoryBuilder  = new FactoryBuilder();
+            var lifetimeBuilder = new LifetimePipeline();
+            var factoryBuilder  = new FactoryPipeline();
 
             // Mode of operation
             if (!enableDiagnostic)
@@ -81,31 +82,32 @@ namespace Unity
                 /////////////////////////////////////////////////////////////
                 // Setup Optimized mode
 
-                var setupBuilder    = new SetupBuilder();
+
+                var setupBuilder = new SetupPipeline();
 
                 // Create Context
                 Context = new ContainerContext(this,
-                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
+                    new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
-                        { setupBuilder,                 PipelineStage.Setup },
-                        { lifetimeBuilder,              PipelineStage.Lifetime },
-                        { factoryBuilder,               PipelineStage.Factory },
-                        { new MappingBuilder(),         PipelineStage.TypeMapping },
-                        { new ConstructorBuilder(this), PipelineStage.Creation },
-                        { new FieldBuilder(this),       PipelineStage.Fields },
-                        { new PropertyBuilder(this),    PipelineStage.Properties },
-                        { new MethodBuilder(this),      PipelineStage.Methods }
+                        { setupBuilder,                  Stage.Setup },
+                        { lifetimeBuilder,               Stage.Lifetime },
+                        { factoryBuilder,                Stage.Factory },
+                        { new MappingPipeline(),         Stage.TypeMapping },
+                        { new ConstructorPipeline(this), Stage.Creation },
+                        { new FieldPipeline(this),       Stage.Fields },
+                        { new PropertyPipeline(this),    Stage.Properties },
+                        { new MethodPipeline(this),      Stage.Methods }
                     },
-                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
+                    new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
-                        { setupBuilder,                 PipelineStage.Setup },
-                        { lifetimeBuilder,              PipelineStage.Lifetime },
-                        { factoryBuilder,               PipelineStage.Factory }
+                        { setupBuilder,                  Stage.Setup },
+                        { lifetimeBuilder,               Stage.Lifetime },
+                        { factoryBuilder,                Stage.Factory }
                     },
-                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
+                    new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
-                        { setupBuilder,                 PipelineStage.Setup },
-                        { lifetimeBuilder,              PipelineStage.Lifetime },
+                        { setupBuilder,                  Stage.Setup },
+                        { lifetimeBuilder,               Stage.Lifetime },
                     });
             }
             else
@@ -113,32 +115,36 @@ namespace Unity
                 /////////////////////////////////////////////////////////////
                 // Setup Diagnostic mode
 
+
                 var setupBuilder = new SetupDiagnostic();
 
                 // Create Context
                 Context = new ContainerContext(this,
-                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Type Build Pipeline
+                    new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
-                        { setupBuilder,                    PipelineStage.Setup },
-                        { lifetimeBuilder,                 PipelineStage.Lifetime },
-                        { factoryBuilder,                  PipelineStage.Factory },
-                        { new MappingDiagnostic(),         PipelineStage.TypeMapping },
-                        { new ConstructorDiagnostic(this), PipelineStage.Creation },
-                        { new FieldDiagnostic(this),       PipelineStage.Fields },
-                        { new PropertyDiagnostic(this),    PipelineStage.Properties },
-                        { new MethodDiagnostic(this),      PipelineStage.Methods }
+                        { setupBuilder,                    Stage.Setup },
+                        { lifetimeBuilder,                 Stage.Lifetime },
+                        { factoryBuilder,                  Stage.Factory },
+                        { new MappingDiagnostic(),         Stage.TypeMapping },
+                        { new ConstructorDiagnostic(this), Stage.Creation },
+                        { new FieldDiagnostic(this),       Stage.Fields },
+                        { new PropertyDiagnostic(this),    Stage.Properties },
+                        { new MethodDiagnostic(this),      Stage.Methods }
                     },
-                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Factory Resolve Pipeline
+                    new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
-                        { setupBuilder,                    PipelineStage.Setup },
-                        { lifetimeBuilder,                 PipelineStage.Lifetime },
-                        { factoryBuilder,                  PipelineStage.Factory }
+                        { setupBuilder,                    Stage.Setup },
+                        { lifetimeBuilder,                 Stage.Lifetime },
+                        { factoryBuilder,                  Stage.Factory }
                     },
-                    new StagedStrategyChain<PipelineBuilder, PipelineStage> // Instance Resolve Pipeline
+                    new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
-                        { setupBuilder,                    PipelineStage.Setup },
-                        { lifetimeBuilder,                 PipelineStage.Lifetime },
+                        { setupBuilder,                    Stage.Setup },
+                        { lifetimeBuilder,                 Stage.Lifetime },
                     });
+
+                // Timeout
+                DefaultTimeOut = Timeout.Infinite;
 
                 // Build process
                 DependencyResolvePipeline = ValidatingDependencyResolvePipeline;

@@ -2,15 +2,14 @@
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Resolution;
-using Unity.Storage;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class SetupBuilder : PipelineBuilder 
+    public class SetupPipeline : Pipeline 
     {
         protected const string error = "Invalid Pipeline Setup";
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             // Pipeline
             var type = builder.Type;
@@ -21,13 +20,6 @@ namespace Unity.Pipeline
             {
                 try
                 {
-                    // Setup Root Context
-                    if (null == context.DeclaringType)
-                    {
-                        context.List = new PolicyList();
-                        if (null != context.Overrides && 0 == context.Overrides.Length) context.Overrides = null;
-                    }
-
                     // Build the type
                     return pipeline(ref context);
                 }

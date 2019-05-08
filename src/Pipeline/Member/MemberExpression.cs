@@ -5,13 +5,13 @@ using System.Reflection;
 using Unity.Injection;
 using Unity.Registration;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract partial class MemberBuilder<TMemberInfo, TData> where TMemberInfo : MemberInfo
+    public abstract partial class MemberPipeline<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator,
+        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator,
                                                       Type type, ImplicitRegistration registration)
         {
             yield break;

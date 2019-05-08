@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 
-namespace Unity.Pipeline
+namespace Unity
 {
     public partial class MethodDiagnostic
     {

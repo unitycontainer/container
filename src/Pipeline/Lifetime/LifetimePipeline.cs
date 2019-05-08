@@ -1,29 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Lifetime;
-using Unity.Registration;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
     [SecuritySafeCritical]
-    public class LifetimeBuilder : PipelineBuilder
+    public class LifetimePipeline : Pipeline
     {
-        private readonly Task<object?> _nullTask = Task.FromResult<object?>(null);
-
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<PipelineBuilder> enumerator, Type type, ImplicitRegistration registration)
-        {
-            yield break;
-        }
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             var lifetime = builder.Registration.LifetimeManager;
             var pipeline = builder.Pipeline();
@@ -31,15 +22,7 @@ namespace Unity.Pipeline
             var type     = builder.Type;
             var registration = builder.Registration;
 
-            //var resolver = lifetime switch
-            //{
-            //    PerResolveLifetimeManager   _ => ((ref BuilderContext context) => context.Existing),
-            //    SynchronizedLifetimeManager _ => ((ref BuilderContext context) => context.Existing),
-            //    _                             => (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Existing)
-            //};
 
-
-            
             // No Lifetime Manager
             if (null == lifetime || lifetime is TransientLifetimeManager)
             {
@@ -103,6 +86,7 @@ namespace Unity.Pipeline
                     return value;
                 };
 
+
             // Requires Recovery during resolution
             if (lifetime is SynchronizedLifetimeManager recoverableManager)
             {
@@ -114,10 +98,11 @@ namespace Unity.Pipeline
                         var value = lifetime.GetValue(context.ContainerContext.Lifetime);
                         if (LifetimeManager.NoValue != value) return value;
 
-                        // Compose down the chain
+                        // Compose 
                         value = pipeline(ref context);
-                        lifetime.SetValue(value, context.ContainerContext.Lifetime);
 
+                        // Set value
+                        lifetime.SetValue(value, context.ContainerContext.Lifetime);
                         return value;
                     }
                     catch when (null != recoverableManager)

@@ -7,14 +7,14 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class ConstructorBuilder
+    public partial class ConstructorPipeline
     {
         #region PipelineBuilder
 
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             var pipeline = builder.Pipeline();
 

@@ -1,6 +1,6 @@
 ﻿
 
-namespace Unity.Pipeline
+namespace Unity
 {
     /// <summary>
     /// Enumeration to represent the object composition stages.
@@ -8,7 +8,7 @@ namespace Unity.Pipeline
     /// <remarks>
     /// <para>The order of the values in the enumeration is the order in which the stages are run.</para>
     /// </remarks>
-    public enum PipelineStage
+    public enum Stage
     {
         /// <summary>
         /// First stage. By default, nothing happens here.

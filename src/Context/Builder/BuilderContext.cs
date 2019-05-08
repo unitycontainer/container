@@ -6,7 +6,6 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Unity.Exceptions;
-using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -41,7 +40,7 @@ namespace Unity.Builder
         public object? Resolve(Type type, string? name)
         {
             // Process overrides if any
-            if (null != Overrides)
+            if (0 < Overrides.Length)
             {
                 NamedType namedType = new NamedType
                 {
@@ -120,7 +119,7 @@ namespace Unity.Builder
 
         public bool Async;
 
-        public ResolverOverride[]? Overrides;
+        public ResolverOverride[] Overrides;
 
         public object? Existing { get; set; }
 
@@ -151,7 +150,7 @@ namespace Unity.Builder
 
                         // Create a pipeline
                         var context = this;
-                        PipelineContext builder = new PipelineContext(ref context);
+                        PipelineBuilder builder = new PipelineBuilder(ref context);
                         pipeline = builder.Pipeline() ?? throw new InvalidOperationException("Invalid Pipeline");
 
                         // Save is lock is acquired
@@ -176,7 +175,7 @@ namespace Unity.Builder
         public object? Resolve(Type type)
         {
             // Process overrides if any
-            if (null != Overrides)
+            if (0 < Overrides.Length)
             {
                 NamedType namedType = new NamedType
                 {
@@ -231,7 +230,7 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != Overrides)
+            if (0 < Overrides.Length)
             {
                 // Check if this parameter is overridden
                 for (var index = Overrides.Length - 1; index >= 0; --index)
@@ -276,7 +275,7 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != Overrides)
+            if (0 < Overrides.Length)
             {
                 // Check for property overrides
                 for (var index = Overrides.Length - 1; index >= 0; --index)
@@ -331,7 +330,7 @@ namespace Unity.Builder
             var context = this;
 
             // Process overrides if any
-            if (null != Overrides)
+            if (0 < Overrides.Length)
             {
                 // Check for property overrides
                 for (var index = Overrides.Length - 1; index >= 0; --index)

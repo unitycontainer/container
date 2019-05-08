@@ -6,13 +6,13 @@ using Unity.Builder;
 using Unity.Injection;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract partial class MemberBuilder<TMemberInfo, TData> where TMemberInfo : MemberInfo
+    public abstract partial class MemberPipeline<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineContext builder)
+        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             if (null != builder.Seed) return builder.Pipeline();
 

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Reflection;
 using Unity.Policy;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public partial class ConstructorBuilder : ParametersBuilder<ConstructorInfo>
+    public partial class ConstructorPipeline : ParametersPipeline<ConstructorInfo>
     {
         #region Constructors
 
-        public ConstructorBuilder(UnityContainer container)
+        public ConstructorPipeline(UnityContainer container)
             : base(typeof(InjectionConstructorAttribute), container)
         {
             SelectMethod = SmartSelector;

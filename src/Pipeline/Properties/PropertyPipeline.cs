@@ -6,13 +6,13 @@ using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public class PropertyBuilder : MemberBuilder<PropertyInfo, object>
+    public class PropertyPipeline : MemberPipeline<PropertyInfo, object>
     {
         #region Constructors
 
-        public PropertyBuilder(UnityContainer container)
+        public PropertyPipeline(UnityContainer container)
             : base(container)
         {
         }

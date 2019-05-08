@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Unity.Builder;
 using Unity.Extension;
-using Unity.Pipeline;
 using Unity.Tests.TestDoubles;
 
 namespace Unity.Tests.Container
@@ -60,7 +58,7 @@ namespace Unity.Tests.Container
         public void ExtensionCanAddStrategy()
         {
             var spy = new SpyStrategy();
-            SpyExtension extension = new SpyExtension(spy, PipelineStage.PreCreation);
+            SpyExtension extension = new SpyExtension(spy, Stage.PreCreation);
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);
@@ -77,7 +75,7 @@ namespace Unity.Tests.Container
             SpyPolicy spyPolicy = new SpyPolicy();
 
             SpyExtension extension =
-                new SpyExtension(spy, PipelineStage.PreCreation, spyPolicy, typeof(SpyPolicy));
+                new SpyExtension(spy, Stage.PreCreation, spyPolicy, typeof(SpyPolicy));
 
             IUnityContainer container = new UnityContainer()
                 .AddExtension(extension);

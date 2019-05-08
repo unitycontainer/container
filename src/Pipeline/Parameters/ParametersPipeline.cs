@@ -7,10 +7,10 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity
 {
-    public abstract partial class ParametersBuilder<TMemberInfo> : MemberBuilder<TMemberInfo, object[]>
-                                                 where TMemberInfo : MethodBase
+    public abstract partial class ParametersPipeline<TMemberInfo> : MemberPipeline<TMemberInfo, object[]>
+                                                where TMemberInfo : MethodBase
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace Unity.Pipeline
 
         #region Constructors
 
-        protected ParametersBuilder(Type attribute, UnityContainer container)
+        protected ParametersPipeline(Type attribute, UnityContainer container)
             : base(container)
         {
             Container = container;
