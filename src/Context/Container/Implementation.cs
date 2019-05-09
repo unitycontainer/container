@@ -64,15 +64,15 @@ namespace Unity
                 // TODO: Create on demand
 
                 // Initialize Pipelines
-                TypePipeline = new StagedStrategyChain<Pipeline, Stage>(parent.Context.TypePipeline);
+                TypePipeline = parent.Context.TypePipeline;
                 TypePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
                 TypePipelineCache = TypePipeline.ToArray();
 
-                FactoryPipeline = new StagedStrategyChain<Pipeline, Stage>(parent.Context.FactoryPipeline);
+                FactoryPipeline = parent.Context.FactoryPipeline;
                 FactoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
                 FactoryPipelineCache = FactoryPipeline.ToArray();
 
-                InstancePipeline = new StagedStrategyChain<Pipeline, Stage>(parent.Context.InstancePipeline);
+                InstancePipeline = parent.Context.InstancePipeline;
                 InstancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
                 InstancePipelineCache = InstancePipeline.ToArray();
             }

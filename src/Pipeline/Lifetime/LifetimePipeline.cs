@@ -25,43 +25,7 @@ namespace Unity
 
             // No Lifetime Manager
             if (null == lifetime || lifetime is TransientLifetimeManager)
-            {
-                return (ref BuilderContext context) => 
-                {
-                    // In Sync mode just execute pipeline
-                    if (!context.Async) return pipeline(ref context);
-
-                    // Async mode
-                    var list = context.List;
-                    var unity = context.ContainerContext;
-                    var overrides = context.Overrides;
-#if !NET40
-                    unsafe
-                    {
-                        var thisContext = this;
-                        parent = new IntPtr(Unsafe.AsPointer(ref thisContext));
-                    }
-#endif
-                    // Create and return a task that creates an object
-                    return Task.Factory.StartNew(() => 
-                    {
-                        var c = new BuilderContext
-                        {
-                            List             = list,
-                            Type             = type,
-                            ContainerContext = unity,
-                            Registration     = registration,
-                            Overrides        = overrides,
-                            DeclaringType    = type,
-                            Parent           = parent,
-                        };
-
-                        // Execute pipeline
-                        return pipeline(ref c);
-                    });
-                };
-            }
-
+                return pipeline;
 
             // Per Resolve Lifetime Manager
             if (lifetime is PerResolveLifetimeManager)

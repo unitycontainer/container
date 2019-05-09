@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
+using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Lifetime;
@@ -12,11 +13,77 @@ using Unity.Resolution;
 
 namespace Unity
 {
+    [SecuritySafeCritical]
     public class SetupDiagnostic : SetupPipeline
     {
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        #region Implementation
+
+        protected override ResolveDelegate<BuilderContext> TransientLifetime(ref PipelineBuilder builder)
         {
-            // Pipeline
+            var type = builder.Type;
+            var name = builder.Name;
+            var registration = builder.Registration;
+            var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => throw new ResolutionFailedException(type, name, error));
+
+            return (ref BuilderContext context) =>
+            {
+#if !NET40
+                // Check call stack for cyclic references
+                var value = GetPerResolveValue(context.Parent, context.Type, context.Name);
+                if (LifetimeManager.NoValue != value) return value;
+#endif
+                // Execute pipeline
+                try
+                {
+                    // In Sync mode just execute pipeline
+                    if (!context.Async) return pipeline(ref context);
+
+                    // Async mode
+                    var parent = IntPtr.Zero;
+                    var list = context.List;
+                    var unity = context.ContainerContext;
+                    var overrides = context.Overrides;
+#if !NET40
+                    unsafe
+                    {
+                        var thisContext = this;
+                        parent = new IntPtr(Unsafe.AsPointer(ref thisContext));
+                    }
+#endif
+                    // Create and return a task that creates an object
+                    return Task.Factory.StartNew(() =>
+                    {
+                        var c = new BuilderContext
+                        {
+                            List = list,
+                            Type = type,
+                            ContainerContext = unity,
+                            Registration = registration,
+                            Overrides = overrides,
+                            DeclaringType = type,
+                            Parent = parent,
+                        };
+
+                        // Build the type
+                        return pipeline(ref c);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add(Guid.NewGuid(), null == context.Name
+                        ? (object)context.Type
+                        : new Tuple<Type, string?>(context.Type, context.Name));
+
+                    if (null != context.DeclaringType) throw;
+
+                    var message = CreateMessage(ex);
+                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                }
+            };
+        }
+
+        protected override ResolveDelegate<BuilderContext> DefaultLifetime(ref PipelineBuilder builder)
+        {
             var type = builder.Type;
             var name = builder.Name;
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => throw new ResolutionFailedException(type, name, error));
@@ -47,7 +114,28 @@ namespace Unity
             };
         }
 
+        #endregion
+
+
+        #region Validation
+
 #if !NET40
+
+        [SecuritySafeCritical]
+        private void Validate(IntPtr parent, Type type, string? name)
+        {
+            if (IntPtr.Zero == parent) return;
+
+            unsafe
+            {
+                var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                if (type != parentRef.Type || name != parentRef.Name) Validate(parentRef.Parent, type, name);
+
+                throw new InvalidOperationException($"Circular reference for Type: {parentRef.Type}, Name: {parentRef.Name}",
+                        new CircularDependencyException());
+            }
+        }
+
         [SecuritySafeCritical]
         object GetPerResolveValue(IntPtr parent, Type type, string? name)
         {
@@ -68,6 +156,7 @@ namespace Unity
             }
         }
 #endif
+        #endregion
 
 
         #region Error Message
@@ -131,6 +220,5 @@ namespace Unity
         }
 
         #endregion
-
     }
 }

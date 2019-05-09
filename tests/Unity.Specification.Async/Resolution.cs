@@ -4,11 +4,11 @@ using Unity;
 namespace Compiled
 {
     [TestClass]
-    public class AsyncBasics : Unity.Specification.Resolution.Basics.SpecificationTests
+    public class Basics : Unity.Specification.Resolution.Basics.SpecificationTests
     {
         public override IUnityContainerAsync GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 }
@@ -17,11 +17,11 @@ namespace Compiled
 namespace Resolved
 {
     [TestClass]
-    public class AsyncBasics : Unity.Specification.Resolution.Basics.SpecificationTests
+    public class Basics : Unity.Specification.Resolution.Basics.SpecificationTests
     {
         public override IUnityContainerAsync GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 }
