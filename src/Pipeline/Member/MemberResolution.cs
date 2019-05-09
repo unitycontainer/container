@@ -67,7 +67,7 @@ namespace Unity
                         break;
 
                     case Exception exception:
-                        Debug.Assert(exception is InvalidRegistrationException, "Internal Exceptions must be InvalidRegistrationException");
+                        Debug.Assert(exception is InvalidRegistrationException, "Must be InvalidRegistrationException");
                         yield return (ref BuilderContext c) => throw exception;
                         yield break;
 

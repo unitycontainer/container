@@ -8,7 +8,7 @@ namespace Compiled.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 
@@ -17,7 +17,7 @@ namespace Compiled.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 
@@ -26,7 +26,7 @@ namespace Compiled.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 
@@ -35,7 +35,7 @@ namespace Compiled.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 
@@ -44,7 +44,7 @@ namespace Compiled.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 }
@@ -58,7 +58,7 @@ namespace Resolved.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 
@@ -67,7 +67,7 @@ namespace Resolved.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 
@@ -76,7 +76,7 @@ namespace Resolved.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 
@@ -85,7 +85,7 @@ namespace Resolved.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 
@@ -94,7 +94,7 @@ namespace Resolved.Parameter
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 }

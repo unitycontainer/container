@@ -1,11 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Specification.Resolution.Deferred;
 
 namespace Compiled
 {
     [TestClass]
-    public class Deferred : SpecificationTests
+    public class Lifetime : Unity.Specification.Diagnostic.Lifetime.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -14,11 +13,10 @@ namespace Compiled
     }
 }
 
-
 namespace Resolved
 {
     [TestClass]
-    public class Deferred : SpecificationTests
+    public class Lifetime : Unity.Specification.Diagnostic.Lifetime.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -26,3 +24,4 @@ namespace Resolved
         }
     }
 }
+

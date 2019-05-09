@@ -87,7 +87,6 @@ namespace Unity
             /////////////////////////////////////////////////////////////
             // Pipelines
 
-            var lifetimeBuilder = new LifetimePipeline();
             var factoryBuilder  = new FactoryPipeline();
 
             // Mode of operation
@@ -104,7 +103,6 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
                         { setupBuilder,                  Stage.Setup },
-                        { lifetimeBuilder,               Stage.Lifetime },
                         { factoryBuilder,                Stage.Factory },
                         { new MappingPipeline(),         Stage.TypeMapping },
                         { new ConstructorPipeline(this), Stage.Creation },
@@ -115,13 +113,11 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
                         { setupBuilder,                  Stage.Setup },
-                        { lifetimeBuilder,               Stage.Lifetime },
                         { factoryBuilder,                Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
                         { setupBuilder,                  Stage.Setup },
-                        { lifetimeBuilder,               Stage.Lifetime },
                     });
             }
             else
@@ -137,7 +133,6 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
                         { setupBuilder,                    Stage.Setup },
-                        { lifetimeBuilder,                 Stage.Lifetime },
                         { factoryBuilder,                  Stage.Factory },
                         { new MappingDiagnostic(),         Stage.TypeMapping },
                         { new ConstructorDiagnostic(this), Stage.Creation },
@@ -148,13 +143,11 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
                         { setupBuilder,                    Stage.Setup },
-                        { lifetimeBuilder,                 Stage.Lifetime },
                         { factoryBuilder,                  Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
                         { setupBuilder,                    Stage.Setup },
-                        { lifetimeBuilder,                 Stage.Lifetime },
                     });
 
                 // Timeout

@@ -8,7 +8,7 @@ namespace Compiled
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Compiled);
         }
     }
 }
@@ -20,7 +20,7 @@ namespace Resolved
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Activated);
         }
     }
 }

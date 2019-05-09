@@ -29,8 +29,7 @@ namespace Unity
             {
 #if !NET40
                 // Check call stack for cyclic references
-                var value = GetPerResolveValue(context.Parent, context.Type, context.Name);
-                if (LifetimeManager.NoValue != value) return value;
+                ValidateCompositionStack(context.Parent, context.Type, context.Name);
 #endif
                 // Execute pipeline
                 try
@@ -82,23 +81,81 @@ namespace Unity
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> DefaultLifetime(ref PipelineBuilder builder)
+        protected override ResolveDelegate<BuilderContext> PerResolveLifetime(ref PipelineBuilder builder)
         {
             var type = builder.Type;
             var name = builder.Name;
+            var registration = builder.Registration;
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => throw new ResolutionFailedException(type, name, error));
 
             return (ref BuilderContext context) =>
             {
 #if !NET40
                 // Check call stack for cyclic references
-                var value = GetPerResolveValue(context.Parent, context.Type, context.Name);
-                if (LifetimeManager.NoValue != value) return value;
+                ValidateCompositionStack(context.Parent, context.Type, context.Name);
 #endif
+                // Execute pipeline
                 try
                 {
-                    // Build the type
-                    return pipeline(ref context);
+                    object value;
+
+                    // Get it from context
+                    var manager = (LifetimeManager?)context.Get(typeof(LifetimeManager));
+
+                    // Return if holds value
+                    if (null != manager)
+                    {
+                        value = manager.GetValue(context.ContainerContext.Lifetime);
+                        if (LifetimeManager.NoValue != value)
+                        {
+                            return context.Async
+                                ? Task.FromResult(value)
+                                : value;
+                        }
+                    }
+
+                    // In Sync mode just execute pipeline
+                    if (!context.Async)
+                    {
+                        // Compose down the chain
+                        value = pipeline(ref context);
+                        manager?.SetValue(value, context.ContainerContext.Lifetime);
+
+                        return value;
+                    }
+
+                    // Async mode
+                    var list = context.List;
+                    var unity = context.ContainerContext;
+                    var overrides = context.Overrides;
+                    IntPtr parent = IntPtr.Zero;
+#if !NET40
+                    unsafe
+                    {
+                        var thisContext = this;
+                        parent = new IntPtr(Unsafe.AsPointer(ref thisContext));
+                    }
+#endif
+                    // Create and return a task that creates an object
+                    return Task.Factory.StartNew(() =>
+                    {
+                        var c = new BuilderContext
+                        {
+                            List = list,
+                            Type = type,
+                            ContainerContext = unity,
+                            Registration = registration,
+                            Overrides = overrides,
+                            DeclaringType = type,
+                            Parent = parent,
+                        };
+
+                        // Execute pipeline
+                        value = pipeline(ref c);
+                        manager?.SetValue(value, c.ContainerContext.Lifetime);
+
+                        return value;
+                    });
                 }
                 catch (Exception ex) when (ex is InvalidRegistrationException || ex is CircularDependencyException)
                 {
@@ -114,46 +171,112 @@ namespace Unity
             };
         }
 
+        protected override ResolveDelegate<BuilderContext> DefaultLifetime(ref PipelineBuilder builder)
+        {
+            var type = builder.Type;
+            var name = builder.Name;
+            var lifetime = builder.Registration.LifetimeManager;
+            var synchronized = lifetime as SynchronizedLifetimeManager;
+            var registration = builder.Registration;
+            var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => throw new ResolutionFailedException(type, name, error));
+
+            return (ref BuilderContext context) =>
+            {
+#if !NET40
+                // Check call stack for cyclic references
+                ValidateCompositionStack(context.Parent, context.Type, context.Name);
+#endif
+                // Execute pipeline
+                try
+                {
+                    // Return if holds value
+                    var value = lifetime.GetValue(context.ContainerContext.Lifetime);
+
+                    if (LifetimeManager.NoValue != value)
+                        return context.Async ? Task.FromResult(value) : value;
+
+                    // In Sync mode just execute pipeline
+                    if (!context.Async)
+                    {
+                        value = pipeline(ref context);
+
+                        // Set value
+                        lifetime.SetValue(value, context.ContainerContext.Lifetime);
+                        return value;
+                    }
+
+                    // Async mode
+                    var list = context.List;
+                    var unity = context.ContainerContext;
+                    var overrides = context.Overrides;
+                    IntPtr parent = IntPtr.Zero;
+#if !NET40
+                    unsafe
+                    {
+                        var thisContext = this;
+                        parent = new IntPtr(Unsafe.AsPointer(ref thisContext));
+                    }
+#endif
+                    // Create and return a task that creates an object
+                    var task = Task.Factory.StartNew(() =>
+                    {
+                        var c = new BuilderContext
+                        {
+                            List = list,
+                            Type = type,
+                            ContainerContext = unity,
+                            Registration = registration,
+                            Overrides = overrides,
+                            DeclaringType = type,
+                            Parent = parent,
+                        };
+
+                        // Execute pipeline
+                        var result = pipeline(ref c);
+
+                        lifetime.SetValue(result, c.ContainerContext.Lifetime);
+
+                        return result;
+                    });
+
+                    return task;
+                }
+                catch (Exception ex)
+                {
+                    synchronized?.Recover();
+
+                    if (null == context.DeclaringType && (ex is InvalidRegistrationException || ex is CircularDependencyException))
+                    {
+                        var message = CreateMessage(ex);
+                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                    }
+                    else throw;
+                }
+            };
+        }
+
         #endregion
 
 
         #region Validation
 
-#if !NET40
-
+        #if !NET40
         [SecuritySafeCritical]
-        private void Validate(IntPtr parent, Type type, string? name)
+        private void ValidateCompositionStack(IntPtr parent, Type type, string? name)
         {
             if (IntPtr.Zero == parent) return;
 
             unsafe
             {
                 var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                if (type != parentRef.Type || name != parentRef.Name) Validate(parentRef.Parent, type, name);
+                if (type == parentRef.Type && name == parentRef.Name)
+                    throw new CircularDependencyException(parentRef.Type, parentRef.Name);
 
-                throw new CircularDependencyException(parentRef.Type, parentRef.Name);
+                ValidateCompositionStack(parentRef.Parent, type, name);
             }
         }
+        #endif
 
-        [SecuritySafeCritical]
-        object GetPerResolveValue(IntPtr parent, Type type, string? name)
-        {
-            if (IntPtr.Zero == parent) return LifetimeManager.NoValue;
-
-            unsafe
-            {
-                var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                if (type != parentRef.Type || name != parentRef.Name)
-                    return GetPerResolveValue(parentRef.Parent, type, name);
-
-                var lifetimeManager = (LifetimeManager?)parentRef.Get(typeof(LifetimeManager));
-                var result = null == lifetimeManager ? LifetimeManager.NoValue : lifetimeManager.GetValue();
-                if (LifetimeManager.NoValue != result) return result;
-
-                throw new CircularDependencyException(parentRef.Type, parentRef.Name);
-            }
-        }
-#endif
         #endregion
 
 
