@@ -18,10 +18,10 @@ namespace Unity
         {
             return builder.Registration.LifetimeManager switch
             {
-                null                                => TransientLifetime(ref builder),
-                TransientLifetimeManager    _       => TransientLifetime(ref builder),
-                PerResolveLifetimeManager   _       => PerResolveLifetime(ref builder),
-                _                                   => DefaultLifetime(ref builder)
+                null                        => TransientLifetime(ref builder),
+                TransientLifetimeManager  _ => TransientLifetime(ref builder),
+                PerResolveLifetimeManager _ => PerResolveLifetime(ref builder),
+                _                           => DefaultLifetime(ref builder)
             };
         }
 
