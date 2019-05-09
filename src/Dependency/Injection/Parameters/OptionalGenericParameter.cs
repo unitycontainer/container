@@ -43,7 +43,7 @@ namespace Unity.Injection
             {
                 try { return context.Resolve(type, name); }
                 catch (Exception ex) 
-                when (!(ex.InnerException is CircularDependencyException))
+                when (!(ex is CircularDependencyException))
                 {
                     return null;
                 }

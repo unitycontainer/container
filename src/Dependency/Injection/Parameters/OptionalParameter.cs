@@ -76,7 +76,7 @@ namespace Unity.Injection
             {
                 try { return c.Resolve(type, _name); }
                 catch (Exception ex) 
-                when (!(ex.InnerException is CircularDependencyException))
+                when (!(ex is CircularDependencyException))
                 {
                     return null;
                 }
@@ -107,7 +107,7 @@ namespace Unity.Injection
                 {
                     try { return c.Resolve(type, _name); }
                     catch (Exception ex) 
-                    when (!(ex.InnerException is CircularDependencyException))
+                    when (!(ex is CircularDependencyException))
                     {
                         return value;
                     }
@@ -118,7 +118,7 @@ namespace Unity.Injection
             {
                 try { return c.Resolve(ParameterType, _name); }
                 catch (Exception ex) 
-                when (!(ex.InnerException is CircularDependencyException))
+                when (!(ex is CircularDependencyException))
                 {
                     return value;
                 }

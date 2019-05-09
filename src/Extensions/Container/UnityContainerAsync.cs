@@ -879,9 +879,9 @@ namespace Unity
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<T> Resolve<T>(this IUnityContainerAsync container, params ResolverOverride[] overrides)
+        public static Task<object> Resolve<T>(this IUnityContainerAsync container, params ResolverOverride[] overrides)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Resolve<T>((string)null, overrides);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), overrides);
         }
 
         /// <summary>
@@ -895,9 +895,9 @@ namespace Unity
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<T> Resolve<T>(this IUnityContainerAsync container, string name, params ResolverOverride[] overrides)
+        public static Task<object> Resolve<T>(this IUnityContainerAsync container, string name, params ResolverOverride[] overrides)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Resolve<T>(name, overrides);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Resolve(typeof(T), name, overrides);
         }
 
         /// <summary>
