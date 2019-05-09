@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
-using Unity.Extension;
 
 namespace Compiled.Method
 {
@@ -9,7 +8,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true).AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
         }
     }
 
@@ -18,7 +17,7 @@ namespace Compiled.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true).AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
         }
     }
 }
@@ -30,7 +29,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true).AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Activated);
         }
     }
 
@@ -39,7 +38,7 @@ namespace Resolved.Method
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true).AddExtension(new ForceActivation());
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Activated);
         }
     }
 }

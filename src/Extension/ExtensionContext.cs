@@ -32,9 +32,9 @@ namespace Unity.Extension
 
         #region Pipeline Build Chains
 
-        public abstract StagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
-        public abstract StagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
-        public abstract StagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
+        public abstract IStagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
+        public abstract IStagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
+        public abstract IStagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
 
         #endregion
 

@@ -17,6 +17,18 @@ using Unity.Utility;
 
 namespace Unity
 {
+    [Flags]
+    public enum ModeFlags
+    {
+        Optimized = 0,
+
+        Diagnostic = 0x00000001,
+        Activated  = 0x00000010,
+        Compiled   = 0x00000100,
+        Legacy     = 0x00001000,
+    }
+
+
     public partial class UnityContainer
     {
         #region Constants
@@ -32,14 +44,16 @@ namespace Unity
         /// <summary>
         /// Create a default <see cref="UnityContainer"/>.
         /// </summary>
-        public UnityContainer(bool enableDiagnostic = false)
+        public UnityContainer(ModeFlags mode = ModeFlags.Optimized)
         {
+            if (!mode.IsValid()) throw new ArgumentException("'Activated' and 'Diagnostic' flags are mutually exclusive.");
+
             /////////////////////////////////////////////////////////////
             // Initialize Root 
-
             _root = this;
 
-            // Create storage
+            // Defaults and policies
+            ModeFlags = mode;
             Defaults = new DefaultPolicies(this);
             LifetimeContainer = new LifetimeContainer(this);
             Register = AddOrReplace;
@@ -77,7 +91,7 @@ namespace Unity
             var factoryBuilder  = new FactoryPipeline();
 
             // Mode of operation
-            if (!enableDiagnostic)
+            if (ModeFlags.IsOptimized())
             {
                 /////////////////////////////////////////////////////////////
                 // Setup Optimized mode
@@ -150,7 +164,7 @@ namespace Unity
                 DependencyResolvePipeline = ValidatingDependencyResolvePipeline;
 
                 // Validators
-                ValidateType = DiagnosticValidateType;
+                ValidateType  = DiagnosticValidateType;
                 ValidateTypes = DiagnosticValidateTypes;
             }
         }

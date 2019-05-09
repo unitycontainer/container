@@ -131,6 +131,8 @@ namespace Unity.Builder
 #if !NET40
         public IntPtr Parent;
 #endif
+        public ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
+
         public ResolveDelegate<BuilderContext> Pipeline
         {
             get

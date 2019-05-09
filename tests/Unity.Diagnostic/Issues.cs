@@ -9,7 +9,7 @@ namespace GitHub
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true).AddExtension(new ForceCompillation());
+            return new UnityContainer(ModeFlags.Diagnostic);
         }
     }
 

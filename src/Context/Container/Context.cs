@@ -23,11 +23,11 @@ namespace Unity
 
             #region Pipelines
 
-            public override StagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
+            public override IStagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
 
-            public override StagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
+            public override IStagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
 
-            public override StagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
+            public override IStagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
 
             #endregion
 

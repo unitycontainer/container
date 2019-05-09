@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Lifetime;
-using Unity.Exceptions;
-using Unity.Policy;
-using Unity.Resolution;
-using Unity.Registration;
-using Unity.Injection;
 using System.Text.RegularExpressions;
+using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Injection;
+using Unity.Lifetime;
+using Unity.Policy;
+using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -143,6 +144,40 @@ namespace Unity
 
             // Select default
             return new[] { SelectMethod(type, constructors) };
+        }
+
+        /// <summary>
+        /// Selects default constructor
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> to be built</param>
+        /// <param name="members">All public constructors this type implements</param>
+        /// <returns></returns>
+        public override object? LegacySelector(Type type, ConstructorInfo[] members)
+        {
+            // TODO: Add validation to legacy selector
+            Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
+
+            switch (members.Length)
+            {
+                case 0:
+                    return null;
+
+                case 1:
+                    return members[0];
+
+                default:
+                    var paramLength = members[0].GetParameters().Length;
+                    if (members[1].GetParameters().Length == paramLength)
+                    {
+                        return new InvalidOperationException(
+                            string.Format(
+                                CultureInfo.CurrentCulture,
+                                "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
+                                type.GetTypeInfo().Name,
+                                paramLength), new InvalidRegistrationException());
+                    }
+                    return members[0];
+            }
         }
 
         protected override object? SmartSelector(Type type, ConstructorInfo[] constructors)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Policy;
+using Unity.Utility;
 
 namespace Unity
 {
@@ -13,7 +14,9 @@ namespace Unity
         public ConstructorPipeline(UnityContainer container)
             : base(typeof(InjectionConstructorAttribute), container)
         {
-            SelectMethod = SmartSelector;
+            SelectMethod = container.ModeFlags.IsLegacy()
+                ? (Func<Type, ConstructorInfo[], object?>)LegacySelector
+                : SmartSelector;
         }
 
         #endregion

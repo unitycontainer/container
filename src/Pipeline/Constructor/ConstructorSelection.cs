@@ -55,7 +55,7 @@ namespace Unity
         /// <param name="type"><see cref="Type"/> to be built</param>
         /// <param name="members">All public constructors this type implements</param>
         /// <returns></returns>
-        public object? LegacySelector(Type type, ConstructorInfo[] members)
+        public virtual object? LegacySelector(Type type, ConstructorInfo[] members)
         {
             Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
 

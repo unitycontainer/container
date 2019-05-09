@@ -9,7 +9,7 @@ namespace Registration
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true);
+            return new UnityContainer(ModeFlags.Diagnostic);
         }
     }
 
@@ -18,7 +18,7 @@ namespace Registration
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true);
+            return new UnityContainer(ModeFlags.Diagnostic);
         }
     }
 
@@ -27,7 +27,7 @@ namespace Registration
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(true);
+            return new UnityContainer(ModeFlags.Diagnostic);
         }
     }
 

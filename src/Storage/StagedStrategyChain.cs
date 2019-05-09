@@ -11,8 +11,7 @@ namespace Unity.Storage
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
     /// <typeparam name="TStrategyType"></typeparam>
-    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>, 
-                                                                  IEnumerable<TStrategyType>
+    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>
     {
         #region Fields
 
@@ -43,11 +42,11 @@ namespace Unity.Storage
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType, TStageEnum}"/> class with an inner strategy chain to use when building.
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
-        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum>? innerChain = null)
+        public StagedStrategyChain(IStagedStrategyChain<TStrategyType,TStageEnum>? innerChain = null)
         {
             if (null != innerChain)
             {
-                _innerChain = innerChain;
+                _innerChain = (StagedStrategyChain<TStrategyType, TStageEnum>)innerChain;
                 _innerChain.Invalidated += OnParentInvalidated;
             }
 
