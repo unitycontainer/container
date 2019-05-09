@@ -205,7 +205,7 @@ namespace Unity.Builder
 
         public object? Resolve(Type type, ImplicitRegistration registration)
         {
-            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException();
+            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException(type, registration.Name);
 
             unsafe
             {
@@ -314,8 +314,7 @@ namespace Unity.Builder
                     {
                         return Resolve(property.PropertyType, optionalAttribute.Name);
                     }
-                    catch (Exception ex)
-                    when (!(ex.InnerException is CircularDependencyException))
+                    catch (Exception ex) when (!(ex is CircularDependencyException))
                     {
                         return null;
                     }
@@ -369,8 +368,7 @@ namespace Unity.Builder
                     {
                         return Resolve(field.FieldType, optionalAttribute.Name);
                     }
-                    catch (Exception ex)
-                    when (!(ex.InnerException is CircularDependencyException))
+                    catch (Exception ex) when (!(ex is CircularDependencyException))
                     {
                         return null;
                     }

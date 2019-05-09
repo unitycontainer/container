@@ -29,7 +29,16 @@ namespace Unity
                            typeof(object) == parameters[1].ParameterType;
                 });
 
-        protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
+        protected static readonly ConstructorInfo InvalidRegistrationExpressionCtor =
+            typeof(InvalidRegistrationException)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .First(c =>
+                {
+                    var parameters = c.GetParameters();
+                    return 1 == parameters.Length &&
+                           typeof(string) == parameters[0].ParameterType;
+                });
 
         protected static readonly Expression NewGuid = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)));
 
@@ -198,8 +207,7 @@ namespace Unity
                 {
                     return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
                 }
-                catch (Exception ex)
-                when (!(ex.InnerException is CircularDependencyException))
+                catch (Exception ex) when (!(ex is CircularDependencyException))
                 {
                     return value;
                 }

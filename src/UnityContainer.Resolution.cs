@@ -191,10 +191,7 @@ namespace Unity
                                 value = resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
-                            catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
-                            {
-                                continue;
-                            }
+                            catch (InvalidRegistrationException)   { continue; }
 
                             yield return (TElement)value;
                         }
@@ -355,10 +352,7 @@ namespace Unity
                                 value = resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
-                            catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
-                            {
-                                continue;
-                            }
+                            catch (InvalidRegistrationException)   { continue; }
 
                             yield return (TElement)value;
                         }
@@ -470,10 +464,7 @@ namespace Unity
                                 value = (TElement)resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
-                            catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
-                            {
-                                continue;
-                            }
+                            catch (InvalidRegistrationException)   { continue; }
 
                             yield return (TElement)value;
                         }

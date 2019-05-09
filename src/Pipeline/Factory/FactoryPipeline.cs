@@ -72,8 +72,7 @@ namespace Unity
                     else
                     {
                         var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                        return (ref BuilderContext context) => throw new InvalidOperationException(message,
-                            new InvalidRegistrationException());
+                        return (ref BuilderContext context) => throw new InvalidRegistrationException(message);
                     }
                 }
             }
@@ -95,8 +94,7 @@ namespace Unity
                     else
                     {
                         var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                        return (ref BuilderContext context) => throw new InvalidOperationException(message,
-                            new InvalidRegistrationException());
+                        return (ref BuilderContext context) => throw new InvalidRegistrationException(message);
                     }
                 }
             }

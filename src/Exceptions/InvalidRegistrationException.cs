@@ -2,17 +2,12 @@
 
 namespace Unity.Exceptions
 {
-    internal class InvalidRegistrationException : Exception
+    public class InvalidRegistrationException : Exception
     {
-        public InvalidRegistrationException()
-            : base()
+        internal InvalidRegistrationException(string message)
+            : base(message)
         {
 
-        }
-
-        public InvalidRegistrationException(string message, Exception exception)
-            : base(message, exception)
-        {
         }
     }
 }

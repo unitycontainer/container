@@ -186,8 +186,7 @@ namespace Unity
                 {
                     var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
                     if (thisContext.Type == parentRef.Type && thisContext.Name == parentRef.Name)
-                        throw new InvalidOperationException($"Circular reference for Type: {thisContext.Type}, Name: {thisContext.Name}",
-                            new CircularDependencyException());
+                        throw new CircularDependencyException(thisContext.Type, thisContext.Name);
 
                     parent = parentRef.Parent;
                 }

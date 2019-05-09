@@ -236,10 +236,10 @@ namespace Unity
             {
                 try
                 {
-                    return context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
+                    return context.Resolve(((ParameterInfo)info).ParameterType, 
+                      ((DependencyResolutionAttribute)attribute).Name);
                 }
-                catch (Exception ex) 
-                when (!(ex.InnerException is CircularDependencyException))
+                catch (Exception ex) when (!(ex is CircularDependencyException))
                 {
                     return value;
                 }

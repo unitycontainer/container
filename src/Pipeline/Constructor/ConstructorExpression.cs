@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Injection;
+using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Registration;
 
@@ -13,18 +13,6 @@ namespace Unity
     public partial class ConstructorPipeline
     {
         #region Fields
-
-        protected static readonly ConstructorInfo InvalidOperationExceptionCtor =
-            typeof(InvalidOperationException)
-                .GetTypeInfo()
-                .DeclaredConstructors
-                .First(c =>
-                {
-                    var parameters = c.GetParameters();
-                    return 2 == parameters.Length &&
-                           typeof(string) == parameters[0].ParameterType &&
-                           typeof(Exception) == parameters[1].ParameterType;
-                });
 
         private static readonly ConstructorInfo PerResolveInfo = typeof(InternalPerResolveLifetimeManager)
             .GetTypeInfo().DeclaredConstructors.First();
@@ -38,11 +26,10 @@ namespace Unity
         protected static readonly Expression[] NoConstructorExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                 Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
+                    Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)))};
+                            BuilderContextExpression.Type))))};
 
         #endregion
 

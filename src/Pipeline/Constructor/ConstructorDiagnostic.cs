@@ -27,42 +27,38 @@ namespace Unity
         private static readonly Expression[] CannotConstructInterfaceExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
+                    Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructInterface),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)))};
+                            BuilderContextExpression.Type))))};
 
         private static readonly Expression[] CannotConstructAbstractClassExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
+                    Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructAbstractClass),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)))};
+                            BuilderContextExpression.Type))))};
 
         private static readonly Expression[] CannotConstructDelegateExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
+                    Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructDelegate),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)))};
+                            BuilderContextExpression.Type))))};
 
         private static readonly Expression[] TypeIsNotConstructableExpr = new [] {
             Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                  Expression.Throw(
-                    Expression.New(InvalidOperationExceptionCtor,
+                    Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(TypeIsNotConstructable),
-                            BuilderContextExpression.Type),
-                        InvalidRegistrationExpression)))};
+                            BuilderContextExpression.Type))))};
 
         #endregion
 
@@ -102,8 +98,7 @@ namespace Unity
                     break;
 
                 default:
-                    return new[] { new InvalidOperationException($"Multiple Injection Constructors are registered for Type {type.FullName}", 
-                        new InvalidRegistrationException()) };
+                    return new[] { new InvalidRegistrationException($"Multiple Injection Constructors are registered for Type {type.FullName}") };
             }
 
             // Enumerate to array
@@ -138,8 +133,7 @@ namespace Unity
                     break;
 
                 default:
-                    return new[] { new InvalidOperationException($"Multiple Constructors are annotated for injection on Type {type.FullName}", 
-                        new InvalidRegistrationException()) };
+                    return new[] { new InvalidRegistrationException($"Multiple Constructors are annotated for injection on Type {type.FullName}") };
             }
 
             // Select default
@@ -169,12 +163,12 @@ namespace Unity
                     var paramLength = members[0].GetParameters().Length;
                     if (members[1].GetParameters().Length == paramLength)
                     {
-                        return new InvalidOperationException(
+                        return new InvalidRegistrationException(
                             string.Format(
                                 CultureInfo.CurrentCulture,
                                 "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
                                 type.GetTypeInfo().Name,
-                                paramLength), new InvalidRegistrationException());
+                                paramLength));
                     }
                     return members[0];
             }
@@ -222,15 +216,15 @@ namespace Unity
                     else
                     {
                         var message = $"Ambiguous constructor: Failed to choose between {type.Name}{Regex.Match(bestCtor.ToString(), @"\((.*?)\)")} and {type.Name}{Regex.Match(ctorInfo.ToString(), @"\((.*?)\)")}";
-                        return new InvalidOperationException(message, new InvalidRegistrationException());
+                        return new InvalidRegistrationException(message);
                     }
                 }
             }
 
             if (bestCtor == null)
             {
-                return new InvalidOperationException(
-                    $"Failed to select a constructor for {type.FullName}", new InvalidRegistrationException());
+                return new InvalidRegistrationException(
+                    $"Failed to select a constructor for {type.FullName}");
             }
 
             return bestCtor;
@@ -274,10 +268,9 @@ namespace Unity
             var tryBlock = parameters.Any(pi => pi.ParameterType.IsByRef)
                 
                 // Report error
-                ? (Expression)Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
+                ? (Expression)Expression.Throw(Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Constant(CreateErrorMessage("The constructor {1} selected for type {0} has ref or out parameters. Such parameters are not supported for constructor injection.", 
-                        info.DeclaringType, info)),
-                        InvalidRegistrationExpression))
+                        info.DeclaringType, info))))
                 
                 // Create new instance
                 : Expression.Block(new[] { variable }, new Expression[]
@@ -330,8 +323,7 @@ namespace Unity
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructInterface, context.Type),
-                            new InvalidRegistrationException());
+                        throw new InvalidRegistrationException(string.Format(CannotConstructInterface, context.Type));
 
                     return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
@@ -343,8 +335,7 @@ namespace Unity
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructAbstractClass, context.Type),
-                            new InvalidRegistrationException());
+                        throw new InvalidRegistrationException(string.Format(CannotConstructAbstractClass, context.Type));
 
                     return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
@@ -356,8 +347,7 @@ namespace Unity
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
-                        throw new InvalidOperationException(string.Format(CannotConstructDelegate, context.Type),
-                            new InvalidRegistrationException());
+                        throw new InvalidRegistrationException(string.Format(CannotConstructDelegate, context.Type));
 
                     return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
@@ -369,8 +359,7 @@ namespace Unity
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
-                        throw new InvalidOperationException(string.Format(TypeIsNotConstructable, context.Type),
-                            new InvalidRegistrationException());
+                        throw new InvalidRegistrationException(string.Format(TypeIsNotConstructable, context.Type));
 
                     return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
@@ -52,34 +53,34 @@ namespace Unity
                     // Validate
                     if (member.IsStatic)
                     {
-                        yield return new ArgumentException(
+                        yield return new InvalidRegistrationException(
                             $"Static method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Static methods cannot be injected");
                     }
 
                     if (member.IsPrivate)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Private method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Private methods cannot be injected");
 
                     if (member.IsFamily)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Protected method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Protected methods cannot be injected");
 
                     if (member.IsGenericMethodDefinition)
                     {
-                        yield return new ArgumentException(
+                        yield return new InvalidRegistrationException(
                             $"Open generic method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Open generic methods cannot be injected.");
                     }
 
                     var parameters = member.GetParameters();
                     if (parameters.Any(param => param.IsOut))
                     {
-                        yield return new ArgumentException(
+                        yield return new InvalidRegistrationException(
                             $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.");
                     }
 
                     if (parameters.Any(param => param.ParameterType.IsByRef))
                     {
-                        yield return new ArgumentException(
+                        yield return new InvalidRegistrationException(
                             $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
                     }
 

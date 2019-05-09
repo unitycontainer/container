@@ -74,8 +74,7 @@ namespace Unity
                         return pipeline(ref c);
                     });
                 }
-                catch (Exception ex) when (ex.InnerException is InvalidRegistrationException &&
-                                           null == context.DeclaringType)
+                catch (Exception ex) when (null == context.DeclaringType && ( ex is InvalidRegistrationException || ex is CircularDependencyException))
                 {
                     throw new ResolutionFailedException(context.Type, context.Name,
                         $"Resolution failed with error: {ex.Message}" + error, ex);
@@ -175,8 +174,7 @@ namespace Unity
                     // Build the type
                     return pipeline(ref context);
                 }
-                catch (Exception ex) when (ex.InnerException is InvalidRegistrationException &&
-                                           null == context.DeclaringType)
+                catch (Exception ex) when (null == context.DeclaringType && (ex is InvalidRegistrationException || ex is CircularDependencyException))
                 {
                     throw new ResolutionFailedException(context.Type, context.Name,
                         $"Resolution failed with error: {ex.Message}", ex);

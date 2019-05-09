@@ -7,6 +7,7 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Exceptions;
 
 namespace Unity
 {
@@ -49,25 +50,25 @@ namespace Unity
 
                     if (member.IsStatic)
                     {
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Static field '{member.Name}' on type '{type?.Name}' is marked for injection. Static fields cannot be injected");
                     }
 
                     if (member.IsInitOnly)
                     {
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Readonly field '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly fields cannot be injected");
                     }
 
                     if (member.IsPrivate)
                     {
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Private field '{member.Name}' on type '{type?.Name}' is marked for injection. Private fields cannot be injected");
                     }
 
                     if (member.IsFamily)
                     {
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Protected field '{member.Name}' on type '{type?.Name}' is marked for injection. Protected fields cannot be injected");
                     }
 

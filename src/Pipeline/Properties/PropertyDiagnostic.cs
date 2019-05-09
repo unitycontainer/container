@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
@@ -50,23 +51,23 @@ namespace Unity
 
                     var setter = member.GetSetMethod(true);
                     if (!member.CanWrite || null == setter)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly properties cannot be injected");
 
                     if (0 != member.GetIndexParameters().Length)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
                     if (setter.IsStatic)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
 
                     if (setter.IsPrivate)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
 
                     if (setter.IsFamily)
-                        yield return new InvalidOperationException(
+                        yield return new InvalidRegistrationException(
                             $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
 
                     yield return member;

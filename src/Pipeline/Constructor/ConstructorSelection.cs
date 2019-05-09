@@ -71,12 +71,12 @@ namespace Unity
                     var paramLength = members[0].GetParameters().Length;
                     if (members[1].GetParameters().Length == paramLength)
                     {
-                        return new InvalidOperationException(
+                        return new InvalidRegistrationException(
                             string.Format(
                                 CultureInfo.CurrentCulture,
                                 "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
                                 type.GetTypeInfo().Name,
-                                paramLength), new InvalidRegistrationException());
+                                paramLength));
                     }
                     return members[0];
             }
@@ -114,8 +114,8 @@ namespace Unity
                 }
             }
 
-            return new InvalidOperationException(
-                $"Failed to select a constructor for {type.FullName}", new InvalidRegistrationException());
+            return new InvalidRegistrationException(
+                $"Failed to select a constructor for {type.FullName}");
         }
 
     }

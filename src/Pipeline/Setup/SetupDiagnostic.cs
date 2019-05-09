@@ -68,7 +68,7 @@ namespace Unity
                         return pipeline(ref c);
                     });
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is InvalidRegistrationException || ex is CircularDependencyException)
                 {
                     ex.Data.Add(Guid.NewGuid(), null == context.Name
                         ? (object)context.Type
@@ -100,7 +100,7 @@ namespace Unity
                     // Build the type
                     return pipeline(ref context);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is InvalidRegistrationException || ex is CircularDependencyException)
                 {
                     ex.Data.Add(Guid.NewGuid(), null == context.Name
                         ? (object)context.Type
@@ -131,8 +131,7 @@ namespace Unity
                 var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
                 if (type != parentRef.Type || name != parentRef.Name) Validate(parentRef.Parent, type, name);
 
-                throw new InvalidOperationException($"Circular reference for Type: {parentRef.Type}, Name: {parentRef.Name}",
-                        new CircularDependencyException());
+                throw new CircularDependencyException(parentRef.Type, parentRef.Name);
             }
         }
 
@@ -151,8 +150,7 @@ namespace Unity
                 var result = null == lifetimeManager ? LifetimeManager.NoValue : lifetimeManager.GetValue();
                 if (LifetimeManager.NoValue != result) return result;
 
-                throw new InvalidOperationException($"Circular reference for Type: {parentRef.Type}, Name: {parentRef.Name}",
-                        new CircularDependencyException());
+                throw new CircularDependencyException(parentRef.Type, parentRef.Name);
             }
         }
 #endif

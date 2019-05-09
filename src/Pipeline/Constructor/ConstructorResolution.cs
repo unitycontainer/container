@@ -30,9 +30,8 @@ namespace Unity
                 return (ref BuilderContext context) =>
                 {
                     if (null == context.Existing)
-                        throw new InvalidOperationException(
-                            $"The type {context.Type} is an open generic. An open generic type cannot be created.",
-                            new InvalidRegistrationException());
+                        throw new InvalidRegistrationException(
+                            $"The type {context.Type} is an open generic. An open generic type cannot be created.");
 
                     return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
                 };
@@ -71,8 +70,7 @@ namespace Unity
                     return (ref BuilderContext c) =>
                     {
                         if (null == c.Existing)
-                            throw new InvalidOperationException($"No public constructor is available for type {c.Type}.",
-                                new InvalidRegistrationException());
+                            throw new InvalidRegistrationException($"No public constructor is available for type {c.Type}.");
 
                         return null == pipeline ? c.Existing : pipeline.Invoke(ref c);
                     };

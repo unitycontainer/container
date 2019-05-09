@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
 
@@ -65,13 +67,14 @@ namespace Unity
                         break;
 
                     case Exception exception:
+                        Debug.Assert(exception is InvalidRegistrationException, "Internal Exceptions must be InvalidRegistrationException");
                         yield return (ref BuilderContext c) => throw exception;
                         yield break;
 
                     // Unknown
                     default:
                         yield return (ref BuilderContext c) => 
-                            throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
+                            throw new InvalidRegistrationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
                         yield break;
                 }
             }
