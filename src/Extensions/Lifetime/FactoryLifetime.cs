@@ -17,7 +17,7 @@ namespace Unity
         /// <para>Repeating the registration on any of the child nodes with singleton lifetime 
         /// will always override the root registration.</para>
         /// </remarks>
-        /// <value>A new instance of a <see cref="SingletonLifetimeManager"/> object.</value>
+        /// <value>A new instance of a <see cref="SingletonLifetimeManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager Singleton => new SingletonLifetimeManager();
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Unity
         /// instance is unique within the container it war registered with. Child or parent 
         /// containers could have their own instances registered for the same contract.
         /// </remarks>
-        /// <value>A new instance of a <see cref="ContainerControlledLifetimeManager"/> object.</value>
+        /// <value>A new instance of a <see cref="ContainerControlledLifetimeManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager PerContainer => new ContainerControlledLifetimeManager();
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Unity
         /// </para>
         /// <para>If you have multiple children, each will resolve its own instance.</para>
         /// </remarks>
-        /// <value>A new instance of a <see cref="HierarchicalLifetimeManager"/> object.</value>
+        /// <value>A new instance of a <see cref="HierarchicalLifetimeManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager Hierarchical => new HierarchicalLifetimeManager();
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Unity
         /// </para>
         /// <para>If you have multiple children, each will resolve its own instance.</para>
         /// </remarks>
-        /// <value>A new instance of a <see cref="HierarchicalLifetimeManager"/> object.</value>
+        /// <value>A new instance of a <see cref="HierarchicalLifetimeManager"/> lifetime manager.</value>
         public static ITypeLifetimeManager Scoped => new HierarchicalLifetimeManager();
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Unity
         /// In the case of recursion, the singleton behavior is still applies and prevents circular dependency
         /// </para>
         /// </example>
-        /// <value>A new instance of a <see cref="PerResolveLifetimeManager"/> object.</value>
+        /// <value>A new instance of a <see cref="PerResolveLifetimeManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager PerResolve => new PerResolveLifetimeManager();
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Unity
         /// the type into other classes on the same thread, the container will return the 
         /// same object.
         /// </summary>
-        /// <value>A new instance of a <see cref="PerThreadLifetimeManager"/> object.</value>
+        /// <value>A new instance of a <see cref="PerThreadLifetimeManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager PerThread => new PerThreadLifetimeManager();
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace Unity
         /// lasts very short period of time, actually, no time at all. In the Unity container terms, 
         /// having transient lifetime is the same as having no lifetime manager at all.
         /// </remarks>
-        /// <value>An instance of a <see cref="TransientLifetimeManager"/> object.</value>
+        /// <value>An instance of a <see cref="TransientLifetimeManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager Transient { get; } = new TransientLifetimeManager();
 
         /// <summary>
@@ -151,7 +151,21 @@ namespace Unity
         /// This lifetime is particularly useful in session based designs with child containers 
         /// associated with the session</para>
         /// </remarks>
-        /// <value>A new instance of a <see cref="ContainerControlledTransientManager"/> object.</value>
+        /// <value>A new instance of a <see cref="ContainerControlledTransientManager"/> lifetime manager.</value>
         public static IFactoryLifetimeManager PerContainerTransient => new ContainerControlledTransientManager();
+
+        /// <summary>
+        /// This lifetime keeps a weak reference to object it holds.
+        /// </summary>
+        /// <remarks>
+        /// <para>When no object is associated with the manager container creates and returns a new object. 
+        /// It gets and holds a weak reference to the created object. As long as the object still exists and 
+        /// has not been garbage collected the container will return the object when requested.</para>
+        /// <para>If the object went out of scope and has been garbage collected the container will 
+        /// create and return a new instance.</para>
+        /// <para>This lifetime manager does not dispose an object when container is disposed</para>
+        /// </remarks>
+        /// <value>A new instance of a <see cref="WeakReferenceLifetimeManager"/> lifetime manager.</value>
+        public static IFactoryLifetimeManager WeakReference => new WeakReferenceLifetimeManager();
     }
 }

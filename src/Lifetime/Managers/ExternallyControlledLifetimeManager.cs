@@ -3,7 +3,7 @@
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that holds a weak reference to
+    /// A <see cref="LifetimeManager"/> that holds a strong reference to
     /// it's managed instance.
     /// </summary>
     public class ExternallyControlledLifetimeManager : LifetimeManager,
@@ -13,7 +13,7 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private WeakReference _value = new WeakReference(NoValue);
+        private object _value = NoValue;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace Unity.Lifetime
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            return _value.Target;
+            return _value;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Unity.Lifetime
         /// <param name="newValue">The object being stored.</param>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
-            _value = new WeakReference(newValue);
+            _value = newValue;
         }
 
         protected override LifetimeManager OnCreateLifetimeManager()

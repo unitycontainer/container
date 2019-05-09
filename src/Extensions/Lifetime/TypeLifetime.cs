@@ -167,5 +167,19 @@ namespace Unity
         /// </remarks>
         /// <value>A new instance of a <see cref="ContainerControlledTransientManager"/> object.</value>
         public static ITypeLifetimeManager PerContainerTransient => new ContainerControlledTransientManager();
+
+        /// <summary>
+        /// This lifetime keeps a weak reference to object it holds.
+        /// </summary>
+        /// <remarks>
+        /// <para>When no object is associated with the manager container creates and returns a new object. 
+        /// It gets and holds a weak reference to the created object. As long as the object still exists and 
+        /// has not been garbage collected the container will return the object when requested.</para>
+        /// <para>If the object went out of scope and has been garbage collected the container will 
+        /// create and return a new instance.</para>
+        /// <para>This lifetime manager does not dispose an object when container is disposed</para>
+        /// </remarks>
+        /// <value>A new instance of a <see cref="WeakReferenceLifetimeManager"/> lifetime manager.</value>
+        public static IFactoryLifetimeManager WeakReference => new WeakReferenceLifetimeManager();
     }
 }
