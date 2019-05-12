@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Unity.Lifetime
 {
     /// <summary>
@@ -22,71 +21,14 @@ namespace Unity.Lifetime
     /// When the <see cref="SingletonLifetimeManager"/> is disposed, the instance it holds 
     /// is disposed with it.</para>
     /// </remarks>
-    public class SingletonLifetimeManager : SynchronizedLifetimeManager,
-                                            IInstanceLifetimeManager,
-                                            IFactoryLifetimeManager,
-                                            ITypeLifetimeManager
+    public class SingletonLifetimeManager : ContainerControlledLifetimeManager
     {
-        #region Fields
-
-        /// <summary>
-        /// An instance of the singleton object this manager is associated with.
-        /// </summary>
-        /// <value>This field holds a strong reference to the singleton object.</value>
-        protected object Value = NoValue;
-
-        #endregion
-        
-        
         #region Overrides
-
-        /// <inheritdoc/>
-        protected override object SynchronizedGetValue(ILifetimeContainer container = null)
-        {
-            return Value;
-        }
-
-        /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
-        {
-            Value = newValue;
-        }
-
-        /// <inheritdoc/>
-        public override void RemoveValue(ILifetimeContainer container = null)
-        {
-            Dispose();
-        }
-
-        /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new SingletonLifetimeManager();
-        }
-
         /// <summary>
         /// This method provides human readable representation of the lifetime
         /// </summary>
         /// <returns>Name of the lifetime</returns>
         public override string ToString() => "Lifetime:Singleton";
-
-        #endregion
-
-
-        #region IDisposable
-
-        /// <inheritdoc/>		
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (NoValue == Value) return;
-            if (Value is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-            Value = NoValue;
-        }
 
         #endregion
     }
