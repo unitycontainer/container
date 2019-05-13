@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Unity.Builder;
 using Unity.Events;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
@@ -112,7 +113,10 @@ namespace Unity
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
                 manager.InUse = true;
-                manager.SetValue(instance, LifetimeContainer);
+                if (manager is ILifetimeManagerAsync managerAsync)
+                    managerAsync.SetResult(instance, LifetimeContainer);
+                else
+                    manager.SetValue(instance, LifetimeContainer);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
@@ -170,11 +174,18 @@ namespace Unity
             if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
             manager.InUse = true;
 
-            // Create registration and add to appropriate storage
+            // Target Container
             var container = manager is SingletonLifetimeManager ? _root : this;
             Debug.Assert(null != container);
 
+            // If Disposable add to container's lifetime
+            if (manager is IDisposable managerDisposable)
+                container.LifetimeContainer.Add(managerDisposable);
+
+            // Create registration
             var registration = new ExplicitRegistration(container, name, type, manager);
+
+            // Factory resolver
             var resolver = lifetimeManager is PerResolveLifetimeManager
                 ? (ResolveDelegate<BuilderContext>)((ref BuilderContext c) =>
                 {
@@ -185,7 +196,7 @@ namespace Unity
                 : ((ref BuilderContext c) => factory(c.Container, c.Type, c.Name));
             registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
 
-            // Add or replace existing 
+            // Register
             var previous = container.Register(type, name, registration);
 
             // Allow reference adjustment and disposal
@@ -196,10 +207,6 @@ namespace Unity
                 container.LifetimeContainer.Remove(disposable);
                 disposable.Dispose();
             }
-
-            // If Disposable add to container's lifetime
-            if (manager is IDisposable managerDisposable)
-                container.LifetimeContainer.Add(managerDisposable);
 
             // Check what strategies to run
             registration.Processors = Context.FactoryPipelineCache;
@@ -230,7 +237,19 @@ namespace Unity
             };
 
             // Create an object
-            return context.Pipeline(ref context);
+            try
+            {
+                // Execute pipeline
+                return context.Pipeline(ref context);
+            }
+            catch (Exception ex) 
+            when (ex is InvalidRegistrationException || 
+                  ex is CircularDependencyException || 
+                  ex is ObjectDisposedException)
+            {
+                var message = CreateMessage(ex);
+                throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+            }
         }
 
         #endregion
@@ -254,7 +273,17 @@ namespace Unity
             };
 
             // Initialize an object
-            return context.Pipeline(ref context);
+            try
+            {
+                // Execute pipeline
+                return context.Pipeline(ref context);
+            }
+            catch (Exception ex)
+            when (ex is InvalidRegistrationException || ex is CircularDependencyException || ex is ObjectDisposedException)
+            {
+                var message = CreateMessage(ex);
+                throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+            }
         }
 
         #endregion

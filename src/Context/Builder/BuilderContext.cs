@@ -22,8 +22,9 @@ namespace Unity.Builder
     {
         #region Fields
 
-        internal IPolicyList List;
+        private bool _async;
 
+        internal IPolicyList List;
         public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
@@ -117,7 +118,9 @@ namespace Unity.Builder
 
         public Regex Regex;
 
-        public bool Async;
+        public bool Sync => !_async;
+
+        public bool Async { get => _async; set => _async = value; }
 
         public ResolverOverride[] Overrides;
 
@@ -137,35 +140,21 @@ namespace Unity.Builder
         {
             get
             {
-                ResolveDelegate<BuilderContext>? pipeline = Registration.Pipeline;
+                if (null != Registration.Pipeline) return Registration.Pipeline;
 
-                if (null == pipeline)
+                lock (Registration)
                 {
-                    bool locked = false;
-                    try
-                    {
-                        // We will wait reasonable time to acquire the lock
-                        Monitor.TryEnter(Registration, DefaultTimeOut, ref locked);
+                    // Double check
+                    if (null != Registration.Pipeline) return Registration.Pipeline;
 
-                        // Double check lock
-                        if (null != Registration.Pipeline) return Registration.Pipeline;
-
-                        // Create a pipeline
-                        var context = this;
-                        PipelineBuilder builder = new PipelineBuilder(ref context);
-                        pipeline = builder.Pipeline() ?? throw new InvalidOperationException("Invalid Pipeline");
-
-                        // Save is lock is acquired
-                        if (locked) Registration.Pipeline = pipeline;
-                    }
-                    finally
-                    {
-                        // Release, if lock is acquired
-                        if (locked) Monitor.Exit(Registration);
-                    }
+                    // Create a pipeline
+                    var context = this;
+                    PipelineBuilder builder = new PipelineBuilder(ref context);
+                    Registration.Pipeline = builder.Pipeline() ?? 
+                        throw new InvalidOperationException($"Failed to create pipeline for registration: {Registration}");
                 }
 
-                return pipeline;
+                return Registration.Pipeline;
             }
         }
 

@@ -57,7 +57,7 @@ namespace Unity.Tests.Container
         [TestMethod]
         public void ExtensionCanAddStrategy()
         {
-            var spy = new SpyStrategy();
+            var spy = new SpyPipeline();
             SpyExtension extension = new SpyExtension(spy, Stage.PreCreation);
 
             IUnityContainer container = new UnityContainer()
@@ -71,7 +71,7 @@ namespace Unity.Tests.Container
         [TestMethod]
         public void ExtensionCanAddPolicy()
         {
-            var spy = new SpyStrategy();
+            var spy = new SpyPipeline();
             SpyPolicy spyPolicy = new SpyPolicy();
 
             SpyExtension extension =

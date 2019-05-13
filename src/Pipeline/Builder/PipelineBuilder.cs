@@ -22,15 +22,14 @@ namespace Unity
         
         #region Constructors
 
-        public PipelineBuilder(Type type, ImplicitRegistration registration, UnityContainer container)
+        public PipelineBuilder(ExplicitRegistration registration, UnityContainer container, IEnumerable<Pipeline> pipelines)
         {
-            Type = type;
+            Type = registration.Type ?? typeof(object);
             Registration = registration;
             ContainerContext = container.Context;
 
             Seed = null;
-            _enumerator = registration.Processors?.GetEnumerator()
-                        ?? throw new InvalidOperationException("Processors must be initialized");
+            _enumerator = pipelines.GetEnumerator();
         }
 
         public PipelineBuilder(ref BuilderContext context)
@@ -50,6 +49,7 @@ namespace Unity
         #region Public Members
 
         public Type Type;
+
         public string? Name => Registration.Name;
 
         public ResolveDelegate<BuilderContext>? Seed { get; private set; }

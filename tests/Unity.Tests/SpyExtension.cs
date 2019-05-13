@@ -86,12 +86,17 @@ namespace Unity.Tests
         }
     }
 
-    public class SpyStrategy : Pipeline
+    public class SpyPipeline : Pipeline
     {
-        public Dictionary<(Type, string), int> BuildUpCallCount { get; private set; } = new Dictionary<(Type, string), int>(); 
+        private int count;
+
+        public int Count  => count;
+
+        public Dictionary<(Type, string), int> BuildUpCallCount { get; private set; } = new Dictionary<(Type, string), int>();
 
         public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
         {
+            Interlocked.Increment(ref count);
 
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);
 

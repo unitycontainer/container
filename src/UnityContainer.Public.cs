@@ -34,7 +34,7 @@ namespace Unity
         #region Constants
 
         // The default timeout for pipeline lock
-        public static int DefaultTimeOut = 1000;    // One second
+        public static int DefaultTimeOut = Timeout.Infinite;
 
         #endregion
 
@@ -87,7 +87,8 @@ namespace Unity
             /////////////////////////////////////////////////////////////
             // Pipelines
 
-            var factoryBuilder  = new FactoryPipeline();
+            var factory  = new FactoryPipeline();
+            var lifetime = new LifetimePipeline();
 
             // Mode of operation
             if (ModeFlags.IsOptimized())
@@ -96,14 +97,12 @@ namespace Unity
                 // Setup Optimized mode
 
 
-                var setupBuilder = new SetupPipeline();
-
                 // Create Context
                 Context = new ContainerContext(this,
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
-                        { setupBuilder,                  Stage.Setup },
-                        { factoryBuilder,                Stage.Factory },
+                        { lifetime,                      Stage.Lifetime },
+                        { factory,                       Stage.Factory },
                         { new MappingPipeline(),         Stage.TypeMapping },
                         { new ConstructorPipeline(this), Stage.Creation },
                         { new FieldPipeline(this),       Stage.Fields },
@@ -112,12 +111,12 @@ namespace Unity
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
-                        { setupBuilder,                  Stage.Setup },
-                        { factoryBuilder,                Stage.Factory }
+                        { lifetime,                      Stage.Lifetime },
+                        { factory,                       Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
-                        { setupBuilder,                  Stage.Setup },
+                        { lifetime,                      Stage.Lifetime },
                     });
             }
             else
@@ -125,15 +124,15 @@ namespace Unity
                 /////////////////////////////////////////////////////////////
                 // Setup Diagnostic mode
 
-
-                var setupBuilder = new SetupDiagnostic();
+                var diagnostic = new DiagnosticPipeline();
 
                 // Create Context
                 Context = new ContainerContext(this,
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
-                        { setupBuilder,                    Stage.Setup },
-                        { factoryBuilder,                  Stage.Factory },
+                        { diagnostic,                      Stage.Diagnostic },
+                        { lifetime,                        Stage.Lifetime },
+                        { factory,                         Stage.Factory },
                         { new MappingDiagnostic(),         Stage.TypeMapping },
                         { new ConstructorDiagnostic(this), Stage.Creation },
                         { new FieldDiagnostic(this),       Stage.Fields },
@@ -142,16 +141,15 @@ namespace Unity
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
-                        { setupBuilder,                    Stage.Setup },
-                        { factoryBuilder,                  Stage.Factory }
+                        { diagnostic,                      Stage.Diagnostic },
+                        { lifetime,                        Stage.Lifetime },
+                        { factory,                         Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
-                        { setupBuilder,                    Stage.Setup },
+                        { diagnostic,                      Stage.Diagnostic },
+                        { lifetime,                        Stage.Lifetime },
                     });
-
-                // Timeout
-                DefaultTimeOut = Timeout.Infinite;
 
                 // Build process
                 DependencyResolvePipeline = ValidatingDependencyResolvePipeline;
@@ -159,6 +157,7 @@ namespace Unity
                 // Validators
                 ValidateType  = DiagnosticValidateType;
                 ValidateTypes = DiagnosticValidateTypes;
+                CreateMessage = CreateDiagnosticMessage;
             }
         }
 

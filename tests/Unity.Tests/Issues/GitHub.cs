@@ -31,7 +31,7 @@ namespace Unity.Tests.Issues
         public void Issue_126()
         {
             IUnityContainer Container = new UnityContainer();
-            Container.AddExtension(new SpyExtension(new SpyStrategy(), Stage.Creation));
+            Container.AddExtension(new SpyExtension(new SpyPipeline(), Stage.Creation));
 
             // Setup
             Container.RegisterSingleton<MockLogger>();
@@ -46,8 +46,8 @@ namespace Unity.Tests.Issues
             Container.Resolve<ObjectOfDependencies>();
 
             // Validate
-            Assert.IsTrue(((SpyStrategy)Container.Configure<SpyExtension>().PipelineBuilder).BuildUpCallCount.ContainsKey((typeof(MockLogger), null)));
-            var count = ((SpyStrategy)Container.Configure<SpyExtension>().PipelineBuilder).BuildUpCallCount[(typeof(MockLogger), null)];
+            Assert.IsTrue(((SpyPipeline)Container.Configure<SpyExtension>().PipelineBuilder).BuildUpCallCount.ContainsKey((typeof(MockLogger), null)));
+            var count = ((SpyPipeline)Container.Configure<SpyExtension>().PipelineBuilder).BuildUpCallCount[(typeof(MockLogger), null)];
             Assert.AreEqual(1, count);
         }
 

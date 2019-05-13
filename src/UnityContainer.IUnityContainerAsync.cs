@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
@@ -107,56 +108,63 @@ namespace Unity
         #region Factory
 
         /// <inheritdoc />
-        Task IUnityContainerAsync.RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
+        Task IUnityContainerAsync.RegisterFactory(IEnumerable<Type>? interfaces, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager)
         {
-            throw new NotImplementedException();
+            // Validate input
+            if (null == interfaces) throw new ArgumentNullException(nameof(interfaces));
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
 
-            //// Validate input
-            //// TODO: Move to diagnostic
+            return Task.Factory.StartNew(() =>
+            {
+                // TODO: implementation required
+                var type = interfaces.First();
 
-            //if (null == interfaces) throw new ArgumentNullException(nameof(interfaces));
-            //if (null == factory) throw new ArgumentNullException(nameof(factory));
-            //if (null == lifetimeManager) lifetimeManager = TransientLifetimeManager.Instance;
-            //if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                // Lifetime Manager
+                var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.CreateLifetimePolicy();
+                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                manager.InUse = true;
 
-            //// Create registration and add to appropriate storage
-            //var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
+                // Target Container
+                var container = manager is SingletonLifetimeManager ? _root : this;
+                Debug.Assert(null != container);
 
-            //// TODO: InjectionFactory
-            //#pragma warning disable CS0618 
-            //var injectionFactory = new InjectionFactory(factory);
-            //#pragma warning restore CS0618
+                // If Disposable add to container's lifetime
+                if (manager is IDisposable managerDisposable)
+                    container.LifetimeContainer.Add(managerDisposable);
 
-            //var injectionMembers = new InjectionMember[] { injectionFactory };
-            //var registration = new ExplicitRegistration(_validators, (LifetimeManager)lifetimeManager, injectionMembers);
+                // Create registration
+                var registration = new ExplicitRegistration(container, name, type, manager);
 
-            //// Add Injection Members
-            ////injectionFactory.AddPolicies<BuilderContext, ContainerRegistration>(
-            ////    type, type, name, ref registration);
+                // Factory resolver
+                var resolver = lifetimeManager is PerResolveLifetimeManager
+                    ? (ResolveDelegate<BuilderContext>)((ref BuilderContext c) =>
+                    {
+                        c.Existing = factory(c.Container, c.Type, c.Name);
+                        c.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(c.Existing));
+                        return c.Existing;
+                    })
+                    : ((ref BuilderContext c) => factory(c.Container, c.Type, c.Name));
+                registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
 
-            //// Register interfaces
-            //var replaced = container.AddOrReplaceRegistrations(interfaces, name, registration)
-            //                        .ToArray();
+                // Build Pipeline
+                PipelineBuilder builder = new PipelineBuilder(registration, container, Context.FactoryPipelineCache);
+                registration.Pipeline = builder.Pipeline();
 
-            //// Release replaced registrations
-            //if (0 != replaced.Length)
-            //{
-            //    Task.Factory.StartNew(() =>
-            //    {
-            //        foreach (ImplicitRegistration previous in replaced)
-            //        {
-            //            if (0 == previous.Release() && previous.LifetimeManager is IDisposable disposable)
-            //            {
-            //                // Dispose replaced lifetime manager
-            //                container.LifetimeContainer.Remove(disposable);
-            //                disposable.Dispose();
-            //            }
-            //        }
-            //    });
-            //}
+                // Register
+                var previous = container.Register(type, name, registration);
 
-            //return this;
+                // Allow reference adjustment and disposal
+                if (null != previous && 0 == previous.Release()
+                    && previous.LifetimeManager is IDisposable disposable)
+                {
+                    // Dispose replaced lifetime manager
+                    container.LifetimeContainer.Remove(disposable);
+                    disposable.Dispose();
+                }
 
+                // TODO: Raise event
+                // container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
+            });
         }
 
         #endregion
@@ -165,50 +173,10 @@ namespace Unity
         #region Instance
 
         /// <inheritdoc />
-        Task IUnityContainerAsync.RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager)
+        Task IUnityContainerAsync.RegisterInstance(IEnumerable<Type>? interfaces, string? name, object? instance, IInstanceLifetimeManager? lifetimeManager)
         {
+            // Validate input
             throw new NotImplementedException();
-
-            //// Validate input
-            //// TODO: Move to diagnostic
-
-            //if (null == interfaces && null == instance) throw new ArgumentNullException(nameof(interfaces));
-
-            //// Validate lifetime manager
-            //if (null == lifetimeManager) lifetimeManager = new ContainerControlledLifetimeManager();
-            //if (((LifetimeManager)lifetimeManager).InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-            //((LifetimeManager)lifetimeManager).SetValue(instance, LifetimeContainer);
-
-            //// Create registration and add to appropriate storage
-            //var mappedToType = instance?.GetType();
-            //var container = lifetimeManager is SingletonLifetimeManager ? _root : this;
-            //var registration = new ExplicitRegistration(mappedToType, (LifetimeManager)lifetimeManager);
-
-            //// If Disposable add to container's lifetime
-            //if (lifetimeManager is IDisposable manager) container.LifetimeContainer.Add(manager);
-
-            //// Register interfaces
-            //var replaced = container.AddOrReplaceRegistrations(interfaces, name, registration)
-            //                        .ToArray();
-
-            //// Release replaced registrations
-            //if (0 != replaced.Length)
-            //{
-            //    Task.Factory.StartNew(() => 
-            //    {
-            //        foreach (ImplicitRegistration previous in replaced)
-            //        {
-            //            if (0 == previous.Release() && previous.LifetimeManager is IDisposable disposable)
-            //            {
-            //                // Dispose replaced lifetime manager
-            //                container.LifetimeContainer.Remove(disposable);
-            //                disposable.Dispose();
-            //            }
-            //        }
-            //    });
-            //}
-
-            //return this;
         }
 
         #endregion
@@ -240,7 +208,19 @@ namespace Unity
                         ContainerContext = Context,
                     };
 
-                    return context.Pipeline(ref context);
+                    try
+                    {
+                        // Execute pipeline
+                        return context.Pipeline(ref context);
+                    }
+                    catch (Exception ex)
+                    when (ex is InvalidRegistrationException || 
+                          ex is CircularDependencyException || 
+                          ex is ObjectDisposedException)
+                    {
+                        var message = CreateMessage(ex);
+                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                    }
                 });
             }
 
@@ -256,14 +236,23 @@ namespace Unity
                 ContainerContext = Context,
             };
 
-            // Execute the pipeline
-            var task = context.Pipeline(ref context);
+            try
+            {
+                // Execute pipeline
+                var task = context.Pipeline(ref context);
 
-            // Make sure it is indeed a Task
-            Debug.Assert(task is Task<object?>);
+                // Make sure it is indeed a Task
+                Debug.Assert(task is Task<object?>);
 
-            // Return Task
-            return (Task<object?>)task;
+                // Return Task
+                return (Task<object?>)task;
+            }
+            catch (Exception ex)
+            when (ex is InvalidRegistrationException || ex is CircularDependencyException)
+            {
+                var message = CreateMessage(ex);
+                throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+            }
         }
 
         public Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)

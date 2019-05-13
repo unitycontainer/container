@@ -11,20 +11,25 @@ namespace Unity
     public enum Stage
     {
         /// <summary>
-        /// First stage. By default, nothing happens here.
+        /// By default, nothing happens here.
         /// </summary>
         Setup,
+
+        /// <summary>
+        /// Verification and diagnostic step.
+        /// </summary>
+        Diagnostic,
+
+        /// <summary>
+        /// Lifetime managers are checked here. If value is available the rest of the pipeline is skipped.
+        /// If request is async and no value stored in the manager new task is created and scheduled.
+        /// </summary>
+        Lifetime,
 
         /// <summary>
         /// At this point pipeline intercepts Instances.
         /// </summary>
         Instance,
-
-        /// <summary>
-        /// Lifetime managers are checked here,
-        /// and if they're available the rest of the pipeline is skipped.
-        /// </summary>
-        Lifetime,
 
         /// <summary>
         /// Type mapping and type conversion occurs here.
@@ -52,6 +57,11 @@ namespace Unity
         /// Objects are created at this stage.
         /// </summary>
         Creation,
+
+        /// <summary>
+        /// Object is created but not initialized.
+        /// </summary>
+        PostCreation,
 
         /// <summary>
         /// Strategies in this stage initialize fields.
