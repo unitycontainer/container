@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Unity.Lifetime
 {
@@ -21,6 +23,7 @@ namespace Unity.Lifetime
     /// </para>
     /// </remarks>
     public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, 
+                                                      ILifetimeManagerAsync,
                                                       IInstanceLifetimeManager, 
                                                       IFactoryLifetimeManager,
                                                       ITypeLifetimeManager
@@ -32,6 +35,7 @@ namespace Unity.Lifetime
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
         protected object Value = NoValue;
+        private Task<object> _task;
 
         private Func<ILifetimeContainer, object> _currentGetValue;
         private Action<object, ILifetimeContainer> _currentSetValue;
@@ -45,7 +49,122 @@ namespace Unity.Lifetime
         {
             _currentGetValue = base.GetValue;
             _currentSetValue = base.SetValue;
+            Initialize();
         }
+
+        #endregion
+
+
+        #region ILifetimeManagerAsync
+
+        public Func<ILifetimeContainer, object> GetResult { get; protected set; }
+
+        public Func<object, ILifetimeContainer, object> SetResult { get; protected set; }
+
+        public Func<ILifetimeContainer, Task<object>> GetTask { get; protected set; }
+
+        public Func<Task<object>, ILifetimeContainer, Task<object>> SetTask { get; protected set; }
+
+        #endregion
+
+
+        #region Implementation
+
+        private void Initialize()
+        {
+            GetTask = (c) => null;
+            GetResult = (c) => NoValue;
+
+            SetTask   = OnSetTask;
+            SetResult = OnSetResult;
+        }
+
+        protected virtual object OnSetResult(object value, ILifetimeContainer container)
+        {
+#if NET40 || NET45 || NETSTANDARD1_0
+            var taskSource = new TaskCompletionSource<object>();
+            taskSource.SetResult(value);
+            var task = taskSource.Task;
+#else
+            var task = Task.FromResult(value);
+#endif
+            TaskFinal(task, value);
+
+            return value;
+        }
+
+        protected virtual Task<object> OnSetTask(Task<object> task, ILifetimeContainer container)
+        {
+            Debug.Assert(!task.IsFaulted);
+
+            if (task.IsCompleted)
+            {
+                TaskFinal(task, task.Result);
+                return task;
+            }
+
+            GetTask = (c) =>
+            {
+                try
+                {
+                    task.Wait();
+                    return task;
+                }
+                catch
+                {
+                    return null;
+                }
+            };
+
+            GetResult = (c) =>
+            {
+                try
+                {
+                    task.Wait();
+                    return task.Result;
+                }
+                catch
+                {
+                    return NoValue;
+                }
+            };
+
+            _task = task;
+
+            // Remove Wait methods from final task
+            task.ContinueWith(TaskFinal);
+
+            return task;
+        }
+
+
+        private void TaskFinal(Task<object> task)
+        {
+            if ( _task != task) return;
+
+            lock (this)
+            {
+                if (task.IsFaulted) Initialize();
+                else TaskFinal(task, task.Result);
+            }
+        }
+
+        private void TaskFinal(Task<object> task, object value)
+        {
+            _task = task;
+
+            GetTask = (c) => task;
+            SetTask = OnRepeatSetTask;
+
+            GetResult = (c) => value;
+            SetResult = OnRepeatSetResult;
+        }
+
+        protected virtual object OnRepeatSetResult(object value, ILifetimeContainer container) 
+            => throw new InvalidOperationException();
+
+        protected virtual Task<object> OnRepeatSetTask(Task<object> value, ILifetimeContainer container)
+            => throw new InvalidOperationException();
 
         #endregion
 
