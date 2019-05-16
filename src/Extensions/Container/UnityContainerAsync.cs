@@ -26,9 +26,7 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<T>(this IUnityContainerAsync container, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, null, injectionMembers);
@@ -44,9 +42,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<T>(this IUnityContainerAsync container, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, lifetimeManager, injectionMembers);
@@ -61,9 +57,7 @@ namespace Unity
         /// <param name="name">Name that will be used to request the type.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<T>(this IUnityContainerAsync container, string name, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, null, injectionMembers);
@@ -80,9 +74,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<T>(this IUnityContainerAsync container, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, lifetimeManager, injectionMembers);
@@ -106,9 +98,7 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<TFrom, TTo>(this IUnityContainerAsync container, params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(new[] { typeof(TFrom) }, typeof(TTo), null, null, injectionMembers);
@@ -125,9 +115,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<TFrom, TTo>(this IUnityContainerAsync container, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(new[] { typeof(TFrom) }, typeof(TTo), null, lifetimeManager, injectionMembers);
@@ -147,9 +135,7 @@ namespace Unity
         /// <param name="name">Name of this mapping.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<TFrom, TTo>(this IUnityContainerAsync container, string name, params InjectionMember[] injectionMembers)
             where TTo : TFrom
         {
@@ -168,9 +154,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType<TFrom, TTo>(this IUnityContainerAsync container, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(new[] { typeof(TFrom) }, typeof(TTo), name, lifetimeManager, injectionMembers);
@@ -184,9 +168,7 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton<T>(this IUnityContainerAsync container, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), null, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -200,9 +182,7 @@ namespace Unity
         /// <param name="name">Name that will be used to request the type.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton<T>(this IUnityContainerAsync container, string name, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, typeof(T), name, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -226,9 +206,7 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton<TFrom, TTo>(this IUnityContainerAsync container, params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(new[] { typeof(TFrom) }, typeof(TTo), null, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -248,9 +226,7 @@ namespace Unity
         /// <param name="name">Name of this mapping.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton<TFrom, TTo>(this IUnityContainerAsync container, string name, params InjectionMember[] injectionMembers)
             where TTo : TFrom
         {
@@ -268,9 +244,7 @@ namespace Unity
         /// <param name="t">Type this registration is for.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, Type t, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, null, injectionMembers);
@@ -286,9 +260,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, Type t, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, lifetimeManager, injectionMembers);
@@ -303,9 +275,7 @@ namespace Unity
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, Type t, string name, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, null, injectionMembers);
@@ -322,9 +292,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, Type t, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, lifetimeManager, injectionMembers);
@@ -348,9 +316,7 @@ namespace Unity
         /// <param name="to"><see cref="Type"/> that will actually be returned.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, IEnumerable<Type> from, Type to, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, null, null, injectionMembers);
@@ -370,9 +336,7 @@ namespace Unity
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, IEnumerable<Type> from, Type to, string name, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, name, null, injectionMembers);
@@ -389,9 +353,7 @@ namespace Unity
         /// of the returned instance.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterType(this IUnityContainerAsync container, IEnumerable<Type> from, Type to, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, null, lifetimeManager, injectionMembers);
@@ -405,9 +367,7 @@ namespace Unity
         /// <param name="t">Type this registration is for.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton(this IUnityContainerAsync container, Type t, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, null, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -422,9 +382,7 @@ namespace Unity
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton(this IUnityContainerAsync container, Type t, string name, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, t, name, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -448,9 +406,7 @@ namespace Unity
         /// <param name="to"><see cref="Type"/> that will actually be returned.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton(this IUnityContainerAsync container, IEnumerable<Type> from, Type to, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, null, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -470,9 +426,7 @@ namespace Unity
         /// <param name="name">Name to use for registration, null if a default registration.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterSingleton(this IUnityContainerAsync container, IEnumerable<Type> from, Type to, string name, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(from, to, name, new ContainerControlledLifetimeManager(), injectionMembers);
@@ -503,9 +457,7 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance<TInterface>(this IUnityContainerAsync container, TInterface instance)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -531,9 +483,7 @@ namespace Unity
         /// <param name="lifetimeManager">
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance<TInterface>(this IUnityContainerAsync container, TInterface instance, IInstanceLifetimeManager lifetimeManager)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -557,9 +507,7 @@ namespace Unity
         /// <param name="container">Container to configure.</param>
         /// <param name="name">Name for registration.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance<TInterface>(this IUnityContainerAsync container, string name, TInterface instance)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -583,9 +531,7 @@ namespace Unity
         /// <param name="lifetimeManager">
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance<TInterface>(this IUnityContainerAsync container, string name, TInterface instance, IInstanceLifetimeManager lifetimeManager)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterInstance(new[] { typeof(TInterface) }, name, instance, lifetimeManager);
@@ -611,9 +557,7 @@ namespace Unity
         /// <param name="t">Type of instance to register (may be an implemented interface instead of the full type).</param>
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance(this IUnityContainerAsync container, Type t, object instance)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -639,9 +583,7 @@ namespace Unity
         /// <param name="lifetimeManager">
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance(this IUnityContainerAsync container, Type t, object instance, IInstanceLifetimeManager lifetimeManager)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -665,9 +607,7 @@ namespace Unity
         /// <param name="instance">Object to returned.</param>
         /// <param name="name">Name for registration.</param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterInstance(this IUnityContainerAsync container, Type t, string name, object instance)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -695,9 +635,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterFactory<TInterface>(this IUnityContainerAsync container, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -717,9 +655,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on .</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterFactory<TInterface>(this IUnityContainerAsync container, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -739,9 +675,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterFactory<TInterface>(this IUnityContainerAsync container, string name, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -762,9 +696,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="Unity.IUnityContainer"/> object that this method was called on .</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task RegisterFactory<TInterface>(this IUnityContainerAsync container, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -787,9 +719,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static IUnityContainerAsync RegisterFactory(this IUnityContainerAsync container, Type type, Func<IUnityContainerAsync, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -808,9 +738,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on .</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static IUnityContainerAsync RegisterFactory(this IUnityContainerAsync container, Type type, Func<IUnityContainerAsync, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -830,9 +758,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static IUnityContainerAsync RegisterFactory(this IUnityContainerAsync container, Type type, string name, Func<IUnityContainerAsync, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -852,9 +778,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="Unity.IUnityContainerAsync"/> object that this method was called on .</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static IUnityContainerAsync RegisterFactory(this IUnityContainerAsync container, Type type, string name, Func<IUnityContainerAsync, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager = null)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -876,9 +800,7 @@ namespace Unity
         /// <param name="container">Container to resolve from.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static ValueTask<object> Resolve<T>(this IUnityContainerAsync container, params ResolverOverride[] overrides)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -893,9 +815,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static ValueTask<object> Resolve<T>(this IUnityContainerAsync container, string name, params ResolverOverride[] overrides)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -909,9 +829,7 @@ namespace Unity
         /// <param name="t"><see cref="Type"/> of object to get from the container.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static ValueTask<object> Resolve(this IUnityContainerAsync container, Type t, params ResolverOverride[] overrides)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).Resolve(t, (string)null, overrides);
@@ -929,9 +847,7 @@ namespace Unity
         /// <param name="container">Container to inspect.</param>
         /// <param name="typeToCheck">Type to check registration for.</param>
         /// <returns>True if this type has been registered, false if not.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool IsRegistered(this IUnityContainerAsync container, Type typeToCheck)
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
@@ -944,9 +860,7 @@ namespace Unity
         /// <typeparam name="T">Type to check registration for.</typeparam>
         /// <param name="container">Container to inspect.</param>
         /// <returns>True if this type has been registered, false if not.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool IsRegistered<T>(this IUnityContainerAsync container)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).IsRegistered(typeof(T), null);
@@ -959,9 +873,7 @@ namespace Unity
         /// <param name="container">Container to inspect.</param>
         /// <param name="nameToCheck">Name to check registration for.</param>
         /// <returns>True if this type/name pair has been registered, false if not.</returns>
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static bool IsRegistered<T>(this IUnityContainerAsync container, string nameToCheck)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).IsRegistered(typeof(T), nameToCheck);
