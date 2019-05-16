@@ -44,6 +44,10 @@
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Compile Remove="UnityContainer.IUnityContainerAsync.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Remove="Unity.Container.csproj.DotSettings" />
   </ItemGroup>

@@ -155,9 +155,6 @@ namespace Unity
                     }
                     catch (Exception ex)// when (null != synchronized)
                     {
-                        synchronized?.Recover();
-                        //throw;
-
 #if NET40 || NET45 || NETSTANDARD1_0
                         var taskSource = new TaskCompletionSource<object?>();
                         taskSource.SetException(ex);
@@ -165,6 +162,7 @@ namespace Unity
 #else
                         var ext = Task.FromException<object?>(ex);
 #endif
+                        synchronized?.Recover();
                         return new ValueTask<object?>(ext);
                     }
                 }
