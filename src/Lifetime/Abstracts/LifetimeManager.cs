@@ -8,6 +8,8 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract class LifetimeManager 
     {
+        protected object SyncRoot { get; } = new object();
+
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
         /// unless value is set with a valid object. Null is a value and is not equal 

@@ -165,7 +165,7 @@ namespace Unity
         /// create and return a new instance.</para>
         /// <para>This lifetime manager does not dispose an object when container is disposed</para>
         /// </remarks>
-        /// <value>A new instance of a <see cref="WeakReferenceLifetimeManager"/> lifetime manager.</value>
-        public static IFactoryLifetimeManager WeakReference => new WeakReferenceLifetimeManager();
+        /// <value>A new instance of a <see cref="ExternallyControlledLifetimeManager"/> lifetime manager.</value>
+        public static IFactoryLifetimeManager External => new ExternallyControlledLifetimeManager();
     }
 }

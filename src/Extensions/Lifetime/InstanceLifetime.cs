@@ -5,13 +5,14 @@ namespace Unity
     public static class InstanceLifetime
     {
         /// <summary>
-        /// This lifetime stores a strong reference to an instance.
+        /// This lifetime stores a weak reference to an instance and returns an instance while it is available.
         /// </summary>
         /// <remarks>
-        /// <para>Container holds reference to the object and keeps it alive as long as the container 
-        /// exists.</para>
-        /// <para>If the object went out of scope and has been disposed elsewhere the container will 
-        /// still hold on to it and return is as requested.</para>
+        /// <para>Container gets a hold of a weak reference to the object and as long as the object 
+        /// still exists and has not been garbage collected the container will return the object when
+        /// requested.</para>
+        /// <para>If the object went out of scope and has been garbage collected the container will 
+        /// return <see cref="LifetimeManager.NoValue"/>.</para>
         /// <para>This lifetime manager does not dispose an object when container is disposed</para>
         /// </remarks>
         /// <value>A new instance of a <see cref="ExternallyControlledLifetimeManager"/> lifetime manager.</value>
@@ -45,19 +46,5 @@ namespace Unity
         /// </remarks>
         /// <value>A new instance of a <see cref="ContainerControlledLifetimeManager"/> object.</value>
         public static IInstanceLifetimeManager PerContainer => new ContainerControlledLifetimeManager();
-
-        /// <summary>
-        /// This lifetime stores a weak reference to an instance and returns an instance while it is available.
-        /// </summary>
-        /// <remarks>
-        /// <para>Container gets a hold of a weak reference to the object and as long as the object 
-        /// still exists and has not been garbage collected the container will return the object when
-        /// requested.</para>
-        /// <para>If the object went out of scope and has been garbage collected the container will 
-        /// return <see cref="LifetimeManager.NoValue"/>.</para>
-        /// <para>This lifetime manager does not dispose an object when container is disposed</para>
-        /// </remarks>
-        /// <value>A new instance of a <see cref="WeakReferenceLifetimeManager"/> lifetime manager.</value>
-        public static IFactoryLifetimeManager WeakReference => new WeakReferenceLifetimeManager();
     }
 }

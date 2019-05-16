@@ -95,7 +95,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        Task<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
+        ValueTask<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
 
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Unity
         /// <see cref="Regex.IsMatch(string name)"/> will be resolved</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides);
+        ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides);
 
 
         /// <summary>

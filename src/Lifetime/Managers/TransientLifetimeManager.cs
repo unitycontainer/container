@@ -31,11 +31,7 @@
         #region Overrides
 
         /// <inheritdoc/>
-        public override bool InUse
-        {
-            get => false;
-            set { }
-        }
+        public override bool InUse { get => false; set { } }
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() => Instance;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Unity.Lifetime
 {
@@ -24,8 +25,6 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private readonly object _lock = new object();
-
         /// <summary>
         /// This field controls how long the monitor will wait to 
         /// enter the lock. It is <see cref="Timeout.Infinite"/> by default or number of 
@@ -35,21 +34,63 @@ namespace Unity.Lifetime
 
         #endregion
 
+
+        #region Constructors
+
+        public SynchronizedLifetimeManager()
+        {
+            GetResult = GetValue;
+            SetResult = SetValue;
+
+            GetTask = (c) => throw new NotImplementedException();
+            SetTask = (t, c) => throw new NotImplementedException();
+        }
+
+        #endregion
+
+
+        #region ILifetimeManagerAsync
+
+        public Func<ILifetimeContainer, object> GetResult { get; protected set; }
+
+        public Action<object, ILifetimeContainer> SetResult { get; protected set; }
+
+        public Func<ILifetimeContainer, Task<object>> GetTask { get; protected set; }
+
+        public Func<Task<object>, ILifetimeContainer, Task<object>> SetTask { get; protected set; }
+
+        #endregion
+
+
+        #region LifetimeManager
+
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            if (Monitor.TryEnter(_lock, ResolveTimeout))
+            if (Monitor.TryEnter(SyncRoot, ResolveTimeout))
             {
                 var result = SynchronizedGetValue(container);
                 if (NoValue != result)
                 {
-                    Monitor.Exit(_lock);
+                    Monitor.Exit(SyncRoot);
                 }
                 return result;
             }
             else
                 throw new TimeoutException($"Failed to enter a monitor");
         }
+
+        /// <inheritdoc/>
+        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        {
+            SynchronizedSetValue(newValue, container);
+            TryExit();
+        }
+
+        #endregion
+
+
+        #region SynchronizedLifetimeManager
 
         /// <summary>
         /// Performs the actual retrieval of a value from the backing store associated 
@@ -60,14 +101,6 @@ namespace Unity.Lifetime
         /// after it has acquired its lock.</remarks>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
         protected abstract object SynchronizedGetValue(ILifetimeContainer container);
-
-
-        /// <inheritdoc/>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
-        {
-            SynchronizedSetValue(newValue, container);
-            TryExit();
-        }
 
         /// <summary>
         /// Performs the actual storage of the given value into backing store for retrieval later.
@@ -92,21 +125,7 @@ namespace Unity.Lifetime
             TryExit();
         }
 
-        protected virtual void TryExit()
-        {
-#if !NET40
-            // Prevent first chance exception when abandoning a lock that has not been entered
-            if (!Monitor.IsEntered(_lock)) return;
-#endif
-            try
-            {
-                Monitor.Exit(_lock);
-            }
-            catch (SynchronizationLockException)
-            {
-                // Ignore.
-            }
-        }
+        #endregion
 
 
         #region IDisposable
@@ -118,6 +137,27 @@ namespace Unity.Lifetime
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        protected virtual void TryExit()
+        {
+#if !NET40
+            // Prevent first chance exception when abandoning a lock that has not been entered
+            if (!Monitor.IsEntered(SyncRoot)) return;
+#endif
+            try
+            {
+                Monitor.Exit(SyncRoot);
+            }
+            catch (SynchronizationLockException)
+            {
+                // Ignore.
+            }
         }
 
         /// <summary>		

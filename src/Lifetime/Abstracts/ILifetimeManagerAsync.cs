@@ -6,11 +6,11 @@ namespace Unity.Lifetime
     /// <summary>
     /// Base for all async lifetime managers.
     /// </summary>
-    public interface ILifetimeManagerAsync : IDisposable
+    public interface ILifetimeManagerAsync
     {
         Func<ILifetimeContainer, object> GetResult { get; }
 
-        Func<object, ILifetimeContainer, object> SetResult { get; }
+        Action<object, ILifetimeContainer> SetResult { get; }
 
         Func<ILifetimeContainer, Task<object>> GetTask { get; }
 

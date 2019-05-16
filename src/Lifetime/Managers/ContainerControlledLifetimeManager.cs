@@ -34,11 +34,8 @@ namespace Unity.Lifetime
         /// An instance of the object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
-        protected object Value = NoValue;
+        private object _value = NoValue;
         private Task<object> _task;
-
-        private Func<ILifetimeContainer, object> _currentGetValue;
-        private Action<object, ILifetimeContainer> _currentSetValue;
 
         #endregion
 
@@ -47,23 +44,12 @@ namespace Unity.Lifetime
 
         public ContainerControlledLifetimeManager()
         {
-            _currentGetValue = base.GetValue;
-            _currentSetValue = base.SetValue;
-            Initialize();
+            GetTask = (c) => null;
+            SetTask = OnSetTask;
+
+            GetResult = base.GetValue;
+            SetResult = OnSetResult;
         }
-
-        #endregion
-
-
-        #region ILifetimeManagerAsync
-
-        public Func<ILifetimeContainer, object> GetResult { get; protected set; }
-
-        public Func<object, ILifetimeContainer, object> SetResult { get; protected set; }
-
-        public Func<ILifetimeContainer, Task<object>> GetTask { get; protected set; }
-
-        public Func<Task<object>, ILifetimeContainer, Task<object>> SetTask { get; protected set; }
 
         #endregion
 
@@ -72,14 +58,12 @@ namespace Unity.Lifetime
 
         private void Initialize()
         {
-            GetTask = (c) => null;
             GetResult = (c) => NoValue;
 
-            SetTask   = OnSetTask;
             SetResult = OnSetResult;
         }
 
-        protected virtual object OnSetResult(object value, ILifetimeContainer container)
+        protected virtual void OnSetResult(object value, ILifetimeContainer container)
         {
 #if NET40 || NET45 || NETSTANDARD1_0
             var taskSource = new TaskCompletionSource<object>();
@@ -89,8 +73,6 @@ namespace Unity.Lifetime
             var task = Task.FromResult(value);
 #endif
             TaskFinal(task, value);
-
-            return value;
         }
 
         protected virtual Task<object> OnSetTask(Task<object> task, ILifetimeContainer container)
@@ -152,6 +134,7 @@ namespace Unity.Lifetime
         private void TaskFinal(Task<object> task, object value)
         {
             _task = task;
+            _value = value;
 
             GetTask = (c) => task;
             SetTask = OnRepeatSetTask;
@@ -160,7 +143,7 @@ namespace Unity.Lifetime
             SetResult = OnRepeatSetResult;
         }
 
-        protected virtual object OnRepeatSetResult(object value, ILifetimeContainer container) 
+        protected virtual void OnRepeatSetResult(object value, ILifetimeContainer container) 
             => throw new InvalidOperationException();
 
         protected virtual Task<object> OnRepeatSetTask(Task<object> value, ILifetimeContainer container)
@@ -174,27 +157,39 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            return _currentGetValue(container);
+            return GetResult(container);
         }
 
         /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
-            _currentSetValue(newValue, container);
-            _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
-            _currentGetValue = SynchronizedGetValue;
+            // Set the value
+            SetResult(newValue, container);
+
+#if NET40 || NET45 || NETSTANDARD1_0
+            var taskSource = new TaskCompletionSource<object>();
+            taskSource.SetResult(newValue);
+            _task = taskSource.Task;
+#else
+            _task = Task.FromResult(newValue);
+#endif
+            GetResult = SynchronizedGetValue;
+            GetTask = (c) => _task;
+
+            SetTask = OnRepeatSetTask;
+            SetResult = OnRepeatSetResult;
         }
 
         /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
-            return Value;
+            return _value;
         }
 
         /// <inheritdoc/>
         protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
-            Value = newValue;
+            _value = newValue;
         }
 
         /// <inheritdoc/>
@@ -224,12 +219,12 @@ namespace Unity.Lifetime
         {
             try
             {
-                if (NoValue == Value) return;
-                if (Value is IDisposable disposable)
+                if (NoValue == _value) return;
+                if (_value is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
-                Value = NoValue;
+                _value = NoValue;
             }
             finally 
             {
