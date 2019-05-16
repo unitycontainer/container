@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -188,7 +189,8 @@ namespace Unity
         #region Resolution
 
         /// <inheritdoc />
-        Task<object?> IUnityContainerAsync.Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        [SecuritySafeCritical]
+        ValueTask<object?> IUnityContainerAsync.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
             var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
@@ -197,7 +199,7 @@ namespace Unity
             if (null == registration.Pipeline)
             {
                 // Start a new Task to create and execute pipeline
-                return Task.Factory.StartNew(() =>
+                var task = Task.Factory.StartNew(() =>
                 {
                     var context = new BuilderContext
                     {
@@ -211,7 +213,7 @@ namespace Unity
                     try
                     {
                         // Execute pipeline
-                        return context.Pipeline(ref context);
+                        return context.Pipeline(ref context).Result;
                     }
                     catch (Exception ex)
                     when (ex is InvalidRegistrationException || 
@@ -222,6 +224,8 @@ namespace Unity
                         throw new ResolutionFailedException(context.Type, context.Name, message, ex);
                     }
                 });
+
+                return new ValueTask<object?>(task);
             }
 
             // Existing pipeline
@@ -239,13 +243,7 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                var task = context.Pipeline(ref context);
-
-                // Make sure it is indeed a Task
-                Debug.Assert(task is Task<object?>);
-
-                // Return Task
-                return (Task<object?>)task;
+                return context.Pipeline(ref context);
             }
             catch (Exception ex)
             when (ex is InvalidRegistrationException || ex is CircularDependencyException)
@@ -255,7 +253,7 @@ namespace Unity
             }
         }
 
-        public Task<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
+        public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
         }

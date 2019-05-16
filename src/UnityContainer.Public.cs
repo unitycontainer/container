@@ -69,7 +69,8 @@ namespace Unity
             // IUnityContainer, IUnityContainerAsync
             var container = new ImplicitRegistration(this, null)
             {
-                Pipeline = (ref BuilderContext c) => c.Async ? (object)Task.FromResult<object>(c.Container) : c.Container
+                Pipeline = (ref BuilderContext c) => c.Async ? (object)Task.FromResult<object>(c.Container) : c.Container,
+                PipelineDelegate = (ref BuilderContext c) => new ValueTask<object?>(c.Container)
             };
             _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
@@ -88,7 +89,6 @@ namespace Unity
             // Pipelines
 
             var factory  = new FactoryPipeline();
-            var lifetime = new LifetimePipeline();
 
             // Mode of operation
             if (ModeFlags.IsOptimized())
@@ -101,7 +101,6 @@ namespace Unity
                 Context = new ContainerContext(this,
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
-                        { lifetime,                      Stage.Lifetime },
                         { factory,                       Stage.Factory },
                         { new MappingPipeline(),         Stage.TypeMapping },
                         { new ConstructorPipeline(this), Stage.Creation },
@@ -111,12 +110,10 @@ namespace Unity
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
-                        { lifetime,                      Stage.Lifetime },
                         { factory,                       Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
-                        { lifetime,                      Stage.Lifetime },
                     });
             }
             else
@@ -131,7 +128,6 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
-                        { lifetime,                        Stage.Lifetime },
                         { factory,                         Stage.Factory },
                         { new MappingDiagnostic(),         Stage.TypeMapping },
                         { new ConstructorDiagnostic(this), Stage.Creation },
@@ -142,13 +138,11 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
-                        { lifetime,                        Stage.Lifetime },
                         { factory,                         Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
-                        { lifetime,                        Stage.Lifetime },
                     });
 
                 // Build process

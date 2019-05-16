@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security;
 using System.Text;
 using Unity.Builder;
 using Unity.Events;
@@ -113,10 +114,7 @@ namespace Unity
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
                 manager.InUse = true;
-                if (manager is ILifetimeManagerAsync managerAsync)
-                    managerAsync.SetResult(instance, LifetimeContainer);
-                else
-                    manager.SetValue(instance, LifetimeContainer);
+                manager.SetValue(instance, LifetimeContainer);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
@@ -224,6 +222,7 @@ namespace Unity
         #region Getting objects
 
         /// <inheritdoc />
+        [SecuritySafeCritical]
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
@@ -240,7 +239,7 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                return context.Pipeline(ref context);
+                return context.Pipeline(ref context).Result;
             }
             catch (Exception ex) 
             when (ex is InvalidRegistrationException || 
@@ -258,6 +257,7 @@ namespace Unity
         #region BuildUp existing object
 
         /// <inheritdoc />
+        [SecuritySafeCritical]
         public object? BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
@@ -276,7 +276,7 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                return context.Pipeline(ref context);
+                return context.Pipeline(ref context).Result;
             }
             catch (Exception ex)
             when (ex is InvalidRegistrationException || ex is CircularDependencyException || ex is ObjectDisposedException)

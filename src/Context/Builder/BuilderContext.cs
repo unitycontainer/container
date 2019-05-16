@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Registration;
@@ -136,25 +135,25 @@ namespace Unity.Builder
 #endif
         public ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
 
-        public ResolveDelegate<BuilderContext> Pipeline
+        public PipelineDelegate Pipeline
         {
             get
             {
-                if (null != Registration.Pipeline) return Registration.Pipeline;
+                if (null != Registration.PipelineDelegate) return Registration.PipelineDelegate;
 
                 lock (Registration)
                 {
                     // Double check
-                    if (null != Registration.Pipeline) return Registration.Pipeline;
+                    if (null != Registration.PipelineDelegate) return Registration.PipelineDelegate;
 
                     // Create a pipeline
                     var context = this;
                     PipelineBuilder builder = new PipelineBuilder(ref context);
-                    Registration.Pipeline = builder.Pipeline() ?? 
+                    Registration.PipelineDelegate = builder.PipelineDelegate() ??
                         throw new InvalidOperationException($"Failed to create pipeline for registration: {Registration}");
                 }
 
-                return Registration.Pipeline;
+                return Registration.PipelineDelegate;
             }
         }
 
@@ -212,7 +211,7 @@ namespace Unity.Builder
 #endif
                 };
 
-                return context.Pipeline(ref context);
+                return context.Pipeline(ref context).Result;
             }
         }
 

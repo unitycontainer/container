@@ -64,6 +64,8 @@ namespace Unity.Registration
 
         public string? Name { get; }
 
+        public PipelineDelegate? PipelineDelegate { get; set; }
+
         public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
         public IEnumerable<Pipeline>? Processors { get; set; }

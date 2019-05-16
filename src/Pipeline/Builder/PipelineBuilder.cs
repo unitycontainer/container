@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Unity.Builder;
 using Unity.Registration;
 using Unity.Resolution;
@@ -10,7 +11,7 @@ namespace Unity
 {
 
     [DebuggerDisplay("Type: {Type?.Name} Name: {Registration?.Name}    Stage: {_enumerator.Current?.GetType().Name}")]
-    public ref struct PipelineBuilder
+    public ref partial struct PipelineBuilder
     {
         #region Fields
 
@@ -39,8 +40,7 @@ namespace Unity
             ContainerContext = context.ContainerContext;
 
             Seed = null;
-            _enumerator = context.Registration.Processors?.GetEnumerator() 
-                        ?? throw new InvalidOperationException("Processors must be initialized");
+            _enumerator = (context.Registration.Processors ?? Enumerable.Empty<Pipeline>()).GetEnumerator();
         }
 
         #endregion

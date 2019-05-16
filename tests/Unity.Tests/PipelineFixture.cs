@@ -20,8 +20,8 @@ namespace Unity.Tests
             // Act
             var tasks = new[] 
             {
-                Container.Resolve<object>(),
-                Container.Resolve<object>()
+                Container.Resolve<object>().AsTask(),
+                Container.Resolve<object>().AsTask()
             };
 
             // Validate
