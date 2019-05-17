@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
 
 namespace Unity.Tests
 {
@@ -18,15 +17,10 @@ namespace Unity.Tests
                 .AddExtension(extension);
 
             // Act
-            var tasks = new[] 
-            {
-                Container.Resolve<object>().AsTask(),
-                Container.Resolve<object>().AsTask()
-            };
+            Container.ResolveAsync<object>();
+            Container.ResolveAsync<object>();
 
             // Validate
-            Task.WaitAll(tasks);
-
             Assert.AreEqual(1, pipeline.Count);
             Assert.AreEqual(2, spy.Count);
         }

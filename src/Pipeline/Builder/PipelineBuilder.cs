@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security;
 using Unity.Builder;
+using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
 using static Unity.UnityContainer;
 
 namespace Unity
 {
-
+    [SecuritySafeCritical]
     [DebuggerDisplay("Type: {Type?.Name} Name: {Registration?.Name}    Stage: {_enumerator.Current?.GetType().Name}")]
     public ref partial struct PipelineBuilder
     {
         #region Fields
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private const string error = "\n\nFor more detailed information run Unity in debug mode: new UnityContainer(ModeFlags.Diagnostic)";
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private IEnumerator<Pipeline> _enumerator;
@@ -80,6 +85,19 @@ namespace Unity
                  ? _enumerator.Current.Build(ref context)
                  : Seed;
         }
+
+        public PipelineDelegate PipelineDelegate()
+        {
+            return Registration.LifetimeManager switch
+            {
+                null                        => TransientLifetime(),
+                TransientLifetimeManager  _ => TransientLifetime(),
+                PerResolveLifetimeManager _ => PerResolveLifetime(),
+                PerThreadLifetimeManager  _ => PerThreadLifetime(),
+                                          _ => DefaultLifetime()
+            };
+        }
+
 
         #endregion
     }

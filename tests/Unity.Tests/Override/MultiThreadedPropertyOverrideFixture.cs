@@ -4,7 +4,6 @@ using System.Threading;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
-using Unity.Tests.Override;
 
 namespace Unity.Tests.Override
 {

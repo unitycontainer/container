@@ -190,7 +190,7 @@ namespace Unity
 
         /// <inheritdoc />
         [SecuritySafeCritical]
-        ValueTask<object?> IUnityContainerAsync.Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
             var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
