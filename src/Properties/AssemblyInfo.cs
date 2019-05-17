@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Security;
 
-[assembly:CLSCompliant(true)]
-[assembly:SecurityTransparent]
+[assembly: CLSCompliant(true)]
+[assembly: AllowPartiallyTrustedCallers]
 
 [assembly: InternalsVisibleTo("Unity.Container, PublicKey=" +
                               "002400000480000094000000060200000024000052534131000400000100010037b16015885a7a" +

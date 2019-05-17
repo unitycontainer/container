@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Unity.Lifetime
 {
@@ -23,7 +21,6 @@ namespace Unity.Lifetime
     /// </para>
     /// </remarks>
     public class ContainerControlledLifetimeManager : SynchronizedLifetimeManager, 
-                                                      ILifetimeManagerAsync,
                                                       IInstanceLifetimeManager, 
                                                       IFactoryLifetimeManager,
                                                       ITypeLifetimeManager
@@ -34,8 +31,10 @@ namespace Unity.Lifetime
         /// An instance of the object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
-        private object _value = NoValue;
-        private Task<object> _task;
+        protected object Value = NoValue;
+
+        private Func<ILifetimeContainer, object> _currentGetValue;
+        private Action<object, ILifetimeContainer> _currentSetValue;
 
         #endregion
 
@@ -44,110 +43,9 @@ namespace Unity.Lifetime
 
         public ContainerControlledLifetimeManager()
         {
-            GetTask = (c) => null;
-            SetTask = OnSetTask;
-
-            GetResult = base.GetValue;
-            SetResult = OnSetResult;
+            _currentGetValue = base.GetValue;
+            _currentSetValue = base.SetValue;
         }
-
-        #endregion
-
-
-        #region Implementation
-
-        private void Initialize()
-        {
-            GetResult = (c) => NoValue;
-
-            SetResult = OnSetResult;
-        }
-
-        protected virtual void OnSetResult(object value, ILifetimeContainer container)
-        {
-#if NET40 || NET45 || NETSTANDARD1_0
-            var taskSource = new TaskCompletionSource<object>();
-            taskSource.SetResult(value);
-            var task = taskSource.Task;
-#else
-            var task = Task.FromResult(value);
-#endif
-            TaskFinal(task, value);
-        }
-
-        protected virtual Task<object> OnSetTask(Task<object> task, ILifetimeContainer container)
-        {
-            Debug.Assert(!task.IsFaulted);
-
-            if (task.IsCompleted)
-            {
-                TaskFinal(task, task.Result);
-                return task;
-            }
-
-            GetTask = (c) =>
-            {
-                try
-                {
-                    task.Wait();
-                    return task;
-                }
-                catch
-                {
-                    return null;
-                }
-            };
-
-            GetResult = (c) =>
-            {
-                try
-                {
-                    task.Wait();
-                    return task.Result;
-                }
-                catch
-                {
-                    return NoValue;
-                }
-            };
-
-            _task = task;
-
-            // Remove Wait methods from final task
-            task.ContinueWith(TaskFinal);
-
-            return task;
-        }
-
-
-        private void TaskFinal(Task<object> task)
-        {
-            if ( _task != task) return;
-
-            lock (this)
-            {
-                if (task.IsFaulted) Initialize();
-                else TaskFinal(task, task.Result);
-            }
-        }
-
-        private void TaskFinal(Task<object> task, object value)
-        {
-            _task = task;
-            _value = value;
-
-            GetTask = (c) => task;
-            SetTask = OnRepeatSetTask;
-
-            GetResult = (c) => value;
-            SetResult = OnRepeatSetResult;
-        }
-
-        protected virtual void OnRepeatSetResult(object value, ILifetimeContainer container) 
-            => throw new InvalidOperationException();
-
-        protected virtual Task<object> OnRepeatSetTask(Task<object> value, ILifetimeContainer container)
-            => throw new InvalidOperationException();
 
         #endregion
 
@@ -157,39 +55,27 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            return GetResult(container);
+            return _currentGetValue(container);
         }
 
         /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
-            // Set the value
-            SetResult(newValue, container);
-
-#if NET40 || NET45 || NETSTANDARD1_0
-            var taskSource = new TaskCompletionSource<object>();
-            taskSource.SetResult(newValue);
-            _task = taskSource.Task;
-#else
-            _task = Task.FromResult(newValue);
-#endif
-            GetResult = SynchronizedGetValue;
-            GetTask = (c) => _task;
-
-            SetTask = OnRepeatSetTask;
-            SetResult = OnRepeatSetResult;
+            _currentSetValue(newValue, container);
+            _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
+            _currentGetValue = SynchronizedGetValue;
         }
 
         /// <inheritdoc/>
         protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
-            return _value;
+            return Value;
         }
 
         /// <inheritdoc/>
         protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
-            _value = newValue;
+            Value = newValue;
         }
 
         /// <inheritdoc/>
@@ -219,12 +105,12 @@ namespace Unity.Lifetime
         {
             try
             {
-                if (NoValue == _value) return;
-                if (_value is IDisposable disposable)
+                if (NoValue == Value) return;
+                if (Value is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
-                _value = NoValue;
+                Value = NoValue;
             }
             finally 
             {

@@ -95,7 +95,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        ValueTask<object> Resolve(Type type, string name, params ResolverOverride[] overrides);
+        ValueTask<object> ResolveAsync(Type type, string name, params ResolverOverride[] overrides);
 
 
         /// <summary>

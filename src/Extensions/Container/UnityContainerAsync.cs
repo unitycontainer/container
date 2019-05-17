@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security;
 using System.Threading.Tasks;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -801,10 +802,28 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<object> Resolve<T>(this IUnityContainerAsync container, params ResolverOverride[] overrides)
+        [SecuritySafeCritical]
+        public static T ResolveAsync<T>(this IUnityContainerAsync container, params ResolverOverride[] overrides)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .Resolve(typeof(T), (string)null, overrides);
+            var unity = container ?? throw new ArgumentNullException(nameof(container));
+            var value  = unity.ResolveAsync(typeof(T), null, overrides);
+
+            if (value.IsCompleted) return (T) value.Result;
+
+            try
+            {
+                var task = value.AsTask();
+                task.Wait();
+
+                return (T) task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                if (1 == ex.InnerExceptions.Count)
+                    throw ex.InnerException;
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -816,10 +835,28 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<object> Resolve<T>(this IUnityContainerAsync container, string name, params ResolverOverride[] overrides)
+        [SecuritySafeCritical]
+        public static T ResolveAsync<T>(this IUnityContainerAsync container, string name, params ResolverOverride[] overrides)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .Resolve(typeof(T), name, overrides);
+            var unity = container ?? throw new ArgumentNullException(nameof(container));
+            var value = unity.ResolveAsync(typeof(T), name, overrides);
+
+            if (value.IsCompleted) return (T)value.Result;
+
+            try
+            {
+                var task = value.AsTask();
+                task.Wait();
+
+                return (T)task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                if (1 == ex.InnerExceptions.Count)
+                    throw ex.InnerException;
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -830,9 +867,10 @@ namespace Unity
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<object> Resolve(this IUnityContainerAsync container, Type t, params ResolverOverride[] overrides)
+        [SecuritySafeCritical]
+        public static ValueTask<object> ResolveAsync(this IUnityContainerAsync container, Type t, params ResolverOverride[] overrides)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Resolve(t, (string)null, overrides);
+            return (container ?? throw new ArgumentNullException(nameof(container))).ResolveAsync(t, null, overrides);
         }
 
         #endregion

@@ -3,7 +3,7 @@
 namespace Unity.Lifetime
 {
     /// <summary>
-    /// A <see cref="LifetimeManager"/> that holds a strong reference to
+    /// A <see cref="LifetimeManager"/> that holds a weak reference to
     /// it's managed instance.
     /// </summary>
     public class ExternallyControlledLifetimeManager : LifetimeManager,
