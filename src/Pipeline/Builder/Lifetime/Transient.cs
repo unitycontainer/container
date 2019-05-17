@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Unity.Builder;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -16,14 +17,17 @@ namespace Unity
             return (ref BuilderContext context) =>
             {
                 //In Sync mode just execute pipeline
-                if (context.Sync)
+                if (!context.Async)
                 {
+                    // Set Policy storage if required
+                    if (null == context.List)
+                        context.List = new PolicyList();
+
                     var value = pipeline(ref context);
                     return new ValueTask<object?>(value);
                 }
 
                 // Async mode
-                var list = context.List;
                 var unity = context.ContainerContext;
                 var overrides = context.Overrides;
 
@@ -32,7 +36,8 @@ namespace Unity
                 {
                     var c = new BuilderContext
                     {
-                        List = list,
+                        List = new PolicyList(),
+                        IsAsync = true,
                         Type = type,
                         ContainerContext = unity,
                         Registration = registration,

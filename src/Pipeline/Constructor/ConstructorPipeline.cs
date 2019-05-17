@@ -14,7 +14,7 @@ namespace Unity
         public ConstructorPipeline(UnityContainer container)
             : base(typeof(InjectionConstructorAttribute), container)
         {
-            SelectMethod = container.ModeFlags.IsLegacy()
+            SelectMethod = container.ExecutionMode.IsLegacy()
                 ? (Func<Type, ConstructorInfo[], object?>)LegacySelector
                 : SmartSelector;
         }

@@ -44,7 +44,7 @@ namespace Unity
         private readonly UnityContainer? _root;
         private readonly UnityContainer? _parent;
 
-        internal readonly ModeFlags ModeFlags;
+        internal readonly ModeFlags ExecutionMode;
         internal readonly DefaultPolicies Defaults;
         internal readonly ContainerContext Context;
         internal readonly LifetimeContainer LifetimeContainer;
@@ -82,7 +82,7 @@ namespace Unity
 
             // Defaults and policies
             LifetimeContainer = new LifetimeContainer(this);
-            ModeFlags = parent._root.ModeFlags;
+            ExecutionMode = parent._root.ExecutionMode;
             Defaults = _root.Defaults;
             Context = new ContainerContext(this);
 
@@ -252,6 +252,7 @@ namespace Unity
                 {
                     ContainerContext = thisContext.ContainerContext,
                     Registration = thisContext.Registration,
+                    IsAsync = thisContext.IsAsync,
                     Type = thisContext.Type,
                     List = thisContext.List,
                     Overrides = thisContext.Overrides,

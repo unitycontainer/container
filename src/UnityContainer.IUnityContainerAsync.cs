@@ -12,7 +12,6 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity
 {
@@ -203,8 +202,8 @@ namespace Unity
                 {
                     var context = new BuilderContext
                     {
-                        List = new PolicyList(),
                         Type = type,
+                        IsAsync = true,
                         Overrides = overrides,
                         Registration = registration,
                         ContainerContext = Context,
@@ -233,7 +232,6 @@ namespace Unity
             {
                 Async = true,
 
-                List = new PolicyList(),
                 Type = type,
                 Overrides = overrides,
                 Registration = registration,
@@ -252,7 +250,6 @@ namespace Unity
                 throw new ResolutionFailedException(context.Type, context.Name, message, ex);
             }
         }
-
 
         public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {

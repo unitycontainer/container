@@ -23,7 +23,7 @@ namespace Unity.Builder
 
         private bool _async;
 
-        internal IPolicyList List;
+        internal IPolicyList List { get; set; }
         public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
@@ -73,7 +73,7 @@ namespace Unity.Builder
 
         public object? Get(Type policyInterface)
         {
-            return List.Get(Type, Name, policyInterface) ?? 
+            return List?.Get(Type, Name, policyInterface) ?? 
                 Registration.Get(policyInterface);
         }
 
@@ -84,10 +84,9 @@ namespace Unity.Builder
 
         public object? Get(Type type, string? name, Type policyInterface)
         {
-            return List.Get(type, name, policyInterface) ??
-                   (type != Type || name != Name
-                       ? ContainerContext.Get(type, name, policyInterface)
-                       : Registration.Get(policyInterface));
+            return List?.Get(type, name, policyInterface) ?? (type != Type || name != Name
+                ? ContainerContext.Get(type, name, policyInterface)
+                : Registration.Get(policyInterface));
         }
 
         public void Set(Type policyInterface, object policy)
@@ -117,7 +116,7 @@ namespace Unity.Builder
 
         public Regex Regex;
 
-        public bool Sync => !_async;
+        public bool IsAsync { get; set; }
 
         public bool Async { get => _async; set => _async = value; }
 
@@ -202,6 +201,7 @@ namespace Unity.Builder
                 {
                     ContainerContext = ContainerContext,
                     Registration = registration,
+                    IsAsync = IsAsync,
                     Type = type,
                     List = List,
                     Overrides = Overrides,

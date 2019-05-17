@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Lifetime;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -19,7 +20,7 @@ namespace Unity
                 var lifetime = context.ContainerContext.Lifetime;
 
                 // In Sync mode just execute pipeline
-                if (context.Sync)
+                if (!context.Async)
                 {
                     // Get it from context
                     var manager = (LifetimeManager?)context.Get(typeof(LifetimeManager));
@@ -34,13 +35,16 @@ namespace Unity
                         }
                     }
 
+                    // Set Policy storage if required
+                    if (null == context.List)
+                        context.List = new PolicyList();
+
                     // Compose down the chain
                     value = pipeline(ref context);
                     return new ValueTask<object?>(value);
                 }
 
                 // Async mode
-                var list = context.List;
                 var unity = context.ContainerContext;
                 var overrides = context.Overrides;
 
@@ -49,7 +53,8 @@ namespace Unity
                 {
                     var c = new BuilderContext
                     {
-                        List = list,
+                        List =  new PolicyList(),
+                        IsAsync = true,
                         Type = type,
                         ContainerContext = unity,
                         Registration = registration,

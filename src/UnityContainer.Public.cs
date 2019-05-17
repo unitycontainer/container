@@ -53,7 +53,7 @@ namespace Unity
             _root = this;
 
             // Defaults and policies
-            ModeFlags = mode;
+            ExecutionMode = mode;
             Defaults = new DefaultPolicies(this);
             LifetimeContainer = new LifetimeContainer(this);
             Register = AddOrReplace;
@@ -91,7 +91,7 @@ namespace Unity
             var factory  = new FactoryPipeline();
 
             // Mode of operation
-            if (ModeFlags.IsOptimized())
+            if (ExecutionMode.IsOptimized())
             {
                 /////////////////////////////////////////////////////////////
                 // Setup Optimized mode

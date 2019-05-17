@@ -228,7 +228,6 @@ namespace Unity
             // Setup Context
             var context = new BuilderContext
             {
-                List = new PolicyList(),
                 Type = type,
                 Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
@@ -239,7 +238,9 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                return context.Pipeline(ref context).Result;
+                var task = context.Pipeline(ref context);
+                Debug.Assert(task.IsCompleted);
+                return task.Result;
             }
             catch (Exception ex) 
             when (ex is InvalidRegistrationException || 
@@ -265,7 +266,6 @@ namespace Unity
             {
                 Existing = existing ?? throw new ArgumentNullException(nameof(existing)),
 
-                List = new PolicyList(),
                 Type = ValidateType(type, existing.GetType()),
                 Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
@@ -276,7 +276,9 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                return context.Pipeline(ref context).Result;
+                var task = context.Pipeline(ref context);
+                Debug.Assert(task.IsCompleted);
+                return task.Result;
             }
             catch (Exception ex)
             when (ex is InvalidRegistrationException || ex is CircularDependencyException || ex is ObjectDisposedException)

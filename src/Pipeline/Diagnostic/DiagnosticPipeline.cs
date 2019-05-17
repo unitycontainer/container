@@ -43,7 +43,7 @@ namespace Unity
 
 #if !NET40
         [SecuritySafeCritical]
-        private void ValidateCompositionStack(IntPtr parent, Type type, string? name)
+        private static void ValidateCompositionStack(IntPtr parent, Type type, string? name)
         {
             if (IntPtr.Zero == parent) return;
 
