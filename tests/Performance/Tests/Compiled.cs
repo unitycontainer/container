@@ -1,51 +1,54 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Runner.Setup;
-using System.Collections.Generic;
 using Unity;
 
-namespace Runner.Tests
+namespace Performance.Tests
 {
-    [BenchmarkCategory("Basic")]
-    [Config(typeof(BenchmarkConfiguration))]
-    public class Compiled
+    public class Compiled : BasicBase
     {
-        IUnityContainer _container;
-        object _syncRoot = new object();
+        const string name = nameof(Compiled);
 
         [IterationSetup]
-        public virtual void SetupContainer()
+        public override void SetupContainer()
         {
             _container = new UnityContainer(ModeFlags.Compiled);
 
-            _container.RegisterType(typeof(IFoo<>), typeof(Foo<>));
-            _container.RegisterType<Poco>();
-            _container.RegisterType<IFoo, Foo>();
-            _container.RegisterType<IFoo, Foo>("1");
-            _container.RegisterFactory<IFoo>("2", c => new Foo());
+            base.SetupContainer();
         }
 
-        [Benchmark(Description = "Resolve<IUnityContainer>               ")]
-        public object UnityContainer() => _container.Resolve(typeof(IUnityContainer), null);
+        [Benchmark(Description = "(" + name + ")     IUnityContainer", OperationsPerInvoke = 20)]
+        public override object UnityContainer() => base.UnityContainer();
 
-        [Benchmark(Description = "Compiled<object> (unregistered)")]
-        public object Unregistered() => _container.Resolve(typeof(object), null);
+        [Benchmark(Description = " IUnityContainerAsync", OperationsPerInvoke = 20)]
+        public override object UnityContainerAsync() => base.UnityContainerAsync();
 
-        [Benchmark(Description = "Compiled<Poco>   (registered)")]
-        public object Transient() => _container.Resolve(typeof(Poco), null);
+        [Benchmark(Description = "Factory (c,t,n)=>new Foo()", OperationsPerInvoke = 20)]
+        public override object Factory() => base.Factory();
 
-        [Benchmark(Description = "Compiled<IService>   (registered)")]
-        public object Mapping() => _container.Resolve(typeof(IFoo), null);
+        [Benchmark(Description = "Factory        (with name)", OperationsPerInvoke = 20)]
+        public override object LegacyFactory() => base.LegacyFactory();
 
-        [Benchmark(Description = "PreResolved<IFoo<IService>> (optimized)")]
-        public object GenericInterface() => _container.Resolve(typeof(IFoo<IFoo>), null);
+        [Benchmark(Description = "Instance", OperationsPerInvoke = 20)]
+        public override object Instance() => base.Instance();
 
-        [Benchmark(Description = "Compiled<IService>      (factory)")]
-        public object LegacyFactory() => _container.Resolve(typeof(IFoo), "2");
+        [Benchmark(Description = "Unregistered type", OperationsPerInvoke = 20)]
+        public override object Unregistered() => base.Unregistered();
 
-        [Benchmark(Description = "Compiled<IService[]>   (registered)")]
-        public object Array() => _container.Resolve(typeof(IFoo[]), null);
+        [Benchmark(Description = "Registered type with dependencies", OperationsPerInvoke = 20)]
+        public override object Transient() => base.Transient();
 
-        [Benchmark(Description = "Compiled<IEnumerable<IService>>   (registered)")]
-        public object Enumerable() => _container.Resolve(typeof(IEnumerable<IFoo>), null);
+        [Benchmark(Description = "Registered interface to type mapping", OperationsPerInvoke = 20)]
+        public override object Mapping() => base.Mapping();
+
+        [Benchmark(Description = "Mapping to Singleton", OperationsPerInvoke = 20)]
+        public override object MappingToSingleton() => base.MappingToSingleton();
+
+        [Benchmark(Description = "Registered generic type mapping", OperationsPerInvoke = 20)]
+        public override object GenericInterface() => base.GenericInterface();
+
+        [Benchmark(Description = "Array", OperationsPerInvoke = 20)]
+        public override object Array() => base.Array();
+
+        [Benchmark(Description = "Enumerable", OperationsPerInvoke = 20)]
+        public override object Enumerable() => base.Enumerable();
     }
 }

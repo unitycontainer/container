@@ -4,7 +4,7 @@ using Runner.Setup;
 using System.Linq;
 using Unity;
 
-namespace Runner.Tests
+namespace Performance.Tests
 {
     [BenchmarkCategory("Registration")]
     [Config(typeof(BenchmarkConfiguration))]
