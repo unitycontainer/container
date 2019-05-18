@@ -145,18 +145,9 @@ namespace Unity
         private ImplicitRegistration GetGenericRegistration(Type type, string? name)
 #endif
         {
-            int targetBucket;
+            Type? generic = null;
+            int targetBucket, hashGeneric = 0, hashDefault = 0;
             int hashExact = NamedType.GetHashCode(type, name);
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var generic = info.GetGenericTypeDefinition();
-            var hashGeneric = NamedType.GetHashCode(generic, name);
-            var hashDefault = generic?.GetHashCode() ?? 0;
-#else
-            var generic = type.GetGenericTypeDefinition();
-            var hashGeneric = NamedType.GetHashCode(generic, name);
-            var hashDefault = generic?.GetHashCode() ?? 0;
-#endif
 
             // Iterate through containers hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -180,6 +171,20 @@ namespace Unity
                         candidate.Value = container.CreateRegistration(type, name, candidate.Value);
 
                     return (ImplicitRegistration)candidate.Value;
+                }
+
+                // Generic registrations
+                if (null == generic)
+                {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    generic = info.GetGenericTypeDefinition();
+                    hashGeneric = NamedType.GetHashCode(generic, name);
+                    hashDefault = generic?.GetHashCode() ?? 0;
+#else
+                    generic = type.GetGenericTypeDefinition();
+                    hashGeneric = NamedType.GetHashCode(generic, name);
+                    hashDefault = generic?.GetHashCode() ?? 0;
+#endif
                 }
 
                 // Check for factory with same name

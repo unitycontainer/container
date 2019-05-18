@@ -23,4 +23,12 @@ namespace Runner.Tests
         [InjectionMethod]
         public object CallMe([Dependency]object data) => data;
     }
+
+    public interface IFoo<T>
+    {
+    }
+
+    public class Foo<T> : IFoo<T>
+    {
+    }
 }

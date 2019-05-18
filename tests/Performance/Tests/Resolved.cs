@@ -2,7 +2,6 @@
 using Runner.Setup;
 using System.Collections.Generic;
 using Unity;
-using Unity.Builder;
 
 namespace Runner.Tests
 {
@@ -16,8 +15,9 @@ namespace Runner.Tests
         [IterationSetup]
         public virtual void SetupContainer()
         {
-            _container = new UnityContainer().AddExtension(new ForceActivation());
+            _container = new UnityContainer(ModeFlags.Activated);
 
+            _container.RegisterType(typeof(IFoo<>), typeof(Foo<>));
             _container.RegisterType<Poco>();
             _container.RegisterType<IFoo, Foo>();
             _container.RegisterType<IFoo, Foo>("1");
@@ -36,7 +36,10 @@ namespace Runner.Tests
         [Benchmark(Description = "Resolved<IService>   (registered)")]
         public object Mapping() => _container.Resolve(typeof(IFoo), null);
 
-        [Benchmark(Description = "Compiled<IService>      (legacy)")]
+        [Benchmark(Description = "PreResolved<IFoo<IService>> (optimized)")]
+        public object GenericInterface() => _container.Resolve(typeof(IFoo<IFoo>), null);
+
+        [Benchmark(Description = "Resolved<IService>   (factory)")]
         public object LegacyFactory() => _container.Resolve(typeof(IFoo), "2");
 
         [Benchmark(Description = "Resolved<IService[]>   (registered)")]
