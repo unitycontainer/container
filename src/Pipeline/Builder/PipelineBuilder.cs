@@ -34,7 +34,7 @@ namespace Unity
             Registration = registration;
             ContainerContext = container.Context;
 
-            Seed = null;
+            Seed = Registration.Pipeline;
             _enumerator = pipelines.GetEnumerator();
         }
 
@@ -44,7 +44,7 @@ namespace Unity
             Registration = context.Registration;
             ContainerContext = context.ContainerContext;
 
-            Seed = null;
+            Seed = Registration.Pipeline;
             _enumerator = (context.Registration.Processors ?? Enumerable.Empty<Pipeline>()).GetEnumerator();
         }
 

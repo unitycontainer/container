@@ -195,7 +195,7 @@ namespace Unity
             var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
 
             // Check if pipeline exists
-            if (null == registration.Pipeline)
+            if (null == registration.Pipeline && !(registration.LifetimeManager is PerThreadLifetimeManager))
             {
                 // Start a new Task to create and execute pipeline
                 var task = Task.Factory.StartNew(() =>

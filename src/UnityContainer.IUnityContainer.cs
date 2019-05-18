@@ -162,31 +162,15 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             // Lifetime Manager
-            var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.CreateLifetimePolicy();
-            if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-            manager.InUse = true;
+            var manager = lifetimeManager as LifetimeManager ?? 
+                          Context.FactoryLifetimeManager.CreateLifetimePolicy();
 
             // Target Container
             var container = manager is SingletonLifetimeManager ? _root : this;
             Debug.Assert(null != container);
 
-            // If Disposable add to container's lifetime
-            if (manager is IDisposable managerDisposable)
-                container.LifetimeContainer.Add(managerDisposable);
-
             // Create registration
-            var registration = new ExplicitRegistration(container, name, type, manager);
-
-            // Factory resolver
-            var resolver = lifetimeManager is PerResolveLifetimeManager
-                ? (ResolveDelegate<BuilderContext>)((ref BuilderContext c) =>
-                {
-                    c.Existing = factory(c.Container, c.Type, c.Name);
-                    c.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(c.Existing));
-                    return c.Existing;
-                })
-                : ((ref BuilderContext c) => factory(c.Container, c.Type, c.Name));
-            registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
+            var registration = new FactoryRegistration(container, type, name, factory, manager);
 
             // Register
             var previous = container.Register(type, name, registration);

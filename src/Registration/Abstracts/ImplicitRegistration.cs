@@ -46,6 +46,7 @@ namespace Unity.Registration
             BuildType = factory.BuildType;
             Next = factory.Next;
             LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
+            Pipeline = factory.Pipeline;
             InjectionMembers = factory.InjectionMembers;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
         }
