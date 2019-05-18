@@ -76,7 +76,7 @@ namespace Unity.Registration
 
         public virtual Converter<Type, Type>? BuildType { get; }
 
-        public LifetimeManager? LifetimeManager { get; set; }
+        public LifetimeManager? LifetimeManager { get; protected set; }
 
         public virtual void Add(IPolicySet set)
         {

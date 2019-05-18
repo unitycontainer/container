@@ -12,9 +12,8 @@ namespace Unity.Storage
     {
         #region Fields
 
-        private readonly IPolicyList?           _innerPolicyList;
         private IDictionary<PolicyKey, object>? _policies;
-        private const string All = "** ALL NAMES CONSTANT **";
+        public const string All = "** ALL NAMES CONSTANT **";
 
         #endregion
 
@@ -26,15 +25,6 @@ namespace Unity.Storage
         /// </summary>
         public PolicyList()
         {
-        }
-
-        /// <summary>
-        /// Initialize a new instance of a <see cref="PolicyList"/> class with another policy list.
-        /// </summary>
-        /// <param name="innerPolicyList">An inner policy list to search.</param>
-        public PolicyList(IPolicyList innerPolicyList)
-        {
-            _innerPolicyList = innerPolicyList;
         }
 
         #endregion
@@ -66,7 +56,7 @@ namespace Unity.Storage
                 return policy;
             }
 
-            return _innerPolicyList?.Get(type, policyInterface);
+            return null;
         }
 
 
@@ -79,7 +69,7 @@ namespace Unity.Storage
                 return policy;
             }
 
-            return _innerPolicyList?.Get(type, name, policyInterface);
+            return null;
         }
 
 

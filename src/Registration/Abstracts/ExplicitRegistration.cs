@@ -14,6 +14,15 @@ namespace Unity.Registration
     {
         #region Constructors
 
+        public ExplicitRegistration(UnityContainer owner, string? name, Type? type)
+            : base(owner, name)
+        {
+            Next = null;
+            Type = type;
+            InjectionMembers = null;
+            BuildRequired = false;
+        }
+
         public ExplicitRegistration(UnityContainer owner, string? name, Type? type, LifetimeManager lifetimeManager)
             : base(owner, name)
         {

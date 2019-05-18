@@ -57,8 +57,9 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Check for exact match
@@ -113,8 +114,9 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Check for exact match
@@ -153,8 +155,9 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registrations
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Check for exact match

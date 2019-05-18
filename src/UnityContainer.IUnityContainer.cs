@@ -105,27 +105,24 @@ namespace Unity
             var registeredType = type ?? mappedToType;
 
             // Validate input
-            if (null == registeredType) throw new InvalidOperationException($"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
+            if (null == registeredType)
+            {
+                throw new InvalidOperationException(
+                    $"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
+            }
 
             try
             {
                 // Lifetime Manager
-                var manager = lifetimeManager as LifetimeManager ?? Context.InstanceLifetimeManager.CreateLifetimePolicy();
-                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-
-                manager.InUse = true;
-                manager.SetValue(instance, LifetimeContainer);
+                var manager = lifetimeManager as LifetimeManager ?? 
+                              Context.InstanceLifetimeManager.CreateLifetimePolicy();
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 Debug.Assert(null != container);
 
-                // If Disposable add to container's lifetime
-                if (manager is IDisposable disposableManager)
-                    container.LifetimeContainer.Add(disposableManager);
-
                 // Register type
-                var registration = new ExplicitRegistration(container, name, mappedToType ?? registeredType, manager);
+                var registration = new InstanceRegistration(container, registeredType, name, instance, manager);
                 var previous = container.Register(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
@@ -136,9 +133,6 @@ namespace Unity
                     container.LifetimeContainer.Remove(disposable);
                     disposable.Dispose();
                 }
-
-                // Check what strategies to run
-                registration.Processors = Context.InstancePipelineCache;
 
                 // Raise event
                 container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registeredType, instance, name, manager));
