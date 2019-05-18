@@ -244,7 +244,9 @@ namespace Unity
                 return context.Pipeline(ref context);
             }
             catch (Exception ex)
-            when (ex is InvalidRegistrationException || ex is CircularDependencyException)
+            when (ex is InvalidRegistrationException || 
+                  ex is CircularDependencyException ||
+                  ex is ObjectDisposedException)
             {
                 var message = CreateMessage(ex);
                 throw new ResolutionFailedException(context.Type, context.Name, message, ex);

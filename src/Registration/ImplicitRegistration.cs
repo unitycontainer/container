@@ -64,7 +64,7 @@ namespace Unity.Registration
 
         public string? Name { get; }
 
-        public PipelineDelegate? PipelineDelegate { get; set; }
+        public virtual PipelineDelegate? PipelineDelegate { get; set; }
 
         public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
