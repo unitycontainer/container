@@ -163,7 +163,7 @@ namespace Unity
         /// <inheritdoc />
         public bool IsRegistered(Type type, string? name)
         {
-            int hashCode = NamedType.GetHashCode(type, name);
+            var key = new HashKey(type, name);
 
             // Iterate through hierarchy and check if exists
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -174,13 +174,11 @@ namespace Unity
 
                 // Look for exact match
                 var registry = container._registry;
-                var targetBucket = (hashCode & HashMask) % registry.Buckets.Length;
+                var targetBucket = key.HashCode % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashCode || candidate.Type != type ||
-                      !(candidate.Value is ImplicitRegistration set) || set.Name != name)
-                        continue;
+                    if (candidate.Key != key) continue;
 
                     return true;
                 }
@@ -194,12 +192,11 @@ namespace Unity
         {
             get
             {
-                var set = new QuickSet<Type>();
-                var registry = _root?._registry ?? throw new InvalidOperationException();
+                var set = new HashSet<HashKey>();
 
                 // First, add the built-in registrations
-                set.Add(registry.Entries[1].HashCode, typeof(IUnityContainer));
-                set.Add(registry.Entries[2].HashCode, typeof(IUnityContainerAsync));
+                set.Add(new HashKey(typeof(IUnityContainer), null));
+                set.Add(new HashKey(typeof(IUnityContainerAsync), null));
 
 
                 // IUnityContainer
@@ -227,13 +224,13 @@ namespace Unity
                         continue;
 
                     // Hold on to registries
-                    registry = container._registry;
+                    var registry = container._registry;
                     for (var i = 0; i < registry.Count; i++)
                     {
                         var type = registry.Entries[i].Type;
                         var registration = registry.Entries[i].Value as ExplicitRegistration;
 
-                        if (null == registration || !set.Add(registry.Entries[i].HashCode, type))
+                        if (null == registration || !set.Add(new HashKey(type, registration.Name)))
                             continue;
 
                         yield return new ContainerRegistrationStruct

@@ -76,7 +76,7 @@ namespace Unity.Storage
             Array.Copy(registry.Entries, 0, Entries, 0, registry.Count);
             for (var i = 0; i < registry.Count; i++)
             {
-                var hashCode = Entries[i].HashCode;
+                var hashCode = Entries[i].Key.HashCode;
                 if (hashCode < 0) continue;
 
                 var bucket = hashCode % Buckets.Length;
@@ -112,7 +112,7 @@ namespace Unity.Storage
         [DebuggerDisplay("{Value}", Name = "{Key}")]
         public struct Entry
         {
-            public int HashCode;
+            public HashKey Key;
             public int Next;
             public Type Type;
             public TValue Value;

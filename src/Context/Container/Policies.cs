@@ -24,7 +24,7 @@ namespace Unity
             /// <inheritdoc />
             public object? Get(Type type, Type policyInterface)
             {
-                var hashCode = type?.GetHashCode() ?? 0;
+                var key = new HashKey(type);
 
                 // Iterate through containers hierarchy
                 for (UnityContainer? container = Container; null != container; container = container._parent)
@@ -33,12 +33,11 @@ namespace Unity
                     if (null == container._registry) continue;
 
                     var registry = container._registry;
-                    var targetBucket = (hashCode & HashMask) % registry.Buckets.Length;
+                    var targetBucket = key.HashCode % registry.Buckets.Length;
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.HashCode != hashCode || entry.Type != type || entry.Value is ImplicitRegistration)
-                            continue;
+                        if (entry.Key != key || entry.Value is ImplicitRegistration) continue;
 
                         return entry.Value.Get(policyInterface);
                     }
@@ -50,7 +49,7 @@ namespace Unity
             /// <inheritdoc />
             public object? Get(Type type, string? name, Type policyInterface)
             {
-                var hashCode = NamedType.GetHashCode(type, name);
+                var key = new HashKey(type, name);
 
                 // Iterate through containers hierarchy
                 for (UnityContainer? container = Container; null != container; container = container._parent)
@@ -59,13 +58,11 @@ namespace Unity
                     if (null == container._registry) continue;
 
                     var registry = container._registry;
-                    var targetBucket = (hashCode & HashMask) % registry.Buckets.Length;
+                    var targetBucket = key.HashCode % registry.Buckets.Length;
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.HashCode != hashCode || entry.Type != type ||
-                          !(entry.Value is ImplicitRegistration set) || set.Name != name)
-                            continue;
+                        if (entry.Key != key) continue;
 
                         return entry.Value.Get(policyInterface);
                     }
@@ -87,18 +84,18 @@ namespace Unity
             /// <inheritdoc />
             public void Set(Type type, Type policyInterface, object policy)
             {
-                var hashCode = type?.GetHashCode() ?? 0;
+                var key = new HashKey(type);
 
                 lock (Container._syncRegistry)
                 {
                     if (null == Container._registry) Container._registry = new Registry<IPolicySet>();
 
                     // Check for the existing 
-                    var targetBucket = (hashCode & HashMask) % Container._registry.Buckets.Length;
+                    var targetBucket = key.HashCode % Container._registry.Buckets.Length;
                     for (var i = Container._registry.Buckets[targetBucket]; i >= 0; i = Container._registry.Entries[i].Next)
                     {
                         ref var candidate = ref Container._registry.Entries[i];
-                        if (candidate.HashCode != hashCode || candidate.Type != type || candidate.Value is ImplicitRegistration)
+                        if (candidate.Key != key || candidate.Value is ImplicitRegistration)
                             continue;
 
                         candidate.Value.Set(policyInterface, policy);
@@ -109,12 +106,12 @@ namespace Unity
                     if (Container._registry.Count >= Container._registry.Entries.Length)
                     {
                         Container._registry = new Registry<IPolicySet>(Container._registry);
-                        targetBucket = (hashCode & HashMask) % Container._registry.Buckets.Length;
+                        targetBucket = key.HashCode % Container._registry.Buckets.Length;
                     }
 
                     // Add registration
                     ref var entry = ref Container._registry.Entries[Container._registry.Count];
-                    entry.HashCode = hashCode;
+                    entry.Key = key;
                     entry.Type = type;
                     entry.Next = Container._registry.Buckets[targetBucket];
                     entry.Value = new PolicySet(Container, policyInterface, policy);
@@ -125,21 +122,19 @@ namespace Unity
             /// <inheritdoc />
             public void Set(Type type, string? name, Type policyInterface, object policy)
             {
-                var hashCode = NamedType.GetHashCode(type, name);
+                var key = new HashKey(type, name);
 
                 lock (Container._syncRegistry)
                 {
                     if (null == Container._registry) Container._registry = new Registry<IPolicySet>();
 
-                    var targetBucket = (hashCode & HashMask) % Container._registry.Buckets.Length;
+                    var targetBucket = key.HashCode % Container._registry.Buckets.Length;
 
                     // Check for the existing 
                     for (var i = Container._registry.Buckets[targetBucket]; i >= 0; i = Container._registry.Entries[i].Next)
                     {
                         ref var candidate = ref Container._registry.Entries[i];
-                        if (candidate.HashCode != hashCode || candidate.Type != type ||
-                          !(candidate.Value is ImplicitRegistration set) || set.Name != name)
-                            continue;
+                        if (candidate.Key != key) continue;
 
                         candidate.Value.Set(policyInterface, policy);
                         return;
@@ -149,12 +144,12 @@ namespace Unity
                     if (Container._registry.Count >= Container._registry.Entries.Length)
                     {
                         Container._registry = new Registry<IPolicySet>(Container._registry);
-                        targetBucket = (hashCode & HashMask) % Container._registry.Buckets.Length;
+                        targetBucket = key.HashCode % Container._registry.Buckets.Length;
                     }
 
                     // Add registration
                     ref var entry = ref Container._registry.Entries[Container._registry.Count];
-                    entry.HashCode = hashCode;
+                    entry.Key = key;
                     entry.Type = type;
                     entry.Next = Container._registry.Buckets[targetBucket];
                     entry.Value = new ImplicitRegistration(Container, name);
@@ -166,7 +161,7 @@ namespace Unity
             /// <inheritdoc />
             public void Clear(Type type, string? name, Type policyInterface)
             {
-                var hashCode = NamedType.GetHashCode(type, name);
+                var key = new HashKey(type, name);
 
                 // Iterate through containers hierarchy
                 for (UnityContainer? container = Container; null != container; container = container._parent)
@@ -175,13 +170,11 @@ namespace Unity
                     if (null == container._registry) continue;
 
                     var registry = container._registry;
-                    var targetBucket = (hashCode & HashMask) % registry.Buckets.Length;
+                    var targetBucket = key.HashCode % registry.Buckets.Length;
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.HashCode != hashCode || entry.Type != type ||
-                          !(entry.Value is ImplicitRegistration set) || set.Name != name)
-                            continue;
+                        if (entry.Key != key) continue;
 
                         entry.Value.Clear(policyInterface);
                         return;

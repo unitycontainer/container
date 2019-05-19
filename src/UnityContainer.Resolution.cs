@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 using Unity.Utility;
 
 namespace Unity
@@ -78,7 +79,7 @@ namespace Unity
         {
             object? value;
             var set = new HashSet<string?>();
-            int hash = typeof(TElement).GetHashCode();
+            var key = new HashKey(typeof(TElement));
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -90,7 +91,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries<TElement>(hash, out int[]? data);
+                var length = container._metadata.GetEntries<TElement>(ref key, out int[]? data);
                 if (null != data && null != registry)
                 {
                     for (var i = 1; i < length; i++)
@@ -137,8 +138,8 @@ namespace Unity
         {
             object? value;
             var set = new HashSet<string?>();
-            int hashCode = typeof(TElement).GetHashCode();
-            int hashGeneric = typeDefinition.GetHashCode();
+            var key = new HashKey(typeof(TElement));
+            var keyGeneric = new HashKey(typeDefinition);
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -150,7 +151,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries<TElement>(hashCode, out int[]? data);
+                var length = container._metadata.GetEntries<TElement>(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -175,7 +176,7 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(hashGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(ref keyGeneric, typeDefinition, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -255,7 +256,7 @@ namespace Unity
         {
             object? value;
             var set = new HashSet<string?>();
-            int hash = type.GetHashCode();
+            var key = new HashKey(type);
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -267,7 +268,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(hash, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -298,8 +299,8 @@ namespace Unity
         {
             object? value;
             var set = new HashSet<string>();
-            int hashCode = type.GetHashCode();
-            int hashGeneric = typeDefinition.GetHashCode();
+            var key = new HashKey(type);
+            var keyGeneric = new HashKey(typeDefinition);
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -311,7 +312,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(hashCode, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -336,7 +337,7 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(hashGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(ref keyGeneric, typeDefinition, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -365,7 +366,7 @@ namespace Unity
         {
             object? value;
             var set = new HashSet<string?>();
-            int hashCode = type.GetHashCode();
+            var key = new HashKey(type);
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -377,7 +378,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(hashCode, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -409,8 +410,8 @@ namespace Unity
         {
             object? value;
             var set = new HashSet<string?>();
-            int hashCode = type.GetHashCode();
-            int hashGeneric = typeDefinition.GetHashCode();
+            var key = new HashKey(type);
+            var keyGeneric = new HashKey(typeDefinition);
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -422,7 +423,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(hashCode, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -448,7 +449,7 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(hashGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(ref keyGeneric, typeDefinition, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)

@@ -5,18 +5,14 @@ namespace Unity.Utility
 {
     internal static class MetadataExtensions
     {
-        internal static int GetEntries<TElement>(this Registry<int[]> metadata, int hashCode, out int[]? data)
+        internal static int GetEntries<TElement>(this Registry<int[]> metadata, ref HashKey key, out int[]? data)
         {
-            var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
+            var targetBucket = key.HashCode % metadata.Buckets.Length;
 
             // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
-                if (metadata.Entries[i].HashCode != hashCode ||
-                    metadata.Entries[i].Type != typeof(TElement))
-                {
-                    continue;
-                }
+                if (metadata.Entries[i].Key != key) continue;
 
                 // Get a fix on the buffer
                 data = metadata.Entries[i].Value;
@@ -28,15 +24,14 @@ namespace Unity.Utility
             return 0;
         }
 
-        internal static int GetEntries(this Registry<int[]> metadata, int hashCode, Type type, out int[]? data)
+        internal static int GetEntries(this Registry<int[]> metadata, ref HashKey key, Type type, out int[]? data)
         {
-            var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
+            var targetBucket = key.HashCode % metadata.Buckets.Length;
 
             // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
-                if (metadata.Entries[i].HashCode != hashCode ||
-                    metadata.Entries[i].Type != type) continue;
+                if (metadata.Entries[i].Key != key) continue;
 
                 // Get a fix on the buffer
                 data = metadata.Entries[i].Value;
@@ -46,22 +41,6 @@ namespace Unity.Utility
             // Nothing is found
             data = null;
             return 0;
-        }
-
-        public static bool Contains(this Registry<int[]> metadata, int hashCode, Type type)
-        {
-            var targetBucket = (hashCode & UnityContainer.HashMask) % metadata.Buckets.Length;
-
-            for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
-            {
-                if (metadata.Entries[i].HashCode == hashCode &&
-                    metadata.Entries[i].Type == type)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
