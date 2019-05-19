@@ -5,7 +5,7 @@ namespace Unity.Storage
 {
     // Requires more work
     [SecuritySafeCritical]
-    public class QuickSet<TValue>
+    public class QuickSet
     {
         #region Fields
 
@@ -46,16 +46,17 @@ namespace Unity.Storage
 
         #region Public Methods
 
-        public bool Add(int hashCode, TValue value)
+        public bool Add(Type type, string? name)
         {
             var collisions = 0;
-            var targetBucket = (hashCode & UnityContainer.HashMask) % Buckets.Length;
+            var key = new HashKey(type, name);
+            var targetBucket = key.HashCode % Buckets.Length;
 
             // Check for the existing 
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.HashCode != hashCode || !Equals(candidate.Value, value))
+                if (candidate.Key != key)
                 {
                     collisions++;
                     continue;
@@ -69,13 +70,47 @@ namespace Unity.Storage
             if (Count >= Entries.Length || 3 < collisions)
             {
                 Expand();
-                targetBucket = (hashCode & UnityContainer.HashMask) % Buckets.Length;
+                targetBucket = key.HashCode % Buckets.Length;
             }
 
             // Add registration
             ref var entry = ref Entries[Count];
-            entry.HashCode = hashCode;
-            entry.Value = value;
+            entry.Key = key;
+            entry.Next = Buckets[targetBucket];
+            Buckets[targetBucket] = Count++;
+
+            return true;
+        }
+
+        public bool Add(ref HashKey key)
+        {
+            var collisions = 0;
+            var targetBucket = key.HashCode % Buckets.Length;
+
+            // Check for the existing 
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.Key != key)
+                {
+                    collisions++;
+                    continue;
+                }
+
+                // Already exists
+                return false;
+            }
+
+            // Expand if required
+            if (Count >= Entries.Length || 3 < collisions)
+            {
+                Expand();
+                targetBucket = key.HashCode % Buckets.Length;
+            }
+
+            // Add registration
+            ref var entry = ref Entries[Count];
+            entry.Key = key;
             entry.Next = Buckets[targetBucket];
             Buckets[targetBucket] = Count++;
 
@@ -89,8 +124,7 @@ namespace Unity.Storage
 
         private struct Entry
         {
-            public int HashCode;
-            public TValue Value;
+            public HashKey Key;
             public int Next;
         }
 
@@ -126,7 +160,7 @@ namespace Unity.Storage
             Array.Copy(entries, 0, Entries, 0, Count);
             for (var i = 0; i < Count; i++)
             {
-                var hashCode = Entries[i].HashCode & UnityContainer.HashMask;
+                var hashCode = Entries[i].Key.HashCode;
                 if (hashCode < 0) continue;
 
                 var bucket = hashCode % Buckets.Length;

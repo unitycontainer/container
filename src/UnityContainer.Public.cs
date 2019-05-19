@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -11,7 +12,6 @@ using Unity.Factories;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 using Unity.Utility;
 
@@ -169,12 +169,13 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no registry
-                if (null == container._metadata || null == container._registry)
-                    continue;
+                if (null == container._metadata) continue;
 
-                // Look for exact match
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
                 var targetBucket = key.HashCode % registry.Buckets.Length;
+
+                // Look for exact match
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
@@ -192,11 +193,11 @@ namespace Unity
         {
             get
             {
-                var set = new HashSet<HashKey>();
+                var set = new QuickSet();
 
                 // First, add the built-in registrations
-                set.Add(new HashKey(typeof(IUnityContainer), null));
-                set.Add(new HashKey(typeof(IUnityContainerAsync), null));
+                set.Add(typeof(IUnityContainer), null);
+                set.Add(typeof(IUnityContainerAsync), null);
 
 
                 // IUnityContainer
@@ -230,7 +231,7 @@ namespace Unity
                         var type = registry.Entries[i].Type;
                         var registration = registry.Entries[i].Value as ExplicitRegistration;
 
-                        if (null == registration || !set.Add(new HashKey(type, registration.Name)))
+                        if (null == registration || !set.Add(type, registration.Name))
                             continue;
 
                         yield return new ContainerRegistrationStruct
