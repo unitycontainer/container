@@ -23,18 +23,18 @@ namespace Unity.Storage
             HashCode = NamedType.GetHashCode(HashType, HashName) & UnityContainer.HashMask;
         }
 
+        public HashKey(string? name)
+        {
+            HashType = -1;
+            HashName = name?.GetHashCode() ?? 0;
+            HashCode = NamedType.GetHashCode(HashType, HashName) & UnityContainer.HashMask;
+        }
+
         public HashKey(Type type, string? name)
         {
             HashType = type?.GetHashCode() ?? 0;
             HashName = name?.GetHashCode() ?? 0;
             HashCode = NamedType.GetHashCode(HashType, HashName) & UnityContainer.HashMask;
-        }
-
-        public HashKey(int typeHash, int nameHash, int hash)
-        {
-            HashType = typeHash;
-            HashName = nameHash;
-            HashCode = hash;
         }
 
         #endregion

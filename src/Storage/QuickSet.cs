@@ -50,18 +50,15 @@ namespace Unity.Storage
         public bool Add(string? name)
         {
             var collisions = 0;
-            var typeHash = 0;
-            var nameHash = name?.GetHashCode() ?? 0;
-            var hashCode = NamedType.GetHashCode(typeHash, nameHash) & UnityContainer.HashMask;
+            var key = new HashKey(name);
 
-            var targetBucket = hashCode % Buckets.Length;
+            var targetBucket = key.HashCode % Buckets.Length;
 
             // Check for the existing 
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.Key.HashType != typeHash ||
-                    candidate.Key.HashName != nameHash)
+                if (candidate.Key != key)
                 {
                     collisions++;
                     continue;
@@ -73,12 +70,12 @@ namespace Unity.Storage
             if (Count >= Entries.Length || 3 < collisions)
             {
                 Expand();
-                targetBucket = hashCode % Buckets.Length;
+                targetBucket = key.HashCode % Buckets.Length;
             }
 
             // Add registration
             ref var entry = ref Entries[Count];
-            entry.Key = new HashKey(typeHash, nameHash, hashCode);
+            entry.Key = key;
             entry.Next = Buckets[targetBucket];
             Buckets[targetBucket] = Count++;
 
@@ -88,18 +85,15 @@ namespace Unity.Storage
         public bool Add(Type type, string? name)
         {
             var collisions = 0;
-            var typeHash = type?.GetHashCode() ?? 0;
-            var nameHash = name?.GetHashCode() ?? 0;
-            var hashCode = NamedType.GetHashCode(typeHash, nameHash) & UnityContainer.HashMask;
+            var key = new HashKey(type, name);
 
-            var targetBucket = hashCode % Buckets.Length;
+            var targetBucket = key.HashCode % Buckets.Length;
 
             // Check for the existing 
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.Key.HashType != typeHash || 
-                    candidate.Key.HashName != nameHash)
+                if (candidate.Key != key)
                 {
                     collisions++;
                     continue;
@@ -111,12 +105,12 @@ namespace Unity.Storage
             if (Count >= Entries.Length || 3 < collisions)
             {
                 Expand();
-                targetBucket = hashCode % Buckets.Length;
+                targetBucket = key.HashCode % Buckets.Length;
             }
 
             // Add registration
             ref var entry = ref Entries[Count];
-            entry.Key = new HashKey(typeHash, nameHash, hashCode);
+            entry.Key = key;
             entry.Next = Buckets[targetBucket];
             Buckets[targetBucket] = Count++;
 

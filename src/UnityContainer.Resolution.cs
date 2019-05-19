@@ -93,7 +93,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries<TElement>(ref key, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, out int[]? data);
                 if (null != data && null != registry)
                 {
                     for (var i = 1; i < length; i++)
@@ -101,19 +101,18 @@ namespace Unity
                         var index = data[i];
                         var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (set.Add(registration.Name))
-                        {
-                            try
-                            {
-                                value = resolve(typeof(TElement), registration);
-                            }
-                            catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                            {
-                                continue;
-                            }
+                        if (!set.Add(registration.Name)) continue;
 
-                            yield return (TElement)value;
+                        try
+                        {
+                            value = resolve(typeof(TElement), registration);
                         }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            continue;
+                        }
+
+                        yield return (TElement)value;
                     }
                 }
             }
@@ -154,7 +153,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries<TElement>(ref key, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -162,24 +161,23 @@ namespace Unity
                         var index = data[i];
                         var registration = (ExplicitRegistration)registry.Entries[index].Value;
 
-                        if (set.Add(registration.Name))
-                        {
-                            try
-                            {
-                                value = resolve(typeof(TElement), registration);
-                            }
-                            catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                            {
-                                continue;
-                            }
+                        if (!set.Add(registration.Name)) continue;
 
-                            yield return (TElement)value;
+                        try
+                        {
+                            value = resolve(typeof(TElement), registration);
                         }
+                        catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
+                        {
+                            continue;
+                        }
+
+                        yield return (TElement)value;
                     }
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(ref keyGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(ref keyGeneric, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -272,7 +270,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -317,7 +315,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -342,7 +340,7 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(ref keyGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(ref keyGeneric, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -384,7 +382,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -430,7 +428,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(ref key, type, out int[]? data);
+                var length = container._metadata.GetEntries(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -456,7 +454,7 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(ref keyGeneric, typeDefinition, out data);
+                length = container._metadata.GetEntries(ref keyGeneric, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
