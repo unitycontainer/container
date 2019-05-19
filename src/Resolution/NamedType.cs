@@ -11,6 +11,8 @@ namespace Unity.Resolution
 
         public static int GetHashCode(Type type, string name) => ((type?.GetHashCode() ?? 0) + 37) ^ ((name?.GetHashCode() ?? 0) + 17);
 
+        public static int GetHashCode(int typeHash, int nameHash) => (typeHash + 37) ^ (nameHash + 17);
+
         public override bool Equals(object obj)
         {
             if (obj is NamedType other && Type == other.Type && Name == other.Name)
