@@ -79,7 +79,7 @@ namespace Unity
         internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, ImplicitRegistration, object?> resolve, string? name)
         {
             object? value;
-            var set = new HashSet<string?>();
+            var set = new QuickSet();
             var key = new HashKey(typeof(TElement));
 
             // Iterate over hierarchy
@@ -139,7 +139,7 @@ namespace Unity
                                                                    Type typeDefinition, string? name)
         {
             object? value;
-            var set = new HashSet<string?>();
+            var set = new QuickSet();
             var key = new HashKey(typeof(TElement));
             var keyGeneric = new HashKey(typeDefinition);
 
@@ -258,7 +258,7 @@ namespace Unity
         internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve, Type type)
         {
             object? value;
-            var set = new HashSet<string?>();
+            var set = new QuickSet();
             var key = new HashKey(type);
 
             // Iterate over hierarchy
@@ -302,7 +302,7 @@ namespace Unity
                                                               Type type, Type typeDefinition)
         {
             object? value;
-            var set = new HashSet<string>();
+            var set = new QuickSet();
             var key = new HashKey(type);
             var keyGeneric = new HashKey(typeDefinition);
 
@@ -370,7 +370,7 @@ namespace Unity
         internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve, Type type)
         {
             object? value;
-            var set = new HashSet<string?>();
+            var set = new QuickSet();
             var key = new HashKey(type);
 
             // Iterate over hierarchy
@@ -415,7 +415,7 @@ namespace Unity
                                                               Type type, Type typeDefinition)
         {
             object? value;
-            var set = new HashSet<string?>();
+            var set = new QuickSet();
             var key = new HashKey(type);
             var keyGeneric = new HashKey(typeDefinition);
 

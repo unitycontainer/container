@@ -47,6 +47,44 @@ namespace Unity.Storage
 
         #region Public Methods
 
+        public bool Add(string? name)
+        {
+            var collisions = 0;
+            var typeHash = 0;
+            var nameHash = name?.GetHashCode() ?? 0;
+            var hashCode = NamedType.GetHashCode(typeHash, nameHash) & UnityContainer.HashMask;
+
+            var targetBucket = hashCode % Buckets.Length;
+
+            // Check for the existing 
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.Key.HashType != typeHash ||
+                    candidate.Key.HashName != nameHash)
+                {
+                    collisions++;
+                    continue;
+                }
+                return false;   // Already exists
+            }
+
+            // Expand if required
+            if (Count >= Entries.Length || 3 < collisions)
+            {
+                Expand();
+                targetBucket = hashCode % Buckets.Length;
+            }
+
+            // Add registration
+            ref var entry = ref Entries[Count];
+            entry.Key = new HashKey(typeHash, nameHash, hashCode);
+            entry.Next = Buckets[targetBucket];
+            Buckets[targetBucket] = Count++;
+
+            return true;
+        }
+
         public bool Add(Type type, string? name)
         {
             var collisions = 0;
