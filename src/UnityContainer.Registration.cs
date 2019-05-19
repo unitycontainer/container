@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity

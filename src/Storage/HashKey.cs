@@ -48,7 +48,7 @@ namespace Unity.Storage
 
         public bool Equals(HashKey other)
         {
-            return other.HashCode == HashCode &&
+            return //other.HashCode == HashCode &&
                    other.HashType == HashType &&
                    other.HashName == HashName;
         }
