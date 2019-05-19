@@ -1,5 +1,6 @@
 using System;
 using System.Security;
+using Unity.Resolution;
 
 namespace Unity.Storage
 {
@@ -49,33 +50,35 @@ namespace Unity.Storage
         public bool Add(Type type, string? name)
         {
             var collisions = 0;
-            var key = new HashKey(type, name);
-            var targetBucket = key.HashCode % Buckets.Length;
+            var typeHash = type?.GetHashCode() ?? 0;
+            var nameHash = name?.GetHashCode() ?? 0;
+            var hashCode = NamedType.GetHashCode(typeHash, nameHash) & UnityContainer.HashMask;
+
+            var targetBucket = hashCode % Buckets.Length;
 
             // Check for the existing 
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.Key != key)
+                if (candidate.Key.HashType != typeHash || 
+                    candidate.Key.HashName != nameHash)
                 {
                     collisions++;
                     continue;
                 }
-
-                // Already exists
-                return false;
+                return false;   // Already exists
             }
 
             // Expand if required
             if (Count >= Entries.Length || 3 < collisions)
             {
                 Expand();
-                targetBucket = key.HashCode % Buckets.Length;
+                targetBucket = hashCode % Buckets.Length;
             }
 
             // Add registration
             ref var entry = ref Entries[Count];
-            entry.Key = key;
+            entry.Key = new HashKey(typeHash, nameHash, hashCode);
             entry.Next = Buckets[targetBucket];
             Buckets[targetBucket] = Count++;
 
@@ -170,7 +173,7 @@ namespace Unity.Storage
         }
 
         public static readonly int[] Primes = {
-            11, 37, 71, 107, 131, 163, 197, 239, 293, 353, 431, 521, 631, 761, 919, 1103, 1327, 1597,
+            37, 71, 107, 163, 239, 293, 431, 521, 631, 761, 919, 1103, 1327, 1597,
             1931, 2333, 2801, 3371, 4049, 4861, 5839, 7013, 8419, 10103, 12143, 14591, 17519, 21023,
             25229, 30293, 36353, 43627, 52361, 62851, 75431, 90523, 108631, 130363, 156437, 187751,
             225307, 270371, 324449, 389357, 467237, 560689, 672827, 807403, 968897, 1162687, 1395263,

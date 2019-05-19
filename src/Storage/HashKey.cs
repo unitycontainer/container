@@ -30,6 +30,13 @@ namespace Unity.Storage
             HashCode = NamedType.GetHashCode(HashType, HashName) & UnityContainer.HashMask;
         }
 
+        public HashKey(int typeHash, int nameHash, int hash)
+        {
+            HashType = typeHash;
+            HashName = nameHash;
+            HashCode = hash;
+        }
+
         #endregion
 
 
@@ -48,7 +55,7 @@ namespace Unity.Storage
 
         public bool Equals(HashKey other)
         {
-            return //other.HashCode == HashCode &&
+            return other.HashCode == HashCode &&
                    other.HashType == HashType &&
                    other.HashName == HashName;
         }

@@ -41,7 +41,7 @@ namespace Unity
         // Essentials
         private Registry<int[]>? _metadata;
         private Registry<IPolicySet>? _registry;
-        private readonly UnityContainer? _root;
+        private readonly UnityContainer _root;
         private readonly UnityContainer? _parent;
 
         internal readonly ModeFlags ExecutionMode;
@@ -263,23 +263,6 @@ namespace Unity
                 return resolver(ref context);
             }
 #endif
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
-        private struct ContainerRegistrationStruct : IContainerRegistration
-        {
-            public Type RegisteredType { get; internal set; }
-
-            public string? Name { get; internal set; }
-
-            public Type? MappedToType { get; internal set; }
-
-            public LifetimeManager LifetimeManager { get; internal set; }
         }
 
         #endregion

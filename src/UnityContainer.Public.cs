@@ -51,35 +51,35 @@ namespace Unity
             /////////////////////////////////////////////////////////////
             // Initialize Root 
             _root = this;
-
-            // Defaults and policies
             ExecutionMode = mode;
-            Defaults = new DefaultPolicies(this);
             LifetimeContainer = new LifetimeContainer(this);
             Register = AddOrReplace;
-
-            // Create Registry and set Factory strategy
-            _metadata = new Registry<int[]>();
-            _registry = new Registry<IPolicySet>(Defaults);
-
             
-            /////////////////////////////////////////////////////////////
             //Built-In Registrations
 
+            // Defaults
+            Defaults = new DefaultPolicies(this);
+
             // IUnityContainer, IUnityContainerAsync
-            var container = new ImplicitRegistration(this, null)
+            var container = new ExplicitRegistration(this, null, typeof(UnityContainer))
             {
                 Pipeline = (ref BuilderContext c) => c.Async ? (object)Task.FromResult<object>(c.Container) : c.Container,
                 PipelineDelegate = (ref BuilderContext c) => new ValueTask<object?>(c.Container)
             };
+
+            // Create Registry
+            _metadata = new Registry<int[]>();
+            _registry = new Registry<IPolicySet>(Defaults);
             _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
+            /////////////////////////////////////////////////////////////
             // Built-In Features
+
             var func = new PolicySet(this);
             _registry.Set(typeof(Func<>), func);  
                  func.Set(typeof(LifetimeManager),     new PerResolveLifetimeManager());
-                 func.Set(typeof(TypeFactoryDelegate), FuncResolver.Factory);                                                   // Func<> Factory
+                 func.Set(typeof(TypeFactoryDelegate), FuncResolver.Factory);                                                         // Func<> Factory
             _registry.Set(typeof(Lazy<>),              new PolicySet(this, typeof(TypeFactoryDelegate), LazyResolver.Factory));       // Lazy<>
             _registry.Set(typeof(IEnumerable<>),       new PolicySet(this, typeof(TypeFactoryDelegate), EnumerableResolver.Factory)); // Enumerable
             _registry.Set(typeof(IRegex<>),            new PolicySet(this, typeof(TypeFactoryDelegate), RegExResolver.Factory));      // Regular Expression Enumerable
@@ -196,51 +196,30 @@ namespace Unity
                 var set = new QuickSet();
 
                 // First, add the built-in registrations
-                set.Add(typeof(IUnityContainer), null);
-                set.Add(typeof(IUnityContainerAsync), null);
+                Debug.Assert(null != _root._registry);
+                set.Add(ref _root._registry.Entries[1].Key);
+                set.Add(ref _root._registry.Entries[2].Key);
 
-
-                // IUnityContainer
-                yield return new ContainerRegistrationStruct
-                {
-                    RegisteredType = typeof(IUnityContainer),
-                    MappedToType = typeof(UnityContainer),
-                    LifetimeManager = TransientLifetimeManager.Instance
-                };
-
-                // IUnityContainerAsync
-                yield return new ContainerRegistrationStruct
-                {
-                    RegisteredType = typeof(IUnityContainerAsync),
-                    MappedToType = typeof(UnityContainer),
-                    LifetimeManager = TransientLifetimeManager.Instance
-                };
-                
+                // IUnityContainer & IUnityContainerAsync
+                yield return new ContainerRegistration(typeof(IUnityContainer),      (ExplicitRegistration)_root._registry.Entries[1].Value);
+                yield return new ContainerRegistration(typeof(IUnityContainerAsync), (ExplicitRegistration)_root._registry.Entries[2].Value);
                 
                 // Explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
                 {
                     // Skip to parent if no registrations
-                    if (null == container._metadata || null == container._registry)
-                        continue;
+                    if (null == container._metadata) continue;
 
                     // Hold on to registries
+                    Debug.Assert(null != container._registry);
                     var registry = container._registry;
                     for (var i = 0; i < registry.Count; i++)
                     {
-                        var type = registry.Entries[i].Type;
-                        var registration = registry.Entries[i].Value as ExplicitRegistration;
-
-                        if (null == registration || !set.Add(type, registration.Name))
+                        if (!(registry.Entries[i].Value is ExplicitRegistration registration) || 
+                            !set.Add(ref registry.Entries[i].Key))
                             continue;
 
-                        yield return new ContainerRegistrationStruct
-                        {
-                            RegisteredType = type,
-                            Name = registration.Name,
-                            MappedToType = registration.Type,
-                            LifetimeManager = registration.LifetimeManager ?? TransientLifetimeManager.Instance,
-                        };
+                        yield return new ContainerRegistration(registry.Entries[i].Type, registration);
                     }
                 }
             }
