@@ -32,65 +32,6 @@ namespace Unity
             return false;
         }
 
-        internal bool IsRegistered(ref BuilderContext context)
-        {
-            Type? generic = null;
-            int targetBucket, hashGeneric = -1;
-            int hashExact = NamedType.GetHashCode(context.Type, context.Name);
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var info = context.Type.GetTypeInfo();
-            if (info.IsGenericType)
-            {
-                generic = info.GetGenericTypeDefinition();
-                hashGeneric = NamedType.GetHashCode(generic, context.Name);
-            }
-#else
-            if (context.Type.IsGenericType)
-            {
-                generic = context.Type.GetGenericTypeDefinition();
-                hashGeneric = NamedType.GetHashCode(generic, context.Name);
-            }
-#endif
-
-            // Iterate through containers hierarchy
-            for (UnityContainer? container = this; null != container; container = container._parent)
-            {
-                // Skip to parent if no registrations
-                if (null == container._metadata) continue;
-
-                Debug.Assert(null != container._registry);
-                var registry = container._registry;
-
-                // Check for exact match
-                targetBucket = (hashExact & HashMask) % registry.Buckets.Length;
-                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
-                {
-                    ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashExact || candidate.Type != context.Type) continue;
-
-                    // Found a registration
-                    return true;
-                }
-
-                // Skip to parent if not generic
-                if (null == generic) continue;
-
-                // Check for factory with same name
-                targetBucket = (hashGeneric & HashMask) % registry.Buckets.Length;
-                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
-                {
-                    ref var candidate = ref registry.Entries[i];
-                    if (candidate.HashCode != hashGeneric || candidate.Type != generic) continue;
-
-                    // Found a factory
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         #endregion
 
 
