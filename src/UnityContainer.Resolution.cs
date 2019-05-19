@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
@@ -85,9 +86,10 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no data
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
                 // Hold on to registries
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
@@ -145,9 +147,10 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no data
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
                 // Hold on to registries
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
@@ -262,9 +265,10 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no data
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
                 // Hold on to registries
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
@@ -306,9 +310,10 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no data
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
                 // Hold on to registries
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
@@ -372,9 +377,10 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no data
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
                 // Hold on to registries
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
@@ -417,9 +423,10 @@ namespace Unity
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 // Skip to parent if no data
-                if (null == container._metadata || null == container._registry) continue;
+                if (null == container._metadata) continue;
 
                 // Hold on to registries
+                Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
