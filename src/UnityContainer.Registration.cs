@@ -134,15 +134,15 @@ namespace Unity
 #endif
                     var keyGeneric = new HashKey(generic, name);
                     hashGeneric = keyGeneric.HashCode;
-                    typeGeneric = keyGeneric.HashType;
-                    nameGeneric = keyGeneric.HashName;
+                    typeGeneric = keyGeneric.TypeHash;
+                    nameGeneric = keyGeneric.NameHash;
 
                     if (null != generic)
                     {
                         var keyDefault = new HashKey(generic);
                         hashDefault = keyDefault.HashCode;
-                        typeDefault = keyDefault.HashType;
-                        nameDefault = keyDefault.HashName;
+                        typeDefault = keyDefault.TypeHash;
+                        nameDefault = keyDefault.NameHash;
                     }
                 }
 
@@ -151,8 +151,8 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key.HashType != typeGeneric || 
-                        candidate.Key.HashName != nameGeneric)
+                    if (candidate.Key.TypeHash != typeGeneric || 
+                        candidate.Key.NameHash != nameGeneric)
                         continue;
 
                     // Found a factory
@@ -164,8 +164,8 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key.HashType != typeDefault || 
-                        candidate.Key.HashName != nameDefault)
+                    if (candidate.Key.TypeHash != typeDefault || 
+                        candidate.Key.NameHash != nameDefault)
                         continue;
 
                     // Found a factory
