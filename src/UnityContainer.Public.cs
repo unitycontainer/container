@@ -152,6 +152,7 @@ namespace Unity
                 ValidateType  = DiagnosticValidateType;
                 ValidateTypes = DiagnosticValidateTypes;
                 CreateMessage = CreateDiagnosticMessage;
+
             }
         }
 
@@ -189,6 +190,7 @@ namespace Unity
         }
 
         /// <inheritdoc />
+        //public IEnumerable<IContainerRegistration> Registrations => Context;
         public IEnumerable<IContainerRegistration> Registrations
         {
             get
@@ -201,9 +203,9 @@ namespace Unity
                 set.Add(ref _root._registry.Entries[2].Key);
 
                 // IUnityContainer & IUnityContainerAsync
-                yield return new ContainerRegistration(typeof(IUnityContainer),      (ExplicitRegistration)_root._registry.Entries[1].Value);
+                yield return new ContainerRegistration(typeof(IUnityContainer), (ExplicitRegistration)_root._registry.Entries[1].Value);
                 yield return new ContainerRegistration(typeof(IUnityContainerAsync), (ExplicitRegistration)_root._registry.Entries[2].Value);
-                
+
                 // Explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
                 {
@@ -215,7 +217,7 @@ namespace Unity
                     var registry = container._registry;
                     for (var i = 0; i < registry.Count; i++)
                     {
-                        if (!(registry.Entries[i].Value is ExplicitRegistration registration) || 
+                        if (!(registry.Entries[i].Value is ExplicitRegistration registration) ||
                             !set.Add(ref registry.Entries[i].Key))
                             continue;
 

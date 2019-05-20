@@ -13,7 +13,7 @@ using Unity.Storage;
 namespace Unity.Registration
 {
     [DebuggerDisplay("Registration.Implicit({Count})")]
-    [DebuggerTypeProxy(typeof(ImplicitRegistrationDebugProxy))]
+    //[DebuggerTypeProxy(typeof(ImplicitRegistrationDebugProxy))]
     public class ImplicitRegistration : PolicySet
     {
 

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using Unity.Policy;
 using Unity.Registration;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
