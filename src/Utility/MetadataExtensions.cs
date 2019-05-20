@@ -12,7 +12,7 @@ namespace Unity.Utility
             // Check if metadata exists
             for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
             {
-                if (!metadata.Entries[i].Key.Equals(ref key)) continue;
+                if (metadata.Entries[i].Key != key) continue;
 
                 // Get a fix on the buffer
                 data = metadata.Entries[i].Value;

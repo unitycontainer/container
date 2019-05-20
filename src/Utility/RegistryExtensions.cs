@@ -16,7 +16,7 @@ namespace Unity.Utility
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
                 ref var candidate = ref registry.Entries[i];
-                if (!candidate.Key.Equals(ref key)) continue;
+                if (candidate.Key != key) continue;
 
                 candidate.Value = set;
                 return;
@@ -38,7 +38,7 @@ namespace Unity.Utility
             for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
             {
                 ref var candidate = ref registry.Entries[i];
-                if (!candidate.Key.Equals(ref key)) continue;
+                if (candidate.Key != key) continue;
 
                 candidate.Value = policies;
                 return;
