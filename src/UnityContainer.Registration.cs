@@ -15,6 +15,7 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ContainerInitialCapacity = 37;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private const int ListToHashCutPoint = 8;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] public const string All = "ALL";
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
 
         #endregion
 

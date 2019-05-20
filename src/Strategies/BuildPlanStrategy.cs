@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -47,16 +48,21 @@ namespace Unity.Strategies
             if (null == resolver)
             {
                 // Check if can create at all
-                if (!(context.Registration is ContainerRegistration) &&  
+
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                      context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
+                if (!(context.Registration is ContainerRegistration) &&  context.RegistrationType.GetTypeInfo().IsGenericTypeDefinition)
 #else
-                      context.RegistrationType.IsGenericTypeDefinition)
+                if (!(context.Registration is ContainerRegistration) && context.RegistrationType.IsGenericTypeDefinition)
 #endif
                 {
                     throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                         "The type {0} is an open generic type. An open generic type cannot be resolved.",
-                        context.RegistrationType.FullName));
+                        context.RegistrationType.FullName), new InvalidRegistrationException());
+                }
+                else if (context.Type.IsArray && context.Type.GetArrayRank() > 1)
+                {
+                    var message = $"Invalid array {context.Type}. Only arrays of rank 1 are supported";
+                    throw new ArgumentException(message, new InvalidRegistrationException());
                 }
 
                 // Get resolver factory
@@ -96,16 +102,33 @@ namespace Unity.Strategies
 
         protected static object GetGeneric(ref BuilderContext context, Type policyInterface)
         {
-            // Check if generic
+            if (context.Registration is ContainerRegistration registration && null != context.Type)
+            {
+                // Check if generic
+#if NETCOREAPP1_0 || NETSTANDARD1_0
+                if (context.Type.GetTypeInfo().IsGenericType)
+#else
+                if (context.Type.IsGenericType)
+#endif
+                {
+                    var newType = context.Type.GetGenericTypeDefinition();
+                    return context.Get(newType, context.Name, policyInterface) ??
+                           context.Get(newType, UnityContainer.All, policyInterface);
+                }
+            }
+            else
+            {
+                // Check if generic
 #if NETCOREAPP1_0 || NETSTANDARD1_0
             if (context.RegistrationType.GetTypeInfo().IsGenericType)
 #else
-            if (context.RegistrationType.IsGenericType)
+                if (context.RegistrationType.IsGenericType)
 #endif
-            {
-                var newType = context.RegistrationType.GetGenericTypeDefinition();
-                return context.Get(newType, context.Name, policyInterface) ??
-                       context.Get(newType, UnityContainer.All, policyInterface);
+                {
+                    var newType = context.RegistrationType.GetGenericTypeDefinition();
+                    return context.Get(newType, context.Name, policyInterface) ??
+                           context.Get(newType, UnityContainer.All, policyInterface);
+                }
             }
 
             return null;

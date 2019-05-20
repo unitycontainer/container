@@ -148,7 +148,7 @@ namespace Unity.Tests.v5.Injection
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void RegisterTypeThrowsIfTypeIsNull()
         {
             IUnityContainer container = new UnityContainer();

@@ -1,11 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Unity.Extension;
 
 namespace Unity.Tests.v5
 {
     [TestClass]
-    public class LegacyExtensionFixture
+    public class LegacyExtensionTests
     {
         [TestMethod]
         public void Register()

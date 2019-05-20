@@ -48,13 +48,13 @@ namespace Unity.Storage
 
         public void Add(Type type, string name, InternalRegistration registration)
         {
-            var hashCode = ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)) & 0x7FFFFFFF; 
+            var hashCode = (37 ^ (name?.GetHashCode() ?? 0 + 17)) & 0x7FFFFFFF; 
             var bucket = hashCode % _buckets.Length;
             var collisionCount = 0;
             for (int i = _buckets[bucket]; --i >= 0; i = _entries[i].Next)
             {
                 ref var entry = ref _entries[i];
-                if (entry.HashCode == hashCode && entry.RegisteredType == type)
+                if (entry.HashCode == hashCode && entry.Name == name)
                 {
                     entry.RegisteredType = type;
                     entry.Name = name;

@@ -7,6 +7,8 @@ using Unity.Extension;
 using Unity.Factories;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 using Unity.Strategies;
 
@@ -25,6 +27,9 @@ namespace Unity
 
             // WithLifetime
             LifetimeContainer = new LifetimeContainer(this);
+            _typeLifetimeManager = TransientLifetimeManager.Instance;
+            _factoryLifetimeManager = TransientLifetimeManager.Instance;
+            _instanceLifetimeManager = new ContainerControlledLifetimeManager();
 
             // Registrations
             _registrations = new Registrations(ContainerInitialCapacity);
@@ -53,12 +58,6 @@ namespace Unity
                         typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
                     UnityBuildStage.Enumerable
                 },
-                {   // Enumerable
-                    new EnumerableResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveEnumerable)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericEnumerable))),
-                    UnityBuildStage.Enumerable
-                },
                 {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping
                 {new LifetimeStrategy(), UnityBuildStage.Lifetime},             // WithLifetime
                 {new BuildPlanStrategy(), UnityBuildStage.Creation}             // Build
@@ -75,12 +74,91 @@ namespace Unity
             Set(typeof(Func<>), All, typeof(LifetimeManager), new PerResolveLifetimeManager());
             Set(typeof(Func<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DeferredFuncResolverFactory.DeferredResolveDelegateFactory);
             Set(typeof(Lazy<>), All, typeof(ResolveDelegateFactory), (ResolveDelegateFactory)GenericLazyResolverFactory.GetResolver);
+            Set(typeof(IEnumerable<>), All, typeof(ResolveDelegateFactory), EnumerableResolver.Factory);
 
             // Register this instance
-            ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, new ContainerLifetimeManager());
+            ((IUnityContainer)this).RegisterInstance(typeof(IUnityContainer), null, this, _containerManager);
         }
 
         #endregion
+
+        /// <inheritdoc />
+        public IEnumerable<IContainerRegistration> Registrations
+        {
+            get
+            {
+                var set = new QuickSet<Type>();
+                set.Add(NamedType.GetHashCode(typeof(IUnityContainer), null), typeof(IUnityContainer));
+
+                // IUnityContainer
+                yield return new ContainerRegistrationStruct
+                {
+                    RegisteredType = typeof(IUnityContainer),
+                    MappedToType = typeof(UnityContainer),
+                    LifetimeManager = _containerManager
+                };
+
+                // Scan containers for explicit registrations
+                for (var container = this; null != container; container = container._parent)
+                {
+                    // Skip to parent if no registrations
+                    if (null == container._registrations) continue;
+
+                    // Hold on to registries
+                    var registrations = container._registrations;
+
+                    for (var i = 0; i < registrations.Count; i++)
+                    {
+                        var registry = registrations.Entries[i].Value;
+                        Type type = registrations.Entries[i].Key;
+
+                        switch (registry)
+                        {
+                            case LinkedRegistry linkedRegistry:
+                                for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                                {
+                                    if (node.Value is ContainerRegistration containerRegistration &&
+                                        set.Add(NamedType.GetHashCode(type, node.Key), type))
+                                    {
+                                        yield return new ContainerRegistrationStruct
+                                        {
+                                            RegisteredType = type,
+                                            Name = node.Key,
+                                            LifetimeManager = containerRegistration.LifetimeManager,
+                                            MappedToType = containerRegistration.Type,
+                                        };
+                                    }
+                                }
+                                break;
+
+                            case HashRegistry hashRegistry:
+                                var count = hashRegistry.Count;
+                                var nodes = hashRegistry.Entries;
+                                for (var j = 0; j < count; j++)
+                                {
+                                    var name = nodes[j].Key;
+
+                                    if (nodes[j].Value is ContainerRegistration containerRegistration &&
+                                        set.Add(NamedType.GetHashCode(type, name), type))
+                                    {
+                                        yield return new ContainerRegistrationStruct
+                                        {
+                                            RegisteredType = type,
+                                            Name = name,
+                                            LifetimeManager = containerRegistration.LifetimeManager,
+                                            MappedToType = containerRegistration.Type,
+                                        };
+                                    }
+                                }
+                                break;
+
+                            default:
+                                yield break;
+                        }
+                    }
+                }
+            }
+        }
 
 
         #region Extension Management
