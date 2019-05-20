@@ -197,7 +197,7 @@ namespace Unity.Tests.v5.Generics
         public class ServiceB<T> : IService<T> { }
 
         [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void FailedResolveAllTest()
         {
             var container = new UnityContainer();

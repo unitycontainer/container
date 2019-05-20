@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.Injection;
 using Unity.Lifetime;
 
@@ -14,6 +16,95 @@ namespace Unity.Tests.v5.CollectionSupport
             IUnityContainer container = new UnityContainer();
 
             Assert.IsNotNull(container.Resolve<IEnumerable<TestClass>>());
+        }
+
+
+        [TestMethod]
+        public void ClosedGenericsWinInArray()
+        {
+            // Arrange
+            var Name = "name";
+            var instance = new Foo<IService>(new OtherService());
+            IUnityContainer Container = new UnityContainer();
+
+            Container.RegisterInstance<IFoo<IService>>(Name, instance)
+                     .RegisterType(typeof(IFoo<>), typeof(Foo<>), Name)
+                     .RegisterType<IFoo<IService>, Foo<IService>>("closed")
+                     .RegisterType<IService, Service>();
+
+            // Act
+            var array = Container.Resolve<IFoo<IService>[]>();
+
+            // Assert
+            Assert.AreEqual(2, array.Length);
+            Assert.IsNotNull(array[0]);
+            Assert.IsNotNull(array[1]);
+        }
+
+        public interface IFoo<TEntity>
+        {
+            TEntity Value { get; }
+        }
+
+        public class Foo<TEntity> : IFoo<TEntity>
+        {
+            public Foo()
+            {
+            }
+
+            public Foo(TEntity value)
+            {
+                Value = value;
+            }
+
+            public TEntity Value { get; }
+        }
+
+        public interface IService
+        {
+        }
+
+        public interface IOtherService
+        {
+        }
+
+        public class Service : IService, IDisposable
+        {
+            public string Id { get; } = Guid.NewGuid().ToString();
+
+            public static int Instances;
+
+            public Service()
+            {
+                Interlocked.Increment(ref Instances);
+            }
+
+            public bool Disposed;
+            public void Dispose()
+            {
+                Disposed = true;
+            }
+        }
+
+        public class OtherService : IService, IOtherService, IDisposable
+        {
+            [InjectionConstructor]
+            public OtherService()
+            {
+
+            }
+
+            public OtherService(IUnityContainer container)
+            {
+
+            }
+
+
+            public bool Disposed = false;
+            public void Dispose()
+            {
+                Disposed = true;
+            }
         }
 
 

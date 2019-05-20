@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -37,9 +38,16 @@ namespace Unity.Processors
 
         protected override Expression GetResolverExpression(MethodInfo info, object resolvers)
         {
-            return Expression.Call(
-                Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
-                info, CreateParameterExpressions(info.GetParameters(), resolvers));
+            try
+            {
+                return Expression.Call(
+                    Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                    info, CreateParameterExpressions(info.GetParameters(), resolvers));
+            }
+            catch (ArgumentException ex)
+            {
+                throw new InvalidRegistrationException("Invalid Argument", ex);
+            }
         }
 
         #endregion

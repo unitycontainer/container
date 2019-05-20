@@ -31,14 +31,12 @@ namespace Unity.Processors
 
                         yield return GetResolverExpression(info, value);
                         break;
-
                     
                         // Injection Member
                     case InjectionMember<TMemberInfo, TData> injectionMember:
                         yield return GetResolverExpression(injectionMember.MemberInfo(type), 
                                                            injectionMember.Data);
                         break;
-
 
                     // Unknown
                     default:

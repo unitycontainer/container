@@ -27,19 +27,19 @@ namespace Unity
         /// <inheritdoc />
         IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
+            var mappedToType = typeTo;
+            var registeredType = typeFrom ?? typeTo;
+            if (null == registeredType) throw new ArgumentNullException(nameof(typeTo));
+
+            // Validate if they are assignable
+            TypeValidator?.Invoke(typeFrom, typeTo);
+
             try
             {
-                var mappedToType = typeTo;
-                var registeredType = typeFrom ?? typeTo;
                 LifetimeManager manager = (null != lifetimeManager) 
                                         ? (LifetimeManager)lifetimeManager 
                                         : TypeLifetimeManager.CreateLifetimePolicy();
-                // Validate input
-                if (null == typeTo) throw new ArgumentNullException(nameof(typeTo));
                 if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-
-                // Validate if they are assignable
-                TypeValidator?.Invoke(typeFrom, typeTo);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
@@ -232,7 +232,6 @@ namespace Unity
         {
             // Verify arguments
             if (null == type) throw new ArgumentNullException(nameof(type));
-            name = string.IsNullOrEmpty(name) ? null : name;
 
             var registration = (InternalRegistration)GetRegistration(type, name);
             var context = new BuilderContext

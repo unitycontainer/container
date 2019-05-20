@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -96,13 +97,21 @@ namespace Unity.Processors
             var variable = Expression.Variable(info.DeclaringType);
             var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
 
-            return Expression.IfThen(
-                Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                Expression.Block(new[] { variable }, new Expression[]
-                {
-                    Expression.Assign(variable, Expression.New(info, parametersExpr)),
-                    Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
-                }));
+            try
+            {
+                return Expression.IfThen(
+                    Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                    Expression.Block(new[] { variable }, new Expression[]
+                    {
+                        Expression.Assign(variable, Expression.New(info, parametersExpr)),
+                        Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
+                    }));
+            }
+            catch (ArgumentException ex)
+            {
+                throw new InvalidRegistrationException("Invalid Argument", ex);
+            }
+
         }
 
         #endregion

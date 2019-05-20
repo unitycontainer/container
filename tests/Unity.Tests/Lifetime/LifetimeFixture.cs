@@ -401,28 +401,5 @@ namespace Unity.Tests.v5.Lifetime
 
             Assert.IsNotNull(obj);
         }
-
-        private class  ATest
-        {
-            
-        }
-
-        [TestMethod]
-        public void TestEmpty()
-        {
-            UnityContainer uc1 = new UnityContainer();
-
-            uc1.RegisterType<ATest>(new ContainerControlledLifetimeManager());
-            uc1.RegisterType<ATest>(String.Empty, new ContainerControlledLifetimeManager());
-            uc1.RegisterType<ATest>(null, new ContainerControlledLifetimeManager());
-
-            ATest a = uc1.Resolve<ATest>();
-            ATest b = uc1.Resolve<ATest>(String.Empty);
-            ATest c = uc1.Resolve<ATest>((string)null);
-
-            Assert.AreEqual(a, b);
-            Assert.AreEqual(b, c);
-            Assert.AreEqual(a, c);
-        }
     }
 }

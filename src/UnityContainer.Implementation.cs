@@ -213,13 +213,25 @@ namespace Unity
                 var infoFrom = typeFrom.GetTypeInfo();
                 var infoTo = typeTo.GetTypeInfo();
 
-                if (typeFrom != null && !infoFrom.IsGenericType && !infoTo.IsGenericType && !infoFrom.IsAssignableFrom(infoTo))
+                if (null != typeFrom && typeFrom != null && !infoFrom.IsGenericType && 
+                    null != typeTo && !infoTo.IsGenericType && !infoFrom.IsAssignableFrom(infoTo))
 #else
-                if (typeFrom != null && !typeFrom.IsGenericType && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
+                if (null != typeFrom && typeFrom != null && !typeFrom.IsGenericType && 
+                    null != typeTo && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
 #endif
                 {
                     throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
                 }
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                if (null != typeFrom && null != typeTo && infoFrom.IsGenericType && infoTo.IsArray && 
+                    infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+#else
+                if (null != typeFrom && null != typeTo && typeFrom.IsGenericType && typeTo.IsArray && 
+                    typeFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+#endif
+                    throw new ArgumentException($"Type mapping of IEnumerable<T> to array T[] is not supported.");
+
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
                 if (null == typeFrom && infoTo.IsInterface)
