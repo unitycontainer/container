@@ -179,7 +179,7 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != key) continue;
+                    if (!candidate.Key.Equals(ref key)) continue;
 
                     return true;
                 }

@@ -3,7 +3,7 @@ using Unity.Resolution;
 
 namespace Unity.Storage
 {
-    public readonly struct HashKey : IEquatable<HashKey>
+    public readonly struct HashKey
     {
         #region Fields
 
@@ -51,36 +51,13 @@ namespace Unity.Storage
         #endregion
 
 
-        #region Overrides
+        #region Equality
 
-        public bool Equals(HashKey other)
+        public bool Equals(ref HashKey other)
         {
             return other.HashCode == HashCode &&
                    other.TypeHash == TypeHash &&
                    other.NameHash == NameHash;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is HashKey other &&
-                   other.HashCode == HashCode &&
-                   other.TypeHash == TypeHash &&
-                   other.NameHash == NameHash;
-        }
-
-        public override int GetHashCode() => HashCode;
-
-        public static bool operator ==(HashKey x, HashKey y)
-        {
-            return x.HashCode == y.HashCode &&
-                   x.TypeHash == y.TypeHash &&
-                   x.NameHash == y.NameHash;
-        }
-        public static bool operator !=(HashKey x, HashKey y)
-        {
-            return x.HashCode != y.HashCode ||
-                   x.TypeHash != y.TypeHash ||
-                   x.NameHash != y.NameHash;
         }
 
         #endregion

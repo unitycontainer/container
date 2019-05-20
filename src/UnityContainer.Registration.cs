@@ -27,7 +27,7 @@ namespace Unity
 
                 for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
                 {
-                    if (metadata.Entries[i].Key != key) continue;
+                    if (!metadata.Entries[i].Key.Equals(ref key)) continue;
                     return true;
                 }
 
@@ -69,7 +69,7 @@ namespace Unity
                 for (var i = registry.Buckets[key.HashCode % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != key) continue;
+                    if (!candidate.Key.Equals(ref key)) continue;
 
                     // Found a registration
                     if (!(candidate.Value is ImplicitRegistration))
@@ -113,7 +113,7 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != keyExact) continue;
+                    if (!candidate.Key.Equals(ref keyExact)) continue;
 
                     // Found a registration
                     if (!(candidate.Value is ImplicitRegistration))
@@ -218,7 +218,7 @@ namespace Unity
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.Key != key)
+                    if (!candidate.Key.Equals(ref key))
                     {
                         collisions++;
                         continue;
@@ -258,7 +258,7 @@ namespace Unity
                 for (var i = _metadata.Buckets[targetBucket]; i >= 0; i = _metadata.Entries[i].Next)
                 {
                     ref var candidate = ref _metadata.Entries[i];
-                    if (candidate.Key != meta || candidate.Type != type)
+                    if (!candidate.Key.Equals(ref meta) || candidate.Type != type)
                     {
                         collisions++;
                         continue;
@@ -318,7 +318,7 @@ namespace Unity
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
-                    if (candidate.Key != key)
+                    if (!candidate.Key.Equals(ref key))
                     {
                         collisions++;
                         continue;

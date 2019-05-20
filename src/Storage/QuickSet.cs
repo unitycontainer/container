@@ -57,7 +57,7 @@ namespace Unity.Storage
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.Key != key)
+                if (!candidate.Key.Equals(ref key))
                 {
                     collisions++;
                     continue;
@@ -92,7 +92,7 @@ namespace Unity.Storage
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.Key != key)
+                if (!candidate.Key.Equals(ref key))
                 {
                     collisions++;
                     continue;
@@ -125,7 +125,7 @@ namespace Unity.Storage
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
                 ref var candidate = ref Entries[i];
-                if (candidate.Key != key)
+                if (!candidate.Key.Equals(ref key))
                 {
                     collisions++;
                     continue;

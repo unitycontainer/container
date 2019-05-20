@@ -37,7 +37,7 @@ namespace Unity
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.Key != key || entry.Value is ImplicitRegistration) continue;
+                        if (!entry.Key.Equals(ref key) || entry.Value is ImplicitRegistration) continue;
 
                         return entry.Value.Get(policyInterface);
                     }
@@ -62,7 +62,7 @@ namespace Unity
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.Key != key) continue;
+                        if (!entry.Key.Equals(ref key)) continue;
 
                         return entry.Value.Get(policyInterface);
                     }
@@ -95,7 +95,7 @@ namespace Unity
                     for (var i = Container._registry.Buckets[targetBucket]; i >= 0; i = Container._registry.Entries[i].Next)
                     {
                         ref var candidate = ref Container._registry.Entries[i];
-                        if (candidate.Key != key || candidate.Value is ImplicitRegistration)
+                        if (!candidate.Key.Equals(ref key) || candidate.Value is ImplicitRegistration)
                             continue;
 
                         candidate.Value.Set(policyInterface, policy);
@@ -134,7 +134,7 @@ namespace Unity
                     for (var i = Container._registry.Buckets[targetBucket]; i >= 0; i = Container._registry.Entries[i].Next)
                     {
                         ref var candidate = ref Container._registry.Entries[i];
-                        if (candidate.Key != key) continue;
+                        if (!candidate.Key.Equals(ref key)) continue;
 
                         candidate.Value.Set(policyInterface, policy);
                         return;
@@ -174,7 +174,7 @@ namespace Unity
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.Key != key) continue;
+                        if (!entry.Key.Equals(ref key)) continue;
 
                         entry.Value.Clear(policyInterface);
                         return;
