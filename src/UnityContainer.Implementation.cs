@@ -123,20 +123,37 @@ namespace Unity
 
         private Type DiagnosticValidateType(Type? typeFrom, Type? typeTo)
         {
+            var type = typeFrom ??
+                       typeTo ??
+                       throw new ArgumentException(
+                           $"At least one of Type arguments '{nameof(typeFrom)}' or '{nameof(typeTo)}' must be not 'null'");
+
+            if (null == typeFrom || null == typeTo) return type;
+
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var infoFrom = typeFrom?.GetTypeInfo();
             var infoTo   = typeTo?.GetTypeInfo();
-            if (null != infoFrom && !infoFrom.IsGenericType && 
-                null != infoTo   && !infoTo.IsGenericType   && !infoFrom.IsAssignableFrom(infoTo))
+            if (!infoFrom.IsGenericType && !infoTo.IsGenericType   && !infoFrom.IsAssignableFrom(infoTo))
 #else
-            if (null != typeFrom && !typeFrom.IsGenericType &&
-                null != typeTo && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
+            if (!typeFrom.IsGenericType && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
 #endif
                 throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
 
-            return typeFrom ??
-                   typeTo ??
-                   throw new ArgumentException($"At least one of Type arguments '{nameof(typeFrom)}' or '{nameof(typeTo)}' must be not 'null'");
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (null == typeFrom && infoTo.IsInterface)
+#else
+            if (null == typeFrom && typeTo.IsInterface)
+#endif
+                throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            if (infoFrom.IsGenericType && infoTo.IsArray && infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+#else
+            if (typeFrom.IsGenericType && typeTo.IsArray && typeFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+#endif
+                throw new ArgumentException($"Type mapping of IEnumerable<T> to array T[] is not supported.");
+
+            return type;
         }
 
         private Type[]? DiagnosticValidateTypes(IEnumerable<Type>? types, Type type)
@@ -152,9 +169,9 @@ namespace Unity
                 if (null == t) throw new ArgumentException($"Enumeration contains null value.", "interfaces");
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                              var infoFrom = t?.GetTypeInfo();
-                              if (null != infoFrom && !infoFrom.IsGenericType && 
-                                  null != infoTo   && !infoTo.IsGenericType   && !infoFrom.IsAssignableFrom(infoTo))
+                var infoFrom = t?.GetTypeInfo();
+                if (null != infoFrom && !infoFrom.IsGenericType && 
+                    null != infoTo   && !infoTo.IsGenericType   && !infoFrom.IsAssignableFrom(infoTo))
 #else
                 if (null != t && !t.IsGenericType &&
                     null != type && !type.IsGenericType && !t.IsAssignableFrom(type))
