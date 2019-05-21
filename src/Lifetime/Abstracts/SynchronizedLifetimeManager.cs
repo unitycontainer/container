@@ -27,7 +27,7 @@ namespace Unity.Lifetime
         private readonly object _lock = new object();
 
         /// <summary>
-        /// This field controlls how long the monitor will wait to 
+        /// This field controls how long the monitor will wait to 
         /// enter the lock. It is <see cref="Timeout.Infinite"/> by default or number of 
         /// milliseconds from 0 to 2147483647.
         /// </summary>
