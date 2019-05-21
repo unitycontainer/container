@@ -17,7 +17,7 @@ namespace Unity
                 Debug.Assert(null != Container._root._registry);
 
                 var registry = Container._root._registry;
-                return registry.Entries[0].Value.Get(policyInterface);
+                return registry.Entries[0].Policies.Get(policyInterface);
             }
 
             /// <inheritdoc />
@@ -36,9 +36,9 @@ namespace Unity
                     for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                     {
                         ref var entry = ref registry.Entries[i];
-                        if (entry.Key != key || entry.Value is ImplicitRegistration) continue;
+                        if (entry.Key != key || entry.Policies is ImplicitRegistration) continue;
 
-                        return entry.Value.Get(policyInterface);
+                        return entry.Policies.Get(policyInterface);
                     }
                 }
 
@@ -63,7 +63,7 @@ namespace Unity
                         ref var entry = ref registry.Entries[i];
                         if (entry.Key != key) continue;
 
-                        return entry.Value.Get(policyInterface);
+                        return entry.Policies.Get(policyInterface);
                     }
                 }
 
@@ -77,7 +77,7 @@ namespace Unity
                 Debug.Assert(null != Container._root._registry);
 
                 var registry = Container._root._registry;
-                registry.Entries[0].Value.Set(policyInterface, policy);
+                registry.Entries[0].Policies.Set(policyInterface, policy);
             }
 
             /// <inheritdoc />
@@ -85,26 +85,26 @@ namespace Unity
             {
                 var key = new HashKey(type);
 
-                lock (Container._syncRegistry)
+                lock (Container._syncLock)
                 {
-                    if (null == Container._registry) Container._registry = new Registry<IPolicySet>();
+                    if (null == Container._registry) Container._registry = new Registry();
 
                     // Check for the existing 
                     var targetBucket = key.HashCode % Container._registry.Buckets.Length;
                     for (var i = Container._registry.Buckets[targetBucket]; i >= 0; i = Container._registry.Entries[i].Next)
                     {
                         ref var candidate = ref Container._registry.Entries[i];
-                        if (candidate.Key != key || candidate.Value is ImplicitRegistration)
+                        if (candidate.Key != key || candidate.Policies is ImplicitRegistration)
                             continue;
 
-                        candidate.Value.Set(policyInterface, policy);
+                        candidate.Policies.Set(policyInterface, policy);
                         return;
                     }
 
                     // Expand only if no more space
                     if (Container._registry.Count >= Container._registry.Entries.Length)
                     {
-                        Container._registry = new Registry<IPolicySet>(Container._registry);
+                        Container._registry = new Registry(Container._registry);
                         targetBucket = key.HashCode % Container._registry.Buckets.Length;
                     }
 
@@ -113,7 +113,7 @@ namespace Unity
                     entry.Key = key;
                     entry.Type = type;
                     entry.Next = Container._registry.Buckets[targetBucket];
-                    entry.Value = new PolicySet(Container, policyInterface, policy);
+                    entry.Policies = new PolicySet(Container, policyInterface, policy);
                     Container._registry.Buckets[targetBucket] = Container._registry.Count++;
                 }
             }
@@ -123,9 +123,9 @@ namespace Unity
             {
                 var key = new HashKey(type, name);
 
-                lock (Container._syncRegistry)
+                lock (Container._syncLock)
                 {
-                    if (null == Container._registry) Container._registry = new Registry<IPolicySet>();
+                    if (null == Container._registry) Container._registry = new Registry();
 
                     var targetBucket = key.HashCode % Container._registry.Buckets.Length;
 
@@ -135,14 +135,14 @@ namespace Unity
                         ref var candidate = ref Container._registry.Entries[i];
                         if (candidate.Key != key) continue;
 
-                        candidate.Value.Set(policyInterface, policy);
+                        candidate.Policies.Set(policyInterface, policy);
                         return;
                     }
 
                     // Expand only if no more space
                     if (Container._registry.Count >= Container._registry.Entries.Length)
                     {
-                        Container._registry = new Registry<IPolicySet>(Container._registry);
+                        Container._registry = new Registry(Container._registry);
                         targetBucket = key.HashCode % Container._registry.Buckets.Length;
                     }
 
@@ -151,8 +151,8 @@ namespace Unity
                     entry.Key = key;
                     entry.Type = type;
                     entry.Next = Container._registry.Buckets[targetBucket];
-                    entry.Value = new ImplicitRegistration(Container, name);
-                    entry.Value.Set(policyInterface, policy);
+                    entry.Policies = new ImplicitRegistration(Container, name);
+                    entry.Policies.Set(policyInterface, policy);
                     Container._registry.Buckets[targetBucket] = Container._registry.Count++;
                 }
             }
@@ -175,7 +175,7 @@ namespace Unity
                         ref var entry = ref registry.Entries[i];
                         if (entry.Key != key) continue;
 
-                        entry.Value.Clear(policyInterface);
+                        entry.Policies.Clear(policyInterface);
                         return;
                     }
                 }

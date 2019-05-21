@@ -43,7 +43,9 @@ namespace Unity.Storage
 
         object IEnumerator.Current => Current;
 
+#pragma warning disable CS8603 // Possible null reference return.
         public IContainerRegistration Current => _current;
+#pragma warning restore CS8603 // Possible null reference return.
 
         public bool MoveNext()
         {

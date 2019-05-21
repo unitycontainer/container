@@ -29,7 +29,7 @@ namespace Unity
         internal static readonly ResolveDelegate<BuilderContext> DefaultResolver = (ref BuilderContext c) => c.Existing;
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
-        private readonly object _syncRegistry = new object();
+        private readonly object _syncLock = new object();
         private readonly object _syncMetadata = new object();
         private const int CollisionsCutPoint = 5;
 
@@ -40,7 +40,7 @@ namespace Unity
 
         // Essentials
         private Metadata? _metadata;
-        private Registry<IPolicySet>? _registry;
+        private Registry? _registry;
         private readonly UnityContainer _root;
         private readonly UnityContainer? _parent;
 
@@ -57,7 +57,7 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         // Dynamic Members
-        private Func<Type, string?, ImplicitRegistration, ImplicitRegistration?> Register;
+        private Func<Type, string?, ExplicitRegistration, ExplicitRegistration?> Register;
 
         #endregion
 

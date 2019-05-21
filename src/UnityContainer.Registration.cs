@@ -27,7 +27,7 @@ namespace Unity
 
                 for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
                 {
-                    if (metadata.Entries[i].HashCode != key) continue;
+                    if (metadata.Entries[i].HashKey != key) continue;
                     return true;
                 }
 
@@ -72,10 +72,10 @@ namespace Unity
                     if (candidate.Key != key) continue;
 
                     // Found a registration
-                    if (!(candidate.Value is ImplicitRegistration))
-                        candidate.Value = container.CreateRegistration(type, name, candidate.Value);
+                    if (!(candidate.Policies is ImplicitRegistration))
+                        candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
 
-                    return (ImplicitRegistration)candidate.Value;
+                    return (ImplicitRegistration)candidate.Policies;
                 }
             }
 
@@ -115,10 +115,10 @@ namespace Unity
                     if (candidate.Key != keyExact) continue;
 
                     // Found a registration
-                    if (!(candidate.Value is ImplicitRegistration))
-                        candidate.Value = container.CreateRegistration(type, name, candidate.Value);
+                    if (!(candidate.Policies is ImplicitRegistration))
+                        candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
 
-                    return (ImplicitRegistration)candidate.Value;
+                    return (ImplicitRegistration)candidate.Policies;
                 }
 
                 // Generic registrations
@@ -144,7 +144,7 @@ namespace Unity
                         continue;
 
                     // Found a factory
-                    return container.GetOrAdd(ref keyExact, type, name, candidate.Value);
+                    return container.GetOrAdd(ref keyExact, type, name, candidate.Policies);
                 }
 
                 // Check for default factory
@@ -156,7 +156,7 @@ namespace Unity
                         continue;
 
                     // Found a factory
-                    return container.GetOrAdd(ref keyExact, type, name, candidate.Value);
+                    return container.GetOrAdd(ref keyExact, type, name, candidate.Policies);
                 }
             }
 
@@ -170,11 +170,11 @@ namespace Unity
 
         #region Registration manipulation
 
-        private ImplicitRegistration? InitAndAdd(Type type, string? name, ImplicitRegistration registration)
+        private ExplicitRegistration? InitAndAdd(Type type, string? name, ExplicitRegistration registration)
         {
-            lock (_syncRegistry)
+            lock (_syncLock)
             {
-                if (null == _registry) _registry = new Registry<IPolicySet>();
+                if (null == _registry) _registry = new Registry();
                 if (null == _metadata)
                 {
                     _metadata = new Metadata();
@@ -186,12 +186,11 @@ namespace Unity
             return Register(type, name, registration);
         }
 
-        private ImplicitRegistration? AddOrReplace(Type type, string? name, ImplicitRegistration registration)
+        private ExplicitRegistration? AddOrReplace(Type type, string? name, ExplicitRegistration registration)
         {
-            int position = -1;
             var collisions = 0;
             var key = new HashKey(type, name);
-            var meta = new HashKey(type);
+            var metaKey = new HashKey(type);
 
             Debug.Assert(null != _registry);
             Debug.Assert(null != _metadata);
@@ -199,7 +198,7 @@ namespace Unity
             registration.AddRef();
 
             // Registry
-            lock (_syncRegistry)
+            lock (_syncLock)
             {
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
@@ -212,10 +211,14 @@ namespace Unity
                     }
 
                     // Swap the registration
-                    var existing = candidate.Value as ImplicitRegistration;
+                    var existing = candidate.Policies as ExplicitRegistration;
 
-                    if (null == existing) registration.Add(candidate.Value);
-                    candidate.Value = registration;
+                    if (null == existing)
+                    {
+                        candidate.IsExplicit = true;
+                        registration.Add(candidate.Policies);
+                    }
+                    candidate.Policies = registration;
 
                     // Replaced registration
                     return existing;
@@ -224,7 +227,7 @@ namespace Unity
                 // Expand if required
                 if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _registry = new Registry<IPolicySet>(_registry);
+                    _registry = new Registry(_registry);
                     targetBucket = key.HashCode % _registry.Buckets.Length;
                 }
 
@@ -233,19 +236,20 @@ namespace Unity
                 entry.Key = key;
                 entry.Next = _registry.Buckets[targetBucket];
                 entry.Type = type;
-                entry.Value = registration;
-                position = _registry.Count++;
+                entry.IsExplicit = true;
+                entry.Policies = registration;
+                int position = _registry.Count++;
                 _registry.Buckets[targetBucket] = position;
 
                 collisions = 0;
 
                 // Metadata
-                targetBucket = meta.HashCode % _metadata.Buckets.Length;
+                targetBucket = metaKey.HashCode % _metadata.Buckets.Length;
 
                 for (var i = _metadata.Buckets[targetBucket]; i >= 0; i = _metadata.Entries[i].Next)
                 {
                     ref var candidate = ref _metadata.Entries[i];
-                    if (candidate.HashCode != meta || candidate.Type != type)
+                    if (candidate.HashKey != metaKey || candidate.Type != type)
                     {
                         collisions++;
                         continue;
@@ -270,13 +274,13 @@ namespace Unity
                 if (_metadata.RequireToGrow || CollisionsCutPoint < collisions)
                 {
                     _metadata = new Metadata(_metadata);
-                    targetBucket = meta.HashCode % _metadata.Buckets.Length;
+                    targetBucket = metaKey.HashCode % _metadata.Buckets.Length;
                 }
 
                 // Create new metadata entry
                 ref var metadata = ref _metadata.Entries[_metadata.Count];
                 metadata.Next = _metadata.Buckets[targetBucket];
-                metadata.HashCode = meta;
+                metadata.HashKey = metaKey;
                 metadata.Type = type;
                 metadata.Value = new int[] { 2, position };
                 _metadata.Buckets[targetBucket] = _metadata.Count++;
@@ -296,7 +300,7 @@ namespace Unity
         {
             Debug.Assert(null != _registry);
 
-            lock (_syncRegistry)
+            lock (_syncLock)
             {
                 var collisions = 0;
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
@@ -311,16 +315,16 @@ namespace Unity
                         continue;
                     }
 
-                    if (!(candidate.Value is ImplicitRegistration))
-                        candidate.Value = CreateRegistration(type, name, candidate.Value);
+                    if (!(candidate.Policies is ImplicitRegistration))
+                        candidate.Policies = CreateRegistration(type, name, candidate.Policies);
 
-                    return (ImplicitRegistration)candidate.Value;
+                    return (ImplicitRegistration)candidate.Policies;
                 }
 
                 // Expand if required
                 if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _registry = new Registry<IPolicySet>(_registry);
+                    _registry = new Registry(_registry);
                     targetBucket = key.HashCode % _registry.Buckets.Length;
                 }
 
@@ -331,10 +335,10 @@ namespace Unity
                 entry.Key = key;
                 entry.Type = type;
                 entry.Next = _registry.Buckets[targetBucket];
-                entry.Value = registration;
+                entry.Policies = registration;
                 _registry.Buckets[targetBucket] = _registry.Count++;
 
-                return (ImplicitRegistration)entry.Value;
+                return (ImplicitRegistration)entry.Policies;
             }
         }
 

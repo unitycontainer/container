@@ -76,7 +76,7 @@ namespace Unity.Storage
             Array.Copy(metadata.Entries, 0, Entries, 0, metadata.Count);
             for (var i = 0; i < metadata.Count; i++)
             {
-                var hashCode = Entries[i].HashCode.HashCode;
+                var hashCode = Entries[i].HashKey.HashCode;
                 if (hashCode < 0) continue;
 
                 var bucket = hashCode % Buckets.Length;
@@ -91,14 +91,14 @@ namespace Unity.Storage
 
         #region Public Members
 
-        public int GetEntries(ref HashKey key, out int[]? data)
+        public int GetMeta(ref HashKey key, out int[]? data)
         {
             var targetBucket = key.HashCode % Buckets.Length;
 
             // Check if metadata exists
             for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
             {
-                if (Entries[i].HashCode != key) continue;
+                if (Entries[i].HashKey != key) continue;
 
                 // Get a fix on the buffer
                 data = Entries[i].Value;
@@ -120,7 +120,7 @@ namespace Unity.Storage
         [DebuggerDisplay("{Value}", Name = "{Key}")]
         public struct Entry
         {
-            public HashKey HashCode;
+            public HashKey HashKey;
             public int Next;
             public Type Type;
             public int[] Value;

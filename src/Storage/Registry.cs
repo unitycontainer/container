@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security;
+using Unity.Policy;
 
 namespace Unity.Storage
 {
     [SecuritySafeCritical]
-    public class Registry<TValue>
+    public class Registry
     {
         #region Fields
 
@@ -70,7 +71,7 @@ namespace Unity.Storage
 #endif
         }
 
-        public Registry(Registry<TValue> registry)
+        public Registry(Registry registry)
             : this(registry._prime + 1)
         {
             Array.Copy(registry.Entries, 0, Entries, 0, registry.Count);
@@ -86,12 +87,12 @@ namespace Unity.Storage
             Count = registry.Count;
         }
 
-        public Registry(TValue value)
+        public Registry(IPolicySet value)
             : this(0)
         {
             ref var entry = ref Entries[0];
             entry.Next = -1;
-            entry.Value = value;
+            entry.Policies = value;
 
             Buckets[0] = 0;
             Count++;
@@ -115,7 +116,9 @@ namespace Unity.Storage
             public HashKey Key;
             public int Next;
             public Type Type;
-            public TValue Value;
+            public bool IsExplicit;
+            public IPolicySet Policies;
+            public IContainerRegistration Registration;
         }
 
         #endregion

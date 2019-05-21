@@ -69,7 +69,7 @@ namespace Unity
 
             // Create Registry
             _metadata = new Metadata();
-            _registry = new Registry<IPolicySet>(Defaults);
+            _registry = new Registry(Defaults);
             _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 
@@ -180,7 +180,7 @@ namespace Unity
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
                     ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != key) continue;
+                    if (candidate.Key != key || !candidate.IsExplicit) continue;
 
                     return true;
                 }
@@ -202,8 +202,8 @@ namespace Unity
                 set.Add(ref _root._registry.Entries[2].Key);
 
                 // IUnityContainer & IUnityContainerAsync
-                yield return new ContainerRegistration(typeof(IUnityContainer), (ExplicitRegistration)_root._registry.Entries[1].Value);
-                yield return new ContainerRegistration(typeof(IUnityContainerAsync), (ExplicitRegistration)_root._registry.Entries[2].Value);
+                yield return _root._registry.Entries[1].Registration;
+                yield return _root._registry.Entries[2].Registration;
 
                 // Explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
@@ -216,11 +216,13 @@ namespace Unity
                     var registry = container._registry;
                     for (var i = 0; i < registry.Count; i++)
                     {
-                        if (!(registry.Entries[i].Value is ExplicitRegistration registration) ||
-                            !set.Add(ref registry.Entries[i].Key))
+                        if (!registry.Entries[i].IsExplicit || !set.Add(ref registry.Entries[i].Key))
                             continue;
 
-                        yield return new ContainerRegistration(registry.Entries[i].Type, registration);
+                        if (null == registry.Entries[i].Registration)
+                            registry.Entries[i].Registration = new ContainerRegistration(registry.Entries[i].Type, registry.Entries[i].Policies);
+
+                        yield return registry.Entries[i].Registration;
                     }
                 }
             }

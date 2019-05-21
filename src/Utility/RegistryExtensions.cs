@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Storage;
 
 namespace Unity.Utility
@@ -8,7 +9,7 @@ namespace Unity.Utility
     {
         #region Set
 
-        internal static void Set(this Registry<IPolicySet> registry, Type type, IPolicySet set)
+        internal static void Set(this Registry registry, Type type, IPolicySet set)
         {
             var key = new HashKey(type);
             var targetBucket = key.HashCode % registry.Buckets.Length;
@@ -18,7 +19,7 @@ namespace Unity.Utility
                 ref var candidate = ref registry.Entries[i];
                 if (candidate.Key != key) continue;
 
-                candidate.Value = set;
+                candidate.Policies = set;
                 return;
             }
 
@@ -26,11 +27,11 @@ namespace Unity.Utility
             entry.Key = key;
             entry.Next = registry.Buckets[targetBucket];
             entry.Type = type;
-            entry.Value = set;
+            entry.Policies = set;
             registry.Buckets[targetBucket] = registry.Count++;
         }
 
-        internal static void Set(this Registry<IPolicySet> registry, Type type, string? name, IPolicySet policies)
+        internal static void Set(this Registry registry, Type type, string? name, ExplicitRegistration registration)
         {
             var key = new HashKey(type, name);
             var targetBucket = key.HashCode % registry.Buckets.Length;
@@ -40,15 +41,17 @@ namespace Unity.Utility
                 ref var candidate = ref registry.Entries[i];
                 if (candidate.Key != key) continue;
 
-                candidate.Value = policies;
+                candidate.Policies = registration;
                 return;
             }
 
             ref var entry = ref registry.Entries[registry.Count];
             entry.Key = key;
             entry.Next = registry.Buckets[targetBucket];
+            entry.IsExplicit = true;
             entry.Type = type;
-            entry.Value = policies;
+            entry.Policies = registration;
+            entry.Registration = new ContainerRegistration(type, registration);
             registry.Buckets[targetBucket] = registry.Count++;
         }
 

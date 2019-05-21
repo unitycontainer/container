@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Unity.Registration
 {
@@ -9,10 +10,10 @@ namespace Unity.Registration
     {
         private readonly ExplicitRegistration _registration;
 
-        public ContainerRegistration(Type type, ExplicitRegistration registration)
+        public ContainerRegistration(Type type, IPolicySet registration)
         {
             RegisteredType = type;
-            _registration = registration;
+            _registration = (ExplicitRegistration)registration;
         }
 
         public Type RegisteredType { get; }

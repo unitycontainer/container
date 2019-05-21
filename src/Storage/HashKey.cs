@@ -8,7 +8,7 @@ namespace Unity.Storage
         #region Fields
 
         public readonly int HashCode;
-        public readonly Type Type;
+        private readonly int _type;
         private readonly int _name;
 
         #endregion
@@ -18,30 +18,30 @@ namespace Unity.Storage
 
         public HashKey(int _ = 0)
         {
+            _type = 0;
             _name = 0;
             HashCode = 0;
-            Type = typeof(NoType);
         }
 
         public HashKey(Type type)
         {
+            _type = type?.GetHashCode() ?? 0; 
             _name = -1;
-            HashCode = NamedType.GetHashCode(type?.GetHashCode() ?? 0, _name) & UnityContainer.HashMask;
-            Type = type;
+            HashCode = NamedType.GetHashCode(_type, _name) & UnityContainer.HashMask;
         }
 
         public HashKey(string? name)
         {
+            _type = name?.Length ?? 0;
             _name = name?.GetHashCode() ?? 0;
-            HashCode = NamedType.GetHashCode(typeof(NoType), name) & UnityContainer.HashMask;
-            Type = typeof(NoType);
+            HashCode = NamedType.GetHashCode(_type, _name) & UnityContainer.HashMask;
         }
 
         public HashKey(Type type, string? name)
         {
+            _type = type?.GetHashCode() ?? 0;
             _name = name?.GetHashCode() ?? 0;
-            HashCode = NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
-            Type = type;
+            HashCode = NamedType.GetHashCode(_type, _name) & UnityContainer.HashMask;
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace Unity.Storage
         public bool Equals(HashKey other)
         {
             return other.HashCode == HashCode &&
-                   other.Type == Type &&
+                   other._type == _type &&
                    other._name == _name;
         }
 
@@ -71,7 +71,7 @@ namespace Unity.Storage
         {
             return obj is HashKey other &&
                    other.HashCode == HashCode &&
-                   other.Type == Type &&
+                   other._type == _type &&
                    other._name == _name;
         }
 
@@ -80,23 +80,15 @@ namespace Unity.Storage
         public static bool operator ==(HashKey x, HashKey y)
         {
             return x.HashCode == y.HashCode &&
-                   x.Type == y.Type &&
+                   x._type == y._type &&
                    x._name == y._name;
         }
-
         public static bool operator !=(HashKey x, HashKey y)
         {
             return x.HashCode != y.HashCode ||
-                   x.Type != y.Type ||
+                   x._type != y._type ||
                    x._name != y._name;
         }
-
-        #endregion
-
-
-        #region NoType
-
-        private class NoType { }
 
         #endregion
     }

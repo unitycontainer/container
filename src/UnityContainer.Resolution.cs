@@ -93,13 +93,13 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref key, out int[]? data);
                 if (null != data && null != registry)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (!set.Add(registration.Name)) continue;
 
@@ -153,13 +153,13 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (!set.Add(registration.Name)) continue;
 
@@ -177,13 +177,13 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(ref keyGeneric, out data);
+                length = container._metadata.GetMeta(ref keyGeneric, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (set.Add(registration.Name))
                         {
@@ -270,13 +270,13 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (null != registration.Name && set.Add(registration.Name))
                         {
@@ -315,13 +315,13 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (null != registration.Name && set.Add(registration.Name))
                         {
@@ -340,13 +340,13 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(ref keyGeneric, out data);
+                length = container._metadata.GetMeta(ref keyGeneric, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (null != registration.Name && set.Add(registration.Name))
                         {
@@ -382,13 +382,13 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetEntries(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (null != registration.Name && set.Add(registration.Name))
                         {
@@ -428,13 +428,13 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetEntries(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref key, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (null != registration.Name && set.Add(registration.Name))
                         {
@@ -454,13 +454,13 @@ namespace Unity
                 }
 
                 // Get indexes for unbound types and iterate over them
-                length = container._metadata.GetEntries(ref keyGeneric, out data);
+                length = container._metadata.GetMeta(ref keyGeneric, out data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Value;
+                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
 
                         if (null != registration.Name && set.Add(registration.Name))
                         {
