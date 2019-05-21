@@ -190,7 +190,6 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        //public IEnumerable<IContainerRegistration> Registrations => Context;
         public IEnumerable<IContainerRegistration> Registrations
         {
             get
