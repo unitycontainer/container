@@ -238,7 +238,7 @@ namespace Unity
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = LifetimeContainer,
+                Lifetime = ((registration as ContainerRegistration)?.LifetimeManager is SingletonLifetimeManager) ? _root.LifetimeContainer : LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
                 RegistrationType = type,
@@ -270,7 +270,7 @@ namespace Unity
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = LifetimeContainer,
+                Lifetime = ((registration as ContainerRegistration)?.LifetimeManager is SingletonLifetimeManager) ? _root.LifetimeContainer : LifetimeContainer,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
