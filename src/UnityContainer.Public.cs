@@ -68,7 +68,7 @@ namespace Unity
             };
 
             // Create Registry
-            _metadata = new Registry<int[]>();
+            _metadata = new Metadata();
             _registry = new Registry<IPolicySet>(Defaults);
             _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);

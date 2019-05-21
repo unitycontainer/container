@@ -27,7 +27,7 @@ namespace Unity
 
                 for (var i = metadata.Buckets[targetBucket]; i >= 0; i = metadata.Entries[i].Next)
                 {
-                    if (metadata.Entries[i].Key != key) continue;
+                    if (metadata.Entries[i].HashCode != key) continue;
                     return true;
                 }
 
@@ -177,7 +177,7 @@ namespace Unity
                 if (null == _registry) _registry = new Registry<IPolicySet>();
                 if (null == _metadata)
                 {
-                    _metadata = new Registry<int[]>();
+                    _metadata = new Metadata();
 
                     Register = AddOrReplace;
                 }
@@ -245,7 +245,7 @@ namespace Unity
                 for (var i = _metadata.Buckets[targetBucket]; i >= 0; i = _metadata.Entries[i].Next)
                 {
                     ref var candidate = ref _metadata.Entries[i];
-                    if (candidate.Key != meta || candidate.Type != type)
+                    if (candidate.HashCode != meta || candidate.Type != type)
                     {
                         collisions++;
                         continue;
@@ -269,14 +269,14 @@ namespace Unity
                 // Expand if required
                 if (_metadata.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    _metadata = new Registry<int[]>(_metadata);
+                    _metadata = new Metadata(_metadata);
                     targetBucket = meta.HashCode % _metadata.Buckets.Length;
                 }
 
                 // Create new metadata entry
                 ref var metadata = ref _metadata.Entries[_metadata.Count];
                 metadata.Next = _metadata.Buckets[targetBucket];
-                metadata.Key = meta;
+                metadata.HashCode = meta;
                 metadata.Type = type;
                 metadata.Value = new int[] { 2, position };
                 _metadata.Buckets[targetBucket] = _metadata.Count++;

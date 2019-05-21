@@ -39,7 +39,7 @@ namespace Unity
         #region Fields
 
         // Essentials
-        private Registry<int[]>? _metadata;
+        private Metadata? _metadata;
         private Registry<IPolicySet>? _registry;
         private readonly UnityContainer _root;
         private readonly UnityContainer? _parent;
