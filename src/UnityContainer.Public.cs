@@ -195,6 +195,7 @@ namespace Unity
             get
             {
                 var set = new QuickSet();
+                IContainerRegistration cashe;
 
                 // First, add the built-in registrations
                 Debug.Assert(null != _root._registry);
@@ -202,8 +203,8 @@ namespace Unity
                 set.Add(ref _root._registry.Entries[2].Key);
 
                 // IUnityContainer & IUnityContainerAsync
-                yield return _root._registry.Entries[1].Registration;
-                yield return _root._registry.Entries[2].Registration;
+                yield return _root._registry.Entries[1].Cashe;
+                yield return _root._registry.Entries[2].Cashe;
 
                 // Explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
@@ -219,10 +220,16 @@ namespace Unity
                         if (!registry.Entries[i].IsExplicit || !set.Add(ref registry.Entries[i].Key))
                             continue;
 
-                        if (null == registry.Entries[i].Registration)
-                            registry.Entries[i].Registration = new ContainerRegistration(registry.Entries[i].Type, registry.Entries[i].Policies);
+                        cashe = registry.Entries[i].Cashe;
+                        
+                        // Create wrapper is required
+                        if (null == cashe)
+                        {
+                            cashe = new ContainerRegistration(registry.Entries[i].Type, registry.Entries[i].Policies);
+                            registry.Entries[i].Cashe = cashe;
+                        }
 
-                        yield return registry.Entries[i].Registration;
+                        yield return cashe;
                     }
                 }
             }

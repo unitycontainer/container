@@ -51,7 +51,7 @@ namespace Unity.Utility
             entry.IsExplicit = true;
             entry.Type = type;
             entry.Policies = registration;
-            entry.Registration = new ContainerRegistration(type, registration);
+            entry.Cashe = new ContainerRegistration(type, registration);
             registry.Buckets[targetBucket] = registry.Count++;
         }
 

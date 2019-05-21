@@ -108,7 +108,7 @@ namespace Unity.Storage
         #endregion
 
 
-        #region Nested Types
+        #region Entry Type
 
         [DebuggerDisplay("{Value}", Name = "{Key}")]
         public struct Entry
@@ -118,7 +118,7 @@ namespace Unity.Storage
             public Type Type;
             public bool IsExplicit;
             public IPolicySet Policies;
-            public IContainerRegistration Registration;
+            public IContainerRegistration Cashe;
         }
 
         #endregion
