@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Registration;
 
@@ -37,7 +36,7 @@ namespace Unity
         #region PipelineBuilder
 
         public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator,
-                                                      Type type, ImplicitRegistration registration)
+                                                      Type type, IRegistration registration)
         {
             //// Select ConstructorInfo
             //var selector = GetOrDefault(registration);

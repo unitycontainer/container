@@ -6,7 +6,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 
@@ -27,12 +26,12 @@ namespace Unity
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, IRegistration registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
                     yield return injectionMember;

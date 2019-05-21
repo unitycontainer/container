@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity
@@ -10,12 +9,12 @@ namespace Unity
     public partial class MethodPipeline
     {
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, IRegistration registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
                     yield return injectionMember;

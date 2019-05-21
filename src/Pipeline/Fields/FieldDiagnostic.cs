@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
-using Unity.Exceptions;
 
 namespace Unity
 {
@@ -25,12 +24,12 @@ namespace Unity
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, IRegistration registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
                     yield return injectionMember;

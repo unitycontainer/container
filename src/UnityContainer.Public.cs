@@ -67,8 +67,9 @@ namespace Unity
             };
 
             // Create Registry
-            _metadata = new Metadata();
-            _registry = new Registry(Defaults);
+            _metadata  = new Metadata();
+            _registry  = new Registry(Defaults);
+            _pipelines = new Pipelines(DefaultBuildPipeline);
             _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
 

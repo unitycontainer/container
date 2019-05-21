@@ -39,8 +39,8 @@ namespace Unity
             }
 
             // Select ConstructorInfo
-            var selector = GetOrDefault((IPolicySet)builder.Registration);
-            var selection = selector.Invoke(builder.Type, (IPolicySet)builder.Registration)
+            var selector = GetOrDefault(builder.Registration);
+            var selection = selector.Invoke(builder.Type, builder.Registration)
                                     .FirstOrDefault();
 
             // Select constructor for the Type

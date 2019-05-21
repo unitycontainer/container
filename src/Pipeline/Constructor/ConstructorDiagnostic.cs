@@ -9,7 +9,6 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 
@@ -76,12 +75,12 @@ namespace Unity
 
         #region Selection
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, IRegistration registration)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                 {

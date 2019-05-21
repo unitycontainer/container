@@ -25,12 +25,13 @@ namespace Unity
 
         #endregion
 
-        
+
         #region Constructors
 
         public PipelineBuilder(ExplicitRegistration registration, UnityContainer container, IEnumerable<Pipeline> pipelines)
         {
             Type = registration.Type ?? typeof(object);
+            Name = registration.Name;
             Registration = registration;
             ContainerContext = container.Context;
 
@@ -38,9 +39,24 @@ namespace Unity
             _enumerator = pipelines.GetEnumerator();
         }
 
+        public PipelineBuilder(ref PipelineContext context)
+        {
+            Seed = null;
+            Type = context.Type;
+            Name = context.Name;
+            Registration = null;
+            ContainerContext = context.ContainerContext;
+
+            _enumerator = context.ContainerContext
+                                 .TypePipelineCache
+                                 .AsEnumerable<Pipeline>()
+                                 .GetEnumerator();
+        }
+
         public PipelineBuilder(ref BuilderContext context)
         {
             Type = context.Type;
+            Name = context.Name;
             Registration = context.Registration;
             ContainerContext = context.ContainerContext;
 
@@ -55,13 +71,13 @@ namespace Unity
 
         public Type Type;
 
-        public string? Name => Registration.Name;
+        public string? Name { get; }
 
         public ResolveDelegate<BuilderContext>? Seed { get; private set; }
 
         public readonly ContainerContext ContainerContext;
 
-        public readonly IRegistration Registration;
+        public readonly IRegistration? Registration;
 
         #endregion
 
@@ -88,7 +104,9 @@ namespace Unity
 
         public PipelineDelegate PipelineDelegate()
         {
-            return Registration.LifetimeManager switch
+            var manager = Registration?.LifetimeManager;
+
+            return manager switch
             {
                 null                        => TransientLifetime(),
                 TransientLifetimeManager  _ => TransientLifetime(),

@@ -12,7 +12,7 @@ namespace Unity
         #region Public Members
 
         public virtual IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator, 
-                                                      Type type, ImplicitRegistration registration) => throw new NotImplementedException();
+                                                      Type type, IRegistration registration) => throw new NotImplementedException();
 
         public virtual ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder) => builder.Pipeline();
 

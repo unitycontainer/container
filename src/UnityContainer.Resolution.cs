@@ -8,7 +8,6 @@ using Unity.Exceptions;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
-using Unity.Utility;
 
 namespace Unity
 {

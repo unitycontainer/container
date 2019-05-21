@@ -16,7 +16,7 @@ namespace Unity
         #region PipelineBuilder
 
         public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator, 
-                                                      Type type, ImplicitRegistration registration)
+                                                      Type type, IRegistration registration)
         {
             yield break;
         }

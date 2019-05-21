@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity
@@ -13,10 +12,10 @@ namespace Unity
     public partial class ConstructorPipeline
     {
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, IRegistration registration)
         {
             // Select Injected Members
-            foreach (var injectionMember in ((ImplicitRegistration)registration).InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                 {

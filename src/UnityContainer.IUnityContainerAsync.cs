@@ -192,27 +192,33 @@ namespace Unity
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
             // Setup Context
-            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
+            var pipeline = GetPipeline(type ?? throw new ArgumentNullException(nameof(type)), name);
 
             // Check if pipeline exists
-            if (null == registration.Pipeline && !(registration.LifetimeManager is PerThreadLifetimeManager))
+            if (null == pipeline)
             {
                 // Start a new Task to create and execute pipeline
                 var task = Task.Factory.StartNew(() =>
                 {
-                    var context = new BuilderContext
+                    Debug.Assert(null != _root);
+                    Debug.Assert(null != _root._pipelines);
+
+                    // Get pipeline builder
+                    pipeline = _root._pipelines.Entries[0].Pipeline;
+
+                    var context = new PipelineContext
                     {
                         Type = type,
-                        IsAsync = true,
+                        Name = name,
+                        RunningAsync = true,
                         Overrides = overrides,
-                        Registration = registration,
                         ContainerContext = Context,
                     };
 
                     try
                     {
                         // Execute pipeline
-                        return context.Pipeline(ref context).Result;
+                        return pipeline(ref context).Result;
                     }
                     catch (Exception ex)
                     when (ex is InvalidRegistrationException || 
@@ -227,21 +233,19 @@ namespace Unity
                 return new ValueTask<object?>(task);
             }
 
-            // Existing pipeline
-            var context = new BuilderContext
+            // Execute pipeline
+            var context = new PipelineContext
             {
-                Async = true,
-
                 Type = type,
+                Name = name,
+                RunAsync = true,
                 Overrides = overrides,
-                Registration = registration,
                 ContainerContext = Context,
             };
 
             try
             {
-                // Execute pipeline
-                return context.Pipeline(ref context);
+                return pipeline(ref context);
             }
             catch (Exception ex)
             when (ex is InvalidRegistrationException || 

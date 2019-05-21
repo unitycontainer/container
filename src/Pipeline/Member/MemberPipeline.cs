@@ -125,7 +125,7 @@ namespace Unity
         /// <param name="type"></param>
         /// <param name="registration"></param>
         /// <returns></returns>
-        public IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
+        public IEnumerable<Expression> GetExpressions(Type type, IRegistration registration)
         {
             var selector = GetOrDefault(registration);
             var members = selector(type, registration);

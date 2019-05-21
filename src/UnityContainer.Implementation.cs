@@ -12,7 +12,6 @@ using Unity.Events;
 using Unity.Exceptions;
 using Unity.Extension;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -41,6 +40,7 @@ namespace Unity
         // Essentials
         private Metadata? _metadata;
         private Registry? _registry;
+        private Pipelines? _pipelines;
         private readonly UnityContainer _root;
         private readonly UnityContainer? _parent;
 
@@ -72,8 +72,8 @@ namespace Unity
         private UnityContainer(UnityContainer parent)
         {
             // Validate input
-            Debug.Assert(null != parent, nameof(parent));
-            Debug.Assert(null != parent._root, nameof(parent._root));
+            Debug.Assert(null != parent);
+            Debug.Assert(null != parent._root);
 
             // Register with parent
             _parent = parent;

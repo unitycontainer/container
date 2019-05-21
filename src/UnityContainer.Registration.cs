@@ -43,7 +43,7 @@ namespace Unity
 
         #region Getting Registration During Resolution
 
-        internal ImplicitRegistration GetRegistration(Type type, string? name)
+        internal IRegistration GetRegistration(Type type, string? name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
@@ -53,7 +53,7 @@ namespace Unity
 #endif
         }
 
-        private ImplicitRegistration GetSimpleRegistration(Type type, string? name)
+        private IRegistration GetSimpleRegistration(Type type, string? name)
         {
             var key = new HashKey(type, name);
 
@@ -73,10 +73,10 @@ namespace Unity
                     if (candidate.Key != key) continue;
 
                     // Found a registration
-                    if (!(candidate.Policies is ImplicitRegistration))
+                    if (!(candidate.Policies is IRegistration))
                         candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
 
-                    return (ImplicitRegistration)candidate.Policies;
+                    return (IRegistration)candidate.Policies;
                 }
             }
 
@@ -87,9 +87,9 @@ namespace Unity
 
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-        private ImplicitRegistration GetGenericRegistration(Type type, string? name, TypeInfo info)
+        private IRegistration GetGenericRegistration(Type type, string? name, TypeInfo info)
 #else
-        private ImplicitRegistration GetGenericRegistration(Type type, string? name)
+        private IRegistration GetGenericRegistration(Type type, string? name)
 #endif
         {
             bool initGenerics = true;
@@ -116,10 +116,10 @@ namespace Unity
                     if (candidate.Key != keyExact) continue;
 
                     // Found a registration
-                    if (!(candidate.Policies is ImplicitRegistration))
+                    if (!(candidate.Policies is IRegistration))
                         candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
 
-                    return (ImplicitRegistration)candidate.Policies;
+                    return (IRegistration)candidate.Policies;
                 }
 
                 // Generic registrations
@@ -296,7 +296,7 @@ namespace Unity
             throw new NotImplementedException();
         }
 
-        private ImplicitRegistration GetOrAdd(ref HashKey key, Type type, string? name, IPolicySet? factory = null)
+        private IRegistration GetOrAdd(ref HashKey key, Type type, string? name, IPolicySet? factory = null)
         {
             Debug.Assert(null != _registry);
 
@@ -315,10 +315,10 @@ namespace Unity
                         continue;
                     }
 
-                    if (!(candidate.Policies is ImplicitRegistration))
+                    if (!(candidate.Policies is IRegistration))
                         candidate.Policies = CreateRegistration(type, name, candidate.Policies);
 
-                    return (ImplicitRegistration)candidate.Policies;
+                    return (IRegistration)candidate.Policies;
                 }
 
                 // Expand if required
@@ -330,7 +330,6 @@ namespace Unity
 
                 // Add registration
                 var registration = CreateRegistration(type, name, factory);
-                registration.AddRef();
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.Key = key;
                 entry.Type = type;
@@ -338,7 +337,7 @@ namespace Unity
                 entry.Policies = registration;
                 _registry.Buckets[targetBucket] = _registry.Count++;
 
-                return (ImplicitRegistration)entry.Policies;
+                return (IRegistration)entry.Policies;
             }
         }
 
@@ -347,7 +346,7 @@ namespace Unity
 
         #region Creating Implicit Registration
 
-        private ImplicitRegistration CreateRegistration(Type type, string? name, IPolicySet? set)
+        private IRegistration CreateRegistration(Type type, string? name, IPolicySet? set)
         {
             var registration = set is ImplicitRegistration factory 
                              ? new ImplicitRegistration(this, name, factory)
