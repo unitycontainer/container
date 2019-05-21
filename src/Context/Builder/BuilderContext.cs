@@ -124,7 +124,7 @@ namespace Unity.Builder
 
         public object? Existing { get; set; }
 
-        public ImplicitRegistration Registration { get; set; }
+        public IRegistration Registration { get; set; }
 
         public ContainerContext ContainerContext { get; set; }
 

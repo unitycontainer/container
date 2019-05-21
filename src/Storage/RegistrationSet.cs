@@ -54,7 +54,7 @@ namespace Unity.Storage
 
             // Set current box to next item in collection.
             if (null == _current)
-            _current = new ContainerRegistration(_entries[_index].Type, _entries[_index].Registration);
+            _current = new RegistrationWrapper(_entries[_index].Type, _entries[_index].Registration);
 
             return true;
         }

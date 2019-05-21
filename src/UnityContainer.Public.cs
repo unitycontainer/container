@@ -10,7 +10,6 @@ using Unity.Events;
 using Unity.Extension;
 using Unity.Factories;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Registration;
 using Unity.Storage;
 using Unity.Utility;
@@ -203,8 +202,8 @@ namespace Unity
                 set.Add(ref _root._registry.Entries[2].Key);
 
                 // IUnityContainer & IUnityContainerAsync
-                yield return _root._registry.Entries[1].Cashe;
-                yield return _root._registry.Entries[2].Cashe;
+                yield return _root._registry.Entries[1].Cache;
+                yield return _root._registry.Entries[2].Cache;
 
                 // Explicit registrations
                 for (UnityContainer? container = this; null != container; container = container._parent)
@@ -220,13 +219,13 @@ namespace Unity
                         if (!registry.Entries[i].IsExplicit || !set.Add(ref registry.Entries[i].Key))
                             continue;
 
-                        cashe = registry.Entries[i].Cashe;
+                        cashe = registry.Entries[i].Cache;
                         
                         // Create wrapper is required
                         if (null == cashe)
                         {
-                            cashe = new ContainerRegistration(registry.Entries[i].Type, registry.Entries[i].Policies);
-                            registry.Entries[i].Cashe = cashe;
+                            cashe = new RegistrationWrapper(registry.Entries[i].Type, registry.Entries[i].Policies);
+                            registry.Entries[i].Cache = cashe;
                         }
 
                         yield return cashe;

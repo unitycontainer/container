@@ -5,6 +5,7 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
@@ -38,8 +39,8 @@ namespace Unity
             }
 
             // Select ConstructorInfo
-            var selector = GetOrDefault(builder.Registration);
-            var selection = selector.Invoke(builder.Type, builder.Registration)
+            var selector = GetOrDefault((IPolicySet)builder.Registration);
+            var selection = selector.Invoke(builder.Type, (IPolicySet)builder.Registration)
                                     .FirstOrDefault();
 
             // Select constructor for the Type

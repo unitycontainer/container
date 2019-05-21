@@ -61,7 +61,7 @@ namespace Unity
 
         public readonly ContainerContext ContainerContext;
 
-        public readonly ImplicitRegistration Registration;
+        public readonly IRegistration Registration;
 
         #endregion
 

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Security;
 using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Storage
 {
@@ -103,6 +104,53 @@ namespace Unity.Storage
 
         #region Public Members
 
+        internal void Set(Type type, IPolicySet set)
+        {
+            var key = new HashKey(type);
+            var targetBucket = key.HashCode % Buckets.Length;
+
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.Key != key) continue;
+
+                candidate.Policies = set;
+                return;
+            }
+
+            ref var entry = ref Entries[Count];
+            entry.Key = key;
+            entry.Next = Buckets[targetBucket];
+            entry.Type = type;
+            entry.Policies = set;
+            Buckets[targetBucket] = Count++;
+        }
+
+        internal void Set(Type type, string? name, ExplicitRegistration registration)
+        {
+            var key = new HashKey(type, name);
+            var targetBucket = key.HashCode % Buckets.Length;
+
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.Key != key) continue;
+
+                candidate.Policies = registration;
+                return;
+            }
+
+            ref var entry = ref Entries[Count];
+            entry.Key = key;
+            entry.Next = Buckets[targetBucket];
+            entry.IsExplicit = true;
+            entry.Type = type;
+            entry.Policies = registration;
+            entry.Cache = new RegistrationWrapper(type, registration);
+            Buckets[targetBucket] = Count++;
+        }
+
+
         public bool RequireToGrow => (Entries.Length - Count) < 100 && 
                                      (float)Count / Entries.Length > 0.72f;
         #endregion
@@ -118,7 +166,8 @@ namespace Unity.Storage
             public Type Type;
             public bool IsExplicit;
             public IPolicySet Policies;
-            public IContainerRegistration Cashe;
+            public IContainerRegistration Cache;
+            public IRegistration Registration;
         }
 
         #endregion

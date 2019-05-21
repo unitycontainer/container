@@ -189,7 +189,8 @@ namespace Unity
                         {
                             try
                             {
-                                var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
+                                var itemKey = new HashKey(typeof(TElement), registration.Name);
+                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name, registration);
                                 value = resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
@@ -301,7 +302,8 @@ namespace Unity
         {
             object? value;
             var set = new QuickSet();
-            var key = new HashKey(type);
+            var key = new HashKey(typeof(TElement));
+            var keyType = new HashKey(type);
             var keyGeneric = new HashKey(typeDefinition);
 
             // Iterate over hierarchy
@@ -315,7 +317,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes for bound types and iterate over them
-                var length = container._metadata.GetMeta(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref keyType, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -352,7 +354,8 @@ namespace Unity
                         {
                             try
                             {
-                                var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
+                                var itemKey = new HashKey(typeof(TElement), registration.Name);
+                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name, registration);
                                 value = resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
@@ -369,7 +372,8 @@ namespace Unity
         {
             object? value;
             var set = new QuickSet();
-            var key = new HashKey(type);
+            var key = new HashKey(typeof(TElement));
+            var typeKey = new HashKey(type);
 
             // Iterate over hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -382,7 +386,7 @@ namespace Unity
                 var registry = container._registry;
 
                 // Get indexes and iterate over them
-                var length = container._metadata.GetMeta(ref key, out int[]? data);
+                var length = container._metadata.GetMeta(ref typeKey, out int[]? data);
                 if (null != data)
                 {
                     for (var i = 1; i < length; i++)
@@ -394,7 +398,8 @@ namespace Unity
                         {
                             try
                             {
-                                var item = container.GetOrAdd(typeof(TElement), registration.Name, registration);
+                                var itemKey = new HashKey(typeof(TElement), registration.Name);
+                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name, registration);
                                 value = resolve(typeof(TElement), item);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
@@ -440,7 +445,8 @@ namespace Unity
                         {
                             try
                             {
-                                var item = container.GetOrAdd(typeof(TElement), registration.Name);
+                                var itemKey = new HashKey(typeof(TElement), registration.Name);
+                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name);
                                 value = resolve(typeof(TElement), item);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
@@ -466,7 +472,8 @@ namespace Unity
                         {
                             try
                             {
-                                var item = container.GetOrAdd(typeof(TElement), registration.Name);
+                                var itemKey = new HashKey(typeof(TElement), registration.Name);
+                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name);
                                 value = (TElement)resolve(typeof(TElement), item);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }

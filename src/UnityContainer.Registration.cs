@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Lifetime;
@@ -290,13 +291,12 @@ namespace Unity
             return null;
         }
 
-        private ImplicitRegistration GetOrAdd(Type type, string? name, IPolicySet? factory = null)
+        private IEnumerable<IPolicySet> AddOrReplace(IEnumerable<Type> type, string? name, ExplicitRegistration registration)
         {
-            var key = new HashKey(type, name);
-            return GetOrAdd(ref key, type, name, factory);
+            throw new NotImplementedException();
         }
 
-        private ImplicitRegistration GetOrAdd(ref HashKey key, Type type, string? name, IPolicySet? factory)
+        private ImplicitRegistration GetOrAdd(ref HashKey key, Type type, string? name, IPolicySet? factory = null)
         {
             Debug.Assert(null != _registry);
 
