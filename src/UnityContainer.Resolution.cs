@@ -76,7 +76,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, ImplicitRegistration, object?> resolve, string? name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, IRegistration, object?> resolve, string? name)
         {
             object? value;
             var set = new QuickSet();
@@ -134,7 +134,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, ImplicitRegistration, object?> resolve,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, IRegistration, object?> resolve,
                                                                    Type typeDefinition, string? name)
         {
             object? value;
@@ -254,7 +254,7 @@ namespace Unity
             return argType;
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve, Type type)
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, IRegistration, object?> resolve, Type type)
         {
             object? value;
             var set = new QuickSet();
@@ -297,7 +297,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve,
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, IRegistration, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
             object? value;
@@ -368,7 +368,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve, Type type)
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, IRegistration, object?> resolve, Type type)
         {
             object? value;
             var set = new QuickSet();
@@ -414,7 +414,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, ImplicitRegistration, object?> resolve,
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, IRegistration, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
             object? value;

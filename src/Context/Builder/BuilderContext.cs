@@ -190,7 +190,7 @@ namespace Unity.Builder
             return Resolve(type, ((UnityContainer)Container).GetRegistration(type, Name));
         }
 
-        public object? Resolve(Type type, ImplicitRegistration registration)
+        public object? Resolve(Type type, IRegistration registration)
         {
             if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException(type, registration.Name);
 
