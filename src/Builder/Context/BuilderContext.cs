@@ -143,7 +143,7 @@ namespace Unity.Builder
                 var thisContext = this;
                 var context = new BuilderContext
                 {
-                    Lifetime = Lifetime,
+                    Lifetime = registration.IsSingletonLifetimeManagerRegistration() ? Lifetime.GetRoot() : Lifetime,
                     Registration = registration,
                     RegistrationType = type,
                     Name = name,
@@ -161,6 +161,8 @@ namespace Unity.Builder
                 return ExecutePlan(registration.BuildChain, ref context);
             }
         }
+
+
 
         public object Resolve(ParameterInfo parameter, object value)
         {
@@ -249,7 +251,7 @@ namespace Unity.Builder
                     {
                         return Resolve(property.PropertyType, optionalAttribute.Name);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     when (!(ex.InnerException is CircularDependencyException))
                     {
                         return null;
@@ -304,7 +306,7 @@ namespace Unity.Builder
                     {
                         return Resolve(field.FieldType, optionalAttribute.Name);
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     when (!(ex.InnerException is CircularDependencyException))
                     {
                         return null;

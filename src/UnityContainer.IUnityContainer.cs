@@ -238,7 +238,7 @@ namespace Unity
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = ((registration as ContainerRegistration)?.LifetimeManager is SingletonLifetimeManager) ? _root.LifetimeContainer : LifetimeContainer,
+                Lifetime = GetLifetimeForRegistration(registration),
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
                 RegistrationType = type,
@@ -270,7 +270,7 @@ namespace Unity
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = ((registration as ContainerRegistration)?.LifetimeManager is SingletonLifetimeManager) ? _root.LifetimeContainer : LifetimeContainer,
+                Lifetime = GetLifetimeForRegistration(registration),
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
@@ -283,6 +283,11 @@ namespace Unity
             };
 
             return ExecutePlan(ref context);
+        }
+
+        private ILifetimeContainer GetLifetimeForRegistration(Policy.IPolicySet registration)
+        {
+            return registration.IsSingletonLifetimeManagerRegistration() ? LifetimeContainer.GetRoot() : LifetimeContainer;
         }
 
         #endregion
