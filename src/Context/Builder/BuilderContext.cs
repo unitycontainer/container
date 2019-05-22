@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text.RegularExpressions;
 using Unity.Exceptions;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -33,7 +34,7 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string? Name { get; set; }
+        public string? Name => Registration?.Name;
 
         public object? Resolve(Type type, string? name)
         {
@@ -131,27 +132,27 @@ namespace Unity.Builder
 #endif
         public ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
 
-        public PipelineDelegate Pipeline
+        public ResolveDelegate<BuilderContext> Pipeline
         {
             get
             {
-                if (null != Registration?.PipelineDelegate) return Registration.PipelineDelegate;
+                if (null != Registration?.Pipeline) return Registration.Pipeline;
 
                 Debug.Assert(null != Registration);
 
                 lock (Registration)
                 {
                     // Double check
-                    if (null != Registration.PipelineDelegate) return Registration.PipelineDelegate;
+                    if (null != Registration.Pipeline) return Registration.Pipeline;
 
                     // Create a pipeline
                     var context = this;
                     PipelineBuilder builder = new PipelineBuilder(ref context);
-                    Registration.PipelineDelegate = builder.PipelineDelegate() ??
+                    Registration.Pipeline = builder.Pipeline() ??
                         throw new InvalidOperationException($"Failed to create pipeline for registration: {Registration}");
                 }
 
-                return Registration.PipelineDelegate;
+                return Registration.Pipeline;
             }
         }
 
@@ -210,7 +211,35 @@ namespace Unity.Builder
 #endif
                 };
 
-                return context.Pipeline(ref context).Result;
+                var manager = registration.LifetimeManager switch
+                {
+                    null                        => TransientLifetimeManager.Instance,
+                    PerResolveLifetimeManager _ => (LifetimeManager?)context.Get(typeof(LifetimeManager)) ?? 
+                                                    TransientLifetimeManager.Instance,
+                    _                           => registration.LifetimeManager
+                };
+
+                // Check if already got value
+                var value = manager.GetValue(ContainerContext.Lifetime);
+                if (LifetimeManager.NoValue != value) return value;
+
+                if (registration.LifetimeManager is SynchronizedLifetimeManager synchronized)
+                {
+                    try
+                    {
+                        value = context.Pipeline(ref context);
+                    }
+                    catch
+                    {
+                        synchronized.Recover();
+                        throw;
+                    }
+                }
+                else
+                    value = context.Pipeline(ref context);
+
+                manager.SetValue(value, ContainerContext.Lifetime);
+                return value;
             }
         }
 

@@ -12,6 +12,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -191,6 +192,68 @@ namespace Unity
         [SecuritySafeCritical]
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
+
+            // Check if already got value
+            var value = null != registration.LifetimeManager 
+                ? registration.LifetimeManager.GetValue(LifetimeContainer)
+                : LifetimeManager.NoValue;
+
+            // TODO: Need to change sync mechanism
+
+            if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
+
+            return new ValueTask<object?>(Task.Factory.StartNew<object?>(delegate 
+            {
+                // Setup Context
+                var context = new BuilderContext
+                {
+                    List = new PolicyList(),
+                    Type = type,
+                    Overrides = overrides,
+                    Registration = registration,
+                    ContainerContext = Context,
+                };
+
+                // Execute pipeline
+                try
+                {
+                    return context.Pipeline(ref context);
+                }
+                catch (Exception ex)
+                when (ex is InvalidRegistrationException ||
+                      ex is CircularDependencyException ||
+                      ex is ObjectDisposedException)
+                {
+                    var message = CreateMessage(ex);
+                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                }
+            }));
+        }
+
+        public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
+        #region Child container management
+
+        /// <inheritdoc />
+        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer() => CreateChildContainer();
+
+        /// <inheritdoc />
+        IUnityContainerAsync? IUnityContainerAsync.Parent => _parent;
+
+        #endregion
+    }
+
+    // Backups
+    /*
+        ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
+        {
             // Setup Context
             var pipeline = GetPipeline(type ?? throw new ArgumentNullException(nameof(type)), name);
 
@@ -217,24 +280,5 @@ namespace Unity
                 throw new ResolutionFailedException(context.Type, context.Name, message, ex);
             }
         }
-
-        public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
-        #region Child container management
-
-        /// <inheritdoc />
-        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer() => CreateChildContainer();
-
-        /// <inheritdoc />
-        IUnityContainerAsync? IUnityContainerAsync.Parent => _parent;
-
-        #endregion
-    }
-
+     */
 }

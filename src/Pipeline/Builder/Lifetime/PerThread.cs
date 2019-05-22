@@ -53,7 +53,6 @@ namespace Unity
                         List = new PolicyList(),
                         IsAsync = true,
                         Type = type,
-                        Name = name,
                         ContainerContext = unity,
                         Registration = registration,
                         Overrides = overrides,

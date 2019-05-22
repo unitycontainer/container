@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
 using Unity.Builder;
@@ -11,6 +12,7 @@ using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -205,30 +207,65 @@ namespace Unity
         [SecuritySafeCritical]
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
+
+            // Check if already got value
+            var value = null != registration.LifetimeManager
+                ? registration.LifetimeManager.GetValue(LifetimeContainer)
+                : LifetimeManager.NoValue;
+
+            if (LifetimeManager.NoValue != value) return value;
+
+            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
+
             // Setup Context
             var context = new BuilderContext
             {
+                List = new PolicyList(),
                 Type = type,
                 Overrides = overrides,
-                Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
+                Registration = registration,
                 ContainerContext = Context,
             };
 
-            // Create an object
-            try
+            // Execute pipeline
+            if (null == synchronized)
             {
-                // Execute pipeline
-                var task = context.Pipeline(ref context);
-                Debug.Assert(task.IsCompleted);
-                return task.Result;
+                try
+                {
+                    value = context.Pipeline(ref context);
+                    registration.LifetimeManager?.SetValue(value, LifetimeContainer);
+                    return value;
+                }
+                catch (Exception ex) 
+                when (ex is InvalidRegistrationException || 
+                      ex is CircularDependencyException || 
+                      ex is ObjectDisposedException)
+                {
+                    var message = CreateMessage(ex);
+                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                }
             }
-            catch (Exception ex) 
-            when (ex is InvalidRegistrationException || 
-                  ex is CircularDependencyException || 
-                  ex is ObjectDisposedException)
+            else
             {
-                var message = CreateMessage(ex);
-                throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                try
+                {
+                    value = context.Pipeline(ref context);
+                    registration.LifetimeManager?.SetValue(value, LifetimeContainer);
+                    return value;
+                }
+                catch (Exception ex)
+                {
+                    synchronized.Recover();
+                    if (ex is InvalidRegistrationException ||
+                        ex is CircularDependencyException  ||
+                        ex is ObjectDisposedException)
+                    {
+                        var message = CreateMessage(ex);
+                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                    }
+                    else throw;
+                }
             }
         }
 
@@ -245,7 +282,7 @@ namespace Unity
             var context = new BuilderContext
             {
                 Existing = existing ?? throw new ArgumentNullException(nameof(existing)),
-
+                List = new PolicyList(),
                 Type = ValidateType(type, existing.GetType()),
                 Overrides = overrides,
                 Registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name),
@@ -256,9 +293,7 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                var task = context.Pipeline(ref context);
-                Debug.Assert(task.IsCompleted);
-                return task.Result;
+                return context.Pipeline(ref context);
             }
             catch (Exception ex)
             when (ex is InvalidRegistrationException || ex is CircularDependencyException || ex is ObjectDisposedException)
