@@ -39,8 +39,8 @@ namespace Unity
             }
         }
 
-        public override MemberSelector<PropertyInfo> GetOrDefault(IPolicySet registration) =>
-            registration.Get<MemberSelector<PropertyInfo>>() ?? Defaults.SelectProperty;
+        public override MemberSelector<PropertyInfo> GetOrDefault(IPolicySet? registration) =>
+            registration?.Get<MemberSelector<PropertyInfo>>() ?? Defaults.SelectProperty;
 
         #endregion
 

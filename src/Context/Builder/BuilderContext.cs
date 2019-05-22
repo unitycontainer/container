@@ -21,8 +21,6 @@ namespace Unity.Builder
     {
         #region Fields
 
-        private bool _async;
-
         internal IPolicyList List { get; set; }
         public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
@@ -35,7 +33,7 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string? Name => Registration.Name;
+        public string? Name { get; set; }
 
         public object? Resolve(Type type, string? name)
         {
@@ -74,7 +72,7 @@ namespace Unity.Builder
         public object? Get(Type policyInterface)
         {
             return List?.Get(Type, Name, policyInterface) ?? 
-                Registration.Get(policyInterface);
+                Registration?.Get(policyInterface);
         }
 
         public object? Get(Type type, Type policyInterface)
@@ -86,7 +84,7 @@ namespace Unity.Builder
         {
             return List?.Get(type, name, policyInterface) ?? (type != Type || name != Name
                 ? ContainerContext.Get(type, name, policyInterface)
-                : Registration.Get(policyInterface));
+                : Registration?.Get(policyInterface));
         }
 
         public void Set(Type policyInterface, object policy)
@@ -118,13 +116,12 @@ namespace Unity.Builder
 
         public bool IsAsync { get; set; }
 
-        public bool Async { get => _async; set => _async = value; }
 
         public ResolverOverride[] Overrides;
 
         public object? Existing { get; set; }
 
-        public IRegistration Registration { get; set; }
+        public IRegistration? Registration { get; set; }
 
         public ContainerContext ContainerContext { get; set; }
 
@@ -138,7 +135,9 @@ namespace Unity.Builder
         {
             get
             {
-                if (null != Registration.PipelineDelegate) return Registration.PipelineDelegate;
+                if (null != Registration?.PipelineDelegate) return Registration.PipelineDelegate;
+
+                Debug.Assert(null != Registration);
 
                 lock (Registration)
                 {

@@ -37,20 +37,22 @@ namespace Unity
 
             Seed = Registration.Pipeline;
             _enumerator = pipelines.GetEnumerator();
+            Debug.Assert(null != _enumerator);
         }
 
-        public PipelineBuilder(ref PipelineContext context)
+        public PipelineBuilder(ref PipelineContext context, IRegistration? registration = null)
         {
             Seed = null;
             Type = context.Type;
             Name = context.Name;
-            Registration = null;
+            Registration = registration;
             ContainerContext = context.ContainerContext;
 
-            _enumerator = context.ContainerContext
-                                 .TypePipelineCache
-                                 .AsEnumerable<Pipeline>()
-                                 .GetEnumerator();
+            _enumerator = registration?.Processors?.GetEnumerator() ??
+                                context.ContainerContext
+                                       .TypePipelineCache
+                                       .AsEnumerable<Pipeline>()
+                                       .GetEnumerator();
         }
 
         public PipelineBuilder(ref BuilderContext context)
@@ -60,8 +62,9 @@ namespace Unity
             Registration = context.Registration;
             ContainerContext = context.ContainerContext;
 
-            Seed = Registration.Pipeline;
-            _enumerator = (context.Registration.Processors ?? Enumerable.Empty<Pipeline>()).GetEnumerator();
+            Seed = Registration?.Pipeline;
+            _enumerator = (context.Registration?.Processors ?? 
+                           Enumerable.Empty<Pipeline>()).GetEnumerator();
         }
 
         #endregion
@@ -88,7 +91,7 @@ namespace Unity
         {
             ref var context = ref this;
             return _enumerator?.MoveNext() ?? false 
-                 ? _enumerator.Current.Build(ref context) 
+                 ? _enumerator?.Current?.Build(ref context) ?? Seed
                  : Seed;
         }
 
@@ -98,7 +101,7 @@ namespace Unity
 
             ref var context = ref this;
             return _enumerator?.MoveNext() ?? false 
-                 ? _enumerator.Current.Build(ref context)
+                 ? _enumerator?.Current.Build(ref context) ?? Seed
                  : Seed;
         }
 
@@ -113,6 +116,20 @@ namespace Unity
                 PerResolveLifetimeManager _ => PerResolveLifetime(),
                 PerThreadLifetimeManager  _ => PerThreadLifetime(),
                                           _ => DefaultLifetime()
+            };
+        }
+
+        public BuildPipelineAsync BuildPipelineAsync()
+        {
+            var manager = Registration?.LifetimeManager;
+
+            return manager switch
+            {
+                null                        => TransientLifetimeAsync(),
+                TransientLifetimeManager  _ => TransientLifetimeAsync(),
+                PerResolveLifetimeManager _ => PerResolveLifetimeAsync(),
+                PerThreadLifetimeManager  _ => PerThreadLifetimeAsync(),
+                                          _ => DefaultLifetimeAsync()
             };
         }
 

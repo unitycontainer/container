@@ -132,6 +132,9 @@ namespace Unity
                     container.LifetimeContainer.Remove(disposable);
                     disposable.Dispose();
                 }
+                
+                // Check what strategies to run
+                registration.Processors = Context.InstancePipelineCache;
 
                 // Raise event
                 container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registeredType, instance, name, manager));

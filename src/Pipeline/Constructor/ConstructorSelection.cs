@@ -12,10 +12,10 @@ namespace Unity
     public partial class ConstructorPipeline
     {
 
-        public override IEnumerable<object> Select(Type type, IRegistration registration)
+        public override IEnumerable<object> Select(Type type, IRegistration? registration)
         {
             // Select Injected Members
-            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                 {

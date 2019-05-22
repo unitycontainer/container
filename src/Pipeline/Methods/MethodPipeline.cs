@@ -31,8 +31,8 @@ namespace Unity
                                         !member.IsStatic);
         }
 
-        public override MemberSelector<MethodInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<MemberSelector<MethodInfo>>() ?? Defaults.SelectMethod;
+        public override MemberSelector<MethodInfo> GetOrDefault(IPolicySet? registration) => 
+            registration?.Get<MemberSelector<MethodInfo>>() ?? Defaults.SelectMethod;
 
         #endregion
 

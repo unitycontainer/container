@@ -24,12 +24,12 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeFactoryDelegate Factory = (Type type, IRegistration policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, IRegistration? policies) =>
         {
             var typeArgument = type.GetElementType();
-            var targetType = policies.Owner.GetTargetType(typeArgument);
+            var targetType = policies?.Owner.GetTargetType(typeArgument);
 
-            if (typeArgument != targetType)
+            if (null != targetType && typeArgument != targetType)
             {
                 return ((BuiltInFactoryDelegate)BuiltInMethod
                     .MakeGenericMethod(typeArgument)

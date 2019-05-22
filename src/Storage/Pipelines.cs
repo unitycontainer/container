@@ -104,6 +104,27 @@ namespace Unity.Storage
 
         #region Public Members
 
+        internal void Set(Type type, string? name, BuildPipelineAsync pipeline)
+        {
+            var key = new HashKey(type, name);
+            var targetBucket = key.HashCode % Buckets.Length;
+
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.Key != key) continue;
+
+                candidate.Pipeline = pipeline;
+                return;
+            }
+
+            ref var entry = ref Entries[Count];
+            entry.Key = key;
+            entry.Next = Buckets[targetBucket];
+            entry.Pipeline = pipeline;
+            Buckets[targetBucket] = Count++;
+        }
+
         public bool RequireToGrow => (Entries.Length - Count) < 100 &&
                                      (float)Count / Entries.Length > 0.72f;
         #endregion

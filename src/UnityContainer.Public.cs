@@ -62,16 +62,18 @@ namespace Unity
             // IUnityContainer, IUnityContainerAsync
             var container = new ExplicitRegistration(this, null, typeof(UnityContainer))
             {
-                Pipeline = (ref BuilderContext c) => c.Async ? (object)Task.FromResult<object>(c.Container) : c.Container,
+                Pipeline = (ref BuilderContext c) => c.Container,
                 PipelineDelegate = (ref BuilderContext c) => new ValueTask<object?>(c.Container)
             };
 
-            // Create Registry
+            // Create Registries
             _metadata  = new Metadata();
             _registry  = new Registry(Defaults);
-            _pipelines = new Pipelines(DefaultBuildPipeline);
             _registry.Set(typeof(IUnityContainer),      null, container);
             _registry.Set(typeof(IUnityContainerAsync), null, container);
+            _pipelines = new Pipelines(BuildPipeline);
+            _pipelines.Set(typeof(IUnityContainer),      null, ResolveContainerPipeline);
+            _pipelines.Set(typeof(IUnityContainerAsync), null, ResolveContainerPipeline);
 
             /////////////////////////////////////////////////////////////
             // Built-In Features
@@ -114,6 +116,7 @@ namespace Unity
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
+                        { factory,                       Stage.Factory }
                     });
             }
             else
@@ -143,6 +146,7 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
+                        { factory,                         Stage.Factory }
                     });
 
                 // Build process

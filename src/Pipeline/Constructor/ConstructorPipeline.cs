@@ -38,8 +38,8 @@ namespace Unity
                        .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
         }
 
-        public override MemberSelector<ConstructorInfo> GetOrDefault(IPolicySet registration) => 
-            registration.Get<MemberSelector<ConstructorInfo>>() ?? 
+        public override MemberSelector<ConstructorInfo> GetOrDefault(IPolicySet? registration) => 
+            registration?.Get<MemberSelector<ConstructorInfo>>() ?? 
                 Defaults.SelectConstructor;
 
         #endregion

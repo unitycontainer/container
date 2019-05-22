@@ -133,9 +133,9 @@ namespace Unity
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var infoFrom = typeFrom?.GetTypeInfo();
             var infoTo   = typeTo?.GetTypeInfo();
-            if (!infoFrom.IsGenericType && !infoTo.IsGenericType   && !infoFrom.IsAssignableFrom(infoTo))
+            if (null != infoTo && null != infoFrom && !infoFrom.IsGenericType && !infoTo.IsGenericType && !infoFrom.IsAssignableFrom(infoTo))
 #else
-            if (!typeFrom.IsGenericType && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
+            if (null != typeTo && null != typeFrom && !typeFrom.IsGenericType && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
 #endif
                 throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
 

@@ -25,12 +25,12 @@ namespace Unity
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, IRegistration registration)
+        public override IEnumerable<object> Select(Type type, IRegistration? registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<PropertyInfo, object> && memberSet.Add(injectionMember))
                     yield return injectionMember;
@@ -57,15 +57,15 @@ namespace Unity
                         yield return new InvalidRegistrationException(
                             $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
-                    if (setter.IsStatic)
+                    if (setter?.IsStatic ?? false)
                         yield return new InvalidRegistrationException(
                             $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
 
-                    if (setter.IsPrivate)
+                    if (setter?.IsPrivate ?? false)
                         yield return new InvalidRegistrationException(
                             $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
 
-                    if (setter.IsFamily)
+                    if (setter?.IsFamily ?? false)
                         yield return new InvalidRegistrationException(
                             $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
 

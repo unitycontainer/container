@@ -28,7 +28,7 @@ namespace Unity.Factories
 
         #region ResolveDelegateFactory
 
-        public static TypeFactoryDelegate Factory = (Type type, IRegistration policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, IRegistration? policies) =>
         {
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40

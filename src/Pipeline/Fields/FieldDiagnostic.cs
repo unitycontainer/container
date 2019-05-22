@@ -24,12 +24,12 @@ namespace Unity
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, IRegistration registration)
+        public override IEnumerable<object> Select(Type type, IRegistration? registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
                     yield return injectionMember;

@@ -77,7 +77,7 @@ namespace Unity
                     };
             }
 
-            var lifetimeManager = (LifetimeManager?)builder.Registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager?)builder.Registration?.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
                 ? GetPerResolveDelegate(info, resolvers, pipeline)

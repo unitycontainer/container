@@ -150,7 +150,6 @@ namespace Unity.Storage
             Buckets[targetBucket] = Count++;
         }
 
-
         public bool RequireToGrow => (Entries.Length - Count) < 100 && 
                                      (float)Count / Entries.Length > 0.72f;
         #endregion

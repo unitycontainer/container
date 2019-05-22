@@ -125,7 +125,7 @@ namespace Unity
         /// <param name="type"></param>
         /// <param name="registration"></param>
         /// <returns></returns>
-        public IEnumerable<Expression> GetExpressions(Type type, IRegistration registration)
+        public IEnumerable<Expression> GetExpressions(Type type, IRegistration? registration)
         {
             var selector = GetOrDefault(registration);
             var members = selector(type, registration);
@@ -180,9 +180,9 @@ namespace Unity
 #endif
         }
 
-        public virtual MemberSelector<TMemberInfo> GetOrDefault(IPolicySet registration)
+        public virtual MemberSelector<TMemberInfo> GetOrDefault(IPolicySet? registration)
         {
-            return (MemberSelector<TMemberInfo>)(registration.Get(typeof(MemberSelector<TMemberInfo>)) ??
+            return (MemberSelector<TMemberInfo>)(registration?.Get(typeof(MemberSelector<TMemberInfo>)) ??
                                                      Defaults.Get(typeof(MemberSelector<TMemberInfo>)) ??
                                                      throw new InvalidOperationException("Should never be null"));
         }

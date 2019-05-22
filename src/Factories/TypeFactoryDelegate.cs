@@ -5,5 +5,5 @@ using Unity.Resolution;
 
 namespace Unity
 {
-    public delegate ResolveDelegate<BuilderContext> TypeFactoryDelegate(Type type, IRegistration policies);
+    public delegate ResolveDelegate<BuilderContext> TypeFactoryDelegate(Type type, IRegistration? policies);
 }

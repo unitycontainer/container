@@ -8,12 +8,12 @@ namespace Unity
 {
     public abstract partial class MemberPipeline<TMemberInfo, TData>
     {
-        public virtual IEnumerable<object> Select(Type type, IRegistration registration)
+        public virtual IEnumerable<object> Select(Type type, IRegistration? registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in registration.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<TMemberInfo, TData> && memberSet.Add(injectionMember))
                     yield return injectionMember;

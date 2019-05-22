@@ -24,7 +24,7 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeFactoryDelegate Factory = (Type type, IRegistration policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, IRegistration? policies) =>
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40
             var typeArgument = type.GetTypeInfo().GenericTypeArguments.First();
