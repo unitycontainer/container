@@ -78,7 +78,7 @@ namespace Unity
                     }
                 }
             }
-            else if(builder.Registration is ExplicitRegistration @implicit)
+            else if(builder.Registration is ImplicitRegistration @implicit)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                 if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
