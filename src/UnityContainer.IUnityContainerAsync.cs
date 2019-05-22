@@ -194,45 +194,6 @@ namespace Unity
             // Setup Context
             var pipeline = GetPipeline(type ?? throw new ArgumentNullException(nameof(type)), name);
 
-            // Check if pipeline exists
-            if (null == pipeline)
-            {
-                // Start a new Task to create and execute pipeline
-                var task = Task.Factory.StartNew(() =>
-                {
-                    Debug.Assert(null != _root);
-                    Debug.Assert(null != _root._pipelines);
-
-                    // Get pipeline builder
-                    pipeline = _root._pipelines.Entries[0].Pipeline;
-
-                    var context = new PipelineContext
-                    {
-                        Type = type,
-                        Name = name,
-                        RunningAsync = true,
-                        Overrides = overrides,
-                        ContainerContext = Context,
-                    };
-
-                    try
-                    {
-                        // Execute pipeline
-                        return pipeline(ref context).Result;
-                    }
-                    catch (Exception ex)
-                    when (ex is InvalidRegistrationException || 
-                          ex is CircularDependencyException || 
-                          ex is ObjectDisposedException)
-                    {
-                        var message = CreateMessage(ex);
-                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-                    }
-                });
-
-                return new ValueTask<object?>(task);
-            }
-
             // Execute pipeline
             var context = new PipelineContext
             {

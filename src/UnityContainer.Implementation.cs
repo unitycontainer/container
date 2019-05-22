@@ -28,14 +28,16 @@ namespace Unity
         internal static readonly ResolveDelegate<BuilderContext> DefaultResolver = (ref BuilderContext c) => c.Existing;
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
-        private readonly object _syncLock = new object();
-        private readonly object _syncMetadata = new object();
         private const int CollisionsCutPoint = 5;
 
         #endregion
 
 
         #region Fields
+
+        // Locks
+        private readonly object _syncLock = new object();
+        private readonly object _syncPipe = new object();
 
         // Essentials
         private Metadata? _metadata;
@@ -121,6 +123,7 @@ namespace Unity
 
         #region Diagnostic Validation
 
+        // TODO: Optimize null checks
         private Type DiagnosticValidateType(Type? typeFrom, Type? typeTo)
         {
             var type = typeFrom ??
@@ -140,16 +143,16 @@ namespace Unity
                 throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (null == typeFrom && infoTo.IsInterface)
+            if (null == typeFrom && null != typeTo && infoTo.IsInterface)
 #else
-            if (null == typeFrom && typeTo.IsInterface)
+            if (null == typeFrom && null != typeTo && typeTo.IsInterface)
 #endif
                 throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (infoFrom.IsGenericType && infoTo.IsArray && infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (null != typeFrom && null != typeTo && infoFrom.IsGenericType && infoTo.IsArray && infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 #else
-            if (typeFrom.IsGenericType && typeTo.IsArray && typeFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (null != typeFrom && null != typeTo && typeFrom.IsGenericType && typeTo.IsArray && typeFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 #endif
                 throw new ArgumentException($"Type mapping of IEnumerable<T> to array T[] is not supported.");
 
@@ -164,7 +167,7 @@ namespace Unity
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var infoTo = type.GetTypeInfo();
 #endif
-            var array = types.Select(t =>
+            var array = types?.Select(t =>
             {
                 if (null == t) throw new ArgumentException($"Enumeration contains null value.", "interfaces");
 
@@ -179,9 +182,9 @@ namespace Unity
                     throw new ArgumentException($"The type {type} cannot be assigned to variables of type {t}.");
 
                 return t;
-            })
-                         .ToArray();
-            return 0 == array.Length ? null : array;
+            }).ToArray();
+
+            return null == array || 0 == array.Length ? null : array;
         }
 
 

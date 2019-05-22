@@ -19,7 +19,7 @@ namespace Unity
         #endregion
 
 
-        private BuildPipelineAsync? GetPipeline(Type type, string? name)
+        private BuildPipelineAsync GetPipeline(Type type, string? name)
         {
             var key = new HashKey(type, name);
 
@@ -42,7 +42,12 @@ namespace Unity
                 }
             }
 
-            return null;
+            // Make compiler happy
+            Debug.Assert(null != _root);
+            Debug.Assert(null != _root._pipelines);
+
+            // Return default build pipeline
+            return _root._pipelines.Entries[0].Pipeline;
         }
 
 
@@ -51,29 +56,53 @@ namespace Unity
         [SecuritySafeCritical]
         public ValueTask<object?> BuildPipeline(ref PipelineContext context)
         {
-            // Get Registration if exists
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var info = context.Type.GetTypeInfo();
-            var registration = info.IsGenericType 
-                ? GetGenericExplicitRegistration(context.Type, context.Name, info) 
-                : GetSimpleExplicitRegistration(context.Type, context.Name);
-#else
-            var registration = context.Type.IsGenericType
-                ? GetGenericExplicitRegistration(context.Type, context.Name)
-                : GetSimpleExplicitRegistration(context.Type, context.Name);
-#endif
-            // Build Pipeline
-            var builder = new PipelineBuilder(ref context, registration);
-            var pipeline = builder.BuildPipelineAsync();
+            var type = context.Type;
+            var name = context.Name;
+            var overrides = context.Overrides;
+            var container = context.ContainerContext;
 
-            return pipeline(ref context);
+            if (context.RunAsync)
+            {
+                var task = Task.Factory.StartNew(DoThePipeline);
+                return new ValueTask<object?>(task);
+            }
+
+            return new ValueTask<object?>(DoThePipeline());
+
+
+            object? DoThePipeline()
+            {
+                // Get Registration if exists
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                var info = type.GetTypeInfo();
+                var registration = info.IsGenericType 
+                    ? GetGenericExplicitRegistration(type, name, info) 
+                    : GetSimpleExplicitRegistration(type, name);
+#else
+                var registration = type.IsGenericType
+                    ? GetGenericExplicitRegistration(type, name)
+                    : GetSimpleExplicitRegistration(type, name);
+#endif
+                var c = new PipelineContext
+                {
+                    Type = type,
+                    Name = name,
+                    Overrides = overrides,
+                    ContainerContext = container,
+                };
+
+                // Build Pipeline
+                var builder = new PipelineBuilder(ref c, registration);
+                var pipeline = builder.BuildPipelineAsync();
+
+                return pipeline(ref c).Result;
+            }
         }
 
         #endregion
 
 
         #region Get Registration 
-
 
         private IRegistration? GetSimpleExplicitRegistration(Type type, string? name)
         {
@@ -106,7 +135,6 @@ namespace Unity
 
             return null;
         }
-
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
         private IRegistration? GetGenericExplicitRegistration(Type type, string? name, TypeInfo info)
