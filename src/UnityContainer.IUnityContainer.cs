@@ -210,15 +210,14 @@ namespace Unity
             var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
 
             // Check if already got value
-            var value = null != registration.LifetimeManager
-                ? registration.LifetimeManager.GetValue(LifetimeContainer)
-                : LifetimeManager.NoValue;
-
-            if (LifetimeManager.NoValue != value) return value;
-
-            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
+            if (null != registration.LifetimeManager)
+            {
+                var value = registration.LifetimeManager.GetValue(LifetimeContainer);
+                if (LifetimeManager.NoValue != value) return value;
+            }
 
             // Setup Context
+            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
             var context = new BuilderContext
             {
                 List = new PolicyList(),
@@ -229,43 +228,24 @@ namespace Unity
             };
 
             // Execute pipeline
-            if (null == synchronized)
+            try
             {
-                try
-                {
-                    value = context.Pipeline(ref context);
-                    registration.LifetimeManager?.SetValue(value, LifetimeContainer);
-                    return value;
-                }
-                catch (Exception ex) 
-                when (ex is InvalidRegistrationException || 
-                      ex is CircularDependencyException || 
-                      ex is ObjectDisposedException)
+                var value = context.Pipeline(ref context);
+                registration.LifetimeManager?.SetValue(value, LifetimeContainer);
+                return value;
+            }
+            catch (Exception ex)
+            {
+                synchronized?.Recover();
+
+                if (ex is InvalidRegistrationException ||
+                    ex is CircularDependencyException  ||
+                    ex is ObjectDisposedException)
                 {
                     var message = CreateMessage(ex);
                     throw new ResolutionFailedException(context.Type, context.Name, message, ex);
                 }
-            }
-            else
-            {
-                try
-                {
-                    value = context.Pipeline(ref context);
-                    registration.LifetimeManager?.SetValue(value, LifetimeContainer);
-                    return value;
-                }
-                catch (Exception ex)
-                {
-                    synchronized.Recover();
-                    if (ex is InvalidRegistrationException ||
-                        ex is CircularDependencyException  ||
-                        ex is ObjectDisposedException)
-                    {
-                        var message = CreateMessage(ex);
-                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-                    }
-                    else throw;
-                }
+                else throw;
             }
         }
 

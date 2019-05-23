@@ -60,7 +60,7 @@ namespace Unity
             Defaults = new DefaultPolicies(this);
 
             // IUnityContainer, IUnityContainerAsync
-            var container = new ExplicitRegistration(this, null, typeof(UnityContainer))
+            var container = new ExplicitRegistration(this, null, typeof(UnityContainer), new ContainerLifetimeManager())
             {
                 Pipeline = (ref BuilderContext c) => c.Container,
                 PipelineDelegate = (ref BuilderContext c) => new ValueTask<object?>(c.Container)
