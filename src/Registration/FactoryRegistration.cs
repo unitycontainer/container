@@ -16,8 +16,7 @@ namespace Unity.Registration
             if (manager is IDisposable managerDisposable)
                 owner.Context.Lifetime.Add(managerDisposable);
 
-            LifetimeManager = manager;
-            //PipelineDelegate = OnResolve;
+            LifetimeManager = manager is TransientLifetimeManager ? null : manager;
 
             // Factory resolver
             Pipeline = manager switch
