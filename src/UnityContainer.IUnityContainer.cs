@@ -212,7 +212,7 @@ namespace Unity
             // Check if already got value
             if (null != registration.LifetimeManager)
             {
-                var value = registration.LifetimeManager.GetValue(LifetimeContainer);
+                var value = registration.LifetimeManager.Get(LifetimeContainer);
                 if (LifetimeManager.NoValue != value) return value;
             }
 
@@ -231,7 +231,7 @@ namespace Unity
             try
             {
                 var value = context.Pipeline(ref context);
-                registration.LifetimeManager?.SetValue(value, LifetimeContainer);
+                registration.LifetimeManager?.Set(value, LifetimeContainer);
                 return value;
             }
             catch (Exception ex)

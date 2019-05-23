@@ -194,18 +194,26 @@ namespace Unity
         {
             var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
 
-            // Check if already got value
-            var value = null != registration.LifetimeManager 
-                ? registration.LifetimeManager.GetValue(LifetimeContainer)
-                : LifetimeManager.NoValue;
-
-            // TODO: Need to change sync mechanism
-
-            if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
-
-            return new ValueTask<object?>(Task.Factory.StartNew<object?>(delegate 
+            if (null != registration.LifetimeManager)
             {
+                // Make unblocking check if already has result
+                var value = registration.LifetimeManager.TryGet(LifetimeContainer);
+                if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
+            }
+
+
+            return new ValueTask<object?>(Task.Factory
+                                              .StartNew<object?>(delegate 
+            {
+                // Check if already created and acquire a lock
+                if (null != registration.LifetimeManager)
+                {
+                    var value = registration.LifetimeManager.Get(LifetimeContainer);
+                    if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
+                }
+
                 // Setup Context
+                var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
                 var context = new BuilderContext
                 {
                     List = new PolicyList(),
@@ -218,15 +226,22 @@ namespace Unity
                 // Execute pipeline
                 try
                 {
-                    return context.Pipeline(ref context);
+                    var value = context.Pipeline(ref context);
+                    registration.LifetimeManager?.Set(value, LifetimeContainer);
+                    return value;
                 }
                 catch (Exception ex)
-                when (ex is InvalidRegistrationException ||
-                      ex is CircularDependencyException ||
-                      ex is ObjectDisposedException)
                 {
-                    var message = CreateMessage(ex);
-                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                    synchronized?.Recover();
+
+                    if (ex is InvalidRegistrationException ||
+                        ex is CircularDependencyException ||
+                        ex is ObjectDisposedException)
+                    {
+                        var message = CreateMessage(ex);
+                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                    }
+                    else throw;
                 }
             }));
         }
