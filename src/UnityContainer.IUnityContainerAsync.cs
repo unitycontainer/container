@@ -202,8 +202,7 @@ namespace Unity
             }
 
 
-            return new ValueTask<object?>(Task.Factory
-                                              .StartNew<object?>(delegate 
+            return new ValueTask<object?>(Task.Factory.StartNew<object?>(delegate 
             {
                 // Check if already created and acquire a lock
                 if (null != registration.LifetimeManager)
@@ -264,36 +263,4 @@ namespace Unity
 
         #endregion
     }
-
-    // Backups
-    /*
-        ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
-        {
-            // Setup Context
-            var pipeline = GetPipeline(type ?? throw new ArgumentNullException(nameof(type)), name);
-
-            // Execute pipeline
-            var context = new PipelineContext
-            {
-                Type = type,
-                Name = name,
-                RunAsync = true,
-                Overrides = overrides,
-                ContainerContext = Context,
-            };
-
-            try
-            {
-                return pipeline(ref context);
-            }
-            catch (Exception ex)
-            when (ex is InvalidRegistrationException || 
-                  ex is CircularDependencyException ||
-                  ex is ObjectDisposedException)
-            {
-                var message = CreateMessage(ex);
-                throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-            }
-        }
-     */
 }

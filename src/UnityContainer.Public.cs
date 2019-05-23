@@ -62,8 +62,7 @@ namespace Unity
             // IUnityContainer, IUnityContainerAsync
             var container = new ExplicitRegistration(this, null, typeof(UnityContainer), new ContainerLifetimeManager())
             {
-                Pipeline = (ref BuilderContext c) => c.Container,
-                PipelineDelegate = (ref BuilderContext c) => new ValueTask<object?>(c.Container)
+                Pipeline = (ref BuilderContext c) => c.Container
             };
 
             // Create Registries

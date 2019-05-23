@@ -12,8 +12,6 @@ namespace Unity.Registration
     {
         string? Name { get; }
 
-        PipelineDelegate? PipelineDelegate { get; set; }
-
         ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
         IEnumerable<Pipeline>? Processors { get; set; }

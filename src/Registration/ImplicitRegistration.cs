@@ -20,6 +20,7 @@ namespace Unity.Registration
         #region Fields
 
         private int _refCount;
+        private ResolveDelegate<BuilderContext>? _pipeline;
 
         #endregion
 
@@ -65,9 +66,20 @@ namespace Unity.Registration
 
         public string? Name { get; }
 
-        public virtual PipelineDelegate? PipelineDelegate { get; set; }
-
-        public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
+        public ResolveDelegate<BuilderContext>? Pipeline
+        {
+            get => _pipeline; set
+            {
+                if (null != value && null != LifetimeManager && 
+                    !(LifetimeManager is TransientLifetimeManager))
+                {
+                    LifetimeManager.PipelineDelegate = value;
+                    _pipeline = LifetimeManager.Pipeline;
+                }
+                else
+                    _pipeline = value;
+            }
+        }
 
         public IEnumerable<Pipeline>? Processors { get; set; }
 
@@ -99,7 +111,7 @@ namespace Unity.Registration
         {
             return policyInterface switch
             {
-                Type type when typeof(LifetimeManager) == type => base.Get(policyInterface) ?? LifetimeManager, 
+                Type type when typeof(LifetimeManager) == type => base.Get(policyInterface) ?? LifetimeManager,
                 _ => base.Get(policyInterface)
             };
         }

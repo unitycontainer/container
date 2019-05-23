@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security;
-using System.Threading.Tasks;
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -24,7 +23,6 @@ namespace Unity.Registration
 
             // Set Members
             LifetimeManager = manager;
-            PipelineDelegate = OnResolve;
             Pipeline = manager switch
             {
                 ExternallyControlledLifetimeManager _ => ExternalLifetime,
@@ -33,13 +31,6 @@ namespace Unity.Registration
         }
 
         #region Implementation
-
-        [SecuritySafeCritical]
-        private ValueTask<object?> OnResolve(ref BuilderContext context)
-        {
-            Debug.Assert(null != Pipeline);
-            return new ValueTask<object?>(Pipeline(ref context));
-        }
 
         private object ExternalLifetime(ref BuilderContext context)
         {

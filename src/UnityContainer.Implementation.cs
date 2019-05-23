@@ -298,6 +298,9 @@ namespace Unity
                 Debug.Assert(null != container);
                 return container?.Container;
             }
+
+            internal override object Pipeline<TContext>(ref TContext context) 
+                => context.Container;
         }
     }
 }
