@@ -33,9 +33,6 @@ namespace Unity.Lifetime
         /// <value>This field holds a strong reference to the associated object.</value>
         protected object Value = NoValue;
 
-        private Func<ILifetimeContainer, object> _currentGetValue;
-        private Action<object, ILifetimeContainer> _currentSetValue;
-
         #endregion
 
 
@@ -43,8 +40,9 @@ namespace Unity.Lifetime
 
         public ContainerControlledLifetimeManager()
         {
-            _currentGetValue = base.GetValue;
-            _currentSetValue = base.SetValue;
+            Set    = base.SetValue;
+            Get    = base.GetValue;
+            TryGet = base.TryGetValue;
         }
 
         #endregion
@@ -55,34 +53,26 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            return _currentGetValue(container);
+            return Get(container);
         }
 
         /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
-            _currentSetValue(newValue, container);
-            _currentSetValue = (o, c) => throw new InvalidOperationException("InjectionParameterValue of ContainerControlledLifetimeManager can only be set once");
-            _currentGetValue = SynchronizedGetValue;
+            Set(newValue, container);
+            Set = (o, c) => throw new InvalidOperationException("ContainerControlledLifetimeManager can only be set once");
+            Get    = SynchronizedGetValue;
+            TryGet = SynchronizedGetValue;
         }
 
         /// <inheritdoc/>
-        protected override object SynchronizedGetValue(ILifetimeContainer container = null)
-        {
-            return Value;
-        }
+        protected override object SynchronizedGetValue(ILifetimeContainer container = null) => Value;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
-        {
-            Value = newValue;
-        }
+        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null) => Value = newValue;
 
         /// <inheritdoc/>
-        public override void RemoveValue(ILifetimeContainer container = null)
-        {
-            Dispose();
-        }
+        public override void RemoveValue(ILifetimeContainer container = null) => Dispose();
 
         #endregion
 

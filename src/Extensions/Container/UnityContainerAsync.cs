@@ -806,24 +806,11 @@ namespace Unity
         public static T ResolveAsync<T>(this IUnityContainerAsync container, params ResolverOverride[] overrides)
         {
             var unity = container ?? throw new ArgumentNullException(nameof(container));
-            var value  = unity.ResolveAsync(typeof(T), null, overrides);
+            var task  = unity.ResolveAsync(typeof(T), null, overrides);
 
-            if (value.IsCompleted) return (T) value.Result;
-
-            try
-            {
-                var task = value.AsTask();
-                task.Wait();
-
-                return (T) task.Result;
-            }
-            catch (AggregateException ex)
-            {
-                if (1 == ex.InnerExceptions.Count)
-                    throw ex.InnerException;
-
-                throw;
-            }
+            return task.IsCompleted
+                ? (T)task.Result
+                : (T)task.GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -839,24 +826,11 @@ namespace Unity
         public static T ResolveAsync<T>(this IUnityContainerAsync container, string name, params ResolverOverride[] overrides)
         {
             var unity = container ?? throw new ArgumentNullException(nameof(container));
-            var value = unity.ResolveAsync(typeof(T), name, overrides);
+            var task = unity.ResolveAsync(typeof(T), name, overrides);
 
-            if (value.IsCompleted) return (T)value.Result;
-
-            try
-            {
-                var task = value.AsTask();
-                task.Wait();
-
-                return (T)task.Result;
-            }
-            catch (AggregateException ex)
-            {
-                if (1 == ex.InnerExceptions.Count)
-                    throw ex.InnerException;
-
-                throw;
-            }
+            return task.IsCompleted
+                ? (T)task.Result
+                : (T)task.GetAwaiter().GetResult();
         }
 
         /// <summary>

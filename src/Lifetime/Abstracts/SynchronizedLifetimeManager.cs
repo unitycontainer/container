@@ -36,6 +36,20 @@ namespace Unity.Lifetime
         #endregion
 
         /// <inheritdoc/>
+        public override object TryGetValue(ILifetimeContainer container = null)
+        {
+            if (Monitor.TryEnter(_lock))
+            {
+                var result = SynchronizedGetValue(container);
+                Monitor.Exit(_lock);
+                return result;
+            }
+            else
+                return NoValue;
+        }
+
+
+        /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
             if (Monitor.TryEnter(_lock, ResolveTimeout))

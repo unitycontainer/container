@@ -8,8 +8,6 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract class LifetimeManager 
     {
-        protected object SyncRoot { get; } = new object();
-
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
         /// unless value is set with a valid object. Null is a value and is not equal 
@@ -28,8 +26,42 @@ namespace Unity.Lifetime
         /// <value>True is this instance already in use, False otherwise.</value>
         public virtual bool InUse { get; set; }
 
+        
+        #region Constructors
 
-        #region LifetimeManager Members
+        public LifetimeManager()
+        {
+            Set    = SetValue;
+            Get    = GetValue;
+            TryGet = TryGetValue;
+        }
+        
+        #endregion
+
+
+        #region  Optimizers
+
+        public virtual Func<ILifetimeContainer, object> TryGet { get; protected set; }
+
+        public virtual Func<ILifetimeContainer, object> Get { get; protected set; }
+
+        public virtual Action<object, ILifetimeContainer> Set { get; protected set; }
+
+        #endregion
+
+
+        #region   LifetimeManager Members
+
+        /// <summary>
+        /// Retrieves a value from the backing store associated with this Lifetime policy.
+        /// </summary>
+        /// <remarks>
+        /// This method does not block and does not acquire a lock on synchronization 
+        /// primitives.
+        /// </remarks>
+        /// <param name="container">The container this lifetime is associated with</param>
+        /// <returns>the object desired, or null if no such object is currently stored.</returns>
+        public virtual object TryGetValue(ILifetimeContainer container = null) => GetValue(container);
 
         /// <summary>
         /// Retrieves a value from the backing store associated with this Lifetime policy.
