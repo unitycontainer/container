@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Resolution;
 
 namespace Unity.Lifetime
 {
@@ -122,6 +123,16 @@ namespace Unity.Lifetime
                 return base.GetHashCode();
             }
         }
+
+        #endregion
+
+
+        #region Internal Use
+
+        internal Delegate PipelineDelegate;
+
+        internal virtual object Pipeline<TContext>(ref TContext context) where TContext : IResolveContext 
+            => ((ResolveDelegate<TContext>)PipelineDelegate)(ref context);
 
         #endregion
     }
