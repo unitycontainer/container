@@ -9,7 +9,7 @@ using Unity.Lifetime;
 namespace Unity.Registration
 {
     [DebuggerDisplay("Registration.Explicit({Count})")]
-    [DebuggerTypeProxy(typeof(ExplicitRegistrationDebugProxy))]
+    //[DebuggerTypeProxy(typeof(ExplicitRegistrationDebugProxy))]
     public class ExplicitRegistration : ImplicitRegistration
     {
         #region Constructors
@@ -37,7 +37,7 @@ namespace Unity.Registration
             : base(owner, name)
         {
             Type = type;
-            LifetimeManager = lifetimeManager;
+            LifetimeManager = lifetimeManager is TransientLifetimeManager ? null : lifetimeManager;
             Next = owner.Defaults;
             InjectionMembers = null != injectionMembers && 0 < injectionMembers.Length ? injectionMembers : null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired) || lifetimeManager is PerResolveLifetimeManager;

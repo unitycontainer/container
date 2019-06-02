@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
 using Unity.Builder;
@@ -115,7 +114,7 @@ namespace Unity
             try
             {
                 // Lifetime Manager
-                var manager = lifetimeManager as LifetimeManager ?? 
+                var manager = lifetimeManager as LifetimeManager ??
                               Context.InstanceLifetimeManager.CreateLifetimePolicy();
 
                 // Create registration and add to appropriate storage
@@ -134,7 +133,7 @@ namespace Unity
                     container.LifetimeContainer.Remove(disposable);
                     disposable.Dispose();
                 }
-                
+
                 // Check what strategies to run
                 registration.Processors = Context.InstancePipelineCache;
 
@@ -166,7 +165,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             // Lifetime Manager
-            var manager = lifetimeManager as LifetimeManager ?? 
+            var manager = lifetimeManager as LifetimeManager ??
                           Context.FactoryLifetimeManager.CreateLifetimePolicy();
 
             // Target Container
@@ -239,10 +238,10 @@ namespace Unity
                 synchronized?.Recover();
 
                 if (ex is InvalidRegistrationException ||
-                    ex is CircularDependencyException  ||
+                    ex is CircularDependencyException ||
                     ex is ObjectDisposedException)
                 {
-                    var message = CreateMessage(ex);
+                    var message = CreateErrorMessage(ex);
                     throw new ResolutionFailedException(context.Type, context.Name, message, ex);
                 }
                 else throw;
@@ -278,7 +277,7 @@ namespace Unity
             catch (Exception ex)
             when (ex is InvalidRegistrationException || ex is CircularDependencyException || ex is ObjectDisposedException)
             {
-                var message = CreateMessage(ex);
+                var message = CreateErrorMessage(ex);
                 throw new ResolutionFailedException(context.Type, context.Name, message, ex);
             }
         }

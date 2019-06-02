@@ -40,19 +40,27 @@ namespace Unity
             Debug.Assert(null != _enumerator);
         }
 
-        public PipelineBuilder(ref PipelineContext context, IRegistration? registration = null)
+        public PipelineBuilder(Type type, string? name, UnityContainer container, IEnumerable<Pipeline> pipelines)
         {
             Seed = null;
-            Type = context.Type;
-            Name = context.Name;
-            Registration = registration;
-            ContainerContext = context.ContainerContext;
+            Type = type;
+            Name = name;
+            Registration = null;
+            ContainerContext = container.Context;
 
-            _enumerator = registration?.Processors?.GetEnumerator() ??
-                                context.ContainerContext
-                                       .TypePipelineCache
-                                       .AsEnumerable<Pipeline>()
-                                       .GetEnumerator();
+            _enumerator = pipelines.GetEnumerator();
+        }
+
+        public PipelineBuilder(Type type, string? name, UnityContainer container, IRegistration registration)
+        {
+            Seed = registration?.Pipeline;
+            Type = type;
+            Name = name;
+            Registration = registration;
+            ContainerContext = container.Context;
+
+            _enumerator = (registration?.Processors ??
+                           Enumerable.Empty<Pipeline>()).GetEnumerator();
         }
 
         public PipelineBuilder(ref BuilderContext context)

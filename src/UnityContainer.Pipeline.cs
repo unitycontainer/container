@@ -1,35 +1,29 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Security;
-using System.Threading.Tasks;
+using System.Threading;
+using Unity.Builder;
+using Unity.Lifetime;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Container Resolution
+        #region Get Pipeline
 
-        [SecuritySafeCritical]
-        private static ValueTask<object?> ResolveContainerPipeline(ref PipelineContext context) 
-            => new ValueTask<object?>(context.ContainerContext.Container);
-
-        #endregion
-
-
-        private BuildPipelineAsync GetPipeline(Type type, string? name)
+        private ResolveDelegate<BuilderContext>? TryGetPipeline(ref HashKey key)
         {
-            var key = new HashKey(type, name);
-
             // Iterate through containers hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
-                // Skip to the parent if no pipelines
-                if (null == container._pipelines) continue;
+                // Skip to parent if no registrations
+                if (null == container._metadata) continue;
 
-                var registry = container._pipelines;
+                Debug.Assert(null != container._registry);
+                var registry = container._registry;
 
                 // Check for exact match
                 for (var i = registry.Buckets[key.HashCode % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
@@ -42,72 +36,30 @@ namespace Unity
                 }
             }
 
-            // Make compiler happy
-            Debug.Assert(null != _root);
-            Debug.Assert(null != _root._pipelines);
-
-            // Return default build pipeline
-            return _root._pipelines.Entries[0].Pipeline;
+            return null;
         }
 
-
-        #region Root Build Pipeline
-
-        [SecuritySafeCritical]
-        public ValueTask<object?> BuildPipeline(ref PipelineContext context)
+        private ResolveDelegate<BuilderContext> GetPipeline(ref HashKey key)
         {
-            var type = context.Type;
-            var name = context.Name;
-            var overrides = context.Overrides;
-            var container = context.ContainerContext;
-
-            if (context.RunAsync)
-            {
-                var task = Task.Factory.StartNew(DoThePipeline);
-                return new ValueTask<object?>(task);
-            }
-
-            return new ValueTask<object?>(DoThePipeline());
-
-
-            object? DoThePipeline()
-            {
-                // Get Registration if exists
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                var info = type.GetTypeInfo();
-                var registration = info.IsGenericType 
-                    ? GetGenericExplicitRegistration(type, name, info) 
-                    : GetSimpleExplicitRegistration(type, name);
+            var info = key.Type?.GetTypeInfo();
+            return null != info && info.IsGenericType 
+                ? GenericGetPipeline(ref key, info) 
+                : GetNonGenericPipeline(ref key);
 #else
-                var registration = type.IsGenericType
-                    ? GetGenericExplicitRegistration(type, name)
-                    : GetSimpleExplicitRegistration(type, name);
+            return null != key.Type && key.Type.IsGenericType 
+                ? GenericGetPipeline(ref key)
+                : GetNonGenericPipeline(ref key);
 #endif
-                var c = new PipelineContext
-                {
-                    Type = type,
-                    Name = name,
-                    Overrides = overrides,
-                    ContainerContext = container,
-                };
-
-                // Build Pipeline
-                var builder = new PipelineBuilder(ref c, registration);
-                var pipeline = builder.BuildPipelineAsync();
-
-                return pipeline(ref c).Result;
-            }
         }
 
         #endregion
 
 
-        #region Get Registration 
+        #region Implementation
 
-        private IRegistration? GetSimpleExplicitRegistration(Type type, string? name)
+        private ResolveDelegate<BuilderContext> GetNonGenericPipeline(ref HashKey key)
         {
-            var key = new HashKey(type, name);
-
             // Iterate through containers hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
             {
@@ -123,95 +75,236 @@ namespace Unity
                     ref var candidate = ref registry.Entries[i];
                     if (candidate.Key != key) continue;
 
-                    // Found a registration
-                    if (!(candidate.Policies is IRegistration))
-                        candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
-
-                    return (IRegistration)candidate.Policies;
+                    // Found it 
+                    Debug.Assert(null != candidate.Pipeline);
+                    return candidate.Pipeline;
                 }
             }
 
             Debug.Assert(null != _root);
 
-            return null;
+            return _root.PipelineFromType(ref key);
         }
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-        private IRegistration? GetGenericExplicitRegistration(Type type, string? name, TypeInfo info)
+        private ResolveDelegate<BuilderContext> GenericGetPipeline(ref HashKey key, TypeInfo info)
 #else
-        private IRegistration? GetGenericExplicitRegistration(Type type, string? name)
+        private ResolveDelegate<BuilderContext> GenericGetPipeline(ref HashKey keyExact)
 #endif
         {
-            bool initGenerics = true;
-            Type? generic = null;
-            int targetBucket;
-            var keyExact = new HashKey(type, name);
-            var keyGeneric = new HashKey();
-            var keyDefault = new HashKey();
+            throw new NotImplementedException();
 
-            // Iterate through containers hierarchy
-            for (UnityContainer? container = this; null != container; container = container._parent)
+            //            bool initGenerics = true;
+            //            Type? generic = null;
+            //            int targetBucket;
+            //            var keyGeneric = new HashKey();
+            //            var keyDefault = new HashKey();
+
+            //            // Iterate through containers hierarchy
+            //            for (UnityContainer? container = this; null != container; container = container._parent)
+            //            {
+            //                // Skip to parent if no registrations
+            //                if (null == container._metadata) continue;
+
+            //                Debug.Assert(null != container._registry);
+            //                var registry = container._registry;
+
+            //                // Check for exact match
+            //                targetBucket = keyExact.HashCode % registry.Buckets.Length;
+            //                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+            //                {
+            //                    ref var candidate = ref registry.Entries[i];
+            //                    if (candidate.Key != keyExact) continue;
+
+            //                    // Found a registration
+            //                    if (!(candidate.Policies is IRegistration))
+            //                        candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
+
+            //                    return ((IRegistration)candidate.Policies).Pipeline;
+            //                }
+
+            //                // Generic registrations
+            //                if (initGenerics)
+            //                {
+            //                    initGenerics = false;
+
+            //#if NETSTANDARD1_0 || NETCOREAPP1_0
+            //                    generic = info.GetGenericTypeDefinition();
+            //#else
+            //                    generic = type.GetGenericTypeDefinition();
+            //#endif
+            //                    keyGeneric = new HashKey(generic, name);
+            //                    keyDefault = new HashKey(generic);
+            //                }
+
+            //                // Check for factory with same name
+            //                targetBucket = keyGeneric.HashCode % registry.Buckets.Length;
+            //                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+            //                {
+            //                    ref var candidate = ref registry.Entries[i];
+            //                    if (candidate.Key != keyGeneric)
+            //                        continue;
+
+            //                    // Found a factory
+            //                    return null;
+            //                }
+
+            //                // Check for default factory
+            //                targetBucket = keyDefault.HashCode % registry.Buckets.Length;
+            //                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+            //                {
+            //                    ref var candidate = ref registry.Entries[i];
+            //                    if (candidate.Key != keyDefault)
+            //                        continue;
+
+            //                    // Found a factory
+            //                    return null;
+            //                }
+            //            }
+
+            //            Debug.Assert(null != _root);
+
+            //            return null;
+        }
+
+        #endregion
+
+
+        #region Create Pipeline
+
+        private ResolveDelegate<BuilderContext> PipelineFromType(ref HashKey key)
+        {
+            Debug.Assert(null != _registry);
+
+            var type = key.Type;
+            var name = key.Name;
+            int count = -1;
+            var collisions = 0;
+            ResolveDelegate<BuilderContext>? pipeline = null;
+
+            lock (_syncLock)
             {
-                // Skip to parent if no registrations
-                if (null == container._metadata) continue;
-
-                Debug.Assert(null != container._registry);
-                var registry = container._registry;
-
-                // Check for exact match
-                targetBucket = keyExact.HashCode % registry.Buckets.Length;
-                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                var targetBucket = key.HashCode % _registry.Buckets.Length;
+                for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
-                    ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != keyExact) continue;
-
-                    // Found a registration
-                    if (!(candidate.Policies is IRegistration))
-                        candidate.Policies = container.CreateRegistration(type, name, candidate.Policies);
-
-                    return (IRegistration)candidate.Policies;
-                }
-
-                // Generic registrations
-                if (initGenerics)
-                {
-                    initGenerics = false;
-
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                    generic = info.GetGenericTypeDefinition();
-#else
-                    generic = type.GetGenericTypeDefinition();
-#endif
-                    keyGeneric = new HashKey(generic, name);
-                    keyDefault = new HashKey(generic);
-                }
-
-                // Check for factory with same name
-                targetBucket = keyGeneric.HashCode % registry.Buckets.Length;
-                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
-                {
-                    ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != keyGeneric)
+                    ref var candidate = ref _registry.Entries[i];
+                    if (candidate.Key != key)
+                    {
+                        collisions++;
                         continue;
+                    }
 
-                    // Found a factory
-                    return container.GetOrAdd(ref keyExact, type, name, candidate.Policies);
+                    if (null == candidate.Pipeline)
+                        candidate.Pipeline = buildPipeline;
+
+                    // Replaced registration
+                    return candidate.Pipeline;
                 }
 
-                // Check for default factory
-                targetBucket = keyDefault.HashCode % registry.Buckets.Length;
-                for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
+                // Expand if required
+                if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
                 {
-                    ref var candidate = ref registry.Entries[i];
-                    if (candidate.Key != keyDefault)
-                        continue;
-
-                    // Found a factory
-                    return container.GetOrAdd(ref keyExact, type, name, candidate.Policies);
+                    _registry = new Registry(_registry);
+                    targetBucket = key.HashCode % _registry.Buckets.Length;
                 }
+
+                // Create new entry
+                ref var entry = ref _registry.Entries[_registry.Count];
+                entry.Key = key;
+                entry.Next = _registry.Buckets[targetBucket];
+                entry.Type = type;
+                entry.IsExplicit = true;
+                entry.Pipeline = buildPipeline;
+                int position = _registry.Count++;
+                _registry.Buckets[targetBucket] = position;
             }
 
-            return null;
+            return buildPipeline;
+
+
+            object? buildPipeline(ref BuilderContext context)
+            {
+                // Wait for right moment
+                while (0 != Interlocked.Increment(ref count))
+                {
+                    Interlocked.Decrement(ref count);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    for (var i = 0; i < 100; i++) ;
+#else
+                    Thread.SpinWait(100);
+#endif
+                }
+
+                try
+                {
+                    // Create if required
+                    if (null == pipeline)
+                    {
+                        PipelineBuilder builder = new PipelineBuilder(type, name, this, Context.TypePipelineCache);
+                        pipeline = builder.Pipeline();
+
+                        Debug.Assert(null != pipeline);
+                    }
+
+                    return pipeline(ref context);
+                }
+                finally
+                {
+                    Interlocked.Decrement(ref count);
+                }
+            };
+
+        }
+
+        private ResolveDelegate<BuilderContext> PipelineFromRegistration(ref HashKey key, IRegistration registration, int position)
+        {
+            Debug.Assert(null != _registry);
+
+            var type = key.Type;
+            var name = key.Name;
+            ResolveDelegate<BuilderContext>? pipeline = null;
+
+            return BuildPipeline;
+
+            object? BuildPipeline(ref BuilderContext context)
+            {
+                if (null != pipeline) return pipeline(ref context);
+                lock (registration)
+                {
+                    if (null != pipeline) return pipeline(ref context);
+
+                    PipelineBuilder builder = new PipelineBuilder(type, name, this, registration);
+
+                    if (registration.LifetimeManager is LifetimeManager manager)
+                    {
+                        manager.PipelineDelegate = builder.Pipeline();
+                        pipeline = manager.Pipeline;
+                    }
+                    else
+                        pipeline = builder.Pipeline();
+
+                    Debug.Assert(null != pipeline);
+                    Debug.Assert(null != _registry);
+
+                    lock (_syncLock)
+                    {
+                        if (ReferenceEquals(registration, _registry.Entries[position].Policies))
+                        {
+                            _registry.Entries[position].Pipeline = pipeline;
+                        }
+                    }
+
+                    // Check if already created and acquire a lock if not
+                    if (pipeline.Target is LifetimeManager lifetime)
+                    {
+                        // Make blocking check for result
+                        var value = lifetime.Get(LifetimeContainer);
+                        if (LifetimeManager.NoValue != value) return value;
+                    }
+
+                    return pipeline(ref context);
+                }
+            };
         }
 
         #endregion

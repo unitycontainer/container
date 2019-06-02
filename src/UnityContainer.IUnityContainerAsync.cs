@@ -192,6 +192,69 @@ namespace Unity
         [SecuritySafeCritical]
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
+            var key = new HashKey(type ?? throw new ArgumentNullException(nameof(type)), name);
+            var pipeline = TryGetPipeline(ref key);
+
+            // Check if already got value
+            if (pipeline?.Target is LifetimeManager manager)
+            {
+                // Make unblocking check for result
+                var value = manager.TryGet(LifetimeContainer);
+                if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
+            }
+
+            return new ValueTask<object?>(Task.Factory.StartNew<object?>(delegate 
+            {
+                if (null == pipeline) pipeline = GetPipeline(ref key);
+
+                // Check if already created and acquire a lock if not
+                var manager = pipeline.Target as LifetimeManager;
+                if (null != manager)
+                {
+                    // Make blocking check for result
+                    var value = manager.Get(LifetimeContainer);
+                    if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
+                }
+
+                // Setup Context
+                var synchronized = manager as SynchronizedLifetimeManager;
+                var context = new BuilderContext
+                {
+                    List = new PolicyList(),
+                    Type = type,
+                    Overrides = overrides,
+                    ContainerContext = Context,
+                };
+
+                // Execute pipeline
+                try
+                {
+                    var value = pipeline(ref context);
+                    manager?.Set(value, LifetimeContainer);
+                    return value;
+                }
+                catch (Exception ex)
+                {
+                    synchronized?.Recover();
+
+                    if (ex is InvalidRegistrationException ||
+                        ex is CircularDependencyException  ||
+                        ex is ObjectDisposedException)
+                    {
+                        var message = CreateErrorMessage(ex);
+                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                    }
+                    else throw;
+                }
+            }));
+        }
+
+
+        /*
+        /// <inheritdoc />
+        [SecuritySafeCritical]
+        ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
+        {
             var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
 
             if (null != registration.LifetimeManager)
@@ -244,6 +307,7 @@ namespace Unity
                 }
             }));
         }
+         */
 
         public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {

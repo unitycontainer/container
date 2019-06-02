@@ -5,11 +5,19 @@ namespace Unity.Storage
 {
     public readonly struct HashKey : IEquatable<HashKey>
     {
-        #region Fields
+        #region Private Fields
 
-        public readonly int HashCode;
-        private readonly int _type;
-        private readonly int _name;
+        private readonly int _typeHash;
+        private readonly int _nameHash;
+        
+        #endregion
+
+
+        #region Public Fields
+
+        public readonly Type?   Type;
+        public readonly string? Name;
+        public readonly int     HashCode;
 
         #endregion
 
@@ -18,30 +26,38 @@ namespace Unity.Storage
 
         public HashKey(int _ = 0)
         {
-            _type = 0;
-            _name = 0;
+            _typeHash = 0;
+            _nameHash = 0;
             HashCode = 0;
+            Type = null;
+            Name = null;
         }
 
         public HashKey(Type type)
         {
-            _type = type?.GetHashCode() ?? 0; 
-            _name = -1;
-            HashCode = NamedType.GetHashCode(_type, _name) & UnityContainer.HashMask;
+            _typeHash = type?.GetHashCode() ?? 0; 
+            _nameHash = -1;
+            HashCode = NamedType.GetHashCode(_typeHash, _nameHash) & UnityContainer.HashMask;
+            Type = type;
+            Name = null;
         }
 
         public HashKey(string? name)
         {
-            _type = name?.Length ?? 0;
-            _name = name?.GetHashCode() ?? 0;
-            HashCode = NamedType.GetHashCode(_type, _name) & UnityContainer.HashMask;
+            _typeHash = name?.Length ?? 0;
+            _nameHash = name?.GetHashCode() ?? 0;
+            HashCode = NamedType.GetHashCode(_typeHash, _nameHash) & UnityContainer.HashMask;
+            Type = null;
+            Name = name;
         }
 
         public HashKey(Type type, string? name)
         {
-            _type = type?.GetHashCode() ?? 0;
-            _name = name?.GetHashCode() ?? 0;
-            HashCode = NamedType.GetHashCode(_type, _name) & UnityContainer.HashMask;
+            _typeHash = type?.GetHashCode() ?? 0;
+            _nameHash = name?.GetHashCode() ?? 0;
+            HashCode = NamedType.GetHashCode(_typeHash, _nameHash) & UnityContainer.HashMask;
+            Type = type;
+            Name = name;
         }
 
         #endregion
@@ -63,16 +79,16 @@ namespace Unity.Storage
         public bool Equals(HashKey other)
         {
             return other.HashCode == HashCode &&
-                   other._type == _type &&
-                   other._name == _name;
+                   other._typeHash == _typeHash &&
+                   other._nameHash == _nameHash;
         }
 
         public override bool Equals(object obj)
         {
             return obj is HashKey other &&
                    other.HashCode == HashCode &&
-                   other._type == _type &&
-                   other._name == _name;
+                   other._typeHash == _typeHash &&
+                   other._nameHash == _nameHash;
         }
 
         public override int GetHashCode() => HashCode;
@@ -80,14 +96,14 @@ namespace Unity.Storage
         public static bool operator ==(HashKey x, HashKey y)
         {
             return x.HashCode == y.HashCode &&
-                   x._type == y._type &&
-                   x._name == y._name;
+                   x._typeHash == y._typeHash &&
+                   x._nameHash == y._nameHash;
         }
         public static bool operator !=(HashKey x, HashKey y)
         {
             return x.HashCode != y.HashCode ||
-                   x._type != y._type ||
-                   x._name != y._name;
+                   x._typeHash != y._typeHash ||
+                   x._nameHash != y._nameHash;
         }
 
         #endregion

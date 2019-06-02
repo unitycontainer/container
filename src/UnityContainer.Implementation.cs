@@ -37,12 +37,10 @@ namespace Unity
 
         // Locks
         private readonly object _syncLock = new object();
-        private readonly object _syncPipe = new object();
 
         // Essentials
         private Metadata? _metadata;
         private Registry? _registry;
-        private Pipelines? _pipelines;
         private readonly UnityContainer _root;
         private readonly UnityContainer? _parent;
 
@@ -188,7 +186,7 @@ namespace Unity
         }
 
 
-        private static Func<Exception, string> CreateMessage = (Exception ex) =>
+        private static Func<Exception, string> CreateErrorMessage = (Exception ex) =>
         {
             return $"Resolution failed with error: {ex.Message}\n\nFor more detailed information run Unity in debug mode: new UnityContainer(ModeFlags.Diagnostic)";
         };
@@ -293,14 +291,17 @@ namespace Unity
             protected override LifetimeManager OnCreateLifetimeManager() 
                 => throw new NotImplementedException();
 
-            public override object? GetValue(ILifetimeContainer container)
+            public override object GetValue(ILifetimeContainer container)
             {
                 Debug.Assert(null != container);
-                return container?.Container;
+                return container.Container;
             }
 
-            internal override object Pipeline<TContext>(ref TContext context) 
-                => context.Container;
+            public override object TryGetValue(ILifetimeContainer container)
+            {
+                Debug.Assert(null != container);
+                return container.Container;
+            }
         }
     }
 }

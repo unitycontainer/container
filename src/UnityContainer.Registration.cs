@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity
@@ -220,6 +222,8 @@ namespace Unity
                         registration.Add(candidate.Policies);
                     }
                     candidate.Policies = registration;
+                    candidate.Pipeline = PipelineFromRegistration(ref key, registration, i);
+                    candidate.Registration = registration;
 
                     // Replaced registration
                     return existing;
@@ -239,6 +243,8 @@ namespace Unity
                 entry.Type = type;
                 entry.IsExplicit = true;
                 entry.Policies = registration;
+                entry.Pipeline = PipelineFromRegistration(ref key, registration, _registry.Count); 
+                entry.Registration = registration;
                 int position = _registry.Count++;
                 _registry.Buckets[targetBucket] = position;
 

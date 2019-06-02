@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security;
+using Unity.Builder;
 using Unity.Policy;
 using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Storage
 {
@@ -150,6 +152,27 @@ namespace Unity.Storage
             Buckets[targetBucket] = Count++;
         }
 
+        internal void Set(Type type, string? name, ResolveDelegate<BuilderContext>? pipeline)
+        {
+            var key = new HashKey(type, name);
+            var targetBucket = key.HashCode % Buckets.Length;
+
+            for (var i = Buckets[targetBucket]; i >= 0; i = Entries[i].Next)
+            {
+                ref var candidate = ref Entries[i];
+                if (candidate.Key != key) continue;
+
+                candidate.Pipeline = pipeline;
+                return;
+            }
+
+            ref var entry = ref Entries[Count];
+            entry.Key = key;
+            entry.Next = Buckets[targetBucket];
+            entry.Pipeline = pipeline;
+            Buckets[targetBucket] = Count++;
+        }
+
         public bool RequireToGrow => (Entries.Length - Count) < 100 && 
                                      (float)Count / Entries.Length > 0.72f;
         #endregion
@@ -167,6 +190,8 @@ namespace Unity.Storage
             public IPolicySet Policies;
             public IContainerRegistration Cache;
             public IRegistration Registration;
+            public ResolveDelegate<BuilderContext>? Pipeline;
+            public int ID;
         }
 
         #endregion

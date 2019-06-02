@@ -64,15 +64,15 @@ namespace Unity
             {
                 Pipeline = (ref BuilderContext c) => c.Container
             };
+            Debug.Assert(null != container.LifetimeManager);
 
             // Create Registries
             _metadata  = new Metadata();
             _registry  = new Registry(Defaults);
-            _registry.Set(typeof(IUnityContainer),      null, container);
+            _registry.Set(typeof(IUnityContainer),      null, container);  // TODO: Remove redundancy
             _registry.Set(typeof(IUnityContainerAsync), null, container);
-            _pipelines = new Pipelines(BuildPipeline);
-            _pipelines.Set(typeof(IUnityContainer),      null, ResolveContainerPipeline);
-            _pipelines.Set(typeof(IUnityContainerAsync), null, ResolveContainerPipeline);
+            _registry.Set(typeof(IUnityContainer),      null, container.LifetimeManager.Pipeline);
+            _registry.Set(typeof(IUnityContainerAsync), null, container.LifetimeManager.Pipeline);
 
             /////////////////////////////////////////////////////////////
             // Built-In Features
@@ -154,7 +154,7 @@ namespace Unity
                 // Validators
                 ValidateType  = DiagnosticValidateType;
                 ValidateTypes = DiagnosticValidateTypes;
-                CreateMessage = CreateDiagnosticMessage;
+                CreateErrorMessage = CreateDiagnosticMessage;
 
             }
         }

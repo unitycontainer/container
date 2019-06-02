@@ -66,20 +66,7 @@ namespace Unity.Registration
 
         public string? Name { get; }
 
-        public ResolveDelegate<BuilderContext>? Pipeline
-        {
-            get => _pipeline; set
-            {
-                if (null != value && null != LifetimeManager && 
-                    !(LifetimeManager is TransientLifetimeManager))
-                {
-                    LifetimeManager.PipelineDelegate = value;
-                    _pipeline = LifetimeManager.Pipeline;
-                }
-                else
-                    _pipeline = value;
-            }
-        }
+        public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
         public IEnumerable<Pipeline>? Processors { get; set; }
 

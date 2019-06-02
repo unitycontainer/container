@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Security;
 using Unity.Builder;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity.Registration
 {
@@ -14,20 +13,19 @@ namespace Unity.Registration
             : base(owner, name, instance?.GetType() ?? type)
         {
             // If Disposable register with the container
-            if (manager is IDisposable disposableManager)
-                owner.Context.Lifetime.Add(disposableManager);
+            if (manager is IDisposable disposableManager) owner.Context.Lifetime.Add(disposableManager);
 
-            // Set Value
+            // Setup Manager
             manager.InUse = true;
             manager.SetValue(instance, owner.Context.Lifetime);
+            Pipeline = (ref BuilderContext context) => throw new InvalidOperationException("Instance value no longer available");
+            //Pipeline = manager switch
+            //{
+            //    ExternallyControlledLifetimeManager _ => ExternalLifetime,
+            //    _ => (ResolveDelegate<BuilderContext>)OtherLifetime
+            //};
 
-            // Set Members
             LifetimeManager = manager;
-            Pipeline = manager switch
-            {
-                ExternallyControlledLifetimeManager _ => ExternalLifetime,
-                _ => (ResolveDelegate<BuilderContext>)   OtherLifetime
-            };
         }
 
         #region Implementation
