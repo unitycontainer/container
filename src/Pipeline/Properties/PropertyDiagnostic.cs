@@ -5,7 +5,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity
@@ -25,12 +24,12 @@ namespace Unity
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, IRegistration? registration)
+        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in injectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<PropertyInfo, object> && memberSet.Add(injectionMember))
                     yield return injectionMember;

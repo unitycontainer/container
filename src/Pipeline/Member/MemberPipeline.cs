@@ -128,7 +128,7 @@ namespace Unity
         public IEnumerable<Expression> GetExpressions(Type type, IRegistration? registration)
         {
             var selector = GetOrDefault(registration);
-            var members = selector(type, registration);
+            var members = selector(type, registration?.InjectionMembers);
 
             return ExpressionsFromSelection(type, members);
         }

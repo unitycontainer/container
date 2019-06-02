@@ -40,7 +40,7 @@ namespace Unity
 
             // Select ConstructorInfo
             var selector = GetOrDefault(builder.Registration);
-            var selection = selector.Invoke(builder.Type, builder.Registration)
+            var selection = selector.Invoke(builder.Type, builder.InjectionMembers)
                                     .FirstOrDefault();
 
             // Select constructor for the Type

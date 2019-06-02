@@ -75,12 +75,12 @@ namespace Unity
 
         #region Selection
 
-        public override IEnumerable<object> Select(Type type, IRegistration? registration)
+        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in injectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                 {

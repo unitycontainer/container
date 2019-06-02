@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Registration;
 
 namespace Unity
 {
     public partial class MethodPipeline
     {
 
-        public override IEnumerable<object> Select(Type type, IRegistration? registration)
+        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            foreach (var injectionMember in registration?.InjectionMembers ?? EmptyCollection)
+            foreach (var injectionMember in injectionMembers ?? EmptyCollection)
             {
                 if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
                     yield return injectionMember;
