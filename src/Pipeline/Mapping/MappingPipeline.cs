@@ -29,7 +29,7 @@ namespace Unity
             }
 
             // If nothing to map or build required, just create it
-            if ((builder.Registration?.BuildRequired ?? false) || requestedType == builder.Type)
+            if ((builder.BuildRequired) || requestedType == builder.Type)
                 return builder.Pipeline();
 
             var type = builder.Type;

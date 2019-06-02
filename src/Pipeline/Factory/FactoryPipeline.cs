@@ -29,8 +29,7 @@ namespace Unity
 
             // Try to get resolver
             Type? generic = null;
-            var resolver = builder.Registration?.Pipeline ?? 
-                           builder.Registration?.Get(typeof(ResolveDelegate<BuilderContext>)) ??
+            var resolver = builder.Registration?.Get(typeof(ResolveDelegate<BuilderContext>)) ??
                            builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<BuilderContext>));
 
             if (null == resolver)
@@ -68,7 +67,7 @@ namespace Unity
                 {
                     if (builder.Type.GetArrayRank() == 1)
                     {
-                        var resolve = ArrayResolver.Factory(builder.Type, builder.Registration);
+                        var resolve = ArrayResolver.Factory(builder.Type, (IRegistration)builder.Registration);
                         return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
                     }
                     else
@@ -104,7 +103,7 @@ namespace Unity
             Debug.Assert(null != builder.Type);
 
             return null != factory
-                ? builder.Pipeline(factory(builder.Type, builder.Registration))
+                ? builder.Pipeline(factory(builder.Type, (IRegistration)builder.Registration))
                 : builder.Pipeline();
         }
 

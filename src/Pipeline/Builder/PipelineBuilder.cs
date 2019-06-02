@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using Unity.Builder;
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using static Unity.UnityContainer;
@@ -32,33 +34,48 @@ namespace Unity
         {
             Type = registration.Type ?? typeof(object);
             Name = registration.Name;
+            BuildType = registration.BuildType;
+            BuildRequired = registration.BuildRequired;
+            LifetimeManager = registration.LifetimeManager;
+            InjectionMembers = registration.InjectionMembers;
+
             Registration = registration;
             ContainerContext = container.Context;
 
-            Seed = Registration.Pipeline;
+            Seed = registration.Pipeline;
             _enumerator = pipelines.GetEnumerator();
             Debug.Assert(null != _enumerator);
         }
 
         public PipelineBuilder(Type type, string? name, UnityContainer container, IEnumerable<Pipeline> pipelines)
         {
-            Seed = null;
             Type = type;
             Name = name;
+            BuildType = null;
+            BuildRequired = false;
+            LifetimeManager = null;
+            InjectionMembers = null;
+
             Registration = null;
             ContainerContext = container.Context;
 
+            Seed = null;
             _enumerator = pipelines.GetEnumerator();
         }
 
         public PipelineBuilder(Type type, string? name, UnityContainer container, IRegistration registration)
         {
-            Seed = registration?.Pipeline;
             Type = type;
             Name = name;
+            BuildType = registration.BuildType;
+            BuildRequired = registration.BuildRequired;
+            LifetimeManager = registration.LifetimeManager;
+            InjectionMembers = registration.InjectionMembers;
+
             Registration = registration;
             ContainerContext = container.Context;
 
+            Seed = registration.Pipeline;
             _enumerator = (registration?.Processors ??
                            Enumerable.Empty<Pipeline>()).GetEnumerator();
         }
@@ -67,10 +84,15 @@ namespace Unity
         {
             Type = context.Type;
             Name = context.Name;
+            BuildType = context.Registration?.BuildType;
+            BuildRequired = context.Registration?.BuildRequired ?? false;
+            LifetimeManager = context.Registration?.LifetimeManager;
+            InjectionMembers = context.Registration?.InjectionMembers;
+
             Registration = context.Registration;
             ContainerContext = context.ContainerContext;
 
-            Seed = Registration?.Pipeline;
+            Seed = context.Registration?.Pipeline;
             _enumerator = (context.Registration?.Processors ?? 
                            Enumerable.Empty<Pipeline>()).GetEnumerator();
         }
@@ -84,11 +106,21 @@ namespace Unity
 
         public string? Name { get; }
 
+        public LifetimeManager? LifetimeManager { get; }
+
+        public InjectionMember[]? InjectionMembers { get; set; }
+
+        public bool BuildRequired { get; }
+
+        public Converter<Type, Type>? BuildType { get; }
+
+
+
         public ResolveDelegate<BuilderContext>? Seed { get; private set; }
 
         public readonly ContainerContext ContainerContext;
 
-        public readonly IRegistration? Registration;
+        public IRegistration? Registration { get; }
 
         #endregion
 
@@ -112,35 +144,6 @@ namespace Unity
                  ? _enumerator?.Current.Build(ref context) ?? Seed
                  : Seed;
         }
-
-        public PipelineDelegate PipelineDelegate()
-        {
-            var manager = Registration?.LifetimeManager;
-
-            return manager switch
-            {
-                null                        => TransientLifetime(),
-                TransientLifetimeManager  _ => TransientLifetime(),
-                PerResolveLifetimeManager _ => PerResolveLifetime(),
-                PerThreadLifetimeManager  _ => PerThreadLifetime(),
-                                          _ => DefaultLifetime()
-            };
-        }
-
-        public BuildPipelineAsync BuildPipelineAsync()
-        {
-            var manager = Registration?.LifetimeManager;
-
-            return manager switch
-            {
-                null                        => TransientLifetimeAsync(),
-                TransientLifetimeManager  _ => TransientLifetimeAsync(),
-                PerResolveLifetimeManager _ => PerResolveLifetimeAsync(),
-                PerThreadLifetimeManager  _ => PerThreadLifetimeAsync(),
-                                          _ => DefaultLifetimeAsync()
-            };
-        }
-
 
         #endregion
     }

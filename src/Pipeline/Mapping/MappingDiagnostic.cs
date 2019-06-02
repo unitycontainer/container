@@ -24,12 +24,12 @@ namespace Unity
             else
             {
                 // Implicit Registration
-                if (null != builder.Registration.BuildType)
-                    builder.Type = builder.Registration.BuildType(builder.Type);
+                if (null != builder.BuildType)
+                    builder.Type = builder.BuildType(builder.Type);
             }
 
             // If nothing to map or build required, just create it
-            if (builder.Registration.BuildRequired || requestedType == builder.Type)
+            if (builder.BuildRequired || requestedType == builder.Type)
                 return builder.Pipeline();
 
             var type = builder.Type;

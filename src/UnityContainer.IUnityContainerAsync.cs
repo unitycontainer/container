@@ -188,6 +188,9 @@ namespace Unity
 
         #region Resolution
 
+
+
+        /*
         /// <inheritdoc />
         [SecuritySafeCritical]
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
@@ -248,9 +251,7 @@ namespace Unity
                 }
             }));
         }
-
-
-        /*
+         */
         /// <inheritdoc />
         [SecuritySafeCritical]
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
@@ -300,14 +301,13 @@ namespace Unity
                         ex is CircularDependencyException ||
                         ex is ObjectDisposedException)
                     {
-                        var message = CreateMessage(ex);
+                        var message = CreateErrorMessage(ex);
                         throw new ResolutionFailedException(context.Type, context.Name, message, ex);
                     }
                     else throw;
                 }
             }));
         }
-         */
 
         public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {

@@ -202,35 +202,38 @@ namespace Unity
 
         #region Getting objects
 
+        /*
         /// <inheritdoc />
         [SecuritySafeCritical]
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
+            var key = new HashKey(type ?? throw new ArgumentNullException(nameof(type)), name);
+            var pipeline = GetPipeline(ref key);
 
-            // Check if already got value
-            if (null != registration.LifetimeManager)
+            // Check if already created and acquire a lock if not
+            var manager = pipeline.Target as LifetimeManager;
+            if (null != manager)
             {
-                var value = registration.LifetimeManager.Get(LifetimeContainer);
+                // Make blocking check for result
+                var value = manager.Get(LifetimeContainer);
                 if (LifetimeManager.NoValue != value) return value;
             }
 
             // Setup Context
-            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
+            var synchronized = manager as SynchronizedLifetimeManager;
             var context = new BuilderContext
             {
                 List = new PolicyList(),
                 Type = type,
                 Overrides = overrides,
-                Registration = registration,
                 ContainerContext = Context,
             };
 
             // Execute pipeline
             try
             {
-                var value = context.Pipeline(ref context);
-                registration.LifetimeManager?.Set(value, LifetimeContainer);
+                var value = pipeline(ref context);
+                manager?.Set(value, LifetimeContainer);
                 return value;
             }
             catch (Exception ex)
@@ -247,6 +250,7 @@ namespace Unity
                 else throw;
             }
         }
+         */
 
         #endregion
 
@@ -294,5 +298,51 @@ namespace Unity
         IUnityContainer? IUnityContainer.Parent => _parent;
 
         #endregion
+
+        /// <inheritdoc />
+        [SecuritySafeCritical]
+        object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        {
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
+
+            // Check if already got value
+            if (null != registration.LifetimeManager)
+            {
+                var value = registration.LifetimeManager.Get(LifetimeContainer);
+                if (LifetimeManager.NoValue != value) return value;
+            }
+
+            // Setup Context
+            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
+            var context = new BuilderContext
+            {
+                List = new PolicyList(),
+                Type = type,
+                Overrides = overrides,
+                Registration = registration,
+                ContainerContext = Context,
+            };
+
+            // Execute pipeline
+            try
+            {
+                var value = context.Pipeline(ref context);
+                registration.LifetimeManager?.Set(value, LifetimeContainer);
+                return value;
+            }
+            catch (Exception ex)
+            {
+                synchronized?.Recover();
+
+                if (ex is InvalidRegistrationException ||
+                    ex is CircularDependencyException ||
+                    ex is ObjectDisposedException)
+                {
+                    var message = CreateErrorMessage(ex);
+                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                }
+                else throw;
+            }
+        }
     }
 }
