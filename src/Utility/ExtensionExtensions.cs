@@ -63,7 +63,9 @@ namespace Unity
         public static TConfigurator Configure<TConfigurator>(this IUnityContainer container)
             where TConfigurator : IUnityContainerExtensionConfigurator
         {
+#pragma warning disable CS8601 // Possible null reference assignment.
             return (TConfigurator)(container ?? throw new ArgumentNullException(nameof(container))).Configure(typeof(TConfigurator));
+#pragma warning restore CS8601 // Possible null reference assignment.
         }
 
         #endregion

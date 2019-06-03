@@ -111,7 +111,9 @@ namespace Unity
                             continue;
                         }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                         yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                     }
                 }
             }
@@ -129,7 +131,9 @@ namespace Unity
                     yield break;
                 }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                 yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
             }
         }
 
@@ -171,7 +175,9 @@ namespace Unity
                             continue;
                         }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                         yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                     }
                 }
 
@@ -195,7 +201,9 @@ namespace Unity
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }
@@ -214,7 +222,9 @@ namespace Unity
                     yield break;
                 }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                 yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
             }
         }
 
@@ -289,7 +299,9 @@ namespace Unity
                                 continue;
                             }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }
@@ -335,7 +347,9 @@ namespace Unity
                                 continue;
                             }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }
@@ -360,7 +374,9 @@ namespace Unity
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }
@@ -406,7 +422,9 @@ namespace Unity
                                 continue;
                             }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }
@@ -453,7 +471,9 @@ namespace Unity
                                 continue;
                             }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }
@@ -473,12 +493,16 @@ namespace Unity
                             {
                                 var itemKey = new HashKey(typeof(TElement), registration.Name);
                                 var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name);
+#pragma warning disable CS8601 // Possible null reference assignment.
                                 value = (TElement)resolve(typeof(TElement), item);
+#pragma warning restore CS8601 // Possible null reference assignment.
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                             yield return (TElement)value;
+#pragma warning restore CS8601 // Possible null reference assignment.
                         }
                     }
                 }

@@ -141,14 +141,14 @@ namespace Unity
                 throw new ArgumentException($"The type {typeTo} cannot be assigned to variables of type {typeFrom}.");
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (null == typeFrom && null != typeTo && infoTo.IsInterface)
+            if (null == typeFrom && null != infoTo && infoTo.IsInterface)
 #else
             if (null == typeFrom && null != typeTo && typeTo.IsInterface)
 #endif
                 throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-            if (null != typeFrom && null != typeTo && infoFrom.IsGenericType && infoTo.IsArray && infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (null != infoFrom && null != infoTo && infoFrom.IsGenericType && infoTo.IsArray && infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 #else
             if (null != typeFrom && null != typeTo && typeFrom.IsGenericType && typeTo.IsArray && typeFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 #endif

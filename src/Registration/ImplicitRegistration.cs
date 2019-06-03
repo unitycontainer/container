@@ -20,7 +20,6 @@ namespace Unity.Registration
         #region Fields
 
         private int _refCount;
-        private ResolveDelegate<BuilderContext>? _pipeline;
 
         #endregion
 
@@ -131,8 +130,6 @@ namespace Unity.Registration
             public InjectionMember[]? InjectionMembers => _registration.InjectionMembers;
 
             public bool BuildRequired => _registration.BuildRequired;
-
-            public Converter<Type, Type?>? Map => _registration.BuildType;
 
             public LifetimeManager? LifetimeManager => null;
 
