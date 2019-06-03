@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -24,7 +23,7 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeFactoryDelegate Factory = (Type type, IRegistration? policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, UnityContainer container) =>
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 || NET40
             var typeArgument = type.GetTypeInfo().GenericTypeArguments.First();

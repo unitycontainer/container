@@ -111,27 +111,27 @@ namespace Unity
 
         #region MemberProcessor
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetExpressions"/>  
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ExpressionsFromSelected"/>
-        ///     + <see cref="BuildMemberExpression"/>
-        ///       + <see cref="GetResolverExpression"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <returns></returns>
-        public IEnumerable<Expression> GetExpressions(Type type, IRegistration? registration)
-        {
-            var selector = GetOrDefault(registration);
-            var members = selector(type, registration?.InjectionMembers);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <remarks>
+        ///// Call hierarchy:
+        ///// <see cref="GetExpressions"/>  
+        ///// + <see cref="SelectMembers"/>
+        /////   + <see cref="ExpressionsFromSelected"/>
+        /////     + <see cref="BuildMemberExpression"/>
+        /////       + <see cref="GetResolverExpression"/>
+        ///// </remarks>
+        ///// <param name="type"></param>
+        ///// <param name="registration"></param>
+        ///// <returns></returns>
+        //public IEnumerable<Expression> GetExpressions(Type type, IRegistration? registration)
+        //{
+        //    var selector = GetOrDefault(registration);
+        //    var members = selector(type, registration?.InjectionMembers);
 
-            return ExpressionsFromSelection(type, members);
-        }
+        //    return ExpressionsFromSelection(type, members);
+        //}
 
         #endregion
 

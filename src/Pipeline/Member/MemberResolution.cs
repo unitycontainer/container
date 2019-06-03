@@ -19,7 +19,7 @@ namespace Unity
             if (null != builder.Seed) return builder.Pipeline();
 
             var pipeline = builder.Pipeline();
-            var selector = GetOrDefault(builder.Registration);
+            var selector = GetOrDefault(builder.Policies);
             var members = selector.Invoke(builder.Type, builder.InjectionMembers);
             var resolvers = ResolversFromSelection(builder.Type, members).ToArray();
 

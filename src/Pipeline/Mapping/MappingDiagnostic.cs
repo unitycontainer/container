@@ -12,7 +12,7 @@ namespace Unity
         {
             var requestedType = builder.Type;
 
-            if (builder.Registration is ExplicitRegistration registration)
+            if (builder.Policies is ExplicitRegistration registration)
             {
                 // Explicit Registration
                 if (null == registration.Type) return builder.Pipeline();

@@ -2,9 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Registration;
 using Unity.Resolution;
-using Unity.Storage;
 
 namespace Unity.Factories
 {
@@ -24,10 +22,10 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeFactoryDelegate Factory = (Type type, IRegistration? policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, UnityContainer container) =>
         {
             var typeArgument = type.GetElementType();
-            var targetType = policies?.Owner.GetTargetType(typeArgument);
+            var targetType = container.GetTargetType(typeArgument);
 
             if (null != targetType && typeArgument != targetType)
             {

@@ -39,7 +39,7 @@ namespace Unity
             }
 
             // Select ConstructorInfo
-            var selector = GetOrDefault(builder.Registration);
+            var selector = GetOrDefault(builder.Policies);
             var selection = selector.Invoke(builder.Type, builder.InjectionMembers)
                                     .FirstOrDefault();
 
@@ -77,7 +77,7 @@ namespace Unity
                     };
             }
 
-            var lifetimeManager = (LifetimeManager?)builder.Registration?.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager?)builder.Policies?.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
                 ? GetPerResolveDelegate(info, resolvers, pipeline)

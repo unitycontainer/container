@@ -3,23 +3,11 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Registration;
 
 namespace Unity
 {
     public abstract partial class MemberPipeline<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
-        #region PipelineBuilder
-
-        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator,
-                                                      Type type, IRegistration registration)
-        {
-            yield break;
-        }
-
-        #endregion
-
-
         #region Selection Processing
 
         protected virtual IEnumerable<Expression> ExpressionsFromSelection(Type type, IEnumerable<object> members)

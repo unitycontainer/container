@@ -25,7 +25,7 @@ namespace Unity.Factories
 
         #region TypeResolverFactory
 
-        public static TypeFactoryDelegate Factory = (Type type, IRegistration? policies) =>
+        public static TypeFactoryDelegate Factory = (Type type, UnityContainer container) =>
         {
             var itemType = type.GetTypeInfo().GenericTypeArguments[0];
             var lazyMethod = ImplementationMethod.MakeGenericMethod(itemType);

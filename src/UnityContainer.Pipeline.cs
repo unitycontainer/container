@@ -260,7 +260,7 @@ namespace Unity
 
         }
 
-        private ResolveDelegate<BuilderContext> PipelineFromRegistration(ref HashKey key, IRegistration registration, int position)
+        private ResolveDelegate<BuilderContext> PipelineFromRegistration(ref HashKey key, ExplicitRegistration registration, int position)
         {
             Debug.Assert(null != _registry);
 

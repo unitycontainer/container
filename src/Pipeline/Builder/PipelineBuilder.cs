@@ -39,7 +39,7 @@ namespace Unity
             LifetimeManager = registration.LifetimeManager;
             InjectionMembers = registration.InjectionMembers;
 
-            Registration = registration;
+            Policies = registration;
             ContainerContext = container.Context;
 
             Seed = registration.Pipeline;
@@ -56,14 +56,14 @@ namespace Unity
             LifetimeManager = null;
             InjectionMembers = null;
 
-            Registration = null;
+            Policies = null;
             ContainerContext = container.Context;
 
             Seed = null;
             _enumerator = pipelines.GetEnumerator();
         }
 
-        public PipelineBuilder(Type type, string? name, UnityContainer container, IRegistration registration)
+        public PipelineBuilder(Type type, string? name, UnityContainer container, ExplicitRegistration registration)
         {
             Type = type;
             Name = name;
@@ -72,7 +72,7 @@ namespace Unity
             LifetimeManager = registration.LifetimeManager;
             InjectionMembers = registration.InjectionMembers;
 
-            Registration = registration;
+            Policies = registration;
             ContainerContext = container.Context;
 
             Seed = registration.Pipeline;
@@ -89,7 +89,7 @@ namespace Unity
             LifetimeManager = context.Registration?.LifetimeManager;
             InjectionMembers = context.Registration?.InjectionMembers;
 
-            Registration = context.Registration;
+            Policies = context.Registration;
             ContainerContext = context.ContainerContext;
 
             Seed = context.Registration?.Pipeline;
@@ -114,13 +114,11 @@ namespace Unity
 
         public Converter<Type, Type>? BuildType { get; }
 
-
-
-        public ResolveDelegate<BuilderContext>? Seed { get; private set; }
+        public IPolicySet? Policies { get; }
 
         public readonly ContainerContext ContainerContext;
 
-        public IRegistration? Registration { get; }
+        public ResolveDelegate<BuilderContext>? Seed { get; private set; }
 
         #endregion
 

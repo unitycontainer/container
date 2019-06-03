@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
@@ -16,12 +14,6 @@ namespace Unity
     {
         #region PipelineBuilder
 
-        public override IEnumerable<Expression> Build(UnityContainer container, IEnumerator<Pipeline> enumerator, 
-                                                      Type type, IRegistration registration)
-        {
-            yield break;
-        }
-
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             // Skip if already have a resolver
@@ -29,7 +21,7 @@ namespace Unity
 
             // Try to get resolver
             Type? generic = null;
-            var resolver = builder.Registration?.Get(typeof(ResolveDelegate<BuilderContext>)) ??
+            var resolver = builder.Policies?.Get(typeof(ResolveDelegate<BuilderContext>)) ??
                            builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<BuilderContext>));
 
             if (null == resolver)
@@ -50,9 +42,9 @@ namespace Unity
             if (null != resolver) return builder.Pipeline((ResolveDelegate<BuilderContext>)resolver);
             
             // Try finding factory
-            TypeFactoryDelegate? factory = builder.Registration?.Get<TypeFactoryDelegate>();
+            TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
 
-            if (builder.Registration is ExplicitRegistration @explicit)
+            if (builder.Policies is ExplicitRegistration @explicit)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                 if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
@@ -67,7 +59,7 @@ namespace Unity
                 {
                     if (builder.Type.GetArrayRank() == 1)
                     {
-                        var resolve = ArrayResolver.Factory(builder.Type, (IRegistration)builder.Registration);
+                        var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
                         return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
                     }
                     else
@@ -77,7 +69,7 @@ namespace Unity
                     }
                 }
             }
-            else if(builder.Registration is ImplicitRegistration @implicit)
+            else if(builder.Policies is ImplicitRegistration @implicit)
             {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
                 if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
@@ -91,7 +83,7 @@ namespace Unity
                 else if (builder.Type?.IsArray ?? false)
                 {
                     if (builder.Type?.GetArrayRank() == 1)
-                        return builder.Pipeline(ArrayResolver.Factory(builder.Type, @implicit));
+                        return builder.Pipeline(ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container));
                     else
                     {
                         var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
@@ -103,7 +95,7 @@ namespace Unity
             Debug.Assert(null != builder.Type);
 
             return null != factory
-                ? builder.Pipeline(factory(builder.Type, (IRegistration)builder.Registration))
+                ? builder.Pipeline(factory(builder.Type, builder.ContainerContext.Container))
                 : builder.Pipeline();
         }
 
