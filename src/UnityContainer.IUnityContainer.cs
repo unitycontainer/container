@@ -251,6 +251,51 @@ namespace Unity
             }
         }
          */
+        /// <inheritdoc />
+        [SecuritySafeCritical]
+        object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
+        {
+            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
+
+            // Check if already got value
+            if (null != registration.LifetimeManager)
+            {
+                var value = registration.LifetimeManager.Get(LifetimeContainer);
+                if (LifetimeManager.NoValue != value) return value;
+            }
+
+            // Setup Context
+            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
+            var context = new BuilderContext
+            {
+                List = new PolicyList(),
+                Type = type,
+                Overrides = overrides,
+                Registration = registration,
+                ContainerContext = Context,
+            };
+
+            // Execute pipeline
+            try
+            {
+                var value = context.Pipeline(ref context);
+                registration.LifetimeManager?.Set(value, LifetimeContainer);
+                return value;
+            }
+            catch (Exception ex)
+            {
+                synchronized?.Recover();
+
+                if (ex is InvalidRegistrationException ||
+                    ex is CircularDependencyException ||
+                    ex is ObjectDisposedException)
+                {
+                    var message = CreateErrorMessage(ex);
+                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
+                }
+                else throw;
+            }
+        }
 
         #endregion
 
@@ -298,51 +343,5 @@ namespace Unity
         IUnityContainer? IUnityContainer.Parent => _parent;
 
         #endregion
-
-        /// <inheritdoc />
-        [SecuritySafeCritical]
-        object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
-        {
-            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
-
-            // Check if already got value
-            if (null != registration.LifetimeManager)
-            {
-                var value = registration.LifetimeManager.Get(LifetimeContainer);
-                if (LifetimeManager.NoValue != value) return value;
-            }
-
-            // Setup Context
-            var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
-            var context = new BuilderContext
-            {
-                List = new PolicyList(),
-                Type = type,
-                Overrides = overrides,
-                Registration = registration,
-                ContainerContext = Context,
-            };
-
-            // Execute pipeline
-            try
-            {
-                var value = context.Pipeline(ref context);
-                registration.LifetimeManager?.Set(value, LifetimeContainer);
-                return value;
-            }
-            catch (Exception ex)
-            {
-                synchronized?.Recover();
-
-                if (ex is InvalidRegistrationException ||
-                    ex is CircularDependencyException ||
-                    ex is ObjectDisposedException)
-                {
-                    var message = CreateErrorMessage(ex);
-                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-                }
-                else throw;
-            }
-        }
     }
 }

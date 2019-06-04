@@ -24,8 +24,8 @@ namespace Unity
             else
             {
                 // Implicit Registration
-                if (null != builder.BuildType)
-                    builder.Type = builder.BuildType(builder.Type);
+                if (null != builder.TypeConverter)
+                    builder.Type = builder.TypeConverter(builder.Type);
             }
 
             // If nothing to map or build required, just create it

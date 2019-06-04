@@ -30,28 +30,12 @@ namespace Unity
 
         #region Constructors
 
-        public PipelineBuilder(ExplicitRegistration registration, UnityContainer container, IEnumerable<Pipeline> pipelines)
-        {
-            Type = registration.Type ?? typeof(object);
-            Name = registration.Name;
-            BuildType = registration.BuildType;
-            BuildRequired = registration.BuildRequired;
-            LifetimeManager = registration.LifetimeManager;
-            InjectionMembers = registration.InjectionMembers;
-
-            Policies = registration;
-            ContainerContext = container.Context;
-
-            Seed = registration.Pipeline;
-            _enumerator = pipelines.GetEnumerator();
-            Debug.Assert(null != _enumerator);
-        }
-
-        public PipelineBuilder(Type type, string? name, UnityContainer container, IEnumerable<Pipeline> pipelines)
+        // Pipeline From Type
+        public PipelineBuilder(Type type, UnityContainer container, IEnumerable<Pipeline> pipelines)
         {
             Type = type;
-            Name = name;
             BuildType = null;
+            TypeConverter = null;
             BuildRequired = false;
             LifetimeManager = null;
             InjectionMembers = null;
@@ -63,28 +47,32 @@ namespace Unity
             _enumerator = pipelines.GetEnumerator();
         }
 
-        public PipelineBuilder(Type type, string? name, UnityContainer container, ExplicitRegistration registration)
+        // Pipeline From Registration
+        public PipelineBuilder(ExplicitRegistration registration)
         {
-            Type = type;
-            Name = name;
-            BuildType = registration.BuildType;
+            Debug.Assert(null != registration.Type);
+
+            Type = registration.Type;
+            BuildType = null;
+            TypeConverter = null;
             BuildRequired = registration.BuildRequired;
             LifetimeManager = registration.LifetimeManager;
             InjectionMembers = registration.InjectionMembers;
 
             Policies = registration;
-            ContainerContext = container.Context;
+            ContainerContext = registration.Owner.Context;
 
             Seed = registration.Pipeline;
-            _enumerator = (registration?.Processors ??
-                           Enumerable.Empty<Pipeline>()).GetEnumerator();
+
+            Debug.Assert(null != registration?.Processors);
+            _enumerator = registration.Processors.GetEnumerator();
         }
 
         public PipelineBuilder(ref BuilderContext context)
         {
             Type = context.Type;
-            Name = context.Name;
-            BuildType = context.Registration?.BuildType;
+            BuildType = null;
+            TypeConverter = context.Registration?.BuildType;
             BuildRequired = context.Registration?.BuildRequired ?? false;
             LifetimeManager = context.Registration?.LifetimeManager;
             InjectionMembers = context.Registration?.InjectionMembers;
@@ -93,8 +81,29 @@ namespace Unity
             ContainerContext = context.ContainerContext;
 
             Seed = context.Registration?.Pipeline;
-            _enumerator = (context.Registration?.Processors ?? 
-                           Enumerable.Empty<Pipeline>()).GetEnumerator();
+
+            Debug.Assert(null != context.Registration?.Processors);
+            _enumerator = context.Registration.Processors.GetEnumerator();
+        }
+
+        // Pipeline from factory
+        public PipelineBuilder(Type type, ExplicitRegistration factory, UnityContainer owner)
+        {
+            Type = type;
+            BuildType = factory.Type;
+            Seed = factory.Pipeline;
+            TypeConverter = factory.BuildType;
+            // TODO: Move to registration
+            BuildRequired = null != factory.InjectionMembers && factory.InjectionMembers.Any(m => m.BuildRequired);
+            LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
+            InjectionMembers = factory.InjectionMembers;
+
+            Policies = null;
+
+            ContainerContext = owner.Context;
+
+            Debug.Assert(null != factory.Processors);
+            _enumerator = factory.Processors.GetEnumerator();
         }
 
         #endregion
@@ -104,7 +113,7 @@ namespace Unity
 
         public Type Type;
 
-        public string? Name { get; }
+        public readonly Type? BuildType;
 
         public LifetimeManager? LifetimeManager { get; }
 
@@ -112,7 +121,7 @@ namespace Unity
 
         public bool BuildRequired { get; }
 
-        public Converter<Type, Type>? BuildType { get; }
+        public Converter<Type, Type>? TypeConverter { get; }
 
         public IPolicySet? Policies { get; }
 

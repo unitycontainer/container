@@ -12,8 +12,6 @@ namespace Unity
     {
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
-            var type = builder.Type;
-            var name = builder.Name;
             var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => throw new InvalidRegistrationException("Invalid Pipeline"));
 
             return (ref BuilderContext context) =>

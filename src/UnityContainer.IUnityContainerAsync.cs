@@ -111,61 +111,62 @@ namespace Unity
         /// <inheritdoc />
         Task IUnityContainerAsync.RegisterFactory(IEnumerable<Type>? interfaces, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager)
         {
-            // Validate input
-            if (null == interfaces) throw new ArgumentNullException(nameof(interfaces));
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
+            throw new NotImplementedException();
+            //// Validate input
+            //if (null == interfaces) throw new ArgumentNullException(nameof(interfaces));
+            //if (null == factory) throw new ArgumentNullException(nameof(factory));
 
-            return Task.Factory.StartNew(() =>
-            {
-                // TODO: implementation required
-                var type = interfaces.First();
+            //return Task.Factory.StartNew(() =>
+            //{
+            //    // TODO: implementation required
+            //    var type = interfaces.First();
 
-                // Lifetime Manager
-                var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.CreateLifetimePolicy();
-                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-                manager.InUse = true;
+            //    // Lifetime Manager
+            //    var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.CreateLifetimePolicy();
+            //    if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+            //    manager.InUse = true;
 
-                // Target Container
-                var container = manager is SingletonLifetimeManager ? _root : this;
-                Debug.Assert(null != container);
+            //    // Target Container
+            //    var container = manager is SingletonLifetimeManager ? _root : this;
+            //    Debug.Assert(null != container);
 
-                // If Disposable add to container's lifetime
-                if (manager is IDisposable managerDisposable)
-                    container.LifetimeContainer.Add(managerDisposable);
+            //    // If Disposable add to container's lifetime
+            //    if (manager is IDisposable managerDisposable)
+            //        container.LifetimeContainer.Add(managerDisposable);
 
-                // Create registration
-                var registration = new ExplicitRegistration(container, name, type, manager);
+            //    // Create registration
+            //    var registration = new ExplicitRegistration(container, name, type, manager);
 
-                // Factory resolver
-                var resolver = lifetimeManager is PerResolveLifetimeManager
-                    ? (ResolveDelegate<BuilderContext>)((ref BuilderContext c) =>
-                    {
-                        c.Existing = factory(c.Container, c.Type, c.Name);
-                        c.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(c.Existing));
-                        return c.Existing;
-                    })
-                    : ((ref BuilderContext c) => factory(c.Container, c.Type, c.Name));
-                registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
+            //    // Factory resolver
+            //    var resolver = lifetimeManager is PerResolveLifetimeManager
+            //        ? (ResolveDelegate<BuilderContext>)((ref BuilderContext c) =>
+            //        {
+            //            c.Existing = factory(c.Container, c.Type, c.Name);
+            //            c.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(c.Existing));
+            //            return c.Existing;
+            //        })
+            //        : ((ref BuilderContext c) => factory(c.Container, c.Type, c.Name));
+            //    registration.Set(typeof(ResolveDelegate<BuilderContext>), resolver);
 
-                // Build Pipeline
-                PipelineBuilder builder = new PipelineBuilder(registration, container, Context.FactoryPipelineCache);
-                registration.Pipeline = builder.Pipeline();
+            //    // Build Pipeline
+            //    PipelineBuilder builder = new PipelineBuilder(registration, container, Context.FactoryPipelineCache);
+            //    registration.Pipeline = builder.Pipeline();
 
-                // Register
-                var previous = container.Register(type, name, registration);
+            //    // Register
+            //    var previous = container.Register(type, name, registration);
 
-                // Allow reference adjustment and disposal
-                if (null != previous && 0 == previous.Release()
-                    && previous.LifetimeManager is IDisposable disposable)
-                {
-                    // Dispose replaced lifetime manager
-                    container.LifetimeContainer.Remove(disposable);
-                    disposable.Dispose();
-                }
+            //    // Allow reference adjustment and disposal
+            //    if (null != previous && 0 == previous.Release()
+            //        && previous.LifetimeManager is IDisposable disposable)
+            //    {
+            //        // Dispose replaced lifetime manager
+            //        container.LifetimeContainer.Remove(disposable);
+            //        disposable.Dispose();
+            //    }
 
-                // TODO: Raise event
-                // container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
-            });
+            //    // TODO: Raise event
+            //    // container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
+            //});
         }
 
         #endregion

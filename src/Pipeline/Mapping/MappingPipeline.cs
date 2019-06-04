@@ -21,11 +21,9 @@ namespace Unity
                     ? @explicit.Type
                     : @explicit.BuildType(@explicit.Type);
             }
-            else if (builder.Policies is ImplicitRegistration @implicit)
+            else if (null != builder.TypeConverter)
             {
-                // Implicit Registration
-                if (null != @implicit.BuildType)
-                    builder.Type = @implicit.BuildType(builder.Type);
+                builder.Type = builder.TypeConverter(builder.Type);
             }
 
             // If nothing to map or build required, just create it

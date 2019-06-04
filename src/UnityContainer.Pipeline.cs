@@ -113,7 +113,7 @@ namespace Unity
                 Debug.Assert(null != container._registry);
                 var registry = container._registry;
 
-                // Check for exact match
+                // Exact match
                 targetBucket = key.HashCode % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
@@ -140,7 +140,7 @@ namespace Unity
                     keyDefault = new HashKey(generic);
                 }
 
-                // Check for factory with same name
+                // Factory with the same name
                 targetBucket = keyGeneric.HashCode % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
@@ -149,10 +149,10 @@ namespace Unity
                         continue;
 
                     // Found a factory
-                    return container.PipelineFromFactory(ref key, (IRegistration)candidate.Policies);
+                    return container.PipelineFromFactory(ref key, (ExplicitRegistration)candidate.Policies);
                 }
 
-                // Check for default factory
+                // Default factory
                 targetBucket = keyDefault.HashCode % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
@@ -161,7 +161,7 @@ namespace Unity
                         continue;
 
                     // Found a factory
-                    return container.PipelineFromFactory(ref key, (IRegistration)candidate.Policies);
+                    return container.PipelineFromFactory(ref key, (ExplicitRegistration)candidate.Policies);
                 }
             }
 
@@ -244,7 +244,7 @@ namespace Unity
                     // Create if required
                     if (null == pipeline)
                     {
-                        PipelineBuilder builder = new PipelineBuilder(type, name, this, Context.TypePipelineCache);
+                        PipelineBuilder builder = new PipelineBuilder(type, this, Context.TypePipelineCache);
                         pipeline = builder.Pipeline();
 
                         Debug.Assert(null != pipeline);
@@ -277,7 +277,7 @@ namespace Unity
                 {
                     if (null != pipeline) return pipeline(ref context);
 
-                    PipelineBuilder builder = new PipelineBuilder(type, name, this, registration);
+                    PipelineBuilder builder = new PipelineBuilder(registration);
 
                     if (registration.LifetimeManager is LifetimeManager manager)
                     {
@@ -311,13 +311,15 @@ namespace Unity
             };
         }
 
-        private ResolveDelegate<BuilderContext> PipelineFromFactory(ref HashKey key, IRegistration registration)
+        private ResolveDelegate<BuilderContext> PipelineFromFactory(ref HashKey key, ExplicitRegistration factory)
         {
             Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             var type = key.Type;
             var name = key.Name;
+            var owner = this;
+
             int count = -1;
             int position = 0;
             var collisions = 0;
@@ -382,15 +384,7 @@ namespace Unity
                     // Create if required
                     if (null == pipeline)
                     {
-                        //BuildType = factory.BuildType;
-                        //Next = factory.Next;
-                        //LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
-                        //Pipeline = factory.Pipeline;
-                        //InjectionMembers = factory.InjectionMembers;
-                        //BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
-
-
-                        PipelineBuilder builder = new PipelineBuilder(type, name, this, Context.TypePipelineCache);
+                        PipelineBuilder builder = new PipelineBuilder(type, factory, owner);
                         pipeline = builder.Pipeline();
 
                         Debug.Assert(null != pipeline);

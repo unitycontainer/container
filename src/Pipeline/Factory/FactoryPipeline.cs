@@ -33,8 +33,7 @@ namespace Unity
 #endif
                 {
                     generic = builder.Type.GetGenericTypeDefinition();
-                    resolver = builder.ContainerContext.Get(generic, builder.Name, typeof(ResolveDelegate<BuilderContext>)) ??
-                               builder.ContainerContext.Get(generic, typeof(ResolveDelegate<BuilderContext>));
+                    resolver = builder.ContainerContext.Get(generic, typeof(ResolveDelegate<BuilderContext>));
                 }
             }
 
