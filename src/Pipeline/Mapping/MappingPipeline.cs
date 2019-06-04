@@ -11,7 +11,7 @@ namespace Unity
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
             var requestedType = builder.Type;
-            
+
             if (builder.Policies is ExplicitRegistration @explicit)
             {
                 // Explicit Registration
@@ -27,7 +27,7 @@ namespace Unity
             }
 
             // If nothing to map or build required, just create it
-            if ((builder.BuildRequired) || requestedType == builder.Type)
+            if (builder.BuildRequired || requestedType == builder.Type)
                 return builder.Pipeline();
 
             var type = builder.Type;

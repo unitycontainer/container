@@ -60,18 +60,19 @@ namespace Unity
             InjectionMembers = registration.InjectionMembers;
 
             Policies = registration;
-            ContainerContext = registration.Owner.Context;
-
             Seed = registration.Pipeline;
+
+            ContainerContext = registration.Owner.Context;
 
             Debug.Assert(null != registration?.Processors);
             _enumerator = registration.Processors.GetEnumerator();
         }
 
+        // Pipeline from context
         public PipelineBuilder(ref BuilderContext context)
         {
             Type = context.Type;
-            BuildType = null;
+            BuildType = (context.Registration as ExplicitRegistration)?.Type;
             TypeConverter = context.Registration?.BuildType;
             BuildRequired = context.Registration?.BuildRequired ?? false;
             LifetimeManager = context.Registration?.LifetimeManager;
