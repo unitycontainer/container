@@ -39,7 +39,7 @@ namespace Unity
             return null;
         }
 
-        private ResolveDelegate<BuilderContext> GetPipeline(ref HashKey key)
+        internal ResolveDelegate<BuilderContext> GetPipeline(ref HashKey key)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = key.Type?.GetTypeInfo();
@@ -268,6 +268,12 @@ namespace Unity
             var name = key.Name;
             ResolveDelegate<BuilderContext>? pipeline = null;
 
+            if (null != registration.LifetimeManager && !(registration.LifetimeManager is TransientLifetimeManager))
+            {
+                registration.LifetimeManager.PipelineDelegate = (ResolveDelegate<BuilderContext>)BuildPipeline;
+                return registration.LifetimeManager.Pipeline;
+            }
+
             return BuildPipeline;
 
             object? BuildPipeline(ref BuilderContext context)
@@ -277,7 +283,7 @@ namespace Unity
                 {
                     if (null != pipeline) return pipeline(ref context);
 
-                    PipelineBuilder builder = new PipelineBuilder(registration);
+                    PipelineBuilder builder = new PipelineBuilder(type, registration);
 
                     if (registration.LifetimeManager is LifetimeManager manager)
                     {
@@ -324,6 +330,18 @@ namespace Unity
             int position = 0;
             var collisions = 0;
             ResolveDelegate<BuilderContext>? pipeline = null;
+            ResolveDelegate<BuilderContext> buildPipeline = null;
+
+            if (null != factory.LifetimeManager && !(factory.LifetimeManager is TransientLifetimeManager))
+            {
+                var manager = factory.LifetimeManager.CreateLifetimePolicy();
+                if (manager is ContainerControlledLifetimeManager containerControlled) containerControlled.Scope = this;
+
+                manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)BuildPipeline;
+                buildPipeline = manager.Pipeline;
+            }
+            else
+                buildPipeline = BuildPipeline;
 
             // Add Pipeline to the Registry
             lock (_syncLock)
@@ -355,14 +373,14 @@ namespace Unity
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.Key = key;
                 entry.Type = type;
-                entry.Pipeline = BuildPipeline;
+                entry.Pipeline = buildPipeline;
                 entry.Next = _registry.Buckets[targetBucket];
                 position = _registry.Count++;
                 _registry.Buckets[targetBucket] = position;
             }
 
             // Return temporary pipeline
-            return BuildPipeline;
+            return buildPipeline;
 
 
             // Create pipeline and add to Registry

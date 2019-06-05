@@ -34,13 +34,17 @@ namespace Unity
         public PipelineBuilder(Type type, UnityContainer container, IEnumerable<Pipeline> pipelines)
         {
             Type = type;
-            BuildType = null;
             TypeConverter = null;
-            BuildRequired = false;
             LifetimeManager = null;
             InjectionMembers = null;
 
+            Factory = null;
             Policies = null;
+            Registration = null;
+
+            IsMapping = false;
+            BuildRequired = false;
+
             ContainerContext = container.Context;
 
             Seed = null;
@@ -48,18 +52,22 @@ namespace Unity
         }
 
         // Pipeline From Registration
-        public PipelineBuilder(ExplicitRegistration registration)
+        public PipelineBuilder(Type type, ExplicitRegistration registration)
         {
             Debug.Assert(null != registration.Type);
 
-            Type = registration.Type;
-            BuildType = null;
+            Type = type;
             TypeConverter = null;
-            BuildRequired = registration.BuildRequired;
             LifetimeManager = registration.LifetimeManager;
             InjectionMembers = registration.InjectionMembers;
 
+            Factory = null;
             Policies = registration;
+            Registration = registration;
+
+            IsMapping = null != registration.Type && type != registration.Type;
+            BuildRequired = registration.BuildRequired;
+
             Seed = registration.Pipeline;
 
             ContainerContext = registration.Owner.Context;
@@ -71,14 +79,19 @@ namespace Unity
         // Pipeline from context
         public PipelineBuilder(ref BuilderContext context)
         {
+            var type = (context.Registration as ExplicitRegistration)?.Type ?? context.Type;
             Type = context.Type;
-            BuildType = (context.Registration as ExplicitRegistration)?.Type;
             TypeConverter = context.Registration?.BuildType;
-            BuildRequired = context.Registration?.BuildRequired ?? false;
             LifetimeManager = context.Registration?.LifetimeManager;
             InjectionMembers = context.Registration?.InjectionMembers;
 
-            Policies = context.Registration;
+            Registration = context.Registration as ExplicitRegistration;
+            Factory = null != Registration ? null : context.Registration as ImplicitRegistration;
+            Policies = Registration ?? Factory;
+
+            IsMapping = (null != Registration?.Type && Registration?.Type != Type) || null != Factory?.BuildType;
+            BuildRequired = context.Registration?.BuildRequired ?? false;
+
             ContainerContext = context.ContainerContext;
 
             Seed = context.Registration?.Pipeline;
@@ -91,15 +104,18 @@ namespace Unity
         public PipelineBuilder(Type type, ExplicitRegistration factory, UnityContainer owner)
         {
             Type = type;
-            BuildType = factory.Type;
             Seed = factory.Pipeline;
             TypeConverter = factory.BuildType;
-            // TODO: Move to registration
-            BuildRequired = null != factory.InjectionMembers && factory.InjectionMembers.Any(m => m.BuildRequired);
             LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
             InjectionMembers = factory.InjectionMembers;
 
-            Policies = null;
+            Factory = factory;
+            Policies = factory;
+            Registration = null;
+
+            IsMapping     = null != factory.BuildType;
+            // TODO: Move to registration
+            BuildRequired = null != factory.InjectionMembers && factory.InjectionMembers.Any(m => m.BuildRequired);
 
             ContainerContext = owner.Context;
 
@@ -114,11 +130,16 @@ namespace Unity
 
         public Type Type;
 
-        public readonly Type? BuildType;
-
         public LifetimeManager? LifetimeManager { get; }
 
         public InjectionMember[]? InjectionMembers { get; set; }
+
+        public ExplicitRegistration? Registration { get; }
+
+        public ImplicitRegistration? Factory { get; }
+
+
+        public bool IsMapping { get; }
 
         public bool BuildRequired { get; }
 

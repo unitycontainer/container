@@ -9,6 +9,7 @@ using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
+using Unity.Storage;
 using static Unity.UnityContainer;
 
 namespace Unity.Builder
@@ -159,89 +160,7 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Public Methods
-
-        public object? Resolve(Type type)
-        {
-            // Process overrides if any
-            if (0 < Overrides.Length)
-            {
-                NamedType namedType = new NamedType
-                {
-                    Type = type,
-                    Name = Name
-                };
-
-                // Check if this parameter is overridden
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-                    // If matches with current parameter
-                    if (resolverOverride is IResolve resolverPolicy &&
-                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
-                    {
-                        var context = this;
-
-                        return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
-                    }
-                }
-            }
-
-            return Resolve(type, ((UnityContainer)Container).GetRegistration(type, Name));
-        }
-
-        public object? Resolve(Type type, IRegistration registration)
-        {
-            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException(type, registration.Name);
-
-            unsafe
-            {
-                var thisContext = this;
-                var context = new BuilderContext
-                {
-                    ContainerContext = ContainerContext,
-                    Registration = registration,
-                    IsAsync = IsAsync,
-                    Type = type,
-                    List = List,
-                    Overrides = Overrides,
-                    DeclaringType = Type,
-#if !NET40
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-#endif
-                };
-
-                var manager = registration.LifetimeManager switch
-                {
-                    null                        => TransientLifetimeManager.Instance,
-                    PerResolveLifetimeManager _ => (LifetimeManager?)context.Get(typeof(LifetimeManager)) ?? 
-                                                    TransientLifetimeManager.Instance,
-                    _                           => registration.LifetimeManager
-                };
-
-                // Check if already got value
-                var value = manager.GetValue(ContainerContext.Lifetime);
-                if (LifetimeManager.NoValue != value) return value;
-
-                if (registration.LifetimeManager is SynchronizedLifetimeManager synchronized)
-                {
-                    try
-                    {
-                        value = context.Pipeline(ref context);
-                    }
-                    catch
-                    {
-                        synchronized.Recover();
-                        throw;
-                    }
-                }
-                else
-                    value = context.Pipeline(ref context);
-
-                manager.SetValue(value, ContainerContext.Lifetime);
-                return value;
-            }
-        }
+        #region Member Resolution
 
         public object? Resolve(ParameterInfo parameter, object? value)
         {
@@ -394,6 +313,127 @@ namespace Unity.Builder
             }
 
             return value;
+        }
+
+        #endregion
+
+
+        #region Public Methods
+
+        public object? Resolve(Type type)
+        {
+            // Process overrides if any
+            if (0 < Overrides.Length)
+            {
+                NamedType namedType = new NamedType
+                {
+                    Type = type,
+                    Name = Name
+                };
+
+                // Check if this parameter is overridden
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+                    // If matches with current parameter
+                    if (resolverOverride is IResolve resolverPolicy &&
+                        resolverOverride is IEquatable<NamedType> comparer && comparer.Equals(namedType))
+                    {
+                        var context = this;
+
+                        return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
+                    }
+                }
+            }
+
+            var key = new HashKey(type, Name);
+            return Resolve(ContainerContext.Container.GetPipeline(ref key));
+        }
+
+        public object? Resolve(Type type, IRegistration registration)
+        {
+            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException(type, registration.Name);
+
+            unsafe
+            {
+                var thisContext = this;
+                var container = registration.LifetimeManager is ContainerControlledLifetimeManager containerControlled 
+                    ? (ContainerContext)containerControlled.Scope 
+                    : ContainerContext;
+
+                var context = new BuilderContext
+                {
+                    ContainerContext = container,
+                    Registration = registration,
+                    IsAsync = IsAsync,
+                    Type = type,
+                    List = List,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
+
+                var manager = registration.LifetimeManager switch
+                {
+                    null                        => TransientLifetimeManager.Instance,
+                    PerResolveLifetimeManager _ => (LifetimeManager?)context.Get(typeof(LifetimeManager)) ?? 
+                                                    TransientLifetimeManager.Instance,
+                    _                           => registration.LifetimeManager
+                };
+
+                // Check if already got value
+                var value = manager.GetValue(ContainerContext.Lifetime);
+                if (LifetimeManager.NoValue != value) return value;
+
+                if (registration.LifetimeManager is SynchronizedLifetimeManager synchronized)
+                {
+                    try
+                    {
+                        value = context.Pipeline(ref context);
+                    }
+                    catch
+                    {
+                        synchronized.Recover();
+                        throw;
+                    }
+                }
+                else
+                    value = context.Pipeline(ref context);
+
+                manager.SetValue(value, ContainerContext.Lifetime);
+                return value;
+            }
+        }
+
+        public object? Resolve(ResolveDelegate<BuilderContext> pipeline)
+        {
+            // Check if already created and acquire a lock if not
+            var manager = pipeline.Target as LifetimeManager;
+            if (null != manager)
+            {
+                // Make blocking check for result
+                var value = manager.Get(ContainerContext.Lifetime);
+                if (LifetimeManager.NoValue != value) return value;
+            }
+
+            // Setup Context
+            var synchronized = manager as SynchronizedLifetimeManager;
+            var thisContext = this;
+
+            try
+            {
+                // Execute pipeline
+                var value = pipeline(ref thisContext);
+                manager?.Set(value, ContainerContext.Lifetime);
+                return value;
+            }
+            catch when (null != synchronized)
+            {
+                synchronized.Recover();
+                throw;
+            }
         }
 
         #endregion

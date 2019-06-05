@@ -202,7 +202,6 @@ namespace Unity
 
         #region Getting objects
 
-        /*
         /// <inheritdoc />
         [SecuritySafeCritical]
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
@@ -250,7 +249,7 @@ namespace Unity
                 else throw;
             }
         }
-         */
+        /*
         /// <inheritdoc />
         [SecuritySafeCritical]
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
@@ -296,6 +295,7 @@ namespace Unity
                 else throw;
             }
         }
+         */
 
         #endregion
 

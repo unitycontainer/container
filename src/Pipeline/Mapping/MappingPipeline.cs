@@ -1,5 +1,4 @@
 ﻿using Unity.Builder;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity
@@ -10,16 +9,16 @@ namespace Unity
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
+            if (!builder.IsMapping) return builder.Pipeline();
+
             var requestedType = builder.Type;
 
-            if (builder.Policies is ExplicitRegistration @explicit)
+            if (null != builder.Registration)
             {
                 // Explicit Registration
-                if (null == @explicit.Type) return builder.Pipeline();
+                if (null == builder.Registration.Type) return builder.Pipeline();
 
-                builder.Type = (null == @explicit.BuildType)
-                    ? @explicit.Type
-                    : @explicit.BuildType(@explicit.Type);
+                builder.Type = builder.Registration.Type;
             }
             else if (null != builder.TypeConverter)
             {

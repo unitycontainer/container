@@ -31,6 +31,9 @@ namespace Unity.Registration
             LifetimeManager = lifetimeManager;
             InjectionMembers = null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
+
+            if (lifetimeManager is ContainerControlledLifetimeManager manager)
+                manager.Scope = owner.Context;
         }
 
         public ExplicitRegistration(UnityContainer owner, string? name, Type? type, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
@@ -42,6 +45,9 @@ namespace Unity.Registration
             InjectionMembers = null != injectionMembers && 0 < injectionMembers.Length ? injectionMembers : null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired) || lifetimeManager is PerResolveLifetimeManager;
             BuildType = GetTypeConverter();
+
+            if (lifetimeManager is ContainerControlledLifetimeManager manager)
+                manager.Scope = owner.Context;
         }
 
         #endregion

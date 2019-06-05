@@ -90,6 +90,7 @@ namespace Unity
             // Pipelines
 
             var factory  = new FactoryPipeline();
+            var lifetime = new LifetimePipeline();
 
             // Mode of operation
             if (ExecutionMode.IsOptimized())
@@ -102,6 +103,7 @@ namespace Unity
                 Context = new ContainerContext(this,
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
+                        { lifetime,                      Stage.Lifetime },
                         { factory,                       Stage.Factory },
                         { new MappingPipeline(),         Stage.TypeMapping },
                         { new ConstructorPipeline(this), Stage.Creation },
@@ -111,6 +113,7 @@ namespace Unity
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
+                        { lifetime,                      Stage.Lifetime },
                         { factory,                       Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline

@@ -359,6 +359,7 @@ namespace Unity
             registration.Processors = Context.TypePipelineCache;
 
             if (registration.LifetimeManager is IDisposable) LifetimeContainer.Add(registration.LifetimeManager);
+            if (registration.LifetimeManager is ContainerControlledLifetimeManager manager) manager.Scope = this.Context;
 
             return registration;
         }
