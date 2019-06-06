@@ -282,6 +282,7 @@ namespace Unity
                 {
                     List = new PolicyList(),
                     Type = type,
+                    Name = name,
                     Overrides = overrides,
                     Registration = registration,
                     ContainerContext = Context,

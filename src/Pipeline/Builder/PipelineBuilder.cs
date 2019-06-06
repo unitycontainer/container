@@ -101,12 +101,12 @@ namespace Unity
         }
 
         // Pipeline from factory
-        public PipelineBuilder(Type type, ExplicitRegistration factory, UnityContainer owner)
+        public PipelineBuilder(Type type, ExplicitRegistration factory, LifetimeManager manager, UnityContainer owner)
         {
             Type = type;
             Seed = factory.Pipeline;
             TypeConverter = factory.BuildType;
-            LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
+            LifetimeManager = manager;
             InjectionMembers = factory.InjectionMembers;
 
             Factory = factory;

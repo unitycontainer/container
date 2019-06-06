@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Factories

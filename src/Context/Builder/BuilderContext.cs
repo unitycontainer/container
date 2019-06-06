@@ -35,7 +35,7 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string? Name => Registration?.Name;
+        public string? Name { get; set; }
 
         public object? Resolve(Type type, string? name)
         {
@@ -63,7 +63,24 @@ namespace Unity.Builder
                 }
             }
 
-            return Resolve(type, ((UnityContainer)Container).GetRegistration(type, name));
+            var key = new HashKey(type, name);
+            var pipeline = ContainerContext.Container.GetPipeline(ref key);
+            LifetimeManager? manager = pipeline.Target as LifetimeManager;
+
+            // Check if already created and acquire a lock if not
+            if (manager is PerResolveLifetimeManager)
+            {
+                manager = List.Get(type, name, typeof(LifetimeManager)) as LifetimeManager ?? manager;
+            }
+
+            if (null != manager)
+            {
+                // Make blocking check for result
+                var value = manager.Get(ContainerContext.Lifetime);
+                if (LifetimeManager.NoValue != value) return value;
+            }
+
+            return Resolve(pipeline);
         }
 
         #endregion
@@ -346,8 +363,25 @@ namespace Unity.Builder
                 }
             }
 
+
             var key = new HashKey(type, Name);
-            return Resolve(ContainerContext.Container.GetPipeline(ref key));
+            var pipeline = ContainerContext.Container.GetPipeline(ref key);
+            LifetimeManager? manager = pipeline.Target as LifetimeManager;
+
+            // Check if already created and acquire a lock if not
+            if (manager is PerResolveLifetimeManager)
+            {
+                manager = List.Get(type, Name, typeof(LifetimeManager)) as LifetimeManager ?? manager;
+            }
+
+            if (null != manager)
+            {
+                // Make blocking check for result
+                var value = manager.Get(ContainerContext.Lifetime);
+                if (LifetimeManager.NoValue != value) return value;
+            }
+
+            return Resolve(pipeline);
         }
 
         public object? Resolve(Type type, IRegistration registration)
@@ -409,24 +443,15 @@ namespace Unity.Builder
 
         public object? Resolve(ResolveDelegate<BuilderContext> pipeline)
         {
-            // Check if already created and acquire a lock if not
-            var manager = pipeline.Target as LifetimeManager;
-            if (null != manager)
-            {
-                // Make blocking check for result
-                var value = manager.Get(ContainerContext.Lifetime);
-                if (LifetimeManager.NoValue != value) return value;
-            }
-
             // Setup Context
-            var synchronized = manager as SynchronizedLifetimeManager;
+            var synchronized = pipeline.Target as SynchronizedLifetimeManager;
             var thisContext = this;
 
             try
             {
                 // Execute pipeline
                 var value = pipeline(ref thisContext);
-                manager?.Set(value, ContainerContext.Lifetime);
+                (pipeline.Target as LifetimeManager)?.Set(value, ContainerContext.Lifetime);
                 return value;
             }
             catch when (null != synchronized)

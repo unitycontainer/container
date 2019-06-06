@@ -30,6 +30,7 @@ namespace Unity.Factories
 
         #region Implementation
 
+        // TODO: Add PerResolve handler
         private static Func<T> ResolverImplementation<T>(ref BuilderContext context)
         {
             var nameToBuild = context.Name;
