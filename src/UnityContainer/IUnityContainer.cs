@@ -219,7 +219,6 @@ namespace Unity
             }
 
             // Setup Context
-            var synchronized = manager as SynchronizedLifetimeManager;
             var context = new BuilderContext
             {
                 List = new PolicyList(),
@@ -237,17 +236,10 @@ namespace Unity
                 return value;
             }
             catch (Exception ex)
+            when (ex is InvalidRegistrationException || ex is CircularDependencyException  || ex is ObjectDisposedException)
             {
-                synchronized?.Recover();
-
-                if (ex is InvalidRegistrationException ||
-                    ex is CircularDependencyException ||
-                    ex is ObjectDisposedException)
-                {
-                    var message = CreateErrorMessage(ex);
-                    throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-                }
-                else throw;
+                var message = CreateErrorMessage(ex);
+                throw new ResolutionFailedException(context.Type, context.Name, message, ex);
             }
         }
 

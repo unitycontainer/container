@@ -80,7 +80,7 @@ namespace Unity.Builder
                 if (LifetimeManager.NoValue != value) return value;
             }
 
-            return Resolve(pipeline);
+            return Resolve(type, name, pipeline);
         }
 
         #endregion
@@ -90,7 +90,7 @@ namespace Unity.Builder
 
         public object? Get(Type policyInterface)
         {
-            return List?.Get(Type, Name, policyInterface) ?? 
+            return List?.Get(Type, Name, policyInterface) ??
                 Registration?.Get(policyInterface);
         }
 
@@ -381,7 +381,7 @@ namespace Unity.Builder
                 if (LifetimeManager.NoValue != value) return value;
             }
 
-            return Resolve(pipeline);
+            return Resolve(type, null, pipeline);
         }
 
         public object? Resolve(Type type, IRegistration registration)
@@ -391,8 +391,8 @@ namespace Unity.Builder
             unsafe
             {
                 var thisContext = this;
-                var container = registration.LifetimeManager is ContainerControlledLifetimeManager containerControlled 
-                    ? (ContainerContext)containerControlled.Scope 
+                var container = registration.LifetimeManager is ContainerControlledLifetimeManager containerControlled
+                    ? (ContainerContext)containerControlled.Scope
                     : ContainerContext;
 
                 var context = new BuilderContext
@@ -411,10 +411,10 @@ namespace Unity.Builder
 
                 var manager = registration.LifetimeManager switch
                 {
-                    null                        => TransientLifetimeManager.Instance,
-                    PerResolveLifetimeManager _ => (LifetimeManager?)context.Get(typeof(LifetimeManager)) ?? 
+                    null => TransientLifetimeManager.Instance,
+                    PerResolveLifetimeManager _ => (LifetimeManager?)context.Get(typeof(LifetimeManager)) ??
                                                     TransientLifetimeManager.Instance,
-                    _                           => registration.LifetimeManager
+                    _ => registration.LifetimeManager
                 };
 
                 // Check if already got value
@@ -441,26 +441,36 @@ namespace Unity.Builder
             }
         }
 
-        public object? Resolve(ResolveDelegate<BuilderContext> pipeline)
+        public object? Resolve(Type type, string? name, ResolveDelegate<BuilderContext> pipeline)
         {
-            // Setup Context
-            var synchronized = pipeline.Target as SynchronizedLifetimeManager;
             var thisContext = this;
 
-            try
+            unsafe
             {
-                // Execute pipeline
-                var value = pipeline(ref thisContext);
-                (pipeline.Target as LifetimeManager)?.Set(value, ContainerContext.Lifetime);
+                // Setup Context
+                var context = new BuilderContext
+                {
+                    ContainerContext = pipeline.Target is ContainerControlledLifetimeManager containerControlled
+                                     ? (ContainerContext)containerControlled.Scope
+                                     : ContainerContext,
+                    IsAsync = IsAsync,
+                    List = List,
+                    Type = type,
+                    Name = name,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
+
+                var manager = pipeline.Target as LifetimeManager;
+                var value = pipeline(ref context);
+                manager?.SetValue(value, ContainerContext.Lifetime);
                 return value;
             }
-            catch when (null != synchronized)
-            {
-                synchronized.Recover();
-                throw;
-            }
-        }
 
-        #endregion
+            #endregion
+        }
     }
 }

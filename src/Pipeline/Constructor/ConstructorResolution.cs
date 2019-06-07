@@ -122,7 +122,7 @@ namespace Unity
 
                     context.Existing = info.Invoke(dependencies);
                     context.Set(typeof(LifetimeManager),
-                          new InternalPerResolveLifetimeManager(context.Existing));
+                          new RuntimePerResolveLifetimeManager(context.Existing));
                 }
 
                 return null == pipeline ? context.Existing : pipeline.Invoke(ref context);

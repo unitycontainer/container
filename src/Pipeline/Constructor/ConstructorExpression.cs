@@ -11,7 +11,7 @@ namespace Unity
     {
         #region Fields
 
-        private static readonly ConstructorInfo PerResolveInfo = typeof(InternalPerResolveLifetimeManager)
+        private static readonly ConstructorInfo PerResolveInfo = typeof(RuntimePerResolveLifetimeManager)
             .GetTypeInfo().DeclaredConstructors.First();
 
         protected static readonly Expression SetPerBuildSingletonExpr =

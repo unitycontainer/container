@@ -46,7 +46,7 @@ namespace Unity.Factories
             var lifetime = context.Get(typeof(LifetimeManager));
             if (lifetime is PerResolveLifetimeManager)
             {
-                var perBuildLifetime = new InternalPerResolveLifetimeManager(context.Existing);
+                var perBuildLifetime = new RuntimePerResolveLifetimeManager(context.Existing);
                 context.Set(typeof(LifetimeManager), perBuildLifetime);
             }
 

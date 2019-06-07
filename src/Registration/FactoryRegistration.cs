@@ -15,7 +15,7 @@ namespace Unity.Registration
             if (manager is IDisposable managerDisposable)
                 owner.Context.Lifetime.Add(managerDisposable);
 
-            LifetimeManager = manager is TransientLifetimeManager ? null : manager;
+            LifetimeManager = manager;
 
             // Factory resolver
             if (manager is PerResolveLifetimeManager)
@@ -23,7 +23,7 @@ namespace Unity.Registration
                 Pipeline = (ref BuilderContext context) =>
                 {
                     var value = factory(context.Container, context.Type, context.Name);
-                    context.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(value));
+                    context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
                     return value;
                 };
             }

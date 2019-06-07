@@ -43,51 +43,26 @@ namespace Unity
             // Try finding factory
             TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
 
-            if (builder.Policies is ExplicitRegistration @explicit)
-            {
 #if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
+            if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
 #else
-                if (null != builder.Type && builder.Type.IsGenericType)
+            if (null != builder.Type && builder.Type.IsGenericType)
 #endif
-                {
-                    factory = (TypeFactoryDelegate?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
-                                                                                 typeof(TypeFactoryDelegate));
-                }
-                else if (null != builder.Type && builder.Type.IsArray)
-                {
-                    if (builder.Type.GetArrayRank() == 1)
-                    {
-                        var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-                        return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
-                    }
-                    else
-                    {
-                        var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                        return (ref BuilderContext context) => throw new InvalidRegistrationException(message);
-                    }
-                }
+            {
+                factory = (TypeFactoryDelegate?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
+                                                                             typeof(TypeFactoryDelegate));
             }
-            else if(builder.Policies is ImplicitRegistration @implicit)
+            else if (null != builder.Type && builder.Type.IsArray)
             {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
-#else
-                if (null != builder.Type && builder.Type.IsGenericType)
-#endif
+                if (builder.Type.GetArrayRank() == 1)
                 {
-                    factory = (TypeFactoryDelegate?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
-                                                                                 typeof(TypeFactoryDelegate));
+                    var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
+                    return builder.Pipeline((ref BuilderContext context) => resolve(ref context));
                 }
-                else if (builder.Type?.IsArray ?? false)
+                else
                 {
-                    if (builder.Type?.GetArrayRank() == 1)
-                        return builder.Pipeline(ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container));
-                    else
-                    {
-                        var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                        return (ref BuilderContext context) => throw new InvalidRegistrationException(message);
-                    }
+                    var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
+                    return (ref BuilderContext context) => throw new InvalidRegistrationException(message);
                 }
             }
 

@@ -28,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
-    <Compile Remove="Utility\ConcurrentDictionary.cs" />
+    <Compile Remove="UnityContainer\Utility\ConcurrentDictionary.cs" />
   </ItemGroup>
 
   <PropertyGroup>

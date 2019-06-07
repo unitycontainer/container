@@ -7,7 +7,7 @@ namespace Unity.Lifetime
     /// but also provides a signal to the default build plan, marking the type so that
     /// instances are reused across the build up object graph.
     /// </summary>
-    internal class InternalPerResolveLifetimeManager : PerResolveLifetimeManager
+    internal class RuntimePerResolveLifetimeManager : PerResolveLifetimeManager
     {
         /// <summary>
         /// Construct a new <see cref="PerResolveLifetimeManager"/> object that stores the
@@ -17,7 +17,7 @@ namespace Unity.Lifetime
         /// normal <see cref="LifetimeManager.SetValue"/> method is not used here.
         /// </summary>
         /// <param name="value">InjectionParameterValue to store.</param>
-        public InternalPerResolveLifetimeManager(object? value)
+        public RuntimePerResolveLifetimeManager(object? value)
         {
             base.value = value;
             InUse = true;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
@@ -12,7 +13,7 @@ namespace Unity.Factories
 
         private static readonly MethodInfo EnumerableMethod =
             typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.Resolver));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.EnumerableHandler));
 
         private static readonly MethodInfo EnumerableFactory =
             typeof(EnumerableResolver).GetTypeInfo()
@@ -29,6 +30,7 @@ namespace Unity.Factories
             var typeArgument = type.GetTypeInfo().GenericTypeArguments.First();
             if (typeArgument.GetTypeInfo().IsGenericType)
 #else
+            Debug.Assert(0 < type.GenericTypeArguments.Length);
             var typeArgument = type.GenericTypeArguments.First();
             if (typeArgument.IsGenericType)
 #endif
@@ -50,7 +52,7 @@ namespace Unity.Factories
 
         #region Implementation
 
-        private static object Resolver<TElement>(ref BuilderContext context)
+        private static object EnumerableHandler<TElement>(ref BuilderContext context)
         {
             return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
                                                                                    context.Name);

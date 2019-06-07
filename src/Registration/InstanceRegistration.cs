@@ -19,11 +19,6 @@ namespace Unity.Registration
             manager.InUse = true;
             manager.SetValue(instance, owner.Context.Lifetime);
             Pipeline = (ref BuilderContext context) => throw new InvalidOperationException("Instance value no longer available");
-            //Pipeline = manager switch
-            //{
-            //    ExternallyControlledLifetimeManager _ => ExternalLifetime,
-            //    _ => (ResolveDelegate<BuilderContext>)OtherLifetime
-            //};
 
             LifetimeManager = manager;
         }

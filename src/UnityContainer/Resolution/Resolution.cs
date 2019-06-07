@@ -263,7 +263,7 @@ namespace Unity
             return argType;
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, IRegistration, object?> resolve, Type type)
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string?, object?> resolve, Type type)
         {
             object? value;
             var set = new QuickSet();
@@ -292,7 +292,7 @@ namespace Unity
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration);
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -308,7 +308,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, IRegistration, object?> resolve,
+        internal IEnumerable<TElement> ResolveArray<TElement>(Func<Type, string?, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
             object? value;
@@ -340,7 +340,7 @@ namespace Unity
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration);
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -367,9 +367,7 @@ namespace Unity
                         {
                             try
                             {
-                                var itemKey = new HashKey(typeof(TElement), registration.Name);
-                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name, registration);
-                                value = resolve(typeof(TElement), item);
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
@@ -383,7 +381,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, IRegistration, object?> resolve, Type type)
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string?, object?> resolve, Type type)
         {
             object? value;
             var set = new QuickSet();
@@ -413,9 +411,7 @@ namespace Unity
                         {
                             try
                             {
-                                var itemKey = new HashKey(typeof(TElement), registration.Name);
-                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name, registration);
-                                value = resolve(typeof(TElement), item);
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -431,7 +427,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, IRegistration, object?> resolve,
+        internal IEnumerable<TElement> ComplexArray<TElement>(Func<Type, string?, object?> resolve,
                                                               Type type, Type typeDefinition)
         {
             object? value;
@@ -462,9 +458,7 @@ namespace Unity
                         {
                             try
                             {
-                                var itemKey = new HashKey(typeof(TElement), registration.Name);
-                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name);
-                                value = resolve(typeof(TElement), item);
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -491,10 +485,8 @@ namespace Unity
                         {
                             try
                             {
-                                var itemKey = new HashKey(typeof(TElement), registration.Name);
-                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name);
 #pragma warning disable CS8601 // Possible null reference assignment.
-                                value = (TElement)resolve(typeof(TElement), item);
+                                value = (TElement)resolve(typeof(TElement), registration.Name);
 #pragma warning restore CS8601 // Possible null reference assignment.
                             }
                             catch (MakeGenericTypeFailedException) { continue; }

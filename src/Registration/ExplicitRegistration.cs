@@ -19,6 +19,7 @@ namespace Unity.Registration
         {
             Next = null;
             Type = type;
+            LifetimeManager = new TransientLifetimeManager();
             InjectionMembers = null;
             BuildRequired = false;
         }
@@ -40,7 +41,7 @@ namespace Unity.Registration
             : base(owner, name)
         {
             Type = type;
-            LifetimeManager = lifetimeManager is TransientLifetimeManager ? null : lifetimeManager;
+            LifetimeManager = lifetimeManager;
             Next = owner.Defaults;
             InjectionMembers = null != injectionMembers && 0 < injectionMembers.Length ? injectionMembers : null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired) || lifetimeManager is PerResolveLifetimeManager;

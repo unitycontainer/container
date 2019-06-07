@@ -2,7 +2,6 @@
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Resolution;
-using static Unity.UnityContainer;
 
 namespace Unity
 {
@@ -12,31 +11,24 @@ namespace Unity
 
         public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
         {
-            if (builder.LifetimeManager is ContainerControlledLifetimeManager manager)
+            ResolveDelegate<BuilderContext>? pipeline = builder.Pipeline();
+            Debug.Assert(null != pipeline);
+
+            return builder.LifetimeManager is SynchronizedLifetimeManager manager ?
+            (ref BuilderContext context) =>
             {
-                var pipeline = builder.Pipeline();
-                Debug.Assert(null != pipeline);
-
-                return (ref BuilderContext context) =>
+                try
                 {
-                    var scope = context.ContainerContext;
-
-                    try
-                    {
-                        // Switch context to lifetime's scope
-                        context.ContainerContext = (ContainerContext)manager.Scope;
-
-                        // Build withing the scope
-                        return pipeline(ref context);
-                    }
-                    finally
-                    {
-                        context.ContainerContext = scope;
-                    }
-                };
+                    // Build withing the scope
+                    return pipeline(ref context);
+                }
+                catch
+                {
+                    manager.Recover();
+                    throw;
+                }
             }
-
-            return builder.Pipeline(); ;
+            : pipeline;
         }
 
         #endregion
