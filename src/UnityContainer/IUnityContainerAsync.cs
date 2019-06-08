@@ -191,7 +191,6 @@ namespace Unity
 
 
 
-        /*
         /// <inheritdoc />
         [SecuritySafeCritical]
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
@@ -243,64 +242,6 @@ namespace Unity
 
                     if (ex is InvalidRegistrationException ||
                         ex is CircularDependencyException  ||
-                        ex is ObjectDisposedException)
-                    {
-                        var message = CreateErrorMessage(ex);
-                        throw new ResolutionFailedException(context.Type, context.Name, message, ex);
-                    }
-                    else throw;
-                }
-            }));
-        }
-         */
-        /// <inheritdoc />
-        [SecuritySafeCritical]
-        ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
-        {
-            var registration = GetRegistration(type ?? throw new ArgumentNullException(nameof(type)), name);
-
-            if (null != registration.LifetimeManager)
-            {
-                // Make unblocking check if already has result
-                var value = registration.LifetimeManager.TryGet(LifetimeContainer);
-                if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
-            }
-
-
-            return new ValueTask<object?>(Task.Factory.StartNew<object?>(delegate 
-            {
-                // Check if already created and acquire a lock
-                if (null != registration.LifetimeManager)
-                {
-                    var value = registration.LifetimeManager.Get(LifetimeContainer);
-                    if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
-                }
-
-                // Setup Context
-                var synchronized = registration.LifetimeManager as SynchronizedLifetimeManager;
-                var context = new BuilderContext
-                {
-                    List = new PolicyList(),
-                    Type = type,
-                    Name = name,
-                    Overrides = overrides,
-                    Registration = registration,
-                    ContainerContext = Context,
-                };
-
-                // Execute pipeline
-                try
-                {
-                    var value = context.Pipeline(ref context);
-                    registration.LifetimeManager?.Set(value, LifetimeContainer);
-                    return value;
-                }
-                catch (Exception ex)
-                {
-                    synchronized?.Recover();
-
-                    if (ex is InvalidRegistrationException ||
-                        ex is CircularDependencyException ||
                         ex is ObjectDisposedException)
                     {
                         var message = CreateErrorMessage(ex);

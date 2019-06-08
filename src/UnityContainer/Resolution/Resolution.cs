@@ -75,7 +75,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, IRegistration, object?> resolve, string? name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, object?> resolve, string? name)
         {
             object? value;
             var set = new QuickSet();
@@ -104,7 +104,7 @@ namespace Unity
 
                         try
                         {
-                            value = resolve(typeof(TElement), registration);
+                            value = resolve(typeof(TElement), registration.Name);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -123,8 +123,7 @@ namespace Unity
             {
                 try
                 {
-                    var registration = GetRegistration(typeof(TElement), name);
-                    value = resolve(typeof(TElement), registration);
+                    value = resolve(typeof(TElement), name);
                 }
                 catch
                 {
@@ -137,7 +136,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, IRegistration, object?> resolve,
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, object?> resolve,
                                                                    Type typeDefinition, string? name)
         {
             object? value;
@@ -168,7 +167,7 @@ namespace Unity
 
                         try
                         {
-                            value = resolve(typeof(TElement), registration);
+                            value = resolve(typeof(TElement), registration.Name);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -194,9 +193,7 @@ namespace Unity
                         {
                             try
                             {
-                                var itemKey = new HashKey(typeof(TElement), registration.Name);
-                                var item = container.GetOrAdd(ref itemKey, typeof(TElement), registration.Name, registration);
-                                value = resolve(typeof(TElement), item);
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
@@ -214,8 +211,7 @@ namespace Unity
             {
                 try
                 {
-                    var registration = GetRegistration(typeof(TElement), name);
-                    value = resolve(typeof(TElement), registration);
+                    value = resolve(typeof(TElement), name);
                 }
                 catch
                 {

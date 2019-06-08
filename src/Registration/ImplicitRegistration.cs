@@ -12,7 +12,7 @@ using Unity.Storage;
 
 namespace Unity.Registration
 {
-    [DebuggerDisplay("Registration.Implicit({Count})")]
+    //[DebuggerDisplay("Registration.Implicit({Count})")]
     //[DebuggerTypeProxy(typeof(ImplicitRegistrationDebugProxy))]
     public class ImplicitRegistration : PolicySet, IRegistration
     {
@@ -26,17 +26,19 @@ namespace Unity.Registration
 
         #region Constructors
 
-        public ImplicitRegistration(UnityContainer owner, string? name)
+        public ImplicitRegistration(UnityContainer owner, string? name, LifetimeManager? manager = null)
             : base(owner)
         {
             Name = name;
+            LifetimeManager = manager ?? new TransientLifetimeManager();
         }
 
-        public ImplicitRegistration(UnityContainer owner, string? name, IPolicySet? set)
+        public ImplicitRegistration(UnityContainer owner, string? name, LifetimeManager manager, IPolicySet? set)
             : base(owner)
         {
             Name = name;
             Next = (PolicyEntry?)set;
+            LifetimeManager = manager;
         }
 
         public ImplicitRegistration(UnityContainer owner, string? name, ImplicitRegistration factory)
@@ -45,17 +47,18 @@ namespace Unity.Registration
             Name = name;
             BuildType = factory.BuildType;
             Next = factory.Next;
-            LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy();
+            LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy() ?? new TransientLifetimeManager();
             Pipeline = factory.Pipeline;
             InjectionMembers = factory.InjectionMembers;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
         }
 
-        public ImplicitRegistration(UnityContainer owner, string? name, ResolveDelegate<BuilderContext> pipeline)
+        public ImplicitRegistration(UnityContainer owner, string? name, LifetimeManager manager, ResolveDelegate<BuilderContext> pipeline)
             : base(owner)
         {
             Name = name;
             Pipeline = pipeline;
+            LifetimeManager = manager;
         }
 
         #endregion
@@ -75,7 +78,7 @@ namespace Unity.Registration
 
         public virtual Converter<Type, Type>? BuildType { get; }
 
-        public LifetimeManager? LifetimeManager { get; protected set; }
+        public LifetimeManager LifetimeManager { get; protected set; }
 
         public virtual void Add(IPolicySet set)
         {

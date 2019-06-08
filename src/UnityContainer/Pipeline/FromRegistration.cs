@@ -14,7 +14,6 @@ namespace Unity
         {
             Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
-            Debug.Assert(null != registration.LifetimeManager);
 
             registration.LifetimeManager.PipelineDelegate = registration.LifetimeManager switch
             {

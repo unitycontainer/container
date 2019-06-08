@@ -22,7 +22,7 @@ namespace Unity.Registration
 
         Converter<Type, Type>? BuildType { get; }
 
-        LifetimeManager? LifetimeManager { get; }
+        LifetimeManager LifetimeManager { get; }
 
         UnityContainer Owner { get; }
     }

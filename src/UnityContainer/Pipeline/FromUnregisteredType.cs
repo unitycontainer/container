@@ -56,7 +56,6 @@ namespace Unity
                     targetBucket = key.HashCode % _registry.Buckets.Length;
                 }
 
-
                 // Create a Lifetime Manager
                 manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
                 manager.PipelineDelegate = manager switch

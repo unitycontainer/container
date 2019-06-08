@@ -19,17 +19,15 @@ namespace Unity.Registration
         {
             Next = null;
             Type = type;
-            LifetimeManager = new TransientLifetimeManager();
             InjectionMembers = null;
             BuildRequired = false;
         }
 
         public ExplicitRegistration(UnityContainer owner, string? name, Type? type, LifetimeManager lifetimeManager)
-            : base(owner, name)
+            : base(owner, name, lifetimeManager)
         {
             Next = null;
             Type = type;
-            LifetimeManager = lifetimeManager;
             InjectionMembers = null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
 
@@ -38,10 +36,9 @@ namespace Unity.Registration
         }
 
         public ExplicitRegistration(UnityContainer owner, string? name, Type? type, LifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-            : base(owner, name)
+            : base(owner, name, lifetimeManager)
         {
             Type = type;
-            LifetimeManager = lifetimeManager;
             Next = owner.Defaults;
             InjectionMembers = null != injectionMembers && 0 < injectionMembers.Length ? injectionMembers : null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired) || lifetimeManager is PerResolveLifetimeManager;
