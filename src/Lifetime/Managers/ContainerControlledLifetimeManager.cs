@@ -48,6 +48,13 @@ namespace Unity.Lifetime
         #endregion
 
 
+        #region Scope
+
+        public object Scope { get; internal set; }
+
+        #endregion
+
+
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>
@@ -82,7 +89,10 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
         {
-            return new ContainerControlledLifetimeManager();
+            return new ContainerControlledLifetimeManager
+            {
+                Scope = Scope
+            };
         }
 
         #endregion

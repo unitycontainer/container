@@ -34,7 +34,7 @@
         public override bool InUse { get => false; set { } }
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager() => Instance;
+        protected override LifetimeManager OnCreateLifetimeManager() => new TransientLifetimeManager();
 
         /// <summary>
         /// This method provides human readable representation of the lifetime
