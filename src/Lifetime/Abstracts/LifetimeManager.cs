@@ -135,5 +135,12 @@ namespace Unity.Lifetime
             => ((ResolveDelegate<TContext>)PipelineDelegate)(ref context);
 
         #endregion
+
+
+        #region Debugger
+#if DEBUG
+        public string ID { get; } = Guid.NewGuid().ToString();
+#endif
+        #endregion
     }
 }
