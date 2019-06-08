@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
+using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -167,6 +168,34 @@ namespace Unity
             Debug.Assert(null != _root);
 
             return _root.PipelineFromUnregisteredType(ref key);
+        }
+
+        #endregion
+
+
+        #region Pipeline Creation
+
+        private ResolveDelegate<BuilderContext> DefaultBuildPipeline(LifetimeManager manager, Func<ResolveDelegate<BuilderContext>?> build)
+        {
+            ResolveDelegate<BuilderContext>? pipeline = null;
+
+            return (ref BuilderContext context) =>
+            {
+                if (null != pipeline) return pipeline(ref context);
+
+                lock (manager)
+                {
+                    if (null == pipeline)
+                    {
+                        pipeline = build();
+                        manager.PipelineDelegate = pipeline;
+
+                        Debug.Assert(null != pipeline);
+                    }
+                }
+
+                return pipeline(ref context);
+            };
         }
 
         #endregion

@@ -384,63 +384,6 @@ namespace Unity.Builder
             return Resolve(type, null, pipeline);
         }
 
-        public object? Resolve(Type type, IRegistration registration)
-        {
-            if (ReferenceEquals(Registration, registration)) throw new CircularDependencyException(type, registration.Name);
-
-            unsafe
-            {
-                var thisContext = this;
-                var container = registration.LifetimeManager is ContainerControlledLifetimeManager containerControlled
-                    ? (ContainerContext)containerControlled.Scope
-                    : ContainerContext;
-
-                var context = new BuilderContext
-                {
-                    ContainerContext = container,
-                    Registration = registration,
-                    IsAsync = IsAsync,
-                    Type = type,
-                    List = List,
-                    Overrides = Overrides,
-                    DeclaringType = Type,
-#if !NET40
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-#endif
-                };
-
-                var manager = registration.LifetimeManager switch
-                {
-                    null => TransientLifetimeManager.Instance,
-                    PerResolveLifetimeManager _ => (LifetimeManager?)context.Get(typeof(LifetimeManager)) ??
-                                                    TransientLifetimeManager.Instance,
-                    _ => registration.LifetimeManager
-                };
-
-                // Check if already got value
-                var value = manager.GetValue(ContainerContext.Lifetime);
-                if (LifetimeManager.NoValue != value) return value;
-
-                if (registration.LifetimeManager is SynchronizedLifetimeManager synchronized)
-                {
-                    try
-                    {
-                        value = context.Pipeline(ref context);
-                    }
-                    catch
-                    {
-                        synchronized.Recover();
-                        throw;
-                    }
-                }
-                else
-                    value = context.Pipeline(ref context);
-
-                manager.SetValue(value, ContainerContext.Lifetime);
-                return value;
-            }
-        }
-
         public object? Resolve(Type type, string? name, ResolveDelegate<BuilderContext> pipeline)
         {
             var thisContext = this;

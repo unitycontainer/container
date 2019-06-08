@@ -113,14 +113,7 @@ namespace Unity
 
             return (ref BuilderContext context) =>
             {
-                object value;
-
-                if (null != pipeline)
-                {
-                    value = manager.Get(LifetimeContainer);
-                    if (LifetimeManager.NoValue != value) return value;
-                    return pipeline(ref context);
-                }
+                if (null != pipeline) return pipeline(ref context);
 
                 lock (manager)
                 {
@@ -134,9 +127,6 @@ namespace Unity
                         Debug.Assert(null != pipeline);
                     }
                 }
-
-                value = manager.Get(LifetimeContainer);
-                if (LifetimeManager.NoValue != value) return value;
 
                 try
                 {
@@ -204,14 +194,7 @@ namespace Unity
 
             return (ref BuilderContext context) =>
             {
-                object value;
-
-                if (null != pipeline)
-                {
-                    value = manager.Get(LifetimeContainer);
-                    if (LifetimeManager.NoValue != value) return value;
-                    return pipeline(ref context);
-                }
+                if (null != pipeline) return pipeline(ref context);
 
                 lock (manager)
                 {
@@ -225,9 +208,6 @@ namespace Unity
                         Debug.Assert(null != pipeline);
                     }
                 }
-
-                value = manager.Get(LifetimeContainer);
-                if (LifetimeManager.NoValue != value) return value;
 
                 return pipeline(ref context);
             };
