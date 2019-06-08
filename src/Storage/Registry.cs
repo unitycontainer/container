@@ -187,7 +187,6 @@ namespace Unity.Storage
             public ExplicitRegistration Registration;
             public ResolveDelegate<BuilderContext>? Pipeline;
 
-            public Type Type { get; set; }
             public bool IsExplicit;
             public IContainerRegistration Cache;
         }
