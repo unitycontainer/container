@@ -71,7 +71,6 @@ namespace Unity
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.Key = key;
                 entry.Next = _registry.Buckets[targetBucket];
-                entry.Type = key.Type;
                 entry.IsExplicit = true;
                 entry.Pipeline = manager.Pipeline;
                 int position = _registry.Count++;

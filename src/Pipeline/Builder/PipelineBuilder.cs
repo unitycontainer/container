@@ -164,7 +164,7 @@ namespace Unity
                  : Seed;
         }
 
-        public ResolveDelegate<BuilderContext>? Pipeline(ResolveDelegate<BuilderContext>? method = null)
+        public ResolveDelegate<BuilderContext>? PipelineWithSeed(ResolveDelegate<BuilderContext>? method = null)
         {
             Seed = method;
 

@@ -111,7 +111,6 @@ namespace Unity
                     // Add registration
                     ref var entry = ref Container._registry.Entries[Container._registry.Count];
                     entry.Key = key;
-                    entry.Type = type;
                     entry.Next = Container._registry.Buckets[targetBucket];
                     entry.Policies = new PolicySet(Container, policyInterface, policy);
                     Container._registry.Buckets[targetBucket] = Container._registry.Count++;
@@ -149,7 +148,6 @@ namespace Unity
                     // Add registration
                     ref var entry = ref Container._registry.Entries[Container._registry.Count];
                     entry.Key = key;
-                    entry.Type = type;
                     entry.Next = Container._registry.Buckets[targetBucket];
                     entry.Policies = new ImplicitRegistration(Container, name);
                     entry.Policies.Set(policyInterface, policy);

@@ -88,8 +88,8 @@ namespace Unity
                         registration.Add(candidate.Policies);
                     }
                     candidate.Policies = registration;
-                    candidate.Pipeline = PipelineFromRegistration(ref key, registration, i);
                     candidate.Registration = registration;
+                    candidate.Pipeline = PipelineFromRegistration(ref key, registration, i);
 
                     // Replaced registration
                     return existing;
@@ -106,11 +106,10 @@ namespace Unity
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.Key = key;
                 entry.Next = _registry.Buckets[targetBucket];
-                entry.Type = type;
                 entry.IsExplicit = true;
                 entry.Policies = registration;
-                entry.Pipeline = PipelineFromRegistration(ref key, registration, _registry.Count); 
                 entry.Registration = registration;
+                entry.Pipeline = PipelineFromRegistration(ref key, registration, _registry.Count); 
                 int position = _registry.Count++;
                 _registry.Buckets[targetBucket] = position;
 

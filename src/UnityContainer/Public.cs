@@ -230,7 +230,10 @@ namespace Unity
                         // Create wrapper is required
                         if (null == cashe)
                         {
-                            cashe = new RegistrationWrapper(registry.Entries[i].Type, registry.Entries[i].Policies);
+                            var type = registry.Entries[i].Key.Type;
+                            Debug.Assert(null != type);
+
+                            cashe = new RegistrationWrapper(type, registry.Entries[i].Policies);
                             registry.Entries[i].Cache = cashe;
                         }
 

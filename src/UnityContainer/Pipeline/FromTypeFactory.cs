@@ -51,7 +51,6 @@ namespace Unity
                 // Create new entry
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.Key = key;
-                entry.Type = type;
                 entry.Pipeline = BuildPipeline;
                 entry.Next = _registry.Buckets[targetBucket];
                 position = _registry.Count++;

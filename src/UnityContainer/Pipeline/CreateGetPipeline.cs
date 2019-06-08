@@ -148,7 +148,7 @@ namespace Unity
                         continue;
 
                     // Found a factory
-                    return container.PipelineFromOpenGeneric(ref key, (ExplicitRegistration)candidate.Policies);
+                    return container.PipelineFromOpenGeneric(ref key, candidate.Registration);
                 }
 
                 // Default factory
@@ -168,34 +168,6 @@ namespace Unity
             Debug.Assert(null != _root);
 
             return _root.PipelineFromUnregisteredType(ref key);
-        }
-
-        #endregion
-
-
-        #region Pipeline Creation
-
-        private ResolveDelegate<BuilderContext> DefaultBuildPipeline(LifetimeManager manager, Func<ResolveDelegate<BuilderContext>?> build)
-        {
-            ResolveDelegate<BuilderContext>? pipeline = null;
-
-            return (ref BuilderContext context) =>
-            {
-                if (null != pipeline) return pipeline(ref context);
-
-                lock (manager)
-                {
-                    if (null == pipeline)
-                    {
-                        pipeline = build();
-                        manager.PipelineDelegate = pipeline;
-
-                        Debug.Assert(null != pipeline);
-                    }
-                }
-
-                return pipeline(ref context);
-            };
         }
 
         #endregion

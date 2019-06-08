@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Registration;
@@ -54,7 +53,7 @@ namespace Unity
                 manager.PipelineDelegate = manager switch
                 {
                     TransientLifetimeManager  transient => PipelineFromOpenGenericTransient(type, factory, transient, _registry.Count),
-                    SynchronizedLifetimeManager   synch => PipelineFromOpenGenericSynchronized(type, factory, synch),
+                    SynchronizedLifetimeManager synchro => PipelineFromOpenGenericSynchronized(type, factory, synchro),
                     PerResolveLifetimeManager peresolve => PipelineFromOpenGenericPerResolve(type, factory, peresolve),
                                                       _ => PipelineFromOpenGenericDefault(type, factory, manager)
                 };
@@ -62,7 +61,6 @@ namespace Unity
                 // Create new entry
                 ref var entry = ref _registry.Entries[_registry.Count];
                 entry.Key = key;
-                entry.Type = type;
                 entry.Pipeline = manager.Pipeline;
                 entry.Next = _registry.Buckets[targetBucket];
                 position = _registry.Count++;

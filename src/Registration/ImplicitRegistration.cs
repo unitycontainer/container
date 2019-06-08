@@ -14,7 +14,7 @@ namespace Unity.Registration
 {
     //[DebuggerDisplay("Registration.Implicit({Count})")]
     //[DebuggerTypeProxy(typeof(ImplicitRegistrationDebugProxy))]
-    public class ImplicitRegistration : PolicySet, IRegistration
+    public class ImplicitRegistration : PolicySet
     {
 
         #region Fields

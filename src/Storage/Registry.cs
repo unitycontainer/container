@@ -123,7 +123,6 @@ namespace Unity.Storage
             ref var entry = ref Entries[Count];
             entry.Key = key;
             entry.Next = Buckets[targetBucket];
-            entry.Type = type;
             entry.Policies = set;
             Buckets[targetBucket] = Count++;
         }
@@ -146,7 +145,6 @@ namespace Unity.Storage
             entry.Key = key;
             entry.Next = Buckets[targetBucket];
             entry.IsExplicit = true;
-            entry.Type = type;
             entry.Policies = registration;
             entry.Cache = new RegistrationWrapper(type, registration);
             Buckets[targetBucket] = Count++;
@@ -185,13 +183,13 @@ namespace Unity.Storage
         {
             public HashKey Key;
             public int Next;
-            public Type Type;
-            public bool IsExplicit;
             public IPolicySet Policies;
-            public IContainerRegistration Cache;
-            public IRegistration Registration;
+            public ExplicitRegistration Registration;
             public ResolveDelegate<BuilderContext>? Pipeline;
-            public int ID;
+
+            public Type Type { get; set; }
+            public bool IsExplicit;
+            public IContainerRegistration Cache;
         }
 
         #endregion

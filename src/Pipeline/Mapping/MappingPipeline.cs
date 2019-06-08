@@ -31,7 +31,7 @@ namespace Unity
 
             var type = builder.Type;
 
-            return builder.Pipeline((ref BuilderContext context) => context.Resolve(type));
+            return builder.PipelineWithSeed((ref BuilderContext context) => context.Resolve(type));
         }
 
         #endregion
