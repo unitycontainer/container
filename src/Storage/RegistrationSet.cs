@@ -76,7 +76,7 @@ namespace Unity.Storage
             newEntry.RegisteredType = type;
             newEntry.Name = name;
             newEntry.Registration = registration;
-            newEntry.Next = _buckets[bucket] - 1;
+            newEntry.Next = _buckets[bucket];
             _buckets[bucket] = Count;
         }
 
