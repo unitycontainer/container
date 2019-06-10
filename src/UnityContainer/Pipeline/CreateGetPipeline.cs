@@ -136,7 +136,7 @@ namespace Unity
                     keyDefault = new HashKey(generic);
                 }
 
-                // Factory with the same name
+                // Generic Factory
                 targetBucket = keyGeneric.HashCode % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
@@ -144,11 +144,11 @@ namespace Unity
                     if (candidate.Key != keyGeneric)
                         continue;
 
-                    // Found a factory
+                    // Found a generic factory
                     return container.PipelineFromOpenGeneric(ref key, candidate.Registration);
                 }
 
-                // Default factory
+                // Default Factory
                 targetBucket = keyDefault.HashCode % registry.Buckets.Length;
                 for (var i = registry.Buckets[targetBucket]; i >= 0; i = registry.Entries[i].Next)
                 {
@@ -156,9 +156,8 @@ namespace Unity
                     if (candidate.Key != keyDefault)
                         continue;
 
-                    // Found a factory
-                    var typeFactory = (TypeFactoryDelegate)candidate.Policies.Get(typeof(TypeFactoryDelegate));
-                    return container.PipelineFromTypeFactory(ref key, container, typeFactory);
+                    // Found a default
+                    return container.PipelineFromTypeFactory(ref key, container, candidate.Policies);
                 }
             }
 

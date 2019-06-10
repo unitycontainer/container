@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Registration;
@@ -18,10 +19,12 @@ namespace Unity
             var type = key.Type;
             var name = key.Name;
             var owner = this;
-            bool AddNew = true;
+            bool adding = true;
             int position = 0;
             var collisions = 0;
+
             LifetimeManager? manager = null;
+            ResolveDelegate<BuilderContext>? pipeline = null;
 
             // Add Pipeline to the Registry
             lock (_syncRegistry)
@@ -39,17 +42,18 @@ namespace Unity
                     // Pipeline already been created
                     if (null != candidate.Pipeline) return candidate.Pipeline;
 
-                    // Empty Registration with Policies
+                    // Lifetime Manager
                     manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
 
                     // Type has not been registered
                     if (null == candidate.Registration) candidate.Pipeline = manager.Pipeline;
 
-                    AddNew = false;
+                    adding = false;
                     break;
                 }
 
-                if (AddNew)
+                if (adding)
                 {
                     // Expand if required
                     if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
@@ -58,8 +62,9 @@ namespace Unity
                         targetBucket = key.HashCode % _registry.Buckets.Length;
                     }
 
-                    // Create a Lifetime Manager
+                    // Lifetime Manager
                     manager = factory.LifetimeManager.CreateLifetimePolicy();
+                    manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
 
                     // Create new entry
                     ref var entry = ref _registry.Entries[_registry.Count];
@@ -75,10 +80,32 @@ namespace Unity
 
             Debug.Assert(null != manager);
 
-            PipelineBuilder builder = new PipelineBuilder(key.Type, factory, manager, this);
-            manager.PipelineDelegate = builder.Pipeline();
+            lock (manager)
+            {
+                if ((Delegate)(ResolveDelegate<BuilderContext>)SpinWait == manager.PipelineDelegate)
+                {
+                    PipelineBuilder builder = new PipelineBuilder(key.Type, factory, manager, this);
+                    manager.PipelineDelegate = builder.Pipeline();
+                    pipeline = (ResolveDelegate<BuilderContext>)manager.PipelineDelegate;
+                }
+            }
 
             return manager.Pipeline;
+
+
+            object? SpinWait(ref BuilderContext context)
+            {
+                while (null == pipeline)
+                {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    for (var i = 0; i < 100; i++) ;
+#else
+                    Thread.SpinWait(100);
+#endif
+                }
+
+                return pipeline(ref context);
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Unity
 
             lock (_syncRegistry)
             {
-                var AddNew = true;
+                var adding = true;
                 var collisions = 0;
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
@@ -35,7 +35,7 @@ namespace Unity
                     // Pipeline already been created
                     if (null != existing.Pipeline) return existing.Pipeline;
 
-                    // Empty Registration with Policies
+                    // Lifetime Manager
                     manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
                     manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
                     
@@ -43,11 +43,11 @@ namespace Unity
                     if (null == existing.Registration) existing.Pipeline = manager.Pipeline; 
 
                     // Skip to creation part
-                    AddNew = false;
+                    adding = false;
                     break;
                 }
 
-                if (AddNew)
+                if (adding)
                 {
                     // Expand if required
                     if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
@@ -56,6 +56,7 @@ namespace Unity
                         targetBucket = key.HashCode % _registry.Buckets.Length;
                     }
 
+                    // Lifetime Manager
                     manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
                     manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
 
@@ -72,14 +73,18 @@ namespace Unity
 
             Debug.Assert(null != manager);
 
-            PipelineBuilder builder = new PipelineBuilder(key.Type, this, Context.TypePipelineCache);
+            lock (manager)
+            {
+                if ((Delegate)(ResolveDelegate<BuilderContext>)SpinWait == manager.PipelineDelegate)
+                {
+                    PipelineBuilder builder = new PipelineBuilder(key.Type, this, Context.TypePipelineCache);
+                    manager.PipelineDelegate = builder.Pipeline();
+                    pipeline = (ResolveDelegate<BuilderContext>)manager.PipelineDelegate;
+                }
+            }
 
-            var newPipeline = builder.Pipeline();
+            return manager.Pipeline;
 
-            manager.PipelineDelegate = newPipeline;
-            pipeline = newPipeline;
-
-            return pipeline;
 
             object? SpinWait(ref BuilderContext context)
             {
