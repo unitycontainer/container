@@ -225,7 +225,9 @@ namespace Unity
                 Type = type,
                 Name = name,
                 Overrides = overrides,
-                ContainerContext = Context,
+                ContainerContext = manager is ContainerControlledLifetimeManager container 
+                                 ? (ContainerContext)container.Scope 
+                                 : Context,
             };
 
             // Execute pipeline
