@@ -16,15 +16,6 @@ namespace Unity
             Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
-            var type = key.Type;
-            var name = key.Name;
-            var owner = this;
-
-            int position = 0;
-            var collisions = 0;
-
-
-            bool adding = true;
             LifetimeManager? manager = null;
             ResolveDelegate<BuilderContext>? pipeline = null;
             var typeFactory = (TypeFactoryDelegate)set.Get(typeof(TypeFactoryDelegate));
@@ -32,6 +23,8 @@ namespace Unity
             // Add Pipeline to the Registry
             lock (_syncRegistry)
             {
+                bool adding = true;
+                var collisions = 0;
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
@@ -76,8 +69,7 @@ namespace Unity
                     entry.Key = key;
                     entry.Pipeline = manager.Pipeline;
                     entry.Next = _registry.Buckets[targetBucket];
-                    position = _registry.Count++;
-                    _registry.Buckets[targetBucket] = position;
+                    _registry.Buckets[targetBucket] = _registry.Count++;
                 }
             }
 
@@ -87,7 +79,7 @@ namespace Unity
             {
                 if ((Delegate)(ResolveDelegate<BuilderContext>)SpinWait == manager.PipelineDelegate)
                 {
-                    manager.PipelineDelegate = typeFactory(type, this);
+                    manager.PipelineDelegate = typeFactory(key.Type, this);
                     pipeline = (ResolveDelegate<BuilderContext>)manager.PipelineDelegate;
                 }
             }

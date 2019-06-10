@@ -16,19 +16,14 @@ namespace Unity
             Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
-            var type = key.Type;
-            var name = key.Name;
-            var owner = this;
-            bool adding = true;
-            int position = 0;
-            var collisions = 0;
-
             LifetimeManager? manager = null;
             ResolveDelegate<BuilderContext>? pipeline = null;
 
             // Add Pipeline to the Registry
             lock (_syncRegistry)
             {
+                bool adding = true;
+                var collisions = 0;
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
@@ -71,8 +66,7 @@ namespace Unity
                     entry.Key = key;
                     entry.Pipeline = manager.Pipeline;
                     entry.Next = _registry.Buckets[targetBucket];
-                    position = _registry.Count++;
-                    _registry.Buckets[targetBucket] = position;
+                    _registry.Buckets[targetBucket] = _registry.Count++;
                 }
 
                 if (manager is IDisposable disposable) LifetimeContainer.Add(disposable);
