@@ -37,7 +37,7 @@ namespace Unity
             }
 
             // Process if found
-            if (null != resolver) return builder.PipelineWithSeed((ResolveDelegate<PipelineContext>)resolver);
+            if (null != resolver) return builder.Pipeline((ResolveDelegate<PipelineContext>)resolver);
             
             // Try finding factory
             TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
@@ -56,7 +56,7 @@ namespace Unity
                 if (builder.Type.GetArrayRank() == 1)
                 {
                     var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-                    return builder.PipelineWithSeed((ref PipelineContext context) => resolve(ref context));
+                    return builder.Pipeline((ref PipelineContext context) => resolve(ref context));
                 }
                 else
                 {
@@ -68,7 +68,7 @@ namespace Unity
             Debug.Assert(null != builder.Type);
 
             return null != factory
-                ? builder.PipelineWithSeed(factory(builder.Type, builder.ContainerContext.Container))
+                ? builder.Pipeline(factory(builder.Type, builder.ContainerContext.Container))
                 : builder.Pipeline();
         }
 

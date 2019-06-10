@@ -9,5 +9,6 @@
         public static bool IsActivated(this ModeFlags mode)  => 0 != ((int)mode & (int)ModeFlags.Activated);
         public static bool IsCompiled(this ModeFlags mode)   => 0 != ((int)mode & (int)ModeFlags.Compiled);
         public static bool IsLegacy(this ModeFlags mode)     => 0 != ((int)mode & (int)ModeFlags.Legacy);
+        public static ModeFlags BuildMode(this ModeFlags mode) => (ModeFlags)((int)mode & ((int)ModeFlags.Activated | (int)ModeFlags.Compiled));
     }
 }

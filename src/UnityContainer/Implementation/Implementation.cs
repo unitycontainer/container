@@ -14,6 +14,7 @@ using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
+using Unity.Utility;
 
 namespace Unity
 {
@@ -93,6 +94,33 @@ namespace Unity
             ValidateType = _root.ValidateType;
             ValidateTypes = _root.ValidateTypes;
             DependencyResolvePipeline = _root.DependencyResolvePipeline;
+
+
+            /////////////////////////////////////////////////////////////
+            // Build Mode
+
+            var build = _root.ExecutionMode.BuildMode();
+
+            PipelineFromRegistration = build switch
+            {
+                ModeFlags.Activated => PipelineFromRegistrationActivated,
+                ModeFlags.Compiled  => PipelineFromRegistrationCompiled,
+                _ => (FromRegistration)PipelineFromRegistrationOptimized
+            };
+
+            PipelineFromUnregisteredType = build switch
+            {
+                ModeFlags.Activated => PipelineFromUnregisteredTypeActivated,
+                ModeFlags.Compiled  => PipelineFromUnregisteredTypeCompiled,
+                _ => (FromUnregistered)PipelineFromUnregisteredTypeOptimized
+            };
+
+            PipelineFromOpenGeneric = build switch
+            {
+                ModeFlags.Activated => PipelineFromOpenGenericActivated,
+                ModeFlags.Compiled  => PipelineFromOpenGenericCompiled,
+                _ => (FromOpenGeneric) PipelineFromOpenGenericOptimized
+            };
         }
 
         #endregion

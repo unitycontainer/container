@@ -34,7 +34,7 @@ namespace Unity
 
             var type = builder.Type;
 
-            return builder.PipelineWithSeed((ref PipelineContext context) => 
+            return builder.Pipeline((ref PipelineContext context) => 
             {
                 try
                 {

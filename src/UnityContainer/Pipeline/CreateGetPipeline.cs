@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -73,7 +74,7 @@ namespace Unity
 
                     // Found it 
                     return candidate.Pipeline ??
-                           container.PipelineFromRegistration(ref key, candidate.Registration, i);
+                           container.PipelineFromRegistration(key.Type, candidate.Registration, i);
                 }
             }
 
@@ -118,7 +119,7 @@ namespace Unity
 
                     // Found a registration
                     return candidate.Pipeline ??
-                           container.PipelineFromRegistration(ref key, candidate.Registration, i);
+                           container.PipelineFromRegistration(key.Type, candidate.Registration, i);
                 }
 
                 // Generic registrations
@@ -164,6 +165,15 @@ namespace Unity
 
             return _root.PipelineFromUnregisteredType(ref key);
         }
+
+        #endregion
+
+
+        #region Nested Types
+
+        private delegate ResolveDelegate<PipelineContext> FromUnregistered(ref HashKey key);
+        private delegate ResolveDelegate<PipelineContext> FromRegistration(Type? type, ExplicitRegistration registration, int position);
+        private delegate ResolveDelegate<PipelineContext> FromOpenGeneric(ref HashKey key, ExplicitRegistration factory);
 
         #endregion
     }

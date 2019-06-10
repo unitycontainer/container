@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -23,6 +24,9 @@ namespace Unity
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private IEnumerator<Pipeline> _enumerator;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private IEnumerable<Pipeline> _pipelines;
 
         #endregion
 
@@ -48,6 +52,7 @@ namespace Unity
 
             Seed = null;
             _enumerator = pipelines.GetEnumerator();
+            _pipelines  = pipelines;
         }
 
         // Pipeline From Registration
@@ -73,6 +78,7 @@ namespace Unity
 
             Debug.Assert(null != registration?.Processors);
             _enumerator = registration.Processors.GetEnumerator();
+            _pipelines  = registration.Processors;
         }
 
         // Pipeline from factory
@@ -96,6 +102,7 @@ namespace Unity
 
             Debug.Assert(null != factory.Processors);
             _enumerator = factory.Processors.GetEnumerator();
+            _pipelines  = factory.Processors;
         }
 
         #endregion
@@ -131,21 +138,38 @@ namespace Unity
 
         #region Public Methods
 
+
+        public ResolveDelegate<PipelineContext> Compile()
+        {
+            ref var context = ref this;
+            var expressions = _enumerator.MoveNext()
+                            ? _enumerator.Current.Express(ref context)
+                                                 .ToList()
+                            : new List<Expression>();
+
+            expressions.Add(PipelineContextExpression.Existing);
+
+            var lambda = Expression.Lambda<ResolveDelegate<PipelineContext>>(
+                Expression.Block(expressions), PipelineContextExpression.Context);
+
+            return lambda.Compile();
+        }
+
         public ResolveDelegate<PipelineContext>? Pipeline()
         {
             ref var context = ref this;
-            return _enumerator?.MoveNext() ?? false 
-                 ? _enumerator?.Current?.Build(ref context) ?? Seed
+            return _enumerator.MoveNext()
+                 ? _enumerator.Current?.Build(ref context) ?? Seed
                  : Seed;
         }
 
-        public ResolveDelegate<PipelineContext>? PipelineWithSeed(ResolveDelegate<PipelineContext>? method = null)
+        public ResolveDelegate<PipelineContext>? Pipeline(ResolveDelegate<PipelineContext>? method = null)
         {
             Seed = method;
 
             ref var context = ref this;
-            return _enumerator?.MoveNext() ?? false 
-                 ? _enumerator?.Current.Build(ref context) ?? Seed
+            return _enumerator.MoveNext()
+                 ? _enumerator.Current.Build(ref context) ?? Seed
                  : Seed;
         }
 

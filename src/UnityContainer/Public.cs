@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Unity;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Factories;
@@ -92,35 +91,7 @@ namespace Unity
             var lifetime = new LifetimePipeline();
 
             // Mode of operation
-            if (ExecutionMode.IsOptimized())
-            {
-                /////////////////////////////////////////////////////////////
-                // Setup Optimized mode
-
-
-                // Create Context
-                Context = new ContainerContext(this,
-                    new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
-                    {
-                        { lifetime,                      Stage.Lifetime },
-                        { factory,                       Stage.Factory },
-                        { new MappingPipeline(),         Stage.TypeMapping },
-                        { new ConstructorPipeline(this), Stage.Creation },
-                        { new FieldPipeline(this),       Stage.Fields },
-                        { new PropertyPipeline(this),    Stage.Properties },
-                        { new MethodPipeline(this),      Stage.Methods }
-                    },
-                    new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
-                    {
-                        { lifetime,                      Stage.Lifetime },
-                        { factory,                       Stage.Factory }
-                    },
-                    new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
-                    {
-                        { factory,                       Stage.Factory }
-                    });
-            }
-            else
+            if (ExecutionMode.IsDiagnostic())
             {
                 /////////////////////////////////////////////////////////////
                 // Setup Diagnostic mode
@@ -159,6 +130,57 @@ namespace Unity
                 CreateErrorMessage = CreateDiagnosticMessage;
 
             }
+            else
+            {
+                // Create Context
+                Context = new ContainerContext(this,
+                    new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
+                    {
+                        { lifetime,                      Stage.Lifetime },
+                        { factory,                       Stage.Factory },
+                        { new MappingPipeline(),         Stage.TypeMapping },
+                        { new ConstructorPipeline(this), Stage.Creation },
+                        { new FieldPipeline(this),       Stage.Fields },
+                        { new PropertyPipeline(this),    Stage.Properties },
+                        { new MethodPipeline(this),      Stage.Methods }
+                    },
+                    new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
+                    {
+                        { lifetime,                      Stage.Lifetime },
+                        { factory,                       Stage.Factory }
+                    },
+                    new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
+                    {
+                        { factory,                       Stage.Factory }
+                    });
+            }
+
+            
+            /////////////////////////////////////////////////////////////
+            // Build Mode
+
+            var build = _root.ExecutionMode.BuildMode();
+
+            PipelineFromRegistration = build switch
+            {
+                ModeFlags.Activated => PipelineFromRegistrationActivated,
+                ModeFlags.Compiled  => PipelineFromRegistrationCompiled,
+                _ => (FromRegistration)PipelineFromRegistrationOptimized
+            };
+
+            PipelineFromUnregisteredType = build switch
+            {
+                ModeFlags.Activated => PipelineFromUnregisteredTypeActivated,
+                ModeFlags.Compiled  => PipelineFromUnregisteredTypeCompiled,
+                _ => (FromUnregistered)PipelineFromUnregisteredTypeOptimized
+            };
+
+            PipelineFromOpenGeneric = build switch
+            {
+                ModeFlags.Activated => PipelineFromOpenGenericActivated,
+                ModeFlags.Compiled  => PipelineFromOpenGenericCompiled,
+                _ => (FromOpenGeneric) PipelineFromOpenGenericOptimized
+            };
         }
 
         #endregion
