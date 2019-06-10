@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Registration;
 using Unity.Resolution;
@@ -504,7 +503,7 @@ namespace Unity
 
         #region Resolve Delegate Factories
 
-        private static ResolveDelegate<BuilderContext> OptimizingFactory(ref BuilderContext context)
+        private static ResolveDelegate<PipelineContext> OptimizingFactory(ref PipelineContext context)
         {
             throw new NotImplementedException();
             //var counter = 3;
@@ -546,7 +545,7 @@ namespace Unity
             //};
         }
 
-        internal ResolveDelegate<BuilderContext> CompilingFactory(ref BuilderContext context)
+        internal ResolveDelegate<PipelineContext> CompilingFactory(ref PipelineContext context)
         {
             throw new NotImplementedException();
             //var expressions = new List<Expression>();
@@ -567,7 +566,7 @@ namespace Unity
             //return lambda.Compile();
         }
 
-        internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
+        internal ResolveDelegate<PipelineContext> ResolvingFactory(ref PipelineContext context)
         {
             throw new NotImplementedException();
             //ResolveDelegate<BuilderContext>? seed = null;

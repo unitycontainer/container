@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security;
-using Unity.Builder;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -76,30 +75,6 @@ namespace Unity
             _enumerator = registration.Processors.GetEnumerator();
         }
 
-        // Pipeline from context
-        public PipelineBuilder(ref BuilderContext context)
-        {
-            var type = (context.Registration as ExplicitRegistration)?.Type ?? context.Type;
-            Type = context.Type;
-            TypeConverter = context.Registration?.BuildType;
-            LifetimeManager = context.Registration?.LifetimeManager;
-            InjectionMembers = context.Registration?.InjectionMembers;
-
-            Registration = context.Registration as ExplicitRegistration;
-            Factory = null != Registration ? null : context.Registration as ImplicitRegistration;
-            Policies = Registration ?? Factory;
-
-            IsMapping = (null != Registration?.Type && Registration?.Type != Type) || null != Factory?.BuildType;
-            BuildRequired = context.Registration?.BuildRequired ?? false;
-
-            ContainerContext = context.ContainerContext;
-
-            Seed = context.Registration?.Pipeline;
-
-            Debug.Assert(null != context.Registration?.Processors);
-            _enumerator = context.Registration.Processors.GetEnumerator();
-        }
-
         // Pipeline from factory
         public PipelineBuilder(Type type, ExplicitRegistration factory, LifetimeManager manager, UnityContainer owner)
         {
@@ -149,14 +124,14 @@ namespace Unity
 
         public readonly ContainerContext ContainerContext;
 
-        public ResolveDelegate<BuilderContext>? Seed { get; private set; }
+        public ResolveDelegate<PipelineContext>? Seed { get; private set; }
 
         #endregion
 
 
         #region Public Methods
 
-        public ResolveDelegate<BuilderContext> Pipeline()
+        public ResolveDelegate<PipelineContext>? Pipeline()
         {
             ref var context = ref this;
             return _enumerator?.MoveNext() ?? false 
@@ -164,7 +139,7 @@ namespace Unity
                  : Seed;
         }
 
-        public ResolveDelegate<BuilderContext>? PipelineWithSeed(ResolveDelegate<BuilderContext>? method = null)
+        public ResolveDelegate<PipelineContext>? PipelineWithSeed(ResolveDelegate<PipelineContext>? method = null)
         {
             Seed = method;
 

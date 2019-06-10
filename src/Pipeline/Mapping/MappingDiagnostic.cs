@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Builder;
+using Unity;
 using Unity.Registration;
 using Unity.Resolution;
 
@@ -8,7 +8,7 @@ namespace Unity
     public class MappingDiagnostic : MappingPipeline
     {
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             var requestedType = builder.Type;
 
@@ -34,7 +34,7 @@ namespace Unity
 
             var type = builder.Type;
 
-            return builder.PipelineWithSeed((ref BuilderContext context) => 
+            return builder.PipelineWithSeed((ref PipelineContext context) => 
             {
                 try
                 {

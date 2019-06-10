@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
@@ -91,10 +91,10 @@ namespace Unity
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? resolver)
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(FieldInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 try
                 {

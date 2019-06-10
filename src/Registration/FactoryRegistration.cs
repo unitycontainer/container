@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Builder;
+using Unity;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -18,8 +18,8 @@ namespace Unity.Registration
 
             LifetimeManager = manager;
 
-            ResolveDelegate<BuilderContext> resolver = (ref BuilderContext context) => factory(context.Container, context.Type, context.Name);
-            Set(typeof(ResolveDelegate<BuilderContext>), resolver);
+            ResolveDelegate<PipelineContext> resolver = (ref PipelineContext context) => factory(context.Container, context.Type, context.Name);
+            Set(typeof(ResolveDelegate<PipelineContext>), resolver);
         }
     }
 }

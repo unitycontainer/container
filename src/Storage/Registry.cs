@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security;
-using Unity.Builder;
+using Unity;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
@@ -151,7 +151,7 @@ namespace Unity.Storage
             Buckets[targetBucket] = Count++;
         }
 
-        internal void Set(Type type, string? name, ResolveDelegate<BuilderContext>? pipeline)
+        internal void Set(Type type, string? name, ResolveDelegate<PipelineContext>? pipeline)
         {
             var key = new HashKey(type, name);
             var targetBucket = key.HashCode % Buckets.Length;
@@ -188,7 +188,7 @@ namespace Unity.Storage
             public ExplicitRegistration Registration;
 
             public LifetimeManager Manager;
-            public ResolveDelegate<BuilderContext>? Pipeline;
+            public ResolveDelegate<PipelineContext>? Pipeline;
 
             public bool IsExplicit;
             public IContainerRegistration Cache;

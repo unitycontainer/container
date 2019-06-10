@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -28,7 +28,7 @@ namespace Unity.Factories
             var itemType = type.GetTypeInfo().GenericTypeArguments[0];
             var lazyMethod = ImplementationMethod.MakeGenericMethod(itemType);
 
-            return (ResolveDelegate<BuilderContext>)lazyMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
+            return (ResolveDelegate<PipelineContext>)lazyMethod.CreateDelegate(typeof(ResolveDelegate<PipelineContext>));
         };
 
         #endregion
@@ -36,7 +36,7 @@ namespace Unity.Factories
 
         #region Implementation
 
-        private static object ResolverImplementation<T>(ref BuilderContext context)
+        private static object ResolverImplementation<T>(ref PipelineContext context)
         {
             var container = context.Container;
             var name = context.Name;

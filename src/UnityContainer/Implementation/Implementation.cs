@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
-using Unity.Builder;
 using Unity.Events;
 using Unity.Exceptions;
 using Unity.Extension;
@@ -25,7 +24,7 @@ namespace Unity
         #region Constants
 
         const string LifetimeManagerInUse = "The lifetime manager is already registered. WithLifetime managers cannot be reused, please create a new one.";
-        internal static readonly ResolveDelegate<BuilderContext> DefaultResolver = (ref BuilderContext c) => c.Existing;
+        internal static readonly ResolveDelegate<PipelineContext> DefaultResolver = (ref PipelineContext c) => c.Existing;
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
         internal const int HashMask = unchecked((int)(uint.MaxValue >> 1));
         private const int CollisionsCutPoint = 5;
@@ -246,10 +245,10 @@ namespace Unity
 
         #region BuilderContext
 
-        internal BuilderContext.ResolvePlanDelegate DependencyResolvePipeline { get; set; } =
-            (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
+        internal PipelineContext.ResolvePlanDelegate DependencyResolvePipeline { get; set; } =
+            (ref PipelineContext context, ResolveDelegate<PipelineContext> resolver) => resolver(ref context);
 
-        private static object ValidatingDependencyResolvePipeline(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
+        private static object ValidatingDependencyResolvePipeline(ref PipelineContext thisContext, ResolveDelegate<PipelineContext> resolver)
         {
             if (null == resolver) throw new ArgumentNullException(nameof(resolver));
 #if NET40
@@ -260,18 +259,16 @@ namespace Unity
                 var parent = thisContext.Parent;
                 while (IntPtr.Zero != parent)
                 {
-                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                    var parentRef = Unsafe.AsRef<PipelineContext>(parent.ToPointer());
                     if (thisContext.Type == parentRef.Type && thisContext.Name == parentRef.Name)
                         throw new CircularDependencyException(thisContext.Type, thisContext.Name);
 
                     parent = parentRef.Parent;
                 }
 
-                var context = new BuilderContext
+                var context = new PipelineContext
                 {
                     ContainerContext = thisContext.ContainerContext,
-                    Registration = thisContext.Registration,
-                    IsAsync = thisContext.IsAsync,
                     Type = thisContext.Type,
                     List = thisContext.List,
                     Overrides = thisContext.Overrides,

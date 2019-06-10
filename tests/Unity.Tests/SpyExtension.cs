@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Unity.Builder;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -49,11 +48,11 @@ namespace Unity.Tests
     {
         private int delayMS = 500;
 
-        public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext> Build(ref PipelineBuilder builder)
         {
-            var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);
+            var pipeline = builder.Pipeline() ?? ((ref PipelineContext c) => c.Existing);
 
-            return (ref BuilderContext context) => 
+            return (ref PipelineContext context) => 
             {
                 delayMS = delayMS == 0 ? 500 : 0;
                 Thread.Sleep(delayMS);
@@ -69,11 +68,11 @@ namespace Unity.Tests
     {
         private bool shouldThrow = true;
 
-        public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext> Build(ref PipelineBuilder builder)
         {
-            var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);
+            var pipeline = builder.Pipeline() ?? ((ref PipelineContext c) => c.Existing);
 
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 if (shouldThrow)
                 {
@@ -94,13 +93,13 @@ namespace Unity.Tests
 
         public Dictionary<(Type, string), int> BuildUpCallCount { get; private set; } = new Dictionary<(Type, string), int>();
 
-        public override ResolveDelegate<BuilderContext> Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext> Build(ref PipelineBuilder builder)
         {
             Interlocked.Increment(ref count);
 
-            var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => c.Existing);
+            var pipeline = builder.Pipeline() ?? ((ref PipelineContext c) => c.Existing);
 
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 Type = context.Type;
                 BuildUpWasCalled = true;
@@ -131,7 +130,7 @@ namespace Unity.Tests
 
         public bool BuildUpWasCalled { get; private set; } = false;
 
-        private void UpdateSpyPolicy(ref BuilderContext context)
+        private void UpdateSpyPolicy(ref PipelineContext context)
         {
             SpyPolicy policy = (SpyPolicy)context.Get(null, null, typeof(SpyPolicy));
 

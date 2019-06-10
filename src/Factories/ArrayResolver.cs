@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -44,7 +44,7 @@ namespace Unity.Factories
 
         #region Implementation
 
-        private static ResolveDelegate<BuilderContext> ResolverFactory<TElement>()
+        private static ResolveDelegate<PipelineContext> ResolverFactory<TElement>()
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (typeof(TElement).GetTypeInfo().IsGenericType)
@@ -53,15 +53,15 @@ namespace Unity.Factories
 #endif
             {
                 var definition = typeof(TElement).GetGenericTypeDefinition();
-                return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveArray<TElement>(c.Resolve, typeof(TElement), definition)
+                return (ref PipelineContext c) => ((UnityContainer)c.Container).ResolveArray<TElement>(c.Resolve, typeof(TElement), definition)
                                                                               .ToArray();
             }
 
-            return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveArray<TElement>(c.Resolve, typeof(TElement))
+            return (ref PipelineContext c) => ((UnityContainer)c.Container).ResolveArray<TElement>(c.Resolve, typeof(TElement))
                                                                           .ToArray();
         }
 
-        private static ResolveDelegate<BuilderContext> BuiltInFactory<TElement>(Type type)
+        private static ResolveDelegate<PipelineContext> BuiltInFactory<TElement>(Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
@@ -71,11 +71,11 @@ namespace Unity.Factories
 #endif
             {
                 var definition = type.GetGenericTypeDefinition();
-                return (ref BuilderContext c) => ((UnityContainer)c.Container).ComplexArray<TElement>(c.Resolve, type, definition)
+                return (ref PipelineContext c) => ((UnityContainer)c.Container).ComplexArray<TElement>(c.Resolve, type, definition)
                                                                               .ToArray();
             }
 
-            return (ref BuilderContext c) => ((UnityContainer)c.Container).ComplexArray<TElement>(c.Resolve, type)
+            return (ref PipelineContext c) => ((UnityContainer)c.Container).ComplexArray<TElement>(c.Resolve, type)
                                                                           .ToArray();
         }
 
@@ -84,8 +84,8 @@ namespace Unity.Factories
 
         #region Nested Types
 
-        private delegate ResolveDelegate<BuilderContext> ArrayFactoryDelegate();
-        private delegate ResolveDelegate<BuilderContext> BuiltInFactoryDelegate(Type type);
+        private delegate ResolveDelegate<PipelineContext> ArrayFactoryDelegate();
+        private delegate ResolveDelegate<PipelineContext> BuiltInFactoryDelegate(Type type);
 
         #endregion
     }

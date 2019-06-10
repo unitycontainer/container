@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -11,7 +10,7 @@ namespace Unity
     {
         #region Get Pipeline
 
-        private ResolveDelegate<BuilderContext>? TryGetPipeline(ref HashKey key)
+        private ResolveDelegate<PipelineContext>? TryGetPipeline(ref HashKey key)
         {
             // Iterate through containers hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -36,7 +35,7 @@ namespace Unity
             return null;
         }
 
-        internal ResolveDelegate<BuilderContext> GetPipeline(ref HashKey key)
+        internal ResolveDelegate<PipelineContext> GetPipeline(ref HashKey key)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = key.Type?.GetTypeInfo();
@@ -55,7 +54,7 @@ namespace Unity
 
         #region Implementation
 
-        private ResolveDelegate<BuilderContext> GetNonGenericPipeline(ref HashKey key)
+        private ResolveDelegate<PipelineContext> GetNonGenericPipeline(ref HashKey key)
         {
             // Iterate through containers hierarchy
             for (UnityContainer? container = this; null != container; container = container._parent)
@@ -84,11 +83,11 @@ namespace Unity
         }
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-        private ResolveDelegate<BuilderContext> GenericGetPipeline(ref HashKey key, TypeInfo info)
+        private ResolveDelegate<PipelineContext> GenericGetPipeline(ref HashKey key, TypeInfo info)
         {
             Debug.Assert(null != info);
 #else
-        private ResolveDelegate<BuilderContext> GenericGetPipeline(ref HashKey key)
+        private ResolveDelegate<PipelineContext> GenericGetPipeline(ref HashKey key)
         {
 #endif
             Debug.Assert(null != key.Type);

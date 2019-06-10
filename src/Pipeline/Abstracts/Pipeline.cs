@@ -1,4 +1,4 @@
-﻿using Unity.Builder;
+﻿using Unity;
 using Unity.Resolution;
 
 namespace Unity
@@ -7,7 +7,7 @@ namespace Unity
     {
         #region Public Members
 
-        public virtual ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder) => builder.Pipeline();
+        public virtual ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder) => builder.Pipeline();
 
         #endregion
     }

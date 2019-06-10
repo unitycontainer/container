@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Lifetime;
 
 namespace Unity
@@ -15,18 +14,18 @@ namespace Unity
             .GetTypeInfo().DeclaredConstructors.First();
 
         protected static readonly Expression SetPerBuildSingletonExpr =
-            Expression.Call(BuilderContextExpression.Context, 
-                BuilderContextExpression.SetMethod,
+            Expression.Call(PipelineContextExpression.Context, 
+                PipelineContextExpression.SetMethod,
                 Expression.Constant(typeof(LifetimeManager), typeof(Type)),
-                Expression.New(PerResolveInfo, BuilderContextExpression.Existing));
+                Expression.New(PerResolveInfo, PipelineContextExpression.Existing));
 
         protected static readonly Expression[] NoConstructorExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                 Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
-                            BuilderContextExpression.Type))))};
+                            PipelineContextExpression.Type))))};
 
         #endregion
 
@@ -39,11 +38,11 @@ namespace Unity
             var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
 
             return Expression.IfThen(
-                Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                 Expression.Block(new[] { variable }, new Expression[]
                 {
                     Expression.Assign(variable, Expression.New(info, parametersExpr)),
-                    Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
+                    Expression.Assign(PipelineContextExpression.Existing, Expression.Convert(variable, typeof(object)))
                 }));
         }
 

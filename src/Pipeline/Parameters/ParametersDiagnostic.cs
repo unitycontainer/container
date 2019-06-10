@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Resolution;
 
 namespace Unity
@@ -43,8 +42,8 @@ namespace Unity
                         Expression.Rethrow(parameter.ParameterType));
 
                     var tryBlock = Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context,
-                                        BuilderContextExpression.ResolveParameterMethod,
+                                    Expression.Call(PipelineContextExpression.Context,
+                                        PipelineContextExpression.ResolveParameterMethod,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
@@ -55,8 +54,8 @@ namespace Unity
                 {
                     var variable = Expression.Variable(parameter.ParameterType);
                     var resolve = Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context,
-                                        BuilderContextExpression.ResolveParameterMethod,
+                                    Expression.Call(PipelineContextExpression.Context,
+                                        PipelineContextExpression.ResolveParameterMethod,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
@@ -73,7 +72,7 @@ namespace Unity
             }
         }
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<PipelineContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
             object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
@@ -93,7 +92,7 @@ namespace Unity
 #endif
                 {
                     // Plain vanilla case
-                    yield return (ref BuilderContext context) =>
+                    yield return (ref PipelineContext context) =>
                     {
                         try
                         {
@@ -114,7 +113,7 @@ namespace Unity
 #else
                     var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
 #endif
-                    yield return (ref BuilderContext context) =>
+                    yield return (ref PipelineContext context) =>
                     {
                         try
                         {

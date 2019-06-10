@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Resolution;
 
@@ -79,8 +78,8 @@ namespace Unity
                 {
                     // Plain vanilla case
                     yield return Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context,
-                                        BuilderContextExpression.ResolveParameterMethod,
+                                    Expression.Call(PipelineContextExpression.Context,
+                                        PipelineContextExpression.ResolveParameterMethod,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
@@ -89,8 +88,8 @@ namespace Unity
                 {
                     var variable = Expression.Variable(parameter.ParameterType);
                     var resolve = Expression.Convert(
-                                    Expression.Call(BuilderContextExpression.Context,
-                                        BuilderContextExpression.ResolveParameterMethod,
+                                    Expression.Call(PipelineContextExpression.Context,
+                                        PipelineContextExpression.ResolveParameterMethod,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
@@ -112,7 +111,7 @@ namespace Unity
 
         #region Resolution
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<PipelineContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
             object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
@@ -128,7 +127,7 @@ namespace Unity
 #endif
                 {
                     // Plain vanilla case
-                    yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
+                    yield return (ref PipelineContext context) => context.Resolve(parameter, resolver);
                 }
                 else
                 {
@@ -138,7 +137,7 @@ namespace Unity
 #else
                     var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
 #endif
-                    yield return (ref BuilderContext context) =>
+                    yield return (ref PipelineContext context) =>
                     {
                         try
                         {
@@ -163,10 +162,10 @@ namespace Unity
             switch (resolver)
             {
                 case IResolve policy:
-                    return (ResolveDelegate<BuilderContext>)policy.Resolve;
+                    return (ResolveDelegate<PipelineContext>)policy.Resolve;
 
                 case IResolverFactory<ParameterInfo> factory:
-                    return factory.GetResolver<BuilderContext>(parameter);
+                    return factory.GetResolver<PipelineContext>(parameter);
 
                 case Type type:
                     return 
@@ -182,7 +181,7 @@ namespace Unity
 
         private object FromType(Type type)
         {
-            return (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Resolve(type, (string?)null));
+            return (ResolveDelegate<PipelineContext>)((ref PipelineContext context) => context.Resolve(type, (string?)null));
         }
 
         private object FromAttribute(ParameterInfo info)
@@ -225,14 +224,14 @@ namespace Unity
 
         #region Attribute Factories
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
+        protected override ResolveDelegate<PipelineContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
-            return (ref BuilderContext context) => context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
+            return (ref PipelineContext context) => context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
+        protected override ResolveDelegate<PipelineContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 try
                 {

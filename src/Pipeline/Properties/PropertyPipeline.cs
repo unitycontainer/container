@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -50,10 +49,10 @@ namespace Unity
         protected override Expression GetResolverExpression(PropertyInfo info, object? resolver)
         {
             return Expression.Assign(
-                Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                Expression.Property(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
                 Expression.Convert(
-                    Expression.Call(BuilderContextExpression.Context,
-                        BuilderContextExpression.ResolvePropertyMethod,
+                    Expression.Call(PipelineContextExpression.Context,
+                        PipelineContextExpression.ResolvePropertyMethod,
                         Expression.Constant(info, typeof(PropertyInfo)),
                         Expression.Constant(PreProcessResolver(info, resolver), typeof(object))),
                     info.PropertyType));
@@ -64,10 +63,10 @@ namespace Unity
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
 #if NET40
                 info.SetValue(context.Existing, context.Resolve(info, value), null);

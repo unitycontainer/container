@@ -6,7 +6,7 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Unity.Builder;
+using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -69,7 +69,7 @@ namespace Unity
                     {
                         foreach (var member in injectionMembers)
                         {
-                            member.AddPolicies<BuilderContext, ExplicitRegistration>(
+                            member.AddPolicies<PipelineContext, ExplicitRegistration>(
                                 registeredType, type, name, ref registration);
                         }
                     }
@@ -219,7 +219,7 @@ namespace Unity
 
                 // Setup Context
                 var synchronized = manager as SynchronizedLifetimeManager;
-                var context = new BuilderContext
+                var context = new PipelineContext
                 {
                     List = new PolicyList(),
                     Type = type,

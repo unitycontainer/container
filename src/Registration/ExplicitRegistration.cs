@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -65,7 +64,7 @@ namespace Unity.Registration
 
         public override Converter<Type, Type>? BuildType { get; }
 
-        public virtual ResolveDelegate<BuilderContext>? Pipeline { get; internal set; }
+        public virtual ResolveDelegate<PipelineContext>? Pipeline { get; internal set; }
 
         #endregion
 

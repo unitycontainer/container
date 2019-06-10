@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -43,10 +42,10 @@ namespace Unity
         protected override Expression GetResolverExpression(FieldInfo info, object? resolver)
         {
             return Expression.Assign(
-                Expression.Field(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                Expression.Field(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
                 Expression.Convert(
-                    Expression.Call(BuilderContextExpression.Context,
-                        BuilderContextExpression.ResolveFieldMethod,
+                    Expression.Call(PipelineContextExpression.Context,
+                        PipelineContextExpression.ResolveFieldMethod,
                         Expression.Constant(info, typeof(FieldInfo)),
                         Expression.Constant(PreProcessResolver(info, resolver), typeof(object))),
                     info.FieldType));
@@ -57,10 +56,10 @@ namespace Unity
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? resolver)
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(FieldInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 info.SetValue(context.Existing, context.Resolve(info, value));
                 return context.Existing;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -42,7 +41,7 @@ namespace Unity
         protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
             return Expression.Call(
-                Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
                 info, CreateParameterExpressions(info.GetParameters(), resolvers));
         }
 
@@ -51,10 +50,10 @@ namespace Unity
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return (ref BuilderContext c) =>
+            return (ref PipelineContext c) =>
             {
                 if (null == c.Existing) return c.Existing;
 

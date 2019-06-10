@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Exceptions;
 using Unity.Factories;
 using Unity.Policy;
@@ -13,15 +13,15 @@ namespace Unity
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             // Skip if already have a resolver
             if (null != builder.Seed) return builder.Pipeline();
 
             // Try to get resolver
             Type? generic = null;
-            var resolver = builder.Policies?.Get(typeof(ResolveDelegate<BuilderContext>)) ??
-                           builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<BuilderContext>));
+            var resolver = builder.Policies?.Get(typeof(ResolveDelegate<PipelineContext>)) ??
+                           builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<PipelineContext>));
 
             if (null == resolver)
             {
@@ -32,12 +32,12 @@ namespace Unity
 #endif
                 {
                     generic = builder.Type.GetGenericTypeDefinition();
-                    resolver = builder.ContainerContext.Get(generic, typeof(ResolveDelegate<BuilderContext>));
+                    resolver = builder.ContainerContext.Get(generic, typeof(ResolveDelegate<PipelineContext>));
                 }
             }
 
             // Process if found
-            if (null != resolver) return builder.PipelineWithSeed((ResolveDelegate<BuilderContext>)resolver);
+            if (null != resolver) return builder.PipelineWithSeed((ResolveDelegate<PipelineContext>)resolver);
             
             // Try finding factory
             TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
@@ -56,12 +56,12 @@ namespace Unity
                 if (builder.Type.GetArrayRank() == 1)
                 {
                     var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-                    return builder.PipelineWithSeed((ref BuilderContext context) => resolve(ref context));
+                    return builder.PipelineWithSeed((ref PipelineContext context) => resolve(ref context));
                 }
                 else
                 {
                     var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                    return (ref BuilderContext context) => throw new InvalidRegistrationException(message);
+                    return (ref PipelineContext context) => throw new InvalidRegistrationException(message);
                 }
             }
 

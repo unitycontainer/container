@@ -21,32 +21,31 @@ namespace Unity.Tests
             Assert.IsNotNull(config);
         }
 
-        [TestMethod]
-        [Ignore]
-        public void SmartByDefault()
-        {
-            //// Setup
-            //var container = new UnityContainer();
+        // TODO: ReEnable
+        //[TestMethod]
+        //public void SmartByDefault()
+        //{
+        //    //// Setup
+        //    //var container = new UnityContainer();
 
-            //// Act
-            //var result = container.Resolve<ObjectWithMultipleConstructors>();
+        //    //// Act
+        //    //var result = container.Resolve<ObjectWithMultipleConstructors>();
 
-            //// Validate
-            //Assert.IsNotNull(result);
-        }
+        //    //// Validate
+        //    //Assert.IsNotNull(result);
+        //}
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
-        [Ignore]
-        public void LegacySelection()
-        {
-            //// Setup
-            //var container = new UnityContainer();
-            //container.AddNewExtension<Legacy>();
+        //[TestMethod]
+        //[ExpectedException(typeof(ResolutionFailedException))]
+        //public void LegacySelection()
+        //{
+        //    //// Setup
+        //    //var container = new UnityContainer();
+        //    //container.AddNewExtension<Legacy>();
 
-            //// Act
-            //container.Resolve<ObjectWithMultipleConstructors>();
-        }
+        //    //// Act
+        //    //container.Resolve<ObjectWithMultipleConstructors>();
+        //}
     }
 
     #region Test Data

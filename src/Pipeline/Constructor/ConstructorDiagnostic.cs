@@ -5,11 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity
@@ -24,40 +22,40 @@ namespace Unity
         const string TypeIsNotConstructable = "The type {0} cannot be constructed. You must configure the container to supply this value.";
 
         private static readonly Expression[] CannotConstructInterfaceExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructInterface),
-                            BuilderContextExpression.Type))))};
+                            PipelineContextExpression.Type))))};
 
         private static readonly Expression[] CannotConstructAbstractClassExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructAbstractClass),
-                            BuilderContextExpression.Type))))};
+                            PipelineContextExpression.Type))))};
 
         private static readonly Expression[] CannotConstructDelegateExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructDelegate),
-                            BuilderContextExpression.Type))))};
+                            PipelineContextExpression.Type))))};
 
         private static readonly Expression[] TypeIsNotConstructableExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(TypeIsNotConstructable),
-                            BuilderContextExpression.Type))))};
+                            PipelineContextExpression.Type))))};
 
         #endregion
 
@@ -275,7 +273,7 @@ namespace Unity
                 : Expression.Block(new[] { variable }, new Expression[]
                     {
                         Expression.Assign(variable, Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers))),
-                        Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
+                        Expression.Assign(PipelineContextExpression.Existing, Expression.Convert(variable, typeof(object)))
                     });
 
             // Add location to dictionary and re-throw
@@ -286,7 +284,7 @@ namespace Unity
                 Expression.Rethrow(tryBlock.Type));
 
             // Create 
-            return Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            return Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                                      Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock)));
             // Report error
             string CreateErrorMessage(string format, Type type, MethodBase constructor)
@@ -304,7 +302,7 @@ namespace Unity
 
         #region Resolver Overrides
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             if (null != builder.Seed) return builder.Pipeline();
 
@@ -319,7 +317,7 @@ namespace Unity
             if (typeInfo.IsInterface)
             {
                 var pipeline = builder.Pipeline();
-                return (ref BuilderContext context) =>
+                return (ref PipelineContext context) =>
                 {
                     if (null == context.Existing)
                         throw new InvalidRegistrationException(string.Format(CannotConstructInterface, context.Type));
@@ -331,7 +329,7 @@ namespace Unity
             if (typeInfo.IsAbstract)
             {
                 var pipeline = builder.Pipeline();
-                return (ref BuilderContext context) =>
+                return (ref PipelineContext context) =>
                 {
                     if (null == context.Existing)
                         throw new InvalidRegistrationException(string.Format(CannotConstructAbstractClass, context.Type));
@@ -343,7 +341,7 @@ namespace Unity
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
             {
                 var pipeline = builder.Pipeline();
-                return (ref BuilderContext context) =>
+                return (ref PipelineContext context) =>
                 {
                     if (null == context.Existing)
                         throw new InvalidRegistrationException(string.Format(CannotConstructDelegate, context.Type));
@@ -355,7 +353,7 @@ namespace Unity
             if (type == typeof(string))
             {
                 var pipeline = builder.Pipeline();
-                return (ref BuilderContext context) =>
+                return (ref PipelineContext context) =>
                 {
                     if (null == context.Existing)
                         throw new InvalidRegistrationException(string.Format(TypeIsNotConstructable, context.Type));
@@ -367,11 +365,11 @@ namespace Unity
             return base.Build(ref builder);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 if (null == context.Existing)
                 {
@@ -394,11 +392,11 @@ namespace Unity
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)
+        protected override ResolveDelegate<PipelineContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 if (null == context.Existing)
                 {

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Unity.Builder;
+using Unity;
 using Unity.Events;
 using Unity.Extension;
 using Unity.Factories;
@@ -61,7 +61,7 @@ namespace Unity
             // IUnityContainer, IUnityContainerAsync
             var container = new ExplicitRegistration(this, null, typeof(UnityContainer), new ContainerLifetimeManager())
             {
-                Pipeline = (ref BuilderContext c) => c.Container
+                Pipeline = (ref PipelineContext c) => c.Container
             };
             Debug.Assert(null != container.LifetimeManager);
 

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
-using Unity.Builder;
+using Unity;
 using Unity.Events;
 using Unity.Exceptions;
 using Unity.Injection;
@@ -58,7 +58,7 @@ namespace Unity
                 {
                     foreach (var member in injectionMembers)
                     {
-                        member.AddPolicies<BuilderContext, ExplicitRegistration>(
+                        member.AddPolicies<PipelineContext, ExplicitRegistration>(
                             registeredType, typeTo, name, ref registration);
                     }
                 }
@@ -219,7 +219,7 @@ namespace Unity
             }
 
             // Setup Context
-            var context = new BuilderContext
+            var context = new PipelineContext
             {
                 List = new PolicyList(),
                 Type = type,
@@ -258,7 +258,7 @@ namespace Unity
             var pipeline = GetPipeline(ref key);
 
             // Setup Context
-            var context = new BuilderContext
+            var context = new PipelineContext
             {
                 Existing = existing ?? throw new ArgumentNullException(nameof(existing)),
                 List = new PolicyList(),

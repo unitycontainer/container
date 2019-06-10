@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -9,9 +8,9 @@ namespace Unity
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
-            ResolveDelegate<BuilderContext>? pipeline = builder.Pipeline();
+            ResolveDelegate<PipelineContext>? pipeline = builder.Pipeline();
             Debug.Assert(null != pipeline);
 
             return builder.LifetimeManager switch
@@ -24,9 +23,9 @@ namespace Unity
 
         #endregion
 
-        private ResolveDelegate<BuilderContext> SynchronizedLifetime(SynchronizedLifetimeManager manager, ResolveDelegate<BuilderContext> pipeline)
+        private ResolveDelegate<PipelineContext> SynchronizedLifetime(SynchronizedLifetimeManager manager, ResolveDelegate<PipelineContext> pipeline)
         {
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 try
                 {
@@ -41,9 +40,9 @@ namespace Unity
             };
         }
 
-        private ResolveDelegate<BuilderContext> PerResolveLifetime(ResolveDelegate<BuilderContext> pipeline)
+        private ResolveDelegate<PipelineContext> PerResolveLifetime(ResolveDelegate<PipelineContext> pipeline)
         {
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 object?          value;
                 LifetimeManager? lifetime;
@@ -56,10 +55,8 @@ namespace Unity
 
                 value = pipeline(ref context);
 
-                if (null == (lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager))))
-                {
+                if (null != context.DeclaringType)
                     context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
-                }
 
                 return value;
             };

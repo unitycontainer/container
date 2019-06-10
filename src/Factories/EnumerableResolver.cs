@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -41,9 +41,9 @@ namespace Unity.Factories
             }
             else
             {
-                return (ResolveDelegate<BuilderContext>)
+                return (ResolveDelegate<PipelineContext>)
                     EnumerableMethod.MakeGenericMethod(typeArgument)
-                                    .CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
+                                    .CreateDelegate(typeof(ResolveDelegate<PipelineContext>));
             }
         };
 
@@ -52,16 +52,16 @@ namespace Unity.Factories
 
         #region Implementation
 
-        private static object EnumerableHandler<TElement>(ref BuilderContext context)
+        private static object EnumerableHandler<TElement>(ref PipelineContext context)
         {
             return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
                                                                                    context.Name);
         }
 
-        private static ResolveDelegate<BuilderContext> ResolverFactory<TElement>()
+        private static ResolveDelegate<PipelineContext> ResolverFactory<TElement>()
         {
             Type type = typeof(TElement).GetGenericTypeDefinition();
-            return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveEnumerable<TElement>(c.Resolve, type, c.Name);
+            return (ref PipelineContext c) => ((UnityContainer)c.Container).ResolveEnumerable<TElement>(c.Resolve, type, c.Name);
         }
 
         #endregion
@@ -69,7 +69,7 @@ namespace Unity.Factories
 
         #region Nested Types
 
-        private delegate ResolveDelegate<BuilderContext> EnumerableFactoryDelegate();
+        private delegate ResolveDelegate<PipelineContext> EnumerableFactoryDelegate();
 
         #endregion
     }

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Unity.Builder;
+using Unity;
 
 namespace Unity
 {
-    public delegate ValueTask<object?> PipelineDelegate(ref BuilderContext context);
+    public delegate ValueTask<object?> PipelineDelegate(ref PipelineContext context);
 }

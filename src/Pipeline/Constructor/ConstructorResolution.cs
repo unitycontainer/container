@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
@@ -15,7 +13,7 @@ namespace Unity
         #region PipelineBuilder
 
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             var pipeline = builder.Pipeline();
 
@@ -28,7 +26,7 @@ namespace Unity
             if (builder.Type.IsGenericTypeDefinition)
 #endif
             {
-                return (ref BuilderContext context) =>
+                return (ref PipelineContext context) =>
                 {
                     if (null == context.Existing)
                         throw new InvalidRegistrationException(
@@ -59,7 +57,7 @@ namespace Unity
                     break;
 
                 case Exception exception:
-                    return (ref BuilderContext c) =>
+                    return (ref PipelineContext c) =>
                     {
                         if (null == c.Existing)
                             throw exception;
@@ -68,7 +66,7 @@ namespace Unity
                     };
 
                 default:
-                    return (ref BuilderContext c) =>
+                    return (ref PipelineContext c) =>
                     {
                         if (null == c.Existing)
                             throw new InvalidRegistrationException($"No public constructor is available for type {c.Type}.");
@@ -89,11 +87,11 @@ namespace Unity
 
         #region Implementation
 
-        protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)
+        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 if (null == context.Existing)
                 {
@@ -108,11 +106,11 @@ namespace Unity
             };
         }
 
-        protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<BuilderContext>? pipeline)
+        protected virtual ResolveDelegate<PipelineContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
             var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 if (null == context.Existing)
                 {

@@ -3,15 +3,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Resolution;
 
-namespace Unity.Builder
+namespace Unity
 {
-    public class BuilderContextExpression : IResolveContextExpression<BuilderContext>
+    public class PipelineContextExpression : IResolveContextExpression<PipelineContext>
     {
         #region Fields
 
         public static readonly MethodInfo ResolvePropertyMethod =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
@@ -20,8 +20,8 @@ namespace Unity.Builder
                 });
 
         public static readonly MethodInfo ResolveFieldMethod =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
@@ -30,8 +30,8 @@ namespace Unity.Builder
                 });
 
         public static readonly MethodInfo ResolveParameterMethod =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
@@ -40,8 +40,8 @@ namespace Unity.Builder
                 });
 
         public static readonly MethodInfo SetMethod =
-            typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Set))
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Set))
                 .First(m => 2 == m.GetParameters().Length);
 
         #endregion
@@ -49,12 +49,12 @@ namespace Unity.Builder
 
         #region Constructor
 
-        static BuilderContextExpression()
+        static PipelineContextExpression()
         {
-            var typeInfo = typeof(BuilderContext).GetTypeInfo();
+            var typeInfo = typeof(PipelineContext).GetTypeInfo();
 
 
-            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(BuilderContext.Existing)));
+            Existing  = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(PipelineContext.Existing)));
         }
 
         #endregion

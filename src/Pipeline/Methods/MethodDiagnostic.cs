@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity
@@ -102,15 +100,15 @@ namespace Unity
             return 
                 Expression.TryCatch(
                     Expression.Call(
-                        Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                        Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
                         info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers)),
                 Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return (ref BuilderContext c) =>
+            return (ref PipelineContext c) =>
             {
                 try
                 {

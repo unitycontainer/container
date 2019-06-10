@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
@@ -14,7 +14,7 @@ namespace Unity
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             if (null != builder.Seed) return builder.Pipeline();
 
@@ -25,7 +25,7 @@ namespace Unity
 
             return 0 == resolvers.Length 
                 ? pipeline 
-                : (ref BuilderContext context) =>
+                : (ref PipelineContext context) =>
                 {
                     // Initialize Fields
                     foreach (var resolver in resolvers) resolver(ref context);
@@ -41,7 +41,7 @@ namespace Unity
 
         #region Selection Processing
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> ResolversFromSelection(Type type, IEnumerable<object> members)
+        protected virtual IEnumerable<ResolveDelegate<PipelineContext>> ResolversFromSelection(Type type, IEnumerable<object> members)
         {
             foreach (var member in members)
             {
@@ -68,12 +68,12 @@ namespace Unity
 
                     case Exception exception:
                         Debug.Assert(exception is InvalidRegistrationException, "Must be InvalidRegistrationException");
-                        yield return (ref BuilderContext c) => throw exception;
+                        yield return (ref PipelineContext c) => throw exception;
                         yield break;
 
                     // Unknown
                     default:
-                        yield return (ref BuilderContext c) => 
+                        yield return (ref PipelineContext c) => 
                             throw new InvalidRegistrationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
                         yield break;
                 }
@@ -85,7 +85,7 @@ namespace Unity
 
         #region Implementation
 
-        protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? resolver) 
+        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(TMemberInfo info, object? resolver) 
             => throw new NotImplementedException();
 
         #endregion

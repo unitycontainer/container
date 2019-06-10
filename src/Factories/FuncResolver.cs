@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -22,7 +22,7 @@ namespace Unity.Factories
             var typeToBuild = type.GetTypeInfo().GenericTypeArguments[0];
             var factoryMethod = ImplementationMethod.MakeGenericMethod(typeToBuild);
 
-            return (ResolveDelegate<BuilderContext>)factoryMethod.CreateDelegate(typeof(ResolveDelegate<BuilderContext>));
+            return (ResolveDelegate<PipelineContext>)factoryMethod.CreateDelegate(typeof(ResolveDelegate<PipelineContext>));
         };
 
         #endregion
@@ -31,7 +31,7 @@ namespace Unity.Factories
         #region Implementation
 
         // TODO: Add PerResolve handler
-        private static Func<T> ResolverImplementation<T>(ref BuilderContext context)
+        private static Func<T> ResolverImplementation<T>(ref PipelineContext context)
         {
             var nameToBuild = context.Name;
             var container = context.Container;

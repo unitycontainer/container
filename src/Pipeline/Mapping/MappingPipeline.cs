@@ -1,4 +1,4 @@
-﻿using Unity.Builder;
+﻿using Unity;
 using Unity.Resolution;
 
 namespace Unity
@@ -7,7 +7,7 @@ namespace Unity
     {
         #region PipelineBuilder
 
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             if (!builder.IsMapping) return builder.Pipeline();
 
@@ -31,7 +31,7 @@ namespace Unity
 
             var type = builder.Type;
 
-            return builder.PipelineWithSeed((ref BuilderContext context) => context.Resolve(type));
+            return builder.PipelineWithSeed((ref PipelineContext context) => context.Resolve(type));
         }
 
         #endregion

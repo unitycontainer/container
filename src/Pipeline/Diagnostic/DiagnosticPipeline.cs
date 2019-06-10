@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Security;
-using Unity.Builder;
+using Unity;
 using Unity.Exceptions;
 using Unity.Resolution;
 
@@ -10,11 +10,11 @@ namespace Unity
     [SecuritySafeCritical]
     public class DiagnosticPipeline : Pipeline
     {
-        public override ResolveDelegate<BuilderContext>? Build(ref PipelineBuilder builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
-            var pipeline = builder.Pipeline() ?? ((ref BuilderContext c) => throw new InvalidRegistrationException("Invalid Pipeline"));
+            var pipeline = builder.Pipeline() ?? ((ref PipelineContext c) => throw new InvalidRegistrationException("Invalid Pipeline"));
 
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
 #if !NET40
                 // Check call stack for cyclic references
@@ -47,7 +47,7 @@ namespace Unity
 
             unsafe
             {
-                var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                var parentRef = Unsafe.AsRef<PipelineContext>(parent.ToPointer());
                 if (type == parentRef.Type && name == parentRef.Name)
                     throw new CircularDependencyException(parentRef.Type, parentRef.Name);
 

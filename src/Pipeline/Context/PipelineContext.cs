@@ -7,24 +7,23 @@ using System.Text.RegularExpressions;
 using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 using static Unity.UnityContainer;
 
-namespace Unity.Builder
+namespace Unity
 {
     /// <summary>
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [SecuritySafeCritical]
     [DebuggerDisplay("Resolving: {Type},  Name: {Name}")]
-    public struct BuilderContext : IResolveContext
+    public struct PipelineContext : IResolveContext
     {
         #region Fields
 
         internal IPolicyList List { get; set; }
-        public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
+        public delegate object? ResolvePlanDelegate(ref PipelineContext context, ResolveDelegate<PipelineContext> resolver);
 
         #endregion
 
@@ -90,8 +89,7 @@ namespace Unity.Builder
 
         public object? Get(Type policyInterface)
         {
-            return List?.Get(Type, Name, policyInterface) ??
-                Registration?.Get(policyInterface);
+            return List?.Get(Type, Name, policyInterface);
         }
 
         public object? Get(Type type, Type policyInterface)
@@ -101,9 +99,8 @@ namespace Unity.Builder
 
         public object? Get(Type type, string? name, Type policyInterface)
         {
-            return List?.Get(type, name, policyInterface) ?? (type != Type || name != Name
-                ? ContainerContext.Get(type, name, policyInterface)
-                : Registration?.Get(policyInterface));
+            return List?.Get(type, name, policyInterface) ?? 
+                ContainerContext.Get(type, name, policyInterface);
         }
 
         public void Set(Type policyInterface, object policy)
@@ -133,14 +130,9 @@ namespace Unity.Builder
 
         public Regex Regex;
 
-        public bool IsAsync { get; set; }
-
-
         public ResolverOverride[] Overrides;
 
         public object? Existing { get; set; }
-
-        public ExplicitRegistration? Registration { get; set; }
 
         public ContainerContext ContainerContext { get; set; }
 
@@ -148,7 +140,7 @@ namespace Unity.Builder
 #if !NET40
         public IntPtr Parent;
 #endif
-        public ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
+        private ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
 
         #endregion
 
@@ -177,7 +169,7 @@ namespace Unity.Builder
                         }
 
                         // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
+                        var resolveDelegate = resolverOverride.GetResolver<PipelineContext>(parameter.ParameterType);
                         if (null != resolveDelegate)
                         {
                             return DependencyResolvePipeline(ref context, resolveDelegate);
@@ -193,7 +185,7 @@ namespace Unity.Builder
                 when ReferenceEquals(info, parameter):
                     return Resolve(parameter.ParameterType, (string?)null);
 
-                case ResolveDelegate<BuilderContext> resolver:
+                case ResolveDelegate<PipelineContext> resolver:
                     return resolver(ref context);
             }
 
@@ -222,7 +214,7 @@ namespace Unity.Builder
                         }
 
                         // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
+                        var resolveDelegate = resolverOverride.GetResolver<PipelineContext>(property.PropertyType);
                         if (null != resolveDelegate)
                         {
                             return DependencyResolvePipeline(ref context, resolveDelegate);
@@ -247,7 +239,7 @@ namespace Unity.Builder
                         return null;
                     }
 
-                case ResolveDelegate<BuilderContext> resolver:
+                case ResolveDelegate<PipelineContext> resolver:
                     return resolver(ref context);
             }
 
@@ -276,7 +268,7 @@ namespace Unity.Builder
                         }
 
                         // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
+                        var resolveDelegate = resolverOverride.GetResolver<PipelineContext>(field.FieldType);
                         if (null != resolveDelegate)
                         {
                             return DependencyResolvePipeline(ref context, resolveDelegate);
@@ -301,7 +293,7 @@ namespace Unity.Builder
                         return null;
                     }
 
-                case ResolveDelegate<BuilderContext> resolver:
+                case ResolveDelegate<PipelineContext> resolver:
                     return resolver(ref context);
             }
 
@@ -360,19 +352,18 @@ namespace Unity.Builder
             return Resolve(type, null, pipeline);
         }
 
-        public object? Resolve(Type type, string? name, ResolveDelegate<BuilderContext> pipeline)
+        public object? Resolve(Type type, string? name, ResolveDelegate<PipelineContext> pipeline)
         {
             var thisContext = this;
 
             unsafe
             {
                 // Setup Context
-                var context = new BuilderContext
+                var context = new PipelineContext
                 {
                     ContainerContext = pipeline.Target is ContainerControlledLifetimeManager containerControlled
                                      ? (ContainerContext)containerControlled.Scope
                                      : ContainerContext,
-                    IsAsync = IsAsync,
                     List = List,
                     Type = type,
                     Name = name,

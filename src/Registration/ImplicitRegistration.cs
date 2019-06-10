@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Unity.Builder;
+using Unity;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -52,7 +52,7 @@ namespace Unity.Registration
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
         }
 
-        public ImplicitRegistration(UnityContainer owner, string? name, LifetimeManager manager, ResolveDelegate<BuilderContext> pipeline)
+        public ImplicitRegistration(UnityContainer owner, string? name, LifetimeManager manager, ResolveDelegate<PipelineContext> pipeline)
             : base(owner)
         {
             Name = name;

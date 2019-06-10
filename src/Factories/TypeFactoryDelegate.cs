@@ -1,8 +1,8 @@
 ﻿using System;
-using Unity.Builder;
+using Unity;
 using Unity.Resolution;
 
 namespace Unity
 {
-    public delegate ResolveDelegate<BuilderContext> TypeFactoryDelegate(Type type, UnityContainer container);
+    public delegate ResolveDelegate<PipelineContext> TypeFactoryDelegate(Type type, UnityContainer container);
 }

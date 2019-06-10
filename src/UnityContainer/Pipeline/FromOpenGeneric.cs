@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Registration;
 using Unity.Resolution;
@@ -11,13 +10,13 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private ResolveDelegate<BuilderContext> PipelineFromOpenGeneric(ref HashKey key, ExplicitRegistration factory)
+        private ResolveDelegate<PipelineContext> PipelineFromOpenGeneric(ref HashKey key, ExplicitRegistration factory)
         {
             Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             LifetimeManager? manager = null;
-            ResolveDelegate<BuilderContext>? pipeline = null;
+            ResolveDelegate<PipelineContext>? pipeline = null;
 
             // Add Pipeline to the Registry
             lock (_syncRegistry)
@@ -39,7 +38,7 @@ namespace Unity
 
                     // Lifetime Manager
                     manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
-                    manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
+                    manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Type has not been registered
                     if (null == candidate.Registration) candidate.Pipeline = manager.Pipeline;
@@ -59,7 +58,7 @@ namespace Unity
 
                     // Lifetime Manager
                     manager = factory.LifetimeManager.CreateLifetimePolicy();
-                    manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
+                    manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Create new entry
                     ref var entry = ref _registry.Entries[_registry.Count];
@@ -76,18 +75,19 @@ namespace Unity
 
             lock (manager)
             {
-                if ((Delegate)(ResolveDelegate<BuilderContext>)SpinWait == manager.PipelineDelegate)
+                if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
                     PipelineBuilder builder = new PipelineBuilder(key.Type, factory, manager, this);
                     manager.PipelineDelegate = builder.Pipeline();
-                    pipeline = (ResolveDelegate<BuilderContext>)manager.PipelineDelegate;
+                    Debug.Assert(null != manager.PipelineDelegate);
+                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
                 }
             }
 
             return manager.Pipeline;
 
 
-            object? SpinWait(ref BuilderContext context)
+            object? SpinWait(ref PipelineContext context)
             {
                 while (null == pipeline)
                 {

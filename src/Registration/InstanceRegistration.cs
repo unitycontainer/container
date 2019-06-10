@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security;
-using Unity.Builder;
+using Unity;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -21,8 +21,8 @@ namespace Unity.Registration
 
             LifetimeManager = manager;
 
-            ResolveDelegate<BuilderContext> resolver = (ref BuilderContext context) => throw new InvalidOperationException("Instance value no longer available");
-            Set(typeof(ResolveDelegate<BuilderContext>), resolver);
+            ResolveDelegate<PipelineContext> resolver = (ref PipelineContext context) => throw new InvalidOperationException("Instance value no longer available");
+            Set(typeof(ResolveDelegate<PipelineContext>), resolver);
         }
     }
 }

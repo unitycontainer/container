@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
@@ -11,13 +10,13 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        private ResolveDelegate<BuilderContext> PipelineFromTypeFactory(ref HashKey key, UnityContainer container, IPolicySet set)
+        private ResolveDelegate<PipelineContext> PipelineFromTypeFactory(ref HashKey key, UnityContainer container, IPolicySet set)
         {
             Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             LifetimeManager? manager = null;
-            ResolveDelegate<BuilderContext>? pipeline = null;
+            ResolveDelegate<PipelineContext>? pipeline = null;
             var typeFactory = (TypeFactoryDelegate)set.Get(typeof(TypeFactoryDelegate));
 
             // Add Pipeline to the Registry
@@ -41,7 +40,7 @@ namespace Unity
                     // Lifetime Manager
                     manager = (LifetimeManager)set.Get(typeof(LifetimeManager)) ??
                                                Context.TypeLifetimeManager.CreateLifetimePolicy();
-                    manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
+                    manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Type has not been registered
                     if (null == candidate.Registration) candidate.Pipeline = manager.Pipeline;
@@ -62,7 +61,7 @@ namespace Unity
                     // Lifetime Manager
                     manager = (LifetimeManager)set.Get(typeof(LifetimeManager)) ??
                                                Context.TypeLifetimeManager.CreateLifetimePolicy();
-                    manager.PipelineDelegate = (ResolveDelegate<BuilderContext>)SpinWait;
+                    manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Create new entry
                     ref var entry = ref _registry.Entries[_registry.Count];
@@ -77,10 +76,10 @@ namespace Unity
 
             lock (manager)
             {
-                if ((Delegate)(ResolveDelegate<BuilderContext>)SpinWait == manager.PipelineDelegate)
+                if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
                     manager.PipelineDelegate = typeFactory(key.Type, this);
-                    pipeline = (ResolveDelegate<BuilderContext>)manager.PipelineDelegate;
+                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
                 }
             }
 
@@ -88,7 +87,7 @@ namespace Unity
 
 
 
-            object? SpinWait(ref BuilderContext context)
+            object? SpinWait(ref PipelineContext context)
             {
                 while (null == pipeline)
                 {

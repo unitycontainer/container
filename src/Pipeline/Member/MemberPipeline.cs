@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
+using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
@@ -147,10 +147,10 @@ namespace Unity
             switch (resolver)
             {
                 case IResolve policy:
-                    return (ResolveDelegate<BuilderContext>)policy.Resolve;
+                    return (ResolveDelegate<PipelineContext>)policy.Resolve;
 
                 case IResolverFactory<Type> factory:
-                    return factory.GetResolver<BuilderContext>(MemberType(info));
+                    return factory.GetResolver<PipelineContext>(MemberType(info));
 
                 case Type type:
                     return typeof(Type) == MemberType(info)
@@ -192,16 +192,16 @@ namespace Unity
 
         #region Attribute Resolver Factories
 
-        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
+        protected virtual ResolveDelegate<PipelineContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             var type = MemberType((TMemberInfo)info);
-            return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
+            return (ref PipelineContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
         }
 
-        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
+        protected virtual ResolveDelegate<PipelineContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             var type = MemberType((TMemberInfo)info);
-            return (ref BuilderContext context) =>
+            return (ref PipelineContext context) =>
             {
                 try
                 {
@@ -222,10 +222,10 @@ namespace Unity
         public struct AttributeFactory
         {
             public readonly Type Type;
-            public Func<Attribute, object, object?, ResolveDelegate<BuilderContext>> Factory;
+            public Func<Attribute, object, object?, ResolveDelegate<PipelineContext>> Factory;
             public Func<Attribute, string> Name;
 
-            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, object, object?, ResolveDelegate<BuilderContext>> factory)
+            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, object, object?, ResolveDelegate<PipelineContext>> factory)
             {
                 Type = type;
                 Name = getName;
