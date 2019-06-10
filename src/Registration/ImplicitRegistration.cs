@@ -48,7 +48,6 @@ namespace Unity.Registration
             BuildType = factory.BuildType;
             Next = factory.Next;
             LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy() ?? new TransientLifetimeManager();
-            Pipeline = factory.Pipeline;
             InjectionMembers = factory.InjectionMembers;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
         }
@@ -57,7 +56,6 @@ namespace Unity.Registration
             : base(owner)
         {
             Name = name;
-            Pipeline = pipeline;
             LifetimeManager = manager;
         }
 
@@ -67,8 +65,6 @@ namespace Unity.Registration
         #region Public Members
 
         public string? Name { get; }
-
-        public ResolveDelegate<BuilderContext>? Pipeline { get; set; }
 
         public IEnumerable<Pipeline>? Processors { get; set; }
 

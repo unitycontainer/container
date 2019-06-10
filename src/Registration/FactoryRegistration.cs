@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Builder;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity.Registration
 {
@@ -17,20 +18,8 @@ namespace Unity.Registration
 
             LifetimeManager = manager;
 
-            // Factory resolver
-            if (manager is PerResolveLifetimeManager)
-            {
-                Pipeline = (ref BuilderContext context) =>
-                {
-                    var value = factory(context.Container, context.Type, context.Name);
-                    context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
-                    return value;
-                };
-            }
-            else
-            {
-                Pipeline = (ref BuilderContext context) => factory(context.Container, context.Type, context.Name);
-            }
+            ResolveDelegate<BuilderContext> resolver = (ref BuilderContext context) => factory(context.Container, context.Type, context.Name);
+            Set(typeof(ResolveDelegate<BuilderContext>), resolver);
         }
     }
 }

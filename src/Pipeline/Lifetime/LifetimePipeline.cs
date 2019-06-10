@@ -14,8 +14,19 @@ namespace Unity
             ResolveDelegate<BuilderContext>? pipeline = builder.Pipeline();
             Debug.Assert(null != pipeline);
 
-            return builder.LifetimeManager is SynchronizedLifetimeManager manager ?
-            (ref BuilderContext context) =>
+            return builder.LifetimeManager switch
+            {
+                SynchronizedLifetimeManager manager => SynchronizedLifetime(manager, pipeline),
+                PerResolveLifetimeManager _ => PerResolveLifetime(pipeline),
+                _ => pipeline
+            };
+        }
+
+        #endregion
+
+        private ResolveDelegate<BuilderContext> SynchronizedLifetime(SynchronizedLifetimeManager manager, ResolveDelegate<BuilderContext> pipeline)
+        {
+            return (ref BuilderContext context) =>
             {
                 try
                 {
@@ -27,10 +38,31 @@ namespace Unity
                     manager.Recover();
                     throw;
                 }
-            }
-            : pipeline;
+            };
         }
 
-        #endregion
+        private ResolveDelegate<BuilderContext> PerResolveLifetime(ResolveDelegate<BuilderContext> pipeline)
+        {
+            return (ref BuilderContext context) =>
+            {
+                object?          value;
+                LifetimeManager? lifetime;
+
+                if (null != (lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager))))
+                {
+                    value = lifetime.Get(context.ContainerContext.Lifetime);
+                    if (LifetimeManager.NoValue != value) return value;
+                }
+
+                value = pipeline(ref context);
+
+                if (null == (lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager))))
+                {
+                    context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
+                }
+
+                return value;
+            };
+        }
     }
 }

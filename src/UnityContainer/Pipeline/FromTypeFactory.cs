@@ -23,7 +23,7 @@ namespace Unity
             ResolveDelegate<BuilderContext>? pipeline = null;
 
             // Add Pipeline to the Registry
-            lock (_syncLock)
+            lock (_syncRegistry)
             {
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)

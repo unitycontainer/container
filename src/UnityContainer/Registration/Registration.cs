@@ -41,7 +41,7 @@ namespace Unity
 
         private ExplicitRegistration? InitAndAdd(Type type, string? name, ExplicitRegistration registration)
         {
-            lock (_syncLock)
+            lock (_syncRegistry)
             {
                 if (null == _registry) _registry = new Registry();
                 if (null == _metadata)
@@ -67,7 +67,7 @@ namespace Unity
             registration.AddRef();
 
             // Registry
-            lock (_syncLock)
+            lock (_syncRegistry)
             {
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
@@ -88,8 +88,8 @@ namespace Unity
                         registration.Add(candidate.Policies);
                     }
                     candidate.Policies = registration;
+                    candidate.Pipeline = registration.Pipeline;
                     candidate.Registration = registration;
-                    candidate.Pipeline = PipelineFromRegistration(ref key, registration, i);
 
                     // Replaced registration
                     return existing;
@@ -108,8 +108,8 @@ namespace Unity
                 entry.Next = _registry.Buckets[targetBucket];
                 entry.IsExplicit = true;
                 entry.Policies = registration;
+                entry.Pipeline = registration.Pipeline;
                 entry.Registration = registration;
-                entry.Pipeline = PipelineFromRegistration(ref key, registration, _registry.Count); 
                 int position = _registry.Count++;
                 _registry.Buckets[targetBucket] = position;
 

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Security;
 using Unity.Builder;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity.Registration
 {
@@ -18,31 +18,11 @@ namespace Unity.Registration
             // Setup Manager
             manager.InUse = true;
             manager.SetValue(instance, owner.Context.Lifetime);
-            Pipeline = (ref BuilderContext context) => throw new InvalidOperationException("Instance value no longer available");
 
             LifetimeManager = manager;
+
+            ResolveDelegate<BuilderContext> resolver = (ref BuilderContext context) => throw new InvalidOperationException("Instance value no longer available");
+            Set(typeof(ResolveDelegate<BuilderContext>), resolver);
         }
-
-        #region Implementation
-
-        private object ExternalLifetime(ref BuilderContext context)
-        {
-            Debug.Assert(null != LifetimeManager);
-            var value = LifetimeManager.GetValue(context.ContainerContext.Lifetime);
-
-            // Externally controlled lifetime can go out of scope, check if still valid
-            if (LifetimeManager.NoValue == value)
-                throw new ObjectDisposedException(Type?.Name, "Externally controlled object has been already disposed.");
-
-            return value;
-        }
-
-        private object OtherLifetime(ref BuilderContext context)
-        {
-            Debug.Assert(null != LifetimeManager);
-            return LifetimeManager.GetValue(context.ContainerContext.Lifetime);
-        }
-
-        #endregion
     }
 }

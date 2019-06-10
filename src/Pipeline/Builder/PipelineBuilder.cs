@@ -156,7 +156,7 @@ namespace Unity
 
         #region Public Methods
 
-        public ResolveDelegate<BuilderContext>? Pipeline()
+        public ResolveDelegate<BuilderContext> Pipeline()
         {
             ref var context = ref this;
             return _enumerator?.MoveNext() ?? false 

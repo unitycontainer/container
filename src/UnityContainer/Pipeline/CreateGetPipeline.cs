@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Lifetime;
-using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -75,8 +73,8 @@ namespace Unity
                     if (candidate.Key != key) continue;
 
                     // Found it 
-                    Debug.Assert(null != candidate.Pipeline);
-                    return candidate.Pipeline;
+                    return candidate.Pipeline ??
+                           container.PipelineFromRegistration(ref key, candidate.Registration, i);
                 }
             }
 
@@ -119,10 +117,9 @@ namespace Unity
                     ref var candidate = ref registry.Entries[i];
                     if (candidate.Key != key) continue;
 
-                    Debug.Assert(null != candidate.Pipeline);
-                    
                     // Found a registration
-                    return candidate.Pipeline;
+                    return candidate.Pipeline ??
+                           container.PipelineFromRegistration(ref key, candidate.Registration, i);
                 }
 
                 // Generic registrations

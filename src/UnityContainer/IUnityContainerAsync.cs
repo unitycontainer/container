@@ -189,8 +189,6 @@ namespace Unity
 
         #region Resolution
 
-
-
         /// <inheritdoc />
         [SecuritySafeCritical]
         ValueTask<object?> IUnityContainerAsync.ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
@@ -216,7 +214,7 @@ namespace Unity
                 {
                     // Make blocking check for result
                     var value = manager.Get(LifetimeContainer);
-                    if (LifetimeManager.NoValue != value) return new ValueTask<object?>(value);
+                    if (LifetimeManager.NoValue != value) return value;
                 }
 
                 // Setup Context

@@ -2,9 +2,11 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity.Registration
 {
@@ -62,6 +64,8 @@ namespace Unity.Registration
         public override bool BuildRequired { get; }
 
         public override Converter<Type, Type>? BuildType { get; }
+
+        public virtual ResolveDelegate<BuilderContext>? Pipeline { get; internal set; }
 
         #endregion
 

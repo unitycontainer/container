@@ -85,7 +85,7 @@ namespace Unity
             {
                 var key = new HashKey(type);
 
-                lock (Container._syncLock)
+                lock (Container._syncRegistry)
                 {
                     if (null == Container._registry) Container._registry = new Registry();
 
@@ -122,7 +122,7 @@ namespace Unity
             {
                 var key = new HashKey(type, name);
 
-                lock (Container._syncLock)
+                lock (Container._syncRegistry)
                 {
                     if (null == Container._registry) Container._registry = new Registry();
 

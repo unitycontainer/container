@@ -5,7 +5,6 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Factories;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity

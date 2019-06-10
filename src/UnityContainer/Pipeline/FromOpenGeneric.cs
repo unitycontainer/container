@@ -18,13 +18,13 @@ namespace Unity
             var type = key.Type;
             var name = key.Name;
             var owner = this;
-
+            bool AddNew = true;
             int position = 0;
             var collisions = 0;
-            LifetimeManager manager;
+            LifetimeManager? manager = null;
 
             // Add Pipeline to the Registry
-            lock (_syncLock)
+            lock (_syncRegistry)
             {
                 var targetBucket = key.HashCode % _registry.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
@@ -36,179 +36,49 @@ namespace Unity
                         continue;
                     }
 
-                    // Has already been created
-                    Debug.Assert(null != candidate.Pipeline);
-                    return candidate.Pipeline;
+                    // Pipeline already been created
+                    if (null != candidate.Pipeline) return candidate.Pipeline;
+
+                    // Empty Registration with Policies
+                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+
+                    // Type has not been registered
+                    if (null == candidate.Registration) candidate.Pipeline = manager.Pipeline;
+
+                    AddNew = false;
+                    break;
                 }
 
-                // Expand if required
-                if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
+                if (AddNew)
                 {
-                    _registry = new Registry(_registry);
-                    targetBucket = key.HashCode % _registry.Buckets.Length;
+                    // Expand if required
+                    if (_registry.RequireToGrow || CollisionsCutPoint < collisions)
+                    {
+                        _registry = new Registry(_registry);
+                        targetBucket = key.HashCode % _registry.Buckets.Length;
+                    }
+
+                    // Create a Lifetime Manager
+                    manager = factory.LifetimeManager.CreateLifetimePolicy();
+
+                    // Create new entry
+                    ref var entry = ref _registry.Entries[_registry.Count];
+                    entry.Key = key;
+                    entry.Pipeline = manager.Pipeline;
+                    entry.Next = _registry.Buckets[targetBucket];
+                    position = _registry.Count++;
+                    _registry.Buckets[targetBucket] = position;
                 }
 
-                // Create a Lifetime Manager
-                manager = factory.LifetimeManager.CreateLifetimePolicy();
-                manager.PipelineDelegate = manager switch
-                {
-                    TransientLifetimeManager  transient => PipelineFromOpenGenericTransient(type, factory, transient, _registry.Count),
-                    SynchronizedLifetimeManager synchro => PipelineFromOpenGenericSynchronized(type, factory, synchro),
-                    PerResolveLifetimeManager peresolve => PipelineFromOpenGenericPerResolve(type, factory, peresolve),
-                                                      _ => PipelineFromOpenGenericDefault(type, factory, manager)
-                };
-
-                // Create new entry
-                ref var entry = ref _registry.Entries[_registry.Count];
-                entry.Key = key;
-                entry.Pipeline = manager.Pipeline;
-                entry.Next = _registry.Buckets[targetBucket];
-                position = _registry.Count++;
-                _registry.Buckets[targetBucket] = position;
+                if (manager is IDisposable disposable) LifetimeContainer.Add(disposable);
             }
 
-            if (manager is IDisposable disposable) Context.Lifetime.Add(disposable);
-
-            // Return pipeline
-            return manager.Pipeline;
-        }
-
-        private ResolveDelegate<BuilderContext> PipelineFromOpenGenericTransient(Type type, ExplicitRegistration factory, TransientLifetimeManager manager, int position)
-        {
-            ResolveDelegate<BuilderContext>? pipeline = null;
-
-            return (ref BuilderContext context) =>
-            {
-                if (null != pipeline) return pipeline(ref context);
-
-                lock (manager)
-                {
-                    // Create if required
-                    if (null == pipeline)
-                    {
-                        PipelineBuilder builder = new PipelineBuilder(type, factory, manager, this);
-                        pipeline = builder.Pipeline();
-
-                        Debug.Assert(null != pipeline);
-                        Debug.Assert(null != _registry);
-
-                        // Replace pipeline in storage
-                        lock (_syncLock)
-                        {
-                            _registry.Entries[position].Pipeline = pipeline;
-                        }
-                    }
-
-                    return pipeline(ref context);
-                }
-            };
-        }
-
-        private ResolveDelegate<BuilderContext> PipelineFromOpenGenericSynchronized(Type type, ExplicitRegistration factory, SynchronizedLifetimeManager manager)
-        {
-            ResolveDelegate<BuilderContext>? pipeline = null;
             Debug.Assert(null != manager);
 
-            return (ref BuilderContext context) =>
-            {
-                if (null != pipeline) return pipeline(ref context);
+            PipelineBuilder builder = new PipelineBuilder(key.Type, factory, manager, this);
+            manager.PipelineDelegate = builder.Pipeline();
 
-                lock (manager)
-                {
-                    if (null == pipeline)
-                    {
-                        PipelineBuilder builder = new PipelineBuilder(type, factory, manager, this);
-
-                        pipeline = builder.Pipeline();
-                        manager.PipelineDelegate = pipeline;
-
-                        Debug.Assert(null != pipeline);
-                    }
-                }
-
-                try
-                {
-                    // Build withing the scope
-                    return pipeline(ref context);
-                }
-                catch
-                {
-                    manager.Recover();
-                    throw;
-                }
-            };
-        }
-
-        private ResolveDelegate<BuilderContext> PipelineFromOpenGenericPerResolve(Type type, ExplicitRegistration factory, PerResolveLifetimeManager manager)
-        {
-            ResolveDelegate<BuilderContext>? pipeline = null;
-
-            return (ref BuilderContext context) =>
-            {
-                object value;
-                LifetimeManager? lifetime;
-
-                if (null != pipeline)
-                {
-                    if (null != (lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager))))
-                    {
-                        value = lifetime.Get(LifetimeContainer);
-                        if (LifetimeManager.NoValue != value) return value;
-                    }
-
-                    return pipeline(ref context);
-                }
-
-                lock (manager)
-                {
-                    if (null == pipeline)
-                    {
-                        PipelineBuilder builder = new PipelineBuilder(type, factory, manager, this);
-
-                        pipeline = builder.Pipeline();
-                        manager.PipelineDelegate = pipeline;
-
-                        Debug.Assert(null != pipeline);
-
-                        value = pipeline(ref context);
-                        context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
-                        return value;
-                    }
-                }
-
-                if (null != (lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager))))
-                {
-                    value = lifetime.Get(LifetimeContainer);
-                    if (LifetimeManager.NoValue != value) return value;
-                }
-
-                return pipeline(ref context);
-            };
-        }
-
-        private ResolveDelegate<BuilderContext> PipelineFromOpenGenericDefault(Type type, ExplicitRegistration factory, LifetimeManager manager)
-        {
-            ResolveDelegate<BuilderContext>? pipeline = null;
-
-            return (ref BuilderContext context) =>
-            {
-                if (null != pipeline) return pipeline(ref context);
-
-                lock (manager)
-                {
-                    if (null == pipeline)
-                    {
-                        PipelineBuilder builder = new PipelineBuilder(type, factory, manager, this);
-
-                        pipeline = builder.Pipeline();
-                        manager.PipelineDelegate = pipeline;
-
-                        Debug.Assert(null != pipeline);
-                    }
-                }
-
-                return pipeline(ref context);
-            };
+            return manager.Pipeline;
         }
     }
 }

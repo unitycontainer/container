@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Security;
 using Unity.Builder;
+using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
@@ -185,6 +186,8 @@ namespace Unity.Storage
             public int Next;
             public IPolicySet Policies;
             public ExplicitRegistration Registration;
+
+            public LifetimeManager Manager;
             public ResolveDelegate<BuilderContext>? Pipeline;
 
             public bool IsExplicit;

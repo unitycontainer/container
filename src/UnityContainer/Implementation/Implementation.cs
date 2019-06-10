@@ -36,7 +36,8 @@ namespace Unity
         #region Fields
 
         // Locks
-        private readonly object _syncLock = new object();
+        private readonly object _syncRegistry = new object();
+        private readonly object _syncPipeline = new object();
 
         // Essentials
         private Metadata? _metadata;

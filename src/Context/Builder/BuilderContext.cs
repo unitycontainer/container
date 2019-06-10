@@ -150,30 +150,6 @@ namespace Unity.Builder
 #endif
         public ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
 
-        public ResolveDelegate<BuilderContext> Pipeline
-        {
-            get
-            {
-                if (null != Registration?.Pipeline) return Registration.Pipeline;
-
-                Debug.Assert(null != Registration);
-
-                lock (Registration)
-                {
-                    // Double check
-                    if (null != Registration.Pipeline) return Registration.Pipeline;
-
-                    // Create a pipeline
-                    var context = this;
-                    PipelineBuilder builder = new PipelineBuilder(ref context);
-                    Registration.Pipeline = builder.Pipeline() ??
-                        throw new InvalidOperationException($"Failed to create pipeline for registration: {Registration}");
-                }
-
-                return Registration.Pipeline;
-            }
-        }
-
         #endregion
 
 
