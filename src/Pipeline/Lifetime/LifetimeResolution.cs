@@ -4,7 +4,7 @@ using Unity.Resolution;
 
 namespace Unity
 {
-    public class LifetimePipeline : Pipeline
+    public partial class LifetimePipeline : Pipeline
     {
         #region PipelineBuilder
 
@@ -15,15 +15,18 @@ namespace Unity
 
             return builder.LifetimeManager switch
             {
-                SynchronizedLifetimeManager manager => SynchronizedLifetime(manager, pipeline),
-                PerResolveLifetimeManager _ => PerResolveLifetime(pipeline),
+                SynchronizedLifetimeManager manager => SynchronizedLifetimeResolution(manager, pipeline),
+                PerResolveLifetimeManager _ => PerResolveLifetimeResolution(pipeline),
                 _ => pipeline
             };
         }
 
         #endregion
 
-        private ResolveDelegate<PipelineContext> SynchronizedLifetime(SynchronizedLifetimeManager manager, ResolveDelegate<PipelineContext> pipeline)
+
+        #region Implementation
+
+        protected virtual ResolveDelegate<PipelineContext> SynchronizedLifetimeResolution(SynchronizedLifetimeManager manager, ResolveDelegate<PipelineContext> pipeline)
         {
             return (ref PipelineContext context) =>
             {
@@ -40,14 +43,14 @@ namespace Unity
             };
         }
 
-        private ResolveDelegate<PipelineContext> PerResolveLifetime(ResolveDelegate<PipelineContext> pipeline)
+        protected virtual ResolveDelegate<PipelineContext> PerResolveLifetimeResolution(ResolveDelegate<PipelineContext> pipeline)
         {
             return (ref PipelineContext context) =>
             {
-                object?          value;
-                LifetimeManager? lifetime;
+                object? value;
+                LifetimeManager? lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
-                if (null != (lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager))))
+                if (null != lifetime)
                 {
                     value = lifetime.Get(context.ContainerContext.Lifetime);
                     if (LifetimeManager.NoValue != value) return value;
@@ -61,5 +64,7 @@ namespace Unity
                 return value;
             };
         }
+
+        #endregion
     }
 }

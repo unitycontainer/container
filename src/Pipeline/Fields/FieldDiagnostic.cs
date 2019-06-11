@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;

@@ -44,6 +44,11 @@ namespace Unity
                 .GetDeclaredMethods(nameof(PipelineContext.Set))
                 .First(m => 2 == m.GetParameters().Length);
 
+        public static readonly MethodInfo GetMethod =
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Get))
+                .First(m => 1 == m.GetParameters().Length);
+
         #endregion
 
 

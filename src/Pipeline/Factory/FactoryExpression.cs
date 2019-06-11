@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 using Unity;
 using Unity.Exceptions;
@@ -9,14 +11,12 @@ using Unity.Resolution;
 
 namespace Unity
 {
-    public class FactoryPipeline : Pipeline
+    public partial class FactoryPipeline : Pipeline
     {
-        #region PipelineBuilder
-
-        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
+        public override IEnumerable<Expression> Express(ref PipelineBuilder builder)
         {
-            // Skip if already have a resolver
-            if (null != builder.Seed) return builder.Pipeline();
+            // Skip if already have a resolver expression
+            if (null != builder.SeedExpression) return builder.Express();
 
             // Try to get resolver
             Type? generic = null;
@@ -36,9 +36,9 @@ namespace Unity
                 }
             }
 
-            // Process if found
-            if (null != resolver) return builder.Pipeline((ResolveDelegate<PipelineContext>)resolver);
-            
+            // Create an expression from resolver
+            if (null != resolver) return builder.Express((ResolveDelegate<PipelineContext>)resolver);
+
             // Try finding factory
             TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
 
@@ -56,22 +56,20 @@ namespace Unity
                 if (builder.Type.GetArrayRank() == 1)
                 {
                     var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-                    return builder.Pipeline((ref PipelineContext context) => resolve(ref context));
+                    return builder.Express((ref PipelineContext context) => resolve(ref context));
                 }
                 else
                 {
                     var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                    return (ref PipelineContext context) => throw new InvalidRegistrationException(message);
+                    return builder.Express((ref PipelineContext context) => throw new InvalidRegistrationException(message));
                 }
             }
 
             Debug.Assert(null != builder.Type);
 
             return null != factory
-                ? builder.Pipeline(factory(builder.Type, builder.ContainerContext.Container))
-                : builder.Pipeline();
+                ? builder.Express(factory(builder.Type, builder.ContainerContext.Container))
+                : builder.Express();
         }
-
-        #endregion
     }
 }

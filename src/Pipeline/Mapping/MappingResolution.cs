@@ -1,9 +1,8 @@
-﻿using Unity;
-using Unity.Resolution;
+﻿using Unity.Resolution;
 
 namespace Unity
 {
-    public class MappingPipeline : Pipeline
+    public partial class MappingPipeline : Pipeline
     {
         #region PipelineBuilder
 

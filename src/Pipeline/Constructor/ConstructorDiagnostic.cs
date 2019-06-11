@@ -232,33 +232,32 @@ namespace Unity
 
         #region Expression Overrides
 
-//        public  IEnumerable<Expression> GetExpressions(Type type, ImplicitRegistration registration)
-//        {
-//#if NETSTANDARD1_0 || NETCOREAPP1_0
-//            var typeInfo = type.GetTypeInfo();
-//#else
-//            var typeInfo = type;
-//#endif
-//            // Validate if Type could be created
-//            if (typeInfo.IsInterface) return CannotConstructInterfaceExpr;
+        public override IEnumerable<Expression> Express(ref PipelineBuilder builder)
+        {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = builder.Type.GetTypeInfo();
+#else
+            var typeInfo = builder.Type;
+#endif
+            // Validate if Type could be created
+            if (typeInfo.IsInterface) return CannotConstructInterfaceExpr;
 
-//            if (typeInfo.IsAbstract) return CannotConstructAbstractClassExpr;
+            if (typeInfo.IsAbstract) return CannotConstructAbstractClassExpr;
 
-//            if (typeInfo.IsSubclassOf(typeof(Delegate)))
-//                return CannotConstructDelegateExpr;
+            if (typeInfo.IsSubclassOf(typeof(Delegate)))
+                return CannotConstructDelegateExpr;
 
-//            if (type == typeof(string))
-//                return TypeIsNotConstructableExpr;
+            if (typeof(string) == builder.Type)
+                return TypeIsNotConstructableExpr;
 
-//            // Build expression as usual
-//            return base.GetExpressions(type, registration);
-//        }
+            // Build expression as usual
+            return base.Express(ref builder);
+        }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
+        protected override IEnumerable<Expression> GetConstructorExpression(ConstructorInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var variable = Expression.Variable(info.DeclaringType ?? throw new ArgumentNullException(nameof(info)));
             var parameters = info.GetParameters();
 
             // Check if has Out or ByRef parameters
@@ -270,11 +269,9 @@ namespace Unity
                         info.DeclaringType, info))))
                 
                 // Create new instance
-                : Expression.Block(new[] { variable }, new Expression[]
-                    {
-                        Expression.Assign(variable, Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers))),
-                        Expression.Assign(PipelineContextExpression.Existing, Expression.Convert(variable, typeof(object)))
-                    });
+                : Expression.Assign(
+                    PipelineContextExpression.Existing, 
+                    Expression.Convert(Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers)), typeof(object)));
 
             // Add location to dictionary and re-throw
             var catchBlock = Expression.Block(tryBlock.Type,
@@ -284,14 +281,14 @@ namespace Unity
                 Expression.Rethrow(tryBlock.Type));
 
             // Create 
-            return Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            yield return Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
                                      Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock)));
             // Report error
             string CreateErrorMessage(string format, Type type, MethodBase constructor)
             {
                 var parameterDescriptions =
                     constructor.GetParameters()
-                        .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
+                               .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
 
                 return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
             }
@@ -304,7 +301,7 @@ namespace Unity
 
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
-            if (null != builder.Seed) return builder.Pipeline();
+            if (null != builder.SeedMethod) return builder.Pipeline();
 
             var type = builder.Type;
 

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
@@ -24,9 +25,6 @@ namespace Unity
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private IEnumerator<Pipeline> _enumerator;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private IEnumerable<Pipeline> _pipelines;
 
         #endregion
 
@@ -50,9 +48,9 @@ namespace Unity
 
             ContainerContext = container.Context;
 
-            Seed = null;
+            SeedMethod = null;
+            SeedExpression = null;
             _enumerator = pipelines.GetEnumerator();
-            _pipelines  = pipelines;
         }
 
         // Pipeline From Registration
@@ -72,20 +70,19 @@ namespace Unity
             IsMapping = null != registration.Type && type != registration.Type;
             BuildRequired = registration.BuildRequired;
 
-            Seed = registration.Pipeline;
+            SeedMethod = registration.Pipeline;
+            SeedExpression = null;
 
             ContainerContext = registration.Owner.Context;
 
             Debug.Assert(null != registration?.Processors);
             _enumerator = registration.Processors.GetEnumerator();
-            _pipelines  = registration.Processors;
         }
 
         // Pipeline from factory
         public PipelineBuilder(Type type, ExplicitRegistration factory, LifetimeManager manager, UnityContainer owner)
         {
             Type = type;
-            Seed = factory.Pipeline;
             TypeConverter = factory.BuildType;
             LifetimeManager = manager;
             InjectionMembers = factory.InjectionMembers;
@@ -100,9 +97,11 @@ namespace Unity
 
             ContainerContext = owner.Context;
 
+            SeedMethod = factory.Pipeline;
+            SeedExpression = null;
+
             Debug.Assert(null != factory.Processors);
             _enumerator = factory.Processors.GetEnumerator();
-            _pipelines  = factory.Processors;
         }
 
         #endregion
@@ -131,7 +130,9 @@ namespace Unity
 
         public readonly ContainerContext ContainerContext;
 
-        public ResolveDelegate<PipelineContext>? Seed { get; private set; }
+        public ResolveDelegate<PipelineContext>? SeedMethod { get; private set; }
+
+        public IEnumerable<Expression>? SeedExpression { get; private set; }
 
         #endregion
 
@@ -141,36 +142,65 @@ namespace Unity
 
         public ResolveDelegate<PipelineContext> Compile()
         {
+            try
+            {
+                ref var context = ref this;
+                var expressions = _enumerator.MoveNext()
+                                ? _enumerator.Current.Express(ref context)
+                                                     .ToList()
+                                : new List<Expression>();
+
+                expressions.Add(PipelineContextExpression.Existing);
+
+                var lambda = Expression.Lambda<ResolveDelegate<PipelineContext>>(
+                    Expression.Block(expressions), PipelineContextExpression.Context);
+
+                return lambda.Compile();
+            }
+            catch (Exception ex)
+            {
+                return (ref PipelineContext context) => throw new InvalidRegistrationException(ex.Message);
+            }
+        }
+
+        public IEnumerable<Expression> Express()
+        {
             ref var context = ref this;
-            var expressions = _enumerator.MoveNext()
-                            ? _enumerator.Current.Express(ref context)
-                                                 .ToList()
-                            : new List<Expression>();
+            return _enumerator.MoveNext()
+                 ? _enumerator.Current.Express(ref context)
+                 : SeedExpression ?? Enumerable.Empty<Expression>();
+        }
 
-            expressions.Add(PipelineContextExpression.Existing);
+        public IEnumerable<Expression> Express(ResolveDelegate<PipelineContext> resolver)
+        {
+            var expression = Expression.Assign(
+                    PipelineContextExpression.Existing,
+                    Expression.Invoke(Expression.Constant(resolver), PipelineContextExpression.Context));
 
-            var lambda = Expression.Lambda<ResolveDelegate<PipelineContext>>(
-                Expression.Block(expressions), PipelineContextExpression.Context);
+            SeedExpression = new[] { expression };
 
-            return lambda.Compile();
+            ref var context = ref this;
+            return _enumerator.MoveNext()
+                 ? _enumerator.Current.Express(ref context)
+                 : SeedExpression ?? Enumerable.Empty<Expression>();
         }
 
         public ResolveDelegate<PipelineContext>? Pipeline()
         {
             ref var context = ref this;
             return _enumerator.MoveNext()
-                 ? _enumerator.Current?.Build(ref context) ?? Seed
-                 : Seed;
+                 ? _enumerator.Current?.Build(ref context) ?? SeedMethod
+                 : SeedMethod;
         }
 
-        public ResolveDelegate<PipelineContext>? Pipeline(ResolveDelegate<PipelineContext>? method = null)
+        public ResolveDelegate<PipelineContext>? Pipeline(ResolveDelegate<PipelineContext>? method)
         {
-            Seed = method;
+            SeedMethod = method;
 
             ref var context = ref this;
             return _enumerator.MoveNext()
-                 ? _enumerator.Current.Build(ref context) ?? Seed
-                 : Seed;
+                 ? _enumerator.Current.Build(ref context) ?? SeedMethod
+                 : SeedMethod;
         }
 
         #endregion

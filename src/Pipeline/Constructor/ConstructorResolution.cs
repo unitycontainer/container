@@ -12,12 +12,11 @@ namespace Unity
     {
         #region PipelineBuilder
 
-
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             var pipeline = builder.Pipeline();
 
-            if (null != builder.Seed) return pipeline;
+            if (null != builder.SeedMethod) return pipeline;
 
             // Verify if can build
 #if NETSTANDARD1_0 || NETCOREAPP1_0

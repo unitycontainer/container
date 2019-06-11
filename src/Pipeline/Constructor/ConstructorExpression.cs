@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Injection;
 using Unity.Lifetime;
 
 namespace Unity
@@ -20,31 +22,78 @@ namespace Unity
                 Expression.New(PerResolveInfo, PipelineContextExpression.Existing));
 
         protected static readonly Expression[] NoConstructorExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            Expression.IfThen(NullTestExpression,
                 Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
                             PipelineContextExpression.Type))))};
 
+        public object BuilderContextExpression { get; private set; }
+
+        #endregion
+
+
+        #region PipelineBuilder
+
+        public override IEnumerable<Expression> Express(ref PipelineBuilder builder)
+        {
+            var expressions = builder.Express();
+
+            if (null != builder.SeedExpression) return expressions;
+
+            // Select ConstructorInfo
+            var selector = GetOrDefault(builder.Policies);
+            var selection = selector.Invoke(builder.Type, builder.InjectionMembers)
+                                    .FirstOrDefault();
+
+            // Select constructor for the Type
+            ConstructorInfo info;
+            object[]? resolvers = null;
+
+            switch (selection)
+            {
+                case ConstructorInfo memberInfo:
+                    info = memberInfo;
+                    break;
+
+                case MethodBase<ConstructorInfo> injectionMember:
+                    info = injectionMember.MemberInfo(builder.Type);
+                    resolvers = injectionMember.Data;
+                    break;
+
+                case Exception exception:
+                    return new[] {Expression.IfThen(
+                        Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+                        Expression.Throw(Expression.Constant(exception)))};
+
+                default:
+                    return NoConstructorExpr;
+            }
+
+            // Get lifetime manager
+            var lifetimeManager = (LifetimeManager?)builder.Policies?.Get(typeof(LifetimeManager));
+
+            return lifetimeManager is PerResolveLifetimeManager
+                ? GetConstructorExpression(info, resolvers).Concat(new[] { SetPerBuildSingletonExpr })
+                                                           .Concat(expressions)
+                : GetConstructorExpression(info, resolvers).Concat(expressions);
+        }
+
         #endregion
 
 
         #region Overrides
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
+        protected virtual IEnumerable<Expression> GetConstructorExpression(ConstructorInfo info, object? resolvers)
         {
-            var variable = Expression.Variable(info.DeclaringType);
             var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
 
-            return Expression.IfThen(
-                Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
-                Expression.Block(new[] { variable }, new Expression[]
-                {
-                    Expression.Assign(variable, Expression.New(info, parametersExpr)),
-                    Expression.Assign(PipelineContextExpression.Existing, Expression.Convert(variable, typeof(object)))
-                }));
+            yield return Expression.IfThen(NullTestExpression,
+                Expression.Assign(PipelineContextExpression.Existing, 
+                Expression.Convert(Expression.New(info, parametersExpr), typeof(object))));
         }
+
 
         #endregion
     }

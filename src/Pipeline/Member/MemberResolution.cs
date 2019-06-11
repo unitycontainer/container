@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
@@ -16,7 +15,7 @@ namespace Unity
 
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
-            if (null != builder.Seed) return builder.Pipeline();
+            if (null != builder.SeedMethod) return builder.Pipeline();
 
             var pipeline = builder.Pipeline();
             var selector = GetOrDefault(builder.Policies);
