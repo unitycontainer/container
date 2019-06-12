@@ -14,14 +14,31 @@ namespace Unity
         private static readonly MethodInfo _recoverMethod = typeof(SynchronizedLifetimeManager)
             .GetTypeInfo().GetDeclaredMethod(nameof(SynchronizedLifetimeManager.Recover));
 
-        private static readonly ConstructorInfo _perResolveInfo = typeof(RuntimePerResolveLifetimeManager)
-            .GetTypeInfo().DeclaredConstructors.First();
+        private static readonly ParameterExpression _value = Expression.Variable(typeof(object), "value");
+        private static readonly ParameterExpression _lifetime = Expression.Variable(typeof(LifetimeManager), "lifetime");
 
-        protected static readonly Expression SetPerBuildSingletonExpr =
-            Expression.Call(PipelineContextExpression.Context,
-                PipelineContextExpression.SetMethod,
-                Expression.Constant(typeof(LifetimeManager), typeof(Type)),
-                Expression.New(_perResolveInfo, PipelineContextExpression.Existing));
+        private static readonly MethodCallExpression _contextGetLifetimeManager = Expression.Call(
+            PipelineContextExpression.Context, PipelineContextExpression.GetMethod,
+            Expression.Constant(typeof(LifetimeManager), typeof(Type)));
+
+        private static readonly ConditionalExpression _setPerResolveSingleton = 
+            Expression.IfThen(
+                Expression.NotEqual(Expression.Constant(null), PipelineContextExpression.DeclaringType),
+                SetPerBuildSingletonExpr);
+
+        private static readonly InvocationExpression _lifetimeGetValue = Expression.Invoke(
+            Expression.MakeMemberAccess(_lifetime, typeof(LifetimeManager).GetTypeInfo().GetDeclaredProperty(nameof(LifetimeManager.Get))),
+            PipelineContextExpression.LifetimeContainer);
+
+        private static readonly Expression ReturnIfResolvedAlready = Expression.Block(new[] { _lifetime, _value }, new Expression[] {
+            Expression.Assign(_lifetime, Expression.Convert(_contextGetLifetimeManager, typeof(LifetimeManager))),
+            Expression.IfThen(
+                Expression.NotEqual(Expression.Constant(null), _lifetime),
+                Expression.Block(new Expression[] {
+                    Expression.Assign(_value, _lifetimeGetValue),
+                    Expression.IfThen(
+                        Expression.NotEqual(Expression.Constant(LifetimeManager.NoValue), _value),
+                        Expression.Return(ReturnTarget, _value))}))});
 
         #endregion
 
@@ -55,38 +72,16 @@ namespace Unity
             yield return Expression.TryCatch(tryBody, catchBody);
         }
 
-        protected virtual IEnumerable<Expression> PerResolveLifetimeExpression(IEnumerable<Expression> expressions)
+        protected virtual IEnumerable<Expression> PerResolveLifetimeExpression(IEnumerable<Expression> expressons)
         {
-            Expression exp;
-            try
-            {
-                ParameterExpression _valueExpr = Expression.Variable(typeof(object));
-                ParameterExpression _lifetimeExpr = Expression.Variable(typeof(LifetimeManager));
+            // Check and return if already resolved
+            yield return ReturnIfResolvedAlready; 
 
-                MethodCallExpression _getManagerExpr = Expression.Call(
-                    PipelineContextExpression.Context,
-                    PipelineContextExpression.GetMethod,
-                    Expression.Constant(typeof(LifetimeManager), typeof(Type)));
+            // Execute Pipeline
+            foreach(var expression in expressons) yield return expression;
 
-
-                exp = Expression.IfThenElse(NullTestExpression,
-                    Expression.Block(new[] { _lifetimeExpr, _valueExpr }, new Expression[]
-                    {
-                        Expression.Assign(_lifetimeExpr, Expression.Convert(_getManagerExpr, typeof(LifetimeManager))),
-                        //Expression.IfThen(
-                        //    Expression.NotEqual(Expression.Constant(null), _lifetimeExpr),
-                        //    Expression.Assign()),
-                        Expression.Block(expressions)
-                    }),
-                    Expression.Block(expressions));
-
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            yield return exp;
+            // Save resolved value in per resolve singleton
+            yield return _setPerResolveSingleton;
         }
 
         #endregion

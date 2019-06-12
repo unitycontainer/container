@@ -12,24 +12,13 @@ namespace Unity
     {
         #region Fields
 
-        private static readonly ConstructorInfo PerResolveInfo = typeof(RuntimePerResolveLifetimeManager)
-            .GetTypeInfo().DeclaredConstructors.First();
-
-        protected static readonly Expression SetPerBuildSingletonExpr =
-            Expression.Call(PipelineContextExpression.Context, 
-                PipelineContextExpression.SetMethod,
-                Expression.Constant(typeof(LifetimeManager), typeof(Type)),
-                Expression.New(PerResolveInfo, PipelineContextExpression.Existing));
-
         protected static readonly Expression[] NoConstructorExpr = new [] {
-            Expression.IfThen(NullTestExpression,
+            Expression.IfThen(NullEqualExisting,
                 Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
                             PipelineContextExpression.Type))))};
-
-        public object BuilderContextExpression { get; private set; }
 
         #endregion
 
@@ -63,12 +52,12 @@ namespace Unity
                     break;
 
                 case Exception exception:
-                    return new[] {Expression.IfThen(
-                        Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
-                        Expression.Throw(Expression.Constant(exception)))};
+                    return new[] {
+                        Expression.IfThen(NullEqualExisting, Expression.Throw(Expression.Constant(exception)))
+                    }.Concat(expressions);
 
                 default:
-                    return NoConstructorExpr;
+                    return NoConstructorExpr.Concat(expressions);
             }
 
             // Get lifetime manager
@@ -89,7 +78,7 @@ namespace Unity
         {
             var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
 
-            yield return Expression.IfThen(NullTestExpression,
+            yield return Expression.IfThen(NullEqualExisting,
                 Expression.Assign(PipelineContextExpression.Existing, 
                 Expression.Convert(Expression.New(info, parametersExpr), typeof(object))));
         }

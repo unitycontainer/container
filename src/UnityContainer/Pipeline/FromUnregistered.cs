@@ -276,8 +276,7 @@ namespace Unity
                 if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
                     PipelineBuilder builder = new PipelineBuilder(key.Type, this, Context.TypePipelineCache);
-                    manager.PipelineDelegate = builder.Pipeline();
-//                    manager.PipelineDelegate = builder.Compile();
+                    manager.PipelineDelegate = builder.Compile();
                     Debug.Assert(null != manager.PipelineDelegate);
                     pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
                 }

@@ -150,7 +150,7 @@ namespace Unity
                                                      .ToList()
                                 : new List<Expression>();
 
-                expressions.Add(PipelineContextExpression.Existing);
+                expressions.Add(Expression.Label(Unity.Pipeline.ReturnTarget, PipelineContextExpression.Existing));
 
                 var lambda = Expression.Lambda<ResolveDelegate<PipelineContext>>(
                     Expression.Block(expressions), PipelineContextExpression.Context);

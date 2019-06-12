@@ -22,7 +22,7 @@ namespace Unity
         const string TypeIsNotConstructable = "The type {0} cannot be constructed. You must configure the container to supply this value.";
 
         private static readonly Expression[] CannotConstructInterfaceExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            Expression.IfThen(NullEqualExisting,
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
@@ -31,7 +31,7 @@ namespace Unity
                             PipelineContextExpression.Type))))};
 
         private static readonly Expression[] CannotConstructAbstractClassExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            Expression.IfThen(NullEqualExisting,
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
@@ -40,7 +40,7 @@ namespace Unity
                             PipelineContextExpression.Type))))};
 
         private static readonly Expression[] CannotConstructDelegateExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            Expression.IfThen(NullEqualExisting,
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
@@ -49,7 +49,7 @@ namespace Unity
                             PipelineContextExpression.Type))))};
 
         private static readonly Expression[] TypeIsNotConstructableExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            Expression.IfThen(NullEqualExisting,
                  Expression.Throw(
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(
@@ -240,15 +240,15 @@ namespace Unity
             var typeInfo = builder.Type;
 #endif
             // Validate if Type could be created
-            if (typeInfo.IsInterface) return CannotConstructInterfaceExpr;
+            if (typeInfo.IsInterface) return CannotConstructInterfaceExpr.Concat(builder.Express());
 
-            if (typeInfo.IsAbstract) return CannotConstructAbstractClassExpr;
+            if (typeInfo.IsAbstract) return CannotConstructAbstractClassExpr.Concat(builder.Express());
 
             if (typeInfo.IsSubclassOf(typeof(Delegate)))
-                return CannotConstructDelegateExpr;
+                return CannotConstructDelegateExpr.Concat(builder.Express());
 
             if (typeof(string) == builder.Type)
-                return TypeIsNotConstructableExpr;
+                return TypeIsNotConstructableExpr.Concat(builder.Express());
 
             // Build expression as usual
             return base.Express(ref builder);
@@ -281,7 +281,7 @@ namespace Unity
                 Expression.Rethrow(tryBlock.Type));
 
             // Create 
-            yield return Expression.IfThen(Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+            yield return Expression.IfThen(NullEqualExisting,
                                      Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock)));
             // Report error
             string CreateErrorMessage(string format, Type type, MethodBase constructor)

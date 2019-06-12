@@ -75,7 +75,7 @@ namespace Unity
             if (null != manager)
             {
                 // Make blocking check for result
-                var value = manager.Get(ContainerContext.Lifetime);
+                var value = manager.Get(LifetimeContainer);
                 if (LifetimeManager.NoValue != value) return value;
             }
 
@@ -136,10 +136,13 @@ namespace Unity
 
         public ContainerContext ContainerContext { get; set; }
 
-        public Type? DeclaringType;
+        public Type? DeclaringType { get; set; }
+
 #if !NET40
         public IntPtr Parent;
 #endif
+        public ILifetimeContainer LifetimeContainer => ContainerContext.Lifetime;
+
         private ResolvePlanDelegate DependencyResolvePipeline => ContainerContext.Container.DependencyResolvePipeline;
 
         #endregion
@@ -345,7 +348,7 @@ namespace Unity
             if (null != manager)
             {
                 // Make blocking check for result
-                var value = manager.Get(ContainerContext.Lifetime);
+                var value = manager.Get(LifetimeContainer);
                 if (LifetimeManager.NoValue != value) return value;
             }
 
@@ -376,7 +379,7 @@ namespace Unity
 
                 var manager = pipeline.Target as LifetimeManager;
                 var value = pipeline(ref context);
-                manager?.SetValue(value, ContainerContext.Lifetime);
+                manager?.SetValue(value, LifetimeContainer);
                 return value;
             }
 

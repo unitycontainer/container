@@ -32,11 +32,12 @@ namespace Unity
             {
                 try
                 {
-                    // Build withing the scope
+                    // Execute Pipeline
                     return pipeline(ref context);
                 }
                 catch
                 {
+                    // Recover and rethrow
                     manager.Recover();
                     throw;
                 }
@@ -48,16 +49,19 @@ namespace Unity
             return (ref PipelineContext context) =>
             {
                 object? value;
-                LifetimeManager? lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
+                // Check and return if already resolved
+                LifetimeManager? lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
                 if (null != lifetime)
                 {
-                    value = lifetime.Get(context.ContainerContext.Lifetime);
+                    value = lifetime.Get(context.LifetimeContainer);
                     if (LifetimeManager.NoValue != value) return value;
                 }
 
+                // Execute Pipeline
                 value = pipeline(ref context);
 
+                // Save resolved value in per resolve singleton
                 if (null != context.DeclaringType)
                     context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
 

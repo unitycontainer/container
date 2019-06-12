@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -8,7 +12,21 @@ namespace Unity
     {
         #region Fields
 
-        protected static readonly BinaryExpression NullTestExpression = Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing);
+        public static readonly LabelTarget ReturnTarget = Expression.Label(typeof(object));
+
+        protected static readonly ConstructorInfo PerResolveInfo = 
+            typeof(RuntimePerResolveLifetimeManager).GetTypeInfo()
+                                                    .DeclaredConstructors
+                                                    .First();
+
+        protected static readonly BinaryExpression NullEqualExisting = 
+            Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing);
+
+        protected static readonly MethodCallExpression SetPerBuildSingletonExpr =
+            Expression.Call(PipelineContextExpression.Context,
+                PipelineContextExpression.SetMethod,
+                Expression.Constant(typeof(LifetimeManager), typeof(Type)),
+                Expression.New(PerResolveInfo, PipelineContextExpression.Existing));
 
         #endregion
 
