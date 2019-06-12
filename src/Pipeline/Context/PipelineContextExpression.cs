@@ -58,8 +58,9 @@ namespace Unity
         {
             var typeInfo = typeof(PipelineContext).GetTypeInfo();
 
+            Parent            = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredField(nameof(PipelineContext.Parent)));
             Existing          = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(PipelineContext.Existing)));
-            DeclaringType     = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(PipelineContext.DeclaringType)));
+            DeclaringType     = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredField(nameof(PipelineContext.DeclaringType)));
             LifetimeContainer = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(PipelineContext.LifetimeContainer)));
         }
 
@@ -67,6 +68,8 @@ namespace Unity
 
 
         #region Public Properties
+
+        public static readonly MemberExpression Parent;
 
         public static readonly MemberExpression Existing;
 

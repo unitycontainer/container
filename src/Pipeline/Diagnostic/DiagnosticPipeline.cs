@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using Unity.Exceptions;
@@ -9,6 +13,18 @@ namespace Unity
     [SecuritySafeCritical]
     public class DiagnosticPipeline : Pipeline
     {
+        #region Fields
+
+        protected static readonly MethodInfo ValidateMethod =
+            typeof(DiagnosticPipeline).GetTypeInfo()
+                .GetDeclaredMethod(nameof(DiagnosticPipeline.ValidateCompositionStack));
+
+        protected static readonly ConstructorInfo TupleConstructor =
+            typeof(Tuple<Type, string?>).GetTypeInfo().DeclaredConstructors.First();
+
+        #endregion
+
+
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
         {
             var pipeline = builder.Pipeline() ?? ((ref PipelineContext c) => throw new InvalidRegistrationException("Invalid Pipeline"));
@@ -32,6 +48,31 @@ namespace Unity
 
                     throw;
                 }
+            };
+        }
+
+        public override IEnumerable<Expression> Express(ref PipelineBuilder builder)
+        {
+            var expressions = builder.Express();
+
+            var infoExpr = Expression.Condition(
+                Expression.Equal(Expression.Constant(null), PipelineContextExpression.Name),
+                Expression.Convert(PipelineContextExpression.Type, typeof(object)),
+                Expression.Convert(Expression.New(TupleConstructor, PipelineContextExpression.Type, PipelineContextExpression.Name), typeof(object)));
+
+            var filter = Expression.OrElse(
+                Expression.TypeIs(ExceptionExpr, typeof(InvalidRegistrationException)), 
+                Expression.TypeIs(ExceptionExpr, typeof(CircularDependencyException)));
+
+            var tryBody = Expression.Block(expressions);
+            var catchBody = Expression.Block(tryBody.Type,
+                Expression.IfThen(filter, Expression.Call(ExceptionDataExpr, AddMethod, Expression.Convert(NewGuid, typeof(object)), infoExpr)),
+                Expression.Rethrow(tryBody.Type));
+
+            return new Expression[]
+            {
+                Expression.Call(ValidateMethod, PipelineContextExpression.Parent, PipelineContextExpression.Type, PipelineContextExpression.Name),
+                Expression.TryCatch(tryBody,  Expression.Catch(ExceptionExpr, catchBody))
             };
         }
 

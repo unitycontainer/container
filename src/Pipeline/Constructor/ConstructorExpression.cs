@@ -76,13 +76,18 @@ namespace Unity
 
         protected virtual IEnumerable<Expression> GetConstructorExpression(ConstructorInfo info, object? resolvers)
         {
-            var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
+            var parameters = info.GetParameters();
+            var variables = parameters.Select(p => Expression.Variable(p.ParameterType, p.Name))
+                                        .ToArray();
 
-            yield return Expression.IfThen(NullEqualExisting,
-                Expression.Assign(PipelineContextExpression.Existing, 
-                Expression.Convert(Expression.New(info, parametersExpr), typeof(object))));
+            var thenBlock = Expression.Block(variables, CreateParameterExpressions(variables, parameters, resolvers)
+                                                       .Concat(new[] { Expression.Assign(
+                                                           PipelineContextExpression.Existing,
+                                                           Expression.Convert(
+                                                               Expression.New(info, variables), typeof(object)))}));
+
+            yield return Expression.IfThen(NullEqualExisting, thenBlock);
         }
-
 
         #endregion
     }

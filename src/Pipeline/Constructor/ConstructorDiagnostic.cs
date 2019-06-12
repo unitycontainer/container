@@ -256,9 +256,9 @@ namespace Unity
 
         protected override IEnumerable<Expression> GetConstructorExpression(ConstructorInfo info, object? resolvers)
         {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
             var parameters = info.GetParameters();
+            var variables = parameters.Select(p => Expression.Variable(p.ParameterType, p.Name))
+                                        .ToArray();
 
             // Check if has Out or ByRef parameters
             var tryBlock = parameters.Any(pi => pi.ParameterType.IsByRef)
@@ -267,22 +267,31 @@ namespace Unity
                 ? (Expression)Expression.Throw(Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Constant(CreateErrorMessage("The constructor {1} selected for type {0} has ref or out parameters. Such parameters are not supported for constructor injection.", 
                         info.DeclaringType, info))))
-                
+
                 // Create new instance
                 : Expression.Assign(
                     PipelineContextExpression.Existing, 
                     Expression.Convert(Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers)), typeof(object)));
 
+            //
+            var thenBlock = Expression.Block(variables, CreateParameterExpressions(variables, parameters, resolvers)
+                                                       .Concat(new[] { Expression.Assign(
+                                                           PipelineContextExpression.Existing,
+                                                           Expression.Convert(
+                                                               Expression.New(info, variables), typeof(object)))}));
+
+            yield return Expression.IfThen(NullEqualExisting, thenBlock);
+
             // Add location to dictionary and re-throw
             var catchBlock = Expression.Block(tryBlock.Type,
-                Expression.Call(exData, AddMethod,
+                Expression.Call(ExceptionDataExpr, AddMethod,
                         Expression.Convert(NewGuid, typeof(object)),
                         Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(tryBlock.Type));
 
             // Create 
             yield return Expression.IfThen(NullEqualExisting,
-                                     Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock)));
+                                     Expression.TryCatch(tryBlock, Expression.Catch(ExceptionExpr, catchBlock)));
             // Report error
             string CreateErrorMessage(string format, Type type, MethodBase constructor)
             {

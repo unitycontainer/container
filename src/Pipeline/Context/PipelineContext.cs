@@ -136,7 +136,7 @@ namespace Unity
 
         public ContainerContext ContainerContext { get; set; }
 
-        public Type? DeclaringType { get; set; }
+        public Type? DeclaringType;
 
 #if !NET40
         public IntPtr Parent;

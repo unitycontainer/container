@@ -40,9 +40,15 @@ namespace Unity
 
         protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
-            return Expression.Call(
-                Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
-                info, CreateParameterExpressions(info.GetParameters(), resolvers));
+            var parameters = info.GetParameters();
+            var variables = parameters.Select(p => Expression.Variable(p.ParameterType, p.Name))
+                                      .ToArray();
+
+            return Expression.Block(variables, CreateParameterExpressions(variables, parameters, resolvers)
+                                              .Concat(new[] {
+                                                  Expression.Call(
+                                                      Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), 
+                                                      info, variables) }));
         }
 
         #endregion
