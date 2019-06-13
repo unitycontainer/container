@@ -66,7 +66,7 @@ namespace Unity
 
             var tryBody = Expression.Block(expressions);
             var catchBody = Expression.Block(tryBody.Type,
-                Expression.IfThen(filter, Expression.Call(ExceptionDataExpr, AddMethod, Expression.Convert(NewGuid, typeof(object)), infoExpr)),
+                Expression.IfThen(filter, Expression.Call(ExceptionDataExpr, AddMethodInfo, Expression.Convert(CallNewGuidExpr, typeof(object)), infoExpr)),
                 Expression.Rethrow(tryBody.Type));
 
             return new Expression[]

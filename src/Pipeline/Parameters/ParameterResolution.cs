@@ -1,50 +1,75 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Reflection;
+using Unity.Exceptions;
 using Unity.Resolution;
 
 namespace Unity
 {
-    public abstract partial class ParametersPipeline<TMemberInfo>
+    public partial class ParametersProcessor
     {
-        protected virtual IEnumerable<ResolveDelegate<PipelineContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
+        public ResolveDelegate<PipelineContext> ParameterResolver(ParameterInfo parameter) 
+            => ParameterResolverFactory(parameter, FromAttribute(parameter));
+
+        public virtual ResolveDelegate<PipelineContext> ParameterResolver(ParameterInfo parameter, object injector) 
+            => ParameterResolverFactory(parameter, PreProcessResolver(parameter, injector));
+
+        protected virtual ResolveDelegate<PipelineContext> ParameterResolverFactory(ParameterInfo parameter, object resolver)
         {
-            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            for (var i = 0; i < parameters.Length; i++)
+#if NET40
+            if (parameter.DefaultValue is DBNull)
+#else
+            if (!parameter.HasDefaultValue)
+#endif
             {
-                var parameter = parameters[i];
-                var resolver = null == resolvers
-                             ? FromAttribute(parameter)
-                             : PreProcessResolver(parameter, resolvers[i]);
+                return (ref PipelineContext context) => context.Resolve(parameter, resolver);
+            }
+            else
+            {
+                // Check if has default value
 #if NET40
-                if (parameter.DefaultValue is DBNull)
+                var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
 #else
-                if (!parameter.HasDefaultValue)
+                var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
 #endif
+                return (ref PipelineContext context) =>
                 {
-                    // Plain vanilla case
-                    yield return (ref PipelineContext context) => context.Resolve(parameter, resolver);
-                }
-                else
-                {
-                    // Check if has default value
-#if NET40
-                    var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
-#else
-                    var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-#endif
-                    yield return (ref PipelineContext context) =>
+                    try
                     {
-                        try
-                        {
-                            return context.Resolve(parameter, resolver);
-                        }
-                        catch
-                        {
-                            return defaultValue;
-                        }
-                    };
-                }
+                        return context.Resolve(parameter, resolver);
+                    }
+                    catch
+                    {
+                        return defaultValue;
+                    }
+                };
             }
         }
+
+
+
+        #region Attribute Resolver Factories
+
+        protected virtual ResolveDelegate<PipelineContext> DependencyResolverFactory(Attribute attribute, ParameterInfo info, object? value = null)
+        {
+            return (ref PipelineContext context) => context.Resolve(info.ParameterType, ((DependencyResolutionAttribute)attribute).Name);
+        }
+
+        protected virtual ResolveDelegate<PipelineContext> OptionalDependencyResolverFactory(Attribute attribute, ParameterInfo info, object? value = null)
+        {
+            return (ref PipelineContext context) =>
+            {
+                try
+                {
+                    return context.Resolve(info.ParameterType, ((DependencyResolutionAttribute)attribute).Name);
+                }
+                catch (Exception ex) when (!(ex is CircularDependencyException))
+                {
+                    return value;
+                }
+            };
+        }
+
+        #endregion
+
     }
 }

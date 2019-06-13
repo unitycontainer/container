@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
@@ -74,20 +73,10 @@ namespace Unity
             }
         }
 
-        protected override Expression GetResolverExpression(PropertyInfo property, object? resolver)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var block = 
-                Expression.Block(property.PropertyType,
-                    Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(property, typeof(object))),
-                Expression.Rethrow(property.PropertyType));
+        #endregion
 
-            return Expression.TryCatch(base.GetResolverExpression(property, resolver),
-                   Expression.Catch(ex, block));
-        }
+
+        #region Resolution
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
@@ -109,6 +98,23 @@ namespace Unity
                     throw;
                 }
             };
+        }
+
+        #endregion
+
+
+        #region Expression 
+
+        protected override Expression GetResolverExpression(PropertyInfo property, object? resolver)
+        {
+            var block = Expression.Block(property.PropertyType,
+                       Expression.Call(ExceptionDataExpr, AddMethodInfo,
+                           Expression.Convert(CallNewGuidExpr, typeof(object)),
+                           Expression.Constant(property, typeof(object))),
+                   Expression.Rethrow(property.PropertyType));
+
+            return Expression.TryCatch(base.GetResolverExpression(property, resolver),
+                   Expression.Catch(ExceptionExpr, block));
         }
 
         #endregion

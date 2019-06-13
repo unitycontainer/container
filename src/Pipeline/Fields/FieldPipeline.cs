@@ -37,6 +37,21 @@ namespace Unity
         #endregion
 
 
+        #region Resolution
+
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(FieldInfo info, object? resolver)
+        {
+            var value = PreProcessResolver(info, resolver);
+            return (ref PipelineContext context) =>
+            {
+                info.SetValue(context.Existing, context.Resolve(info, value));
+                return context.Existing;
+            };
+        }
+
+        #endregion
+
+
         #region Expression 
 
         protected override Expression GetResolverExpression(FieldInfo info, object? resolver)
@@ -49,21 +64,6 @@ namespace Unity
                         Expression.Constant(info, typeof(FieldInfo)),
                         Expression.Constant(PreProcessResolver(info, resolver), typeof(object))),
                     info.FieldType));
-        }
-
-        #endregion
-
-
-        #region Resolution
-
-        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(FieldInfo info, object? resolver)
-        {
-            var value = PreProcessResolver(info, resolver);
-            return (ref PipelineContext context) =>
-            {
-                info.SetValue(context.Existing, context.Resolve(info, value));
-                return context.Existing;
-            };
         }
 
         #endregion

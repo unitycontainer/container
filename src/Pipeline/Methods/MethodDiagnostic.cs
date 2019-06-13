@@ -14,7 +14,7 @@ namespace Unity
         #region Constructors
 
         public MethodDiagnostic(UnityContainer container) 
-            : base(container)
+            : base(container, new ParametersDiagnosticProcessor())
         {
             container.Defaults.Set(typeof(Func<Type, InjectionMember, MethodInfo>), InjectionValidatingSelector);
         }
@@ -51,34 +51,34 @@ namespace Unity
                     if (member.IsStatic)
                     {
                         yield return new InvalidRegistrationException(
-                            $"Static method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Static methods cannot be injected");
+                            $"Static method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Static methods cannot be injected", member);
                     }
 
                     if (member.IsPrivate)
                         yield return new InvalidRegistrationException(
-                            $"Private method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Private methods cannot be injected");
+                            $"Private method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Private methods cannot be injected", member);
 
                     if (member.IsFamily)
                         yield return new InvalidRegistrationException(
-                            $"Protected method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Protected methods cannot be injected");
+                            $"Protected method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Protected methods cannot be injected", member);
 
                     if (member.IsGenericMethodDefinition)
                     {
                         yield return new InvalidRegistrationException(
-                            $"Open generic method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Open generic methods cannot be injected.");
+                            $"Open generic method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Open generic methods cannot be injected.", member);
                     }
 
                     var parameters = member.GetParameters();
                     if (parameters.Any(param => param.IsOut))
                     {
                         yield return new InvalidRegistrationException(
-                            $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.");
+                            $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.", member);
                     }
 
                     if (parameters.Any(param => param.ParameterType.IsByRef))
                     {
                         yield return new InvalidRegistrationException(
-                            $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
+                            $"Method {member.Name} on type '{member.DeclaringType.Name}' has 'ref' parameter and cannot be injected.", member);
                     }
 
                     yield return member;
@@ -87,27 +87,14 @@ namespace Unity
             }
         }
 
-        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var block = Expression.Block(typeof(void),
-                Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(typeof(void)));
+        #endregion
 
-            return 
-                Expression.TryCatch(
-                    Expression.Call(
-                        Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
-                        info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers)),
-                Expression.Catch(ex, block));
-        }
+
+        #region Resolution
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
-            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref PipelineContext c) =>
             {
                 try
@@ -128,6 +115,23 @@ namespace Unity
 
                 return c.Existing;
             };
+        }
+        #endregion
+
+
+        #region Expression 
+
+        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
+        {
+            var block = Expression.Block(typeof(void),
+                Expression.Call(ExceptionDataExpr, AddMethodInfo,
+                        Expression.Convert(CallNewGuidExpr, typeof(object)),
+                        Expression.Constant(info, typeof(object))),
+                Expression.Rethrow(typeof(void)));
+
+            return Expression.TryCatch(base.GetResolverExpression(info, resolvers),
+                   Expression.Catch(ExceptionExpr, block));
+
         }
 
         #endregion

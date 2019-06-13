@@ -63,7 +63,7 @@ namespace Unity
         #region Constructors
 
         public ConstructorDiagnostic(UnityContainer container) 
-            : base(container)
+            : base(container, new ParametersDiagnosticProcessor())
         {
             container.Defaults.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), InjectionValidatingSelector);
         }
@@ -71,7 +71,7 @@ namespace Unity
         #endregion
 
 
-        #region Selection
+        #region Selection Overrides
 
         public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
@@ -137,12 +137,6 @@ namespace Unity
             return new[] { SelectMethod(type, constructors) };
         }
 
-        /// <summary>
-        /// Selects default constructor
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to be built</param>
-        /// <param name="members">All public constructors this type implements</param>
-        /// <returns></returns>
         public override object? LegacySelector(Type type, ConstructorInfo[] members)
         {
             // TODO: Add validation to legacy selector
@@ -230,82 +224,6 @@ namespace Unity
         #endregion
 
 
-        #region Expression Overrides
-
-        public override IEnumerable<Expression> Express(ref PipelineBuilder builder)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = builder.Type.GetTypeInfo();
-#else
-            var typeInfo = builder.Type;
-#endif
-            // Validate if Type could be created
-            if (typeInfo.IsInterface) return CannotConstructInterfaceExpr.Concat(builder.Express());
-
-            if (typeInfo.IsAbstract) return CannotConstructAbstractClassExpr.Concat(builder.Express());
-
-            if (typeInfo.IsSubclassOf(typeof(Delegate)))
-                return CannotConstructDelegateExpr.Concat(builder.Express());
-
-            if (typeof(string) == builder.Type)
-                return TypeIsNotConstructableExpr.Concat(builder.Express());
-
-            // Build expression as usual
-            return base.Express(ref builder);
-        }
-
-        protected override IEnumerable<Expression> GetConstructorExpression(ConstructorInfo info, object? resolvers)
-        {
-            var parameters = info.GetParameters();
-            var variables = parameters.Select(p => Expression.Variable(p.ParameterType, p.Name))
-                                        .ToArray();
-
-            // Check if has Out or ByRef parameters
-            var tryBlock = parameters.Any(pi => pi.ParameterType.IsByRef)
-                
-                // Report error
-                ? (Expression)Expression.Throw(Expression.New(InvalidRegistrationExpressionCtor,
-                        Expression.Constant(CreateErrorMessage("The constructor {1} selected for type {0} has ref or out parameters. Such parameters are not supported for constructor injection.", 
-                        info.DeclaringType, info))))
-
-                // Create new instance
-                : Expression.Assign(
-                    PipelineContextExpression.Existing, 
-                    Expression.Convert(Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers)), typeof(object)));
-
-            //
-            var thenBlock = Expression.Block(variables, CreateParameterExpressions(variables, parameters, resolvers)
-                                                       .Concat(new[] { Expression.Assign(
-                                                           PipelineContextExpression.Existing,
-                                                           Expression.Convert(
-                                                               Expression.New(info, variables), typeof(object)))}));
-
-            yield return Expression.IfThen(NullEqualExisting, thenBlock);
-
-            // Add location to dictionary and re-throw
-            var catchBlock = Expression.Block(tryBlock.Type,
-                Expression.Call(ExceptionDataExpr, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(tryBlock.Type));
-
-            // Create 
-            yield return Expression.IfThen(NullEqualExisting,
-                                     Expression.TryCatch(tryBlock, Expression.Catch(ExceptionExpr, catchBlock)));
-            // Report error
-            string CreateErrorMessage(string format, Type type, MethodBase constructor)
-            {
-                var parameterDescriptions =
-                    constructor.GetParameters()
-                               .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
-
-                return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
-            }
-        }
-
-        #endregion
-
-
         #region Resolver Overrides
 
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder)
@@ -373,7 +291,34 @@ namespace Unity
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
-            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameters = info.GetParameters();
+
+            // Check for 'out' parameters
+            if (parameters.Any(param => param.IsOut))
+            {
+                return (ref PipelineContext context) => 
+                {
+                    if (null == context.Existing)
+                        new InvalidRegistrationException($"Constructor {info} with 'out' parameters cannot be injected.", info);
+
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
+
+            // Check for 'ref' parameters
+            if (parameters.Any(param => param.ParameterType.IsByRef))
+            {
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing)
+                        new InvalidRegistrationException($"Constructor {info} with 'ref' parameters cannot be injected.", info);
+
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
+
+            // Create resolver
+            var parameterResolvers = ParameterResolvers(parameters, resolvers).ToArray();
 
             return (ref PipelineContext context) =>
             {
@@ -400,7 +345,35 @@ namespace Unity
 
         protected override ResolveDelegate<PipelineContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
-            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameters = info.GetParameters();
+
+            // Check for 'out' parameters
+            if (parameters.Any(param => param.IsOut))
+            {
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing)
+                        new InvalidRegistrationException($"Constructor {info} with 'out' parameters cannot be injected.", info);
+
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
+
+            // Check for 'ref' parameters
+            if (parameters.Any(param => param.ParameterType.IsByRef))
+            {
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing)
+                        new InvalidRegistrationException($"Constructor {info} with 'ref' parameters cannot be injected.", info);
+
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
+
+            // Create resolver
+            var parameterResolvers = ParameterResolvers(parameters, resolvers).ToArray();
+
             // PerResolve lifetime
             return (ref PipelineContext context) =>
             {
@@ -413,20 +386,64 @@ namespace Unity
                             dependencies[i] = parameterResolvers[i](ref context);
 
                         context.Existing = info.Invoke(dependencies);
+                        context.Set(typeof(LifetimeManager),
+                              new RuntimePerResolveLifetimeManager(context.Existing));
                     }
                     catch (Exception ex)
                     {
                         ex.Data.Add(Guid.NewGuid(), info);
                         throw;
                     }
-
-                    context.Set(typeof(LifetimeManager),
-                          new RuntimePerResolveLifetimeManager(context.Existing));
                 }
 
                 return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
             };
         }
+
+
+        #endregion
+
+
+        #region Expression Overrides
+
+        public override IEnumerable<Expression> Express(ref PipelineBuilder builder)
+        {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = builder.Type.GetTypeInfo();
+#else
+            var typeInfo = builder.Type;
+#endif
+            // Validate if Type could be created
+            if (typeInfo.IsInterface)
+                return CannotConstructInterfaceExpr.Concat(builder.Express());
+
+            if (typeInfo.IsAbstract)
+                return CannotConstructAbstractClassExpr.Concat(builder.Express());
+
+            if (typeInfo.IsSubclassOf(typeof(Delegate)))
+                return CannotConstructDelegateExpr.Concat(builder.Express());
+
+            if (typeof(string) == builder.Type)
+                return TypeIsNotConstructableExpr.Concat(builder.Express());
+
+            // Build expression as usual
+            return base.Express(ref builder);
+        }
+
+
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
+        {
+            var tryBlock = base.GetResolverExpression(info, resolvers);
+            var catchBlock = Expression.Block(tryBlock.Type,
+                    Expression.Call(ExceptionDataExpr, AddMethodInfo,
+                        Expression.Convert(CallNewGuidExpr, typeof(object)),
+                        Expression.Constant(info, typeof(object))),
+                Expression.Rethrow(tryBlock.Type));
+
+            return Expression.TryCatch(tryBlock,
+                   Expression.Catch(ExceptionExpr, catchBlock));
+        }
+
 
         #endregion
     }

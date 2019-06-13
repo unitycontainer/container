@@ -226,7 +226,7 @@ namespace Unity
             var builder = new StringBuilder();
             builder.AppendLine(ex.Message);
             builder.AppendLine(line);
-            builder.AppendLine("Exception occurred while:");
+            builder.AppendLine("Exception occurred:");
 
             foreach (DictionaryEntry item in ex.Data)
                 builder.AppendLine(DataToString(item.Value));

@@ -44,23 +44,6 @@ namespace Unity
         #endregion
 
 
-        #region Expression 
-
-        protected override Expression GetResolverExpression(PropertyInfo info, object? resolver)
-        {
-            return Expression.Assign(
-                Expression.Property(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
-                Expression.Convert(
-                    Expression.Call(PipelineContextExpression.Context,
-                        PipelineContextExpression.ResolvePropertyMethod,
-                        Expression.Constant(info, typeof(PropertyInfo)),
-                        Expression.Constant(PreProcessResolver(info, resolver), typeof(object))),
-                    info.PropertyType));
-        }
-
-        #endregion
-
-
         #region Resolution
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(PropertyInfo info, object? resolver)
@@ -75,6 +58,23 @@ namespace Unity
 #endif
                 return context.Existing;
             };
+        }
+
+        #endregion
+
+
+        #region Expression 
+
+        protected override Expression GetResolverExpression(PropertyInfo info, object? resolver)
+        {
+            return Expression.Assign(
+                Expression.Property(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
+                Expression.Convert(
+                    Expression.Call(PipelineContextExpression.Context,
+                        PipelineContextExpression.ResolvePropertyMethod,
+                        Expression.Constant(info, typeof(PropertyInfo)),
+                        Expression.Constant(PreProcessResolver(info, resolver), typeof(object))),
+                    info.PropertyType));
         }
 
         #endregion

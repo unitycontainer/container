@@ -8,12 +8,12 @@ using Unity.Resolution;
 
 namespace Unity
 {
-    public partial class MethodPipeline : ParametersPipeline<MethodInfo>
+    public partial class MethodPipeline : MethodBasePipeline<MethodInfo>
     {
         #region Constructors
 
-        public MethodPipeline(UnityContainer container)
-            : base(typeof(InjectionMethodAttribute), container)
+        public MethodPipeline(UnityContainer container, ParametersProcessor? processor = null)
+            : base(typeof(InjectionMethodAttribute), container, processor)
         {
         }
 
@@ -36,29 +36,11 @@ namespace Unity
         #endregion
 
 
-        #region Expression 
-
-        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
-        {
-            var parameters = info.GetParameters();
-            var variables = parameters.Select(p => Expression.Variable(p.ParameterType, p.Name))
-                                      .ToArray();
-
-            return Expression.Block(variables, CreateParameterExpressions(variables, parameters, resolvers)
-                                              .Concat(new[] {
-                                                  Expression.Call(
-                                                      Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), 
-                                                      info, variables) }));
-        }
-
-        #endregion
-
-
         #region Resolution
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref PipelineContext c) =>
             {
                 if (null == c.Existing) return c.Existing;
@@ -71,6 +53,24 @@ namespace Unity
 
                 return c.Existing;
             };
+        }
+
+        #endregion
+
+
+        #region Expression 
+
+        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
+        {
+            var parameters = info.GetParameters();
+            var variables = parameters.Select(ToVariable)
+                                      .ToArray();
+
+            return Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
+                                              .Concat(new[] {
+                                                  Expression.Call(
+                                                      Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), 
+                                                      info, variables) }));
         }
 
         #endregion

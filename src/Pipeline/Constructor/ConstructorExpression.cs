@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 
@@ -64,9 +65,8 @@ namespace Unity
             var lifetimeManager = (LifetimeManager?)builder.Policies?.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
-                ? GetConstructorExpression(info, resolvers).Concat(new[] { SetPerBuildSingletonExpr })
-                                                           .Concat(expressions)
-                : GetConstructorExpression(info, resolvers).Concat(expressions);
+                ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }.Concat(expressions)
+                : new[] { GetResolverExpression(info, resolvers) }.Concat(expressions);
         }
 
         #endregion
@@ -74,19 +74,26 @@ namespace Unity
 
         #region Overrides
 
-        protected virtual IEnumerable<Expression> GetConstructorExpression(ConstructorInfo info, object? resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {
-            var parameters = info.GetParameters();
-            var variables = parameters.Select(p => Expression.Variable(p.ParameterType, p.Name))
-                                        .ToArray();
+            try
+            {
+                var parameters = info.GetParameters();
+                var variables = parameters.Select(ToVariable)
+                                          .ToArray();
 
-            var thenBlock = Expression.Block(variables, CreateParameterExpressions(variables, parameters, resolvers)
-                                                       .Concat(new[] { Expression.Assign(
+                return Expression.IfThen(NullEqualExisting,
+                    Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
+                                               .Concat(new[] {
+                                                       Expression.Assign(
                                                            PipelineContextExpression.Existing,
                                                            Expression.Convert(
-                                                               Expression.New(info, variables), typeof(object)))}));
-
-            yield return Expression.IfThen(NullEqualExisting, thenBlock);
+                                                               Expression.New(info, variables), typeof(object)))})));
+            }
+            catch (Exception ex)
+            {
+                return Expression.IfThen(NullEqualExisting, Expression.Throw(Expression.Constant(new InvalidRegistrationException(ex))));
+            }
         }
 
         #endregion

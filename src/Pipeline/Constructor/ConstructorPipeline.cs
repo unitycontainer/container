@@ -7,12 +7,12 @@ using Unity.Utility;
 
 namespace Unity
 {
-    public partial class ConstructorPipeline : ParametersPipeline<ConstructorInfo>
+    public partial class ConstructorPipeline : MethodBasePipeline<ConstructorInfo>
     {
         #region Constructors
 
-        public ConstructorPipeline(UnityContainer container)
-            : base(typeof(InjectionConstructorAttribute), container)
+        public ConstructorPipeline(UnityContainer container, ParametersProcessor? processor = null)
+            : base(typeof(InjectionConstructorAttribute), container, processor)
         {
             SelectMethod = container.ExecutionMode.IsLegacy()
                 ? (Func<Type, ConstructorInfo[], object?>)LegacySelector

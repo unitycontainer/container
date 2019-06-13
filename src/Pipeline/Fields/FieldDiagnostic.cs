@@ -36,7 +36,7 @@ namespace Unity
             // Select Attributed members
             foreach (var member in type.GetDeclaredFields())
             {
-                foreach(var node in AttributeFactories)
+                foreach (var node in AttributeFactories)
                 {
 #if NET40
                     if (!member.IsDefined(node.Type, true) ||
@@ -75,20 +75,10 @@ namespace Unity
             }
         }
 
-        protected override Expression GetResolverExpression(FieldInfo field, object? resolver)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var block = 
-                Expression.Block(field.FieldType,
-                    Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(field, typeof(object))),
-                Expression.Rethrow(field.FieldType));
+        #endregion
 
-            return Expression.TryCatch(base.GetResolverExpression(field, resolver),
-                   Expression.Catch(ex, block));
-        }
+
+        #region Resolution
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(FieldInfo info, object? resolver)
         {
@@ -106,6 +96,23 @@ namespace Unity
                     throw;
                 }
             };
+        }
+
+        #endregion
+
+
+        #region Expression 
+
+        protected override Expression GetResolverExpression(FieldInfo field, object? resolver)
+        {
+            var block = Expression.Block(field.FieldType,
+                    Expression.Call(ExceptionDataExpr, AddMethodInfo,
+                        Expression.Convert(CallNewGuidExpr, typeof(object)),
+                        Expression.Constant(field, typeof(object))),
+                Expression.Rethrow(field.FieldType));
+
+            return Expression.TryCatch(base.GetResolverExpression(field, resolver),
+                   Expression.Catch(ExceptionExpr, block));
         }
 
         #endregion

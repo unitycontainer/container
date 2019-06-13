@@ -58,6 +58,10 @@ namespace Unity
                         break;
 
 
+                    case Exception exception:
+                        yield return Expression.Throw(Expression.Constant(exception));
+                        yield break;
+
                     // Unknown
                     default:
                         throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");

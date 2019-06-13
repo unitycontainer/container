@@ -1,133 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Resolution;
 
 namespace Unity
 {
-    public abstract partial class ParametersPipeline<TMemberInfo>
+    public partial class ParametersDiagnosticProcessor : ParametersProcessor
     {
-        #region Diagnostic Parameter Factories
 
-        protected virtual IEnumerable<Expression> CreateDiagnosticParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
+        protected override ResolveDelegate<PipelineContext> ParameterResolverFactory(ParameterInfo parameter, object resolver)
         {
-            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-                var resolver = null == resolvers
-                             ? FromAttribute(parameter)
-                             : PreProcessResolver(parameter, resolvers[i]);
-
-                // Check if has default value
-
 #if NET40
-                Expression defaultValueExpr = null;
-                if (parameter.DefaultValue is DBNull)
+            if (parameter.DefaultValue is DBNull)
 #else
-                var defaultValueExpr = parameter.HasDefaultValue
-                    ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
-                    : null;
-
-                if (!parameter.HasDefaultValue)
+            if (!parameter.HasDefaultValue)
 #endif
+            {
+                return (ref PipelineContext context) =>
                 {
-                    var ex = Expression.Variable(typeof(Exception));
-                    var exData = Expression.MakeMemberAccess(ex, DataProperty);
-                    var block = Expression.Block(parameter.ParameterType,
-                        Expression.Call(exData, AddMethod,
-                                Expression.Convert(NewGuid, typeof(object)),
-                                Expression.Constant(parameter, typeof(object))),
-                        Expression.Rethrow(parameter.ParameterType));
-
-                    var tryBlock = Expression.Convert(
-                                    Expression.Call(PipelineContextExpression.Context,
-                                        PipelineContextExpression.ResolveParameterMethod,
-                                        Expression.Constant(parameter, typeof(ParameterInfo)),
-                                        Expression.Constant(resolver, typeof(object))),
-                                    parameter.ParameterType);
-
-                    yield return Expression.TryCatch(tryBlock, Expression.Catch(ex, block));
-                }
-                else
-                {
-                    var variable = Expression.Variable(parameter.ParameterType);
-                    var resolve = Expression.Convert(
-                                    Expression.Call(PipelineContextExpression.Context,
-                                        PipelineContextExpression.ResolveParameterMethod,
-                                        Expression.Constant(parameter, typeof(ParameterInfo)),
-                                        Expression.Constant(resolver, typeof(object))),
-                                    parameter.ParameterType);
-
-                    yield return Expression.Block(new[] { variable }, new Expression[]
+                    try
                     {
-                        Expression.TryCatch(
-                            Expression.Assign(variable, resolve),
-                        Expression.Catch(typeof(Exception),
-                            Expression.Assign(variable, defaultValueExpr))),
-                        variable
-                    });
-                }
+                        return context.Resolve(parameter, resolver);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Data.Add(Guid.NewGuid(), parameter);
+                        throw;
+                    }
+                };
+            }
+            else
+            {
+                // Check if has default value
+#if NET40
+                var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
+#else
+                var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
+#endif
+                return (ref PipelineContext context) =>
+                {
+                    try
+                    {
+                        return context.Resolve(parameter, resolver);
+                    }
+                    catch
+                    {
+                        return defaultValue;
+                    }
+                };
             }
         }
 
-        protected virtual IEnumerable<ResolveDelegate<PipelineContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
+        protected override Expression ParameterExpressionFactory(ParameterExpression expression, ParameterInfo parameter, object resolver)
         {
-            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-                var resolver = null == resolvers
-                             ? FromAttribute(parameter)
-                             : PreProcessResolver(parameter, resolvers[i]);
+            var tryBlock = base.ParameterExpressionFactory(expression, parameter, resolver);
+            var catchBlock = Expression.Block(tryBlock.Type,
+                    Expression.Call(ExceptionDataExpr, AddMethodInfo,
+                        Expression.Convert(CallNewGuidExpr, typeof(object)),
+                        Expression.Constant(parameter, typeof(object))),
+                Expression.Rethrow(tryBlock.Type));
 
-                // TODO: Add diagnostic for parameters
-
-                // Check if has default value
-#if NET40
-                if (parameter.DefaultValue is DBNull)
-#else
-                if (!parameter.HasDefaultValue)
-#endif
-                {
-                    // Plain vanilla case
-                    yield return (ref PipelineContext context) =>
-                    {
-                        try
-                        {
-                            return context.Resolve(parameter, resolver);
-                        }
-                        catch (Exception ex)
-                        {
-                            ex.Data.Add(Guid.NewGuid(), parameter);
-                            throw;
-                        }
-                    };
-                }
-                else
-                {
-                    // Check if has default value
-#if NET40
-                    var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
-#else
-                    var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-#endif
-                    yield return (ref PipelineContext context) =>
-                    {
-                        try
-                        {
-                            return context.Resolve(parameter, resolver);
-                        }
-                        catch
-                        {
-                            return defaultValue;
-                        }
-                    };
-                }
-            }
+            return Expression.TryCatch(tryBlock,
+                   Expression.Catch(ExceptionExpr, catchBlock));
         }
-
-        #endregion
     }
 }

@@ -88,7 +88,7 @@ namespace Unity
 
         protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
             return (ref PipelineContext context) =>
             {
@@ -107,7 +107,7 @@ namespace Unity
 
         protected virtual ResolveDelegate<PipelineContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
         {
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime
             return (ref PipelineContext context) =>
             {
