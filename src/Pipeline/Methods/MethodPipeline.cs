@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -40,19 +41,35 @@ namespace Unity
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
-            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return (ref PipelineContext c) =>
+            try
             {
-                if (null == c.Existing) return c.Existing;
+                // Create parameter resolvers
+                var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
-                var parameters = new object[parameterResolvers.Length];
-                for (var i = 0; i < parameters.Length; i++)
-                    parameters[i] = parameterResolvers[i](ref c);
+                // Invoke method
+                return (ref PipelineContext c) =>
+                {
+                    if (null == c.Existing) return c.Existing;
 
-                info.Invoke(c.Existing, parameters);
+                    var parameters = new object[parameterResolvers.Length];
+                    for (var i = 0; i < parameters.Length; i++)
+                        parameters[i] = parameterResolvers[i](ref c);
 
-                return c.Existing;
-            };
+                    info.Invoke(c.Existing, parameters);
+
+                    return c.Existing;
+                };
+            }
+            catch (InvalidRegistrationException ex)
+            {
+                // Throw if parameters invalid
+                return (ref PipelineContext context) => throw ex;
+            }
+            catch (Exception ex)
+            {
+                // Throw if parameters invalid
+                return (ref PipelineContext context) => throw new InvalidRegistrationException(ex);
+            }
         }
 
         #endregion
@@ -62,15 +79,30 @@ namespace Unity
 
         protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
-            var parameters = info.GetParameters();
-            var variables = parameters.Select(ToVariable)
-                                      .ToArray();
+            try
+            {
+                // Create parameter resolvers
+                var parameters = info.GetParameters();
+                var variables = VariableExpressions(parameters);
 
-            return Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
-                                              .Concat(new[] {
+                // Invoke method
+                return Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
+                                                  .Concat(new[] {
                                                   Expression.Call(
-                                                      Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), 
+                                                      Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
                                                       info, variables) }));
+            }
+            catch (InvalidRegistrationException reg)
+            {
+                // Throw if parameters invalid
+                return Expression.Throw(Expression.Constant(reg));
+            }
+            catch (Exception ex)
+            {
+                // Throw if parameters invalid
+                return Expression.Throw(Expression.Constant(new InvalidRegistrationException(ex)));
+            }
+
         }
 
         #endregion

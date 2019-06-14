@@ -7,6 +7,8 @@ namespace Unity
 {
     public partial class ParametersProcessor
     {
+        private const string _error = "Invalid 'ref' or 'out' parameter '{0}' ({1})";
+
         public ResolveDelegate<PipelineContext> ParameterResolver(ParameterInfo parameter) 
             => ParameterResolverFactory(parameter, FromAttribute(parameter));
 
@@ -15,6 +17,8 @@ namespace Unity
 
         protected virtual ResolveDelegate<PipelineContext> ParameterResolverFactory(ParameterInfo parameter, object resolver)
         {
+            if (parameter.ParameterType.IsByRef)
+                throw new InvalidRegistrationException(string.Format(_error, parameter.Name, parameter.ParameterType), parameter);
 #if NET40
             if (parameter.DefaultValue is DBNull)
 #else

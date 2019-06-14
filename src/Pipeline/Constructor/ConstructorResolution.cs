@@ -74,11 +74,7 @@ namespace Unity
                     };
             }
 
-            var lifetimeManager = (LifetimeManager?)builder.Policies?.Get(typeof(LifetimeManager));
-
-            return lifetimeManager is PerResolveLifetimeManager
-                ? GetPerResolveDelegate(info, resolvers, pipeline)
-                : GetResolverDelegate(info, resolvers, pipeline);
+            return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
         }
 
         #endregion
@@ -86,46 +82,74 @@ namespace Unity
 
         #region Implementation
 
-        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
+        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, 
+                                                                               ResolveDelegate<PipelineContext>? pipeline, 
+                                                                               bool perResolve)
         {
-            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
-
-            return (ref PipelineContext context) =>
+            try
             {
-                if (null == context.Existing)
+                // Create parameter resolvers
+                var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
+
+                // Select Lifetime type ( Per Resolve )
+                if (perResolve)
                 {
-                    var dependencies = new object[parameterResolvers.Length];
-                    for (var i = 0; i < dependencies.Length; i++)
-                        dependencies[i] = parameterResolvers[i](ref context);
+                    // Activate type
+                    return (ref PipelineContext context) =>
+                    {
+                        if (null == context.Existing)
+                        {
+                            var dependencies = new object[parameterResolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = parameterResolvers[i](ref context);
 
-                    context.Existing = info.Invoke(dependencies);
+                            context.Existing = info.Invoke(dependencies);
+                            context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                        }
+
+                        // Invoke other initializers
+                        return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                    };
                 }
+                else
+                {
+                    // Activate type
+                    return (ref PipelineContext context) =>
+                    {
+                        if (null == context.Existing)
+                        {
+                            var dependencies = new object[parameterResolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = parameterResolvers[i](ref context);
 
-                return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
-            };
+                            context.Existing = info.Invoke(dependencies);
+                        }
+
+                        // Invoke other initializers
+                        return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                    };
+                }
+            }
+            catch (InvalidRegistrationException ex)
+            {
+                // Throw if try to create
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing) throw ex;
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
+            catch (Exception ex)
+            {
+                // Throw if try to create
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing) throw new InvalidRegistrationException(ex);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
         }
 
-        protected virtual ResolveDelegate<PipelineContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers, ResolveDelegate<PipelineContext>? pipeline)
-        {
-            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            // PerResolve lifetime
-            return (ref PipelineContext context) =>
-            {
-                if (null == context.Existing)
-                {
-                    var dependencies = new object[parameterResolvers.Length];
-                    for (var i = 0; i < dependencies.Length; i++)
-                        dependencies[i] = parameterResolvers[i](ref context);
-
-                    context.Existing = info.Invoke(dependencies);
-                    context.Set(typeof(LifetimeManager),
-                          new RuntimePerResolveLifetimeManager(context.Existing));
-                }
-
-                return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
-            };
-        }
-        
         #endregion
     }
 }

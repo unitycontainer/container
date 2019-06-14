@@ -10,45 +10,22 @@ namespace Unity
 
         protected override ResolveDelegate<PipelineContext> ParameterResolverFactory(ParameterInfo parameter, object resolver)
         {
-#if NET40
-            if (parameter.DefaultValue is DBNull)
-#else
-            if (!parameter.HasDefaultValue)
-#endif
+            var pipeline = base.ParameterResolverFactory(parameter, resolver);
+
+            return (ref PipelineContext context) =>
             {
-                return (ref PipelineContext context) =>
+                try
                 {
-                    try
-                    {
-                        return context.Resolve(parameter, resolver);
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.Data.Add(Guid.NewGuid(), parameter);
-                        throw;
-                    }
-                };
-            }
-            else
-            {
-                // Check if has default value
-#if NET40
-                var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
-#else
-                var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-#endif
-                return (ref PipelineContext context) =>
+                    // TODO: Add validation
+
+                    return pipeline(ref context);
+                }
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        return context.Resolve(parameter, resolver);
-                    }
-                    catch
-                    {
-                        return defaultValue;
-                    }
-                };
-            }
+                    ex.Data.Add(Guid.NewGuid(), parameter);
+                    throw;
+                }
+            };
         }
 
         protected override Expression ParameterExpressionFactory(ParameterExpression expression, ParameterInfo parameter, object resolver)

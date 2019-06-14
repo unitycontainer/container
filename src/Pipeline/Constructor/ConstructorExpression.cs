@@ -61,12 +61,7 @@ namespace Unity
                     return NoConstructorExpr.Concat(expressions);
             }
 
-            // Get lifetime manager
-            var lifetimeManager = (LifetimeManager?)builder.Policies?.Get(typeof(LifetimeManager));
-
-            return lifetimeManager is PerResolveLifetimeManager
-                ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }.Concat(expressions)
-                : new[] { GetResolverExpression(info, resolvers) }.Concat(expressions);
+            return new[] { GetResolverExpression(info, resolvers, builder.LifetimeManager is PerResolveLifetimeManager) }.Concat(expressions);
         }
 
         #endregion
@@ -74,21 +69,35 @@ namespace Unity
 
         #region Overrides
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
+                //? new[] { GetResolverExpression(info, resolvers),  }.Concat(expressions)
+        protected virtual Expression GetResolverExpression(ConstructorInfo info, object? resolvers, bool perResolve)
         {
             try
             {
                 var parameters = info.GetParameters();
-                var variables = parameters.Select(ToVariable)
-                                          .ToArray();
+                var variables = VariableExpressions(parameters);
 
-                return Expression.IfThen(NullEqualExisting,
-                    Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
-                                               .Concat(new[] {
-                                                       Expression.Assign(
-                                                           PipelineContextExpression.Existing,
-                                                           Expression.Convert(
-                                                               Expression.New(info, variables), typeof(object)))})));
+                if (perResolve)
+                    return Expression.IfThen(NullEqualExisting,
+                        Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
+                                                   .Concat(new[] {
+                                                           Expression.Assign(
+                                                               PipelineContextExpression.Existing,
+                                                               Expression.Convert(
+                                                                   Expression.New(info, variables), typeof(object)))})
+                                                   .Concat(new[] { SetPerBuildSingletonExpr })));
+                else
+                    return Expression.IfThen(NullEqualExisting,
+                        Expression.Block(variables, ParameterExpressions(variables, parameters, resolvers)
+                                                   .Concat(new[] {
+                                                           Expression.Assign(
+                                                               PipelineContextExpression.Existing,
+                                                               Expression.Convert(
+                                                                   Expression.New(info, variables), typeof(object)))})));
+            }
+            catch (InvalidRegistrationException reg)
+            {
+                return Expression.IfThen(NullEqualExisting, Expression.Throw(Expression.Constant(reg)));
             }
             catch (Exception ex)
             {

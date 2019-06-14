@@ -15,6 +15,7 @@ namespace Unity
 
         protected readonly UnityContainer Container;
         protected readonly ParametersProcessor Processor;
+        private const string _error = "Invalid 'ref' or 'out' parameter '{0}' ({1})";
 
         #endregion
 
@@ -89,12 +90,18 @@ namespace Unity
             }
         }
 
-        protected ParameterExpression ToVariable(ParameterInfo info)
+        protected ParameterExpression[] VariableExpressions(ParameterInfo[] parameters)
         {
-            if (info.ParameterType.IsByRef)
-                throw  new InvalidRegistrationException($"Invalid By Ref parameter '{info.Name}' ({info.ParameterType})", info);
+            return parameters.Select(ToVariable)
+                             .ToArray();
 
-            return Expression.Variable(info.ParameterType, info.Name);
+            ParameterExpression ToVariable(ParameterInfo info)
+            {
+                if (info.ParameterType.IsByRef)
+                    throw  new InvalidRegistrationException(string.Format(_error, info.Name, info.ParameterType), info);
+
+                return Expression.Variable(info.ParameterType, info.Name);
+            }
         }
 
         protected bool CanResolve(ParameterInfo info)
