@@ -7,7 +7,7 @@ namespace Unity.Tests
     [TestClass]
     public class PerformanceFixture
     {
-        IUnityContainer _container = new UnityContainer();
+        IUnityContainer _container = new UnityContainer(ModeFlags.Compiled);
 
         [TestInitialize]
         public virtual void SetupContainer()
@@ -16,6 +16,7 @@ namespace Unity.Tests
             _container.RegisterType<IFoo, Foo>();
             _container.RegisterType<IFoo, Foo>("1");
             _container.RegisterFactory<IFoo>("2", c => new Foo());
+            _container.RegisterInstance(typeof(Foo), new Foo());
             _container.RegisterType(typeof(IFoo<>), typeof(Foo<>));
         }
 
@@ -24,6 +25,17 @@ namespace Unity.Tests
         {
             // Act
             var instance = _container.Resolve(typeof(IUnityContainer), null) as IUnityContainer;
+
+            // Validate
+            Assert.IsNotNull(instance);
+        }
+
+
+        [TestMethod]
+        public void Instance()
+        {
+            // Act
+            var instance = _container.Resolve(typeof(Foo), null) as IUnityContainer;
 
             // Validate
             Assert.IsNotNull(instance);
