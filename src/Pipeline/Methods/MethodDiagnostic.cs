@@ -68,19 +68,6 @@ namespace Unity
                             $"Open generic method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Open generic methods cannot be injected.", member);
                     }
 
-                    var parameters = member.GetParameters();
-                    if (parameters.Any(param => param.IsOut))
-                    {
-                        yield return new InvalidRegistrationException(
-                            $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.", member);
-                    }
-
-                    if (parameters.Any(param => param.ParameterType.IsByRef))
-                    {
-                        yield return new InvalidRegistrationException(
-                            $"Method {member.Name} on type '{member.DeclaringType.Name}' has 'ref' parameter and cannot be injected.", member);
-                    }
-
                     yield return member;
                     break;
                 }
@@ -94,26 +81,21 @@ namespace Unity
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
-            var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return (ref PipelineContext c) =>
+            var resolver = base.GetResolverDelegate(info, resolvers);
+
+            return (ref PipelineContext context) =>
             {
                 try
                 {
-                    if (null == c.Existing) return c.Existing;
+                    // TODO: Add validation 
 
-                    var parameters = new object[parameterResolvers.Length];
-                    for (var i = 0; i < parameters.Length; i++)
-                        parameters[i] = parameterResolvers[i](ref c);
-
-                    info.Invoke(c.Existing, parameters);
+                    return resolver(ref context);
                 }
                 catch (Exception ex)
                 {
                     ex.Data.Add(Guid.NewGuid(), info);
                     throw;
                 }
-
-                return c.Existing;
             };
         }
         #endregion

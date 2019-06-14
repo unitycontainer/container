@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Unity.Exceptions
 {
@@ -22,5 +23,11 @@ namespace Unity.Exceptions
             Data.Add(Guid.NewGuid(), info);
         }
 
+        internal InvalidRegistrationException(string message, ParameterInfo info)
+            : base(message)
+        {
+            Data.Add(Guid.NewGuid(), info.ParameterType);
+            Data.Add(Guid.NewGuid(), info);
+        }
     }
 }

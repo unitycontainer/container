@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Unity.Exceptions;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -292,22 +293,85 @@ namespace Unity
                                                                                 ResolveDelegate<PipelineContext>? pipeline, 
                                                                                 bool perResolve)
         {
-            var resolver = base.GetResolverDelegate(info, resolvers, pipeline, perResolve);
-
-            return (ref PipelineContext context) =>
+            try
             {
-                try
-                {
-                    // TODO: Add validation 
+                // Create parameter resolvers
+                var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
-                    return resolver(ref context);
-                }
-                catch (Exception ex)
+                // Select Lifetime type ( Per Resolve )
+                if (perResolve)
                 {
-                    ex.Data.Add(Guid.NewGuid(), info);
-                    throw;
+                    // Activate type
+                    return (ref PipelineContext context) =>
+                    {
+                        if (null == context.Existing)
+                        {
+                            try
+                            {
+                                var dependencies = new object[parameterResolvers.Length];
+                                for (var i = 0; i < dependencies.Length; i++)
+                                    dependencies[i] = parameterResolvers[i](ref context);
+
+                                context.Existing = info.Invoke(dependencies);
+                                context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                            }
+                            catch (Exception ex)
+                            {
+                                ex.Data.Add(Guid.NewGuid(), info);
+                                throw;
+                            }
+
+                        }
+
+                        // Invoke other initializers
+                        return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                    };
                 }
-            };
+                else
+                {
+                    // Activate type
+                    return (ref PipelineContext context) =>
+                    {
+                        if (null == context.Existing)
+                        {
+                            try
+                            {
+                                var dependencies = new object[parameterResolvers.Length];
+                                for (var i = 0; i < dependencies.Length; i++)
+                                    dependencies[i] = parameterResolvers[i](ref context);
+
+                                context.Existing = info.Invoke(dependencies);
+                            }
+                            catch (Exception ex)
+                            {
+                                ex.Data.Add(Guid.NewGuid(), info);
+                                throw;
+                            }
+                        }
+
+                        // Invoke other initializers
+                        return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                    };
+                }
+            }
+            catch (InvalidRegistrationException ex)
+            {
+                // Throw if try to create
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing) throw ex;
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
+            catch (Exception ex)
+            {
+                // Throw if try to create
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Existing) throw new InvalidRegistrationException(ex);
+                    return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
+                };
+            }
         }
 
         #endregion
