@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security;
-using Unity;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Registration;

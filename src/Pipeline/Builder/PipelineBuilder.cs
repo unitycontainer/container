@@ -171,6 +171,17 @@ namespace Unity
                  : SeedExpression ?? Enumerable.Empty<Expression>();
         }
 
+
+        public IEnumerable<Expression> Express(Expression[] expressions)
+        {
+            SeedExpression = expressions;
+
+            ref var context = ref this;
+            return _enumerator.MoveNext()
+                 ? _enumerator.Current.Express(ref context)
+                 : SeedExpression ?? Enumerable.Empty<Expression>();
+        }
+
         public IEnumerable<Expression> Express(ResolveDelegate<PipelineContext> resolver)
         {
             var expression = Expression.Assign(

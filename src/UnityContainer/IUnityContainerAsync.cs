@@ -6,7 +6,6 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Unity;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;

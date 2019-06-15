@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity;
 using Unity.Resolution;
 
 namespace Unity.Factories

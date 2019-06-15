@@ -87,7 +87,7 @@ namespace Unity
             /////////////////////////////////////////////////////////////
             // Pipelines
 
-            var factory  = new FactoryPipeline();
+            var typeFactory  = new TypeFactoryPipeline();
             var lifetime = new LifetimePipeline();
 
             // Mode of operation
@@ -103,7 +103,7 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
-                        { factory,                         Stage.Factory },
+                        { typeFactory,                     Stage.Factory },
                         { new MappingDiagnostic(),         Stage.TypeMapping },
                         { new ConstructorDiagnostic(this), Stage.Creation },
                         { new FieldDiagnostic(this),       Stage.Fields },
@@ -113,12 +113,12 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
-                        { factory,                         Stage.Factory }
+                        { new FactoryPipeline(),           Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
                         { diagnostic,                      Stage.Diagnostic },
-                        { factory,                         Stage.Factory }
+                        { typeFactory,                     Stage.Factory }
                     });
 
                 // Build process
@@ -137,7 +137,7 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Type Build Pipeline
                     {
                         { lifetime,                      Stage.Lifetime },
-                        { factory,                       Stage.Factory },
+                        { typeFactory,                   Stage.Factory },
                         { new MappingPipeline(),         Stage.TypeMapping },
                         { new ConstructorPipeline(this), Stage.Creation },
                         { new FieldPipeline(this),       Stage.Fields },
@@ -147,11 +147,11 @@ namespace Unity
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
                         { lifetime,                      Stage.Lifetime },
-                        { factory,                       Stage.Factory }
+                        { new FactoryPipeline(),         Stage.Factory }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Instance Resolve Pipeline
                     {
-                        { factory,                       Stage.Factory }
+                        { typeFactory,                   Stage.Factory }
                     });
             }
 

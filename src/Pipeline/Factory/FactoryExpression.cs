@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity;
-using Unity.Exceptions;
-using Unity.Factories;
-using Unity.Policy;
-using Unity.Resolution;
+using Unity.Registration;
 
 namespace Unity
 {
@@ -18,58 +14,16 @@ namespace Unity
             // Skip if already have a resolver expression
             if (null != builder.SeedExpression) return builder.Express();
 
-            // Try to get resolver
-            Type? generic = null;
-            var resolver = builder.Policies?.Get(typeof(ResolveDelegate<PipelineContext>)) ??
-                           builder.ContainerContext.Get(builder.Type, typeof(ResolveDelegate<PipelineContext>));
+            var registration = builder.Registration as FactoryRegistration ??
+                               builder.Factory      as FactoryRegistration;
 
-            if (null == resolver)
-            {
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-                if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
-#else
-                if (null != builder.Type && builder.Type.IsGenericType)
-#endif
-                {
-                    generic = builder.Type.GetGenericTypeDefinition();
-                    resolver = builder.ContainerContext.Get(generic, typeof(ResolveDelegate<PipelineContext>));
-                }
-            }
+            Debug.Assert(null != registration);
 
-            // Create an expression from resolver
-            if (null != resolver) return builder.Express((ResolveDelegate<PipelineContext>)resolver);
+            var factory = Expression.Constant(registration.Factory, typeof(Func<IUnityContainer, Type, string?, object?>));
+            var expression = Expression.Assign(PipelineContextExpression.Existing,
+                    Expression.Invoke(factory, PipelineContextExpression.Container, PipelineContextExpression.Type, PipelineContextExpression.Name));
 
-            // Try finding factory
-            TypeFactoryDelegate? factory = builder.Policies?.Get<TypeFactoryDelegate>();
-
-#if NETCOREAPP1_0 || NETSTANDARD1_0
-            if (null != builder.Type && builder.Type.GetTypeInfo().IsGenericType)
-#else
-            if (null != builder.Type && builder.Type.IsGenericType)
-#endif
-            {
-                factory = (TypeFactoryDelegate?)builder.ContainerContext.Get(builder.Type.GetGenericTypeDefinition(),
-                                                                             typeof(TypeFactoryDelegate));
-            }
-            else if (null != builder.Type && builder.Type.IsArray)
-            {
-                if (builder.Type.GetArrayRank() == 1)
-                {
-                    var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-                    return builder.Express((ref PipelineContext context) => resolve(ref context));
-                }
-                else
-                {
-                    var message = $"Invalid array {builder.Type}. Only arrays of rank 1 are supported";
-                    return builder.Express((ref PipelineContext context) => throw new InvalidRegistrationException(message));
-                }
-            }
-
-            Debug.Assert(null != builder.Type);
-
-            return null != factory
-                ? builder.Express(factory(builder.Type, builder.ContainerContext.Container))
-                : builder.Express();
+            return builder.Express(new[] { expression });
         }
     }
 }

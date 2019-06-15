@@ -91,4 +91,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pipeline\Factory\" />
+  </ItemGroup>
+
 </Project>

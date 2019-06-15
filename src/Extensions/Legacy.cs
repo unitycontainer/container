@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using Unity;
-using Unity.Storage;
-
-namespace Unity.Extension
+﻿namespace Unity.Extension
 {
     public class Legacy : UnityContainerExtension
     {
