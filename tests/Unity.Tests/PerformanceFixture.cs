@@ -35,7 +35,7 @@ namespace Unity.Tests
         public void Instance()
         {
             // Act
-            var instance = _container.Resolve(typeof(Foo), null) as IUnityContainer;
+            var instance = _container.Resolve(typeof(Foo), null);
 
             // Validate
             Assert.IsNotNull(instance);
