@@ -316,6 +316,7 @@ namespace Unity
 
         #region Registration manipulation
 
+        // Register new and return overridden registration
         private IPolicySet AddOrUpdate(Type type, string name, InternalRegistration registration)
         {
             var collisions = 0;
@@ -422,11 +423,13 @@ namespace Unity
             }
         }
 
+        // Return generic registration or create from factory if not registered
         private IPolicySet GetOrAddGeneric(Type type, string name, Type definition)
         {
             var collisions = 0;
             int hashCode;
             int targetBucket;
+            var factory = false;
 
             if (null != _parent)
             {
@@ -440,10 +443,14 @@ namespace Unity
                         continue;
                     }
 
-                    if (null != candidate.Value?[name]) break;
-
-                    return _parent._getGenericRegistration(type, name, definition);
+                    if (null != candidate.Value?[name])
+                    {
+                        factory = true;
+                        break;
+                    }
                 }
+
+                if (!factory) return _parent._getGenericRegistration(type, name, definition);
             }
 
             hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
@@ -489,8 +496,6 @@ namespace Unity
                 _registrations.Buckets[targetBucket] = _registrations.Count++;
                 return registration;
             }
-
-
         }
 
         private IPolicySet Get(Type type, string name)

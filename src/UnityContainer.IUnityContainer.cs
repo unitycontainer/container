@@ -44,6 +44,7 @@ namespace Unity
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(_validators, typeTo, manager, injectionMembers);
+                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
                 var previous = container.Register(registeredType, name, registration);
@@ -125,6 +126,7 @@ namespace Unity
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(null, mappedToType, manager);
+                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
                 var previous = container.Register(typeFrom, name, registration);
@@ -185,6 +187,7 @@ namespace Unity
 #pragma warning restore CS0618
             var injectionMembers = new InjectionMember[] { injectionFactory };
             var registration = new ContainerRegistration(_validators, type, manager, injectionMembers);
+            if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
@@ -234,21 +237,24 @@ namespace Unity
             if (null == type) throw new ArgumentNullException(nameof(type));
 
             var registration = (InternalRegistration)GetRegistration(type, name);
+            var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
+                          ? (UnityContainer)manager.Scope 
+                          : this;
+
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = LifetimeContainer,
+                Lifetime = container.LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
                 RegistrationType = type,
                 Name = name,
                 ExecutePlan = ContextExecutePlan,
                 ResolvePlan = ContextResolvePlan,
-                Type = registration is ContainerRegistration containerRegistration
-                                     ? containerRegistration.Type : type,
+                Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
             };
 
-            return ExecutePlan(ref context);
+            return container.ExecutePlan(ref context);
         }
 
         #endregion
@@ -266,10 +272,14 @@ namespace Unity
             if (null != existing && null != TypeValidator) TypeValidator(type, existing.GetType());
 
             var registration = (InternalRegistration)GetRegistration(type, name);
+            var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
+                          ? (UnityContainer)manager.Scope
+                          : this;
+
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = LifetimeContainer,
+                Lifetime = container.LifetimeContainer,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,

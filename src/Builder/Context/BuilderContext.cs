@@ -152,13 +152,18 @@ namespace Unity.Builder
             unsafe
             {
                 var thisContext = this;
+                var containerRegistration = registration as ContainerRegistration;
+                var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
+                              ? ((UnityContainer)manager.Scope).LifetimeContainer
+                              : Lifetime;
+
                 var context = new BuilderContext
                 {
-                    Lifetime = Lifetime,
+                    Lifetime = container,
                     Registration = registration,
                     RegistrationType = type,
                     Name = name,
-                    Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
+                    Type = null != containerRegistration ? containerRegistration.Type : type,
                     ExecutePlan = ExecutePlan,
                     ResolvePlan = ResolvePlan,
                     List = List,
