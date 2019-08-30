@@ -61,6 +61,17 @@ namespace Unity.Registration
             }
             else
             {
+                for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
+                {
+                    if (node.Key == policyInterface)
+                    {
+                        // Found it
+                        node.Value = policy;
+                        return;
+                    }
+                }
+
+                // If not found, insert after the current object
                 Next = new LinkedNode<Type, object>
                 {
                     Key = policyInterface,
