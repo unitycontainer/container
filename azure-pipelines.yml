@@ -11,6 +11,11 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
+    command: 'custom'
+    arguments: 'sources Add -Name "Latest" -Source "https://pkgs.dev.azure.com/unitycontainer/_packaging/Latest/nuget/v3/index.json"'
+
+- task: NuGetCommand@2
+  inputs:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
