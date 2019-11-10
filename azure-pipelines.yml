@@ -11,13 +11,6 @@ steps:
   displayName: 'Install NuGet'
 
 - task: NuGetCommand@2
-  inputs:
-    command: 'custom'
-    feedsToUse: 'select'
-    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
-    arguments: 'restore $(solution) -PreRelease -Verbosity Normal -NonInteractive'
-
-- task: NuGetCommand@2
   displayName: 'Restore Packages'
   inputs:
     command: 'restore'
