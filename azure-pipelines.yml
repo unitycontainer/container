@@ -11,15 +11,13 @@ steps:
   displayName: 'Install NuGet'
 
 - task: NuGetCommand@2
-  displayName: 'Add Local Feed'
-  inputs:
-    command: 'custom'
-    arguments: 'sources Add -Name "Latest" -Source "https://pkgs.dev.azure.com/unitycontainer/_packaging/Latest/nuget/v3/index.json"'
-
-- task: NuGetCommand@2
   displayName: 'Restore Packages'
   inputs:
+    command: 'restore'
     restoreSolution: '$(solution)'
+    feedsToUse: 'select'
+    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
+    verbosityRestore: 'Normal'
 
 - task: VSBuild@1
   displayName: 'Build'
@@ -33,3 +31,4 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
