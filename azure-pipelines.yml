@@ -8,23 +8,28 @@ variables:
 
 steps:
 - task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
 
 - task: NuGetCommand@2
+  displayName: 'Add Local Feed'
   inputs:
     command: 'custom'
     arguments: 'sources Add -Name "Latest" -Source "https://pkgs.dev.azure.com/unitycontainer/_packaging/Latest/nuget/v3/index.json"'
 
 - task: NuGetCommand@2
+  displayName: 'Restore Packages'
   inputs:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
+  displayName: 'Build'
   inputs:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
 - task: VSTest@2
+  displayName: 'Test'
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
