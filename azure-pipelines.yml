@@ -82,6 +82,8 @@ steps:
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'PACKAGE_VERSION'
     verbosityPack: 'Minimal'
+    feedsToUse: 'select'
+    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
     packDirectory: '$(Build.ArtifactStagingDirectory)\Package'
 
 - task: PublishBuildArtifacts@1
