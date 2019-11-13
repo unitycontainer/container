@@ -18,7 +18,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $version = (Select-Xml -Path ".\Directory.Build.props" -XPath "/Project/PropertyGroup/VersionBase" | Select-Object -ExpandProperty Node).InnerText
+      $version = (Select-Xml -Path ".\Directory.Build.props" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
       $timestamp = git log -1 --pretty="format:%ct"
       Write-Host "Version: $version" 
       Write-Host "Time Stamp: $timestamp" 
@@ -48,7 +48,11 @@ steps:
 - task: NuGetCommand@2
   displayName: 'Restore'
   inputs:
+    command: 'restore'
     restoreSolution: '$(solution)'
+    feedsToUse: 'select'
+    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
+    verbosityRestore: 'Normal'
 
 - task: VSBuild@1
   displayName: 'Build'
@@ -62,7 +66,7 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    searchFolder: '$(system.defaultworkingdirectory)\test'
+    searchFolder: '$(system.defaultworkingdirectory)\tests'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Stage Binaries'
@@ -78,6 +82,8 @@ steps:
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'PACKAGE_VERSION'
     verbosityPack: 'Minimal'
+    feedsToUse: 'select'
+    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
     packDirectory: '$(Build.ArtifactStagingDirectory)\Package'
 
 - task: PublishBuildArtifacts@1
