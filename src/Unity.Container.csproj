@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\package.props" />
-
   <PropertyGroup>
     <Version>$(VersionBase)</Version>
     <FileVersion>$(VersionBase).0</FileVersion>
@@ -24,7 +22,19 @@
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
+
+
+  <PropertyGroup>
+    <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
+  </PropertyGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="Policy\Converter.cs" />
@@ -33,11 +43,6 @@
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="Utility\ConcurrentDictionary.cs" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
-  </PropertyGroup>
-
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
@@ -60,20 +65,14 @@
     <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
   </ItemGroup>
 
+
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DebugType>Portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>Full</DebugType>
   </PropertyGroup>
-
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
-  </ItemGroup>
 
 
   <!-- Sourcelink -->
