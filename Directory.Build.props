@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <Version>5.12.0</Version>
-    <DependsOnAbstractions>[5.12.0-*,5.12.0]</DependsOnAbstractions>
-    <UnityAbstractions>[5.12.0,5.12.0-*]</UnityAbstractions>
+    <UnityAbstractions>5.12.0</UnityAbstractions>
   </PropertyGroup>
 
   <PropertyGroup>
