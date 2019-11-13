@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <UnityAbstractionsProject>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractionsProject>
-    <UnityAbstractionsVersion Condition="'$(AbstractionsVersion)' == ''">$(DependsOnAbstractions)</UnityAbstractionsVersion>
+    <UnityAbstractionsVersion Condition="'$(UnityAbstractionsVersion)' == ''">$(UnityAbstractions)</UnityAbstractionsVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')"  Include="$(UnityAbstractionsProject)" />
