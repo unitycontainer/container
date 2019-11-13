@@ -28,11 +28,11 @@
 
   <PropertyGroup>
     <UnityAbstractionsProject>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractionsProject>
-    <AbstractionsVersion>$(Abstractions)</AbstractionsVersion>
+    <AbstractionsVersion Condition="'$(AbstractionsVersion)' == ''">$(Abstractions)</AbstractionsVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')"  Include="$(UnityAbstractionsProject)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(Abstractions)" />
+    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(AbstractionsVersion)" />
   </ItemGroup>
 
 
