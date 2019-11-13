@@ -34,9 +34,6 @@ steps:
             Write-Host "##vso[task.setvariable variable=$($node.Name)Version][$($node.InnerText)-*,$($node.InnerText)]" 
           }
       }
-- task: CmdLine@2
-  inputs:
-    script: 'set'
 
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
