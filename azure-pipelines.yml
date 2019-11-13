@@ -48,7 +48,11 @@ steps:
 - task: NuGetCommand@2
   displayName: 'Restore'
   inputs:
+    command: 'restore'
     restoreSolution: '$(solution)'
+    feedsToUse: 'select'
+    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
+    verbosityRestore: 'Normal'
 
 - task: VSBuild@1
   displayName: 'Build'
