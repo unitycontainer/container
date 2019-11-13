@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <UnityAbstractions>5.12.0</UnityAbstractions>
-    <UnityAbstractionsPre>[5.12.0-*,5.12.0]</UnityAbstractionsPre>
+    <PreUnityAbstractions>[5.12.0-*,5.12.0]</PreUnityAbstractions>
   </PropertyGroup>
 
   <PropertyGroup>
