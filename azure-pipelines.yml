@@ -17,4 +17,4 @@ pool:
 steps:
 - template: build-steps.yml@templates
   parameters:
-    solution: '**/*.csproj'
+    solution: '**/*.sln'
