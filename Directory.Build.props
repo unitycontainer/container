@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <UnityAbstractions>5.12.0</UnityAbstractions>
-    <PreUnityAbstractions>[5.12.0-*,5.12.0]</PreUnityAbstractions>
+    <UnityAbstractions>5.12.*</UnityAbstractions>
+    <PreUnityAbstractions>[5.12.0-*,5.13.0)</PreUnityAbstractions>
   </PropertyGroup>
 
   <PropertyGroup>
