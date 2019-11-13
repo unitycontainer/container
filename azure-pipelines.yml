@@ -9,7 +9,7 @@ resources:
 
 trigger:
 - v5.x
-- refs/tags/*
+- refs/tags/v5.*
 
 pool:
   vmImage: 'windows-latest'
