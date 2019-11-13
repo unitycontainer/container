@@ -18,5 +18,3 @@ steps:
 - template: build-steps.yml@templates
   parameters:
     solution: '**/*.csproj'
-    buildPlatform: 'Any CPU'
-    buildConfiguration: 'Release'
