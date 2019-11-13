@@ -35,7 +35,6 @@
     <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(AbstractionsVersion)" />
   </ItemGroup>
 
-
   <!-- Project Configuration -->
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0' AND '$(TargetFramework)' != 'netstandard1.0' ">
@@ -60,8 +59,8 @@
 
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugType>Portable</DebugType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <DebugType>Portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
