@@ -22,13 +22,10 @@ steps:
       $version = (Select-Xml -Path ".\Directory.Build.props" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
       $timestamp = git log -1 --pretty="format:%ct"
       Write-Host "Version: $version" 
-      Write-Host "Time Stamp: $timestamp" 
       if ([regex]::IsMatch($Env:BUILD_SOURCEBRANCH, "^(refs\/tags\/v)")) { 
           Write-Host "Package Version: $($version)" 
-          Write-Host "##vso[task.setvariable variable=PACKAGE_VERSION]$($version)" 
       } Else { 
           Write-Host "Package Version:$($version)-$($timestamp)" 
-          Write-Host "##vso[task.setvariable variable=PACKAGE_VERSION]$($version)-$($timestamp)" 
           Write-Host "##vso[task.setvariable variable=VERSION_SUFFIX]-$($timestamp)" 
       }
 
@@ -75,18 +72,6 @@ steps:
   inputs:
     PathtoPublish: 'src\bin\$(buildConfiguration)'
     artifactName: 'Binaries'
-
-#- task: DotNetCoreCLI@2
-#  displayName: 'Pack'
-#  inputs:
-#    command: 'pack'
-#    packagesToPack: 'src/*.csproj'
-#    versioningScheme: 'byEnvVar'
-#    versionEnvVar: 'PACKAGE_VERSION'
-#    verbosityPack: 'Minimal'
-#    feedsToUse: 'select'
-#    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
-#    packDirectory: '$(Build.ArtifactStagingDirectory)\Package'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Stage Package'
