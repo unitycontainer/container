@@ -28,6 +28,7 @@ steps:
       } Else { 
           Write-Host "Package Version:$($version)-$($timestamp)" 
           Write-Host "##vso[task.setvariable variable=PACKAGE_VERSION]$($version)-$($timestamp)" 
+          Write-Host "##vso[task.setvariable variable=VERSION_SUFFIX]-$($timestamp)" 
       }
 
 - task: NuGetToolInstaller@1
