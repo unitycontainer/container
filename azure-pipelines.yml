@@ -75,23 +75,23 @@ steps:
     PathtoPublish: 'src\bin\$(buildConfiguration)'
     artifactName: 'Binaries'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Pack'
-  inputs:
-    command: 'pack'
-    packagesToPack: 'src/*.csproj'
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'PACKAGE_VERSION'
-    verbosityPack: 'Minimal'
-    feedsToUse: 'select'
-    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
-    packDirectory: '$(Build.ArtifactStagingDirectory)\Package'
+#- task: DotNetCoreCLI@2
+#  displayName: 'Pack'
+#  inputs:
+#    command: 'pack'
+#    packagesToPack: 'src/*.csproj'
+#    versioningScheme: 'byEnvVar'
+#    versionEnvVar: 'PACKAGE_VERSION'
+#    verbosityPack: 'Minimal'
+#    feedsToUse: 'select'
+#    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
+#    packDirectory: '$(Build.ArtifactStagingDirectory)\Package'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Stage Package'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)\Package'
-    artifactName: 'Package'
+#- task: PublishBuildArtifacts@1
+#  displayName: 'Stage Package'
+#  inputs:
+#    PathtoPublish: '$(build.artifactstagingdirectory)\Package'
+#    artifactName: 'Package'
 
 #- task: NuGetCommand@2
 #  displayName: 'Local Feed'
