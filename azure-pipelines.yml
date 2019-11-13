@@ -30,14 +30,14 @@ steps:
           Write-Host "Package Version: $($version)-$($timestamp)" 
           Write-Host "##vso[task.setvariable variable=VERSION_SUFFIX]-$($timestamp)" 
           foreach ($node in $list) { 
-            Write-Host "References $($node.Name) [$($node.InnerText),$($node.InnerText)-*]" 
-            Write-Host "##vso[task.setvariable variable=$($node.Name)Version][$($node.InnerText),$($node.InnerText)-*]" 
+            Write-Host "References $($node.Name) [$($node.InnerText)-*,$($node.InnerText)]" 
+            Write-Host "##vso[task.setvariable variable=$($node.Name)Version][$($node.InnerText)-*,$($node.InnerText)]" 
           }
       }
 - task: CmdLine@2
   inputs:
     script: 'set'
-    
+
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
