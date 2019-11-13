@@ -3,6 +3,7 @@
   <PropertyGroup>
     <FileVersion>$(Version).0</FileVersion>
     <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <PackageVersion>$(Version)$(VERSION_SUFFIX)</PackageVersion>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
     <Copyright>Copyright © Unity Container Project 2018</Copyright>
@@ -20,7 +21,6 @@
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
 
@@ -61,6 +61,7 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>Portable</DebugType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
