@@ -18,7 +18,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $version = (Select-Xml -Path ".\Directory.Build.props" -XPath "/Project/PropertyGroup/VersionBase" | Select-Object -ExpandProperty Node).InnerText
+      $version = (Select-Xml -Path ".\Directory.Build.props" -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
       $timestamp = git log -1 --pretty="format:%ct"
       Write-Host "Version: $version" 
       Write-Host "Time Stamp: $timestamp" 
