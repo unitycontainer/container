@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <VersionBase>5.12.0</VersionBase>
-    <UnityAbstractionsVersion>5.12.0</UnityAbstractionsVersion>
+    <Version>5.12.0</Version>
+    <Abstractions>5.12.0,5.12.0-*</Abstractions>
   </PropertyGroup>
 
   <PropertyGroup>
