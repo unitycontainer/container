@@ -32,18 +32,6 @@ steps:
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
-#- task: CopyFiles@2
-#  displayName: 'Copy Properties'
-#  inputs:
-#    Contents: 'Directory.Build.props'
-#    TargetFolder: 'src'
-
-#- task: PublishBuildArtifacts@1
-#  displayName: 'Stage Source'
-#  inputs:
-#    PathtoPublish: 'src'
-#    artifactName: 'Source'
-
 - task: NuGetCommand@2
   displayName: 'Restore'
   inputs:
