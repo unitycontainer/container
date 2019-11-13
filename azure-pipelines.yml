@@ -1,5 +1,11 @@
 # Build pipeline
 
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: unitycontainer/DevOps
+
 trigger:
 - v5.x
 - refs/tags/*
@@ -15,69 +21,4 @@ variables:
   propsFile: '.\Directory.Build.props'
 
 steps:
-- task: PowerShell@2
-  displayName: 'Version Info'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $version = (Select-Xml -Path $(propsFile) -XPath "/Project/PropertyGroup/Version" | Select-Object -ExpandProperty Node).InnerText
-      $list = Select-Xml -Path $(propsFile) -XPath "/Project/PropertyGroup/*[starts-with(local-name(),'Unity')]"  | Select-Object -ExpandProperty Node
-      $timestamp = git log -1 --pretty="format:%ct"
-      Write-Host "Version: $version" 
-      if ([regex]::IsMatch($Env:BUILD_SOURCEBRANCH, "^(refs\/tags\/v)")) { 
-          Write-Host "Package Version: $($version)" 
-      } Else { 
-          Write-Host "Package Version: $($version)-$($timestamp)" 
-          Write-Host "##vso[task.setvariable variable=VERSION_SUFFIX]-$($timestamp)" 
-          foreach ($node in $list) { 
-            Write-Host "References $($node.Name) [$($node.InnerText)-*,$($node.InnerText)]" 
-            Write-Host "##vso[task.setvariable variable=$($node.Name)Version][$($node.InnerText)-*,$($node.InnerText)]" 
-          }
-      }
-
-- task: NuGetToolInstaller@1
-  displayName: 'Install NuGet'
-
-- task: NuGetCommand@2
-  displayName: 'Restore'
-  inputs:
-    command: 'restore'
-    restoreSolution: '$(solution)'
-    feedsToUse: 'select'
-    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
-    verbosityRestore: 'Normal'
-
-- task: VSBuild@1
-  displayName: 'Build'
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  displayName: 'Test'
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-    searchFolder: '$(system.defaultworkingdirectory)\tests'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Stage Binaries'
-  inputs:
-    PathtoPublish: 'src\bin\$(buildConfiguration)'
-    artifactName: 'Binaries'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Stage Package'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)\Package'
-    artifactName: 'Package'
-
-#- task: NuGetCommand@2
-#  displayName: 'Local Feed'
-#  inputs:
-#    command: 'push'
-#    packagesToPush: '$(build.artifactstagingdirectory)\Package\*.$(PACKAGE_VERSION).nupkg'
-#    nuGetFeedType: 'internal'
-#    publishVstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
-#    allowPackageConflicts: true
+- template: build-steps.yml@templates
