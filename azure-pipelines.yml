@@ -11,6 +11,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  PackageOutputPath: '$(build.artifactstagingdirectory)\Package'
 
 steps:
 - task: PowerShell@2
@@ -87,11 +88,11 @@ steps:
 #    vstsFeed: '18a6243f-7dac-4c78-bb92-3af88cd8e255'
 #    packDirectory: '$(Build.ArtifactStagingDirectory)\Package'
 
-#- task: PublishBuildArtifacts@1
-#  displayName: 'Stage Package'
-#  inputs:
-#    PathtoPublish: '$(build.artifactstagingdirectory)\Package'
-#    artifactName: 'Package'
+- task: PublishBuildArtifacts@1
+  displayName: 'Stage Package'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)\Package'
+    artifactName: 'Package'
 
 #- task: NuGetCommand@2
 #  displayName: 'Local Feed'
