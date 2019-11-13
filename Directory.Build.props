@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Version>5.12.0</Version>
-    <Abstractions>5.12.0,5.12.0-*</Abstractions>
+    <Abstractions>[5.12.0,5.12.0-*]</Abstractions>
   </PropertyGroup>
 
   <PropertyGroup>
