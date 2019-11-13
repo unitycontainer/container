@@ -66,7 +66,7 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    searchFolder: '$(system.defaultworkingdirectory)\test'
+    searchFolder: '$(system.defaultworkingdirectory)\tests'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Stage Binaries'
