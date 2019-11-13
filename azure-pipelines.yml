@@ -57,12 +57,12 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-#- task: VSTest@2
-#  displayName: 'Test'
-#  inputs:
-#    platform: '$(buildPlatform)'
-#    configuration: '$(buildConfiguration)'
-#    searchFolder: '$(system.defaultworkingdirectory)\test'
+- task: VSTest@2
+  displayName: 'Test'
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    searchFolder: '$(system.defaultworkingdirectory)\test'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Stage Binaries'
