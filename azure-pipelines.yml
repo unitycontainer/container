@@ -11,6 +11,9 @@ trigger:
 - v5.x
 - refs/tags/v5.*
 
+variables:
+- template: build-variables.yml@templates
+
 pool:
   vmImage: 'windows-latest'
 
