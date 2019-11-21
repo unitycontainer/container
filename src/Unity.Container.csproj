@@ -1,12 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\package.props" />
-
   <PropertyGroup>
-    <Version>$(VersionBase)</Version>
-    <FileVersion>$(VersionBase).0</FileVersion>
-    <AssemblyVersion>$(VersionBase).0</AssemblyVersion>
-    <AssemblyInformationalVersion>$(FileVersion)</AssemblyInformationalVersion>
+    <FileVersion>$(Version).0</FileVersion>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <PackageVersion>$(Version)$(VERSION_SUFFIX)</PackageVersion>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
     <Copyright>Copyright © Unity Container Project 2018</Copyright>
@@ -24,7 +21,21 @@
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
+
+  <!-- Unity.Abstractions -->
+
+  <PropertyGroup>
+    <UnityAbstractionsProject>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractionsProject>
+    <UnityAbstractionsVersion Condition="'$(UnityAbstractionsVersion)' == ''">$(UnityAbstractions)</UnityAbstractionsVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')"  Include="$(UnityAbstractionsProject)" />
+    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
+  </ItemGroup>
+
+  <!-- Project Configuration -->
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="Policy\Converter.cs" />
@@ -33,11 +44,6 @@
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="Utility\ConcurrentDictionary.cs" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <UnityAbstractions>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractions>
-  </PropertyGroup>
-
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('netcoreapp'))">
     <Compile Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
@@ -52,29 +58,20 @@
   </ItemGroup>
 
 
-  <ItemGroup Condition="Exists('$(UnityAbstractions)')">
-    <ProjectReference Include="$(UnityAbstractions)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="!Exists('$(UnityAbstractions)')">
-    <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
-  </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DebugType>Portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>Full</DebugType>
   </PropertyGroup>
 
+  <!-- References -->
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
   </ItemGroup>
-
 
   <!-- Sourcelink -->
   <PropertyGroup>
@@ -89,5 +86,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
 
 </Project>

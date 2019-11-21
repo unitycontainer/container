@@ -1,0 +1,25 @@
+# Build pipeline
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: unitycontainer/DevOps
+      endpoint: Unity Container
+
+trigger:
+- v5.x
+- refs/tags/v5.*
+
+variables:
+- template: build-variables.yml@templates
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- template: build-steps.yml@templates
+  parameters:
+    solution: '**/*.sln'
+
+
