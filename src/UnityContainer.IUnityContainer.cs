@@ -25,14 +25,14 @@ namespace Unity
         #region Type Registration
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        IUnityContainer IUnityContainer.RegisterType(Type registeredType, Type mappedToType, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
         {
-            var mappedToType = typeTo;
-            var registeredType = typeFrom ?? typeTo;
-            if (null == registeredType) throw new ArgumentNullException(nameof(typeTo));
+            if (null == registeredType) registeredType = mappedToType;
+            if (null == mappedToType) mappedToType = registeredType;
+            if (null == registeredType) throw new ArgumentNullException(nameof(registeredType));
 
             // Validate if they are assignable
-            TypeValidator?.Invoke(typeFrom, typeTo);
+            TypeValidator?.Invoke(registeredType, mappedToType);
 
             try
             {
@@ -43,7 +43,7 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                var registration = new ContainerRegistration(_validators, typeTo, manager, injectionMembers);
+                var registration = new ContainerRegistration(_validators, mappedToType, manager, injectionMembers);
                 if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
@@ -89,7 +89,7 @@ namespace Unity
                 builder.AppendLine();
 
                 var parts = new List<string>();
-                var generics = null == typeFrom ? typeTo?.Name : $"{typeFrom?.Name},{typeTo?.Name}";
+                var generics = null == mappedToType ? registeredType?.Name : $"{registeredType?.Name},{mappedToType?.Name}";
                 if (null != name) parts.Add($" '{name}'");
                 if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
                 if (null != injectionMembers && 0 != injectionMembers.Length)
