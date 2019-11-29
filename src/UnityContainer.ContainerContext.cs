@@ -93,19 +93,19 @@ namespace Unity
             {
             }
             
-            public virtual object Get(Type type, Type policyInterface) 
+            public virtual object? Get(Type type, Type policyInterface) 
                 => _container.GetPolicy(type, All, policyInterface);
 
-            public virtual object Get(Type type, string name, Type policyInterface)
+            public virtual object? Get(Type? type, string? name, Type policyInterface)
                 => _container.GetPolicy(type, name, policyInterface);
 
             public virtual void Set(Type type, Type policyInterface, object policy)
                 => _container.SetPolicy(type, All, policyInterface, policy);
 
-            public virtual void Set(Type type, string name, Type policyInterface, object policy)
+            public virtual void Set(Type? type, string? name, Type policyInterface, object policy)
                 => _container.SetPolicy(type, name, policyInterface, policy);
 
-            public virtual void Clear(Type type, string name, Type policyInterface)
+            public virtual void Clear(Type? type, string? name, Type policyInterface)
             {
             }
 

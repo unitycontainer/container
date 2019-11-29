@@ -24,15 +24,15 @@ namespace Unity.Builder
         public ResolverOverride[]? Overrides;
         public IPolicyList List;
 
-        public delegate object ExecutePlanDelegate(BuilderStrategy[]? chain, ref BuilderContext context);
-        public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
+        public delegate object? ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
+        public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
 
 
         #region IResolveContext
 
-        public IUnityContainer Container => Lifetime?.Container;
+        public IUnityContainer Container => Lifetime?.Container!;
 
         public Type Type { get; set; }
 
@@ -147,7 +147,7 @@ namespace Unity.Builder
 
         #region Public Methods
 
-        public object Resolve(Type type, string? name, InternalRegistration registration)
+        public object? Resolve(Type type, string? name, InternalRegistration registration)
         {
             unsafe
             {
@@ -174,7 +174,7 @@ namespace Unity.Builder
 #endif
                 };
 
-                return ExecutePlan(registration.BuildChain, ref context);
+                return ExecutePlan(registration.BuildChain ?? ((UnityContainer)context.Container)._strategiesChain, ref context);
             }
         }
 

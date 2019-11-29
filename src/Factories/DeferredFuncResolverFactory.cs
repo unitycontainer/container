@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Factories
@@ -24,7 +23,7 @@ namespace Unity.Factories
             var nameToBuild = context.Name;
             var container = context.Container;
 
-            return () => (T)container.Resolve<T>(nameToBuild);
+            return () => container.Resolve<T>(nameToBuild);
         }
     }
 }
