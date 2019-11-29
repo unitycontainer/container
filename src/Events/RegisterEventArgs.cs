@@ -12,15 +12,15 @@ namespace Unity.Events
         /// <summary>
         /// Create a new instance of <see cref="RegisterEventArgs"/>.
         /// </summary>
-        /// <param name="typeFrom">Type to map from.</param>
-        /// <param name="typeTo">Type to map to.</param>
+        /// <param name="registeredType">Type to map from.</param>
+        /// <param name="mappedTo">Type to map to.</param>
         /// <param name="name">Name for the registration.</param>
         /// <param name="lifetimeManager"><see cref="LifetimeManager"/> to manage instances.</param>
-        public RegisterEventArgs(Type typeFrom, Type typeTo, string name, LifetimeManager lifetimeManager)
+        public RegisterEventArgs(Type registeredType, Type? mappedTo, string? name, LifetimeManager lifetimeManager)
             : base(name)
         {
-            TypeFrom = typeFrom;
-            TypeTo = typeTo;
+            TypeFrom = registeredType;
+            TypeTo = mappedTo;
             LifetimeManager = lifetimeManager;
         }
 
@@ -32,7 +32,7 @@ namespace Unity.Events
         /// <summary>
         /// Type to map to.
         /// </summary>
-        public Type TypeTo { get; }
+        public Type? TypeTo { get; }
 
         /// <summary>
         /// <see cref="LifetimeManager"/> to manage instances.

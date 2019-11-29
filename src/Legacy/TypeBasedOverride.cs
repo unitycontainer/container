@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Policy;
 
 namespace Unity.Resolution
 {
@@ -30,7 +29,7 @@ namespace Unity.Resolution
         /// <param name="targetType">Type to check for.</param>
         /// <param name="innerOverride">Inner override to check after type matches.</param>
         public TypeBasedOverride(Type targetType, ResolverOverride innerOverride)
-            : base(targetType, null, null)
+            : base(targetType, null, null)  //  TODO: Might be optimized
         {
             _innerOverride = (innerOverride ?? throw new ArgumentNullException(nameof(innerOverride)))
                 .OnType(targetType ?? throw new ArgumentNullException(nameof(targetType)));
@@ -56,7 +55,7 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return _innerOverride.Equals(obj);
         }

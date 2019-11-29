@@ -19,8 +19,9 @@
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
-    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
 

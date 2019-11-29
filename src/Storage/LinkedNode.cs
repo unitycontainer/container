@@ -7,6 +7,6 @@ namespace Unity.Storage
     {
         public TKey Key;
         public TValue Value;
-        public LinkedNode<TKey, TValue> Next;
+        public LinkedNode<TKey, TValue>? Next;
     }
 }

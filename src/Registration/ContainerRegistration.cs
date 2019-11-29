@@ -11,7 +11,7 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ContainerRegistration(LinkedNode<Type, object> validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[] injectionMembers = null)
+        public ContainerRegistration(LinkedNode<Type?, object?>? validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);
@@ -37,7 +37,7 @@ namespace Unity.Registration
         /// </summary>
         /// <remarks>
         /// This property will be null if this registration is for an open generic.</remarks>
-        public LifetimeManager LifetimeManager => (LifetimeManager)Value;
+        public LifetimeManager LifetimeManager => (LifetimeManager)Value!;
 
         #endregion
     }
