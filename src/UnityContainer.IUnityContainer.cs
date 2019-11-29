@@ -308,7 +308,7 @@ namespace Unity
         }
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.Parent => _parent;
+        IUnityContainer? IUnityContainer.Parent => _parent;
 
         #endregion
     }

@@ -47,10 +47,10 @@ namespace Unity
 
                 var registry = candidate.Value;
                 return registry?[name] is ContainerRegistration ||
-                       (((IUnityContainer)_parent)?.IsRegistered(type, name) ?? false);
+                       (((IUnityContainer?)_parent)?.IsRegistered(type, name) ?? false);
             }
 
-            return ((IUnityContainer)_parent)?.IsRegistered(type, name) ?? false;
+            return ((IUnityContainer?)_parent)?.IsRegistered(type, name) ?? false;
         }
 
         private bool IsTypeTypeExplicitlyRegisteredLocally(Type type)
@@ -68,7 +68,7 @@ namespace Unity
 
                 Debug.Assert(null != candidate.Value);
 
-                return candidate.Value
+                return candidate.Value!
                                 .Values
                                 .Any(v => v is ContainerRegistration) || (_parent?.IsTypeExplicitlyRegistered(type) ?? false);
             }
@@ -82,7 +82,7 @@ namespace Unity
             IPolicySet? noNameRegistration = null;
 
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 if (null == container._registrations) continue;
 
@@ -96,8 +96,8 @@ namespace Unity
                         continue;
                     }
 
-                    var registry = candidate.Value;
-                    Debug.Assert(null != registry);
+                    Debug.Assert(null != candidate.Value);
+                    var registry = candidate.Value!;
 
                     if (null != registry[name]) return true;
                     if (null == defaultRegistration) defaultRegistration = registry[All];
@@ -119,7 +119,7 @@ namespace Unity
             type = type?.GetGenericTypeDefinition()!;
 #endif
             hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-            for (var container = this; null != container; container = container._parent)
+            for (UnityContainer? container = this; null != container; container = container._parent)
             {
                 if (null == container._registrations) continue;
 
@@ -133,8 +133,8 @@ namespace Unity
                         continue;
                     }
 
-                    var registry = candidate.Value;
-                    Debug.Assert(null != registry);
+                    Debug.Assert(null != candidate.Value);
+                    var registry = candidate.Value!;
 
                     if (null != registry[name]) return true;
                     if (null == defaultRegistration) defaultRegistration = registry[All];
@@ -174,7 +174,7 @@ namespace Unity
                             if (node.Value is ContainerRegistration containerRegistration)
                             {
                                 Debug.Assert(null != entry.Key);
-                                seed.Add(entry.Key, node.Key, containerRegistration);
+                                seed.Add(entry.Key!, node.Key, containerRegistration);
                             }
                         }
                         break;
@@ -188,7 +188,7 @@ namespace Unity
                             if (refNode.Value is ContainerRegistration containerRegistration)
                             {
                                 Debug.Assert(null != entry.Key);
-                                seed.Add(entry.Key, refNode.Key, containerRegistration);
+                                seed.Add(entry.Key!, refNode.Key, containerRegistration);
                             }
                         }
                         break;
@@ -343,8 +343,8 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    Debug.Assert(null != existing);
+                    Debug.Assert(null != candidate.Value);
+                    IRegistry<string?, IPolicySet> existing = candidate.Value!;
 
                     if (existing.RequireToGrow)
                     {
@@ -404,8 +404,8 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    Debug.Assert(null != existing);
+                    Debug.Assert(null != candidate.Value);
+                    IRegistry<string?, IPolicySet> existing = candidate.Value!;
 
                     if (existing.RequireToGrow)
                     {
@@ -480,8 +480,8 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    Debug.Assert(null != existing);
+                    Debug.Assert(null != candidate.Value);
+                    IRegistry<string?, IPolicySet> existing = candidate.Value!;
 
                     if (existing.RequireToGrow)
                     {
@@ -547,8 +547,8 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    Debug.Assert(null != existing);
+                    Debug.Assert(null != candidate.Value);
+                    IRegistry<string?, IPolicySet> existing = candidate.Value!;
 
                     if (existing.RequireToGrow)
                     {
@@ -601,7 +601,7 @@ namespace Unity
                 break;
             }
 
-            return policy ?? _parent?.GetPolicy(type, name, policyInterface);
+            return policy ?? _parent?.GetPolicy(type!, name, policyInterface);
         }
 
         private void Set(Type? type, string? name, Type policyInterface, object policy)
@@ -620,8 +620,8 @@ namespace Unity
                         continue;
                     }
 
-                    var existing = candidate.Value;
-                    Debug.Assert(null != existing);
+                    Debug.Assert(null != candidate.Value);
+                    IRegistry<string?, IPolicySet> existing = candidate.Value!;
 
                     var policySet = existing[name];
                     if (null != policySet)

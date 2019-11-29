@@ -78,7 +78,7 @@ namespace Unity.Builder
                    Registration.Get(policyInterface);
         }
 
-        public object? Get(Type type, string? name, Type policyInterface)
+        public object? Get(Type? type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
@@ -102,12 +102,12 @@ namespace Unity.Builder
             List.Set(type, UnityContainer.All, policyInterface, policy);
         }
 
-        public void Set(Type type, string? name, Type policyInterface, object policy)
+        public void Set(Type? type, string? name, Type policyInterface, object policy)
         {
             List.Set(type, name, policyInterface, policy);
         }
 
-        public void Clear(Type type, string? name, Type policyInterface)
+        public void Clear(Type? type, string? name, Type policyInterface)
         {
             List.Clear(type, name, policyInterface);
         }
@@ -126,15 +126,15 @@ namespace Unity.Builder
 
         #region Public Properties
 
-        public object Existing { get; set; }
+        public object? Existing { get; set; }
 
         public ILifetimeContainer Lifetime;
 
-        public SynchronizedLifetimeManager RequiresRecovery;
+        public SynchronizedLifetimeManager? RequiresRecovery;
 
         public bool BuildComplete;
 
-        public Type DeclaringType;
+        public Type? DeclaringType;
 #if !NET40
         public IntPtr Parent;
 #endif
