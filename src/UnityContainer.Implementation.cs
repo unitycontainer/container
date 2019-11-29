@@ -22,9 +22,9 @@ namespace Unity
     {
         #region Delegates
 
-        internal delegate object GetPolicyDelegate(Type? type, string? name, Type policyInterface);
-        internal delegate void   SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
-        internal delegate void ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
+        internal delegate object? GetPolicyDelegate(Type type, string? name, Type policyInterface);
+        internal delegate void    SetPolicyDelegate(Type type, string? name, Type policyInterface, object policy);
+        internal delegate void  ClearPolicyDelegate(Type type, string? name, Type policyInterface);
 
         #endregion
 
@@ -49,7 +49,7 @@ namespace Unity
         private StagedStrategyChain<MemberProcessor, BuilderStage> _processors;
 
         // Caches
-        private BuilderStrategy[] _strategiesChain;
+        internal BuilderStrategy[] _strategiesChain;
         private MemberProcessor[] _processorsChain;
 
         // Events
@@ -62,7 +62,7 @@ namespace Unity
         internal Func<Type, string?, IPolicySet> GetRegistration;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string?, InternalRegistration, IPolicySet> Register;
+        internal Func<Type, string?, InternalRegistration, IPolicySet?> Register;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal GetPolicyDelegate GetPolicy;
@@ -73,7 +73,7 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal ClearPolicyDelegate ClearPolicy;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type, string?, IPolicySet>       _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type?, string?, IPolicySet?>     _get;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool>             _isExplicitlyRegistered;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type, string?, Type, IPolicySet> _getGenericRegistration;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool>                      IsTypeExplicitlyRegistered;
@@ -278,7 +278,7 @@ namespace Unity
             Set(type, name, policyInterface, policy);
         }
 
-        private IPolicySet CreateAndSetOrUpdate(Type type, string? name, InternalRegistration registration)
+        private IPolicySet? CreateAndSetOrUpdate(Type type, string? name, InternalRegistration registration)
         {
             lock (GetRegistration)
             {
@@ -296,7 +296,16 @@ namespace Unity
                 if (null == _registrations)
                 {
                     _registrations = new Registrations(ContainerInitialCapacity);
-                    Set(null, null, Defaults);
+
+                    var hashCode = 0;
+                    var targetBucket = hashCode % _registrations.Buckets.Length;
+                    ref var entry = ref _registrations.Entries[_registrations.Count];
+
+                    entry.HashCode = hashCode;
+                    entry.Next = _registrations.Buckets[targetBucket];
+                    entry.Key = null;
+                    entry.Value = new LinkedRegistry(null, Defaults);
+                    _registrations.Buckets[targetBucket] = _registrations.Count++;
 
                     Register = AddOrUpdate;
                     GetPolicy = Get;
@@ -324,10 +333,10 @@ namespace Unity
             }
         }
 
-        private BuilderStrategy[] GetBuilders(Type type, InternalRegistration registration)
+        private BuilderStrategy[] GetBuilders(Type? type, InternalRegistration registration)
         {
             return _strategiesChain.ToArray()
-                              .Where(strategy => strategy.RequiredToBuildType(this, type, registration, null))
+                              .Where(strategy => strategy.RequiredToBuildType(this, type, registration))
                               .ToArray();
         }
 

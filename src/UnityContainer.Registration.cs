@@ -32,7 +32,7 @@ namespace Unity
 
         #region Check Registration
 
-        private bool IsExplicitlyRegisteredLocally(Type type, string name)
+        private bool IsExplicitlyRegisteredLocally(Type type, string? name)
         {
             var hashCode = type.GetHashCode() & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -329,7 +329,7 @@ namespace Unity
         private IPolicySet? AddOrUpdate(Type type, string? name, InternalRegistration registration)
         {
             var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var hashCode = type.GetHashCode() & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
             lock (_syncRoot)
             {
@@ -378,7 +378,7 @@ namespace Unity
         private IPolicySet GetOrAdd(Type type, string? name)
         {
             var collisions = 0;
-            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var hashCode = type.GetHashCode() & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
 
             for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
@@ -513,7 +513,7 @@ namespace Unity
             }
         }
 
-        private IPolicySet? Get(Type type, string name)
+        private IPolicySet? Get(Type? type, string? name)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;
@@ -531,7 +531,7 @@ namespace Unity
             return null;
         }
 
-        private void Set(Type type, string? name, IPolicySet value)
+        private void Set(Type? type, string? name, IPolicySet value)
         {
             var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             var targetBucket = hashCode % _registrations.Buckets.Length;

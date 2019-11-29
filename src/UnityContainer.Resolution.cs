@@ -55,7 +55,7 @@ namespace Unity
             return registration;
         }
 
-        private IPolicySet CreateRegistration(Type type, Type policyInterface, object policy)
+        private IPolicySet CreateRegistration(Type? type, Type policyInterface, object policy)
         {
             var registration = new InternalRegistration(policyInterface, policy);
             registration.BuildChain = GetBuilders(type, registration);
@@ -68,7 +68,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve, string name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object?> resolve, string? name)
         {
             TElement value;
 
@@ -85,10 +85,10 @@ namespace Unity
 #endif
                     {
                         var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name);
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration);
+                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration)!;
                     }
                     else
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration);
+                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration)!;
                 }
                 catch (MakeGenericTypeFailedException) { continue; }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
@@ -104,7 +104,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration);
+                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration)!;
                 }
                 catch
                 {
@@ -115,8 +115,8 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
-                                                                   Type generic, string name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string?, InternalRegistration, object?> resolve,
+                                                                   Type generic, string? name)
         {
             TElement value;
 
@@ -133,10 +133,10 @@ namespace Unity
 #endif
                     {
                         var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name);
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration);
+                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration)!;
                     }
                     else
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration);
+                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration)!;
                 }
                 catch (MakeGenericTypeFailedException) { continue; }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException) { continue; }
@@ -150,7 +150,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration);
+                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration)!;
                 }
                 catch
                 {
@@ -195,7 +195,7 @@ namespace Unity
 #endif
                         list.Add((TElement)context.Resolve(type, entry.Name)!);
                     else
-                        list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
+                        list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration)!);
                 }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                 {
