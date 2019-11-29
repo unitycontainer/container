@@ -99,7 +99,7 @@ namespace Unity
                 };
 
                 // Scan containers for explicit registrations
-                for (var container = this; null != container; container = container._parent)
+                for (UnityContainer? container = this; null != container; container = container._parent)
                 {
                     // Skip to parent if no registrations
                     if (null == container._registrations) continue;
@@ -110,12 +110,14 @@ namespace Unity
                     for (var i = 0; i < registrations.Count; i++)
                     {
                         var registry = registrations.Entries[i].Value;
-                        Type type = registrations.Entries[i].Key;
+                        Type? type = registrations.Entries[i].Key;
+                        
+                        if (null == type) continue;
 
                         switch (registry)
                         {
                             case LinkedRegistry linkedRegistry:
-                                for (var node = (LinkedNode<string, IPolicySet>)linkedRegistry; null != node; node = node.Next)
+                                for (var node = (LinkedNode<string?, IPolicySet>?)linkedRegistry; null != node; node = node.Next)
                                 {
                                     if (node.Value is ContainerRegistration containerRegistration &&
                                         set.Add(NamedType.GetHashCode(type, node.Key), type))
@@ -191,7 +193,7 @@ namespace Unity
         /// </remarks>
         /// <param name="configurationInterface"><see cref="Type"/> of configuration interface required.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public object Configure(Type configurationInterface)
+        public object? Configure(Type configurationInterface)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             return _extensions?.FirstOrDefault(ex => configurationInterface.GetTypeInfo()

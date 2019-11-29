@@ -22,9 +22,9 @@ namespace Unity
     {
         #region Delegates
 
-        internal delegate object? GetPolicyDelegate(Type type, string? name, Type policyInterface);
-        internal delegate void    SetPolicyDelegate(Type type, string? name, Type policyInterface, object policy);
-        internal delegate void  ClearPolicyDelegate(Type type, string? name, Type policyInterface);
+        internal delegate object? GetPolicyDelegate(Type? type, string? name, Type policyInterface);
+        internal delegate void    SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
+        internal delegate void  ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
 
         #endregion
 
@@ -33,9 +33,9 @@ namespace Unity
 
         // Container specific
         private readonly UnityContainer _root;
-        private readonly UnityContainer _parent;
+        private readonly UnityContainer? _parent;
         internal readonly LifetimeContainer LifetimeContainer;
-        private List<IUnityContainerExtensionConfigurator> _extensions;
+        private List<IUnityContainerExtensionConfigurator>? _extensions;
 
         private LifetimeManager _typeLifetimeManager;
         private LifetimeManager _factoryLifetimeManager;
@@ -236,9 +236,9 @@ namespace Unity
 
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                if (null == typeFrom && infoTo.IsInterface)
+                if (null == typeFrom && (infoTo?.IsInterface ?? false))
 #else
-                if (null == typeFrom && typeTo.IsInterface)
+                if (null == typeFrom && (typeTo?.IsInterface ?? false))
 #endif
                     throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
             };
@@ -248,19 +248,19 @@ namespace Unity
 
         internal LifetimeManager TypeLifetimeManager
         {
-            get => _typeLifetimeManager ?? _parent.TypeLifetimeManager;
+            get => _typeLifetimeManager ?? _parent!.TypeLifetimeManager;
             set => _typeLifetimeManager = value;
         }
 
         internal LifetimeManager FactoryLifetimeManager
         {
-            get => _factoryLifetimeManager ?? _parent.FactoryLifetimeManager;
+            get => _factoryLifetimeManager ?? _parent!.FactoryLifetimeManager;
             set => _factoryLifetimeManager = value;
         }
 
         internal LifetimeManager InstanceLifetimeManager
         {
-            get => _instanceLifetimeManager ?? _parent.InstanceLifetimeManager;
+            get => _instanceLifetimeManager ?? _parent!.InstanceLifetimeManager;
             set => _instanceLifetimeManager = value;
         }
 
@@ -316,7 +316,7 @@ namespace Unity
 
                     GetRegistration = GetDynamicRegistration;
 
-                    _get = (type, name) => Get(type, name) ?? _parent._get(type, name);
+                    _get = (type, name) => Get(type, name) ?? _parent!._get(type, name);
                     _getGenericRegistration = GetOrAddGeneric;
                     IsTypeExplicitlyRegistered = IsTypeTypeExplicitlyRegisteredLocally;
                     _isExplicitlyRegistered = IsExplicitlyRegisteredLocally;
@@ -389,7 +389,7 @@ namespace Unity
         {
             if (!disposing) return;
 
-            List<Exception> exceptions = null;
+            List<Exception>? exceptions = null;
 
             try
             {
@@ -460,7 +460,7 @@ namespace Unity
 
             #region IPolicyList
 
-            public object Get(Type type, Type policyInterface)
+            public object? Get(Type type, Type policyInterface)
             {
                 if (_type != type)
                     return _container.GetPolicy(type, All, policyInterface);
@@ -468,10 +468,10 @@ namespace Unity
                 return _registration.Get(policyInterface);
             }
 
-            public object Get(Type type, string name, Type policyInterface)
+            public object? Get(Type? type, string? name, Type policyInterface)
             {
                 if (_type != type || _name != name)
-                    return _container.GetPolicy(type, name, policyInterface);
+                    return _container.GetPolicy(type!, name, policyInterface);
 
                 return _registration.Get(policyInterface);
             }
@@ -484,18 +484,18 @@ namespace Unity
                     _registration.Set(policyInterface, policy);
             }
 
-            public void Set(Type type, string name, Type policyInterface, object policy)
+            public void Set(Type? type, string? name, Type policyInterface, object policy)
             {
                 if (_type != type || _name != name)
-                    _container.SetPolicy(type, name, policyInterface, policy);
+                    _container.SetPolicy(type!, name, policyInterface, policy);
                 else
                     _registration.Set(policyInterface, policy);
             }
 
-            public void Clear(Type type, string name, Type policyInterface)
+            public void Clear(Type? type, string? name, Type policyInterface)
             {
                 if (_type != type || _name != name)
-                    _container.ClearPolicy(type, name, policyInterface);
+                    _container.ClearPolicy(type!, name, policyInterface);
                 else
                     _registration.Clear(policyInterface);
             }
@@ -508,9 +508,9 @@ namespace Unity
         {
             public Type RegisteredType { get; internal set; }
 
-            public string Name { get; internal set; }
+            public string? Name { get; internal set; }
 
-            public Type MappedToType { get; internal set; }
+            public Type? MappedToType { get; internal set; }
 
             public LifetimeManager LifetimeManager { get; internal set; }
         }

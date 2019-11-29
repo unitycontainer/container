@@ -43,7 +43,7 @@ namespace Unity
 
             if (type.GetTypeInfo().IsGenericType)
             {
-                var factory = (InternalRegistration)_get(type.GetGenericTypeDefinition(), name);
+                var factory = (InternalRegistration?)_get(type.GetGenericTypeDefinition(), name);
                 if (null != factory)
                 {
                     registration.InjectionMembers = factory.InjectionMembers;
@@ -363,7 +363,7 @@ namespace Unity
                 return context.Existing;
             };
 
-        private object ExecuteValidatingPlan(ref BuilderContext context)
+        private object? ExecuteValidatingPlan(ref BuilderContext context)
         {
             var i = -1;
             BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain
