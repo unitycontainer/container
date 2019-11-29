@@ -26,7 +26,7 @@ namespace Unity
     {
         #region Dynamic Registrations
 
-        private IPolicySet GetDynamicRegistration(Type type, string name)
+        private IPolicySet GetDynamicRegistration(Type type, string? name)
         {
             var registration = _get(type, name);
             if (null != registration) return registration;
@@ -37,27 +37,7 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
-        private IPolicySet CreateRegistration(Type type, string name, InternalRegistration factory)
-        {
-            var registration = new InternalRegistration(type, name);
-
-            if (null != factory)
-            {
-                registration.InjectionMembers = factory.InjectionMembers;
-                registration.Map = factory.Map;
-                var lifetime = factory.Get(typeof(LifetimeManager));
-                if (lifetime is IFactoryLifetimeManager ManagerFactory)
-                {
-                    var manager = ManagerFactory.CreateLifetimePolicy();
-                    registration.Set(typeof(LifetimeManager), manager);
-                }
-            }
-
-            registration.BuildChain = GetBuilders(type, registration);
-            return registration;
-        }
-
-        private IPolicySet CreateRegistration(Type type, string name)
+        private IPolicySet CreateRegistration(Type type, string? name)
         {
             var registration = new InternalRegistration(type, name);
 
@@ -213,7 +193,7 @@ namespace Unity
 #else
                     if (entry.RegisteredType.IsGenericTypeDefinition)
 #endif
-                        list.Add((TElement)context.Resolve(type, entry.Name));
+                        list.Add((TElement)context.Resolve(type, entry.Name)!);
                     else
                         list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
                 }
@@ -252,7 +232,7 @@ namespace Unity
                 ref var entry = ref registrations[i];
                 try
                 {
-                    list.Add((TElement)context.Resolve(typeof(TElement), entry.Name));
+                    list.Add((TElement)context.Resolve(typeof(TElement), entry.Name)!);
                 }
                 catch (MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (InvalidOperationException ex) when (ex.InnerException is InvalidRegistrationException)
@@ -274,7 +254,7 @@ namespace Unity
             var counter = 3;
             var type = context.Type;
             var registration = context.Registration;
-            ResolveDelegate<BuilderContext> seed = null;
+            ResolveDelegate<BuilderContext>? seed = null;
             var chain = ((UnityContainer) context.Container)._processorsChain;
 
             // Generate build chain
@@ -333,14 +313,14 @@ namespace Unity
 
         internal ResolveDelegate<BuilderContext> ResolvingFactory(ref BuilderContext context)
         {
-            ResolveDelegate<BuilderContext> seed = null;
+            ResolveDelegate<BuilderContext>? seed = null;
             var type = context.Type;
             var registration = context.Registration;
 
             foreach (var processor in _processorsChain)
                 seed = processor.GetResolver(type, registration, seed);
 
-            return seed;
+            return seed ?? throw new InvalidOperationException("Failed to create resolve delegate");
         }
 
         #endregion
@@ -386,7 +366,8 @@ namespace Unity
         private object ExecuteValidatingPlan(ref BuilderContext context)
         {
             var i = -1;
-            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+            BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain
+                                    ?? _strategiesChain.ToArray();
 
             try
             {
@@ -451,7 +432,7 @@ namespace Unity
                 return context.Existing;
             };
 
-        internal static object ContextValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
+        internal static object? ContextValidatingExecutePlan(BuilderStrategy[] chain, ref BuilderContext context)
         {
             var i = -1;
 #if !NET40
@@ -486,7 +467,7 @@ namespace Unity
             return context.Existing;
 
 #if !NET40
-            object GetPerResolveValue(IntPtr parent, Type registrationType, string name)
+            static object? GetPerResolveValue(IntPtr parent, Type registrationType, string? name)
             {
                 if (IntPtr.Zero == parent) return null;
 
@@ -496,7 +477,7 @@ namespace Unity
                     if (registrationType != parentRef.RegistrationType || name != parentRef.Name)
                         return GetPerResolveValue(parentRef.Parent, registrationType, name);
 
-                    var lifetimeManager = (LifetimeManager)parentRef.Get(typeof(LifetimeManager));
+                    var lifetimeManager = (LifetimeManager?)parentRef.Get(typeof(LifetimeManager));
                     var result = lifetimeManager?.GetValue();
                     if (LifetimeManager.NoValue != result) return result;
 
@@ -510,7 +491,7 @@ namespace Unity
         internal BuilderContext.ResolvePlanDelegate ContextResolvePlan { get; set; } =
             (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
 
-        internal static object ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
+        internal static object? ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
         {
             if (null == resolver) throw new ArgumentNullException(nameof(resolver));
 

@@ -8,6 +8,8 @@ namespace Unity.Tests.v5.ObjectBuilder
     [TestClass]
     public class LifetimeContainerTest
     {
+        private static IUnityContainer unity = new UnityContainer();
+
         [TestInitialize]
         public void Setup()
         {
@@ -17,7 +19,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void CanDetermineIfLifetimeContainerContainsObject()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
             object obj = new object();
 
             container.Add(obj);
@@ -28,7 +30,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void CanEnumerateItemsInContainer()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
             DisposableObject mdo = new DisposableObject();
 
             container.Add(mdo);
@@ -53,7 +55,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void ContainerEnsuresObjectsWontBeCollected()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
             DisposableObject mdo = new DisposableObject();
             WeakReference wref = new WeakReference(mdo);
 
@@ -70,7 +72,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void DisposingContainerDisposesOwnedObjects()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
             DisposableObject mdo = new DisposableObject();
 
             container.Add(mdo);
@@ -82,7 +84,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void DisposingItemsFromContainerDisposesInReverseOrderAdded()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
             DisposeOrderCounter obj1 = new DisposeOrderCounter();
             DisposeOrderCounter obj2 = new DisposeOrderCounter();
             DisposeOrderCounter obj3 = new DisposeOrderCounter();
@@ -101,7 +103,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void RemovingItemsFromContainerDoesNotDisposeThem()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
             DisposableObject mdo = new DisposableObject();
 
             container.Add(mdo);
@@ -114,7 +116,7 @@ namespace Unity.Tests.v5.ObjectBuilder
         [TestMethod]
         public void RemovingNonContainedItemDoesNotThrow()
         {
-            ILifetimeContainer container = new LifetimeContainer();
+            ILifetimeContainer container = new LifetimeContainer(unity);
 
             container.Remove(new object());
         }

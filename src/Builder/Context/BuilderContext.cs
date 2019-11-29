@@ -21,10 +21,10 @@ namespace Unity.Builder
     {
         #region Fields
 
-        public ResolverOverride[] Overrides;
+        public ResolverOverride[]? Overrides;
         public IPolicyList List;
 
-        public delegate object ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
+        public delegate object ExecutePlanDelegate(BuilderStrategy[]? chain, ref BuilderContext context);
         public delegate object ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
 
         #endregion
@@ -36,9 +36,9 @@ namespace Unity.Builder
 
         public Type Type { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public object Resolve(Type type, string name)
+        public object? Resolve(Type type, string? name)
         {
             // Process overrides if any
             if (null != Overrides)
@@ -72,13 +72,13 @@ namespace Unity.Builder
 
         #region IPolicyList
 
-        public object Get(Type policyInterface)
+        public object? Get(Type policyInterface)
         {
             return List.Get(RegistrationType, Name, policyInterface) ??
                    Registration.Get(policyInterface);
         }
 
-        public object Get(Type type, string name, Type policyInterface)
+        public object? Get(Type type, string? name, Type policyInterface)
         {
             return List.Get(type, name, policyInterface) ??
                    (type != RegistrationType || name != Name
@@ -86,7 +86,7 @@ namespace Unity.Builder
                        : Registration.Get(policyInterface));
         }
 
-        public object Get(Type type, Type policyInterface)
+        public object? Get(Type type, Type policyInterface)
         {
             return List.Get(type, UnityContainer.All, policyInterface) ??
                    ((UnityContainer)Container).GetPolicy(type, UnityContainer.All, policyInterface);
@@ -102,12 +102,12 @@ namespace Unity.Builder
             List.Set(type, UnityContainer.All, policyInterface, policy);
         }
 
-        public void Set(Type type, string name, Type policyInterface, object policy)
+        public void Set(Type type, string? name, Type policyInterface, object policy)
         {
             List.Set(type, name, policyInterface, policy);
         }
 
-        public void Clear(Type type, string name, Type policyInterface)
+        public void Clear(Type type, string? name, Type policyInterface)
         {
             List.Clear(type, name, policyInterface);
         }
@@ -147,14 +147,14 @@ namespace Unity.Builder
 
         #region Public Methods
 
-        public object Resolve(Type type, string name, InternalRegistration registration)
+        public object Resolve(Type type, string? name, InternalRegistration registration)
         {
             unsafe
             {
                 var thisContext = this;
                 var containerRegistration = registration as ContainerRegistration;
                 var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                              ? ((UnityContainer)manager.Scope).LifetimeContainer
+                              ? ((UnityContainer)manager.Scope!).LifetimeContainer
                               : Lifetime;
 
                 var context = new BuilderContext
@@ -178,7 +178,7 @@ namespace Unity.Builder
             }
         }
 
-        public object Resolve(ParameterInfo parameter, object value)
+        public object? Resolve(ParameterInfo parameter, object value)
         {
             var context = this;
 
@@ -223,7 +223,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(PropertyInfo property, object value)
+        public object? Resolve(PropertyInfo property, object value)
         {
             var context = this;
 
@@ -278,7 +278,7 @@ namespace Unity.Builder
             return value;
         }
 
-        public object Resolve(FieldInfo field, object value)
+        public object? Resolve(FieldInfo field, object value)
         {
             var context = this;
 

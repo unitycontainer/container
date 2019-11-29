@@ -7,8 +7,8 @@ namespace Unity.Storage
 {
 
     [DebuggerDisplay("LinkedRegistry ({_count}) ")]
-    internal class LinkedRegistry : LinkedNode<string, IPolicySet>, 
-                                    IRegistry<string, IPolicySet>
+    internal class LinkedRegistry : LinkedNode<string?, IPolicySet>, 
+                                    IRegistry<string?, IPolicySet>
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace Unity.Storage
 
         #region Constructors
 
-        public LinkedRegistry(string key, IPolicySet value)
+        public LinkedRegistry(string? key, IPolicySet value)
         {
             _count = 1;
             Key = key;
@@ -62,12 +62,12 @@ namespace Unity.Storage
 
         #region IRegistry
 
-        public IPolicySet this[string key]
+        public IPolicySet? this[string? key]
         {
             get
             {
-                IPolicySet match = null;
-                for (var node = (LinkedNode<string, IPolicySet>)this; node != null; node = node.Next)
+                IPolicySet? match = null;
+                for (LinkedNode<string?, IPolicySet>? node = this; node != null; node = node.Next)
                 {
                     // Exact match
                     if (Equals(node.Key, key))
@@ -82,8 +82,10 @@ namespace Unity.Storage
             }
             set
             {
-                LinkedNode<string, IPolicySet> node;
-                LinkedNode<string, IPolicySet> last = null;
+                Debug.Assert(null != value);
+
+                LinkedNode<string?, IPolicySet>? node;
+                LinkedNode<string?, IPolicySet>? last = null;
 
                 for (node = this; node != null; node = node.Next)
                 {
@@ -96,8 +98,10 @@ namespace Unity.Storage
                     last = node;
                 }
 
+                Debug.Assert(null != last);
+
                 // Not found, so add a new one
-                last.Next = new LinkedNode<string, IPolicySet>
+                last.Next = new LinkedNode<string?, IPolicySet>
                 {
                     Key = key,
                     Value = value
@@ -113,9 +117,9 @@ namespace Unity.Storage
         {
             get
             {
-                for (LinkedNode<string, IPolicySet> node = this; node != null; node = node.Next)
+                for (LinkedNode<string?, IPolicySet>? node = this; node != null; node = node.Next)
                 {
-                    yield return node.Key;
+                    yield return node.Key!;
                 }
             }
         }
@@ -124,17 +128,17 @@ namespace Unity.Storage
         {
             get
             {
-                for (LinkedNode<string, IPolicySet> node = this; node != null; node = node.Next)
+                for (LinkedNode<string?, IPolicySet>? node = this; node != null; node = node.Next)
                 {
                     yield return node.Value;
                 }
             }
         }
 
-        public IPolicySet GetOrAdd(string name, Func<IPolicySet> factory)
+        public IPolicySet GetOrAdd(string? name, Func<IPolicySet> factory)
         {
-            LinkedNode<string, IPolicySet> node;
-            LinkedNode<string, IPolicySet> last = null;
+            LinkedNode<string?, IPolicySet>? node;
+            LinkedNode<string?, IPolicySet>? last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -148,8 +152,10 @@ namespace Unity.Storage
                 last = node;
             }
 
+            Debug.Assert(null != last);
+
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IPolicySet>
+            last.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = factory()
@@ -160,10 +166,10 @@ namespace Unity.Storage
             return last.Next.Value;
         }
 
-        public IPolicySet SetOrReplace(string name, IPolicySet value)
+        public IPolicySet? SetOrReplace(string? name, IPolicySet value)
         {
-            LinkedNode<string, IPolicySet> node;
-            LinkedNode<string, IPolicySet> last = null;
+            LinkedNode<string?, IPolicySet>? node;
+            LinkedNode<string?, IPolicySet>? last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -176,8 +182,10 @@ namespace Unity.Storage
                 last = node;
             }
 
+            Debug.Assert(null != last);
+
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IPolicySet>
+            last.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = value

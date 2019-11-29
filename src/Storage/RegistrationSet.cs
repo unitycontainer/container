@@ -46,7 +46,7 @@ namespace Unity.Storage
 
         public int Count { get; private set; }
 
-        public void Add(Type type, string name, InternalRegistration registration)
+        public void Add(Type type, string? name, InternalRegistration registration)
         {
             var hashCode = (37 ^ (name?.GetHashCode() ?? 0 + 17)) & 0x7FFFFFFF; 
             var bucket = hashCode % _buckets.Length;
@@ -136,13 +136,13 @@ namespace Unity.Storage
 
             public Type RegisteredType { get; internal set; }
 
-            public string Name { get; internal set; }
+            public string? Name { get; internal set; }
 
-            public Type MappedToType => Registration is ContainerRegistration registration 
+            public Type? MappedToType => Registration is ContainerRegistration registration 
                 ? registration.Type : null;
 
             public LifetimeManager LifetimeManager => Registration is ContainerRegistration registration 
-                ? registration.LifetimeManager : null;
+                ? registration.LifetimeManager : TransientLifetimeManager.Instance;
 
         }
 
@@ -157,9 +157,9 @@ namespace Unity.Storage
 
             public Type RegisteredType => _entry.RegisteredType;
 
-            public string Name => _entry.Name;
+            public string? Name => _entry.Name;
 
-            public Type MappedToType => _entry.MappedToType;
+            public Type? MappedToType => _entry.MappedToType;
 
             public LifetimeManager LifetimeManager => _entry.LifetimeManager;
 

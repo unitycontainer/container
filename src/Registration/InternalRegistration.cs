@@ -8,13 +8,19 @@ using Unity.Strategies;
 namespace Unity.Registration
 {
     [DebuggerDisplay("InternalRegistration")]
-    public class InternalRegistration : LinkedNode<Type, object>,
+    public class InternalRegistration : LinkedNode<Type?, object?>,
                                         IPolicySet
     {
         #region Constructors
 
         public InternalRegistration()
         {
+        }
+
+        public InternalRegistration(Type policyInterface, string? name)
+        {
+            Key = policyInterface;
+            Value = name;
         }
 
         public InternalRegistration(Type policyInterface, object policy)
@@ -28,22 +34,22 @@ namespace Unity.Registration
 
         #region Public Members
 
-        public virtual BuilderStrategy[] BuildChain { get; set; }
+        public virtual BuilderStrategy[]? BuildChain { get; set; }
 
-        public InjectionMember[] InjectionMembers { get; set; }
+        public InjectionMember[]? InjectionMembers { get; set; }
 
         public bool BuildRequired { get; set; }
 
-        public Converter<Type, Type> Map { get; set; }
+        public Converter<Type, Type>? Map { get; set; }
 
         #endregion
 
 
         #region IPolicySet
 
-        public virtual object Get(Type policyInterface)
+        public virtual object? Get(Type policyInterface)
         {
-            for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
+            for (LinkedNode<Type?, object?>? node = this; node != null; node = node.Next)
             {
                 if (node.Key == policyInterface)
                     return node.Value;
@@ -52,7 +58,7 @@ namespace Unity.Registration
             return null;
         }
 
-        public virtual void Set(Type policyInterface, object policy)
+        public virtual void Set(Type policyInterface, object? policy)
         {
             if (null == Value && null == Key)
             {
@@ -61,18 +67,7 @@ namespace Unity.Registration
             }
             else
             {
-                for (var node = (LinkedNode<Type, object>)this; node != null; node = node.Next)
-                {
-                    if (node.Key == policyInterface)
-                    {
-                        // Found it
-                        node.Value = policy;
-                        return;
-                    }
-                }
-
-                // If not found, insert after the current object
-                Next = new LinkedNode<Type, object>
+                Next = new LinkedNode<Type?, object?>
                 {
                     Key = policyInterface,
                     Value = policy,
@@ -83,8 +78,8 @@ namespace Unity.Registration
 
         public virtual void Clear(Type policyInterface)
         {
-            LinkedNode<Type, object> node;
-            LinkedNode<Type, object> last = null;
+            LinkedNode<Type?, object?>? node;
+            LinkedNode<Type?, object?>? last = null;
 
             for (node = this; node != null; node = node.Next)
             {

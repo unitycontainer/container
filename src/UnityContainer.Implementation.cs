@@ -22,9 +22,9 @@ namespace Unity
     {
         #region Delegates
 
-        internal delegate object GetPolicyDelegate(Type type, string name, Type policyInterface);
-        internal delegate void SetPolicyDelegate(Type type, string name, Type policyInterface, object policy);
-        internal delegate void ClearPolicyDelegate(Type type, string name, Type policyInterface);
+        internal delegate object GetPolicyDelegate(Type? type, string? name, Type policyInterface);
+        internal delegate void   SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
+        internal delegate void ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
 
         #endregion
 
@@ -59,10 +59,10 @@ namespace Unity
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string, IPolicySet> GetRegistration;
+        internal Func<Type, string?, IPolicySet> GetRegistration;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Func<Type, string, InternalRegistration, IPolicySet> Register;
+        internal Func<Type, string?, InternalRegistration, IPolicySet> Register;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal GetPolicyDelegate GetPolicy;
@@ -73,10 +73,10 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal ClearPolicyDelegate ClearPolicy;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, IPolicySet> _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string, bool> _isExplicitlyRegistered;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type, string?, IPolicySet>       _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool>             _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type, string?, Type, IPolicySet> _getGenericRegistration;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool>                      IsTypeExplicitlyRegistered;
 
         private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
 #if DEBUG
@@ -269,7 +269,7 @@ namespace Unity
 
         #region Implementation
 
-        private void CreateAndSetPolicy(Type type, string name, Type policyInterface, object policy)
+        private void CreateAndSetPolicy(Type type, string? name, Type policyInterface, object policy)
         {
             lock (GetRegistration)
             {
@@ -280,7 +280,7 @@ namespace Unity
             Set(type, name, policyInterface, policy);
         }
 
-        private IPolicySet CreateAndSetOrUpdate(Type type, string name, InternalRegistration registration)
+        private IPolicySet CreateAndSetOrUpdate(Type type, string? name, InternalRegistration registration)
         {
             lock (GetRegistration)
             {

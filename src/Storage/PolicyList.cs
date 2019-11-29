@@ -11,9 +11,8 @@ namespace Unity.Storage
     {
         #region Fields
 
-        private readonly object _sync = new object();
-        private readonly IPolicyList _innerPolicyList;
-        private IDictionary<PolicyKey, object> _policies = null;
+        private readonly IPolicyList? _innerPolicyList;
+        private IDictionary<PolicyKey, object>? _policies = null;
 
         #endregion
 
@@ -24,7 +23,8 @@ namespace Unity.Storage
         /// Initialize a new instance of a <see cref="PolicyList"/> class.
         /// </summary>
         public PolicyList()
-            : this(null) { }
+        {
+        }
 
         /// <summary>
         /// Initialize a new instance of a <see cref="PolicyList"/> class with another policy list.
@@ -49,24 +49,14 @@ namespace Unity.Storage
         public int Count => _policies?.Count ?? 0;
 
 
-        public void Clear(Type type, string name, Type policyInterface)
+        public void Clear(Type type, string? name, Type policyInterface)
         {
             _policies?.Remove(new PolicyKey(type, name, policyInterface));
         }
 
-        /// <summary>
-        /// Removes a default policy.
-        /// </summary>
-        /// <param name="policyInterface">The type the policy was registered as.</param>
-        public void ClearDefault(Type policyInterface)
+        public object? Get(Type type, string? name, Type policyInterface)
         {
-            Clear(null, null, policyInterface);
-        }
-
-
-        public object Get(Type type, string name, Type policyInterface)
-        {
-            object policy = null;
+            object? policy = null;
 
             if (_policies?.TryGetValue(new PolicyKey(type, name, policyInterface), out policy) ?? false)
             {
@@ -76,9 +66,9 @@ namespace Unity.Storage
             return _innerPolicyList?.Get(type, name, policyInterface);
         }
 
-        public object Get(Type type, Type policyInterface)
+        public object? Get(Type type, Type policyInterface)
         {
-            object policy = null;
+            object? policy = null;
 
             if (_policies?.TryGetValue(new PolicyKey(type, UnityContainer.All, policyInterface), out policy) ?? false)
             {
@@ -96,7 +86,7 @@ namespace Unity.Storage
             _policies[new PolicyKey(type, UnityContainer.All, policyInterface)] = policy;
         }
 
-        public void Set(Type type, string name, Type policyInterface, object policy)
+        public void Set(Type type, string? name, Type policyInterface, object policy)
         {
             if (null == _policies)
                 _policies = new Dictionary<PolicyKey, object>(PolicyKeyEqualityComparer.Default);
@@ -114,13 +104,13 @@ namespace Unity.Storage
             #region Fields
 
             private readonly int _hash;
-            private readonly Type _type;
-            private readonly string _name;
+            private readonly Type? _type;
+            private readonly string? _name;
             private readonly Type _policy;
 
             #endregion
 
-            public PolicyKey(Type type, string name, Type policyType)
+            public PolicyKey(Type? type, string? name, Type policyType)
             {
                 _policy = policyType;
                 _type = type;
