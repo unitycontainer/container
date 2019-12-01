@@ -21,7 +21,7 @@ namespace Unity.Storage
 
         public string? Name => _registration.Name;
 
-        public Type? MappedToType => _registration.Type;
+        public Type? MappedToType => _registration.Type ?? RegisteredType;
 
         public LifetimeManager LifetimeManager => _registration.LifetimeManager ??
                                                   TransientLifetimeManager.Instance;
