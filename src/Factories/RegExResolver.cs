@@ -15,11 +15,11 @@ namespace Unity.Factories
 
         private static readonly MethodInfo EnumerableMethod =
             typeof(RegExResolver).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(RegExResolver.Resolver));
+                                 .GetDeclaredMethod(nameof(RegExResolver.Resolver))!;
 
         private static readonly MethodInfo EnumerableFactory =
             typeof(RegExResolver).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(RegExResolver.ResolverFactory));
+                                 .GetDeclaredMethod(nameof(RegExResolver.ResolverFactory))!;
 
         #endregion
 

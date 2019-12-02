@@ -43,8 +43,8 @@ namespace Unity
                 }
             }
 
-            // Select default
-            return new[] { SelectMethod(type, constructors) };
+            var result = SelectMethod(type, constructors);
+            return null == result ? Enumerable.Empty<object>() : new[] { result };
         }
 
         /// <summary>

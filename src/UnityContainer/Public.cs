@@ -69,8 +69,8 @@ namespace Unity
             _registry  = new Registry(Defaults);
             _registry.Set(typeof(IUnityContainer),      null, container);  // TODO: Remove redundancy
             _registry.Set(typeof(IUnityContainerAsync), null, container);
-            _registry.Set(typeof(IUnityContainer),      null, container.LifetimeManager.Pipeline);
-            _registry.Set(typeof(IUnityContainerAsync), null, container.LifetimeManager.Pipeline);
+            _registry.Set(typeof(IUnityContainer),      null, container.LifetimeManager!.Pipeline);
+            _registry.Set(typeof(IUnityContainerAsync), null, container.LifetimeManager!.Pipeline);
 
             /////////////////////////////////////////////////////////////
             // Built-In Features
@@ -200,7 +200,8 @@ namespace Unity
                 if (null == container._metadata) continue;
 
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+
+                var registry = container._registry!;
                 var targetBucket = key.HashCode % registry.Buckets.Length;
 
                 // Look for exact match
@@ -225,9 +226,8 @@ namespace Unity
                 IContainerRegistration cashe;
 
                 // First, add the built-in registrations
-                Debug.Assert(null != _root._registry);
-                set.Add(ref _root._registry.Entries[1].Key);
-                set.Add(ref _root._registry.Entries[2].Key);
+                set.Add(ref _root._registry!.Entries[1].Key);
+                set.Add(ref _root._registry!.Entries[2].Key);
 
                 // IUnityContainer & IUnityContainerAsync
                 yield return _root._registry.Entries[1].Cache;
@@ -238,10 +238,11 @@ namespace Unity
                 {
                     // Skip to parent if no registrations
                     if (null == container._metadata) continue;
+                    
+                    Debug.Assert(null != container._registry);
 
                     // Hold on to registries
                     var registry = container._registry!;
-                    Debug.Assert(null != registry);
 
                     for (var i = 0; i < registry.Count; i++)
                     {

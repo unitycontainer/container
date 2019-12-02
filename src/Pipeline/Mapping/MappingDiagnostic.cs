@@ -23,7 +23,7 @@ namespace Unity
             {
                 try
                 {
-                    return pipeline(ref context);
+                    return pipeline!(ref context);
                 }
                 catch (Exception ex)
                 {

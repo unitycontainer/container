@@ -40,6 +40,10 @@ namespace Unity
 
                 var setter = selection.GetSetMethod(true);
 
+                if (null == setter)
+                    throw new InvalidOperationException(
+                        $"Readonly property '{selection.Name}' on type '{type?.Name}' cannot be injected");
+
                 if (setter.IsStatic)
                     throw new InvalidOperationException(
                         $"Static property '{selection.Name}' on type '{type?.Name}' cannot be injected");

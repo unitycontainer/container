@@ -128,7 +128,7 @@ namespace Unity
             return resolver;
         }
 
-        protected Attribute GetCustomAttribute(TMemberInfo info, Type type)
+        protected Attribute? GetCustomAttribute(TMemberInfo info, Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             return info.GetCustomAttributes()
@@ -191,9 +191,9 @@ namespace Unity
         {
             public readonly Type Type;
             public Func<Attribute, object, object?, ResolveDelegate<PipelineContext>> Factory;
-            public Func<Attribute, string> Name;
+            public Func<Attribute, string?> Name;
 
-            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, object, object?, ResolveDelegate<PipelineContext>> factory)
+            public AttributeFactory(Type type, Func<Attribute, string?> getName, Func<Attribute, object, object?, ResolveDelegate<PipelineContext>> factory)
             {
                 Type = type;
                 Name = getName;

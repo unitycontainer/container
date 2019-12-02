@@ -53,9 +53,9 @@ namespace Unity
         private List<IUnityContainerExtensionConfigurator>? _extensions;
 
         // Events
-        private event EventHandler<RegisterEventArgs> Registering;
-        private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
-        private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+        private event EventHandler<RegisterEventArgs>? Registering;
+        private event EventHandler<RegisterInstanceEventArgs>? RegisteringInstance;
+        private event EventHandler<ChildContainerCreatedEventArgs>? ChildContainerCreated;
 
         // Dynamic Members
         private Func<Type, string?, ExplicitRegistration, ExplicitRegistration?> Register;
@@ -181,6 +181,7 @@ namespace Unity
             return type;
         }
 
+        // TODO: Check if could return enumerable
         private Type[]? DiagnosticValidateTypes(IEnumerable<Type>? types, Type type)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
@@ -204,7 +205,9 @@ namespace Unity
                     throw new ArgumentException($"The type {type} cannot be assigned to variables of type {t}.");
 
                 return t;
-            }).ToArray();
+            })
+            .Cast<Type>()
+            .ToArray();
 
             return null == array || 0 == array.Length ? null : array;
         }
@@ -224,13 +227,15 @@ namespace Unity
             builder.AppendLine(line);
             builder.AppendLine("Exception occurred:");
 
-            foreach (DictionaryEntry item in ex.Data)
-                builder.AppendLine(DataToString(item.Value));
+            Debug.Assert(null != ex.Data);
+
+            foreach (DictionaryEntry? item in ex.Data!)
+                builder.AppendLine(DataToString(item!.Value));
 
             return builder.ToString();
         }
 
-        private static string DataToString(object value)
+        private static string? DataToString(object value)
         {
             switch (value)
             {
@@ -239,7 +244,7 @@ namespace Unity
 
                 case ConstructorInfo constructor:
                     var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-                    return $"   on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
+                    return $"   on constructor:  {constructor.DeclaringType?.Name}({ctorSignature})";
 
                 case MethodInfo method:
                     var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));

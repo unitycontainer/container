@@ -114,7 +114,7 @@ namespace Unity.Storage
                 _hash = NamedType.GetHashCode(type, name);
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (obj is PolicyKey key)
                 {

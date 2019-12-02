@@ -33,7 +33,6 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                Debug.Assert(null != container);
 
                 // If Disposable add to container's lifetime
                 if (manager is IDisposable disposableManager)
@@ -81,7 +80,7 @@ namespace Unity
                 var parts = new List<string>();
                 var generics = null == typeFrom ? typeTo?.Name : $"{typeFrom?.Name},{typeTo?.Name}";
                 if (null != name) parts.Add($" '{name}'");
-                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
+                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString()!);
                 if (null != injectionMembers && 0 != injectionMembers.Length)
                     parts.Add(string.Join(" ,", injectionMembers.Select(m => m.ToString())));
 
@@ -118,7 +117,6 @@ namespace Unity
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
-                Debug.Assert(null != container);
 
                 // Register type
                 var registration = new InstanceRegistration(container, registeredType, name, instance, manager);
@@ -168,10 +166,10 @@ namespace Unity
                           Context.FactoryLifetimeManager.CreateLifetimePolicy();
 
             // Target Container
-            var container = manager is SingletonLifetimeManager ? _root : this!;
+            var container = manager is SingletonLifetimeManager ? _root : this;
 
             // Create registration
-            var registration = new FactoryRegistration(container, type, name, factory, manager);
+            var registration = new FactoryRegistration(container!, type, name, factory, manager);
 
             // Register
             var previous = container.Register(type, name, registration);

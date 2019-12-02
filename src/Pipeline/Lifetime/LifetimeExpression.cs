@@ -11,7 +11,7 @@ namespace Unity
         #region Fields
 
         private static readonly MethodInfo _recoverMethod = typeof(SynchronizedLifetimeManager)
-            .GetTypeInfo().GetDeclaredMethod(nameof(SynchronizedLifetimeManager.Recover));
+            .GetTypeInfo().GetDeclaredMethod(nameof(SynchronizedLifetimeManager.Recover))!;
 
         private static readonly ParameterExpression _value = Expression.Variable(typeof(object), "value");
         private static readonly ParameterExpression _lifetime = Expression.Variable(typeof(LifetimeManager), "lifetime");

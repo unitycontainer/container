@@ -76,7 +76,7 @@ namespace Unity
             ContainerContext = registration.Owner.Context;
 
             Debug.Assert(null != registration?.Processors);
-            _enumerator = registration.Processors.GetEnumerator();
+            _enumerator = registration!.Processors!.GetEnumerator();
         }
 
         // Pipeline from factory
@@ -101,7 +101,7 @@ namespace Unity
             SeedExpression = null;
 
             Debug.Assert(null != factory.Processors);
-            _enumerator = factory.Processors.GetEnumerator();
+            _enumerator = factory.Processors!.GetEnumerator();
         }
 
         #endregion

@@ -15,8 +15,8 @@ namespace Unity
 
             return builder.LifetimeManager switch
             {
-                SynchronizedLifetimeManager manager => SynchronizedLifetimeResolution(manager, pipeline),
-                PerResolveLifetimeManager _ => PerResolveLifetimeResolution(pipeline),
+                SynchronizedLifetimeManager manager => SynchronizedLifetimeResolution(manager, pipeline!),
+                PerResolveLifetimeManager _ => PerResolveLifetimeResolution(pipeline!),
                 _ => pipeline
             };
         }

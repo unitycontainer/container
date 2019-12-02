@@ -24,7 +24,7 @@ namespace Unity
         /// <inheritdoc />
         Task IUnityContainerAsync.RegisterType(IEnumerable<Type>? interfaces, Type type, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            return Task.Factory.StartNew((object status) =>
+            return Task.Factory.StartNew((object? status) =>
             {
                 var types = status as Type[];
 
@@ -90,7 +90,7 @@ namespace Unity
                     var parts = new List<string>();
                     var generics = null == typeFrom ? type?.Name : $"{typeFrom?.Name},{type?.Name}";
                     if (null != name) parts.Add($" '{name}'");
-                    if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
+                    if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString()!);
                     if (null != injectionMembers && 0 != injectionMembers.Length)
                         parts.Add(string.Join(" ,", injectionMembers.Select(m => m.ToString())));
 

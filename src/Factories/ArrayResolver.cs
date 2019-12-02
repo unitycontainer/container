@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Resolution;
@@ -11,11 +12,11 @@ namespace Unity.Factories
 
         private static readonly MethodInfo ResolverMethod =
             typeof(ArrayResolver).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(ArrayResolver.ResolverFactory));
+                                 .GetDeclaredMethod(nameof(ArrayResolver.ResolverFactory))!;
 
         private static readonly MethodInfo BuiltInMethod =
             typeof(ArrayResolver).GetTypeInfo()
-                                 .GetDeclaredMethod(nameof(ArrayResolver.BuiltInFactory));
+                                 .GetDeclaredMethod(nameof(ArrayResolver.BuiltInFactory))!;
         #endregion
 
 
@@ -24,7 +25,10 @@ namespace Unity.Factories
         public static TypeFactoryDelegate Factory = (Type type, UnityContainer container) =>
         {
             var typeArgument = type.GetElementType();
-            var targetType = container.GetTargetType(typeArgument);
+
+            Debug.Assert(null != typeArgument);
+
+            var targetType = container.GetTargetType(typeArgument!);
 
             if (null != targetType && typeArgument != targetType)
             {

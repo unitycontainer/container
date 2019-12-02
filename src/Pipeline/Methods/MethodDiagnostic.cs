@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Exceptions;
@@ -51,21 +50,21 @@ namespace Unity
                     if (member.IsStatic)
                     {
                         yield return new InvalidRegistrationException(
-                            $"Static method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Static methods cannot be injected", member);
+                            $"Static method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Static methods cannot be injected", member);
                     }
 
                     if (member.IsPrivate)
                         yield return new InvalidRegistrationException(
-                            $"Private method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Private methods cannot be injected", member);
+                            $"Private method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Private methods cannot be injected", member);
 
                     if (member.IsFamily)
                         yield return new InvalidRegistrationException(
-                            $"Protected method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Protected methods cannot be injected", member);
+                            $"Protected method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Protected methods cannot be injected", member);
 
                     if (member.IsGenericMethodDefinition)
                     {
                         yield return new InvalidRegistrationException(
-                            $"Open generic method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Open generic methods cannot be injected.", member);
+                            $"Open generic method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Open generic methods cannot be injected.", member);
                     }
 
                     yield return member;

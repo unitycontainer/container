@@ -15,7 +15,7 @@ namespace Unity.Factories
 
         private static readonly MethodInfo ImplementationMethod =
             typeof(LazyResolver).GetTypeInfo()
-                                       .GetDeclaredMethod(nameof(ResolverImplementation));
+                                .GetDeclaredMethod(nameof(ResolverImplementation))!;
 
         #endregion
 

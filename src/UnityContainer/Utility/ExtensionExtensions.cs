@@ -46,8 +46,8 @@ namespace Unity
         public static IUnityContainer AddNewExtension<TExtension>(this IUnityContainer container)
             where TExtension : UnityContainerExtension
         {
-            TExtension newExtension = (container ?? throw new ArgumentNullException(nameof(container))).Resolve<TExtension>();
-            return container.AddExtension(newExtension);
+            var newExtension = (container ?? throw new ArgumentNullException(nameof(container))).Resolve<TExtension>();
+            return container.AddExtension(newExtension ?? throw new ArgumentException("Invalid Extension"));
         }
 
         /// <summary>

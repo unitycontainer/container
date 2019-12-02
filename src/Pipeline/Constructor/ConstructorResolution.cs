@@ -99,7 +99,7 @@ namespace Unity
                     {
                         if (null == context.Existing)
                         {
-                            var dependencies = new object[parameterResolvers.Length];
+                            var dependencies = new object?[parameterResolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
                                 dependencies[i] = parameterResolvers[i](ref context);
 
@@ -118,7 +118,7 @@ namespace Unity
                     {
                         if (null == context.Existing)
                         {
-                            var dependencies = new object[parameterResolvers.Length];
+                            var dependencies = new object?[parameterResolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
                                 dependencies[i] = parameterResolvers[i](ref context);
 

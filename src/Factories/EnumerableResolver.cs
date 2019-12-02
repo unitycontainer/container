@@ -12,11 +12,11 @@ namespace Unity.Factories
 
         private static readonly MethodInfo EnumerableMethod =
             typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.EnumerableHandler));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.EnumerableHandler))!;
 
         private static readonly MethodInfo EnumerableFactory =
             typeof(EnumerableResolver).GetTypeInfo()
-                                      .GetDeclaredMethod(nameof(EnumerableResolver.ResolverFactory));
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.ResolverFactory))!;
 
         #endregion
 

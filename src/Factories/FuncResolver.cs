@@ -10,7 +10,7 @@ namespace Unity.Factories
 
         private static readonly MethodInfo ImplementationMethod
             = typeof(FuncResolver).GetTypeInfo()
-                                  .GetDeclaredMethod(nameof(ResolverImplementation));
+                                  .GetDeclaredMethod(nameof(ResolverImplementation))!;
         #endregion
 
 

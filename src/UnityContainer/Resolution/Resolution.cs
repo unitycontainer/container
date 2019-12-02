@@ -29,7 +29,7 @@ namespace Unity
                 // Array could be either registered or Type can be resolved
                 if (type.IsArray)
                 {
-                    return IsRegistered(type, name) || CanResolve(type.GetElementType(), name);
+                    return IsRegistered(type, name) || CanResolve(type.GetElementType()!, name);
                 }
 
                 // Type must be registered if:
@@ -219,28 +219,28 @@ namespace Unity
 
         internal Type GetTargetType(Type argType)
         {
-            Type next;
-            for (var type = argType; null != type; type = next)
+            Type? next;
+            for (Type? type = argType; null != type; type = next)
             {
                 var info = type.GetTypeInfo();
                 if (info.IsGenericType)
                 {
-                    if (IsRegistered(type)) return type;
+                    if (IsRegistered(type)) return type!;
 
                     var definition = info.GetGenericTypeDefinition();
                     if (IsRegistered(definition)) return definition;
 
-                    next = info.GenericTypeArguments[0];
+                    next = info.GenericTypeArguments[0]!;
                     if (IsRegistered(next)) return next;
                 }
                 else if (type.IsArray)
                 {
-                    next = type.GetElementType();
+                    next = type.GetElementType()!;
                     if (IsRegistered(next)) return next;
                 }
                 else
                 {
-                    return type;
+                    return type!;
                 }
             }
 

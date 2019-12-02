@@ -20,7 +20,7 @@ namespace Unity
                 if (null == container._metadata) continue;
 
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Check for exact match
                 for (var i = registry.Buckets[key.HashCode % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
@@ -64,7 +64,7 @@ namespace Unity
                 if (null == container._metadata) continue;
 
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Check for exact match
                 for (var i = registry.Buckets[key.HashCode % registry.Buckets.Length]; i >= 0; i = registry.Entries[i].Next)
@@ -78,26 +78,22 @@ namespace Unity
                 }
             }
 
-            Debug.Assert(null != _root);
-
             return _root.PipelineFromUnregisteredType(ref key);
         }
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0
         private ResolveDelegate<PipelineContext> GenericGetPipeline(ref HashKey key, TypeInfo info)
-        {
-            Debug.Assert(null != info);
 #else
         private ResolveDelegate<PipelineContext> GenericGetPipeline(ref HashKey key)
-        {
 #endif
+        {
             Debug.Assert(null != key.Type);
 
             int targetBucket;
             bool initGenerics = true;
             var keyGeneric = new HashKey();
             var keyDefault = new HashKey();
-            Type type = key.Type;
+            Type type = key.Type!;
             Type? generic = null;
             var name = key.Name;
 
@@ -108,7 +104,7 @@ namespace Unity
                 if (null == container._metadata) continue;
 
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Exact match
                 targetBucket = key.HashCode % registry.Buckets.Length;
@@ -160,8 +156,6 @@ namespace Unity
                     return container.PipelineFromTypeFactory(ref key, container, candidate.Policies);
                 }
             }
-
-            Debug.Assert(null != _root);
 
             return _root.PipelineFromUnregisteredType(ref key);
         }

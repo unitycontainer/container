@@ -39,34 +39,34 @@ namespace Unity
                 if (selection.IsStatic)
                 {
                     throw new ArgumentException(
-                        $"Static method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Static method {method.Name} on type '{selection.DeclaringType?.Name}' cannot be injected");
                 }
 
                 if (selection.IsPrivate)
                     throw new InvalidOperationException(
-                        $"Private method '{method.Name}' on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Private method '{method.Name}' on type '{selection.DeclaringType?.Name}' cannot be injected");
 
                 if (selection.IsFamily)
                     throw new InvalidOperationException(
-                        $"Protected method '{method.Name}' on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Protected method '{method.Name}' on type '{selection.DeclaringType?.Name}' cannot be injected");
 
                 if (selection.IsGenericMethodDefinition)
                 {
                     throw new ArgumentException(
-                        $"Open generic method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected");
+                        $"Open generic method {method.Name} on type '{selection.DeclaringType?.Name}' cannot be injected");
                 }
 
                 var parameters = selection.GetParameters();
                 if (parameters.Any(param => param.IsOut))
                 {
                     throw new ArgumentException(
-                        $"Method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected. Methods with 'out' parameters are not injectable.");
+                        $"Method {method.Name} on type '{selection.DeclaringType?.Name}' cannot be injected. Methods with 'out' parameters are not injectable.");
                 }
 
                 if (parameters.Any(param => param.ParameterType.IsByRef))
                 {
                     throw new ArgumentException(
-                        $"Method {method.Name} on type '{selection.DeclaringType.Name}' cannot be injected. Methods with 'ref' parameters are not injectable.");
+                        $"Method {method.Name} on type '{selection.DeclaringType?.Name}' cannot be injected. Methods with 'ref' parameters are not injectable.");
                 }
 
                 return selection;

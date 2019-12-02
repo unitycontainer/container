@@ -20,7 +20,7 @@ namespace Unity
                                builder.Factory      as FactoryRegistration;
 
             Debug.Assert(null != registration);
-            var factory = registration.Factory;
+            var factory = registration!.Factory;
 
             return builder.Pipeline((ref PipelineContext context) => factory(context.Container, context.Type, context.Name));
         }

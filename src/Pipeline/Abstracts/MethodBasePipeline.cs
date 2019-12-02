@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -47,7 +48,11 @@ namespace Unity
 
         #region Overrides
 
-        protected override Type MemberType(TMemberInfo info) => info.DeclaringType;
+        protected override Type MemberType(TMemberInfo info)
+        {
+            Debug.Assert(null != info.DeclaringType);
+            return info.DeclaringType!;
+        }
 
         #endregion
 

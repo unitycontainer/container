@@ -17,7 +17,7 @@ namespace Unity
 
         protected static readonly MethodInfo ValidateMethod =
             typeof(DiagnosticPipeline).GetTypeInfo()
-                .GetDeclaredMethod(nameof(DiagnosticPipeline.ValidateCompositionStack));
+                .GetDeclaredMethod(nameof(DiagnosticPipeline.ValidateCompositionStack))!;
 
         protected static readonly ConstructorInfo TupleConstructor =
             typeof(Tuple<Type, string?>).GetTypeInfo().DeclaredConstructors.First();

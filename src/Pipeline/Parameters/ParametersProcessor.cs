@@ -12,11 +12,11 @@ namespace Unity
     {
         #region Fields
 
-        protected static readonly Expression CallNewGuidExpr = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)));
+        protected static readonly Expression CallNewGuidExpr = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
 
-        protected static readonly PropertyInfo DataPropertyInfo = typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data));
+        protected static readonly PropertyInfo DataPropertyInfo = typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
 
-        protected static readonly MethodInfo AddMethodInfo = typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add));
+        protected static readonly MethodInfo AddMethodInfo = typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
 
         protected static readonly ParameterExpression ExceptionExpr = Expression.Variable(typeof(Exception), "exception");
 

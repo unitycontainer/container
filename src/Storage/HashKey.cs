@@ -83,7 +83,7 @@ namespace Unity.Storage
                    other._nameHash == _nameHash;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is HashKey other &&
                    other.HashCode == HashCode &&
