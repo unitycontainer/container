@@ -67,7 +67,7 @@ namespace Unity
             Debug.Assert(null != builder.Type);
 
             return null != factory
-                ? builder.Express(factory(builder.Type, builder.ContainerContext.Container))
+                ? builder.Express(factory(builder.Type!, builder.ContainerContext.Container))
                 : builder.Express();
         }
     }

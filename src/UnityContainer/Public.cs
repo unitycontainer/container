@@ -240,8 +240,9 @@ namespace Unity
                     if (null == container._metadata) continue;
 
                     // Hold on to registries
-                    Debug.Assert(null != container._registry);
-                    var registry = container._registry;
+                    var registry = container._registry!;
+                    Debug.Assert(null != registry);
+
                     for (var i = 0; i < registry.Count; i++)
                     {
                         if (!registry.Entries[i].IsExplicit || !set.Add(ref registry.Entries[i].Key))
@@ -252,8 +253,8 @@ namespace Unity
                         // Create wrapper is required
                         if (null == cashe)
                         {
-                            var type = registry.Entries[i].Key.Type;
-                            Debug.Assert(null != type);
+                            Debug.Assert(null != registry.Entries[i].Key.Type);
+                            var type = registry.Entries[i].Key.Type!;
 
                             cashe = new RegistrationWrapper(type, registry.Entries[i].Policies);
                             registry.Entries[i].Cache = cashe;

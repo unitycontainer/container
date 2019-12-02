@@ -133,8 +133,9 @@ namespace Unity
                     return new[] { new InvalidRegistrationException($"Multiple Constructors are annotated for injection on Type {type.FullName}") };
             }
 
-            // Select default
-            return new[] { SelectMethod(type, constructors) };
+            var result = SelectMethod(type, constructors);
+
+            return null == result ? Enumerable.Empty<object>() : new[] { result };
         }
 
         public override object? LegacySelector(Type type, ConstructorInfo[] members)
@@ -308,7 +309,7 @@ namespace Unity
                         {
                             try
                             {
-                                var dependencies = new object[parameterResolvers.Length];
+                                var dependencies = new object?[parameterResolvers.Length];
                                 for (var i = 0; i < dependencies.Length; i++)
                                     dependencies[i] = parameterResolvers[i](ref context);
 
@@ -336,7 +337,7 @@ namespace Unity
                         {
                             try
                             {
-                                var dependencies = new object[parameterResolvers.Length];
+                                var dependencies = new object?[parameterResolvers.Length];
                                 for (var i = 0; i < dependencies.Length; i++)
                                     dependencies[i] = parameterResolvers[i](ref context);
 

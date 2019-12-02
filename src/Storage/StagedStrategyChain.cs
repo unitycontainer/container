@@ -61,7 +61,7 @@ namespace Unity.Storage
 
         #region Implementation
 
-        private void OnParentInvalidated(object sender, EventArgs e)
+        private void OnParentInvalidated(object? sender, EventArgs e)
         {
             lock (_lockObject)
             {
@@ -83,7 +83,7 @@ namespace Unity.Storage
         /// <summary>
         /// Signals that chain has been changed
         /// </summary>
-        public event EventHandler<EventArgs> Invalidated;
+        public event EventHandler<EventArgs>? Invalidated;
 
         /// <summary>
         /// Adds a strategy to the chain at a particular stage.

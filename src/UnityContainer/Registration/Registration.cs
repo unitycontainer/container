@@ -61,15 +61,15 @@ namespace Unity
             var key = new HashKey(type, name);
             var metaKey = new HashKey(type);
 
-            Debug.Assert(null != _registry);
-            Debug.Assert(null != _metadata);
-
             registration.AddRef();
 
             // Registry
             lock (_syncRegistry)
             {
-                var targetBucket = key.HashCode % _registry.Buckets.Length;
+                Debug.Assert(null != _registry);
+                Debug.Assert(null != _metadata);
+
+                var targetBucket = key.HashCode % _registry!.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
@@ -116,7 +116,7 @@ namespace Unity
                 collisions = 0;
 
                 // Metadata
-                targetBucket = metaKey.HashCode % _metadata.Buckets.Length;
+                targetBucket = metaKey.HashCode % _metadata!.Buckets.Length;
 
                 for (var i = _metadata.Buckets[targetBucket]; i >= 0; i = _metadata.Entries[i].Next)
                 {

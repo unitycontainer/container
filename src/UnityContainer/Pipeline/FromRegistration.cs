@@ -123,32 +123,34 @@ namespace Unity
 
         private ResolveDelegate<PipelineContext> PipelineFromRegistrationCompiled(Type? type, ExplicitRegistration registration, int position)
         {
-            Debug.Assert(null != _registry);
-            Debug.Assert(null != type);
-
             var manager = registration.LifetimeManager;
-
             ResolveDelegate<PipelineContext>? pipeline = null;
+
+            Debug.Assert(null != type);
+            Debug.Assert(null != manager);
 
             lock (_syncRegistry)
             {
-                ref var entry = ref _registry.Entries[position];
+                Debug.Assert(null != _registry);
+
+                ref var entry = ref _registry!.Entries[position];
 
                 if (ReferenceEquals(entry.Registration, registration) && null == entry.Pipeline)
                 {
-                    entry.Pipeline = manager.Pipeline;
+                    entry.Pipeline = manager!.Pipeline;
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
                 }
             }
 
-            lock (manager)
+            lock (manager!)
             {
                 if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
-                    PipelineBuilder builder = new PipelineBuilder(type, registration);
+                    PipelineBuilder builder = new PipelineBuilder(type!, registration);
                     manager.PipelineDelegate = builder.Compile();
+
                     Debug.Assert(null != manager.PipelineDelegate);
-                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
+                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate!;
                 }
             }
 

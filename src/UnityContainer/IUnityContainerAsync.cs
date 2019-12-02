@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -44,7 +43,6 @@ namespace Unity
 
                     // Create registration and add to appropriate storage
                     var container = manager is SingletonLifetimeManager ? _root : this;
-                    Debug.Assert(null != container);
 
                     // If Disposable add to container's lifetime
                     if (manager is IDisposable disposableManager)
@@ -224,7 +222,7 @@ namespace Unity
                     Type = type,
                     Overrides = overrides,
                     ContainerContext = manager is ContainerControlledLifetimeManager container
-                                     ? (ContainerContext)container.Scope
+                                     ? (ContainerContext)container.Scope!
                                      : Context,
                 };
 
@@ -251,7 +249,7 @@ namespace Unity
             }));
         }
 
-        public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
+        public ValueTask<IEnumerable<object?>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
         }

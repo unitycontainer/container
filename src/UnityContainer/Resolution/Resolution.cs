@@ -10,9 +10,6 @@ using Unity.Storage;
 
 namespace Unity
 {
-#pragma warning disable CS8603 // Possible null reference return.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-
     /// <summary>
     /// A simple, extensible dependency injection container.
     /// </summary>
@@ -88,7 +85,7 @@ namespace Unity
 
                 // Hold on to registries
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Get indexes and iterate over them
                 var length = container._metadata.GetMeta(ref key, out int[]? data);
@@ -110,9 +107,7 @@ namespace Unity
                             continue;
                         }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-                        yield return (TElement)value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                        yield return null == value ? default : (TElement)value;
                     }
                 }
             }
@@ -151,7 +146,7 @@ namespace Unity
 
                 // Hold on to registries
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Get indexes for bound types and iterate over them
                 var length = container._metadata.GetMeta(ref key, out int[]? data);
@@ -173,9 +168,7 @@ namespace Unity
                             continue;
                         }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-                        yield return (TElement)value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                        yield return null == value ? default : (TElement)value;
                     }
                 }
 
@@ -197,9 +190,7 @@ namespace Unity
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-                            yield return (TElement)value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                            yield return null == value ? default : (TElement)value;
                         }
                     }
                 }
@@ -217,9 +208,7 @@ namespace Unity
                     yield break;
                 }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-                yield return (TElement)value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                yield return null == value ? default : (TElement)value;
             }
         }
 
@@ -272,7 +261,7 @@ namespace Unity
 
                 // Hold on to registries
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Get indexes and iterate over them
                 var length = container._metadata.GetMeta(ref key, out int[]? data);
@@ -320,7 +309,7 @@ namespace Unity
 
                 // Hold on to registries
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Get indexes for bound types and iterate over them
                 var length = container._metadata.GetMeta(ref keyType, out int[]? data);
@@ -391,7 +380,7 @@ namespace Unity
 
                 // Hold on to registries
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Get indexes and iterate over them
                 var length = container._metadata.GetMeta(ref typeKey, out int[]? data);
@@ -438,7 +427,7 @@ namespace Unity
 
                 // Hold on to registries
                 Debug.Assert(null != container._registry);
-                var registry = container._registry;
+                var registry = container._registry!;
 
                 // Get indexes for bound types and iterate over them
                 var length = container._metadata.GetMeta(ref key, out int[]? data);
@@ -460,9 +449,7 @@ namespace Unity
                                 continue;
                             }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-                            yield return (TElement)value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                            yield return null == value ? default : (TElement)value;
                         }
                     }
                 }
@@ -480,16 +467,12 @@ namespace Unity
                         {
                             try
                             {
-#pragma warning disable CS8601 // Possible null reference assignment.
-                                value = (TElement)resolve(typeof(TElement), registration.Name);
-#pragma warning restore CS8601 // Possible null reference assignment.
+                                value = resolve(typeof(TElement), registration.Name);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-                            yield return (TElement)value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                            yield return null == value ? default : (TElement)value;
                         }
                     }
                 }
@@ -581,7 +564,4 @@ namespace Unity
 
         #endregion
     }
-    
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning restore CS8603 // Possible null reference return.
 }

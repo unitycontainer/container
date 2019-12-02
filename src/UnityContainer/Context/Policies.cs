@@ -13,10 +13,9 @@ namespace Unity
             /// <inheritdoc />
             public object? Get(Type policyInterface)
             {
-                Debug.Assert(null != Container._root);
-                Debug.Assert(null != Container._root._registry);
+                Debug.Assert(null != Container._root?._registry);
 
-                var registry = Container._root._registry;
+                var registry = Container._root!._registry!;
                 return registry.Entries[0].Policies.Get(policyInterface);
             }
 
@@ -46,7 +45,7 @@ namespace Unity
             }
 
             /// <inheritdoc />
-            public object? Get(Type type, string? name, Type policyInterface)
+            public object? Get(Type? type, string? name, Type policyInterface)
             {
                 var key = new HashKey(type, name);
 
@@ -73,10 +72,9 @@ namespace Unity
             /// <inheritdoc />
             public void Set(Type policyInterface, object policy)
             {
-                Debug.Assert(null != Container._root);
-                Debug.Assert(null != Container._root._registry);
+                Debug.Assert(null != Container._root?._registry);
 
-                var registry = Container._root._registry;
+                var registry = Container._root!._registry!;
                 registry.Entries[0].Policies.Set(policyInterface, policy);
             }
 
@@ -118,7 +116,7 @@ namespace Unity
             }
 
             /// <inheritdoc />
-            public void Set(Type type, string? name, Type policyInterface, object policy)
+            public void Set(Type? type, string? name, Type policyInterface, object policy)
             {
                 var key = new HashKey(type, name);
 
@@ -156,7 +154,7 @@ namespace Unity
             }
 
             /// <inheritdoc />
-            public void Clear(Type type, string? name, Type policyInterface)
+            public void Clear(Type? type, string? name, Type policyInterface)
             {
                 var key = new HashKey(type, name);
 

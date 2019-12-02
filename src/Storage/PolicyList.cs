@@ -41,7 +41,7 @@ namespace Unity.Storage
         public int Count => _policies?.Count ?? 0;
 
 
-        public void Clear(Type type, string name, Type policyInterface)
+        public void Clear(Type? type, string? name, Type policyInterface)
         {
             _policies?.Remove(new PolicyKey(type, name, policyInterface));
         }
@@ -60,7 +60,7 @@ namespace Unity.Storage
         }
 
 
-        public object? Get(Type type, string name, Type policyInterface)
+        public object? Get(Type? type, string? name, Type policyInterface)
         {
             object? policy = null;
 
@@ -82,7 +82,7 @@ namespace Unity.Storage
         }
 
 
-        public void Set(Type type, string name, Type policyInterface, object policy)
+        public void Set(Type? type, string? name, Type policyInterface, object policy)
         {
             if (null == _policies)
                 _policies = new Dictionary<PolicyKey, object>(PolicyKeyEqualityComparer.Default);
@@ -100,13 +100,13 @@ namespace Unity.Storage
             #region Fields
 
             private readonly int _hash;
-            private readonly Type _type;
+            private readonly Type? _type;
             private readonly string? _name;
             private readonly Type _policy;
 
             #endregion
 
-            public PolicyKey(Type type, string name, Type policyType)
+            public PolicyKey(Type? type, string? name, Type policyType)
             {
                 _policy = policyType;
                 _type = type;

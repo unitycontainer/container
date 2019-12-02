@@ -19,7 +19,7 @@ namespace Unity
         #region Type Registration
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type typeTo, string name, ITypeLifetimeManager lifetimeManager, InjectionMember[] injectionMembers)
+        IUnityContainer IUnityContainer.RegisterType(Type typeFrom, Type? typeTo, string? name, ITypeLifetimeManager? lifetimeManager, InjectionMember[] injectionMembers)
         {
             // Validate input
             var registeredType = ValidateType(typeFrom, typeTo);
@@ -168,8 +168,7 @@ namespace Unity
                           Context.FactoryLifetimeManager.CreateLifetimePolicy();
 
             // Target Container
-            var container = manager is SingletonLifetimeManager ? _root : this;
-            Debug.Assert(null != container);
+            var container = manager is SingletonLifetimeManager ? _root : this!;
 
             // Create registration
             var registration = new FactoryRegistration(container, type, name, factory, manager);
@@ -225,7 +224,7 @@ namespace Unity
                 Name = name,
                 Overrides = overrides,
                 ContainerContext = manager is ContainerControlledLifetimeManager container 
-                                 ? (ContainerContext)container.Scope 
+                                 ? (ContainerContext)container.Scope! 
                                  : Context,
             };
 
@@ -251,9 +250,9 @@ namespace Unity
 
         /// <inheritdoc />
         [SecuritySafeCritical]
-        public object? BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
+        public object BuildUp(Type? type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            var key = new HashKey(type ?? throw new ArgumentNullException(nameof(type)), name);
+            var key = new HashKey(type ?? existing?.GetType() ?? throw new ArgumentNullException(nameof(existing)), name);
             var pipeline = GetPipeline(ref key);
 
             // Setup Context
@@ -271,7 +270,7 @@ namespace Unity
             try
             {
                 // Execute pipeline
-                return pipeline(ref context);
+                return pipeline(ref context)!;
             }
             catch (Exception ex)
             when (ex is InvalidRegistrationException || ex is CircularDependencyException || ex is ObjectDisposedException)

@@ -51,7 +51,7 @@ namespace Unity
                 {
                     if (null == c.Existing) return c.Existing;
 
-                    var parameters = new object[parameterResolvers.Length];
+                    var parameters = new object?[parameterResolvers.Length];
                     for (var i = 0; i < parameters.Length; i++)
                         parameters[i] = parameterResolvers[i](ref c);
 

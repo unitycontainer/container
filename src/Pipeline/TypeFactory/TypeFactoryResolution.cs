@@ -65,7 +65,7 @@ namespace Unity
             Debug.Assert(null != builder.Type);
 
             return null != factory
-                ? builder.Pipeline(factory(builder.Type, builder.ContainerContext.Container))
+                ? builder.Pipeline(factory(builder.Type!, builder.ContainerContext.Container))
                 : builder.Pipeline();
         }
     }

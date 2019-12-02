@@ -51,7 +51,7 @@ namespace Unity.Storage
             Name = name;
         }
 
-        public HashKey(Type type, string? name)
+        public HashKey(Type? type, string? name)
         {
             _typeHash = type?.GetHashCode() ?? 0;
             _nameHash = name?.GetHashCode() ?? 0;
@@ -68,7 +68,7 @@ namespace Unity.Storage
         public static int GetHashCode(Type type)  
             => NamedType.GetHashCode(type.GetHashCode(), -1) & UnityContainer.HashMask;
 
-        public static int GetHashCode(Type type, string? name)
+        public static int GetHashCode(Type? type, string? name)
             => NamedType.GetHashCode(type, name) & UnityContainer.HashMask;
 
         #endregion

@@ -97,7 +97,7 @@ namespace Unity
             return ContainerContext.Get(type, policyInterface);
         }
 
-        public object? Get(Type type, string? name, Type policyInterface)
+        public object? Get(Type? type, string? name, Type policyInterface)
         {
             return List?.Get(type, name, policyInterface) ?? 
                 ContainerContext.Get(type, name, policyInterface);
@@ -113,12 +113,12 @@ namespace Unity
             List.Set(type, policyInterface, policy);
         }
 
-        public void Set(Type type, string? name, Type policyInterface, object policy)
+        public void Set(Type? type, string? name, Type policyInterface, object policy)
         {
             List.Set(type, name, policyInterface, policy);
         }
 
-        public void Clear(Type type, string? name, Type policyInterface)
+        public void Clear(Type? type, string? name, Type policyInterface)
         {
             List.Clear(type, name, policyInterface);
         }
@@ -365,7 +365,7 @@ namespace Unity
                 var context = new PipelineContext
                 {
                     ContainerContext = pipeline.Target is ContainerControlledLifetimeManager containerControlled
-                                     ? (ContainerContext)containerControlled.Scope
+                                     ? (ContainerContext)containerControlled.Scope!
                                      : ContainerContext,
                     List = List,
                     Type = type,

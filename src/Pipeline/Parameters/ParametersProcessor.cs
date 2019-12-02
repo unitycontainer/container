@@ -110,9 +110,9 @@ namespace Unity
         {
             public readonly Type Type;
             public Func<Attribute, ParameterInfo, object?, ResolveDelegate<PipelineContext>> Factory;
-            public Func<Attribute, string> Name;
+            public Func<Attribute, string?> Name;
 
-            public AttributeFactory(Type type, Func<Attribute, string> getName, Func<Attribute, ParameterInfo, object?, ResolveDelegate<PipelineContext>> factory)
+            public AttributeFactory(Type type, Func<Attribute, string?> getName, Func<Attribute, ParameterInfo, object?, ResolveDelegate<PipelineContext>> factory)
             {
                 Type = type;
                 Name = getName;

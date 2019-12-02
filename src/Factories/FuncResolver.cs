@@ -35,7 +35,11 @@ namespace Unity.Factories
             var nameToBuild = context.Name;
             var container = context.Container;
 
-            return () => (T)container.Resolve(typeof(T), nameToBuild);
+            return () => 
+            {
+                var result = container.Resolve(typeof(T), nameToBuild);
+                return null == result ? default : (T)result; 
+            };
         }
         
         #endregion

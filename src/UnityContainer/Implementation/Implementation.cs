@@ -72,10 +72,6 @@ namespace Unity
         /// will apply its own settings first, and then check the parent for additional ones.</param>
         private UnityContainer(UnityContainer parent)
         {
-            // Validate input
-            Debug.Assert(null != parent);
-            Debug.Assert(null != parent._root);
-
             // Register with parent
             _parent = parent;
             _root = parent._root;
@@ -276,7 +272,7 @@ namespace Unity
         internal PipelineContext.ResolvePlanDelegate DependencyResolvePipeline { get; set; } =
             (ref PipelineContext context, ResolveDelegate<PipelineContext> resolver) => resolver(ref context);
 
-        private static object ValidatingDependencyResolvePipeline(ref PipelineContext thisContext, ResolveDelegate<PipelineContext> resolver)
+        private static object? ValidatingDependencyResolvePipeline(ref PipelineContext thisContext, ResolveDelegate<PipelineContext> resolver)
         {
             if (null == resolver) throw new ArgumentNullException(nameof(resolver));
 #if NET40

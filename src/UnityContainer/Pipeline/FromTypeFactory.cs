@@ -12,19 +12,20 @@ namespace Unity
     {
         private ResolveDelegate<PipelineContext> PipelineFromTypeFactory(ref HashKey key, UnityContainer container, IPolicySet set)
         {
-            Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             LifetimeManager? manager = null;
             ResolveDelegate<PipelineContext>? pipeline = null;
-            var typeFactory = (TypeFactoryDelegate)set.Get(typeof(TypeFactoryDelegate));
+            var typeFactory = (TypeFactoryDelegate?)set.Get(typeof(TypeFactoryDelegate));
 
             // Add Pipeline to the Registry
             lock (_syncRegistry)
             {
+                Debug.Assert(null != _registry);
+
                 bool adding = true;
                 var collisions = 0;
-                var targetBucket = key.HashCode % _registry.Buckets.Length;
+                var targetBucket = key.HashCode % _registry!.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var candidate = ref _registry.Entries[i];
@@ -38,7 +39,7 @@ namespace Unity
                     if (null != candidate.Pipeline) return candidate.Pipeline;
 
                     // Lifetime Manager
-                    manager = (LifetimeManager)set.Get(typeof(LifetimeManager)) ??
+                    manager = (LifetimeManager?)set.Get(typeof(LifetimeManager)) ??
                                                Context.TypeLifetimeManager.CreateLifetimePolicy();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
@@ -59,7 +60,7 @@ namespace Unity
                     }
 
                     // Lifetime Manager
-                    manager = (LifetimeManager)set.Get(typeof(LifetimeManager)) ??
+                    manager = (LifetimeManager?)set.Get(typeof(LifetimeManager)) ??
                                                Context.TypeLifetimeManager.CreateLifetimePolicy();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
@@ -74,11 +75,14 @@ namespace Unity
 
             Debug.Assert(null != manager);
 
-            lock (manager)
+            lock (manager!)
             {
                 if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
-                    manager.PipelineDelegate = typeFactory(key.Type, this);
+                    Debug.Assert(null != key.Type);
+                    Debug.Assert(null != typeFactory);
+
+                    manager.PipelineDelegate = typeFactory!(key.Type!, this);
                     pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
                 }
             }

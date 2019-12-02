@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Reflection;
 using Unity.Registration;
 
 namespace Unity
@@ -17,7 +15,7 @@ namespace Unity
             var registration = builder.Registration as FactoryRegistration ??
                                builder.Factory      as FactoryRegistration;
 
-            Debug.Assert(null != registration);
+            if (null == registration) throw new InvalidOperationException("Invalid registration");
 
             var factory = Expression.Constant(registration.Factory, typeof(Func<IUnityContainer, Type, string?, object?>));
             var expression = Expression.Assign(PipelineContextExpression.Existing,

@@ -16,7 +16,6 @@ namespace Unity
 
         private ResolveDelegate<PipelineContext> PipelineFromUnregisteredTypeOptimized(ref HashKey key)
         {
-            Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             LifetimeManager? manager = null;
@@ -24,9 +23,11 @@ namespace Unity
 
             lock (_syncRegistry)
             {
+                Debug.Assert(null != _registry);
+
                 var adding = true;
                 var collisions = 0;
-                var targetBucket = key.HashCode % _registry.Buckets.Length;
+                var targetBucket = key.HashCode % _registry!.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var existing = ref _registry.Entries[i];
@@ -77,14 +78,15 @@ namespace Unity
 
             Debug.Assert(null != manager);
 
-            lock (manager)
+            lock (manager!)
             {
                 if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
-                    PipelineBuilder builder = new PipelineBuilder(key.Type, this, Context.TypePipelineCache);
+                    PipelineBuilder builder = new PipelineBuilder(key.Type!, this, Context.TypePipelineCache);
                     manager.PipelineDelegate = builder.Pipeline();
+
                     Debug.Assert(null != manager.PipelineDelegate);
-                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
+                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate!;
                 }
             }
 
@@ -113,7 +115,6 @@ namespace Unity
 
         private ResolveDelegate<PipelineContext> PipelineFromUnregisteredTypeActivated(ref HashKey key)
         {
-            Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             LifetimeManager? manager = null;
@@ -121,9 +122,11 @@ namespace Unity
 
             lock (_syncRegistry)
             {
+                Debug.Assert(null != _registry);
+
                 var adding = true;
                 var collisions = 0;
-                var targetBucket = key.HashCode % _registry.Buckets.Length;
+                var targetBucket = key.HashCode % _registry!.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var existing = ref _registry.Entries[i];
@@ -174,14 +177,15 @@ namespace Unity
 
             Debug.Assert(null != manager);
 
-            lock (manager)
+            lock (manager!)
             {
                 if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
-                    PipelineBuilder builder = new PipelineBuilder(key.Type, this, Context.TypePipelineCache);
+                    PipelineBuilder builder = new PipelineBuilder(key.Type!, this, Context.TypePipelineCache);
                     manager.PipelineDelegate = builder.Pipeline();
+
                     Debug.Assert(null != manager.PipelineDelegate);
-                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
+                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate!;
                 }
             }
 
@@ -210,7 +214,6 @@ namespace Unity
 
         private ResolveDelegate<PipelineContext> PipelineFromUnregisteredTypeCompiled(ref HashKey key)
         {
-            Debug.Assert(null != _registry);
             Debug.Assert(null != key.Type);
 
             LifetimeManager? manager = null;
@@ -218,9 +221,11 @@ namespace Unity
 
             lock (_syncRegistry)
             {
+                Debug.Assert(null != _registry);
+
                 var adding = true;
                 var collisions = 0;
-                var targetBucket = key.HashCode % _registry.Buckets.Length;
+                var targetBucket = key.HashCode % _registry!.Buckets.Length;
                 for (var i = _registry.Buckets[targetBucket]; i >= 0; i = _registry.Entries[i].Next)
                 {
                     ref var existing = ref _registry.Entries[i];
@@ -271,14 +276,15 @@ namespace Unity
 
             Debug.Assert(null != manager);
 
-            lock (manager)
+            lock (manager!)
             {
                 if ((Delegate)(ResolveDelegate<PipelineContext>)SpinWait == manager.PipelineDelegate)
                 {
-                    PipelineBuilder builder = new PipelineBuilder(key.Type, this, Context.TypePipelineCache);
+                    PipelineBuilder builder = new PipelineBuilder(key.Type!, this, Context.TypePipelineCache);
                     manager.PipelineDelegate = builder.Compile();
+                    
                     Debug.Assert(null != manager.PipelineDelegate);
-                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate;
+                    pipeline = (ResolveDelegate<PipelineContext>)manager.PipelineDelegate!;
                 }
             }
 
