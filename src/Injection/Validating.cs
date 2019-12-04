@@ -47,7 +47,7 @@ namespace Unity.Injection
                 // Select Method
                 foreach (var info in type.GetDeclaredMethods())
                 {
-                    if (!method.Data.MatchMemberInfo(info)) continue;
+                    if (method.Name != info.Name || !method.Data.MatchMemberInfo(info)) continue;
 
                     if (null != selection)
                     {
