@@ -79,7 +79,9 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
 
         private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
-
+#if DEBUG
+        private string id = Guid.NewGuid().ToString();
+#endif
         #endregion
 
 
