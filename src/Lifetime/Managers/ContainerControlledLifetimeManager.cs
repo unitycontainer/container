@@ -50,7 +50,7 @@ namespace Unity.Lifetime
 
         #region Scope
 
-        public object Scope { get; internal set; }
+        public object Scope { get; set; }
 
         #endregion
 
