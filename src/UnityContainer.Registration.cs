@@ -316,6 +316,55 @@ namespace Unity
 
         #region Registration manipulation
 
+
+        // Register new and return overridden registration
+        internal IPolicySet AppendNew(Type type, string name, InternalRegistration registration)
+        {
+            var collisions = 0;
+            var hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            var targetBucket = hashCode % _registrations.Buckets.Length;
+            lock (_syncRoot)
+            {
+                for (var i = _registrations.Buckets[targetBucket]; i >= 0; i = _registrations.Entries[i].Next)
+                {
+                    ref var candidate = ref _registrations.Entries[i];
+                    if (candidate.HashCode != hashCode ||
+                        candidate.Key != type)
+                    {
+                        collisions++;
+                        continue;
+                    }
+
+                    if (candidate.Value is HashRegistry registry)
+                    {
+                        candidate.Value = new LinkedRegistry(registry);
+                    }
+                    
+                    var existing = candidate.Value as LinkedRegistry;
+                    Debug.Assert(null != existing);
+
+                    existing.Append(name, registration);
+
+                    return null;
+                }
+
+                if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
+                {
+                    _registrations = new Registrations(_registrations);
+                    targetBucket = hashCode % _registrations.Buckets.Length;
+                }
+
+                ref var entry = ref _registrations.Entries[_registrations.Count];
+                entry.HashCode = hashCode;
+                entry.Next = _registrations.Buckets[targetBucket];
+                entry.Key = type;
+                entry.Value = new LinkedRegistry(name, registration);
+                _registrations.Buckets[targetBucket] = _registrations.Count++;
+
+                return null;
+            }
+        }
+
         // Register new and return overridden registration
         private IPolicySet AddOrUpdate(Type type, string name, InternalRegistration registration)
         {

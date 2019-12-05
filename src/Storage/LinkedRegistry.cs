@@ -22,11 +22,42 @@ namespace Unity.Storage
 
         public LinkedRegistry(string key, IPolicySet value)
         {
+            _count = 1;
             Key = key;
             Value = value;
         }
 
+        public LinkedRegistry(HashRegistry registry)
+        {
+            // TODO: Implement this
+            throw new NotImplementedException();
+        }
+
         #endregion
+
+        public void Append(string name, IPolicySet value)
+        {
+            LinkedNode<string, IPolicySet> node;
+            LinkedNode<string, IPolicySet> last = null;
+
+            for (node = this; node != null; node = node.Next)
+            {
+                if (name == node.Key)
+                {
+                    node.Key = Guid.NewGuid().ToString();
+                }
+                last = node;
+            }
+
+            // Not found, so add a new one
+            last.Next = new LinkedNode<string, IPolicySet>
+            {
+                Key = name,
+                Value = value
+            };
+
+            _count++;
+        }
 
 
         #region IRegistry
