@@ -14,7 +14,7 @@ dotnet_csproj:
   patch: false
 
 before_build:
-- cmd: dotnet restore
+- cmd: dotnet restore -v=d
 
 build:
   project: package.sln
