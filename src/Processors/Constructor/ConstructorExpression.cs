@@ -58,21 +58,18 @@ namespace Unity.Processors
                                     .FirstOrDefault();
 
             // Select constructor for the Type
-            object[] resolvers = null;
-            ConstructorInfo info = null;
-            IEnumerable<Expression> parametersExpr;
+            object[]? resolvers = null;
 
+            ConstructorInfo info;
             switch (selection)
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
-                    parametersExpr = CreateParameterExpressions(info.GetParameters());
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
                     info = injectionMember.MemberInfo(type);
                     resolvers = injectionMember.Data;
-                    parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
                     break;
 
                 case Exception exception:
@@ -85,14 +82,14 @@ namespace Unity.Processors
             }
 
             // Get lifetime manager
-            var lifetimeManager = (LifetimeManager)registration.Get(typeof(LifetimeManager));
+            var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
                 ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }
                 : new Expression[] { GetResolverExpression(info, resolvers) };
         }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {
             var variable = Expression.Variable(info.DeclaringType);
             var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);

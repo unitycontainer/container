@@ -92,7 +92,7 @@ namespace Unity.Storage
                     if (Equals(node.Key, key))
                     {
                         // Found it
-                        node.Value = value;
+                        node.Value = value!;
                         return;
                     }
                     last = node;
@@ -101,10 +101,10 @@ namespace Unity.Storage
                 Debug.Assert(null != last);
 
                 // Not found, so add a new one
-                last.Next = new LinkedNode<string?, IPolicySet>
+                last!.Next = new LinkedNode<string?, IPolicySet>
                 {
                     Key = key,
-                    Value = value
+                    Value = value!
                 };
 
                 _count++;
@@ -155,7 +155,7 @@ namespace Unity.Storage
             Debug.Assert(null != last);
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string?, IPolicySet>
+            last!.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = factory()
@@ -185,7 +185,7 @@ namespace Unity.Storage
             Debug.Assert(null != last);
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string?, IPolicySet>
+            last!.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = value

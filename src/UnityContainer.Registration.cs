@@ -76,7 +76,7 @@ namespace Unity
             return _parent?.IsTypeExplicitlyRegistered(type) ?? false;
         }
 
-        internal bool RegistrationExists(Type type, string name)
+        internal bool RegistrationExists(Type type, string? name)
         {
             IPolicySet? defaultRegistration = null;
             IPolicySet? noNameRegistration = null;

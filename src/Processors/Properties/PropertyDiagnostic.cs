@@ -59,6 +59,11 @@ namespace Unity.Processors
                             $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
                     var setter = member.GetSetMethod(true);
+
+                    if (null == setter)
+                        throw new InvalidOperationException(
+                            $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
+
                     if (setter.IsStatic)
                         throw new InvalidOperationException(
                             $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
@@ -77,7 +82,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(PropertyInfo property, object resolver)
+        protected override Expression GetResolverExpression(PropertyInfo property, object? resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -92,7 +97,7 @@ namespace Unity.Processors
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

@@ -54,8 +54,8 @@ namespace Unity
             {
                 {   // Array
                     new ArrayResolveStrategy(
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray)),
-                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))),
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveArray))!,
+                        typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(ResolveGenericArray))!),
                     UnityBuildStage.Enumerable
                 },
                 {new BuildKeyMappingStrategy(), UnityBuildStage.TypeMapping},   // Mapping

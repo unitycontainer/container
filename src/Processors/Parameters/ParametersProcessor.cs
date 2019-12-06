@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -35,16 +36,20 @@ namespace Unity.Processors
 
         #region Overrides
 
-        protected override Type MemberType(TMemberInfo info) => info.DeclaringType;
+        protected override Type MemberType(TMemberInfo info)
+        {
+            Debug.Assert(null != info.DeclaringType);
+            return info.DeclaringType!;
+        }
 
         #endregion
 
 
         #region Expression 
 
-        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -102,9 +107,9 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -210,7 +215,7 @@ namespace Unity.Processors
             return CanResolve(info.ParameterType, null);
         }
 
-        protected bool CanResolve(Type type, string name)
+        protected bool CanResolve(Type type, string? name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = type.GetTypeInfo();
@@ -222,7 +227,7 @@ namespace Unity.Processors
                 // Array could be either registered or Type can be resolved
                 if (type.IsArray)
                 {
-                    return Container._isExplicitlyRegistered(type, name) || CanResolve(type.GetElementType(), name);
+                    return Container._isExplicitlyRegistered(type, name) || CanResolve(type!.GetElementType(), name);
                 }
 
                 // Type must be registered if:
@@ -265,12 +270,12 @@ namespace Unity.Processors
 
         #region Attribute Factories
 
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             return (ref BuilderContext context) => context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
         }
 
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             return (ref BuilderContext context) =>
             {

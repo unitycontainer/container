@@ -71,7 +71,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(FieldInfo field, object resolver)
+        protected override Expression GetResolverExpression(FieldInfo field, object? resolver)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -86,7 +86,7 @@ namespace Unity.Processors
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object resolver)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? resolver)
         {
             var value = PreProcessResolver(info, resolver);
             return (ref BuilderContext context) =>

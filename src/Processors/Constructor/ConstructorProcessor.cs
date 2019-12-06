@@ -25,7 +25,7 @@ namespace Unity.Processors
 
         #region Public Properties
 
-        public Func<Type, ConstructorInfo[], object> SelectMethod { get; set; }
+        public Func<Type, ConstructorInfo[], object?> SelectMethod { get; set; }
 
         #endregion
 
@@ -67,8 +67,8 @@ namespace Unity.Processors
                 }
             }
 
-            // Select default
-            return new[] { SelectMethod(type, constructors) };
+            var selection = SelectMethod(type, constructors);
+            return null == selection ? Enumerable.Empty<object>() : new[] { selection };
         }
 
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
@@ -89,7 +89,7 @@ namespace Unity.Processors
         /// <param name="type"><see cref="Type"/> to be built</param>
         /// <param name="members">All public constructors this type implements</param>
         /// <returns></returns>
-        public object LegacySelector(Type type, ConstructorInfo[] members)
+        public object? LegacySelector(Type type, ConstructorInfo[] members)
         {
             Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
 
@@ -116,7 +116,7 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual object SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected virtual object? SmartSelector(Type type, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, (a, b) =>
             {

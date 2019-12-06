@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -50,7 +49,7 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object resolver);
+        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? resolver);
 
         #endregion
     }

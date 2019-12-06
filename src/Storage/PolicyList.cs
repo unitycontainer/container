@@ -49,12 +49,12 @@ namespace Unity.Storage
         public int Count => _policies?.Count ?? 0;
 
 
-        public void Clear(Type type, string? name, Type policyInterface)
+        public void Clear(Type? type, string? name, Type policyInterface)
         {
             _policies?.Remove(new PolicyKey(type, name, policyInterface));
         }
 
-        public object? Get(Type type, string? name, Type policyInterface)
+        public object? Get(Type? type, string? name, Type policyInterface)
         {
             object? policy = null;
 
@@ -66,7 +66,7 @@ namespace Unity.Storage
             return _innerPolicyList?.Get(type, name, policyInterface);
         }
 
-        public object? Get(Type type, Type policyInterface)
+        public object? Get(Type? type, Type policyInterface)
         {
             object? policy = null;
 
@@ -86,7 +86,7 @@ namespace Unity.Storage
             _policies[new PolicyKey(type, UnityContainer.All, policyInterface)] = policy;
         }
 
-        public void Set(Type type, string? name, Type policyInterface, object policy)
+        public void Set(Type? type, string? name, Type policyInterface, object policy)
         {
             if (null == _policies)
                 _policies = new Dictionary<PolicyKey, object>(PolicyKeyEqualityComparer.Default);
@@ -120,7 +120,7 @@ namespace Unity.Storage
                                                                : ((type?.GetHashCode() ?? 0 + 37) ^ (name?.GetHashCode() ?? 0 + 17)));
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (obj is PolicyKey key)
                 {

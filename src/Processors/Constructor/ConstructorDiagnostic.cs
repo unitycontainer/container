@@ -143,8 +143,8 @@ namespace Unity.Processors
                         new InvalidRegistrationException()) };
             }
 
-            // Select default
-            return new[] { SelectMethod(type, constructors) };
+            var selectedCtor = SelectMethod(type, constructors);
+            return null == selectedCtor ? Enumerable.Empty<object>() : new[] { selectedCtor };
         }
 
         protected override object SmartSelector(Type type, ConstructorInfo[] constructors)
@@ -167,7 +167,7 @@ namespace Unity.Processors
             });
 
             int parametersCount = 0;
-            ConstructorInfo bestCtor = null;
+            ConstructorInfo? bestCtor = null;
 
             foreach (var ctorInfo in constructors)
             {
@@ -230,7 +230,7 @@ namespace Unity.Processors
             return base.GetExpressions(type, registration);
         }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -278,7 +278,7 @@ namespace Unity.Processors
 
         #region Resolver Overrides
 
-        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
+        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
@@ -338,7 +338,7 @@ namespace Unity.Processors
             return base.GetResolver(type, registration, seed);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
@@ -348,7 +348,7 @@ namespace Unity.Processors
                 {
                     try
                     {
-                        var dependencies = new object[parameterResolvers.Length];
+                        var dependencies = new object?[parameterResolvers.Length];
                         for (var i = 0; i < dependencies.Length; i++)
                             dependencies[i] = parameterResolvers[i](ref c);
 
@@ -365,7 +365,7 @@ namespace Unity.Processors
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime
@@ -375,7 +375,7 @@ namespace Unity.Processors
                 {
                     try
                     {
-                        var dependencies = new object[parameterResolvers.Length];
+                        var dependencies = new object?[parameterResolvers.Length];
                         for (var i = 0; i < dependencies.Length; i++)
                             dependencies[i] = parameterResolvers[i](ref c);
 

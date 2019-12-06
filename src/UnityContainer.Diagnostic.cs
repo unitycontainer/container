@@ -43,7 +43,7 @@ namespace Unity
             return builder.ToString();
         }
 
-        private static string DataToString(object value)
+        private static string DataToString(object? value)
         {
             switch (value)
             {
@@ -52,7 +52,7 @@ namespace Unity
 
                 case ConstructorInfo constructor:
                     var ctorSignature = string.Join(", ", constructor.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-                    return $"   on constructor:  {constructor.DeclaringType.Name}({ctorSignature})";
+                    return $"   on constructor:  {constructor.DeclaringType?.Name}({ctorSignature})";
 
                 case MethodInfo method:
                     var methodSignature = string.Join(", ", method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
@@ -72,9 +72,12 @@ namespace Unity
 
                 case Tuple<Type, Type> tuple:
                     return $"        mapped to:  {tuple.Item1?.Name}";
+
+                case null:
+                    return string.Empty;
             }
 
-            return value.ToString();
+            return value!.ToString();
         }
         #endregion
 
@@ -84,7 +87,9 @@ namespace Unity
         private string DebugName()
         {
             var types = (_registrations?.Keys ?? Enumerable.Empty<Type>())
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 .SelectMany(t => _registrations[t].Values)
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 .OfType<ContainerRegistration>()
                 .Count();
 

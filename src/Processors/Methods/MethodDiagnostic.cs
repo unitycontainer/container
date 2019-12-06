@@ -55,34 +55,34 @@ namespace Unity.Processors
                     if (member.IsStatic)
                     {
                         throw new ArgumentException(
-                            $"Static method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Static methods cannot be injected");
+                            $"Static method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Static methods cannot be injected");
                     }
 
                     if (member.IsPrivate)
                         throw new InvalidOperationException(
-                            $"Private method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Private methods cannot be injected");
+                            $"Private method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Private methods cannot be injected");
 
                     if (member.IsFamily)
                         throw new InvalidOperationException(
-                            $"Protected method '{member.Name}' on type '{member.DeclaringType.Name}' is marked for injection. Protected methods cannot be injected");
+                            $"Protected method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Protected methods cannot be injected");
 
                     if (member.IsGenericMethodDefinition)
                     {
                         throw new ArgumentException(
-                            $"Open generic method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Open generic methods cannot be injected.");
+                            $"Open generic method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Open generic methods cannot be injected.");
                     }
 
                     var parameters = member.GetParameters();
                     if (parameters.Any(param => param.IsOut))
                     {
                         throw new ArgumentException(
-                            $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.");
+                            $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.");
                     }
 
                     if (parameters.Any(param => param.ParameterType.IsByRef))
                     {
                         throw new ArgumentException(
-                            $"Method {member.Name} on type '{member.DeclaringType.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
+                            $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
                     }
 
                     yield return member;
@@ -91,7 +91,7 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(MethodInfo info, object resolvers)
+        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
             var exData = Expression.MakeMemberAccess(ex, DataProperty);
@@ -109,7 +109,7 @@ namespace Unity.Processors
                 Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
             var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>
@@ -118,7 +118,7 @@ namespace Unity.Processors
                 {
                     if (null == c.Existing) return c.Existing;
 
-                    var parameters = new object[parameterResolvers.Length];
+                    var parameters = new object?[parameterResolvers.Length];
                     for (var i = 0; i < parameters.Length; i++)
                         parameters[i] = parameterResolvers[i](ref c);
 

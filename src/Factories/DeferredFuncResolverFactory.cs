@@ -9,7 +9,7 @@ namespace Unity.Factories
     {
         private static readonly MethodInfo DeferredResolveMethodInfo
             = typeof(DeferredFuncResolverFactory).GetTypeInfo()
-                                                 .GetDeclaredMethod(nameof(DeferredResolve));
+                                                 .GetDeclaredMethod(nameof(DeferredResolve))!;
         public static ResolveDelegate<BuilderContext> DeferredResolveDelegateFactory(ref BuilderContext context)
         {
             var typeToBuild = context.Type.GetTypeInfo().GenericTypeArguments[0];

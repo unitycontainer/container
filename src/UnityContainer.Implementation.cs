@@ -23,8 +23,8 @@ namespace Unity
         #region Delegates
 
         internal delegate object? GetPolicyDelegate(Type? type, string? name, Type policyInterface);
-        internal delegate void    SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
-        internal delegate void  ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
+        internal delegate void SetPolicyDelegate(Type? type, string? name, Type policyInterface, object policy);
+        internal delegate void ClearPolicyDelegate(Type? type, string? name, Type policyInterface);
 
         #endregion
 
@@ -53,9 +53,9 @@ namespace Unity
         private MemberProcessor[] _processorsChain;
 
         // Events
-        private event EventHandler<RegisterEventArgs> Registering;
-        private event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
-        private event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+        private event EventHandler<RegisterEventArgs>? Registering;
+        private event EventHandler<RegisterInstanceEventArgs>? RegisteringInstance;
+        private event EventHandler<ChildContainerCreatedEventArgs>? ChildContainerCreated;
 
         // Methods
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -73,10 +73,10 @@ namespace Unity
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal ClearPolicyDelegate ClearPolicy;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type?, string?, IPolicySet?>     _get;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool>             _isExplicitlyRegistered;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private  Func<Type, string?, Type, IPolicySet> _getGenericRegistration;
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool>                      IsTypeExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type?, string?, IPolicySet?> _get;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, string?, bool> _isExplicitlyRegistered;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Func<Type, string?, Type, IPolicySet> _getGenericRegistration;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal Func<Type, bool> IsTypeExplicitlyRegistered;
 
         private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
 #if DEBUG
@@ -218,7 +218,7 @@ namespace Unity
                 if (null != typeFrom && typeFrom != null && !infoFrom.IsGenericType && 
                     null != typeTo && !infoTo.IsGenericType && !infoFrom.IsAssignableFrom(infoTo))
 #else
-                if (null != typeFrom && typeFrom != null && !typeFrom.IsGenericType && 
+                if (null != typeFrom && typeFrom != null && !typeFrom.IsGenericType &&
                     null != typeTo && !typeTo.IsGenericType && !typeFrom.IsAssignableFrom(typeTo))
 #endif
                 {
@@ -229,7 +229,7 @@ namespace Unity
                 if (null != typeFrom && null != typeTo && infoFrom.IsGenericType && infoTo.IsArray && 
                     infoFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 #else
-                if (null != typeFrom && null != typeTo && typeFrom.IsGenericType && typeTo.IsArray && 
+                if (null != typeFrom && null != typeTo && typeFrom.IsGenericType && typeTo.IsArray &&
                     typeFrom.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 #endif
                     throw new ArgumentException($"Type mapping of IEnumerable<T> to array T[] is not supported.");
@@ -248,19 +248,19 @@ namespace Unity
 
         internal LifetimeManager TypeLifetimeManager
         {
-            get => _typeLifetimeManager ?? _parent!.TypeLifetimeManager;
+            get => _typeLifetimeManager ?? _parent?.TypeLifetimeManager ?? throw new InvalidOperationException();
             set => _typeLifetimeManager = value;
         }
 
         internal LifetimeManager FactoryLifetimeManager
         {
-            get => _factoryLifetimeManager ?? _parent!.FactoryLifetimeManager;
+            get => _factoryLifetimeManager ?? _parent?.FactoryLifetimeManager ?? throw new InvalidOperationException();
             set => _factoryLifetimeManager = value;
         }
 
         internal LifetimeManager InstanceLifetimeManager
         {
-            get => _instanceLifetimeManager ?? _parent!.InstanceLifetimeManager;
+            get => _instanceLifetimeManager ?? _parent?.InstanceLifetimeManager ?? throw new InvalidOperationException();
             set => _instanceLifetimeManager = value;
         }
 
@@ -269,7 +269,7 @@ namespace Unity
 
         #region Implementation
 
-        private void CreateAndSetPolicy(Type type, string? name, Type policyInterface, object policy)
+        private void CreateAndSetPolicy(Type? type, string? name, Type policyInterface, object policy)
         {
             lock (GetRegistration)
             {
@@ -325,7 +325,7 @@ namespace Unity
 
         }
 
-        private void OnStrategiesChanged(object sender, EventArgs e)
+        private void OnStrategiesChanged(object? sender, EventArgs e)
         {
             _strategiesChain = _strategies.ToArray();
 
@@ -344,7 +344,7 @@ namespace Unity
 
         internal Type GetFinalType(Type argType)
         {
-            Type next;
+            Type? next;
             for (var type = argType; null != type; type = next)
             {
                 var info = type.GetTypeInfo();

@@ -18,10 +18,10 @@ namespace Unity.Storage
 
         private static readonly int _size = typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         private readonly object _lockObject = new object();
-        private readonly StagedStrategyChain<TStrategyType, TStageEnum> _innerChain;
+        private readonly StagedStrategyChain<TStrategyType, TStageEnum>? _innerChain;
         private readonly IList<TStrategyType>[] _stages =  new IList<TStrategyType>[_size];
 
-        private TStrategyType[] _cache;
+        private TStrategyType[]? _cache;
 
         #endregion
 
@@ -40,7 +40,7 @@ namespace Unity.Storage
         /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType, TStageEnum}"/> class with an inner strategy chain to use when building.
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
-        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum> innerChain)
+        public StagedStrategyChain(StagedStrategyChain<TStrategyType,TStageEnum>? innerChain)
         {
             if (null != innerChain)
             {
@@ -59,7 +59,7 @@ namespace Unity.Storage
 
         #region Implementation
 
-        private void OnParentInvalidated(object sender, EventArgs e)
+        private void OnParentInvalidated(object? sender, EventArgs e)
         {
             lock (_lockObject)
             {
@@ -81,7 +81,7 @@ namespace Unity.Storage
         /// <summary>
         /// Signals that chain has been changed
         /// </summary>
-        public event EventHandler<EventArgs> Invalidated;
+        public event EventHandler<EventArgs>? Invalidated;
 
         /// <summary>
         /// Adds a strategy to the chain at a particular stage.

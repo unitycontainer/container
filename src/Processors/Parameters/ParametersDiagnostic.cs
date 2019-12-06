@@ -11,9 +11,9 @@ namespace Unity.Processors
     {
         #region Diagnostic Parameter Factories
 
-        protected virtual IEnumerable<Expression> CreateDiagnosticParameterExpressions(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<Expression> CreateDiagnosticParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
@@ -24,7 +24,7 @@ namespace Unity.Processors
                 // Check if has default value
 
 #if NET40
-                Expression defaultValueExpr = null;
+                Expression? defaultValueExpr = null;
                 if (parameter.DefaultValue is DBNull)
 #else
                 var defaultValueExpr = parameter.HasDefaultValue
@@ -73,9 +73,9 @@ namespace Unity.Processors
             }
         }
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
-            object[] resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
+            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];

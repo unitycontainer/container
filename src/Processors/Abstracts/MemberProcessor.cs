@@ -30,11 +30,11 @@ namespace Unity.Processors
 
         protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
 
-        protected static readonly Expression NewGuid = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)));
+        protected static readonly Expression NewGuid = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
 
-        protected static readonly PropertyInfo DataProperty = typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data));
+        protected static readonly PropertyInfo DataProperty = typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
 
-        protected static readonly MethodInfo AddMethod = typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add));
+        protected static readonly MethodInfo AddMethod = typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
 
         #endregion
 
@@ -120,13 +120,13 @@ namespace Unity.Processors
 
         #region Public Methods
 
-        public void Add(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> resolutionFactory)
+        public void Add(Type type, Func<Attribute, string> getName, Func<Attribute, object, object?, ResolveDelegate<BuilderContext>>? resolutionFactory)
         {
             for (var i = 0; i < AttributeFactories.Length; i++)
             {
                 if (AttributeFactories[i].Type != type) continue;
 
-                AttributeFactories[i].Factory   = resolutionFactory;
+                AttributeFactories[i].Factory = resolutionFactory;
                 return;
             }
 
@@ -151,7 +151,7 @@ namespace Unity.Processors
         }
 
         /// <inheritdoc />
-        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext> seed)
+        public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
             var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
             var members = selector.Select(type, registration);
@@ -159,7 +159,7 @@ namespace Unity.Processors
 
             return (ref BuilderContext c) =>
             {
-                if (null == (c.Existing = seed(ref c))) return null;
+                if (null == (c.Existing = seed?.Invoke(ref c))) return null;
                 foreach (var resolver in resolvers) resolver(ref c);
                 return c.Existing;
             };
@@ -214,7 +214,7 @@ namespace Unity.Processors
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
-        protected object PreProcessResolver(TMemberInfo info, object resolver)
+        protected object? PreProcessResolver(TMemberInfo info, object? resolver)
         {
             switch (resolver)
             {
@@ -232,7 +232,7 @@ namespace Unity.Processors
             return resolver;
         }
 
-        protected Attribute GetCustomAttribute(TMemberInfo info, Type type)
+        protected Attribute? GetCustomAttribute(TMemberInfo info, Type type)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             return info.GetCustomAttributes()
@@ -254,8 +254,10 @@ namespace Unity.Processors
 
         public TPolicyInterface GetPolicy<TPolicyInterface>(IPolicySet registration)
         {
-            return (TPolicyInterface)(registration.Get(typeof(TPolicyInterface)) ??
-                                        _policySet.Get(typeof(TPolicyInterface)));
+            var result = (registration.Get(typeof(TPolicyInterface)) ??
+                            _policySet.Get(typeof(TPolicyInterface)));
+
+            return null == result ? default : (TPolicyInterface)result;
         }
 
         #endregion
@@ -263,13 +265,13 @@ namespace Unity.Processors
 
         #region Attribute Resolver Factories
 
-        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             var type = MemberType((TMemberInfo)info);
             return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
         }
 
-        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object value = null)
+        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
         {
             var type = MemberType((TMemberInfo)info);
             return (ref BuilderContext context) =>
@@ -294,10 +296,10 @@ namespace Unity.Processors
         public struct AttributeFactoryNode
         {
             public readonly Type Type;
-            public Func<Attribute, object, object, ResolveDelegate<BuilderContext>> Factory;
-            public Func<Attribute, string> Name;
+            public Func<Attribute, object, object?, ResolveDelegate<BuilderContext>>? Factory;
+            public Func<Attribute, string?> Name;
 
-            public AttributeFactoryNode(Type type, Func<Attribute, string> getName, Func<Attribute, object, object, ResolveDelegate<BuilderContext>> factory)
+            public AttributeFactoryNode(Type type, Func<Attribute, string?> getName, Func<Attribute, object, object?, ResolveDelegate<BuilderContext>>? factory)
             {
                 Type = type;
                 Name = getName;

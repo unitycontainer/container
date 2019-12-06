@@ -332,7 +332,8 @@ namespace Unity
             (ref BuilderContext context) =>
             {
                 var i = -1;
-                BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain;
+                BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain 
+                                        ?? ((UnityContainer)context.Container)._strategiesChain;
 
                 try
                 {
@@ -367,7 +368,7 @@ namespace Unity
         {
             var i = -1;
             BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain
-                                    ?? _strategiesChain.ToArray();
+                                    ?? _strategiesChain;
 
             try
             {
