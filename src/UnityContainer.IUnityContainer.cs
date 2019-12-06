@@ -233,6 +233,8 @@ namespace Unity
         /// <inheritdoc />
         object IUnityContainer.Resolve(Type type, string name, params ResolverOverride[] overrides)
         {
+            var n = type.FullName;
+
             // Verify arguments
             if (null == type) throw new ArgumentNullException(nameof(type));
 

@@ -82,7 +82,8 @@ namespace Unity.Strategies
             if (null == policy || policy is PerResolveLifetimeManager)
                 policy = (LifetimeManager)context.Get(typeof(LifetimeManager));
 
-            policy?.SetValue(context.Existing, context.Lifetime);
+            if (LifetimeManager.NoValue != context.Existing)
+                policy?.SetValue(context.Existing, context.Lifetime);
         }
 
         #endregion

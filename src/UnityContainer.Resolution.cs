@@ -1,12 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity.Builder;
@@ -39,9 +37,28 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
+        private IPolicySet CreateRegistration(Type type, string name, InternalRegistration factory)
+        {
+            var registration = new InternalRegistration(type, name);
+
+            if (null != factory)
+            {
+                registration.InjectionMembers = factory.InjectionMembers;
+                registration.Map = factory.Map;
+                var lifetime = factory.Get(typeof(LifetimeManager));
+                if (lifetime is IFactoryLifetimeManager ManagerFactory)
+                {
+                    var manager = ManagerFactory.CreateLifetimePolicy();
+                    registration.Set(typeof(LifetimeManager), manager);
+                }
+            }
+
+            registration.BuildChain = GetBuilders(type, registration);
+            return registration;
+        }
+
         private IPolicySet CreateRegistration(Type type, string name)
         {
-
             var registration = new InternalRegistration(type, name);
 
             if (type.GetTypeInfo().IsGenericType)

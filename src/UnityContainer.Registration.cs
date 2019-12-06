@@ -478,29 +478,22 @@ namespace Unity
             var collisions = 0;
             int hashCode;
             int targetBucket;
-            var factory = false;
+            InternalRegistration factory = null;
 
-            if (null != _parent)
+            hashCode = (definition?.GetHashCode() ?? 0) & 0x7FFFFFFF;
+            targetBucket = hashCode % _registrations.Buckets.Length;
+            for (var j = _registrations.Buckets[targetBucket]; j >= 0; j = _registrations.Entries[j].Next)
             {
-                hashCode = (definition?.GetHashCode() ?? 0) & 0x7FFFFFFF;
-                targetBucket = hashCode % _registrations.Buckets.Length;
-                for (var j = _registrations.Buckets[targetBucket]; j >= 0; j = _registrations.Entries[j].Next)
+                ref var candidate = ref _registrations.Entries[j];
+                if (candidate.HashCode != hashCode || candidate.Key != definition)
                 {
-                    ref var candidate = ref _registrations.Entries[j];
-                    if (candidate.HashCode != hashCode || candidate.Key != definition)
-                    {
-                        continue;
-                    }
-
-                    if (null != candidate.Value?[name])
-                    {
-                        factory = true;
-                        break;
-                    }
+                    continue;
                 }
 
-                if (!factory) return _parent._getGenericRegistration(type, name, definition);
+                if (null != (factory = (InternalRegistration)candidate.Value?[name])) break;
             }
+
+            if (null == factory && null != _parent) return _parent._getGenericRegistration(type, name, definition);
 
             hashCode = (type?.GetHashCode() ?? 0) & 0x7FFFFFFF;
             targetBucket = hashCode % _registrations.Buckets.Length;
@@ -527,7 +520,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                    return existing.GetOrAdd(name, () => CreateRegistration(type, name, factory));
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
@@ -536,7 +529,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
+                var registration = CreateRegistration(type, name, factory);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
