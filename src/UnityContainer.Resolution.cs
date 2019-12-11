@@ -368,7 +368,7 @@ namespace Unity
         {
             var i = -1;
             BuilderStrategy[] chain = ((InternalRegistration)context.Registration).BuildChain
-                                    ?? _strategiesChain;
+                                    ?? _strategiesChain.ToArray();
 
             try
             {
