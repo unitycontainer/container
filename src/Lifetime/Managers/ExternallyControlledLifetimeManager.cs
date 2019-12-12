@@ -6,7 +6,7 @@ namespace Unity.Lifetime
     /// A <see cref="LifetimeManager"/> that holds a weak reference to
     /// it's managed instance.
     /// </summary>
-    public class ExternallyControlledLifetimeManager : LifetimeManager,
+    public class ExternallyControlledLifetimeManager : SynchronizedLifetimeManager,
                                                        IInstanceLifetimeManager,
                                                        ITypeLifetimeManager,
                                                        IFactoryLifetimeManager
@@ -18,34 +18,35 @@ namespace Unity.Lifetime
         #endregion
 
 
-        #region Overrides
+        #region SynchronizedLifetimeManager
 
-        /// <summary>
-        /// Retrieve a value from the backing store associated with this Lifetime policy.
-        /// </summary>
-        /// <param name="container">Instance of container requesting the value</param>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public override object GetValue(ILifetimeContainer container = null)
+        /// <inheritdoc/>
+        protected override object SynchronizedGetValue(ILifetimeContainer container = null)
         {
             if (null == _value) return NoValue;
 
             var target = _value.Target;
-            if (_value.IsAlive) return target;
+            if (null != target) return target;
 
             _value = null;
 
             return NoValue;
         }
 
-        /// <summary>
-        /// Stores the given value into backing store for retrieval later.
-        /// </summary>
-        /// <param name="container">Instance of container which owns the value</param>
-        /// <param name="newValue">The object being stored.</param>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        /// <inheritdoc/>
+        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null)
         {
             _value = new WeakReference(newValue);
         }
+
+
+        /// <inheritdoc/>
+        public override void RemoveValue(ILifetimeContainer container = null) => _value = null;
+
+        #endregion
+
+
+        #region Overrides
 
         protected override LifetimeManager OnCreateLifetimeManager()
         {
