@@ -6,21 +6,21 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        public partial class ContainerContext : ExtensionContext
+        public partial class ContainerContext : IExtensionContext
         {
-            public override event EventHandler<RegisterEventArgs> Registering
+            public event EventHandler<RegisterEventArgs> Registering
             {
                 add => Container.Registering += value;
                 remove => Container.Registering -= value;
             }
 
-            public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
+            public event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
             {
                 add => Container.RegisteringInstance += value;
                 remove => Container.RegisteringInstance -= value;
             }
 
-            public override event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
+            public event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
             {
                 add => Container.ChildContainerCreated += value;
                 remove => Container.ChildContainerCreated -= value;

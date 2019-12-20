@@ -119,7 +119,7 @@ namespace Unity.Tests.Container
         public void ChildContainerCreatedEventGivesChildContainerToExtension()
         {
             var mockExtension = new MockContainerExtension();
-            ExtensionContext childContext = null;
+            IExtensionContext childContext = null;
 
             var container = new UnityContainer()
                 .AddExtension(mockExtension);

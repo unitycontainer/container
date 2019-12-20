@@ -15,7 +15,7 @@ namespace Unity.Extension
         /// </summary>
         /// <param name="context">A <see cref="ExtensionContext"/> instance that gives the
         /// extension access to the internals of the container.</param>
-        public void InitializeExtension(ExtensionContext context)
+        public void InitializeExtension(IExtensionContext context)
         {
             if (context == null)
             {
@@ -38,7 +38,7 @@ namespace Unity.Extension
         /// The <see cref="ExtensionContext"/> object used to manipulate
         /// the inner state of the container.
         /// </summary>
-        protected ExtensionContext Context { get; private set; }
+        protected IExtensionContext Context { get; private set; }
 
         /// <summary>
         /// Initial the container with this extension's functionality.

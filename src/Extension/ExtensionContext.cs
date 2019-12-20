@@ -8,10 +8,10 @@ using Unity.Storage;
 namespace Unity.Extension
 {
     /// <summary>
-    /// The <see cref="ExtensionContext"/> class provides the means for extension objects
+    /// The <see cref="IExtensionContext"/> class provides the means for extension objects
     /// to manipulate the internal state of the <see cref="IUnityContainer"/>.
     /// </summary>
-    public abstract class ExtensionContext
+    public interface IExtensionContext
     {
         #region Container
 
@@ -19,31 +19,35 @@ namespace Unity.Extension
         /// The container that this context is associated with.
         /// </summary>
         /// <value>The <see cref="IUnityContainer"/> object.</value>
-        public abstract UnityContainer Container { get; }
+        UnityContainer Container { get; }
 
         /// <summary>
         /// The <see cref="ILifetimeContainer"/> that this container uses.
         /// </summary>
         /// <value>The <see cref="ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
-        public abstract ILifetimeContainer Lifetime { get; }
+        ILifetimeContainer Lifetime { get; }
 
         #endregion
 
 
         #region Pipeline Build Chains
 
-        public abstract IStagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
-        public abstract IStagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
-        public abstract IStagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
+        IStagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
+        
+        IStagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
+        
+        IStagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
 
         #endregion
 
 
         #region Default Lifetime
 
-        public abstract ITypeLifetimeManager     TypeLifetimeManager { get; set; }
-        public abstract IFactoryLifetimeManager  FactoryLifetimeManager { get; set; }
-        public abstract IInstanceLifetimeManager InstanceLifetimeManager { get; set; }
+        ITypeLifetimeManager     TypeLifetimeManager { get; set; }
+        
+        IFactoryLifetimeManager  FactoryLifetimeManager { get; set; }
+        
+        IInstanceLifetimeManager InstanceLifetimeManager { get; set; }
 
         #endregion
 
@@ -54,7 +58,7 @@ namespace Unity.Extension
         /// The policies this container uses.
         /// </summary>
         /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
-        public abstract IPolicyList Policies { get; }
+        IPolicyList Policies { get; }
 
         #endregion
 
@@ -68,19 +72,19 @@ namespace Unity.Extension
         /// <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, InjectionMember[])"/> 
         /// method, or one of its overloads, is called.
         /// </summary>
-        public abstract event EventHandler<RegisterEventArgs> Registering;
+        event EventHandler<RegisterEventArgs> Registering;
 
         /// <summary>
         /// This event is raised when the <see cref="IUnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
         /// or one of its overloads, is called.
         /// </summary>
-        public abstract event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
+        event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
 
         /// <summary>
         /// This event is raised when the <see cref="IUnityContainer.CreateChildContainer"/> method is called, providing 
         /// the newly created child container to extensions to act on as they see fit.
         /// </summary>
-        public abstract event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+        event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
 
         #endregion
     }

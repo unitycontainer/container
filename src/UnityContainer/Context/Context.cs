@@ -12,29 +12,29 @@ namespace Unity
         {
             #region Extension Context
 
-            public override UnityContainer Container { get; }
+            public UnityContainer Container { get; }
 
-            public override ILifetimeContainer Lifetime => Container.LifetimeContainer;
+            public ILifetimeContainer Lifetime => Container.LifetimeContainer;
 
-            public override IPolicyList Policies => this as IPolicyList;
+            public IPolicyList Policies => this as IPolicyList;
 
             #endregion
 
 
             #region Pipelines
 
-            public override IStagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
+            public  IStagedStrategyChain<Pipeline, Stage> TypePipeline { get; }
 
-            public override IStagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
+            public  IStagedStrategyChain<Pipeline, Stage> FactoryPipeline { get; }
 
-            public override IStagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
+            public  IStagedStrategyChain<Pipeline, Stage> InstancePipeline { get; }
 
             #endregion
 
 
             #region Lifetime
 
-            public override ITypeLifetimeManager TypeLifetimeManager
+            public ITypeLifetimeManager TypeLifetimeManager
             {
                 get => (ITypeLifetimeManager)_typeLifetimeManager;
                 set
@@ -44,7 +44,7 @@ namespace Unity
                 }
             }
 
-            public override IFactoryLifetimeManager FactoryLifetimeManager
+            public IFactoryLifetimeManager FactoryLifetimeManager
             {
                 get => (IFactoryLifetimeManager)_factoryLifetimeManager;
                 set
@@ -54,7 +54,7 @@ namespace Unity
                 }
             }
 
-            public override IInstanceLifetimeManager InstanceLifetimeManager
+            public IInstanceLifetimeManager InstanceLifetimeManager
             {
                 get => (IInstanceLifetimeManager)_instanceLifetimeManager;
                 set
