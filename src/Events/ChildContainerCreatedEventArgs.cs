@@ -16,7 +16,7 @@ namespace Unity.Events
         /// </summary>
         /// <param name="childContext">An <see cref="ExtensionContext"/> for the newly created child
         /// container.</param>
-        public ChildContainerCreatedEventArgs(ExtensionContext childContext)
+        public ChildContainerCreatedEventArgs(IExtensionContext childContext)
         {
             ChildContext = childContext;
         }
@@ -29,6 +29,6 @@ namespace Unity.Events
         /// <summary>
         /// An extension context for the created child container.
         /// </summary>
-        public ExtensionContext ChildContext { get; }
+        public IExtensionContext ChildContext { get; }
     }
 }

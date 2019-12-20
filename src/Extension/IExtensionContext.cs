@@ -11,10 +11,10 @@ using Unity.Strategies;
 namespace Unity.Extension
 {
     /// <summary>
-    /// The <see cref="ExtensionContext"/> class provides the means for extension objects
-    /// to manipulate the internal state of the <see cref="IUnityContainer"/>.
+    /// The <see cref="IExtensionContext"/> interface provides the means for extensions
+    /// to manipulate the internal state of the <see cref="UnityContainer"/>.
     /// </summary>
-    public abstract class ExtensionContext
+    public interface IExtensionContext
     {
         #region Container
 
@@ -25,9 +25,9 @@ namespace Unity.Extension
         public abstract IUnityContainer Container { get; }
 
         /// <summary>
-        /// The <see cref="Unity.WithLifetime.ILifetimeContainer"/> that this container uses.
+        /// The <see cref="ILifetimeContainer"/> that this container uses.
         /// </summary>
-        /// <value>The <see cref="Unity.WithLifetime.ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
+        /// <value>The <see cref="ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
         public abstract ILifetimeContainer Lifetime { get; }
 
         #endregion

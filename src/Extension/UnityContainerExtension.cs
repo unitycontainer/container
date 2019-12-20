@@ -11,14 +11,14 @@ namespace Unity.Extension
     {
         private const string error = "Extension is not initialized";
         private IUnityContainer? _container;
-        private ExtensionContext? _context;
+        private IExtensionContext? _context;
 
         /// <summary>
         /// The container calls this method when the extension is added.
         /// </summary>
         /// <param name="context">A <see cref="ExtensionContext"/> instance that gives the
         /// extension access to the internals of the container.</param>
-        public void InitializeExtension(ExtensionContext context)
+        public void InitializeExtension(IExtensionContext context)
         {
             if (context == null)
             {
@@ -40,7 +40,7 @@ namespace Unity.Extension
         /// The <see cref="ExtensionContext"/> object used to manipulate
         /// the inner state of the container.
         /// </summary>
-        protected ExtensionContext Context => _context ?? throw new InvalidOperationException(error);
+        protected IExtensionContext Context => _context ?? throw new InvalidOperationException(error);
 
         /// <summary>
         /// Initial the container with this extension's functionality.

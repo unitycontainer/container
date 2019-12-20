@@ -20,7 +20,7 @@ namespace Unity
         /// Implemented as a nested class to gain access to  
         /// container that would otherwise be inaccessible.
         /// </remarks>
-        private class ContainerContext : ExtensionContext,
+        private class ContainerContext : IExtensionContext,
                                          IPolicyList 
         {
             #region Fields
@@ -44,41 +44,29 @@ namespace Unity
 
             #region ExtensionContext
 
-            public override IUnityContainer Container => _container;
+            public IUnityContainer Container => _container;
 
-            public override IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies
-            {
-                get
-                {
-                    return _container._strategies;
-                }
-            }
+            public IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies => _container._strategies;
 
-            public override IStagedStrategyChain<MemberProcessor, BuilderStage> BuildPlanStrategies
-            {
-                get
-                {
-                    return _container._processors;
-                }
-            }
+            public IStagedStrategyChain<MemberProcessor, BuilderStage> BuildPlanStrategies => _container._processors;
 
-            public override IPolicyList Policies { get; }
+            public IPolicyList Policies { get; }
 
-            public override ILifetimeContainer Lifetime => _container.LifetimeContainer;
+            public ILifetimeContainer Lifetime => _container.LifetimeContainer;
 
-            public override event EventHandler<RegisterEventArgs> Registering
+            public event EventHandler<RegisterEventArgs> Registering
             {
                 add => _container.Registering += value;
                 remove => _container.Registering -= value;
             }
 
-            public override event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
+            public event EventHandler<RegisterInstanceEventArgs> RegisteringInstance
             {
                 add => _container.RegisteringInstance += value;
                 remove => _container.RegisteringInstance -= value;
             }
 
-            public override event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
+            public event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated
             {
                 add => _container.ChildContainerCreated += value;
                 remove => _container.ChildContainerCreated -= value;

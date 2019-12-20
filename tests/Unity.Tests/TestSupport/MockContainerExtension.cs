@@ -12,7 +12,7 @@ namespace Unity.Tests.v5.TestSupport
             get { return this.initializeWasCalled; }
         }
 
-        public new ExtensionContext Context
+        public new IExtensionContext Context
         {
             get { return base.Context; }
         }
