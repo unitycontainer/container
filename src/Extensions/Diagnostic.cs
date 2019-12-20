@@ -21,9 +21,9 @@ namespace Unity
     /// </para>
     /// <para>
     /// This extension can be registered in two ways: by adding an extension or by calling
-    /// <c>EnableDiagnostic()</c> extension method on container. 
-    /// Adding extension to container will work in any build, where <c>EnableDiagnostic()</c>
-    /// will only enable it in DEBUG mode. 
+    /// <c>EnableDiagnostic()</c> or <c>EnableDebugDiagnostic()</c> extension method on container.
+    /// Adding extension to container or calling <c>EnableDiagnostic()</c> will work in any build,
+    /// where <c>EnableDebugDiagnostic()</c> will only enable it in DEBUG mode.
     /// </para>
     /// </remarks>
     /// <example>
