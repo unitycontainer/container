@@ -14,7 +14,6 @@ namespace Unity
             private LifetimeManager _typeLifetimeManager;
             private LifetimeManager _factoryLifetimeManager;
             private LifetimeManager _instanceLifetimeManager;
-            private const string error = "Lifetime Manager must not be null";
 
             #endregion
 

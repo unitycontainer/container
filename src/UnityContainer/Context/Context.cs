@@ -39,8 +39,7 @@ namespace Unity
                 get => (ITypeLifetimeManager)_typeLifetimeManager;
                 set
                 {
-                    _typeLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(error));
-                    _typeLifetimeManager.InUse = true;
+                    _typeLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(nameof(TypeLifetimeManager)));
                 }
             }
 
@@ -49,8 +48,7 @@ namespace Unity
                 get => (IFactoryLifetimeManager)_factoryLifetimeManager;
                 set
                 {
-                    _factoryLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(error));
-                    _factoryLifetimeManager.InUse = true;
+                    _factoryLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(nameof(FactoryLifetimeManager)));
                 }
             }
 
@@ -59,8 +57,7 @@ namespace Unity
                 get => (IInstanceLifetimeManager)_instanceLifetimeManager;
                 set
                 {
-                    _instanceLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(error));
-                    _instanceLifetimeManager.InUse = true;
+                    _instanceLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(nameof(InstanceLifetimeManager)));
                 }
             }
 
