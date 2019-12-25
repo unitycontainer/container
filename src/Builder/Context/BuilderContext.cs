@@ -181,156 +181,183 @@ namespace Unity.Builder
         public object? Resolve(ParameterInfo parameter, object? value)
         {
             var context = this;
-
-            // Process overrides if any
-            if (null != Overrides)
+            var type = context.Type;
+            try
             {
-                // Check if this parameter is overridden
-                for (var index = Overrides.Length - 1; index >= 0; --index)
+                context.Type = parameter.ParameterType;
+
+                // Process overrides if any
+                if (null != Overrides)
                 {
-                    var resolverOverride = Overrides[index];
-
-                    // If matches with current parameter
-                    if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
+                    // Check if this parameter is overridden
+                    for (var index = Overrides.Length - 1; index >= 0; --index)
                     {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return ResolvePlan(ref context, resolverPolicy.Resolve);
-                        }
+                        var resolverOverride = Overrides[index];
 
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
-                        if (null != resolveDelegate)
+                        // If matches with current parameter
+                        if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                         {
-                            return ResolvePlan(ref context, resolveDelegate);
+                            // Check if itself is a value 
+                            if (resolverOverride is IResolve resolverPolicy)
+                            {
+                                return ResolvePlan(ref context, resolverPolicy.Resolve);
+                            }
+
+                            // Try to create value
+                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
+                            if (null != resolveDelegate)
+                            {
+                                return ResolvePlan(ref context, resolveDelegate);
+                            }
                         }
                     }
                 }
-            }
 
-            // Resolve from injectors
-            switch (value)
+                // Resolve from injectors
+                switch (value)
+                {
+                    case ParameterInfo info
+                    when ReferenceEquals(info, parameter):
+                        return Resolve(parameter.ParameterType, null);
+
+                    case ResolveDelegate<BuilderContext> resolver:
+                        return resolver(ref context);
+                }
+
+                return value;
+            }
+            finally 
             {
-                case ParameterInfo info
-                when ReferenceEquals(info, parameter):
-                    return Resolve(parameter.ParameterType, null);
-
-                case ResolveDelegate<BuilderContext> resolver:
-                    return resolver(ref context);
+                context.Type = type;
             }
-
-            return value;
         }
 
         public object? Resolve(PropertyInfo property, object? value)
         {
             var context = this;
-
-            // Process overrides if any
-            if (null != Overrides)
+            var type = context.Type;
+            try
             {
-                // Check for property overrides
-                for (var index = Overrides.Length - 1; index >= 0; --index)
+                context.Type = property.PropertyType;
+
+                // Process overrides if any
+                if (null != Overrides)
                 {
-                    var resolverOverride = Overrides[index];
-
-                    // Check if this parameter is overridden
-                    if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
+                    // Check for property overrides
+                    for (var index = Overrides.Length - 1; index >= 0; --index)
                     {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return ResolvePlan(ref context, resolverPolicy.Resolve);
-                        }
+                        var resolverOverride = Overrides[index];
 
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
-                        if (null != resolveDelegate)
+                        // Check if this parameter is overridden
+                        if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
                         {
-                            return ResolvePlan(ref context, resolveDelegate);
+                            // Check if itself is a value 
+                            if (resolverOverride is IResolve resolverPolicy)
+                            {
+                                return ResolvePlan(ref context, resolverPolicy.Resolve);
+                            }
+
+                            // Try to create value
+                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
+                            if (null != resolveDelegate)
+                            {
+                                return ResolvePlan(ref context, resolveDelegate);
+                            }
                         }
                     }
                 }
-            }
 
-            // Resolve from injectors
-            switch (value)
+                // Resolve from injectors
+                switch (value)
+                {
+                    case DependencyAttribute dependencyAttribute:
+                        return Resolve(property.PropertyType, dependencyAttribute.Name);
+
+                    case OptionalDependencyAttribute optionalAttribute:
+                        try
+                        {
+                            return Resolve(property.PropertyType, optionalAttribute.Name);
+                        }
+                        catch (Exception ex)
+                        when (!(ex.InnerException is CircularDependencyException))
+                        {
+                            return null;
+                        }
+
+                    case ResolveDelegate<BuilderContext> resolver:
+                        return resolver(ref context);
+                }
+
+                return value;
+            }
+            finally
             {
-                case DependencyAttribute dependencyAttribute:
-                    return Resolve(property.PropertyType, dependencyAttribute.Name);
-
-                case OptionalDependencyAttribute optionalAttribute:
-                    try
-                    {
-                        return Resolve(property.PropertyType, optionalAttribute.Name);
-                    }
-                    catch (Exception ex) 
-                    when (!(ex.InnerException is CircularDependencyException))
-                    {
-                        return null;
-                    }
-
-                case ResolveDelegate<BuilderContext> resolver:
-                    return resolver(ref context);
+                context.Type = type;
             }
-
-            return value;
         }
 
         public object? Resolve(FieldInfo field, object? value)
         {
             var context = this;
-
-            // Process overrides if any
-            if (null != Overrides)
+            var type = context.Type;
+            try
             {
-                // Check for property overrides
-                for (var index = Overrides.Length - 1; index >= 0; --index)
+                context.Type = field.FieldType;
+
+                // Process overrides if any
+                if (null != Overrides)
                 {
-                    var resolverOverride = Overrides[index];
-
-                    // Check if this parameter is overridden
-                    if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
+                    // Check for property overrides
+                    for (var index = Overrides.Length - 1; index >= 0; --index)
                     {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return ResolvePlan(ref context, resolverPolicy.Resolve);
-                        }
+                        var resolverOverride = Overrides[index];
 
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
-                        if (null != resolveDelegate)
+                        // Check if this parameter is overridden
+                        if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
                         {
-                            return ResolvePlan(ref context, resolveDelegate);
+                            // Check if itself is a value 
+                            if (resolverOverride is IResolve resolverPolicy)
+                            {
+                                return ResolvePlan(ref context, resolverPolicy.Resolve);
+                            }
+
+                            // Try to create value
+                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
+                            if (null != resolveDelegate)
+                            {
+                                return ResolvePlan(ref context, resolveDelegate);
+                            }
                         }
                     }
                 }
-            }
 
-            // Resolve from injectors
-            switch (value)
+                // Resolve from injectors
+                switch (value)
+                {
+                    case DependencyAttribute dependencyAttribute:
+                        return Resolve(field.FieldType, dependencyAttribute.Name);
+
+                    case OptionalDependencyAttribute optionalAttribute:
+                        try
+                        {
+                            return Resolve(field.FieldType, optionalAttribute.Name);
+                        }
+                        catch (Exception ex)
+                        when (!(ex.InnerException is CircularDependencyException))
+                        {
+                            return null;
+                        }
+
+                    case ResolveDelegate<BuilderContext> resolver:
+                        return resolver(ref context);
+                }
+
+                return value;
+            }
+            finally
             {
-                case DependencyAttribute dependencyAttribute:
-                    return Resolve(field.FieldType, dependencyAttribute.Name);
-
-                case OptionalDependencyAttribute optionalAttribute:
-                    try
-                    {
-                        return Resolve(field.FieldType, optionalAttribute.Name);
-                    }
-                    catch (Exception ex) 
-                    when (!(ex.InnerException is CircularDependencyException))
-                    {
-                        return null;
-                    }
-
-                case ResolveDelegate<BuilderContext> resolver:
-                    return resolver(ref context);
+                context.Type = type;
             }
-
-            return value;
         }
 
         #endregion

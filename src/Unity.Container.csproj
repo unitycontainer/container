@@ -29,7 +29,7 @@
     <UnityAbstractionsVersion Condition="'$(UnityAbstractionsVersion)' == ''">$(UnityAbstractions)</UnityAbstractionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')"  Include="$(UnityAbstractionsProject)" />
+    <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')" Include="$(UnityAbstractionsProject)" />
     <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
   </ItemGroup>
 
