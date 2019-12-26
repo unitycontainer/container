@@ -147,7 +147,7 @@ namespace Unity.Builder
 
         #region Public Methods
 
-        public object? Resolve(Type type, string? name, InternalRegistration registration)
+        public object? Resolve(Type type, string? name, InternalRegistration registration) 
         {
             unsafe
             {
@@ -180,12 +180,26 @@ namespace Unity.Builder
 
         public object? Resolve(ParameterInfo parameter, object? value)
         {
-            var context = this;
-            var type = context.Type;
-            try
+            unsafe
             {
-                context.Type = parameter.ParameterType;
-
+                var thisContext = this;
+                var context = new BuilderContext
+                {
+                    Lifetime = Lifetime,
+                    Registration = Registration,
+                    RegistrationType = RegistrationType,
+                    Name = null,
+                    Type = parameter.ParameterType,
+                    ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
+                    List = List,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
+                
                 // Process overrides if any
                 if (null != Overrides)
                 {
@@ -226,19 +240,29 @@ namespace Unity.Builder
 
                 return value;
             }
-            finally 
-            {
-                context.Type = type;
-            }
         }
 
         public object? Resolve(PropertyInfo property, object? value)
         {
-            var context = this;
-            var type = context.Type;
-            try
+            unsafe
             {
-                context.Type = property.PropertyType;
+                var thisContext = this;
+                var context = new BuilderContext
+                {
+                    Lifetime = Lifetime,
+                    Registration = Registration,
+                    RegistrationType = RegistrationType,
+                    Name = null,
+                    Type = property.PropertyType,
+                    ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
+                    List = List,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
 
                 // Process overrides if any
                 if (null != Overrides)
@@ -290,19 +314,29 @@ namespace Unity.Builder
 
                 return value;
             }
-            finally
-            {
-                context.Type = type;
-            }
         }
 
         public object? Resolve(FieldInfo field, object? value)
         {
-            var context = this;
-            var type = context.Type;
-            try
+            unsafe
             {
-                context.Type = field.FieldType;
+                var thisContext = this;
+                var context = new BuilderContext
+                {
+                    Lifetime = Lifetime,
+                    Registration = Registration,
+                    RegistrationType = RegistrationType,
+                    Name = null,
+                    Type = field.FieldType,
+                    ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
+                    List = List,
+                    Overrides = Overrides,
+                    DeclaringType = Type,
+#if !NET40
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                };
 
                 // Process overrides if any
                 if (null != Overrides)
@@ -353,10 +387,6 @@ namespace Unity.Builder
                 }
 
                 return value;
-            }
-            finally
-            {
-                context.Type = type;
             }
         }
 
