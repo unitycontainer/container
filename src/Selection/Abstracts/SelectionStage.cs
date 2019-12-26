@@ -1,5 +1,5 @@
 ﻿
-namespace Unity
+namespace Unity.Selection
 {
     /// <summary>
     /// Enumeration to represent the object composition stages.
@@ -12,7 +12,7 @@ namespace Unity
         /// <summary>
         /// By default, nothing happens here.
         /// </summary>
-        Setup,
+        Attribute,
 
         /// <summary>
         /// Verification and diagnostic step.
