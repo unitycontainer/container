@@ -24,13 +24,7 @@ namespace Unity.Processors
 
         #region Selection
 
-        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type)
-        {
-            return type.GetDeclaredMethods()
-                       .Where(member => !member.IsFamily && 
-                                        !member.IsPrivate && 
-                                        !member.IsStatic);
-        }
+        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
 
         #endregion
 

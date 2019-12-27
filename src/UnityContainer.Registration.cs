@@ -22,7 +22,6 @@ namespace Unity
 
         #region Registration Fields
 
-        internal IPolicySet _Defaults;
         private readonly object _syncRoot = new object();
         private  LinkedNode<Type?, object?>? _validators;
         private Registrations _registrations;

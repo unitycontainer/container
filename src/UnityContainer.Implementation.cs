@@ -134,14 +134,11 @@ namespace Unity
 
         internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
         {
-            // Default policies
-            container._Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
-
             // Processors
-            var fieldsProcessor = new FieldProcessor(container._Defaults);
-            var methodsProcessor = new MethodProcessor(container._Defaults, container);
-            var propertiesProcessor = new PropertyProcessor(container._Defaults);
-            var constructorProcessor = new ConstructorProcessor(container._Defaults, container);
+            var fieldsProcessor = new FieldProcessor(Defaults);
+            var methodsProcessor = new MethodProcessor(Defaults, container);
+            var propertiesProcessor = new PropertyProcessor(Defaults);
+            var constructorProcessor = new ConstructorProcessor(Defaults, container);
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
@@ -156,13 +153,14 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container._Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
-            container._Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            container._Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
-            container._Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            container._Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+            Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
+            Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
+            Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
+            Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
+            Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
+            Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
-            if (null != container._registrations) container.Set(null, null, container._Defaults);
+            if (null != container._registrations) container.Set(null, null, Defaults);
         };
 
         internal static void SetDiagnosticPolicies(UnityContainer container)
@@ -171,14 +169,13 @@ namespace Unity
             container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
             container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
-            container._Defaults = new InternalRegistration(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
-            if (null != container._registrations) container.Set(null, null, container._Defaults);
+            if (null != container._registrations) container.Set(null, null, Defaults);
 
             // Processors
-            var fieldsProcessor = new FieldDiagnostic(container._Defaults);
-            var methodsProcessor = new MethodDiagnostic(container._Defaults, container);
-            var propertiesProcessor = new PropertyDiagnostic(container._Defaults);
-            var constructorProcessor = new ConstructorDiagnostic(container._Defaults, container);
+            var fieldsProcessor = new FieldDiagnostic(Defaults);
+            var methodsProcessor = new MethodDiagnostic(Defaults, container);
+            var propertiesProcessor = new PropertyDiagnostic(Defaults);
+            var constructorProcessor = new ConstructorDiagnostic(Defaults, container);
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
@@ -193,20 +190,15 @@ namespace Unity
             container._processors.Invalidated += (s, e) => container._processorsChain = container._processors.ToArray();
             container._processorsChain = container._processors.ToArray();
 
-            container._Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
-            container._Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            container._Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
-            container._Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            container._Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
+            Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
+            Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
+            Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
+            Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
+            Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
+            Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
-            var validators = new InternalRegistration();
+            container._validators = new InternalRegistration();
 
-            validators.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), Validating.ConstructorSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, MethodInfo>), Validating.MethodSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, FieldInfo>), Validating.FieldSelector);
-            validators.Set(typeof(Func<Type, InjectionMember, PropertyInfo>), Validating.PropertySelector);
-
-            container._validators = validators;
 
             // Registration Validator
             container.TypeValidator = (typeFrom, typeTo) =>
@@ -243,7 +235,7 @@ namespace Unity
                     throw new ArgumentException($"The type {typeTo} is an interface and can not be constructed.");
             };
 
-            if (null != container._registrations) container.Set(null, null, container._Defaults);
+            if (null != container._registrations) container.Set(null, null, Defaults);
         }
 
         internal LifetimeManager TypeLifetimeManager
@@ -306,7 +298,7 @@ namespace Unity
                     entry.HashCode = hashCode;
                     entry.Next = _registrations.Buckets[targetBucket];
                     entry.Key = null;
-                    entry.Value = new LinkedRegistry(null, _Defaults);
+                    entry.Value = new LinkedRegistry(null, Defaults);
                     _registrations.Buckets[targetBucket] = _registrations.Count++;
 
                     Register = AddOrUpdate;

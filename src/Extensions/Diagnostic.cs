@@ -42,6 +42,7 @@ namespace Unity
     {
         protected override void Initialize()
         {
+            UnityDefaults.EnableDiagnostic = true;
             ((UnityContainer)Container).SetDefaultPolicies = UnityContainer.SetDiagnosticPolicies;
             ((UnityContainer)Container).SetDefaultPolicies((UnityContainer)Container);
         }

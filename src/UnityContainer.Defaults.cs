@@ -21,6 +21,8 @@ namespace Unity
 
         static UnityContainer()
         {
+            UnityDefaults.EnableDiagnostic = false;
+
             // Initialize defaults
             Defaults = new DefaultPolicies(
 

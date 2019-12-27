@@ -37,8 +37,8 @@ namespace Unity.Storage
 
         public void Append(string name, IPolicySet value)
         {
-            LinkedNode<string, IPolicySet> node;
-            LinkedNode<string, IPolicySet> last = null;
+            LinkedNode<string?, IPolicySet>? node;
+            LinkedNode<string?, IPolicySet>? last = null;
 
             for (node = this; node != null; node = node.Next)
             {
@@ -49,8 +49,10 @@ namespace Unity.Storage
                 last = node;
             }
 
+            Debug.Assert(null != last);
+
             // Not found, so add a new one
-            last.Next = new LinkedNode<string, IPolicySet>
+            last.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = value

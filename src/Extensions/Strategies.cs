@@ -17,7 +17,7 @@ namespace Unity
             var unity = (UnityContainer)Container;
 
             unity._buildStrategy = unity.ResolvingFactory;
-            unity._Defaults.Set(typeof(ResolveDelegateFactory), unity._buildStrategy);
+            UnityContainer.Defaults.Set(typeof(ResolveDelegateFactory), unity._buildStrategy);
         }
     }
 
@@ -31,7 +31,7 @@ namespace Unity
             var unity = (UnityContainer)Container;
 
             unity._buildStrategy = unity.CompilingFactory;
-            unity._Defaults.Set(typeof(ResolveDelegateFactory), unity._buildStrategy);
+            UnityContainer.Defaults.Set(typeof(ResolveDelegateFactory), unity._buildStrategy);
 
         }
     }

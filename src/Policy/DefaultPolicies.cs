@@ -5,9 +5,9 @@ namespace Unity.Policy
 {
     public partial class DefaultPolicies : IPolicySet
     {
-        #region Fields
+        #region Properties
 
-        private PolicyEntry Policies;
+        protected PolicyEntry Policies { get; private set; }
 
         #endregion
 
