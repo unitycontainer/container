@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 
@@ -27,7 +28,7 @@ namespace Unity
         public static IEnumerable<PropertyInfo> GetDeclaredProperties(this Type type)
         {
             TypeInfo? info = type.GetTypeInfo();
-            while (null != info)
+            while (null! != info!)
             {
                 foreach (var member in info.DeclaredProperties)
                     yield return member;

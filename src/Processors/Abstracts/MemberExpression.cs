@@ -19,15 +19,8 @@ namespace Unity.Processors
                 {
                     // TMemberInfo
                     case TMemberInfo info:
-                        object value = DependencyAttribute.Instance; 
-                        foreach (var node in AttributeFactories)
-                        {
-                            var attribute = GetCustomAttribute(info, node.Type);
-                            if (null == attribute) continue;
-
-                            value = null == node.Factory ? (object)attribute : node.Factory(attribute, info, null);
-                            break;
-                        }
+                        object value = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) 
+                                     ?? DependencyAttribute.Instance; 
 
                         yield return GetResolverExpression(info, value);
                         break;

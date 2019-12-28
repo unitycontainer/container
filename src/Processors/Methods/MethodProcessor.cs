@@ -5,7 +5,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -15,7 +17,7 @@ namespace Unity.Processors
         #region Constructors
 
         public MethodProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet, typeof(InjectionMethodAttribute), container)
+            : base(policySet, container)
         {
         }
 
@@ -26,7 +28,30 @@ namespace Unity.Processors
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
 
+        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        {
+            HashSet<object> memberSet = new HashSet<object>();
+
+            // Select Injected Members
+            if (null != ((InternalRegistration)registration).InjectionMembers)
+            {
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                {
+                    if (injectionMember is InjectionMember<MethodInfo, object[]> injector && memberSet.Add(injector))
+                        yield return injectionMember;
+                }
+            }
+
+            // Select Attributed members
+            foreach (var member in DeclaredMembers(type))
+            {
+                if (member.IsDefined(typeof(InjectionMethodAttribute)) && memberSet.Add(member))
+                    yield return member;
+            }
+        }
+
         #endregion
+
 
         #region Expression 
 

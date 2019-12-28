@@ -42,52 +42,45 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in type.GetDeclaredMethods())
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
+                if (!member.IsDefined(typeof(InjectionMethodAttribute)) || !memberSet.Add(member)) 
+                    continue;
+
+                // Validate
+                if (member.IsStatic)
                 {
-#if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
-#else
-                    if (!member.IsDefined(AttributeFactories[i].Type) ||
-#endif
-                        !memberSet.Add(member)) continue;
-
-                    // Validate
-                    if (member.IsStatic)
-                    {
-                        throw new ArgumentException(
-                            $"Static method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Static methods cannot be injected");
-                    }
-
-                    if (member.IsPrivate)
-                        throw new InvalidOperationException(
-                            $"Private method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Private methods cannot be injected");
-
-                    if (member.IsFamily)
-                        throw new InvalidOperationException(
-                            $"Protected method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Protected methods cannot be injected");
-
-                    if (member.IsGenericMethodDefinition)
-                    {
-                        throw new ArgumentException(
-                            $"Open generic method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Open generic methods cannot be injected.");
-                    }
-
-                    var parameters = member.GetParameters();
-                    if (parameters.Any(param => param.IsOut))
-                    {
-                        throw new ArgumentException(
-                            $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.");
-                    }
-
-                    if (parameters.Any(param => param.ParameterType.IsByRef))
-                    {
-                        throw new ArgumentException(
-                            $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
-                    }
-
-                    yield return member;
-                    break;
+                    throw new ArgumentException(
+                        $"Static method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Static methods cannot be injected");
                 }
+
+                if (member.IsPrivate)
+                    throw new InvalidOperationException(
+                        $"Private method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Private methods cannot be injected");
+
+                if (member.IsFamily)
+                    throw new InvalidOperationException(
+                        $"Protected method '{member.Name}' on type '{member.DeclaringType?.Name}' is marked for injection. Protected methods cannot be injected");
+
+                if (member.IsGenericMethodDefinition)
+                {
+                    throw new ArgumentException(
+                        $"Open generic method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Open generic methods cannot be injected.");
+                }
+
+                var parameters = member.GetParameters();
+                if (parameters.Any(param => param.IsOut))
+                {
+                    throw new ArgumentException(
+                        $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'out' parameters cannot be injected.");
+                }
+
+                if (parameters.Any(param => param.ParameterType.IsByRef))
+                {
+                    throw new ArgumentException(
+                        $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
+                }
+
+                yield return member;
+                break;
             }
         }
 

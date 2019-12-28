@@ -15,7 +15,7 @@ namespace Unity.Processors
         #region Constructors
 
         public ConstructorProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet, typeof(InjectionConstructorAttribute), container)
+            : base(policySet, container)
         {
             SelectMethod = SmartSelector;
         }
@@ -41,47 +41,75 @@ namespace Unity.Processors
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
-                        return new[] { injectionMember };
+                        yield return injectionMember;
                     }
                 }
             }
 
             // Enumerate to array
             var constructors = DeclaredMembers(type).ToArray();
-            if (1 >= constructors.Length)
-                return constructors;
 
-            // Select Attributed constructors
+            // One or no constructors
+            if (0 == constructors.Length) yield break;
+            if (1 == constructors.Length) yield return constructors[0];
+
+            // Check for decorated constructors
             foreach (var constructor in constructors)
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
-                {
-#if NET40
-                    if (!constructor.IsDefined(AttributeFactories[i].Type, true))
-#else
-                    if (!constructor.IsDefined(AttributeFactories[i].Type))
-#endif
-                        continue;
+                if (!constructor.IsDefined(typeof(InjectionConstructorAttribute)))
+                    continue;
 
-                    return new[] { constructor };
-                }
+                yield return constructor;
             }
 
             var selection = SelectMethod(type, constructors);
-            return null == selection ? Enumerable.Empty<object>() : new[] { selection };
+            if (null == selection)
+                yield break;
+            else
+                yield return selection;
         }
 
-        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
-        {
-            return type.GetTypeInfo()
-                       .DeclaredConstructors
-                       .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
-        }
+        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedConstructors(type);
 
         #endregion
 
 
-        #region Implementation                                               
+        #region Implementation            
+
+
+        protected virtual object? SelectConstructor(Type type, IPolicySet registration)
+        {
+            // Select Injected Members
+            if (null != ((InternalRegistration)registration).InjectionMembers)
+            {
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                {
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        return injectionMember;
+                    }
+                }
+            }
+
+            // Enumerate to array
+            var constructors = DeclaredMembers(type).ToArray();
+
+            // One or no constructors
+            if (0 == constructors.Length) return null;
+            if (1 == constructors.Length) return constructors[0];
+
+            // Check for decorated constructors
+            foreach (var constructor in constructors)
+            {
+                if (!constructor.IsDefined(typeof(InjectionConstructorAttribute), true))
+                    continue;
+
+                return constructor;
+            }
+
+            return SelectMethod(type, constructors);
+        }
+
 
         /// <summary>
         /// Selects default constructor

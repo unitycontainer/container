@@ -76,23 +76,15 @@ namespace Unity.Processors
         protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
             object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            for (var i = 0; i < parameters.Length; i++)
+            if (null == resolvers)
             {
-                var parameter = parameters[i];
-                var resolver = null == resolvers
-                             ? FromAttribute(parameter)
-                             : PreProcessResolver(parameter, resolvers[i]);
-
-                // TODO: Add diagnostic for parameters
-
-                // Check if has default value
-#if NET40
-                if (parameter.DefaultValue is DBNull)
-#else
-                if (!parameter.HasDefaultValue)
-#endif
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    // Plain vanilla case
+                    var parameter = parameters[i];
+                    var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                                  ?? DependencyAttribute.Instance;
+                    var resolver = attribute.GetResolver<BuilderContext>(parameter);
+
                     yield return (ref BuilderContext context) =>
                     {
                         try
@@ -106,23 +98,24 @@ namespace Unity.Processors
                         }
                     };
                 }
-                else
+            }
+            else
+            {
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    // Check if has default value
-#if NET40
-                    var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
-#else
-                    var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-#endif
+                    var parameter = parameters[i];
+                    var resolver = PreProcessResolver(parameter, resolvers[i]);
+
                     yield return (ref BuilderContext context) =>
                     {
                         try
                         {
                             return context.Resolve(parameter, resolver);
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            return defaultValue;
+                            ex.Data.Add(Guid.NewGuid(), parameter);
+                            throw;
                         }
                     };
                 }

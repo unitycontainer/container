@@ -35,6 +35,10 @@
 
   <!-- Project Configuration -->
 
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
+    <Compile Remove="Utility\Compatibility.Net40.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="Policy\Converter.cs" />
   </ItemGroup>

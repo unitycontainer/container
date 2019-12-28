@@ -117,17 +117,8 @@ namespace Unity.Processors
             // Select Attributed constructors
             foreach (var constructor in constructors)
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
-                {
-#if NET40
-                    if (!constructor.IsDefined(AttributeFactories[i].Type, true))
-#else
-                    if (!constructor.IsDefined(AttributeFactories[i].Type))
-#endif
-                        continue;
-
+                if (constructor.IsDefined(typeof(InjectionConstructorAttribute), true))
                     selection.Add(constructor);
-                }
             }
 
             switch (selection.Count)
@@ -145,6 +136,67 @@ namespace Unity.Processors
 
             var selectedCtor = SelectMethod(type, constructors);
             return null == selectedCtor ? Enumerable.Empty<object>() : new[] { selectedCtor };
+        }
+
+        protected override object? SelectConstructor(Type type, IPolicySet registration)
+        {
+            var members = new List<InjectionMember>();
+
+            // Select Injected Members
+            if (null != ((InternalRegistration)registration).InjectionMembers)
+            {
+                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                {
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        members.Add(injectionMember);
+                    }
+                }
+            }
+
+            switch (members.Count)
+            {
+                case 1:
+                    return members[0];
+
+                case 0:
+                    break;
+
+                default:
+                    return new InvalidOperationException($"Multiple Injection Constructors are registered for Type {type.FullName}",
+                           new InvalidRegistrationException());
+            }
+
+            // Enumerate to array
+            var constructors = DeclaredMembers(type).ToArray();
+
+            // One or no constructors
+            if (0 == constructors.Length) return null;
+            if (1 == constructors.Length) return constructors[0];
+
+            var selection = new HashSet<ConstructorInfo>();
+
+            // Select Attributed constructors
+            foreach (var constructor in constructors)
+            {
+                if (constructor.IsDefined(typeof(InjectionConstructorAttribute)))
+                    selection.Add(constructor);
+            }
+
+            switch (selection.Count)
+            {
+                case 1:
+                    return selection.First();
+
+                case 0:
+                    break;
+
+                default:
+                    return new InvalidOperationException($"Multiple Constructors are annotated for injection on Type {type.FullName}",
+                           new InvalidRegistrationException());
+            }
+
+            return SelectMethod(type, constructors);
         }
 
         protected override object SmartSelector(Type type, ConstructorInfo[] constructors)

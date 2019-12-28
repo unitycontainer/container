@@ -77,8 +77,7 @@ namespace Unity.Processors
         #endregion
     }
 
-    public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor,
-                                                                        ISelect<TMemberInfo>
+    public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor
                                                     where TMemberInfo : MemberInfo
     {
         #region Fields
@@ -118,34 +117,12 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Public Methods
-
-        public void Add(Type type, Func<Attribute, string> getName, Func<Attribute, object, object?, ResolveDelegate<BuilderContext>>? resolutionFactory)
-        {
-            for (var i = 0; i < AttributeFactories.Length; i++)
-            {
-                if (AttributeFactories[i].Type != type) continue;
-
-                AttributeFactories[i].Factory = resolutionFactory;
-                return;
-            }
-
-            var factories = new AttributeFactoryNode[AttributeFactories.Length + 1];
-            Array.Copy(AttributeFactories, factories, AttributeFactories.Length);
-            factories[AttributeFactories.Length] = new AttributeFactoryNode(type, getName, resolutionFactory);
-            AttributeFactories = factories;
-        }
-
-        #endregion
-
-
         #region MemberProcessor
 
         /// <inheritdoc />
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
-            var members = selector.Select(type, registration);
+            var members = Select(type, registration);
 
             return ExpressionsFromSelection(type, members);
         }
@@ -153,8 +130,7 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
-            var selector = GetPolicy<ISelect<TMemberInfo>>(registration);
-            var members = selector.Select(type, registration);
+            var members = Select(type, registration);
             var resolvers = ResolversFromSelection(type, members).ToArray();
 
             return (ref BuilderContext c) =>
@@ -185,23 +161,10 @@ namespace Unity.Processors
             }
 
             // Select Attributed members
-            IEnumerable<TMemberInfo> members = DeclaredMembers(type);
-
-            if (null == members) yield break;
-            foreach (var member in members)
+            foreach (var member in DeclaredMembers(type))
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
-                {
-#if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
-#else
-                    if (!member.IsDefined(AttributeFactories[i].Type) || 
-#endif
-                        !memberSet.Add(member)) continue;
-
+                if (member.IsDefined(typeof(DependencyResolutionAttribute), true) && memberSet.Add(member))
                     yield return member;
-                    break;
-                }
             }
         }
 
@@ -230,34 +193,6 @@ namespace Unity.Processors
             }
 
             return resolver;
-        }
-
-        protected Attribute? GetCustomAttribute(TMemberInfo info, Type type)
-        {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            return info.GetCustomAttributes()
-                       .Where(a => a.GetType()
-                                    .GetTypeInfo()
-                                    .IsAssignableFrom(type.GetTypeInfo()))
-                       .FirstOrDefault();
-#elif NET40
-            return info.GetCustomAttributes(true)
-                       .Cast<Attribute>()
-                       .Where(a => a.GetType()
-                                    .GetTypeInfo()
-                                    .IsAssignableFrom(type.GetTypeInfo()))
-                       .FirstOrDefault();
-#else
-            return info.GetCustomAttribute(type);
-#endif
-        }
-
-        public TPolicyInterface GetPolicy<TPolicyInterface>(IPolicySet registration)
-        {
-            var result = (registration.Get(typeof(TPolicyInterface)) ??
-                            _policySet.Get(typeof(TPolicyInterface)));
-
-            return null == result ? default : (TPolicyInterface)result;
         }
 
         #endregion

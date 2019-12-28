@@ -22,11 +22,10 @@ namespace Unity.Processors
         #endregion
 
 
-
         #region Constructors
 
-        protected ParametersProcessor(IPolicySet policySet, Type attribute, UnityContainer container)
-            : base(policySet, attribute)
+        protected ParametersProcessor(IPolicySet policySet, UnityContainer container)
+            : base(policySet)
         {
             Container = container;
         }
@@ -110,40 +109,26 @@ namespace Unity.Processors
         protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
         {
             object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            for (var i = 0; i < parameters.Length; i++)
+            if (null == resolvers)
             {
-                var parameter = parameters[i];
-                var resolver = null == resolvers
-                             ? FromAttribute(parameter)
-                             : PreProcessResolver(parameter, resolvers[i]);
-#if NET40
-                if (parameter.DefaultValue is DBNull)
-#else
-                if (!parameter.HasDefaultValue)
-#endif
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    // Plain vanilla case
+                    var parameter = parameters[i];
+                    var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                                  ?? DependencyAttribute.Instance;
+                    var resolver = attribute.GetResolver<BuilderContext>(parameter);
+                    
                     yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
                 }
-                else
+            }
+            else
+            {
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    // Check if has default value
-#if NET40
-                    var defaultValue = !(parameter.DefaultValue is DBNull) ? parameter.DefaultValue : null;
-#else
-                    var defaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-#endif
-                    yield return (ref BuilderContext context) =>
-                    {
-                        try
-                        {
-                            return context.Resolve(parameter, resolver);
-                        }
-                        catch
-                        {
-                            return defaultValue;
-                        }
-                    };
+                    var parameter = parameters[i];
+                    var resolver = PreProcessResolver(parameter, resolvers[i]);
+                    
+                    yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
                 }
             }
         }
@@ -182,22 +167,11 @@ namespace Unity.Processors
 
         private object FromAttribute(ParameterInfo info)
         {
-#if NET40
-            var defaultValue = !(info.DefaultValue is DBNull) ? info.DefaultValue : null;
-#else
-            var defaultValue = info.HasDefaultValue ? info.DefaultValue : null;
-#endif
-            foreach (var node in AttributeFactories)
-            {
-                if (null == node.Factory) continue;
-                var attribute = info.GetCustomAttribute(node.Type);
-                if (null == attribute) continue;
+            // By default all parameters are required dependency
+            var attribute = (DependencyResolutionAttribute)info.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                          ?? DependencyAttribute.Instance;
 
-                // If found match, use provided factory to create expression
-                return node.Factory(attribute, info, defaultValue);
-            }
-
-            return info;
+            return attribute.GetResolver<BuilderContext>(info);
         }
 
         protected bool CanResolve(ParameterInfo info)
@@ -264,32 +238,6 @@ namespace Unity.Processors
             return Container._isExplicitlyRegistered(type, name);
         }
 
-
-        #endregion
-
-
-        #region Attribute Factories
-
-        protected override ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
-        {
-            return (ref BuilderContext context) => context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
-        }
-
-        protected override ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
-        {
-            return (ref BuilderContext context) =>
-            {
-                try
-                {
-                    return context.Resolve(((ParameterInfo)info).ParameterType, ((DependencyResolutionAttribute)attribute).Name);
-                }
-                catch (Exception ex) 
-                when (!(ex.InnerException is CircularDependencyException))
-                {
-                    return value;
-                }
-            };
-        }
 
         #endregion
     }

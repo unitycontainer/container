@@ -155,10 +155,6 @@ namespace Unity
 
             Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             Defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)OptimizingFactory);
-            Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
-            Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
             if (null != container._registrations) container.Set(null, null, Defaults);
         };
@@ -192,10 +188,6 @@ namespace Unity
 
             Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
-            Defaults.Set(typeof(ISelect<ConstructorInfo>), constructorProcessor);
-            Defaults.Set(typeof(ISelect<FieldInfo>), fieldsProcessor);
-            Defaults.Set(typeof(ISelect<PropertyInfo>), propertiesProcessor);
-            Defaults.Set(typeof(ISelect<MethodInfo>), methodsProcessor);
 
             container._validators = new InternalRegistration();
 

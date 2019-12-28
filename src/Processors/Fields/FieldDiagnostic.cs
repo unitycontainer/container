@@ -40,34 +40,26 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in type.GetDeclaredFields())
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
-                {
-#if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
-#else
-                    if (!member.IsDefined(AttributeFactories[i].Type) ||
-#endif
-                        !memberSet.Add(member)) continue;
+                if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member)) 
+                    continue;
 
-                    if (member.IsStatic)
-                        throw new InvalidOperationException(
-                            $"Static field '{member.Name}' on type '{type?.Name}' is marked for injection. Static fields cannot be injected");
+                if (member.IsStatic)
+                    throw new InvalidOperationException(
+                        $"Static field '{member.Name}' on type '{type?.Name}' is marked for injection. Static fields cannot be injected");
 
-                    if (member.IsInitOnly)
-                        throw new InvalidOperationException(
-                            $"Readonly field '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly fields cannot be injected");
+                if (member.IsInitOnly)
+                    throw new InvalidOperationException(
+                        $"Readonly field '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly fields cannot be injected");
 
-                    if (member.IsPrivate)
-                        throw new InvalidOperationException(
-                            $"Private field '{member.Name}' on type '{type?.Name}' is marked for injection. Private fields cannot be injected");
+                if (member.IsPrivate)
+                    throw new InvalidOperationException(
+                        $"Private field '{member.Name}' on type '{type?.Name}' is marked for injection. Private fields cannot be injected");
 
-                    if (member.IsFamily)
-                        throw new InvalidOperationException(
-                            $"Protected field '{member.Name}' on type '{type?.Name}' is marked for injection. Protected fields cannot be injected");
+                if (member.IsFamily)
+                    throw new InvalidOperationException(
+                        $"Protected field '{member.Name}' on type '{type?.Name}' is marked for injection. Protected fields cannot be injected");
 
-                    yield return member;
-                    break;
-                }
+                yield return member;
             }
         }
 

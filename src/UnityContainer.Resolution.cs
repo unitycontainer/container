@@ -505,7 +505,7 @@ namespace Unity
                 while(IntPtr.Zero != parent)
                 {
                     var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
-                    if (thisContext.RegistrationType == parentRef.RegistrationType && thisContext.Name == parentRef.Name)
+                    if (thisContext.Type == parentRef.RegistrationType && thisContext.Name == parentRef.Name)
                         throw new CircularDependencyException(thisContext.Type, thisContext.Name);
 
                     parent = parentRef.Parent;

@@ -41,44 +41,36 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in type.GetDeclaredProperties())
             {
-                for (var i = 0; i < AttributeFactories.Length; i++)
-                {
-#if NET40
-                    if (!member.IsDefined(AttributeFactories[i].Type, true) ||
-#else
-                    if (!member.IsDefined(AttributeFactories[i].Type) ||
-#endif
-                        !memberSet.Add(member)) continue;
+                if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member))
+                    continue;
 
-                    if (!member.CanWrite)
-                        throw new InvalidOperationException(
-                            $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly properties cannot be injected");
+                if (!member.CanWrite)
+                    throw new InvalidOperationException(
+                        $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly properties cannot be injected");
 
-                    if (0 != member.GetIndexParameters().Length)
-                        throw new InvalidOperationException(
-                            $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
+                if (0 != member.GetIndexParameters().Length)
+                    throw new InvalidOperationException(
+                        $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
 
-                    var setter = member.GetSetMethod(true);
+                var setter = member.GetSetMethod(true);
 
-                    if (null == setter)
-                        throw new InvalidOperationException(
-                            $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
+                if (null == setter)
+                    throw new InvalidOperationException(
+                        $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
 
-                    if (setter.IsStatic)
-                        throw new InvalidOperationException(
-                            $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
+                if (setter.IsStatic)
+                    throw new InvalidOperationException(
+                        $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
 
-                    if (setter.IsPrivate)
-                        throw new InvalidOperationException(
-                            $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
+                if (setter.IsPrivate)
+                    throw new InvalidOperationException(
+                        $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
 
-                    if (setter.IsFamily)
-                        throw new InvalidOperationException(
-                            $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
+                if (setter.IsFamily)
+                    throw new InvalidOperationException(
+                        $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
 
-                    yield return member;
-                    break;
-                }
+                yield return member;
             }
         }
 
