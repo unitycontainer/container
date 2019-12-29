@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Policy;
 using Unity.Resolution;
 
@@ -49,29 +48,15 @@ namespace Unity.Processors
         protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
         {
             object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            for (var i = 0; i < parameters.Length; i++)
+            if (null == resolvers)
             {
-                var parameter = parameters[i];
-                var resolver = null == resolvers
-                             ? FromAttribute(parameter)
-                             : PreProcessResolver(parameter, resolvers[i]);
-
-                // Check if has default value
-#if NET40
-                var defaultValueExpr = parameter.DefaultValue is DBNull
-                    ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
-                    : null;
-
-                if (parameter.DefaultValue is DBNull)
-#else
-                var defaultValueExpr = parameter.HasDefaultValue
-                    ? Expression.Constant(parameter.DefaultValue, parameter.ParameterType)
-                    : null;
-
-                if (!parameter.HasDefaultValue)
-#endif
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    // Plain vanilla case
+                    var parameter = parameters[i];
+                    var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                                  ?? DependencyAttribute.Instance; // Parameters are implicitly required dependencies
+                    var resolver = attribute.GetResolver<BuilderContext>(parameter);
+
                     yield return Expression.Convert(
                                     Expression.Call(BuilderContextExpression.Context,
                                         BuilderContextExpression.ResolveParameterMethod,
@@ -79,24 +64,20 @@ namespace Unity.Processors
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
                 }
-                else
+            }
+            else
+            {
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    var variable = Expression.Variable(parameter.ParameterType);
-                    var resolve = Expression.Convert(
+                    var parameter = parameters[i];
+                    var resolver = PreProcessResolver(parameter, resolvers[i]);
+
+                    yield return Expression.Convert(
                                     Expression.Call(BuilderContextExpression.Context,
                                         BuilderContextExpression.ResolveParameterMethod,
                                         Expression.Constant(parameter, typeof(ParameterInfo)),
                                         Expression.Constant(resolver, typeof(object))),
                                     parameter.ParameterType);
-
-                    yield return Expression.Block(new[] { variable }, new Expression[]
-                    {
-                        Expression.TryCatch(
-                            Expression.Assign(variable, resolve),
-                        Expression.Catch(typeof(Exception),
-                            Expression.Assign(variable, defaultValueExpr))),
-                        variable
-                    });
                 }
             }
         }
@@ -115,7 +96,7 @@ namespace Unity.Processors
                 {
                     var parameter = parameters[i];
                     var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
-                                  ?? DependencyAttribute.Instance;
+                                  ?? DependencyAttribute.Instance; // Parameters are implicitly required dependencies
                     var resolver = attribute.GetResolver<BuilderContext>(parameter);
                     
                     yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
