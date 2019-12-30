@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 
@@ -12,8 +11,7 @@ namespace Unity
     /// </summary>
     internal static class ContainerReflectionExtensions
     {
-
-        public static IEnumerable<FieldInfo> GetDeclaredFields(this Type type)
+        public static IEnumerable<FieldInfo> DeclaredFields(this Type type)
         {
             TypeInfo? info = type.GetTypeInfo();
             while (null != info)
@@ -25,7 +23,7 @@ namespace Unity
             }
         }
 
-        public static IEnumerable<PropertyInfo> GetDeclaredProperties(this Type type)
+        public static IEnumerable<PropertyInfo> DeclaredProperties(this Type type)
         {
             TypeInfo? info = type.GetTypeInfo();
             while (null! != info!)
@@ -37,7 +35,7 @@ namespace Unity
             }
         }
 
-        public static IEnumerable<MethodInfo> GetDeclaredMethods(this Type type)
+        public static IEnumerable<MethodInfo> DeclaredMethods(this Type type)
         {
             TypeInfo? info = type.GetTypeInfo();
             while (null != info)

@@ -122,16 +122,55 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
-            var members = Select(type, registration);
+            foreach (var member in Select(type, registration))
+            {
+                switch (member)
+                {
+                    // TMemberInfo
+                    case TMemberInfo info:
+                        yield return GetResolverExpression(info);
+                        break;
 
-            return ExpressionsFromSelection(type, members);
+                    // Injection Member
+                    case InjectionMember<TMemberInfo, TData> injectionMember:
+                        yield return GetResolverExpression(injectionMember.MemberInfo(type),
+                                                           injectionMember.Data);
+                        break;
+
+                    // Unknown
+                    default:
+                        throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
+                }
+            }
         }
 
         /// <inheritdoc />
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
-            var members = Select(type, registration);
-            var resolvers = ResolversFromSelection(type, members).ToArray();
+            var members = Select(type, registration).ToArray();
+            var resolvers = new ResolveDelegate<BuilderContext>[members.Length];
+
+            for (var i = 0; i < resolvers.Length; i++)
+            {
+                var member = members[i];
+                switch (member)
+                {
+                    // MemberInfo
+                    case TMemberInfo info:
+                        resolvers[i] = GetResolverDelegate(info);
+                        break;
+
+                    // Injection Member
+                    case InjectionMember<TMemberInfo, TData> injectionMember:
+                        resolvers[i] = GetResolverDelegate(injectionMember.MemberInfo(type),
+                                                           injectionMember.Data);
+                        break;
+
+                    // Unknown
+                    default:
+                        throw new InvalidOperationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
+                }
+            }
 
             return (ref BuilderContext c) =>
             {
@@ -144,7 +183,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region ISelect
+        #region Selection
 
         public virtual IEnumerable<object> Select(Type type, IPolicySet registration)
         {
@@ -170,12 +209,27 @@ namespace Unity.Processors
 
         #endregion
 
-
         #region Implementation
 
         protected abstract Type MemberType(TMemberInfo info);
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
+
+        #endregion
+
+        #region Expression Implementation
+
+        protected virtual Expression GetResolverExpression(TMemberInfo info)
+        {
+            return GetResolverExpression(info, info.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                                               ?? DependencyAttribute.Instance);
+        }
+
+        protected abstract Expression GetResolverExpression(TMemberInfo info, object? data);
+
+        #endregion
+
+        #region Resolution Implementation
 
         protected object? PreProcessResolver(TMemberInfo info, object? resolver)
         {
@@ -194,6 +248,14 @@ namespace Unity.Processors
 
             return resolver;
         }
+
+        protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info)
+        { 
+            return GetResolverDelegate(info, info.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                                             ?? DependencyAttribute.Instance);
+        }
+
+        protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? data);
 
         #endregion
 

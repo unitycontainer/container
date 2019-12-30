@@ -38,7 +38,7 @@ namespace Unity.Processors
             }
 
             // Select Attributed members
-            foreach (var member in type.GetDeclaredFields())
+            foreach (var member in type.DeclaredFields())
             {
                 if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member)) 
                     continue;
@@ -78,15 +78,41 @@ namespace Unity.Processors
                    Expression.Catch(ex, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? resolver)
+        #endregion
+
+
+
+        #region Resolution
+
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info)
         {
-            var value = PreProcessResolver(info, resolver);
+            var resolver = base.GetResolverDelegate(info);
+
             return (ref BuilderContext context) =>
             {
                 try
                 {
-                    info.SetValue(context.Existing, context.Resolve(info, value));
-                    return context.Existing;
+                    return resolver(ref context);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add(Guid.NewGuid(), info);
+                    throw;
+                }
+            };
+        }
+
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? injector)
+        {
+            var resolver = base.GetResolverDelegate(info, injector);
+
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    return resolver(ref context);
                 }
                 catch (Exception ex)
                 {

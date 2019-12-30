@@ -123,5 +123,35 @@ namespace Unity.Processors
         }
 
         #endregion
+
+
+        #region Resolution
+
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateDiagnosticParameterResolvers(ParameterInfo[] parameters)
+        {
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                              ?? DependencyAttribute.Instance;
+                var name = attribute.Name;
+                var resolver = attribute.GetResolver<BuilderContext>(parameter);
+
+                yield return (ref BuilderContext context) =>
+                {
+                    try
+                    {
+                        return context.Resolve(parameter, name, resolver);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Data.Add(Guid.NewGuid(), parameter);
+                        throw;
+                    }
+                };
+            }
+        }
+
+        #endregion
     }
 }

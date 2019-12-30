@@ -64,7 +64,9 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
         {
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = null == resolvers 
+                                   ? CreateParameterResolvers(info.GetParameters()).ToArray()
+                                   : CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
 
             return (ref BuilderContext c) =>
             {
@@ -88,7 +90,9 @@ namespace Unity.Processors
 
         protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
         {
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = null == resolvers
+                                   ? CreateParameterResolvers(info.GetParameters()).ToArray()
+                                   : CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
             // PerResolve lifetime
             return (ref BuilderContext c) =>
             {

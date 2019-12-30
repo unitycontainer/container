@@ -39,7 +39,7 @@ namespace Unity.Processors
             }
 
             // Select Attributed members
-            foreach (var member in type.GetDeclaredProperties())
+            foreach (var member in type.DeclaredProperties())
             {
                 if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member))
                     continue;

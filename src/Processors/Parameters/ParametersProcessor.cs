@@ -87,7 +87,21 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object? injectors = null)
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters)
+        {
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
+                              ?? DependencyAttribute.Instance; // Parameters are implicitly required dependencies
+                var name = attribute.Name;
+                var resolver = attribute.GetResolver<BuilderContext>(parameter);
+
+                yield return (ref BuilderContext context) => context.Resolve(parameter, name, resolver);
+            }
+        }
+
+        protected virtual IEnumerable<ResolveDelegate<BuilderContext>> CreateParameterResolvers(ParameterInfo[] parameters, object injectors)
         {
             object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
             if (null == resolvers)
@@ -97,9 +111,10 @@ namespace Unity.Processors
                     var parameter = parameters[i];
                     var attribute = (DependencyResolutionAttribute)parameter.GetCustomAttribute(typeof(DependencyResolutionAttribute))
                                   ?? DependencyAttribute.Instance; // Parameters are implicitly required dependencies
+                    var name = attribute.Name;
                     var resolver = attribute.GetResolver<BuilderContext>(parameter);
                     
-                    yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
+                    yield return (ref BuilderContext context) => context.Resolve(parameter, name, resolver);
                 }
             }
             else

@@ -40,7 +40,7 @@ namespace Unity.Processors
             }
 
             // Select Attributed members
-            foreach (var member in type.GetDeclaredMethods())
+            foreach (var member in type.DeclaredMethods())
             {
                 if (!member.IsDefined(typeof(InjectionMethodAttribute)) || !memberSet.Add(member)) 
                     continue;
@@ -104,7 +104,9 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
-            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = null == resolvers 
+                                   ? CreateDiagnosticParameterResolvers(info.GetParameters()).ToArray()
+                                   : CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>
             {
                 try

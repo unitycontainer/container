@@ -76,7 +76,9 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
         {
-            var parameterResolvers = CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var parameterResolvers = null == resolvers
+                                   ? CreateParameterResolvers(info.GetParameters()).ToArray()
+                                   : CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
             return (ref BuilderContext c) =>
             {
                 if (null == c.Existing) return c.Existing;

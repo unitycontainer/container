@@ -32,43 +32,6 @@ namespace Unity.Processors
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
-        {
-            // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
-            {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
-                {
-                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
-                    {
-                        yield return injectionMember;
-                    }
-                }
-            }
-
-            // Enumerate to array
-            var constructors = DeclaredMembers(type).ToArray();
-
-            // One or no constructors
-            if (0 == constructors.Length) yield break;
-            if (1 == constructors.Length) yield return constructors[0];
-
-            // Check for decorated constructors
-            foreach (var constructor in constructors)
-            {
-                if (!constructor.IsDefined(typeof(InjectionConstructorAttribute)))
-                    continue;
-
-                yield return constructor;
-            }
-
-            var selection = SelectMethod(type, constructors);
-            if (null == selection)
-                yield break;
-            else
-                yield return selection;
-        }
-
         protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedConstructors(type);
 
         #endregion
