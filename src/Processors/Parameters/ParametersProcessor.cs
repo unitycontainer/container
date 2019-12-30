@@ -172,15 +172,10 @@ namespace Unity.Processors
 
         protected bool CanResolve(ParameterInfo info)
         {
-            foreach (var node in AttributeFactories)
-            {
-                if (null == node.Factory) continue;
-                var attribute = info.GetCustomAttribute(node.Type);
-                if (null == attribute) continue;
-
-                // If found match, use provided factory to create expression
-                return CanResolve(info.ParameterType, node.Name(attribute));
-            }
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute;
+            
+            if (null != attribute) 
+                return CanResolve(info.ParameterType, attribute.Name);
 
             return CanResolve(info.ParameterType, null);
         }

@@ -47,40 +47,7 @@ namespace Unity.Processors
     {
         #region Fields
 
-        protected static readonly MethodInfo StringFormat =
-            typeof(string).GetTypeInfo()
-                .DeclaredMethods
-                .First(m =>
-                {
-                    var parameters = m.GetParameters();
-                    return m.Name == nameof(string.Format) &&
-                           m.GetParameters().Length == 2 &&
-                           typeof(object) == parameters[1].ParameterType;
-                });
-
-        protected static readonly NewExpression InvalidRegistrationExpression =
-            Expression.New(typeof(InvalidRegistrationException));
-
-        protected static readonly MethodCallExpression NewGuidExpression =
-            Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
-
-        protected static readonly PropertyInfo DataPropertyExpression =
-            typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
-
-        protected static readonly MethodInfo AddMethodExpression =
-            typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
-
-        protected static readonly UnaryExpression ConvertExpression =
-            Expression.Convert(NewGuidExpression, typeof(object));
-
-        protected static readonly ParameterExpression ExceptionExpression =
-            Expression.Variable(typeof(Exception));
-
-        protected static readonly MemberExpression ExceptionDataExpression =
-            Expression.MakeMemberAccess(ExceptionExpression, DataPropertyExpression);
-
         private readonly IPolicySet _policySet;
-        protected AttributeFactoryNode[] AttributeFactories;
 
         #endregion
 
@@ -89,25 +56,11 @@ namespace Unity.Processors
 
         protected MemberProcessor(IPolicySet policySet)
         {
-            // Add Unity attribute factories
-            AttributeFactories = new[]
-            {
-                new AttributeFactoryNode(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
-            };
-
             _policySet = policySet;
         }
 
         protected MemberProcessor(IPolicySet policySet, Type attribute)
         {
-            // Add Unity attribute factories
-            AttributeFactories = new[]
-            {
-                new AttributeFactoryNode(attribute, (a)=>(a as DependencyResolutionAttribute)?.Name, null),
-                new AttributeFactoryNode(typeof(DependencyAttribute),         (a)=>((DependencyResolutionAttribute)a).Name, DependencyResolverFactory),
-                new AttributeFactoryNode(typeof(OptionalDependencyAttribute), (a)=>((DependencyResolutionAttribute)a).Name, OptionalDependencyResolverFactory),
-            };
             _policySet = policySet;
         }
 
@@ -219,8 +172,7 @@ namespace Unity.Processors
 
         protected virtual Expression GetResolverExpression(TMemberInfo info)
         {
-            return GetResolverExpression(info, info.GetCustomAttribute(typeof(DependencyResolutionAttribute))
-                                               ?? DependencyAttribute.Instance);
+            throw new NotImplementedException();
         }
 
         protected abstract Expression GetResolverExpression(TMemberInfo info, object? data);
@@ -254,53 +206,6 @@ namespace Unity.Processors
         }
 
         protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? data);
-
-        #endregion
-
-
-        #region Attribute Resolver Factories
-
-        protected virtual ResolveDelegate<BuilderContext> DependencyResolverFactory(Attribute attribute, object info, object? value = null)
-        {
-            var type = MemberType((TMemberInfo)info);
-            return (ref BuilderContext context) => context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
-        }
-
-        protected virtual ResolveDelegate<BuilderContext> OptionalDependencyResolverFactory(Attribute attribute, object info, object? value = null)
-        {
-            var type = MemberType((TMemberInfo)info);
-            return (ref BuilderContext context) =>
-            {
-                try
-                {
-                    return context.Resolve(type, ((DependencyResolutionAttribute)attribute).Name);
-                }
-                catch (Exception ex) 
-                when (!(ex.InnerException is CircularDependencyException))
-                {
-                    return value;
-                }
-            };
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        public struct AttributeFactoryNode
-        {
-            public readonly Type Type;
-            public Func<Attribute, object, object?, ResolveDelegate<BuilderContext>>? Factory;
-            public Func<Attribute, string?> Name;
-
-            public AttributeFactoryNode(Type type, Func<Attribute, string?> getName, Func<Attribute, object, object?, ResolveDelegate<BuilderContext>>? factory)
-            {
-                Type = type;
-                Name = getName;
-                Factory = factory;
-            }
-        }
 
         #endregion
     }
