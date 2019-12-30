@@ -87,10 +87,10 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
+            var exData = Expression.MakeMemberAccess(ex, DataPropertyExpression);
             var block = Expression.Block(typeof(void),
-                Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
+                Expression.Call(exData, AddMethodExpression,
+                        Expression.Convert(NewGuidExpression, typeof(object)),
                         Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(typeof(void)));
 

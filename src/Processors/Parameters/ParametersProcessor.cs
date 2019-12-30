@@ -97,7 +97,7 @@ namespace Unity.Processors
                 var name = attribute.Name;
                 var resolver = attribute.GetResolver<BuilderContext>(parameter);
 
-                yield return (ref BuilderContext context) => context.Resolve(parameter, name, resolver);
+                yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Unity.Processors
                     var name = attribute.Name;
                     var resolver = attribute.GetResolver<BuilderContext>(parameter);
                     
-                    yield return (ref BuilderContext context) => context.Resolve(parameter, name, resolver);
+                    yield return (ref BuilderContext context) => context.Resolve(parameter, resolver);
                 }
             }
             else
@@ -234,7 +234,54 @@ namespace Unity.Processors
             return Container._isExplicitlyRegistered(type, name);
         }
 
+        #endregion
+
+
+
+        #region Resolution
+
+        //protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info)
+        //{
+        //    var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+        //                                                                                   ?? DependencyAttribute.Instance;
+        //    var resolver = attribute.GetResolver<BuilderContext>(info);
+
+        //    return (ref BuilderContext context) =>
+        //    {
+        //        return context.Resolve(info, attribute.Name, resolver);
+        //    };
+        //}
+
+        //protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info, object? data)
+        //{
+        //    var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+        //                                                                                   ?? DependencyAttribute.Instance;
+        //    ResolveDelegate<BuilderContext>? resolver = data switch
+        //    {
+        //        IResolve policy                                   => policy.Resolve,
+        //        IResolverFactory<ParameterInfo> propertyFactory   => propertyFactory.GetResolver<BuilderContext>(info),
+        //        IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
+        //        Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(info),
+        //        _                                                 => null
+        //    };
+
+        //    if (null == resolver)
+        //    {
+        //        return (ref BuilderContext context) =>
+        //        {
+        //            return context.Override(info, attribute.Name, data);
+        //        };
+        //    }
+        //    else
+        //    {
+        //        return (ref BuilderContext context) =>
+        //        {
+        //            return context.Resolve(info, attribute.Name, resolver);
+        //        };
+        //    }
+        //}
 
         #endregion
+
     }
 }

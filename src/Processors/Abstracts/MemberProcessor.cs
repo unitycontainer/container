@@ -13,7 +13,37 @@ using Unity.Resolution;
 
 namespace Unity.Processors
 {
+    /// <summary>
+    /// Base class of all processors
+    /// </summary>
     public abstract class MemberProcessor
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="registration"></param>
+        /// <returns></returns>
+        public abstract IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="registration"></param>
+        /// <param name="seed"></param>
+        /// <returns></returns>
+        public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
+    }
+
+
+    /// <summary>
+    /// Generic member processor base class
+    /// </summary>
+    /// <typeparam name="TMemberInfo">Type of MemberInfo such as <see cref="FieldInfo"/>,  <see cref="PropertyInfo"/>,  <see cref="ParameterInfo"/></typeparam>
+    /// <typeparam name="TData">Format of the data: <see cref="Object"/> or <see cref="Object[]"/></typeparam>
+    public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor
+                                                    where TMemberInfo : MemberInfo
     {
         #region Fields
 
@@ -28,59 +58,26 @@ namespace Unity.Processors
                            typeof(object) == parameters[1].ParameterType;
                 });
 
-        protected static readonly Expression InvalidRegistrationExpression = Expression.New(typeof(InvalidRegistrationException));
+        protected static readonly NewExpression InvalidRegistrationExpression =
+            Expression.New(typeof(InvalidRegistrationException));
 
-        protected static readonly Expression NewGuid = Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
+        protected static readonly MethodCallExpression NewGuidExpression =
+            Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
 
-        protected static readonly PropertyInfo DataProperty = typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
+        protected static readonly PropertyInfo DataPropertyExpression =
+            typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
 
-        protected static readonly MethodInfo AddMethod = typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
+        protected static readonly MethodInfo AddMethodExpression =
+            typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
 
-        #endregion
+        protected static readonly UnaryExpression ConvertExpression =
+            Expression.Convert(NewGuidExpression, typeof(object));
 
+        protected static readonly ParameterExpression ExceptionExpression =
+            Expression.Variable(typeof(Exception));
 
-        #region Public Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetExpressions"/>  
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ExpressionsFromSelected"/>
-        ///     + <see cref="BuildMemberExpression"/>
-        ///       + <see cref="GetResolverExpression"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <returns></returns>
-        public abstract IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Call hierarchy:
-        /// <see cref="GetResolver"/>
-        /// + <see cref="SelectMembers"/>
-        ///   + <see cref="ResolversFromSelected"/>
-        ///     + <see cref="BuildMemberResolver"/>
-        ///       + <see cref="GetResolverDelegate"/>
-        /// </remarks>
-        /// <param name="type"></param>
-        /// <param name="registration"></param>
-        /// <param name="seed"></param>
-        /// <returns></returns>
-        public abstract ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed);
-
-        #endregion
-    }
-
-    public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor
-                                                    where TMemberInfo : MemberInfo
-    {
-        #region Fields
+        protected static readonly MemberExpression ExceptionDataExpression =
+            Expression.MakeMemberAccess(ExceptionExpression, DataPropertyExpression);
 
         private readonly IPolicySet _policySet;
         protected AttributeFactoryNode[] AttributeFactories;

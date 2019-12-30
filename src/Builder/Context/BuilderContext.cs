@@ -43,6 +43,7 @@ namespace Unity.Builder
             // Process overrides if any
             if (null != Overrides)
             {
+                // TODO: Requires optimization
                 NamedType namedType = new NamedType
                 {
                     Type = type,
@@ -247,6 +248,53 @@ namespace Unity.Builder
             }
         }
 
+        /*
+        public object? Override(ParameterInfo parameter, string? name, object? value)
+        {
+            if (null == Overrides) return value;
+
+            unsafe
+            {
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+
+                    // Check if this parameter is overridden
+                    if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
+                    {
+
+                        var thisContext = this;
+                        var context = new BuilderContext
+                        {
+                            Lifetime = Lifetime,
+                            Registration = Registration,
+                            RegistrationType = RegistrationType,
+                            Name = name,
+                            Type = parameter.ParameterType,
+                            ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
+                            List = List,
+                            Overrides = Overrides,
+                            DeclaringType = Type,
+#if !NET40
+                            Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                        };
+
+                        // Check if itself is a value 
+                        if (resolverOverride is IResolve resolverPolicy)
+                            return resolverPolicy.Resolve(ref context);
+
+                        // Try to create value
+                        var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
+                        if (null != resolveDelegate) return resolveDelegate(ref context);
+                    }
+                }
+            }
+
+            return value;
+        }
+
         public object? Resolve(ParameterInfo parameter, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
@@ -299,7 +347,7 @@ namespace Unity.Builder
                 return resolver(ref context);
             }
         }
-
+        */
         #endregion
 
 

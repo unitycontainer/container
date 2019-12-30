@@ -35,10 +35,10 @@ namespace Unity.Processors
 #endif
                 {
                     var ex = Expression.Variable(typeof(Exception));
-                    var exData = Expression.MakeMemberAccess(ex, DataProperty);
+                    var exData = Expression.MakeMemberAccess(ex, DataPropertyExpression);
                     var block = Expression.Block(parameter.ParameterType,
-                        Expression.Call(exData, AddMethod,
-                                Expression.Convert(NewGuid, typeof(object)),
+                        Expression.Call(exData, AddMethodExpression,
+                                Expression.Convert(NewGuidExpression, typeof(object)),
                                 Expression.Constant(parameter, typeof(object))),
                         Expression.Rethrow(parameter.ParameterType));
 
@@ -141,7 +141,7 @@ namespace Unity.Processors
                 {
                     try
                     {
-                        return context.Resolve(parameter, name, resolver);
+                        return context.Resolve(parameter, resolver);
                     }
                     catch (Exception ex)
                     {

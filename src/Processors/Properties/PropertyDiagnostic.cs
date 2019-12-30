@@ -12,15 +12,6 @@ namespace Unity.Processors
 {
     public class PropertyDiagnostic : PropertyProcessor
     {
-        #region Fields
-
-        protected static readonly UnaryExpression ConvertExpression        = Expression.Convert(NewGuid, typeof(object));
-        protected static readonly ParameterExpression ExceptionExpression  = Expression.Variable(typeof(Exception));
-        protected static readonly MemberExpression ExceptionDataExpression = Expression.MakeMemberAccess(ExceptionExpression, DataProperty);
-
-        #endregion
-
-
         #region Constructors
 
         public PropertyDiagnostic(IPolicySet policySet) 
@@ -91,7 +82,7 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(PropertyInfo info)
         {
             var block = Expression.Block(info.PropertyType,
-                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(info.PropertyType));
 
             return Expression.TryCatch(base.GetResolverExpression(info),
@@ -102,7 +93,7 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(PropertyInfo info, object? data)
         {
             var block = Expression.Block(info.PropertyType,
-                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(info.PropertyType));
 
             return Expression.TryCatch(base.GetResolverExpression(info, data),

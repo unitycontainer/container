@@ -12,15 +12,6 @@ namespace Unity.Processors
 {
     public class FieldDiagnostic : FieldProcessor
     {
-        #region Fields
-
-        protected static readonly UnaryExpression     ConvertExpression = Expression.Convert(NewGuid, typeof(object));
-        protected static readonly ParameterExpression ExceptionExpression = Expression.Variable(typeof(Exception));
-        protected static readonly MemberExpression    ExceptionDataExpression = Expression.MakeMemberAccess(ExceptionExpression, DataProperty);
-
-        #endregion
-
-
         #region Constructors
 
         public FieldDiagnostic(IPolicySet policySet) : base(policySet)
@@ -80,7 +71,7 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(FieldInfo info)
         {
             var block = Expression.Block(info.FieldType,
-                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(info.FieldType));
 
             return Expression.TryCatch(base.GetResolverExpression(info),
@@ -90,7 +81,7 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(FieldInfo info, object? data)
         {
             var block = Expression.Block(info.FieldType, 
-                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(info.FieldType));
 
             return Expression.TryCatch(base.GetResolverExpression(info, data),

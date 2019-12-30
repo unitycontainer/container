@@ -285,7 +285,7 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
         {
             var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
+            var exData = Expression.MakeMemberAccess(ex, DataPropertyExpression);
             var variable = Expression.Variable(info.DeclaringType ?? throw new ArgumentNullException(nameof(info)));
             var parameters = info.GetParameters();
 
@@ -306,8 +306,8 @@ namespace Unity.Processors
 
             // Add location to dictionary and re-throw
             var catchBlock = Expression.Block(tryBlock.Type,
-                Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
+                Expression.Call(exData, AddMethodExpression,
+                        Expression.Convert(NewGuidExpression, typeof(object)),
                         Expression.Constant(info, typeof(object))),
                 Expression.Rethrow(tryBlock.Type));
 
