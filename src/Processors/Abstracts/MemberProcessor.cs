@@ -217,6 +217,7 @@ namespace Unity.Processors
 
         #endregion
 
+
         #region Expression Implementation
 
         protected virtual Expression GetResolverExpression(TMemberInfo info)
@@ -228,6 +229,7 @@ namespace Unity.Processors
         protected abstract Expression GetResolverExpression(TMemberInfo info, object? data);
 
         #endregion
+
 
         #region Resolution Implementation
 
@@ -251,8 +253,7 @@ namespace Unity.Processors
 
         protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info)
         { 
-            return GetResolverDelegate(info, info.GetCustomAttribute(typeof(DependencyResolutionAttribute))
-                                             ?? DependencyAttribute.Instance);
+            throw new NotImplementedException();
         }
 
         protected abstract ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info, object? data);

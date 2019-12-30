@@ -19,10 +19,20 @@ namespace Unity.Builder
                         typeof(PropertyInfo) == parameters[0].ParameterType;
                 });
 
-
-        public static readonly MethodInfo FieldOverrideMethod =
+        public static readonly MethodInfo OverridePropertyMethod =
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Override))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 0 < parameters.Length &&
+                        typeof(PropertyInfo) == parameters[0].ParameterType;
+                });
+
+
+        public static readonly MethodInfo ResolveFieldMethod =
+            typeof(BuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();
@@ -30,9 +40,9 @@ namespace Unity.Builder
                         typeof(FieldInfo) == parameters[0].ParameterType;
                 });
 
-        public static readonly MethodInfo ResolveFieldMethod =
+        public static readonly MethodInfo OverrideFieldMethod =
             typeof(BuilderContext).GetTypeInfo()
-                .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                .GetDeclaredMethods(nameof(BuilderContext.Override))
                 .First(m =>
                 {
                     var parameters = m.GetParameters();

@@ -12,6 +12,15 @@ namespace Unity.Processors
 {
     public class FieldDiagnostic : FieldProcessor
     {
+        #region Fields
+
+        protected static readonly UnaryExpression     ConvertExpression = Expression.Convert(NewGuid, typeof(object));
+        protected static readonly ParameterExpression ExceptionExpression = Expression.Variable(typeof(Exception));
+        protected static readonly MemberExpression    ExceptionDataExpression = Expression.MakeMemberAccess(ExceptionExpression, DataProperty);
+
+        #endregion
+
+
         #region Constructors
 
         public FieldDiagnostic(IPolicySet policySet) : base(policySet)
@@ -21,7 +30,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Overrides
+        #region Selection
 
         public override IEnumerable<object> Select(Type type, IPolicySet registration)
         {
@@ -40,7 +49,7 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in type.DeclaredFields())
             {
-                if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member)) 
+                if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member))
                     continue;
 
                 if (member.IsStatic)
@@ -63,27 +72,35 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(FieldInfo field, object? resolver)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var block = 
-                Expression.Block(field.FieldType,
-                    Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(field, typeof(object))),
-                Expression.Rethrow(field.FieldType));
+        #endregion
 
-            return Expression.TryCatch(base.GetResolverExpression(field, resolver),
-                   Expression.Catch(ex, block));
+
+        #region Expression
+
+        protected override Expression GetResolverExpression(FieldInfo info)
+        {
+            var block = Expression.Block(info.FieldType,
+                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                Expression.Rethrow(info.FieldType));
+
+            return Expression.TryCatch(base.GetResolverExpression(info),
+                   Expression.Catch(ExceptionExpression, block));
+        }
+
+        protected override Expression GetResolverExpression(FieldInfo info, object? data)
+        {
+            var block = Expression.Block(info.FieldType, 
+                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                Expression.Rethrow(info.FieldType));
+
+            return Expression.TryCatch(base.GetResolverExpression(info, data),
+                   Expression.Catch(ExceptionExpression, block));
         }
 
         #endregion
 
 
-
         #region Resolution
-
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info)
         {
@@ -102,7 +119,6 @@ namespace Unity.Processors
                 }
             };
         }
-
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? injector)
         {

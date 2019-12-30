@@ -22,5 +22,10 @@ namespace Unity
         {
             return member.IsDefined(type, true);
         }
+
+        public static void SetValue(this PropertyInfo info, object? obj, object? value)
+        {
+            info.SetValue(obj!, value!, null);
+        }
     }
 }

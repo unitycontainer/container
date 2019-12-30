@@ -12,6 +12,15 @@ namespace Unity.Processors
 {
     public class PropertyDiagnostic : PropertyProcessor
     {
+        #region Fields
+
+        protected static readonly UnaryExpression ConvertExpression        = Expression.Convert(NewGuid, typeof(object));
+        protected static readonly ParameterExpression ExceptionExpression  = Expression.Variable(typeof(Exception));
+        protected static readonly MemberExpression ExceptionDataExpression = Expression.MakeMemberAccess(ExceptionExpression, DataProperty);
+
+        #endregion
+
+
         #region Constructors
 
         public PropertyDiagnostic(IPolicySet policySet) 
@@ -22,7 +31,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Overrides
+        #region Selection
 
         public override IEnumerable<object> Select(Type type, IPolicySet registration)
         {
@@ -74,34 +83,64 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(PropertyInfo property, object? resolver)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataProperty);
-            var block = 
-                Expression.Block(property.PropertyType,
-                    Expression.Call(exData, AddMethod,
-                        Expression.Convert(NewGuid, typeof(object)),
-                        Expression.Constant(property, typeof(object))),
-                Expression.Rethrow(property.PropertyType));
+        #endregion
 
-            return Expression.TryCatch(base.GetResolverExpression(property, resolver),
-                   Expression.Catch(ex, block));
+
+        #region Expression
+
+        protected override Expression GetResolverExpression(PropertyInfo info)
+        {
+            var block = Expression.Block(info.PropertyType,
+                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                Expression.Rethrow(info.PropertyType));
+
+            return Expression.TryCatch(base.GetResolverExpression(info),
+                   Expression.Catch(ExceptionExpression, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? resolver)
+
+        protected override Expression GetResolverExpression(PropertyInfo info, object? data)
         {
-            var value = PreProcessResolver(info, resolver);
+            var block = Expression.Block(info.PropertyType,
+                    Expression.Call(ExceptionDataExpression, AddMethod, ConvertExpression, Expression.Constant(info, typeof(object))),
+                Expression.Rethrow(info.PropertyType));
+
+            return Expression.TryCatch(base.GetResolverExpression(info, data),
+                   Expression.Catch(ExceptionExpression, block));
+        }
+
+        #endregion
+
+
+        #region Resolution
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info)
+        {
+            var resolver = base.GetResolverDelegate(info);
+
             return (ref BuilderContext context) =>
             {
                 try
                 {
-#if NET40
-                    info.SetValue(context.Existing, context.Resolve(info, value), null);
-#else
-                    info.SetValue(context.Existing, context.Resolve(info, value));
-#endif
-                    return context.Existing;
+                    return resolver(ref context);
+                }
+                catch (Exception ex)
+                {
+                    ex.Data.Add(Guid.NewGuid(), info);
+                    throw;
+                }
+            };
+        }
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? injector)
+        {
+            var resolver = base.GetResolverDelegate(info, injector);
+
+            return (ref BuilderContext context) =>
+            {
+                try
+                {
+                    return resolver(ref context);
                 }
                 catch (Exception ex)
                 {

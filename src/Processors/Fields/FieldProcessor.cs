@@ -10,10 +10,6 @@ namespace Unity.Processors
 {
     public class FieldProcessor : MemberProcessor<FieldInfo, object>
     {
-        #region Fields
-        #endregion
-
-
         #region Constructors
 
         public FieldProcessor(IPolicySet policySet)
@@ -26,9 +22,9 @@ namespace Unity.Processors
 
         #region Overrides
 
-        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedFields(type);
-
         protected override Type MemberType(FieldInfo info) => info.FieldType;
+
+        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedFields(type);
 
         #endregion
 
@@ -39,7 +35,6 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            var name = attribute.Name;
             var resolver = attribute.GetResolver<BuilderContext>(info);
 
             return Expression.Assign(
@@ -48,7 +43,7 @@ namespace Unity.Processors
                     Expression.Call(BuilderContextExpression.Context,
                         BuilderContextExpression.ResolveFieldMethod,
                         Expression.Constant(info, typeof(FieldInfo)),
-                        Expression.Constant(name, typeof(string)),
+                        Expression.Constant(attribute.Name, typeof(string)),
                         Expression.Constant(resolver, typeof(ResolveDelegate<BuilderContext>))),
                     info.FieldType));
         }
@@ -57,8 +52,6 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            var name = attribute.Name;
-
             ResolveDelegate<BuilderContext>? resolver = data switch
             {
                 IResolve policy => policy.Resolve,
@@ -74,22 +67,24 @@ namespace Unity.Processors
                     Expression.Field(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
                     Expression.Convert(
                         Expression.Call(BuilderContextExpression.Context,
-                            BuilderContextExpression.FieldOverrideMethod,
+                            BuilderContextExpression.OverrideFieldMethod,
                             Expression.Constant(info, typeof(FieldInfo)),
-                            Expression.Constant(name, typeof(string)),
+                            Expression.Constant(attribute.Name, typeof(string)),
                             Expression.Constant(data, typeof(object))),
                         info.FieldType));
             }
             else
+            { 
                 return Expression.Assign(
                     Expression.Field(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
                     Expression.Convert(
                         Expression.Call(BuilderContextExpression.Context,
                             BuilderContextExpression.ResolveFieldMethod,
                             Expression.Constant(info, typeof(FieldInfo)),
-                            Expression.Constant(name, typeof(string)),
+                            Expression.Constant(attribute.Name, typeof(string)),
                             Expression.Constant(resolver, typeof(ResolveDelegate<BuilderContext>))),
                         info.FieldType));
+            }
         }
 
         #endregion
@@ -101,12 +96,11 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            var name = attribute.Name;
             var resolver = attribute.GetResolver<BuilderContext>(info);
 
             return (ref BuilderContext context) =>
             {
-                info.SetValue(context.Existing, context.Resolve(info, name, resolver));
+                info.SetValue(context.Existing, context.Resolve(info, attribute.Name, resolver));
                 return context.Existing;
             };
         }
@@ -115,8 +109,6 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            var name = attribute.Name;
-
             ResolveDelegate<BuilderContext>? resolver = data switch
             {
                 IResolve policy                                 => policy.Resolve,
@@ -130,16 +122,18 @@ namespace Unity.Processors
             {
                 return (ref BuilderContext context) =>
                 {
-                    info.SetValue(context.Existing, context.Override(info, name, data));
+                    info.SetValue(context.Existing, context.Override(info, attribute.Name, data));
                     return context.Existing;
                 };
             }
             else
+            { 
                 return (ref BuilderContext context) =>
                 {
-                    info.SetValue(context.Existing, context.Resolve(info, name, resolver));
+                    info.SetValue(context.Existing, context.Resolve(info, attribute.Name, resolver));
                     return context.Existing;
                 };
+            }
         }
 
         #endregion
