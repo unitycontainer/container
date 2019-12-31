@@ -5,6 +5,7 @@ using Unity.Resolution;
 
 namespace Unity.Builder
 {
+    // TODO: Move IResolveContextExpression<BuilderContext> here
     public class BuilderContextExpression : IResolveContextExpression<BuilderContext>
     {
         #region Fields
