@@ -91,7 +91,6 @@ namespace Unity.Processors
                 }
 
                 yield return member;
-                break;
             }
         }
 
