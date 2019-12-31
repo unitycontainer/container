@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
@@ -27,11 +27,14 @@ namespace Unity.Processors
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
+                    resolvers = CreateParameterResolvers(info);
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
                     info = injectionMember.MemberInfo(type);
-                    resolvers = injectionMember.Data;
+                    resolvers = null != injectionMember.Data && injectionMember.Data is object[] injectors && 0 != injectors.Length
+                              ? CreateParameterResolvers(info, injectors)
+                              : CreateParameterResolvers(info);
                     break;
 
                 case Exception exception:
@@ -62,22 +65,19 @@ namespace Unity.Processors
                 : GetResolverDelegate(info, resolvers);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? data)
         {
-            var parameterResolvers = null == resolvers 
-                                   ? CreateParameterResolvers(info.GetParameters()).ToArray()
-                                   : CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            Debug.Assert(null != data && data is ResolveDelegate<BuilderContext>[]);
+            var resolvers = (ResolveDelegate<BuilderContext>[])data!;
 
             return (ref BuilderContext c) =>
             {
-                if (null == c.Existing)
-                {
-                    var dependencies = new object?[parameterResolvers.Length];
-                    for (var i = 0; i < dependencies.Length; i++)
-                        dependencies[i] = parameterResolvers[i](ref c);
+                if (null != c.Existing) return c.Existing;
 
-                    c.Existing = info.Invoke(dependencies);
-                }
+                var dependencies = new object?[resolvers.Length];
+                for (var i = 0; i < dependencies.Length; i++) dependencies[i] = resolvers[i](ref c);
+
+                c.Existing = info.Invoke(dependencies);
 
                 return c.Existing;
             };
@@ -88,24 +88,22 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
+        protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? data)
         {
-            var parameterResolvers = null == resolvers
-                                   ? CreateParameterResolvers(info.GetParameters()).ToArray()
-                                   : CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            Debug.Assert(null != data && data is ResolveDelegate<BuilderContext>[]);
+            var resolvers = (ResolveDelegate<BuilderContext>[])data!;
+
             // PerResolve lifetime
             return (ref BuilderContext c) =>
             {
-                if (null == c.Existing)
-                {
-                    var dependencies = new object?[parameterResolvers.Length];
-                    for (var i = 0; i < dependencies.Length; i++)
-                        dependencies[i] = parameterResolvers[i](ref c);
+                if (null != c.Existing) return c.Existing;
 
-                    c.Existing = info.Invoke(dependencies);
-                    c.Set(typeof(LifetimeManager),
-                          new InternalPerResolveLifetimeManager(c.Existing));
-                }
+                var dependencies = new object?[resolvers.Length];
+                for (var i = 0; i < dependencies.Length; i++)
+                    dependencies[i] = resolvers[i](ref c);
+
+                c.Existing = info.Invoke(dependencies);
+                c.Set(typeof(LifetimeManager), new InternalPerResolveLifetimeManager(c.Existing));
 
                 return c.Existing;
             };

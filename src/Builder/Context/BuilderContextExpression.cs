@@ -61,6 +61,17 @@ namespace Unity.Builder
                         typeof(ParameterInfo) == parameters[0].ParameterType;
                 });
 
+        public static readonly MethodInfo OverrideParameterMethod =
+            typeof(BuilderContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(BuilderContext.Override))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 0 < parameters.Length &&
+                        typeof(ParameterInfo) == parameters[0].ParameterType;
+                });
+
+
         public static readonly MethodInfo SetMethod =
             typeof(BuilderContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(BuilderContext.Set))

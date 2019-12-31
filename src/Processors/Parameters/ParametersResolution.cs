@@ -1,0 +1,75 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Unity.Builder;
+using Unity.Policy;
+using Unity.Resolution;
+
+namespace Unity.Processors
+{
+    public abstract partial class ParametersProcessor<TMemberInfo>
+    {
+        #region Resolvers
+
+        protected virtual ResolveDelegate<BuilderContext>[] CreateParameterResolvers(MethodBase info)
+        {
+            ParameterInfo[] parameters = info.GetParameters();
+            var resolvers = new ResolveDelegate<BuilderContext>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+                resolvers[i] = GetResolverDelegate(parameters[i]);
+
+            return resolvers;
+        }
+
+        protected virtual ResolveDelegate<BuilderContext>[] CreateParameterResolvers(MethodBase info, object[] injectors)
+        {
+            ParameterInfo[] parameters = info.GetParameters();
+            Debug.Assert(parameters.Length == injectors.Length);
+            var resolvers = new ResolveDelegate<BuilderContext>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+                resolvers[i] = GetResolverDelegate(parameters[i], injectors[i]);
+
+            return resolvers;
+        }
+
+        #endregion
+
+
+        #region Parameter Resolution
+
+        protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = attribute.GetResolver<BuilderContext>(info);
+
+            return (ref BuilderContext context) => context.Resolve(info, attribute.Name, resolver);
+        }
+
+        protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info, object? data)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            ResolveDelegate<BuilderContext>? resolver = data switch
+            {
+                IResolve policy => policy.Resolve,
+                IResolverFactory<ParameterInfo> propertyFactory   => propertyFactory.GetResolver<BuilderContext>(info),
+                IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
+                Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(type),
+                _                                                 => null
+            };
+
+            if (null == resolver)
+                return (ref BuilderContext context) => context.Override(info, attribute.Name, data);
+            else
+                return (ref BuilderContext context) => context.Resolve(info, attribute.Name, resolver);
+        }
+
+        #endregion
+    }
+}

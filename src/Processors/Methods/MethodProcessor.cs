@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
@@ -55,13 +54,31 @@ namespace Unity.Processors
 
         #region Expression 
 
-        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
+        protected override Expression GetResolverExpression(MethodInfo info)
         {
             try
             {
                 return Expression.Call(
+                    Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), 
+                    info, CreateParameterExpressions(info));
+            }
+            catch (ArgumentException ex)
+            {
+                throw new InvalidRegistrationException("Invalid Argument", ex);
+            }
+        }
+
+        protected override Expression GetResolverExpression(MethodInfo info, object? data)
+        {
+            object[]? injectors = null != data && data is object[] array && 0 != array.Length ? array : null;
+
+            if (null == injectors) return GetResolverExpression(info);
+
+            try
+            {
+                return Expression.Call(
                     Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
-                    info, CreateParameterExpressions(info.GetParameters(), resolvers));
+                    info, CreateParameterExpressions(info, injectors));
             }
             catch (ArgumentException ex)
             {
@@ -74,20 +91,40 @@ namespace Unity.Processors
 
         #region Resolution
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info)
         {
-            var parameterResolvers = null == resolvers
-                                   ? CreateParameterResolvers(info.GetParameters()).ToArray()
-                                   : CreateParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var resolvers = CreateParameterResolvers(info);
+
             return (ref BuilderContext c) =>
             {
                 if (null == c.Existing) return c.Existing;
 
-                var parameters = new object?[parameterResolvers.Length];
-                for (var i = 0; i < parameters.Length; i++)
-                    parameters[i] = parameterResolvers[i](ref c);
+                var dependencies = new object?[resolvers.Length];
+                for (var i = 0; i < dependencies.Length; i++)
+                    dependencies[i] = resolvers[i](ref c);
 
-                info.Invoke(c.Existing, parameters);
+                info.Invoke(c.Existing, dependencies);
+
+                return c.Existing;
+            };
+        }
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? data)
+        {
+            object[]? injectors = null != data && data is object[] array && 0 != array.Length ? array : null;
+
+            if (null == injectors) return GetResolverDelegate(info);
+
+            var resolvers = CreateParameterResolvers(info, injectors);
+
+            return (ref BuilderContext c) =>
+            {
+                if (null == c.Existing) return c.Existing;
+
+                var dependencies = new object?[resolvers.Length];
+                for (var i = 0; i < dependencies.Length; i++) dependencies[i] = resolvers[i](ref c);
+
+                info.Invoke(c.Existing, dependencies);
 
                 return c.Existing;
             };

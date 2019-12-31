@@ -54,11 +54,11 @@ namespace Unity.Processors
                                                                                            ?? DependencyAttribute.Instance;
             ResolveDelegate<BuilderContext>? resolver = data switch
             {
-                IResolve policy => policy.Resolve,
-                IResolverFactory<FieldInfo> fieldFactory => fieldFactory.GetResolver<BuilderContext>(info),
-                IResolverFactory<Type> typeFactory => typeFactory.GetResolver<BuilderContext>(info.FieldType),
-                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(info),
-                _ => null
+                IResolve policy                                 => policy.Resolve,
+                IResolverFactory<FieldInfo> fieldFactory        => fieldFactory.GetResolver<BuilderContext>(info),
+                IResolverFactory<Type> typeFactory              => typeFactory.GetResolver<BuilderContext>(info.FieldType),
+                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
+                _                                               => null
             };
 
             if (null == resolver)
@@ -114,7 +114,7 @@ namespace Unity.Processors
                 IResolve policy                                 => policy.Resolve,
                 IResolverFactory<FieldInfo> fieldFactory        => fieldFactory.GetResolver<BuilderContext>(info),
                 IResolverFactory<Type>typeFactory               => typeFactory.GetResolver<BuilderContext>(info.FieldType),
-                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(info),
+                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
                 _                                               => null
             };
 

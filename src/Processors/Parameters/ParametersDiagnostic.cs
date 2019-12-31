@@ -89,7 +89,8 @@ namespace Unity.Processors
                     {
                         try
                         {
-                            return context.Resolve(parameter, resolver);
+                            // TODO: fix
+                            return context.Resolve(parameter, null, resolver);
                         }
                         catch (Exception ex)
                         {
@@ -110,7 +111,8 @@ namespace Unity.Processors
                     {
                         try
                         {
-                            return context.Resolve(parameter, resolver);
+                            // TODO: fix
+                            return null;// context.Resolve(parameter, null, resolver);
                         }
                         catch (Exception ex)
                         {
@@ -141,7 +143,8 @@ namespace Unity.Processors
                 {
                     try
                     {
-                        return context.Resolve(parameter, resolver);
+                        // TODO: fix
+                        return null;// context.Resolve(parameter, resolver);
                     }
                     catch (Exception ex)
                     {

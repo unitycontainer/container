@@ -57,7 +57,7 @@ namespace Unity.Processors
                 IResolve policy                                 => policy.Resolve,
                 IResolverFactory<PropertyInfo> fieldFactory     => fieldFactory.GetResolver<BuilderContext>(info),
                 IResolverFactory<Type> typeFactory              => typeFactory.GetResolver<BuilderContext>(info.PropertyType),
-                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(info),
+                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
                 _                                               => null
             };
 
@@ -114,7 +114,7 @@ namespace Unity.Processors
                 IResolve policy                                 => policy.Resolve,
                 IResolverFactory<PropertyInfo> propertyFactory  => propertyFactory.GetResolver<BuilderContext>(info),
                 IResolverFactory<Type> typeFactory              => typeFactory.GetResolver<BuilderContext>(info.PropertyType),
-                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(info),
+                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
                 _                                               => null
             };
 

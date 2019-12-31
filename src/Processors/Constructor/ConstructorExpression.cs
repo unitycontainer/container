@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -56,18 +57,19 @@ namespace Unity.Processors
             var selection = SelectConstructor(type, registration);
 
             // Select constructor for the Type
-            object[]? resolvers = null;
+            var expressions = Enumerable.Empty<Expression>();
 
             ConstructorInfo info;
             switch (selection)
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
+                    expressions = CreateParameterExpressions(info);
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
                     info = injectionMember.MemberInfo(type);
-                    resolvers = injectionMember.Data;
+                    expressions = CreateParameterExpressions(info, injectionMember.Data);
                     break;
 
                 case Exception exception:
@@ -83,14 +85,16 @@ namespace Unity.Processors
             var lifetimeManager = (LifetimeManager?)registration.Get(typeof(LifetimeManager));
 
             return lifetimeManager is PerResolveLifetimeManager
-                ? new[] { GetResolverExpression(info, resolvers), SetPerBuildSingletonExpr }
-                : new Expression[] { GetResolverExpression(info, resolvers) };
+                ? new[] { GetResolverExpression(info, expressions), SetPerBuildSingletonExpr }
+                : new Expression[] { GetResolverExpression(info, expressions) };
         }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? data)
         {
+            Debug.Assert(null != data && data is IEnumerable<Expression>);
+            var resolvers = (IEnumerable<Expression>)data!;
+
             var variable = Expression.Variable(info.DeclaringType);
-            var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
 
             try
             {
@@ -98,7 +102,7 @@ namespace Unity.Processors
                     Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                     Expression.Block(new[] { variable }, new Expression[]
                     {
-                        Expression.Assign(variable, Expression.New(info, parametersExpr)),
+                        Expression.Assign(variable, Expression.New(info, resolvers)),
                         Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
                     }));
             }
@@ -106,7 +110,6 @@ namespace Unity.Processors
             {
                 throw new InvalidRegistrationException("Invalid Argument", ex);
             }
-
         }
 
         #endregion

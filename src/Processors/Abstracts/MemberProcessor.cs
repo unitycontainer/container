@@ -24,6 +24,7 @@ namespace Unity.Processors
         /// <param name="type"></param>
         /// <param name="registration"></param>
         /// <returns></returns>
+        // TODO: Revisit IEnumerable<Expression> vs Expression return type
         public abstract IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration);
 
         /// <summary>

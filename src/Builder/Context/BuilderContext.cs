@@ -184,71 +184,6 @@ namespace Unity.Builder
 
         #region Parameter
 
-        public object? Resolve(ParameterInfo parameter, object? value)
-        {
-            unsafe
-            {
-                var thisContext = this;
-                var context = new BuilderContext
-                {
-                    Lifetime = Lifetime,
-                    Registration = Registration,
-                    RegistrationType = RegistrationType,
-                    Name = null,
-                    Type = parameter.ParameterType,
-                    ExecutePlan = ExecutePlan,
-                    ResolvePlan = ResolvePlan,
-                    List = List,
-                    Overrides = Overrides,
-                    DeclaringType = Type,
-#if !NET40
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-#endif
-                };
-
-                // Process overrides if any
-                if (null != Overrides)
-                {
-                    // Check if this parameter is overridden
-                    for (var index = Overrides.Length - 1; index >= 0; --index)
-                    {
-                        var resolverOverride = Overrides[index];
-
-                        // If matches with current parameter
-                        if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
-                        {
-                            // Check if itself is a value 
-                            if (resolverOverride is IResolve resolverPolicy)
-                            {
-                                return ResolvePlan(ref context, resolverPolicy.Resolve);
-                            }
-
-                            // Try to create value
-                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
-                            if (null != resolveDelegate)
-                            {
-                                return ResolvePlan(ref context, resolveDelegate);
-                            }
-                        }
-                    }
-                }
-
-                // Resolve from injectors
-                switch (value)
-                {
-                    case ParameterInfo info
-                    when ReferenceEquals(info, parameter):
-                        return Resolve(parameter.ParameterType, null);
-
-                    case ResolveDelegate<BuilderContext> resolver:
-                        return resolver(ref context);
-                }
-
-                return value;
-            }
-        }
-
-        /*
         public object? Override(ParameterInfo parameter, string? name, object? value)
         {
             if (null == Overrides) return value;
@@ -347,7 +282,7 @@ namespace Unity.Builder
                 return resolver(ref context);
             }
         }
-        */
+        
         #endregion
 
 
