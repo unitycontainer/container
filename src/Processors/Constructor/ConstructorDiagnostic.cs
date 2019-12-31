@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Builder;
-using Unity.Lifetime;
-using Unity.Exceptions;
-using Unity.Policy;
-using Unity.Resolution;
-using Unity.Registration;
-using Unity.Injection;
 using System.Text.RegularExpressions;
+using Unity.Builder;
+using Unity.Exceptions;
+using Unity.Injection;
+using Unity.Policy;
+using Unity.Registration;
+using Unity.Resolution;
 
 namespace Unity.Processors
 {
@@ -282,49 +281,6 @@ namespace Unity.Processors
             return base.GetExpressions(type, registration);
         }
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataPropertyExpression);
-            var variable = Expression.Variable(info.DeclaringType ?? throw new ArgumentNullException(nameof(info)));
-            var parameters = info.GetParameters();
-
-            // Check if has Out or ByRef parameters
-            var tryBlock = parameters.Any(pi => pi.ParameterType.IsByRef)
-                
-                // Report error
-                ? (Expression)Expression.Throw(Expression.New(InvalidOperationExceptionCtor,
-                        Expression.Constant(CreateErrorMessage(Error.SelectedConstructorHasRefParameters, info.DeclaringType, info)),
-                        InvalidRegistrationExpression))
-                
-                // Create new instance
-                : Expression.Block(new[] { variable }, new Expression[]
-                    {
-                        Expression.Assign(variable, Expression.New(info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers))),
-                        Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
-                    });
-
-            // Add location to dictionary and re-throw
-            var catchBlock = Expression.Block(tryBlock.Type,
-                Expression.Call(exData, AddMethodExpression,
-                        Expression.Convert(NewGuidExpression, typeof(object)),
-                        Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(tryBlock.Type));
-
-            // Create 
-            return Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
-                                     Expression.TryCatch(tryBlock, Expression.Catch(ex, catchBlock)));
-            // Report error
-            string CreateErrorMessage(string format, Type type, MethodBase constructor)
-            {
-                var parameterDescriptions =
-                    constructor.GetParameters()
-                        .Select(parameter => $"{parameter.ParameterType.FullName} {parameter.Name}");
-
-                return string.Format(format, type.FullName, string.Join(", ", parameterDescriptions));
-            }
-        }
-
         #endregion
 
 
@@ -390,61 +346,25 @@ namespace Unity.Processors
             return base.GetResolver(type, registration, seed);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ConstructorInfo info, object? resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info)
         {
-            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = attribute.GetResolver<BuilderContext>(info);
 
-            return (ref BuilderContext c) =>
-            {
-                if (null == c.Existing)
-                {
-                    try
-                    {
-                        var dependencies = new object?[parameterResolvers.Length];
-                        for (var i = 0; i < dependencies.Length; i++)
-                            dependencies[i] = parameterResolvers[i](ref c);
-
-                        c.Existing = info.Invoke(dependencies);
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.Data.Add(Guid.NewGuid(), info);
-                        throw;
-                    }
-                }
-
-                return c.Existing;
-            };
+            return (ref BuilderContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
         }
 
-        protected override ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? resolvers)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info, object? data)
         {
-            var parameterResolvers = CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            // PerResolve lifetime
-            return (ref BuilderContext c) =>
-            {
-                if (null == c.Existing)
-                {
-                    try
-                    {
-                        var dependencies = new object?[parameterResolvers.Length];
-                        for (var i = 0; i < dependencies.Length; i++)
-                            dependencies[i] = parameterResolvers[i](ref c);
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
-                        c.Existing = info.Invoke(dependencies);
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.Data.Add(Guid.NewGuid(), info);
-                        throw;
-                    }
-
-                    c.Set(typeof(LifetimeManager),
-                          new InternalPerResolveLifetimeManager(c.Existing));
-                }
-
-                return c.Existing;
-            };
+            if (null == resolver)
+                return (ref BuilderContext context) => context.OverrideDiagnostic(info, attribute.Name, data);
+            else
+                return (ref BuilderContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
         }
 
         #endregion

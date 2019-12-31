@@ -13,6 +13,17 @@ namespace Unity.Processors
 {
     public class MethodDiagnostic : MethodProcessor
     {
+        #region Fields
+
+        protected static readonly UnaryExpression ReThrowExpression =
+            Expression.Rethrow(typeof(void));
+
+        protected static readonly Expression GuidToObjectExpression =
+            Expression.Convert(NewGuidExpression, typeof(object));
+
+        #endregion
+
+
         #region Constructors
 
         public MethodDiagnostic(IPolicySet policySet, UnityContainer container) 
@@ -84,49 +95,64 @@ namespace Unity.Processors
             }
         }
 
-        protected override Expression GetResolverExpression(MethodInfo info, object? resolvers)
-        {
-            var ex = Expression.Variable(typeof(Exception));
-            var exData = Expression.MakeMemberAccess(ex, DataPropertyExpression);
-            var block = Expression.Block(typeof(void),
-                Expression.Call(exData, AddMethodExpression,
-                        Expression.Convert(NewGuidExpression, typeof(object)),
-                        Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(typeof(void)));
+        #endregion
 
-            return 
-                Expression.TryCatch(
-                    Expression.Call(
-                        Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
-                        info, CreateDiagnosticParameterExpressions(info.GetParameters(), resolvers)),
-                Expression.Catch(ex, block));
+
+        #region Expression
+
+        protected override Expression GetResolverExpression(MethodInfo info)
+        {
+            var block = Expression.Block(typeof(void),
+                Expression.Call(ExceptionDataExpression, AddMethodExpression, GuidToObjectExpression, Expression.Constant(info, typeof(object))),
+                ReThrowExpression);
+
+            return
+                Expression.TryCatch(base.GetResolverExpression(info),
+                Expression.Catch(ExceptionVariableExpression, block));
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info, object? resolvers)
+        protected override Expression GetResolverExpression(MethodInfo info, object? data)
         {
-            var parameterResolvers = null == resolvers 
-                                   ? CreateDiagnosticParameterResolvers(info.GetParameters()).ToArray()
-                                   : CreateDiagnosticParameterResolvers(info.GetParameters(), resolvers).ToArray();
-            return (ref BuilderContext c) =>
+            var block = Expression.Block(typeof(void),
+                Expression.Call(ExceptionDataExpression, AddMethodExpression, GuidToObjectExpression, Expression.Constant(info, typeof(object))),
+                ReThrowExpression);
+
+            return
+                Expression.TryCatch(base.GetResolverExpression(info, data),
+                Expression.Catch(ExceptionVariableExpression, block));
+        }
+
+        #endregion
+
+
+        #region Resolution
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = attribute.GetResolver<BuilderContext>(info);
+
+            return (ref BuilderContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
+        }
+
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info, object? data)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            ResolveDelegate<BuilderContext>? resolver = data switch
             {
-                try
-                {
-                    if (null == c.Existing) return c.Existing;
-
-                    var parameters = new object?[parameterResolvers.Length];
-                    for (var i = 0; i < parameters.Length; i++)
-                        parameters[i] = parameterResolvers[i](ref c);
-
-                    info.Invoke(c.Existing, parameters);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add(Guid.NewGuid(), info);
-                    throw;
-                }
-
-                return c.Existing;
+                IResolve policy                                   => policy.Resolve,
+                IResolverFactory<ParameterInfo> propertyFactory   => propertyFactory.GetResolver<BuilderContext>(info),
+                IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
+                Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(type),
+                _                                                 => null
             };
+
+            if (null == resolver)
+                return (ref BuilderContext context) => context.OverrideDiagnostic(info, attribute.Name, data);
+            else
+                return (ref BuilderContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
         }
 
         #endregion

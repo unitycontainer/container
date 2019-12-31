@@ -88,6 +88,11 @@ namespace Unity.Processors
                 ? new[] { GetResolverExpression(info, expressions), SetPerBuildSingletonExpr }
                 : new Expression[] { GetResolverExpression(info, expressions) };
         }
+        
+        #endregion
+
+        
+        #region Expression
 
         protected override Expression GetResolverExpression(ConstructorInfo info, object? data)
         {
@@ -108,7 +113,7 @@ namespace Unity.Processors
             }
             catch (ArgumentException ex)
             {
-                throw new InvalidRegistrationException("Invalid Argument", ex);
+                throw new InvalidRegistrationException(InvalidArgument, ex);
             }
         }
 

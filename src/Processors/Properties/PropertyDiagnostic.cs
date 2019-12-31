@@ -86,7 +86,7 @@ namespace Unity.Processors
                 Expression.Rethrow(info.PropertyType));
 
             return Expression.TryCatch(base.GetResolverExpression(info),
-                   Expression.Catch(ExceptionExpression, block));
+                   Expression.Catch(ExceptionVariableExpression, block));
         }
 
 
@@ -97,7 +97,7 @@ namespace Unity.Processors
                 Expression.Rethrow(info.PropertyType));
 
             return Expression.TryCatch(base.GetResolverExpression(info, data),
-                   Expression.Catch(ExceptionExpression, block));
+                   Expression.Catch(ExceptionVariableExpression, block));
         }
 
         #endregion
@@ -107,39 +107,41 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info)
         {
-            var resolver = base.GetResolverDelegate(info);
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = attribute.GetResolver<BuilderContext>(info);
 
             return (ref BuilderContext context) =>
             {
-                try
-                {
-                    return resolver(ref context);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add(Guid.NewGuid(), info);
-                    throw;
-                }
+                info.SetValue(context.Existing, context.ResolveDiagnostic(info, attribute.Name, resolver));
+                return context.Existing;
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? injector)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(PropertyInfo info, object? data)
         {
-            var resolver = base.GetResolverDelegate(info, injector);
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
-            return (ref BuilderContext context) =>
+            if (null == resolver)
             {
-                try
+                return (ref BuilderContext context) =>
                 {
-                    return resolver(ref context);
-                }
-                catch (Exception ex)
+                    info.SetValue(context.Existing, context.OverrideDiagnostic(info, attribute.Name, data));
+                    return context.Existing;
+                };
+            }
+            else
+            {
+                return (ref BuilderContext context) =>
                 {
-                    ex.Data.Add(Guid.NewGuid(), info);
-                    throw;
-                }
-            };
+                    info.SetValue(context.Existing, context.ResolveDiagnostic(info, attribute.Name, resolver));
+                    return context.Existing;
+                };
+            }
         }
+
 
         #endregion
     }

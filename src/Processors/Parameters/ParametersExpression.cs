@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
@@ -9,8 +8,6 @@ namespace Unity.Processors
 {
     public abstract partial class ParametersProcessor<TMemberInfo>
     {
-
-
         #region Expression 
 
         protected virtual IEnumerable<Expression> CreateParameterExpressions(MethodBase info)
@@ -28,24 +25,6 @@ namespace Unity.Processors
             for(var i = 0; i < parameters.Length; i++)
             {
                 yield return GetResolverExpression(parameters[i], injectors[i]);
-            }
-        }
-
-        protected virtual IEnumerable<Expression> CreateParameterExpressions(ParameterInfo[] parameters, object? injectors = null)
-        {
-            object[]? resolvers = null != injectors && injectors is object[] array && 0 != array.Length ? array : null;
-            
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-                var resolver = PreProcessResolver(parameter, resolvers[i]);
-
-                yield return Expression.Convert(
-                                Expression.Call(BuilderContextExpression.Context,
-                                    BuilderContextExpression.ResolveParameterMethod,
-                                    Expression.Constant(parameter, typeof(ParameterInfo)),
-                                    Expression.Constant(resolver, typeof(object))),
-                                parameter.ParameterType);
             }
         }
 
@@ -73,14 +52,7 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            ResolveDelegate<BuilderContext>? resolver = data switch
-            {
-                IResolve policy                                   => policy.Resolve,
-                IResolverFactory<ParameterInfo> parameterFactory  => parameterFactory.GetResolver<BuilderContext>(info),
-                IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
-                Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(type),
-                _                                                 => null
-            };
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
             if (null == resolver)
             {

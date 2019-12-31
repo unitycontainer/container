@@ -93,6 +93,60 @@ namespace Unity.Builder
             return value;
         }
 
+        public object? OverrideDiagnostic(ParameterInfo parameter, string? name, object? value)
+        {
+            if (null == Overrides) return value;
+
+            unsafe
+            {
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+
+                    // Check if this parameter is overridden
+                    if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
+                    {
+
+                        var thisContext = this;
+                        var context = new BuilderContext
+                        {
+                            Lifetime = Lifetime,
+                            Registration = Registration,
+                            RegistrationType = RegistrationType,
+                            Name = name,
+                            Type = parameter.ParameterType,
+                            ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
+                            List = List,
+                            Overrides = Overrides,
+                            DeclaringType = Type,
+#if !NET40
+                            Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                        };
+
+                        try
+                        {
+                            // Check if itself is a value 
+                            if (resolverOverride is IResolve resolverPolicy)
+                                return resolverPolicy.Resolve(ref context);
+
+                            // Try to create value
+                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
+                            if (null != resolveDelegate) return resolveDelegate(ref context);
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.Data.Add(Guid.NewGuid(), parameter);
+                            throw;
+                        }
+                    }
+                }
+            }
+
+            return value;
+        }
+
         public object? Resolve(ParameterInfo parameter, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
@@ -146,7 +200,7 @@ namespace Unity.Builder
             }
         }
 
-        public object? ValidatingResolve(ParameterInfo parameter, string? name, ResolveDelegate<BuilderContext> resolver)
+        public object? ResolveDiagnostic(ParameterInfo parameter, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
             {
@@ -258,6 +312,61 @@ namespace Unity.Builder
             return value;
         }
 
+        public object? OverrideDiagnostic(FieldInfo field, string? name, object? value)
+        {
+            if (null == Overrides) return value;
+
+            unsafe
+            {
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+
+                    // Check if this parameter is overridden
+                    if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
+                    {
+
+                        var thisContext = this;
+                        var context = new BuilderContext
+                        {
+                            Lifetime = Lifetime,
+                            Registration = Registration,
+                            RegistrationType = RegistrationType,
+                            Name = name,
+                            Type = field.FieldType,
+                            ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
+                            List = List,
+                            Overrides = Overrides,
+                            DeclaringType = Type,
+#if !NET40
+                            Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                        };
+
+                        try
+                        {
+                            // Check if itself is a value 
+                            if (resolverOverride is IResolve resolverPolicy)
+                                return resolverPolicy.Resolve(ref context);
+
+                            // Try to create value
+                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
+                            if (null != resolveDelegate) return resolveDelegate(ref context);
+                        }
+                        catch (Exception ex)
+                        {
+                            // TODO: add resolverOverride
+                            ex.Data.Add(Guid.NewGuid(), field);
+                            throw;
+                        }
+                    }
+                }
+            }
+
+            return value;
+        }
+
         public object? Resolve(FieldInfo field, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
@@ -311,7 +420,7 @@ namespace Unity.Builder
             }
         }
 
-        public object? ValidatingResolve(FieldInfo field, string? name, ResolveDelegate<BuilderContext> resolver)
+        public object? ResolveDiagnostic(FieldInfo field, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
             {
@@ -423,6 +532,61 @@ namespace Unity.Builder
             return value;
         }
 
+        public object? OverrideDiagnostic(PropertyInfo property, string? name, object? value)
+        {
+            if (null == Overrides) return value;
+
+            unsafe
+            {
+                for (var index = Overrides.Length - 1; index >= 0; --index)
+                {
+                    var resolverOverride = Overrides[index];
+
+                    // Check if this parameter is overridden
+                    if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
+                    {
+
+                        var thisContext = this;
+                        var context = new BuilderContext
+                        {
+                            Lifetime = Lifetime,
+                            Registration = Registration,
+                            RegistrationType = RegistrationType,
+                            Name = name,
+                            Type = property.PropertyType,
+                            ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
+                            List = List,
+                            Overrides = Overrides,
+                            DeclaringType = Type,
+#if !NET40
+                            Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                        };
+
+                        try
+                        {
+                            // Check if itself is a value 
+                            if (resolverOverride is IResolve resolverPolicy)
+                                return resolverPolicy.Resolve(ref context);
+
+                            // Try to create value
+                            var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
+                            if (null != resolveDelegate) return resolveDelegate(ref context);
+                        }
+                        catch (Exception ex)
+                        {
+                            // TODO: add resolverOverride
+                            ex.Data.Add(Guid.NewGuid(), property);
+                            throw;
+                        }
+                    }
+                }
+            }
+
+            return value;
+        }
+
         public object? Resolve(PropertyInfo property, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
@@ -476,7 +640,7 @@ namespace Unity.Builder
             }
         }
 
-        public object? ValidatingResolve(PropertyInfo property, string? name, ResolveDelegate<BuilderContext> resolver)
+        public object? ResolveDiagnostic(PropertyInfo property, string? name, ResolveDelegate<BuilderContext> resolver)
         {
             unsafe
             {

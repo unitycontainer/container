@@ -162,14 +162,23 @@ namespace Unity.Processors
 
         #region Implementation
 
-        protected abstract Type MemberType(TMemberInfo info);
+        protected virtual Type MemberType(TMemberInfo info) => throw new NotImplementedException();
 
         protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
+
+        protected virtual ResolveDelegate<BuilderContext>? PreProcessResolver(TMemberInfo info, DependencyResolutionAttribute attribute, object? data) => data switch
+        {
+            IResolve policy                                 => policy.Resolve,
+            IResolverFactory<TMemberInfo> fieldFactory      => fieldFactory.GetResolver<BuilderContext>(info),
+            IResolverFactory<Type> typeFactory              => typeFactory.GetResolver<BuilderContext>(MemberType(info)),
+            Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
+            _                                               => null
+        };
 
         #endregion
 
 
-        #region Expression Implementation
+        #region Expression
 
         protected virtual Expression GetResolverExpression(TMemberInfo info)
         {
@@ -181,25 +190,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Resolution Implementation
-
-        protected object? PreProcessResolver(TMemberInfo info, object? resolver)
-        {
-            switch (resolver)
-            {
-                case IResolve policy:
-                    return (ResolveDelegate<BuilderContext>)policy.Resolve;
-
-                case IResolverFactory<Type> factory:
-                    return factory.GetResolver<BuilderContext>(MemberType(info));
-
-                case Type type:
-                    return typeof(Type) == MemberType(info)
-                        ? type : (object)info;
-            }
-
-            return resolver;
-        }
+        #region Resolution
 
         protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(TMemberInfo info)
         { 

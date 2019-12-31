@@ -51,14 +51,7 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            ResolveDelegate<BuilderContext>? resolver = data switch
-            {
-                IResolve policy => policy.Resolve,
-                IResolverFactory<ParameterInfo> propertyFactory   => propertyFactory.GetResolver<BuilderContext>(info),
-                IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
-                Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(type),
-                _                                                 => null
-            };
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
             if (null == resolver)
                 return (ref BuilderContext context) => context.Override(info, attribute.Name, data);

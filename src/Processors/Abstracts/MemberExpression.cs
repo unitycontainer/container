@@ -37,11 +37,11 @@ namespace Unity.Processors
         protected static readonly UnaryExpression ConvertExpression =
             Expression.Convert(NewGuidExpression, typeof(object));
 
-        protected static readonly ParameterExpression ExceptionExpression =
+        protected static readonly ParameterExpression ExceptionVariableExpression =
             Expression.Variable(typeof(Exception));
 
         protected static readonly MemberExpression ExceptionDataExpression =
-            Expression.MakeMemberAccess(ExceptionExpression, DataPropertyExpression);
+            Expression.MakeMemberAccess(ExceptionVariableExpression, DataPropertyExpression);
 
         #endregion
     }

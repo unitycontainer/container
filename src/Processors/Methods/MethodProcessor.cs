@@ -64,7 +64,7 @@ namespace Unity.Processors
             }
             catch (ArgumentException ex)
             {
-                throw new InvalidRegistrationException("Invalid Argument", ex);
+                throw new InvalidRegistrationException(InvalidArgument, ex);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Unity.Processors
             }
             catch (ArgumentException ex)
             {
-                throw new InvalidRegistrationException("Invalid Argument", ex);
+                throw new InvalidRegistrationException(InvalidArgument, ex);
             }
         }
 

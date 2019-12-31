@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
@@ -66,67 +65,43 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Expression
-
-        protected override Expression GetResolverExpression(FieldInfo info)
-        {
-            var block = Expression.Block(info.FieldType,
-                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(info.FieldType));
-
-            return Expression.TryCatch(base.GetResolverExpression(info),
-                   Expression.Catch(ExceptionExpression, block));
-        }
-
-        protected override Expression GetResolverExpression(FieldInfo info, object? data)
-        {
-            var block = Expression.Block(info.FieldType, 
-                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(info.FieldType));
-
-            return Expression.TryCatch(base.GetResolverExpression(info, data),
-                   Expression.Catch(ExceptionExpression, block));
-        }
-
-        #endregion
-
-
         #region Resolution
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info)
         {
-            var resolver = base.GetResolverDelegate(info);
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = attribute.GetResolver<BuilderContext>(info);
 
             return (ref BuilderContext context) =>
             {
-                try
-                {
-                    return resolver(ref context);
-                }
-                catch (Exception ex)
-                {
-                    ex.Data.Add(Guid.NewGuid(), info);
-                    throw;
-                }
+                info.SetValue(context.Existing, context.ResolveDiagnostic(info, attribute.Name, resolver));
+                return context.Existing;
             };
         }
 
-        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? injector)
+        protected override ResolveDelegate<BuilderContext> GetResolverDelegate(FieldInfo info, object? data)
         {
-            var resolver = base.GetResolverDelegate(info, injector);
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
-            return (ref BuilderContext context) =>
+            if (null == resolver)
             {
-                try
+                return (ref BuilderContext context) =>
                 {
-                    return resolver(ref context);
-                }
-                catch (Exception ex)
+                    info.SetValue(context.Existing, context.OverrideDiagnostic(info, attribute.Name, data));
+                    return context.Existing;
+                };
+            }
+            else
+            {
+                return (ref BuilderContext context) =>
                 {
-                    ex.Data.Add(Guid.NewGuid(), info);
-                    throw;
-                }
-            };
+                    info.SetValue(context.Existing, context.ResolveDiagnostic(info, attribute.Name, resolver));
+                    return context.Existing;
+                };
+            }
         }
 
         #endregion

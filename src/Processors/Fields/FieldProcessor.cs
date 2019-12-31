@@ -52,14 +52,7 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            ResolveDelegate<BuilderContext>? resolver = data switch
-            {
-                IResolve policy                                 => policy.Resolve,
-                IResolverFactory<FieldInfo> fieldFactory        => fieldFactory.GetResolver<BuilderContext>(info),
-                IResolverFactory<Type> typeFactory              => typeFactory.GetResolver<BuilderContext>(info.FieldType),
-                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
-                _                                               => null
-            };
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
             if (null == resolver)
             {
@@ -109,14 +102,7 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            ResolveDelegate<BuilderContext>? resolver = data switch
-            {
-                IResolve policy                                 => policy.Resolve,
-                IResolverFactory<FieldInfo> fieldFactory        => fieldFactory.GetResolver<BuilderContext>(info),
-                IResolverFactory<Type>typeFactory               => typeFactory.GetResolver<BuilderContext>(info.FieldType),
-                Type type when typeof(Type) != MemberType(info) => attribute.GetResolver<BuilderContext>(type),
-                _                                               => null
-            };
+            ResolveDelegate<BuilderContext>? resolver = PreProcessResolver(info, attribute, data);
 
             if (null == resolver)
             {

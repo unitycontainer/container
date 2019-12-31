@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
@@ -14,8 +13,11 @@ namespace Unity.Processors
     {
         #region Fields
 
-        protected readonly UnityContainer Container;
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
+        
+        protected readonly UnityContainer Container;
+        
+        protected const string InvalidArgument = "Invalid Argument";
 
         #endregion
 
@@ -31,54 +33,17 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Overrides
-
-        protected override Type MemberType(TMemberInfo info)
-        {
-            Debug.Assert(null != info.DeclaringType);
-            return info.DeclaringType!;
-        }
-
-        #endregion
-
-
         #region Implementation
 
-        private object PreProcessResolver(ParameterInfo parameter, object resolver)
+        protected virtual ResolveDelegate<BuilderContext>? PreProcessResolver(ParameterInfo info, DependencyResolutionAttribute attribute, object? data) 
+            => data switch
         {
-            switch (resolver)
-            {
-                case IResolve policy:
-                    return (ResolveDelegate<BuilderContext>)policy.Resolve;
-
-                case IResolverFactory<ParameterInfo> factory:
-                    return factory.GetResolver<BuilderContext>(parameter);
-
-                case Type type:
-                    return 
-                        typeof(Type) == parameter.ParameterType
-                          ? type 
-                          : type == parameter.ParameterType 
-                              ? FromAttribute(parameter) 
-                              : FromType(type);
-            }
-
-            return resolver;
-        }
-
-        private object FromType(Type type)
-        {
-            return (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => context.Resolve(type, null));
-        }
-
-        private object FromAttribute(ParameterInfo info)
-        {
-            // By default all parameters are required dependency
-            var attribute = (DependencyResolutionAttribute)info.GetCustomAttribute(typeof(DependencyResolutionAttribute))
-                          ?? DependencyAttribute.Instance;
-
-            return attribute.GetResolver<BuilderContext>(info);
-        }
+            IResolve policy                                   => policy.Resolve,
+            IResolverFactory<ParameterInfo> fieldFactory      => fieldFactory.GetResolver<BuilderContext>(info),
+            IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
+            Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(type),
+            _                                                 => null
+        };
 
         protected bool CanResolve(ParameterInfo info)
         {

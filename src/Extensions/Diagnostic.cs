@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Builder;
 using Unity.Extension;
 
 namespace Unity
@@ -43,6 +44,8 @@ namespace Unity
         protected override void Initialize()
         {
             UnityDefaults.EnableDiagnostic = true;
+            BuilderContextExpression.EnableDiagnostic();
+
             ((UnityContainer)Container).SetDefaultPolicies = UnityContainer.SetDiagnosticPolicies;
             ((UnityContainer)Container).SetDefaultPolicies((UnityContainer)Container);
         }
