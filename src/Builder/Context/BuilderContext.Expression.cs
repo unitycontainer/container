@@ -103,69 +103,136 @@ namespace Unity.Builder
 
         #region Public Methods
 
-        public static void EnableDiagnostic()
-        { 
-            ResolvePropertyMethod =
-                typeof(BuilderContext).GetTypeInfo()
-                    .GetDeclaredMethods(nameof(BuilderContext.ResolveDiagnostic))
-                    .First(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return 0 < parameters.Length &&
-                            typeof(PropertyInfo) == parameters[0].ParameterType;
-                    });
+        public static void EnableDiagnostic(bool enable = true)
+        {
+            if (enable)
+            {
+                ResolvePropertyMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.ResolveDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
 
-            OverridePropertyMethod =
-                typeof(BuilderContext).GetTypeInfo()
-                    .GetDeclaredMethods(nameof(BuilderContext.OverrideDiagnostic))
-                    .First(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return 0 < parameters.Length &&
-                            typeof(PropertyInfo) == parameters[0].ParameterType;
-                    });
-
-
-            ResolveFieldMethod =
-                typeof(BuilderContext).GetTypeInfo()
-                    .GetDeclaredMethods(nameof(BuilderContext.ResolveDiagnostic))
-                    .First(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return 0 < parameters.Length &&
-                            typeof(FieldInfo) == parameters[0].ParameterType;
-                    });
-
-            OverrideFieldMethod =
-                typeof(BuilderContext).GetTypeInfo()
-                    .GetDeclaredMethods(nameof(BuilderContext.OverrideDiagnostic))
-                    .First(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return 0 < parameters.Length &&
-                            typeof(FieldInfo) == parameters[0].ParameterType;
-                    });
+                OverridePropertyMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.OverrideDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
 
 
-            ResolveParameterMethod =
-                typeof(BuilderContext).GetTypeInfo()
-                    .GetDeclaredMethods(nameof(BuilderContext.ResolveDiagnostic))
-                    .First(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return 0 < parameters.Length &&
-                            typeof(ParameterInfo) == parameters[0].ParameterType;
-                    });
+                ResolveFieldMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.ResolveDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
 
-            OverrideParameterMethod =
-                typeof(BuilderContext).GetTypeInfo()
-                    .GetDeclaredMethods(nameof(BuilderContext.OverrideDiagnostic))
-                    .First(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return 0 < parameters.Length &&
-                            typeof(ParameterInfo) == parameters[0].ParameterType;
-                    });
+                OverrideFieldMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.OverrideDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveParameterMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.ResolveDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideParameterMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.OverrideDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+            }
+            else
+            {
+                ResolvePropertyMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
+
+                OverridePropertyMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.Override))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveFieldMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideFieldMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.Override))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveParameterMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.Resolve))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideParameterMethod =
+                    typeof(BuilderContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(BuilderContext.Override))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+            }
         }
 
         #endregion

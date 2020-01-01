@@ -1,12 +1,5 @@
-﻿using System;
-using Unity.Builder;
-using Unity.Events;
-using Unity.Extension;
-using Unity.Lifetime;
+﻿using Unity.Builder;
 using Unity.Policy;
-using Unity.Processors;
-using Unity.Storage;
-using Unity.Strategies;
 
 namespace Unity
 {
@@ -22,6 +15,7 @@ namespace Unity
         static UnityContainer()
         {
             UnityDefaults.EnableDiagnostic = false;
+            BuilderContextExpression.EnableDiagnostic(false);
 
             // Initialize defaults
             Defaults = new DefaultPolicies(
