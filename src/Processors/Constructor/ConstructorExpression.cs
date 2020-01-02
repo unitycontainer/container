@@ -9,6 +9,7 @@ using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
 
 namespace Unity.Processors
 {
@@ -54,7 +55,7 @@ namespace Unity.Processors
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
             // Select ConstructorInfo
-            var selection = SelectConstructor(type, registration);
+            var selection = SelectConstructor(type, ((InternalRegistration)registration).InjectionMembers);
 
             // Select constructor for the Type
             var expressions = Enumerable.Empty<Expression>();

@@ -4,7 +4,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -22,14 +21,14 @@ namespace Unity.Processors
 
         #region Selection
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
+            if (null != injectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in injectionMembers)
                 {
                     if (injectionMember is InjectionMember<FieldInfo, object> && memberSet.Add(injectionMember))
                         yield return injectionMember;

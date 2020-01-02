@@ -6,6 +6,7 @@ using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -17,7 +18,7 @@ namespace Unity.Processors
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
             // Select ConstructorInfo
-            var selection = SelectConstructor(type, registration);
+            var selection = SelectConstructor(type, ((InternalRegistration)registration).InjectionMembers);
 
             // Select constructor for the Type
             ConstructorInfo info;

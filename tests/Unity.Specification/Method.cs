@@ -50,7 +50,6 @@ namespace Compiled.Method
 }
 
 
-
 namespace Resolved.Method
 {
     [TestClass]

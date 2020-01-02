@@ -6,7 +6,6 @@ using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
-using Unity.Registration;
 
 namespace Unity.Processors
 {
@@ -39,13 +38,12 @@ namespace Unity.Processors
 
         #region Implementation            
 
-
-        protected virtual object? SelectConstructor(Type type, IPolicySet registration)
+        protected virtual object? SelectConstructor(Type type, InjectionMember[]? injectionMembers)
         {
             // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
+            if (null != injectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in injectionMembers)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
@@ -72,7 +70,6 @@ namespace Unity.Processors
 
             return SelectMethod(type, constructors);
         }
-
 
         /// <summary>
         /// Selects default constructor

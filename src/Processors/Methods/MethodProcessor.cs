@@ -6,7 +6,6 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -27,14 +26,14 @@ namespace Unity.Processors
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
+            if (null != injectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in injectionMembers)
                 {
                     if (injectionMember is InjectionMember<MethodInfo, object[]> injector && memberSet.Add(injector))
                         yield return injectionMember;

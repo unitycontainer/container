@@ -8,7 +8,6 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
-using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -77,14 +76,14 @@ namespace Unity.Processors
 
         #region Selection
 
-        public override IEnumerable<object> Select(Type type, IPolicySet registration)
+        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
+            if (null != injectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in injectionMembers)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
@@ -137,14 +136,14 @@ namespace Unity.Processors
             return null == selectedCtor ? Enumerable.Empty<object>() : new[] { selectedCtor };
         }
 
-        protected override object? SelectConstructor(Type type, IPolicySet registration)
+        protected override object? SelectConstructor(Type type, InjectionMember[]? injectionMembers)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            if (null != ((InternalRegistration)registration).InjectionMembers)
+            if (null != injectionMembers)
             {
-                foreach (var injectionMember in ((InternalRegistration)registration).InjectionMembers)
+                foreach (var injectionMember in injectionMembers)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
