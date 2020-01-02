@@ -251,7 +251,6 @@ namespace Unity
                 RegistrationType = type,
                 Name = name,
                 ExecutePlan = ContextExecutePlan,
-                ResolvePlan = ContextResolvePlan,
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
             };
 
@@ -288,7 +287,6 @@ namespace Unity
                 RegistrationType = type,
                 Name = name,
                 ExecutePlan = ContextExecutePlan,
-                ResolvePlan = ContextResolvePlan,
                 Type = registration is ContainerRegistration containerRegistration
                                      ? containerRegistration.Type : type
             };
