@@ -150,7 +150,7 @@ namespace Unity.Processors
             // Select Attributed members
             foreach (var member in DeclaredMembers(type))
             {
-                if (member.IsDefined(typeof(DependencyResolutionAttribute), true) && memberSet.Add(member))
+                if (member.IsDefined(typeof(DependencyResolutionAttribute), true))
                     memberSet.Add(member);
             }
 
