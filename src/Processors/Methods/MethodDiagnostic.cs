@@ -35,7 +35,7 @@ namespace Unity.Processors
 
         #region Overrides
 
-        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
+        protected override object Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
@@ -44,8 +44,8 @@ namespace Unity.Processors
             {
                 foreach (var injectionMember in injectionMembers)
                 {
-                    if (injectionMember is InjectionMember<MethodInfo, object[]> && memberSet.Add(injectionMember))
-                        yield return injectionMember;
+                    if (injectionMember is InjectionMember<MethodInfo, object[]> && !memberSet.Add(injectionMember))
+                        throw new InvalidOperationException($"Method injected more than once '{injectionMember}'");
                 }
             }
 
@@ -88,9 +88,9 @@ namespace Unity.Processors
                     throw new ArgumentException(
                         $"Method {member.Name} on type '{member.DeclaringType?.Name}' is marked for injection. Methods with 'ref' parameters cannot be injected.");
                 }
-
-                yield return member;
             }
+            
+            return memberSet;
         }
 
         #endregion

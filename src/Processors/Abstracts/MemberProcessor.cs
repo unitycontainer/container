@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Registration;
@@ -73,7 +70,7 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
-            foreach (var member in Select(type, ((InternalRegistration)registration).InjectionMembers))
+            foreach (var member in (IReadOnlyCollection<object>)Select(type, ((InternalRegistration)registration).InjectionMembers))
             {
                 switch (member)
                 {
@@ -98,23 +95,23 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
-            var members = Select(type, ((InternalRegistration)registration).InjectionMembers).ToArray();
-            var resolvers = new ResolveDelegate<BuilderContext>[members.Length];
+            var index = 0;
+            var members = (IReadOnlyCollection<object>)Select(type, ((InternalRegistration)registration).InjectionMembers);
+            var resolvers = new ResolveDelegate<BuilderContext>[members.Count];
 
-            for (var i = 0; i < resolvers.Length; i++)
+            foreach (var member in members)
             {
-                var member = members[i];
                 switch (member)
                 {
                     // MemberInfo
                     case TMemberInfo info:
-                        resolvers[i] = GetResolverDelegate(info);
+                        resolvers[index++] = GetResolverDelegate(info);
                         break;
 
                     // Injection Member
                     case InjectionMember<TMemberInfo, TData> injectionMember:
-                        resolvers[i] = GetResolverDelegate(injectionMember.MemberInfo(type),
-                                                           injectionMember.Data);
+                        resolvers[index++] = GetResolverDelegate(injectionMember.MemberInfo(type),
+                                                                 injectionMember.Data);
                         break;
 
                     // Unknown
@@ -136,7 +133,7 @@ namespace Unity.Processors
 
         #region Selection
 
-        public virtual IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
+        protected virtual object Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
@@ -145,8 +142,8 @@ namespace Unity.Processors
             {
                 foreach (var injectionMember in injectionMembers)
                 {
-                    if (injectionMember is InjectionMember<TMemberInfo, TData> && memberSet.Add(injectionMember))
-                        yield return injectionMember;
+                    if (injectionMember is InjectionMember<TMemberInfo, TData>)
+                        memberSet.Add(injectionMember);
                 }
             }
 
@@ -154,8 +151,10 @@ namespace Unity.Processors
             foreach (var member in DeclaredMembers(type))
             {
                 if (member.IsDefined(typeof(DependencyResolutionAttribute), true) && memberSet.Add(member))
-                    yield return member;
+                    memberSet.Add(member);
             }
+
+            return memberSet;
         }
 
         #endregion

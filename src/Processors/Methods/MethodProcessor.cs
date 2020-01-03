@@ -24,9 +24,7 @@ namespace Unity.Processors
 
         #region Selection
 
-        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
-
-        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
+        protected override object Select(Type type, InjectionMember[]? injectionMembers)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
@@ -35,19 +33,28 @@ namespace Unity.Processors
             {
                 foreach (var injectionMember in injectionMembers)
                 {
-                    if (injectionMember is InjectionMember<MethodInfo, object[]> injector && memberSet.Add(injector))
-                        yield return injectionMember;
+                    if (injectionMember is InjectionMember<MethodInfo, object[]> injector)
+                        memberSet.Add(injector);
                 }
             }
 
             // Select Attributed members
             foreach (var member in DeclaredMembers(type))
             {
-                if (member.IsDefined(typeof(InjectionMethodAttribute)) && memberSet.Add(member))
-                    yield return member;
+                if (member.IsDefined(typeof(InjectionMethodAttribute)))
+                    memberSet.Add(member);
             }
+
+            return memberSet;
         }
 
+        #endregion
+
+
+        #region Overrides
+        
+        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
+        
         #endregion
 
 

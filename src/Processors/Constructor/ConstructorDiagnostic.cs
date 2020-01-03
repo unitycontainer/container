@@ -76,67 +76,7 @@ namespace Unity.Processors
 
         #region Selection
 
-        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
-        {
-            var members = new List<InjectionMember>();
-
-            // Select Injected Members
-            if (null != injectionMembers)
-            {
-                foreach (var injectionMember in injectionMembers)
-                {
-                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
-                    {
-                        members.Add(injectionMember);
-                    }
-                }
-            }
-
-            switch (members.Count)
-            {
-                case 1:
-                    return members.ToArray();
-
-                case 0:
-                    break;
-
-                default:
-                    return new[] { new InvalidOperationException($"Multiple Injection Constructors are registered for Type {type.FullName}", 
-                        new InvalidRegistrationException()) };
-            }
-
-            // Enumerate to array
-            var constructors = DeclaredMembers(type).ToArray();
-            if (1 >= constructors.Length)
-                return constructors;
-
-            var selection = new HashSet<ConstructorInfo>();
-
-            // Select Attributed constructors
-            foreach (var constructor in constructors)
-            {
-                if (constructor.IsDefined(typeof(InjectionConstructorAttribute), true))
-                    selection.Add(constructor);
-            }
-
-            switch (selection.Count)
-            {
-                case 1:
-                    return selection.ToArray();
-
-                case 0:
-                    break;
-
-                default:
-                    return new[] { new InvalidOperationException($"Multiple Constructors are annotated for injection on Type {type.FullName}", 
-                        new InvalidRegistrationException()) };
-            }
-
-            var selectedCtor = SelectMethod(type, constructors);
-            return null == selectedCtor ? Enumerable.Empty<object>() : new[] { selectedCtor };
-        }
-
-        protected override object? SelectConstructor(Type type, InjectionMember[]? injectionMembers)
+        protected override object Select(Type type, InjectionMember[]? injectionMembers)
         {
             var members = new List<InjectionMember>();
 
@@ -168,8 +108,15 @@ namespace Unity.Processors
             // Enumerate to array
             var constructors = DeclaredMembers(type).ToArray();
 
-            // One or no constructors
-            if (0 == constructors.Length) return null;
+
+            // No constructors
+            if (0 == constructors.Length)
+            {
+                return new InvalidOperationException($"No public constructor is available for type {type.FullName}.",
+                    new InvalidRegistrationException());
+            }
+
+            // Just one constructor
             if (1 == constructors.Length) return constructors[0];
 
             var selection = new HashSet<ConstructorInfo>();
@@ -194,7 +141,9 @@ namespace Unity.Processors
                            new InvalidRegistrationException());
             }
 
-            return SelectMethod(type, constructors);
+            return SelectMethod(type, constructors) ??
+                new InvalidOperationException($"Unable to select constructor for type {type.FullName}.",
+                    new InvalidRegistrationException());
         }
 
         protected override object SmartSelector(Type type, ConstructorInfo[] constructors)

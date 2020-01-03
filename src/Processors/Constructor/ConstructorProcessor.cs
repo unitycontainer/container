@@ -11,6 +11,14 @@ namespace Unity.Processors
 {
     public partial class ConstructorProcessor : ParametersProcessor<ConstructorInfo>
     {
+        #region Fields
+
+        protected const string NoPublicCtor = "";
+        
+        #endregion
+
+
+
         #region Constructors
 
         public ConstructorProcessor(IPolicySet policySet, UnityContainer container)
@@ -38,7 +46,8 @@ namespace Unity.Processors
 
         #region Implementation            
 
-        protected virtual object? SelectConstructor(Type type, InjectionMember[]? injectionMembers)
+
+        protected override object Select(Type type, InjectionMember[]? injectionMembers)
         {
             // Select Injected Members
             if (null != injectionMembers)
@@ -55,8 +64,14 @@ namespace Unity.Processors
             // Enumerate to array
             var constructors = DeclaredMembers(type).ToArray();
 
-            // One or no constructors
-            if (0 == constructors.Length) return null;
+            // No constructors
+            if (0 == constructors.Length)
+            { 
+                return new InvalidOperationException($"No public constructor is available for type {type.FullName}.",
+                    new InvalidRegistrationException());
+            }
+            
+            // Just one constructor
             if (1 == constructors.Length) return constructors[0];
 
             // Check for decorated constructors
@@ -68,7 +83,9 @@ namespace Unity.Processors
                 return constructor;
             }
 
-            return SelectMethod(type, constructors);
+            return SelectMethod(type, constructors) ?? 
+                new InvalidOperationException($"Unable to select constructor for type {type.FullName}.",
+                    new InvalidRegistrationException());
         }
 
         /// <summary>
