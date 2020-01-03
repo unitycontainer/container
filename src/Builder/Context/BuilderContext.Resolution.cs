@@ -183,14 +183,14 @@ namespace Unity.Builder
                             // Check if itself is a value 
                             if (resolverOverride is IResolve resolverPolicy)
                             {
-                                return ResolvePlan(ref context, resolverPolicy.Resolve);
+                                return resolverPolicy.Resolve(ref context);
                             }
 
                             // Try to create value
                             var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                             if (null != resolveDelegate)
                             {
-                                return ResolvePlan(ref context, resolveDelegate);
+                                return resolveDelegate(ref context);
                             }
                         }
                     }
@@ -238,14 +238,14 @@ namespace Unity.Builder
                                 // Check if itself is a value 
                                 if (resolverOverride is IResolve resolverPolicy)
                                 {
-                                    return ResolvePlan(ref context, resolverPolicy.Resolve);
+                                    return resolverPolicy.Resolve(ref context);
                                 }
 
                                 // Try to create value
                                 var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                                 if (null != resolveDelegate)
                                 {
-                                    return ResolvePlan(ref context, resolveDelegate);
+                                    return resolveDelegate(ref context);
                                 }
                             }
                         }
@@ -403,14 +403,14 @@ namespace Unity.Builder
                             // Check if itself is a value 
                             if (resolverOverride is IResolve resolverPolicy)
                             {
-                                return ResolvePlan(ref context, resolverPolicy.Resolve);
+                                return resolverPolicy.Resolve(ref context);
                             }
 
                             // Try to create value
                             var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                             if (null != resolveDelegate)
                             {
-                                return ResolvePlan(ref context, resolveDelegate);
+                                return resolveDelegate(ref context);
                             }
                         }
                     }
@@ -458,14 +458,14 @@ namespace Unity.Builder
                                 // Check if itself is a value 
                                 if (resolverOverride is IResolve resolverPolicy)
                                 {
-                                    return ResolvePlan(ref context, resolverPolicy.Resolve);
+                                    return resolverPolicy.Resolve(ref context);
                                 }
 
                                 // Try to create value
                                 var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                                 if (null != resolveDelegate)
                                 {
-                                    return ResolvePlan(ref context, resolveDelegate);
+                                    return resolveDelegate(ref context);
                                 }
                             }
                         }
@@ -623,14 +623,14 @@ namespace Unity.Builder
                             // Check if itself is a value 
                             if (resolverOverride is IResolve resolverPolicy)
                             {
-                                return ResolvePlan(ref context, resolverPolicy.Resolve);
+                                return resolverPolicy.Resolve(ref context);
                             }
 
                             // Try to create value
                             var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                             if (null != resolveDelegate)
                             {
-                                return ResolvePlan(ref context, resolveDelegate);
+                                return resolveDelegate(ref context);
                             }
                         }
                     }
@@ -678,14 +678,14 @@ namespace Unity.Builder
                                 // Check if itself is a value 
                                 if (resolverOverride is IResolve resolverPolicy)
                                 {
-                                    return ResolvePlan(ref context, resolverPolicy.Resolve);
+                                    return resolverPolicy.Resolve(ref context);
                                 }
 
                                 // Try to create value
                                 var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                                 if (null != resolveDelegate)
                                 {
-                                    return ResolvePlan(ref context, resolveDelegate);
+                                    return resolveDelegate(ref context);
                                 }
                             }
                         }
