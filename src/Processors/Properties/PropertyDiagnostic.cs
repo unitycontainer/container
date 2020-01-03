@@ -4,23 +4,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
 {
     public class PropertyDiagnostic : PropertyProcessor
     {
-        #region Constructors
-
-        public PropertyDiagnostic(IPolicySet policySet) 
-            : base(policySet)
-        {
-        }
-
-        #endregion
-
-
         #region Selection
 
         protected override object Select(Type type, InjectionMember[]? injectionMembers)

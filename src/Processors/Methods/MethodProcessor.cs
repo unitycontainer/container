@@ -5,7 +5,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -14,8 +13,8 @@ namespace Unity.Processors
     {
         #region Constructors
 
-        public MethodProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet, container)
+        public MethodProcessor(UnityContainer container)
+            : base(container)
         {
         }
 

@@ -3,22 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
 {
     public class FieldDiagnostic : FieldProcessor
     {
-        #region Constructors
-
-        public FieldDiagnostic(IPolicySet policySet) : base(policySet)
-        {
-        }
-
-        #endregion
-
-
         #region Selection
 
         protected override object Select(Type type, InjectionMember[]? injectionMembers)

@@ -135,10 +135,10 @@ namespace Unity
         internal Action<UnityContainer> SetDefaultPolicies = (UnityContainer container) =>
         {
             // Processors
-            var fieldsProcessor = new FieldProcessor(Defaults);
-            var methodsProcessor = new MethodProcessor(Defaults, container);
-            var propertiesProcessor = new PropertyProcessor(Defaults);
-            var constructorProcessor = new ConstructorProcessor(Defaults, container);
+            var fieldsProcessor = new FieldProcessor();
+            var methodsProcessor = new MethodProcessor(container);
+            var propertiesProcessor = new PropertyProcessor();
+            var constructorProcessor = new ConstructorProcessor(container);
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
@@ -168,10 +168,10 @@ namespace Unity
             if (null != container._registrations) container.Set(null, null, Defaults);
 
             // Processors
-            var fieldsProcessor = new FieldDiagnostic(Defaults);
-            var methodsProcessor = new MethodDiagnostic(Defaults, container);
-            var propertiesProcessor = new PropertyDiagnostic(Defaults);
-            var constructorProcessor = new ConstructorDiagnostic(Defaults, container);
+            var fieldsProcessor = new FieldDiagnostic();
+            var methodsProcessor = new MethodDiagnostic(container);
+            var propertiesProcessor = new PropertyDiagnostic();
+            var constructorProcessor = new ConstructorDiagnostic(container);
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>

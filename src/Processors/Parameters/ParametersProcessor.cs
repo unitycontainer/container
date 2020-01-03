@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -24,8 +23,7 @@ namespace Unity.Processors
 
         #region Constructors
 
-        protected ParametersProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet)
+        protected ParametersProcessor(UnityContainer container)
         {
             Container = container;
         }

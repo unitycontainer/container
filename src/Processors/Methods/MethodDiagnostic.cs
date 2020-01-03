@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -25,8 +24,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        public MethodDiagnostic(IPolicySet policySet, UnityContainer container) 
-            : base(policySet, container)
+        public MethodDiagnostic(UnityContainer container) 
+            : base(container)
         {
         }
 

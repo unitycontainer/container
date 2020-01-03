@@ -3,23 +3,12 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
-using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity.Processors
 {
     public class PropertyProcessor : MemberProcessor<PropertyInfo, object>
     {
-        #region Constructors
-
-        public PropertyProcessor(IPolicySet policySet)
-            : base(policySet)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
         protected override Type MemberType(PropertyInfo info) => info.PropertyType;

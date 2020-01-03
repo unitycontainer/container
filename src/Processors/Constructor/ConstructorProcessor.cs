@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
-using Unity.Policy;
 
 namespace Unity.Processors
 {
@@ -21,8 +20,8 @@ namespace Unity.Processors
 
         #region Constructors
 
-        public ConstructorProcessor(IPolicySet policySet, UnityContainer container)
-            : base(policySet, container)
+        public ConstructorProcessor(UnityContainer container)
+            : base(container)
         {
             SelectMethod = SmartSelector;
         }

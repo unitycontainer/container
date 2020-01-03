@@ -43,28 +43,6 @@ namespace Unity.Processors
     public abstract partial class MemberProcessor<TMemberInfo, TData> : MemberProcessor
                                                     where TMemberInfo : MemberInfo
     {
-        #region Fields
-
-        private readonly IPolicySet _policySet;
-
-        #endregion
-
-
-        #region Constructors
-
-        protected MemberProcessor(IPolicySet policySet)
-        {
-            _policySet = policySet;
-        }
-
-        protected MemberProcessor(IPolicySet policySet, Type attribute)
-        {
-            _policySet = policySet;
-        }
-
-        #endregion
-
-
         #region MemberProcessor
 
         /// <inheritdoc />
