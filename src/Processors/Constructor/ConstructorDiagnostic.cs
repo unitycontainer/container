@@ -76,7 +76,6 @@ namespace Unity.Processors
 
         #region Selection
 
-        // TODO: Remove
         public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
         {
             var members = new List<InjectionMember>();

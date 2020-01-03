@@ -489,6 +489,48 @@ namespace Unity
 #endif
         }
 
+        internal BuilderContext.ResolvePlanDelegate ContextResolvePlan { get; set; } =
+            (ref BuilderContext context, ResolveDelegate<BuilderContext> resolver) => resolver(ref context);
+
+        internal static object? ContextValidatingResolvePlan(ref BuilderContext thisContext, ResolveDelegate<BuilderContext> resolver)
+        {
+            if (null == resolver) throw new ArgumentNullException(nameof(resolver));
+
+#if NET40
+            return resolver(ref thisContext);
+#else
+            unsafe
+            {
+                var parent = thisContext.Parent;
+                while(IntPtr.Zero != parent)
+                {
+                    var parentRef = Unsafe.AsRef<BuilderContext>(parent.ToPointer());
+                    if (thisContext.Type == parentRef.RegistrationType && thisContext.Name == parentRef.Name)
+                        throw new CircularDependencyException(thisContext.Type, thisContext.Name);
+
+                    parent = parentRef.Parent;
+                }
+
+                var context = new BuilderContext
+                {
+                    Lifetime = thisContext.Lifetime,
+                    Registration = thisContext.Registration,
+                    RegistrationType = thisContext.Type,
+                    Name = thisContext.Name,
+                    Type = thisContext.Type,
+                    ExecutePlan = thisContext.ExecutePlan,
+                    ResolvePlan = thisContext.ResolvePlan,
+                    List = thisContext.List,
+                    Overrides = thisContext.Overrides,
+                    DeclaringType = thisContext.Type,
+                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+                };
+
+                return resolver(ref context);
+            }
+#endif
+        }
+
         #endregion
     }
 }

@@ -58,7 +58,7 @@ namespace Unity.Builder
                     {
                         var context = this;
 
-                        return resolverPolicy.Resolve(ref context);
+                        return ResolvePlan(ref context, resolverPolicy.Resolve);
                     }
                 }
             }
@@ -138,6 +138,8 @@ namespace Unity.Builder
         public IntPtr Parent;
 #endif
         public ExecutePlanDelegate ExecutePlan;
+
+        public ResolvePlanDelegate ResolvePlan;
 
         #endregion
     }

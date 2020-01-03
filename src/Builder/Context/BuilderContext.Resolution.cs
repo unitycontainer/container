@@ -29,6 +29,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = null != containerRegistration ? containerRegistration.Type : type,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -69,6 +70,7 @@ namespace Unity.Builder
                             Name = name,
                             Type = parameter.ParameterType,
                             ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
                             List = List,
                             Overrides = Overrides,
                             DeclaringType = Type,
@@ -114,6 +116,7 @@ namespace Unity.Builder
                             Name = name,
                             Type = parameter.ParameterType,
                             ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
                             List = List,
                             Overrides = Overrides,
                             DeclaringType = Type,
@@ -157,6 +160,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = parameter.ParameterType,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -179,14 +183,14 @@ namespace Unity.Builder
                             // Check if itself is a value 
                             if (resolverOverride is IResolve resolverPolicy)
                             {
-                                return resolverPolicy.Resolve(ref context);
+                                return ResolvePlan(ref context, resolverPolicy.Resolve);
                             }
 
                             // Try to create value
                             var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                             if (null != resolveDelegate)
                             {
-                                return resolveDelegate(ref context);
+                                return ResolvePlan(ref context, resolveDelegate);
                             }
                         }
                     }
@@ -209,6 +213,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = parameter.ParameterType,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -233,14 +238,14 @@ namespace Unity.Builder
                                 // Check if itself is a value 
                                 if (resolverOverride is IResolve resolverPolicy)
                                 {
-                                    return resolverPolicy.Resolve(ref context);
+                                    return ResolvePlan(ref context, resolverPolicy.Resolve);
                                 }
 
                                 // Try to create value
                                 var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(parameter.ParameterType);
                                 if (null != resolveDelegate)
                                 {
-                                    return resolveDelegate(ref context);
+                                    return ResolvePlan(ref context, resolveDelegate);
                                 }
                             }
                         }
@@ -284,6 +289,7 @@ namespace Unity.Builder
                             Name = name,
                             Type = field.FieldType,
                             ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
                             List = List,
                             Overrides = Overrides,
                             DeclaringType = Type,
@@ -329,6 +335,7 @@ namespace Unity.Builder
                             Name = name,
                             Type = field.FieldType,
                             ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
                             List = List,
                             Overrides = Overrides,
                             DeclaringType = Type,
@@ -373,6 +380,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = field.FieldType,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -395,14 +403,14 @@ namespace Unity.Builder
                             // Check if itself is a value 
                             if (resolverOverride is IResolve resolverPolicy)
                             {
-                                return resolverPolicy.Resolve(ref context);
+                                return ResolvePlan(ref context, resolverPolicy.Resolve);
                             }
 
                             // Try to create value
                             var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                             if (null != resolveDelegate)
                             {
-                                return resolveDelegate(ref context);
+                                return ResolvePlan(ref context, resolveDelegate);
                             }
                         }
                     }
@@ -425,6 +433,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = field.FieldType,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -449,14 +458,14 @@ namespace Unity.Builder
                                 // Check if itself is a value 
                                 if (resolverOverride is IResolve resolverPolicy)
                                 {
-                                    return resolverPolicy.Resolve(ref context);
+                                    return ResolvePlan(ref context, resolverPolicy.Resolve);
                                 }
 
                                 // Try to create value
                                 var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(field.FieldType);
                                 if (null != resolveDelegate)
                                 {
-                                    return resolveDelegate(ref context);
+                                    return ResolvePlan(ref context, resolveDelegate);
                                 }
                             }
                         }
@@ -500,6 +509,7 @@ namespace Unity.Builder
                             Name = name,
                             Type = property.PropertyType,
                             ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
                             List = List,
                             Overrides = Overrides,
                             DeclaringType = Type,
@@ -545,6 +555,7 @@ namespace Unity.Builder
                             Name = name,
                             Type = property.PropertyType,
                             ExecutePlan = ExecutePlan,
+                            ResolvePlan = ResolvePlan,
                             List = List,
                             Overrides = Overrides,
                             DeclaringType = Type,
@@ -589,6 +600,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = property.PropertyType,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -611,14 +623,14 @@ namespace Unity.Builder
                             // Check if itself is a value 
                             if (resolverOverride is IResolve resolverPolicy)
                             {
-                                return resolverPolicy.Resolve(ref context);
+                                return ResolvePlan(ref context, resolverPolicy.Resolve);
                             }
 
                             // Try to create value
                             var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                             if (null != resolveDelegate)
                             {
-                                return resolveDelegate(ref context);
+                                return ResolvePlan(ref context, resolveDelegate);
                             }
                         }
                     }
@@ -641,6 +653,7 @@ namespace Unity.Builder
                     Name = name,
                     Type = property.PropertyType,
                     ExecutePlan = ExecutePlan,
+                    ResolvePlan = ResolvePlan,
                     List = List,
                     Overrides = Overrides,
                     DeclaringType = Type,
@@ -665,14 +678,14 @@ namespace Unity.Builder
                                 // Check if itself is a value 
                                 if (resolverOverride is IResolve resolverPolicy)
                                 {
-                                    return resolverPolicy.Resolve(ref context);
+                                    return ResolvePlan(ref context, resolverPolicy.Resolve);
                                 }
 
                                 // Try to create value
                                 var resolveDelegate = resolverOverride.GetResolver<BuilderContext>(property.PropertyType);
                                 if (null != resolveDelegate)
                                 {
-                                    return resolveDelegate(ref context);
+                                    return ResolvePlan(ref context, resolveDelegate);
                                 }
                             }
                         }

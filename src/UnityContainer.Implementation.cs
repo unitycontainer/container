@@ -163,6 +163,7 @@ namespace Unity
         {
             // Default policies
             container.ContextExecutePlan = UnityContainer.ContextValidatingExecutePlan;
+            container.ContextResolvePlan = UnityContainer.ContextValidatingResolvePlan;
             container.ExecutePlan = container.ExecuteValidatingPlan;
             if (null != container._registrations) container.Set(null, null, Defaults);
 
