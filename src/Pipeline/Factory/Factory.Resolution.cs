@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using Unity.Exceptions;
-using Unity.Factories;
-using Unity.Policy;
+﻿using System.Diagnostics;
 using Unity.Registration;
 using Unity.Resolution;
 

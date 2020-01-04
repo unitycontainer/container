@@ -66,7 +66,6 @@ namespace Unity
         public ConstructorDiagnostic(UnityContainer container) 
             : base(container)
         {
-            container.Defaults.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), InjectionValidatingSelector);
         }
 
         #endregion

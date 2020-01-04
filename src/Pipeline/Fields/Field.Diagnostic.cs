@@ -13,7 +13,6 @@ namespace Unity
 
         public FieldDiagnostic(UnityContainer container) : base(container)
         {
-            container.Defaults.Set(typeof(Func<Type, InjectionMember, FieldInfo>), InjectionValidatingSelector);
         }
 
         #endregion

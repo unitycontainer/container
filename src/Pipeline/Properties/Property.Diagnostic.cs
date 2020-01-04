@@ -14,7 +14,6 @@ namespace Unity
         public PropertyDiagnostic(UnityContainer container) 
             : base(container)
         {
-            container.Defaults.Set(typeof(Func<Type, InjectionMember, PropertyInfo>), InjectionValidatingSelector);
         }
 
         #endregion

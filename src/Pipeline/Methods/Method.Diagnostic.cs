@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,7 +16,6 @@ namespace Unity
         public MethodDiagnostic(UnityContainer container) 
             : base(container)
         {
-            container.Defaults.Set(typeof(Func<Type, InjectionMember, MethodInfo>), InjectionValidatingSelector);
         }
 
         #endregion
