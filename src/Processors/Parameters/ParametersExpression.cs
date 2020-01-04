@@ -10,7 +10,7 @@ namespace Unity.Processors
     {
         #region Expression 
 
-        protected virtual IEnumerable<Expression> CreateParameterExpressions(MethodBase info)
+        protected virtual IEnumerable<Expression> ParameterExpressions(MethodBase info)
         {
             foreach (var parameter in info.GetParameters())
             { 
@@ -19,7 +19,7 @@ namespace Unity.Processors
         }
 
 
-        protected virtual IEnumerable<Expression> CreateParameterExpressions(MethodBase info, object[] injectors)
+        protected virtual IEnumerable<Expression> ParameterExpressions(MethodBase info, object[] injectors)
         {
             var parameters = info.GetParameters();
             for(var i = 0; i < parameters.Length; i++)

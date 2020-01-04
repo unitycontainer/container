@@ -65,7 +65,7 @@ namespace Unity.Processors
             {
                 return Expression.Call(
                     Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), 
-                    info, CreateParameterExpressions(info));
+                    info, ParameterExpressions(info));
             }
             catch (ArgumentException ex)
             {
@@ -83,7 +83,7 @@ namespace Unity.Processors
             {
                 return Expression.Call(
                     Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
-                    info, CreateParameterExpressions(info, injectors));
+                    info, ParameterExpressions(info, injectors));
             }
             catch (ArgumentException ex)
             {
@@ -98,7 +98,7 @@ namespace Unity.Processors
 
         protected override ResolveDelegate<BuilderContext> GetResolverDelegate(MethodInfo info)
         {
-            var resolvers = CreateParameterResolvers(info);
+            var resolvers = ParameterResolvers(info);
 
             return (ref BuilderContext c) =>
             {
@@ -120,7 +120,7 @@ namespace Unity.Processors
 
             if (null == injectors) return GetResolverDelegate(info);
 
-            var resolvers = CreateParameterResolvers(info, injectors);
+            var resolvers = ParameterResolvers(info, injectors);
 
             return (ref BuilderContext c) =>
             {

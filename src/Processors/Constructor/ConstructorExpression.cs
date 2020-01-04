@@ -65,12 +65,12 @@ namespace Unity.Processors
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
-                    expressions = CreateParameterExpressions(info);
+                    expressions = ParameterExpressions(info);
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
                     info = injectionMember.MemberInfo(type);
-                    expressions = CreateParameterExpressions(info, injectionMember.Data);
+                    expressions = ParameterExpressions(info, injectionMember.Data);
                     break;
 
                 case Exception exception:
@@ -98,7 +98,7 @@ namespace Unity.Processors
         protected override Expression GetResolverExpression(ConstructorInfo info, object? data)
         {
             Debug.Assert(null != data && data is IEnumerable<Expression>);
-            var resolvers = (IEnumerable<Expression>)data!;
+            var parameters = (IEnumerable<Expression>)data!;
 
             var variable = Expression.Variable(info.DeclaringType);
 
@@ -108,7 +108,7 @@ namespace Unity.Processors
                     Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                     Expression.Block(new[] { variable }, new Expression[]
                     {
-                        Expression.Assign(variable, Expression.New(info, resolvers)),
+                        Expression.Assign(variable, Expression.New(info, parameters)),
                         Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
                     }));
             }

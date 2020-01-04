@@ -28,14 +28,14 @@ namespace Unity.Processors
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
-                    resolvers = CreateParameterResolvers(info);
+                    resolvers = ParameterResolvers(info);
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
                     info = injectionMember.MemberInfo(type);
                     resolvers = null != injectionMember.Data && injectionMember.Data is object[] injectors && 0 != injectors.Length
-                              ? CreateParameterResolvers(info, injectors)
-                              : CreateParameterResolvers(info);
+                              ? ParameterResolvers(info, injectors)
+                              : ParameterResolvers(info);
                     break;
 
                 case Exception exception:

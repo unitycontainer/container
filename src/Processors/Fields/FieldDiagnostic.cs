@@ -33,19 +33,19 @@ namespace Unity.Processors
 
                 if (member.IsStatic)
                     throw new InvalidOperationException(
-                        $"Static field '{member.Name}' on type '{type?.Name}' is marked for injection. Static fields cannot be injected");
+                        $"Static field '{member.Name}' on type '{type?.FullName}' is marked for injection. Static fields cannot be injected");
 
                 if (member.IsInitOnly)
                     throw new InvalidOperationException(
-                        $"Readonly field '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly fields cannot be injected");
+                        $"Readonly field '{member.Name}' on type '{type?.FullName}' is marked for injection. Readonly fields cannot be injected");
 
                 if (member.IsPrivate)
                     throw new InvalidOperationException(
-                        $"Private field '{member.Name}' on type '{type?.Name}' is marked for injection. Private fields cannot be injected");
+                        $"Private field '{member.Name}' on type '{type?.FullName}' is marked for injection. Private fields cannot be injected");
 
                 if (member.IsFamily)
                     throw new InvalidOperationException(
-                        $"Protected field '{member.Name}' on type '{type?.Name}' is marked for injection. Protected fields cannot be injected");
+                        $"Protected field '{member.Name}' on type '{type?.FullName}' is marked for injection. Protected fields cannot be injected");
             }
 
             return memberSet;

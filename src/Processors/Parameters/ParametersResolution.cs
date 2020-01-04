@@ -9,7 +9,7 @@ namespace Unity.Processors
     {
         #region Resolvers
 
-        protected virtual ResolveDelegate<BuilderContext>[] CreateParameterResolvers(MethodBase info)
+        protected virtual ResolveDelegate<BuilderContext>[] ParameterResolvers(MethodBase info)
         {
             ParameterInfo[] parameters = info.GetParameters();
             var resolvers = new ResolveDelegate<BuilderContext>[parameters.Length];
@@ -20,7 +20,7 @@ namespace Unity.Processors
             return resolvers;
         }
 
-        protected virtual ResolveDelegate<BuilderContext>[] CreateParameterResolvers(MethodBase info, object[] injectors)
+        protected virtual ResolveDelegate<BuilderContext>[] ParameterResolvers(MethodBase info, object[] injectors)
         {
             ParameterInfo[] parameters = info.GetParameters();
             Debug.Assert(parameters.Length == injectors.Length);
@@ -35,7 +35,7 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Parameter Resolution
+        #region Parameters
 
         protected virtual ResolveDelegate<BuilderContext> GetResolverDelegate(ParameterInfo info)
         {

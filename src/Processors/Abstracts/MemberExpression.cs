@@ -30,18 +30,8 @@ namespace Unity.Processors
 
         protected static readonly PropertyInfo DataPropertyExpression =
             typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
-
-        protected static readonly MethodInfo AddMethodExpression =
-            typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
-
-        protected static readonly UnaryExpression ConvertExpression =
-            Expression.Convert(NewGuidExpression, typeof(object));
-
         protected static readonly ParameterExpression ExceptionVariableExpression =
             Expression.Variable(typeof(Exception));
-
-        protected static readonly MemberExpression ExceptionDataExpression =
-            Expression.MakeMemberAccess(ExceptionVariableExpression, DataPropertyExpression);
 
         #endregion
     }

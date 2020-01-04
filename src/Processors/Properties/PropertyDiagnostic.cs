@@ -34,58 +34,32 @@ namespace Unity.Processors
 
                 if (!member.CanWrite)
                     throw new InvalidOperationException(
-                        $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Readonly properties cannot be injected");
+                        $"Readonly property '{member.Name}' on type '{type?.FullName}' is marked for injection. Readonly properties cannot be injected");
 
                 if (0 != member.GetIndexParameters().Length)
                     throw new InvalidOperationException(
-                        $"Indexer '{member.Name}' on type '{type?.Name}' is marked for injection. Indexers cannot be injected");
+                        $"Indexer '{member.Name}' on type '{type?.FullName}' is marked for injection. Indexers cannot be injected");
 
                 var setter = member.GetSetMethod(true);
 
                 if (null == setter)
                     throw new InvalidOperationException(
-                        $"Readonly property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
+                        $"Readonly property '{member.Name}' on type '{type?.FullName}' is marked for injection. Static properties cannot be injected");
 
                 if (setter.IsStatic)
                     throw new InvalidOperationException(
-                        $"Static property '{member.Name}' on type '{type?.Name}' is marked for injection. Static properties cannot be injected");
+                        $"Static property '{member.Name}' on type '{type?.FullName}' is marked for injection. Static properties cannot be injected");
 
                 if (setter.IsPrivate)
                     throw new InvalidOperationException(
-                        $"Private property '{member.Name}' on type '{type?.Name}' is marked for injection. Private properties cannot be injected");
+                        $"Private property '{member.Name}' on type '{type?.FullName}' is marked for injection. Private properties cannot be injected");
 
                 if (setter.IsFamily)
                     throw new InvalidOperationException(
-                        $"Protected property '{member.Name}' on type '{type?.Name}' is marked for injection. Protected properties cannot be injected");
+                        $"Protected property '{member.Name}' on type '{type?.FullName}' is marked for injection. Protected properties cannot be injected");
             }
 
             return memberSet;
-        }
-
-        #endregion
-
-
-        #region Expression
-
-        protected override Expression GetResolverExpression(PropertyInfo info)
-        {
-            var block = Expression.Block(info.PropertyType,
-                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(info.PropertyType));
-
-            return Expression.TryCatch(base.GetResolverExpression(info),
-                   Expression.Catch(ExceptionVariableExpression, block));
-        }
-
-
-        protected override Expression GetResolverExpression(PropertyInfo info, object? data)
-        {
-            var block = Expression.Block(info.PropertyType,
-                    Expression.Call(ExceptionDataExpression, AddMethodExpression, ConvertExpression, Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(info.PropertyType));
-
-            return Expression.TryCatch(base.GetResolverExpression(info, data),
-                   Expression.Catch(ExceptionVariableExpression, block));
         }
 
         #endregion
@@ -129,7 +103,6 @@ namespace Unity.Processors
                 };
             }
         }
-
 
         #endregion
     }

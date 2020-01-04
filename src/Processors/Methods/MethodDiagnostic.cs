@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,6 +19,15 @@ namespace Unity.Processors
 
         protected static readonly Expression GuidToObjectExpression =
             Expression.Convert(NewGuidExpression, typeof(object));
+
+        protected static readonly MethodInfo AddMethodExpression =
+            typeof(IDictionary).GetTypeInfo().GetDeclaredMethod(nameof(IDictionary.Add))!;
+
+        protected static readonly UnaryExpression ConvertExpression =
+            Expression.Convert(NewGuidExpression, typeof(object));
+
+        protected static readonly MemberExpression ExceptionDataExpression =
+            Expression.MakeMemberAccess(ExceptionVariableExpression, DataPropertyExpression);
 
         #endregion
 
@@ -137,18 +147,12 @@ namespace Unity.Processors
         {
             var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
                                                                                            ?? DependencyAttribute.Instance;
-            ResolveDelegate<BuilderContext>? resolver = data switch
-            {
-                IResolve policy                                   => policy.Resolve,
-                IResolverFactory<ParameterInfo> propertyFactory   => propertyFactory.GetResolver<BuilderContext>(info),
-                IResolverFactory<Type> typeFactory                => typeFactory.GetResolver<BuilderContext>(info.ParameterType),
-                Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<BuilderContext>(type),
-                _                                                 => null
-            };
+            var resolver = PreProcessResolver(info, attribute, data);
 
             if (null == resolver)
                 return (ref BuilderContext context) => context.OverrideDiagnostic(info, attribute.Name, data);
             else
+
                 return (ref BuilderContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
         }
 
