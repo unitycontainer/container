@@ -16,7 +16,7 @@ namespace Unity
                     "Sharing an InjectionField between registrations is not supported");
 
                 // Select Field
-                foreach (var info in type.GetDeclaredFields())
+                foreach (var info in type.SupportedFields())
                 {
                     if (info.Name != field.Name) continue;
 

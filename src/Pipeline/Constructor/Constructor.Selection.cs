@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -10,41 +9,41 @@ namespace Unity
 {
     public partial class ConstructorPipeline
     {
-
-        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(Type type, InjectionMember[]? injectionMembers)
         {
             // Select Injected Members
-            foreach (var injectionMember in injectionMembers ?? EmptyCollection)
+            if (null != injectionMembers)
             {
-                if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                foreach (var injectionMember in injectionMembers)
                 {
-                    return new[] { injectionMember };
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        return injectionMember;
+                    }
                 }
             }
 
             // Enumerate to array
             var constructors = DeclaredMembers(type).ToArray();
-            if (1 >= constructors.Length)
-                return constructors;
 
-            // Select Attributed constructors
+            // No constructors
+            if (0 == constructors.Length) 
+                return new InvalidRegistrationException($"Type {type.FullName} has no accessible constructors");
+
+            // One constructor
+            if (1 == constructors.Length) 
+                return constructors[0];
+
+            // Check for constructors decorated with attribute
             foreach (var constructor in constructors)
             {
-                foreach (var attribute in Markers)
-                {
-#if NET40
-                    if (!constructor.IsDefined(attribute, true))
-#else
-                    if (!constructor.IsDefined(attribute))
-#endif
-                        continue;
+                if (!constructor.IsDefined(typeof(InjectionConstructorAttribute), true))
+                    continue;
 
-                    return new[] { constructor };
-                }
+                return constructor;
             }
 
-            var result = SelectMethod(type, constructors);
-            return null == result ? Enumerable.Empty<object>() : new[] { result };
+            return SelectMethod(type, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {type.FullName}.");
         }
 
         /// <summary>

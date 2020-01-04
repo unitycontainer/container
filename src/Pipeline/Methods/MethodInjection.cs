@@ -16,7 +16,7 @@ namespace Unity
                 if (method.IsInitialized) throw new InvalidOperationException("Sharing an InjectionMethod between registrations is not supported");
 
                 // Select Method
-                foreach (var info in type.GetDeclaredMethods())
+                foreach (var info in type.SupportedMethods())
                 {
                     if (!method.Data.MatchMemberInfo(info)) continue;
 

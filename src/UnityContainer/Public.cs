@@ -95,6 +95,8 @@ namespace Unity
             {
                 /////////////////////////////////////////////////////////////
                 // Setup Diagnostic mode
+                UnityDefaults.EnableDiagnostic = true;
+                PipelineContextExpression.EnableDiagnostic();
 
                 var diagnostic = new DiagnosticPipeline();
 

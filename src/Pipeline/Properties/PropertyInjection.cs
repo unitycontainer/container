@@ -15,7 +15,7 @@ namespace Unity
                 if (property.IsInitialized) throw new InvalidOperationException("Sharing an InjectionProperty between registrations is not supported");
 
                 // Select Property
-                foreach (var info in type.GetDeclaredProperties())
+                foreach (var info in type.SupportedProperties())
                 {
                     if (info.Name != property.Name) continue;
 

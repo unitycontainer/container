@@ -1,10 +1,8 @@
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text.RegularExpressions;
-using Unity.Exceptions;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Resolution;
@@ -18,7 +16,7 @@ namespace Unity
     /// </summary>
     [SecuritySafeCritical]
     [DebuggerDisplay("Resolving: {Type},  Name: {Name}")]
-    public struct PipelineContext : IResolveContext
+    public partial struct PipelineContext : IResolveContext
     {
         #region Fields
 
@@ -148,164 +146,6 @@ namespace Unity
         #endregion
 
 
-        #region Member Resolution
-
-        public object? Resolve(ParameterInfo parameter, object? value)
-        {
-            var context = this;
-
-            // Process overrides if any
-            if (0 < Overrides.Length)
-            {
-                // Check if this parameter is overridden
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-
-                    // If matches with current parameter
-                    if (resolverOverride is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
-                    {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
-                        }
-
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<PipelineContext>(parameter.ParameterType);
-                        if (null != resolveDelegate)
-                        {
-                            return DependencyResolvePipeline(ref context, resolveDelegate);
-                        }
-                    }
-                }
-            }
-
-            // Resolve from injectors
-            switch (value)
-            {
-                case ParameterInfo info
-                when ReferenceEquals(info, parameter):
-                    return Resolve(parameter.ParameterType, (string?)null);
-
-                case ResolveDelegate<PipelineContext> resolver:
-                    return resolver(ref context);
-            }
-
-            return value;
-        }
-
-        public object? Resolve(PropertyInfo property, object? value)
-        {
-            var context = this;
-
-            // Process overrides if any
-            if (0 < Overrides.Length)
-            {
-                // Check for property overrides
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-
-                    // Check if this parameter is overridden
-                    if (resolverOverride is IEquatable<PropertyInfo> comparer && comparer.Equals(property))
-                    {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
-                        }
-
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<PipelineContext>(property.PropertyType);
-                        if (null != resolveDelegate)
-                        {
-                            return DependencyResolvePipeline(ref context, resolveDelegate);
-                        }
-                    }
-                }
-            }
-
-            // Resolve from injectors
-            switch (value)
-            {
-                case DependencyAttribute dependencyAttribute:
-                    return Resolve(property.PropertyType, dependencyAttribute.Name);
-
-                case OptionalDependencyAttribute optionalAttribute:
-                    try
-                    {
-                        return Resolve(property.PropertyType, optionalAttribute.Name);
-                    }
-                    catch (Exception ex) when (!(ex is CircularDependencyException))
-                    {
-                        return null;
-                    }
-
-                case ResolveDelegate<PipelineContext> resolver:
-                    return resolver(ref context);
-            }
-
-            return value;
-        }
-
-        public object? Resolve(FieldInfo field, object? value)
-        {
-            var context = this;
-
-            // Process overrides if any
-            if (0 < Overrides.Length)
-            {
-                // Check for property overrides
-                for (var index = Overrides.Length - 1; index >= 0; --index)
-                {
-                    var resolverOverride = Overrides[index];
-
-                    // Check if this parameter is overridden
-                    if (resolverOverride is IEquatable<FieldInfo> comparer && comparer.Equals(field))
-                    {
-                        // Check if itself is a value 
-                        if (resolverOverride is IResolve resolverPolicy)
-                        {
-                            return DependencyResolvePipeline(ref context, resolverPolicy.Resolve);
-                        }
-
-                        // Try to create value
-                        var resolveDelegate = resolverOverride.GetResolver<PipelineContext>(field.FieldType);
-                        if (null != resolveDelegate)
-                        {
-                            return DependencyResolvePipeline(ref context, resolveDelegate);
-                        }
-                    }
-                }
-            }
-
-            // Resolve from injectors
-            switch (value)
-            {
-                case DependencyAttribute dependencyAttribute:
-                    return Resolve(field.FieldType, dependencyAttribute.Name);
-
-                case OptionalDependencyAttribute optionalAttribute:
-                    try
-                    {
-                        return Resolve(field.FieldType, optionalAttribute.Name);
-                    }
-                    catch (Exception ex) when (!(ex is CircularDependencyException))
-                    {
-                        return null;
-                    }
-
-                case ResolveDelegate<PipelineContext> resolver:
-                    return resolver(ref context);
-            }
-
-            return value;
-        }
-
-        #endregion
-
-
         #region Public Methods
 
         public object? Resolve(Type type)
@@ -358,32 +198,41 @@ namespace Unity
         public object? Resolve(Type type, string? name, ResolveDelegate<PipelineContext> pipeline)
         {
             var thisContext = this;
+            var manager = pipeline.Target as LifetimeManager;
+            object? value;
 
             unsafe
             {
-                // Setup Context
-                var context = new PipelineContext
-                {
-                    ContainerContext = pipeline.Target is ContainerControlledLifetimeManager containerControlled
-                                     ? (ContainerContext)containerControlled.Scope!
-                                     : ContainerContext,
-                    List = List,
-                    Type = type,
-                    Name = name,
-                    Overrides = Overrides,
-                    DeclaringType = Type,
-#if !NET40
-                    Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
-#endif
-                };
 
-                var manager = pipeline.Target as LifetimeManager;
-                var value = pipeline(ref context);
+                if (type != Type || name != Name || 
+                    pipeline.Target is ContainerControlledLifetimeManager lifetimeManager && (ContainerContext?)lifetimeManager.Scope != ContainerContext)
+                {
+                    // Setup Context
+                    var context = new PipelineContext
+                    {
+                        ContainerContext = pipeline.Target is ContainerControlledLifetimeManager containerControlled
+                                         ? (ContainerContext)containerControlled.Scope!
+                                         : ContainerContext,
+                        List = List,
+                        Type = type,
+                        Name = name,
+                        Overrides = Overrides,
+                        DeclaringType = Type,
+#if !NET40
+                        Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
+#endif
+                    };
+                    value = pipeline(ref context);
+                }
+                else
+                    value = pipeline(ref thisContext);
+
                 manager?.SetValue(value, LifetimeContainer);
                 return value;
             }
 
-            #endregion
         }
+            
+        #endregion
     }
 }

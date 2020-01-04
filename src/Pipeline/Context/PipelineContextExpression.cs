@@ -9,7 +9,7 @@ namespace Unity
     {
         #region Fields
 
-        public static readonly MethodInfo ResolvePropertyMethod =
+        public static MethodInfo ResolvePropertyMethod =
             typeof(PipelineContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(PipelineContext.Resolve))
                 .First(m =>
@@ -19,7 +19,18 @@ namespace Unity
                         typeof(PropertyInfo) == parameters[0].ParameterType;
                 });
 
-        public static readonly MethodInfo ResolveFieldMethod =
+        public static MethodInfo OverridePropertyMethod =
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Override))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 0 < parameters.Length &&
+                        typeof(PropertyInfo) == parameters[0].ParameterType;
+                });
+
+
+        public static MethodInfo ResolveFieldMethod =
             typeof(PipelineContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(PipelineContext.Resolve))
                 .First(m =>
@@ -29,7 +40,18 @@ namespace Unity
                         typeof(FieldInfo) == parameters[0].ParameterType;
                 });
 
-        public static readonly MethodInfo ResolveParameterMethod =
+        public static MethodInfo OverrideFieldMethod =
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Override))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 0 < parameters.Length &&
+                        typeof(FieldInfo) == parameters[0].ParameterType;
+                });
+
+
+        public static MethodInfo ResolveParameterMethod =
             typeof(PipelineContext).GetTypeInfo()
                 .GetDeclaredMethods(nameof(PipelineContext.Resolve))
                 .First(m =>
@@ -38,6 +60,18 @@ namespace Unity
                     return 0 < parameters.Length &&
                         typeof(ParameterInfo) == parameters[0].ParameterType;
                 });
+
+        public static MethodInfo OverrideParameterMethod =
+            typeof(PipelineContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(PipelineContext.Override))
+                .First(m =>
+                {
+                    var parameters = m.GetParameters();
+                    return 0 < parameters.Length &&
+                        typeof(ParameterInfo) == parameters[0].ParameterType;
+                });
+
+
 
         public static readonly MethodInfo SetMethod =
             typeof(PipelineContext).GetTypeInfo()
@@ -76,6 +110,143 @@ namespace Unity
         public static readonly MemberExpression DeclaringType;
 
         public static readonly MemberExpression LifetimeContainer;
+
+        #endregion
+
+
+        #region Public Methods
+
+        public static void EnableDiagnostic(bool enable = true)
+        {
+            if (enable)
+            {
+                ResolvePropertyMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.ResolveDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
+
+                OverridePropertyMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.OverrideDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveFieldMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.ResolveDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideFieldMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.OverrideDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveParameterMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.ResolveDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideParameterMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.OverrideDiagnostic))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+            }
+            else
+            {
+                ResolvePropertyMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.Resolve))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
+
+                OverridePropertyMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.Override))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(PropertyInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveFieldMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.Resolve))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideFieldMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.Override))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(FieldInfo) == parameters[0].ParameterType;
+                        });
+
+
+                ResolveParameterMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.Resolve))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+
+                OverrideParameterMethod =
+                    typeof(PipelineContext).GetTypeInfo()
+                        .GetDeclaredMethods(nameof(PipelineContext.Override))
+                        .First(m =>
+                        {
+                            var parameters = m.GetParameters();
+                            return 0 < parameters.Length &&
+                                typeof(ParameterInfo) == parameters[0].ParameterType;
+                        });
+            }
+        }
 
         #endregion
     }

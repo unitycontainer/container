@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -63,7 +64,7 @@ namespace Unity
         #region Constructors
 
         public ConstructorDiagnostic(UnityContainer container) 
-            : base(container, new ParametersDiagnosticProcessor())
+            : base(container)
         {
             container.Defaults.Set(typeof(Func<Type, InjectionMember, ConstructorInfo>), InjectionValidatingSelector);
         }
@@ -73,23 +74,26 @@ namespace Unity
 
         #region Selection Overrides
 
-        public override IEnumerable<object> Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(Type type, InjectionMember[]? injectionMembers)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            foreach (var injectionMember in injectionMembers ?? EmptyCollection)
+            if (null != injectionMembers)
             {
-                if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                foreach (var injectionMember in injectionMembers)
                 {
-                    members.Add(injectionMember);
+                    if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+                    {
+                        members.Add(injectionMember);
+                    }
                 }
             }
 
             switch (members.Count)
             {
                 case 1:
-                    return members.ToArray();
+                    return members[0];
 
                 case 0:
                     break;
@@ -100,31 +104,29 @@ namespace Unity
 
             // Enumerate to array
             var constructors = DeclaredMembers(type).ToArray();
-            if (1 >= constructors.Length)
-                return constructors;
+
+
+            // No constructors
+            if (0 == constructors.Length)
+                return new InvalidRegistrationException($"Type {type.FullName} has no accessible constructors");
+
+            // One constructor
+            if (1 == constructors.Length)
+                return constructors[0];
 
             var selection = new HashSet<ConstructorInfo>();
 
             // Select Attributed constructors
             foreach (var constructor in constructors)
             {
-                foreach(var attribute in Markers)
-                {
-#if NET40
-                    if (!constructor.IsDefined(attribute, true))
-#else
-                    if (!constructor.IsDefined(attribute))
-#endif
-                        continue;
-
+                if (constructor.IsDefined(typeof(InjectionConstructorAttribute)))
                     selection.Add(constructor);
-                }
             }
 
             switch (selection.Count)
             {
                 case 1:
-                    return selection.ToArray();
+                    return selection.First();
 
                 case 0:
                     break;
@@ -133,9 +135,7 @@ namespace Unity
                     return new[] { new InvalidRegistrationException($"Multiple Constructors are annotated for injection on Type {type.FullName}") };
             }
 
-            var result = SelectMethod(type, constructors);
-
-            return null == result ? Enumerable.Empty<object>() : new[] { result };
+            return SelectMethod(type, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {type.FullName}.");
         }
 
         public override object? LegacySelector(Type type, ConstructorInfo[] members)
@@ -290,15 +290,15 @@ namespace Unity
             return base.Build(ref builder);
         }
 
-        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, 
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? data, 
                                                                                 ResolveDelegate<PipelineContext>? pipeline, 
                                                                                 bool perResolve)
         {
+            Debug.Assert(null != data && data is ResolveDelegate<PipelineContext>[]);
+            var resolvers = (ResolveDelegate<PipelineContext>[])data!;
+
             try
             {
-                // Create parameter resolvers
-                var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
-
                 // Select Lifetime type ( Per Resolve )
                 if (perResolve)
                 {
@@ -309,9 +309,9 @@ namespace Unity
                         {
                             try
                             {
-                                var dependencies = new object?[parameterResolvers.Length];
+                                var dependencies = new object?[resolvers.Length];
                                 for (var i = 0; i < dependencies.Length; i++)
-                                    dependencies[i] = parameterResolvers[i](ref context);
+                                    dependencies[i] = resolvers[i](ref context);
 
                                 context.Existing = info.Invoke(dependencies);
                                 context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
@@ -337,9 +337,9 @@ namespace Unity
                         {
                             try
                             {
-                                var dependencies = new object?[parameterResolvers.Length];
+                                var dependencies = new object?[resolvers.Length];
                                 for (var i = 0; i < dependencies.Length; i++)
-                                    dependencies[i] = parameterResolvers[i](ref context);
+                                    dependencies[i] = resolvers[i](ref context);
 
                                 context.Existing = info.Invoke(dependencies);
                             }
@@ -405,19 +405,53 @@ namespace Unity
         }
 
 
-        protected override Expression GetResolverExpression(ConstructorInfo info, object? resolvers, bool perResolve)
+        protected override Expression GetResolverExpression(ConstructorInfo info)
         {
-            var tryBlock = base.GetResolverExpression(info, resolvers, perResolve);
-            var catchBlock = Expression.Block(tryBlock.Type,
-                    Expression.Call(ExceptionDataExpr, AddMethodInfo,
-                        Expression.Convert(CallNewGuidExpr, typeof(object)),
-                        Expression.Constant(info, typeof(object))),
-                Expression.Rethrow(tryBlock.Type));
+            var block = Expression.Block(typeof(void),
+                Expression.Call(ExceptionDataExpression, AddMethodExpression, GuidToObjectExpression, Expression.Constant(info, typeof(object))),
+                ReThrowExpression);
 
-            return Expression.TryCatch(tryBlock,
-                   Expression.Catch(ExceptionExpr, catchBlock));
+            return
+                Expression.TryCatch(base.GetResolverExpression(info),
+                Expression.Catch(ExceptionVariableExpression, block));
         }
 
+        protected override Expression GetResolverExpression(ConstructorInfo info, object? data)
+        {
+            var block = Expression.Block(typeof(void),
+                Expression.Call(ExceptionDataExpression, AddMethodExpression, GuidToObjectExpression, Expression.Constant(info, typeof(object))),
+                ReThrowExpression);
+
+            return
+                Expression.TryCatch(base.GetResolverExpression(info, data),
+                Expression.Catch(ExceptionVariableExpression, block));
+        }
+
+        #endregion
+
+
+        #region Parameter Resolution
+
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(ParameterInfo info)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = attribute.GetResolver<PipelineContext>(info);
+
+            return (ref PipelineContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
+        }
+
+        protected override ResolveDelegate<PipelineContext> GetResolverDelegate(ParameterInfo info, object? data)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute
+                                                                                           ?? DependencyAttribute.Instance;
+            var resolver = PreProcessResolver(info, attribute, data);
+
+            if (null == resolver)
+                return (ref PipelineContext context) => context.OverrideDiagnostic(info, attribute.Name, data);
+            else
+                return (ref PipelineContext context) => context.ResolveDiagnostic(info, attribute.Name, resolver);
+        }
 
         #endregion
     }

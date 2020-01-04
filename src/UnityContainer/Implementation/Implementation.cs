@@ -227,10 +227,10 @@ namespace Unity
             builder.AppendLine(line);
             builder.AppendLine("Exception occurred:");
 
-            Debug.Assert(null != ex.Data);
+            if (null == ex.Data) return builder.ToString();
 
-            foreach (DictionaryEntry? item in ex.Data!)
-                builder.AppendLine(DataToString(item!.Value));
+            foreach (DictionaryEntry item in ex.Data!)
+                builder.AppendLine(DataToString(item.Value));
 
             return builder.ToString();
         }

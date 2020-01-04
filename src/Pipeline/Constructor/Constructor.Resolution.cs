@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Exceptions;
@@ -18,7 +19,7 @@ namespace Unity
 
             if (null != builder.SeedMethod) return pipeline;
 
-            // Verify if can build
+            // TODO: why here? // Verify if can build
 #if NETSTANDARD1_0 || NETCOREAPP1_0
             if (builder.Type.GetTypeInfo().IsGenericTypeDefinition)
 #else
@@ -36,9 +37,7 @@ namespace Unity
             }
 
             // Select ConstructorInfo
-            var selector = GetOrDefault(builder.Policies);
-            var selection = selector.Invoke(builder.Type, builder.InjectionMembers)
-                                    .FirstOrDefault();
+            var selection = Select(builder.Type, builder.InjectionMembers);
 
             // Select constructor for the Type
             ConstructorInfo info;
@@ -48,11 +47,14 @@ namespace Unity
             {
                 case ConstructorInfo memberInfo:
                     info = memberInfo;
+                    resolvers = ParameterResolvers(info);
                     break;
 
                 case MethodBase<ConstructorInfo> injectionMember:
                     info = injectionMember.MemberInfo(builder.Type);
-                    resolvers = injectionMember.Data;
+                    resolvers = null != injectionMember.Data && injectionMember.Data is object[] injectors && 0 != injectors.Length
+                              ? ParameterResolvers(info, injectors)
+                              : ParameterResolvers(info);
                     break;
 
                 case Exception exception:
@@ -82,15 +84,15 @@ namespace Unity
 
         #region Implementation
 
-        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? resolvers, 
+        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(ConstructorInfo info, object? data, 
                                                                                ResolveDelegate<PipelineContext>? pipeline, 
                                                                                bool perResolve)
         {
+            Debug.Assert(null != data && data is ResolveDelegate<PipelineContext>[]);
+            var resolvers = (ResolveDelegate<PipelineContext>[])data!;
+
             try
             {
-                // Create parameter resolvers
-                var parameterResolvers = ParameterResolvers(info.GetParameters(), resolvers).ToArray();
-
                 // Select Lifetime type ( Per Resolve )
                 if (perResolve)
                 {
@@ -99,9 +101,9 @@ namespace Unity
                     {
                         if (null == context.Existing)
                         {
-                            var dependencies = new object?[parameterResolvers.Length];
+                            var dependencies = new object?[resolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = parameterResolvers[i](ref context);
+                                dependencies[i] = resolvers[i](ref context);
 
                             context.Existing = info.Invoke(dependencies);
                             context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
@@ -118,9 +120,9 @@ namespace Unity
                     {
                         if (null == context.Existing)
                         {
-                            var dependencies = new object?[parameterResolvers.Length];
+                            var dependencies = new object?[resolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = parameterResolvers[i](ref context);
+                                dependencies[i] = resolvers[i](ref context);
 
                             context.Existing = info.Invoke(dependencies);
                         }

@@ -14,15 +14,6 @@ namespace Compiled.Constructor
     }
 
     [TestClass]
-    public class Parameters : Unity.Specification.Diagnostic.Constructor.Parameters.SpecificationTests
-    {
-        public override IUnityContainer GetContainer()
-        {
-            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
-        }
-    }
-
-    [TestClass]
     public class Types : Unity.Specification.Diagnostic.Constructor.Types.SpecificationTests
     {
         public override IUnityContainer GetContainer()
@@ -32,7 +23,34 @@ namespace Compiled.Constructor
     }
 
     [TestClass]
-    public class Injection : Unity.Specification.Diagnostic.Constructor.Injection.SpecificationTests
+    public class Injection : Unity.Specification.Constructor.Injection.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
+        }
+    }
+
+    [TestClass]
+    public class Attribute : Unity.Specification.Constructor.Attribute.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
+        }
+    }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Constructor.Parameters.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
+        }
+    }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Constructor.Overrides.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -40,6 +58,7 @@ namespace Compiled.Constructor
         }
     }
 }
+
 
 namespace Resolved.Constructor
 {
@@ -53,15 +72,6 @@ namespace Resolved.Constructor
     }
 
     [TestClass]
-    public class Parameters : Unity.Specification.Diagnostic.Constructor.Parameters.SpecificationTests
-    {
-        public override IUnityContainer GetContainer()
-        {
-            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Activated);
-        }
-    }
-
-    [TestClass]
     public class Types : Unity.Specification.Diagnostic.Constructor.Types.SpecificationTests
     {
         public override IUnityContainer GetContainer()
@@ -71,11 +81,39 @@ namespace Resolved.Constructor
     }
 
     [TestClass]
-    public class Injection : Unity.Specification.Diagnostic.Constructor.Injection.SpecificationTests
+    public class Injection : Unity.Specification.Constructor.Injection.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Activated);
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
         }
     }
+
+    [TestClass]
+    public class Attribute : Unity.Specification.Constructor.Attribute.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
+        }
+    }
+
+    [TestClass]
+    public class Parameters : Unity.Specification.Constructor.Parameters.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
+        }
+    }
+
+    [TestClass]
+    public class Overrides : Unity.Specification.Constructor.Overrides.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Diagnostic | ModeFlags.Compiled);
+        }
+    }
+
 }

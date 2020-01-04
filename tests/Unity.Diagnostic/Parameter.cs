@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
-namespace Compiled.Method
+namespace Compiled.Parameter
 {
     [TestClass]
-    public class Attribute : Unity.Specification.Method.Attribute.Validation.SpecificationTests
+    public class Attribute : Unity.Specification.Parameter.Attribute.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -13,7 +13,7 @@ namespace Compiled.Method
     }
 
     [TestClass]
-    public class Injection : Unity.Specification.Method.Injection.Validation.SpecificationTests
+    public class Injected : Unity.Specification.Parameter.Injection.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -22,7 +22,7 @@ namespace Compiled.Method
     }
 
     [TestClass]
-    public class Selection : Unity.Specification.Method.Selection.Validation.SpecificationTests
+    public class Resolved : Unity.Specification.Parameter.Resolved.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -31,7 +31,7 @@ namespace Compiled.Method
     }
 
     [TestClass]
-    public class Parameters : Unity.Specification.Method.Parameters.Validation.SpecificationTests
+    public class Optional : Unity.Specification.Parameter.Optional.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -40,7 +40,7 @@ namespace Compiled.Method
     }
 
     [TestClass]
-    public class Overrides : Unity.Specification.Method.Overrides.Validation.SpecificationTests
+    public class Overrides : Unity.Specification.Parameter.Overrides.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -50,10 +50,10 @@ namespace Compiled.Method
 }
 
 
-namespace Resolved.Method
+namespace Resolved.Parameter
 {
     [TestClass]
-    public class Attribute : Unity.Specification.Method.Attribute.Validation.SpecificationTests
+    public class Attribute : Unity.Specification.Parameter.Attribute.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -62,7 +62,7 @@ namespace Resolved.Method
     }
 
     [TestClass]
-    public class Injection : Unity.Specification.Method.Injection.Validation.SpecificationTests
+    public class Injected : Unity.Specification.Parameter.Injection.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -71,7 +71,7 @@ namespace Resolved.Method
     }
 
     [TestClass]
-    public class Selection : Unity.Specification.Method.Selection.Validation.SpecificationTests
+    public class Resolved : Unity.Specification.Parameter.Resolved.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -80,7 +80,7 @@ namespace Resolved.Method
     }
 
     [TestClass]
-    public class Parameters : Unity.Specification.Method.Parameters.Validation.SpecificationTests
+    public class Optional : Unity.Specification.Parameter.Optional.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
@@ -89,7 +89,7 @@ namespace Resolved.Method
     }
 
     [TestClass]
-    public class Overrides : Unity.Specification.Method.Overrides.Validation.SpecificationTests
+    public class Overrides : Unity.Specification.Parameter.Overrides.Validation.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {

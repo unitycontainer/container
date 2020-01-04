@@ -24,14 +24,14 @@
     <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45</TargetFrameworks>
   </PropertyGroup>
 
-  
-  <PropertyGroup>
-    <Nullable Condition="'$(TargetFramework)' != 'net40'">enable</Nullable>
-    <Nullable Condition="'$(TargetFramework)' == 'net40'">annotations</Nullable>
-  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
+    <Compile Remove="Utility\Compatibility.Net40.cs" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
     <Compile Remove="UnityContainer\Utility\ConcurrentDictionary.cs" />
