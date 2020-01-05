@@ -29,7 +29,7 @@ namespace Unity
 
         #region Overrides
 
-        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedConstructors(type);
+        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => type.SupportedConstructors();
 
         #endregion
     }

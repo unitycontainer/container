@@ -23,7 +23,7 @@ namespace Unity
 
         #region Overrides
 
-        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
+        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => type.SupportedMethods();
 
         public override object Select(Type type, InjectionMember[]? injectionMembers)
         {

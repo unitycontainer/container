@@ -22,7 +22,7 @@ namespace Unity
         
         protected override Type MemberType(FieldInfo info) => info.FieldType;
 
-        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedFields(type);
+        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type) => type.SupportedFields();
 
         #endregion
 
