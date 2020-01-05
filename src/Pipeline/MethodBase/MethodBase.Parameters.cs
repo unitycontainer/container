@@ -36,8 +36,8 @@ namespace Unity
             var resolver = attribute.GetResolver<PipelineContext>(info);
 
             return Expression.Convert(
-                Expression.Call(PipelineContextExpression.Context,
-                                PipelineContextExpression.ResolveParameterMethod,
+                Expression.Call(PipelineContext.ContextExpression,
+                                PipelineContext.ResolveParameterMethod,
                                 Expression.Constant(info, typeof(ParameterInfo)),
                                 Expression.Constant(attribute.Name, typeof(string)),
                                 Expression.Constant(resolver, typeof(ResolveDelegate<PipelineContext>))),
@@ -53,8 +53,8 @@ namespace Unity
             if (null == resolver)
             {
                 return Expression.Convert(
-                    Expression.Call(PipelineContextExpression.Context,
-                                    PipelineContextExpression.OverrideParameterMethod,
+                    Expression.Call(PipelineContext.ContextExpression,
+                                    PipelineContext.OverrideParameterMethod,
                                     Expression.Constant(info, typeof(ParameterInfo)),
                                     Expression.Constant(attribute.Name, typeof(string)),
                                     Expression.Constant(data, typeof(object))),
@@ -63,8 +63,8 @@ namespace Unity
             else
             {
                 return Expression.Convert(
-                    Expression.Call(PipelineContextExpression.Context,
-                                    PipelineContextExpression.ResolveParameterMethod,
+                    Expression.Call(PipelineContext.ContextExpression,
+                                    PipelineContext.ResolveParameterMethod,
                                     Expression.Constant(info, typeof(ParameterInfo)),
                                     Expression.Constant(attribute.Name, typeof(string)),
                                     Expression.Constant(resolver, typeof(ResolveDelegate<PipelineContext>))),

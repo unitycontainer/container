@@ -56,9 +56,9 @@ namespace Unity
             var expressions = builder.Express();
 
             var infoExpr = Expression.Condition(
-                Expression.Equal(Expression.Constant(null), PipelineContextExpression.Name),
-                Expression.Convert(PipelineContextExpression.Type, typeof(object)),
-                Expression.Convert(Expression.New(TupleConstructor, PipelineContextExpression.Type, PipelineContextExpression.Name), typeof(object)));
+                Expression.Equal(Expression.Constant(null), PipelineContext.NameExpression),
+                Expression.Convert(PipelineContext.TypeExpression, typeof(object)),
+                Expression.Convert(Expression.New(TupleConstructor, PipelineContext.TypeExpression, PipelineContext.NameExpression), typeof(object)));
 
             var filter = Expression.OrElse(
                 Expression.TypeIs(ExceptionExpr, typeof(InvalidRegistrationException)), 
@@ -71,7 +71,7 @@ namespace Unity
 
             return new Expression[]
             {
-                Expression.Call(ValidateMethod, PipelineContextExpression.Parent, PipelineContextExpression.Type, PipelineContextExpression.Name),
+                Expression.Call(ValidateMethod, PipelineContext.ParentExpression, PipelineContext.TypeExpression, PipelineContext.NameExpression),
                 Expression.TryCatch(tryBody,  Expression.Catch(ExceptionExpr, catchBody))
             };
         }

@@ -20,7 +20,7 @@ namespace Unity
                     Expression.New(InvalidRegistrationExpressionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
-                            PipelineContextExpression.Type))))};
+                            PipelineContext.TypeExpression))))};
 
         #endregion
 
@@ -81,11 +81,11 @@ namespace Unity
             try
             {
                 return Expression.IfThen(
-                    Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing),
+                    Expression.Equal(Expression.Constant(null), PipelineContext.ExistingExpression),
                     Expression.Block(new[] { variable }, new Expression[]
                     {
                         Expression.Assign(variable, Expression.New(info, parameters)),
-                        Expression.Assign(PipelineContextExpression.Existing, Expression.Convert(variable, typeof(object)))
+                        Expression.Assign(PipelineContext.ExistingExpression, Expression.Convert(variable, typeof(object)))
                     }));
             }
             catch (InvalidRegistrationException reg)

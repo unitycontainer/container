@@ -36,10 +36,10 @@ namespace Unity
             var resolver = attribute.GetResolver<PipelineContext>(info);
 
             return Expression.Assign(
-                Expression.Property(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
+                Expression.Property(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
                 Expression.Convert(
-                    Expression.Call(PipelineContextExpression.Context,
-                        PipelineContextExpression.ResolvePropertyMethod,
+                    Expression.Call(PipelineContext.ContextExpression,
+                        PipelineContext.ResolvePropertyMethod,
                         Expression.Constant(info, typeof(PropertyInfo)),
                         Expression.Constant(attribute.Name, typeof(string)),
                         Expression.Constant(resolver, typeof(ResolveDelegate<PipelineContext>))),
@@ -55,10 +55,10 @@ namespace Unity
             if (null == resolver)
             {
                 return Expression.Assign(
-                    Expression.Property(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
+                    Expression.Property(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
                     Expression.Convert(
-                        Expression.Call(PipelineContextExpression.Context,
-                            PipelineContextExpression.OverridePropertyMethod,
+                        Expression.Call(PipelineContext.ContextExpression,
+                            PipelineContext.OverridePropertyMethod,
                             Expression.Constant(info, typeof(PropertyInfo)),
                             Expression.Constant(attribute.Name, typeof(string)),
                             Expression.Constant(data, typeof(object))),
@@ -67,10 +67,10 @@ namespace Unity
             else
             {
                 return Expression.Assign(
-                    Expression.Property(Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType), info),
+                    Expression.Property(Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType), info),
                     Expression.Convert(
-                        Expression.Call(PipelineContextExpression.Context,
-                            PipelineContextExpression.ResolvePropertyMethod,
+                        Expression.Call(PipelineContext.ContextExpression,
+                            PipelineContext.ResolvePropertyMethod,
                             Expression.Constant(info, typeof(PropertyInfo)),
                             Expression.Constant(attribute.Name, typeof(string)),
                             Expression.Constant(resolver, typeof(ResolveDelegate<PipelineContext>))),

@@ -60,7 +60,7 @@ namespace Unity
             try
             {
                 return Expression.Call(
-                    Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
+                    Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType),
                     info, ParameterExpressions(info));
             }
             catch (InvalidRegistrationException reg)
@@ -84,7 +84,7 @@ namespace Unity
             try
             {
                 return Expression.Call(
-                    Expression.Convert(PipelineContextExpression.Existing, info.DeclaringType),
+                    Expression.Convert(PipelineContext.ExistingExpression, info.DeclaringType),
                     info, ParameterExpressions(info, injectors));
             }
             catch (InvalidRegistrationException reg)

@@ -22,13 +22,13 @@ namespace Unity
                                                     .First();
 
         protected static readonly BinaryExpression NullEqualExisting = 
-            Expression.Equal(Expression.Constant(null), PipelineContextExpression.Existing);
+            Expression.Equal(Expression.Constant(null), PipelineContext.ExistingExpression);
 
         protected static readonly MethodCallExpression SetPerBuildSingletonExpr =
-            Expression.Call(PipelineContextExpression.Context,
-                PipelineContextExpression.SetMethod,
+            Expression.Call(PipelineContext.ContextExpression,
+                PipelineContext.SetMethod,
                 Expression.Constant(typeof(LifetimeManager), typeof(Type)),
-                Expression.New(PerResolveInfo, PipelineContextExpression.Existing));
+                Expression.New(PerResolveInfo, PipelineContext.ExistingExpression));
 
         protected static readonly MethodInfo StringFormat =
             typeof(string).GetTypeInfo()

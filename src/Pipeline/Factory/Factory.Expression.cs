@@ -19,8 +19,8 @@ namespace Unity
             Debug.Assert(null != registration);
 
             var factory = Expression.Constant(registration!.Factory, typeof(Func<IUnityContainer, Type, string?, object?>));
-            var expression = Expression.Assign(PipelineContextExpression.Existing,
-                    Expression.Invoke(factory, PipelineContextExpression.Container, PipelineContextExpression.Type, PipelineContextExpression.Name));
+            var expression = Expression.Assign(PipelineContext.ExistingExpression,
+                    Expression.Invoke(factory, PipelineContext.ContainerExpression, PipelineContext.TypeExpression, PipelineContext.NameExpression));
 
             return builder.Express(new[] { expression });
         }

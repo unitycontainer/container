@@ -17,17 +17,17 @@ namespace Unity
         private static readonly ParameterExpression _lifetime = Expression.Variable(typeof(LifetimeManager), "lifetime");
 
         private static readonly MethodCallExpression _contextGetLifetimeManager = Expression.Call(
-            PipelineContextExpression.Context, PipelineContextExpression.GetMethod,
+            PipelineContext.ContextExpression, PipelineContext.GetMethod,
             Expression.Constant(typeof(LifetimeManager), typeof(Type)));
 
         private static readonly ConditionalExpression _setPerResolveSingleton = 
             Expression.IfThen(
-                Expression.NotEqual(Expression.Constant(null), PipelineContextExpression.DeclaringType),
+                Expression.NotEqual(Expression.Constant(null), PipelineContext.DeclaringTypeExpression),
                 SetPerBuildSingletonExpr);
 
         private static readonly InvocationExpression _lifetimeGetValue = Expression.Invoke(
             Expression.MakeMemberAccess(_lifetime, typeof(LifetimeManager).GetTypeInfo().GetDeclaredProperty(nameof(LifetimeManager.Get))),
-            PipelineContextExpression.LifetimeContainer);
+            PipelineContext.LifetimeContainerExpression);
 
         private static readonly Expression ReturnIfResolvedAlready = Expression.Block(new[] { _lifetime, _value }, new Expression[] {
             Expression.Assign(_lifetime, Expression.Convert(_contextGetLifetimeManager, typeof(LifetimeManager))),

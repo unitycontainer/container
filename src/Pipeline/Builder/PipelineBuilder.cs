@@ -150,10 +150,10 @@ namespace Unity
                                                      .ToList()
                                 : new List<Expression>();
 
-                expressions.Add(Expression.Label(Unity.Pipeline.ReturnTarget, PipelineContextExpression.Existing));
+                expressions.Add(Expression.Label(Unity.Pipeline.ReturnTarget, PipelineContext.ExistingExpression));
 
                 var lambda = Expression.Lambda<ResolveDelegate<PipelineContext>>(
-                    Expression.Block(expressions), PipelineContextExpression.Context);
+                    Expression.Block(expressions), PipelineContext.ContextExpression);
 
                 return lambda.Compile();
             }
@@ -185,8 +185,8 @@ namespace Unity
         public IEnumerable<Expression> Express(ResolveDelegate<PipelineContext> resolver)
         {
             var expression = Expression.Assign(
-                    PipelineContextExpression.Existing,
-                    Expression.Invoke(Expression.Constant(resolver), PipelineContextExpression.Context));
+                    PipelineContext.ExistingExpression,
+                    Expression.Invoke(Expression.Constant(resolver), PipelineContext.ContextExpression));
 
             SeedExpression = new[] { expression };
 

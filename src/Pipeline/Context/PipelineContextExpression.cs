@@ -1,13 +1,34 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Resolution;
 
 namespace Unity
 {
-    public class PipelineContextExpression : IResolveContextExpression<PipelineContext>
+    //public class PipelineContextExpression
+    public partial struct PipelineContext
     {
         #region Fields
+
+        private static readonly TypeInfo _contextTypeInfo = 
+            typeof(PipelineContext).GetTypeInfo();
+
+        private static readonly Type _contextRefType =
+            typeof(ResolveDelegate<PipelineContext>).GetTypeInfo()
+                                                    .GetDeclaredMethod("Invoke")!
+                                                    .GetParameters()[0]
+                                                    .ParameterType;
+        #endregion
+
+
+        #region Method Info References
+
+        public static readonly MethodInfo ResolveMethod =
+            typeof(IResolveContext).GetTypeInfo()
+                .GetDeclaredMethods(nameof(IResolveContext.Resolve))
+                .First();
+
 
         public static MethodInfo ResolvePropertyMethod =
             typeof(PipelineContext).GetTypeInfo()
@@ -86,30 +107,38 @@ namespace Unity
         #endregion
 
 
-        #region Constructor
-
-        static PipelineContextExpression()
-        {
-            var typeInfo = typeof(PipelineContext).GetTypeInfo();
-
-            Parent            = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredField(nameof(PipelineContext.Parent)));
-            Existing          = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(PipelineContext.Existing)));
-            DeclaringType     = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredField(nameof(PipelineContext.DeclaringType)));
-            LifetimeContainer = Expression.MakeMemberAccess(Context, typeInfo.GetDeclaredProperty(nameof(PipelineContext.LifetimeContainer)));
-        }
-
-        #endregion
-
-
         #region Public Properties
 
-        public static readonly MemberExpression Parent;
+        public static readonly ParameterExpression ContextExpression =
+            Expression.Parameter(_contextRefType, "context");
 
-        public static readonly MemberExpression Existing;
+        public static readonly MemberExpression TypeExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredProperty(nameof(IResolveContext.Type)));
 
-        public static readonly MemberExpression DeclaringType;
+        public static readonly MemberExpression NameExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredProperty(nameof(IResolveContext.Name)));
 
-        public static readonly MemberExpression LifetimeContainer;
+        public static readonly MemberExpression ContainerExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredProperty(nameof(IResolveContext.Container)));
+
+        public static readonly MemberExpression ParentExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredField(nameof(PipelineContext.Parent)));
+
+        public static readonly MemberExpression ExistingExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredProperty(nameof(PipelineContext.Existing)));
+
+        public static readonly MemberExpression DeclaringTypeExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredField(nameof(PipelineContext.DeclaringType)));
+
+        public static readonly MemberExpression LifetimeContainerExpression = 
+            Expression.MakeMemberAccess(ContextExpression, 
+                _contextTypeInfo.GetDeclaredProperty(nameof(PipelineContext.LifetimeContainer)));
 
         #endregion
 

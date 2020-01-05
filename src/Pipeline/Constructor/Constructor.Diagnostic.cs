@@ -29,7 +29,7 @@ namespace Unity
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructInterface),
-                            PipelineContextExpression.Type))))};
+                            PipelineContext.TypeExpression))))};
 
         private static readonly Expression[] CannotConstructAbstractClassExpr = new [] {
             Expression.IfThen(NullEqualExisting,
@@ -38,7 +38,7 @@ namespace Unity
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructAbstractClass),
-                            PipelineContextExpression.Type))))};
+                            PipelineContext.TypeExpression))))};
 
         private static readonly Expression[] CannotConstructDelegateExpr = new [] {
             Expression.IfThen(NullEqualExisting,
@@ -47,7 +47,7 @@ namespace Unity
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructDelegate),
-                            PipelineContextExpression.Type))))};
+                            PipelineContext.TypeExpression))))};
 
         private static readonly Expression[] TypeIsNotConstructableExpr = new [] {
             Expression.IfThen(NullEqualExisting,
@@ -56,7 +56,7 @@ namespace Unity
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(TypeIsNotConstructable),
-                            PipelineContextExpression.Type))))};
+                            PipelineContext.TypeExpression))))};
 
         #endregion
 
