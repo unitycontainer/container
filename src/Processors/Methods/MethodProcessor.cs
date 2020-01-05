@@ -64,7 +64,7 @@ namespace Unity.Processors
             try
             {
                 return Expression.Call(
-                    Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), 
+                    Expression.Convert(BuilderContext.ExistingExpression, info.DeclaringType), 
                     info, ParameterExpressions(info));
             }
             catch (ArgumentException ex)
@@ -82,7 +82,7 @@ namespace Unity.Processors
             try
             {
                 return Expression.Call(
-                    Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType),
+                    Expression.Convert(BuilderContext.ExistingExpression, info.DeclaringType),
                     info, ParameterExpressions(info, injectors));
             }
             catch (ArgumentException ex)

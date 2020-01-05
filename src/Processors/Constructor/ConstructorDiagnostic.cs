@@ -22,43 +22,43 @@ namespace Unity.Processors
         const string TypeIsNotConstructable = "The type {0} cannot be constructed. You must configure the container to supply this value.";
 
         private static readonly Expression[] CannotConstructInterfaceExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructInterface),
-                            BuilderContextExpression.Type),
+                            BuilderContext.TypeExpression),
                         InvalidRegistrationExpression)))};
 
         private static readonly Expression[] CannotConstructAbstractClassExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructAbstractClass),
-                            BuilderContextExpression.Type),
+                            BuilderContext.TypeExpression),
                         InvalidRegistrationExpression)))};
 
         private static readonly Expression[] CannotConstructDelegateExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(CannotConstructDelegate),
-                            BuilderContextExpression.Type),
+                            BuilderContext.TypeExpression),
                         InvalidRegistrationExpression)))};
 
         private static readonly Expression[] TypeIsNotConstructableExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                  Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(
                             StringFormat,
                             Expression.Constant(TypeIsNotConstructable),
-                            BuilderContextExpression.Type),
+                            BuilderContext.TypeExpression),
                         InvalidRegistrationExpression)))};
 
         #endregion

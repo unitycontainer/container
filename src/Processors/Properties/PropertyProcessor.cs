@@ -27,10 +27,10 @@ namespace Unity.Processors
             var resolver = attribute.GetResolver<BuilderContext>(info);
 
             return Expression.Assign(
-                Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                Expression.Property(Expression.Convert(BuilderContext.ExistingExpression, info.DeclaringType), info),
                 Expression.Convert(
-                    Expression.Call(BuilderContextExpression.Context,
-                        BuilderContextExpression.ResolvePropertyMethod,
+                    Expression.Call(BuilderContext.ContextExpression,
+                        BuilderContext.ResolvePropertyMethod,
                         Expression.Constant(info, typeof(PropertyInfo)),
                         Expression.Constant(attribute.Name, typeof(string)),
                         Expression.Constant(resolver, typeof(ResolveDelegate<BuilderContext>))),
@@ -46,10 +46,10 @@ namespace Unity.Processors
             if (null == resolver)
             {
                 return Expression.Assign(
-                    Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                    Expression.Property(Expression.Convert(BuilderContext.ExistingExpression, info.DeclaringType), info),
                     Expression.Convert(
-                        Expression.Call(BuilderContextExpression.Context,
-                            BuilderContextExpression.OverridePropertyMethod,
+                        Expression.Call(BuilderContext.ContextExpression,
+                            BuilderContext.OverridePropertyMethod,
                             Expression.Constant(info, typeof(PropertyInfo)),
                             Expression.Constant(attribute.Name, typeof(string)),
                             Expression.Constant(data, typeof(object))),
@@ -58,10 +58,10 @@ namespace Unity.Processors
             else
             {
                 return Expression.Assign(
-                    Expression.Property(Expression.Convert(BuilderContextExpression.Existing, info.DeclaringType), info),
+                    Expression.Property(Expression.Convert(BuilderContext.ExistingExpression, info.DeclaringType), info),
                     Expression.Convert(
-                        Expression.Call(BuilderContextExpression.Context,
-                            BuilderContextExpression.ResolvePropertyMethod,
+                        Expression.Call(BuilderContext.ContextExpression,
+                            BuilderContext.ResolvePropertyMethod,
                             Expression.Constant(info, typeof(PropertyInfo)),
                             Expression.Constant(attribute.Name, typeof(string)),
                             Expression.Constant(resolver, typeof(ResolveDelegate<BuilderContext>))),

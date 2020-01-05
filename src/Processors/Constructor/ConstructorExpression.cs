@@ -33,18 +33,18 @@ namespace Unity.Processors
             .GetTypeInfo().DeclaredConstructors.First();
 
         protected static readonly Expression SetPerBuildSingletonExpr =
-            Expression.Call(BuilderContextExpression.Context, 
-                BuilderContextExpression.SetMethod,
+            Expression.Call(BuilderContext.ContextExpression, 
+                BuilderContext.SetMethod,
                 Expression.Constant(typeof(LifetimeManager), typeof(Type)),
-                Expression.New(PerResolveInfo, BuilderContextExpression.Existing));
+                Expression.New(PerResolveInfo, BuilderContext.ExistingExpression));
 
         protected static readonly Expression[] NoConstructorExpr = new [] {
-            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+            Expression.IfThen(Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                 Expression.Throw(
                     Expression.New(InvalidOperationExceptionCtor,
                         Expression.Call(StringFormat,
                             Expression.Constant("No public constructor is available for type {0}."),
-                            BuilderContextExpression.Type),
+                            BuilderContext.TypeExpression),
                         InvalidRegistrationExpression)))};
 
         #endregion
@@ -75,7 +75,7 @@ namespace Unity.Processors
 
                 case Exception exception:
                     return new[] {Expression.IfThen(
-                        Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                        Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                         Expression.Throw(Expression.Constant(exception)))};
 
                 default:
@@ -105,11 +105,11 @@ namespace Unity.Processors
             try
             {
                 return Expression.IfThen(
-                    Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
+                    Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                     Expression.Block(new[] { variable }, new Expression[]
                     {
                         Expression.Assign(variable, Expression.New(info, parameters)),
-                        Expression.Assign(BuilderContextExpression.Existing, Expression.Convert(variable, typeof(object)))
+                        Expression.Assign(BuilderContext.ExistingExpression, Expression.Convert(variable, typeof(object)))
                     }));
             }
             catch (ArgumentException ex)

@@ -40,8 +40,8 @@ namespace Unity.Processors
             var resolver = attribute.GetResolver<BuilderContext>(info);
 
             return Expression.Convert(
-                Expression.Call(BuilderContextExpression.Context,
-                                BuilderContextExpression.ResolveParameterMethod,
+                Expression.Call(BuilderContext.ContextExpression,
+                                BuilderContext.ResolveParameterMethod,
                                 Expression.Constant(info, typeof(ParameterInfo)),
                                 Expression.Constant(attribute.Name, typeof(string)),
                                 Expression.Constant(resolver, typeof(ResolveDelegate<BuilderContext>))),
@@ -57,8 +57,8 @@ namespace Unity.Processors
             if (null == resolver)
             {
                 return Expression.Convert(
-                    Expression.Call(BuilderContextExpression.Context,
-                                    BuilderContextExpression.OverrideParameterMethod,
+                    Expression.Call(BuilderContext.ContextExpression,
+                                    BuilderContext.OverrideParameterMethod,
                                     Expression.Constant(info, typeof(ParameterInfo)),
                                     Expression.Constant(attribute.Name, typeof(string)),
                                     Expression.Constant(data, typeof(object))),
@@ -67,8 +67,8 @@ namespace Unity.Processors
             else
             {
                 return Expression.Convert(
-                    Expression.Call(BuilderContextExpression.Context,
-                                    BuilderContextExpression.ResolveParameterMethod,
+                    Expression.Call(BuilderContext.ContextExpression,
+                                    BuilderContext.ResolveParameterMethod,
                                     Expression.Constant(info, typeof(ParameterInfo)),
                                     Expression.Constant(attribute.Name, typeof(string)),
                                     Expression.Constant(resolver, typeof(ResolveDelegate<BuilderContext>))),

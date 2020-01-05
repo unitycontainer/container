@@ -15,7 +15,7 @@ namespace Unity
         static UnityContainer()
         {
             UnityDefaults.EnableDiagnostic = false;
-            BuilderContextExpression.EnableDiagnostic(false);
+            BuilderContext.EnableDiagnostic(false);
 
             // Initialize defaults
             Defaults = new DefaultPolicies(

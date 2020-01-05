@@ -43,10 +43,10 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
         internal ResolveDelegate<BuilderContext> GetBuildMethod()
         {
             var block = Expression.Block(
-                _buildPlanExpressions.Concat(new[] { BuilderContextExpression.Existing }));
+                _buildPlanExpressions.Concat(new[] { BuilderContext.ExistingExpression }));
 
             var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(block,
-                BuilderContextExpression.Context);
+                BuilderContext.ContextExpression);
 
             var planDelegate = lambda.Compile();
 

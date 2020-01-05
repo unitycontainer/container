@@ -277,10 +277,10 @@ namespace Unity
                                 expressions.Add(step);
                         }
 
-                        expressions.Add(BuilderContextExpression.Existing);
+                        expressions.Add(BuilderContext.ExistingExpression);
 
                         var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
-                            Expression.Block(expressions), BuilderContextExpression.Context);
+                            Expression.Block(expressions), BuilderContext.ContextExpression);
 
                         // Replace this build plan with compiled
                         registration.Set(typeof(ResolveDelegate<BuilderContext>), lambda.Compile());
@@ -303,10 +303,10 @@ namespace Unity
                     expressions.Add(step);
             }
 
-            expressions.Add(BuilderContextExpression.Existing);
+            expressions.Add(BuilderContext.ExistingExpression);
 
             var lambda = Expression.Lambda<ResolveDelegate<BuilderContext>>(
-                Expression.Block(expressions), BuilderContextExpression.Context);
+                Expression.Block(expressions), BuilderContext.ContextExpression);
 
             return lambda.Compile();
         }
