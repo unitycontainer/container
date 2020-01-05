@@ -13,7 +13,7 @@ namespace Unity.Processors
 
         protected override Type MemberType(PropertyInfo info) => info.PropertyType;
 
-        protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedProperties(type);
+        protected override IEnumerable<PropertyInfo> DeclaredMembers(Type type) => type.SupportedProperties();
 
         #endregion
 

@@ -52,7 +52,7 @@ namespace Unity.Processors
 
         #region Overrides
         
-        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => UnityDefaults.SupportedMethods(type);
+        protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => type.SupportedMethods();
         
         #endregion
 
