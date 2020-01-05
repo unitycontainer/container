@@ -21,7 +21,7 @@ namespace Unity.Builder
         #endregion
 
 
-        #region Public Fields
+        #region Method Info References
         
         public static readonly MethodInfo ResolveMethod =
             typeof(IResolveContext).GetTypeInfo()
