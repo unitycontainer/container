@@ -114,6 +114,5 @@ namespace Unity
             return new InvalidRegistrationException(
                 $"Failed to select a constructor for {type.FullName}");
         }
-
     }
 }
