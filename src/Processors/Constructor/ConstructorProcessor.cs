@@ -122,21 +122,23 @@ namespace Unity.Processors
 
         protected virtual object? SmartSelector(Type type, ConstructorInfo[] constructors)
         {
-            Array.Sort(constructors, (a, b) =>
+            Array.Sort(constructors, (left, right) =>
             {
-                var qtd = b.GetParameters().Length.CompareTo(a.GetParameters().Length);
+                var result = right.GetParameters().Length.CompareTo(left.GetParameters().Length);
 
-                if (qtd == 0)
+                if (result == 0)
                 {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                    return b.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0)
-                        .CompareTo(a.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0));
+                    return right.GetParameters()
+                                .Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0)
+                                .CompareTo(left.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0));
 #else
-                    return b.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0)
-                        .CompareTo(a.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0));
+                    return right.GetParameters()
+                                .Sum(p => p.ParameterType.IsInterface ? 1 : 0)
+                                .CompareTo(left.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0));
 #endif
                 }
-                return qtd;
+                return result;
             });
 
             foreach (var ctorInfo in constructors)

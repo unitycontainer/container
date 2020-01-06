@@ -17,7 +17,7 @@ namespace Unity.Registration
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
             LifetimeManager.InUse = true;
-            InjectionMembers = injectionMembers;
+            InjectionMembers = null != injectionMembers && 0 == injectionMembers.Length ? null : injectionMembers;
             Next = validators;
         }
 

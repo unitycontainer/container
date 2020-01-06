@@ -267,8 +267,11 @@ namespace Unity
                 // Check if optimization is required
                 if (0 == Interlocked.Decrement(ref counter))
                 {
+#if NET40
                     Task.Factory.StartNew(() => {
-
+#else
+                    Task.Run(() => {
+#endif
                         // Compile build plan on worker thread
                         var expressions = new List<Expression>();
                         foreach (var processor in chain)
@@ -323,10 +326,10 @@ namespace Unity
             return seed ?? throw new InvalidOperationException("Failed to create resolve delegate");
         }
 
-        #endregion
+#endregion
 
 
-        #region Build Plans
+#region Build Plans
 
         private ResolveDelegate<BuilderContext> ExecutePlan { get; set; } =
             (ref BuilderContext context) =>
@@ -402,10 +405,10 @@ namespace Unity
             return context.Existing;
         }
 
-        #endregion
+#endregion
 
 
-        #region BuilderContext
+#region BuilderContext
 
         internal BuilderContext.ExecutePlanDelegate ContextExecutePlan { get; set; } =
             (BuilderStrategy[] chain, ref BuilderContext context) =>
@@ -531,6 +534,6 @@ namespace Unity
 #endif
         }
 
-        #endregion
+#endregion
     }
 }
