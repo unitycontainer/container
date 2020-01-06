@@ -415,7 +415,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                    return existing.GetOrAdd(name, () => CreateRegistration(this, type, name));
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
@@ -424,7 +424,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
+                var registration = CreateRegistration(this, type, name);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
@@ -492,7 +492,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    return existing.GetOrAdd(name, () => CreateRegistration(type, name));
+                    return existing.GetOrAdd(name, () => CreateRegistration(this, type, name));
                 }
 
                 if (_registrations.RequireToGrow || ListToHashCutPoint < collisions)
@@ -501,7 +501,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, name);
+                var registration = CreateRegistration(this, type, name);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];
@@ -639,7 +639,7 @@ namespace Unity
                         _registrations.Entries[i].Value = existing;
                     }
 
-                    existing.GetOrAdd(name, () => CreateRegistration(type, policyInterface, policy));
+                    existing.GetOrAdd(name, () => CreateRegistration(this, type, policyInterface, policy));
                     return;
                 }
 
@@ -649,7 +649,7 @@ namespace Unity
                     targetBucket = hashCode % _registrations.Buckets.Length;
                 }
 
-                var registration = CreateRegistration(type, policyInterface, policy);
+                var registration = CreateRegistration(this, type, policyInterface, policy);
                 ref var entry = ref _registrations.Entries[_registrations.Count];
                 entry.HashCode = hashCode;
                 entry.Next = _registrations.Buckets[targetBucket];

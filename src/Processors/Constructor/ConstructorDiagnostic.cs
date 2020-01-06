@@ -8,6 +8,7 @@ using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -64,26 +65,16 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Constructors
-
-        public ConstructorDiagnostic(UnityContainer container) 
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Selection
 
-        protected override object Select(Type type, InjectionMember[]? injectionMembers)
+        protected override object Select(Type type, InternalRegistration registration)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != registration.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in registration.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
@@ -141,12 +132,12 @@ namespace Unity.Processors
                            new InvalidRegistrationException());
             }
 
-            return SelectMethod(type, constructors) ??
+            return SelectMethod(registration.Owner, type, constructors) ??
                 new InvalidOperationException($"Unable to select constructor for type {type.FullName}.",
                     new InvalidRegistrationException());
         }
 
-        protected override object SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected override object SmartSelector(UnityContainer container, Type type, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, (a, b) =>
             {
@@ -176,9 +167,9 @@ namespace Unity.Processors
                 parametersCount = parameters.Length;
 
 #if NET40
-                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p)))
+                if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(container, p)))
 #else
-                if (parameters.All(p => p.HasDefaultValue || CanResolve(p)))
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
 #endif
                 {
                     if (bestCtor == null)

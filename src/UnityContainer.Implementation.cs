@@ -7,7 +7,6 @@ using System.Reflection;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Policy;
 using Unity.Processors;
@@ -136,9 +135,9 @@ namespace Unity
         {
             // Processors
             var fieldsProcessor = new FieldProcessor();
-            var methodsProcessor = new MethodProcessor(container);
+            var methodsProcessor = new MethodProcessor();
             var propertiesProcessor = new PropertyProcessor();
-            var constructorProcessor = new ConstructorProcessor(container);
+            var constructorProcessor = new ConstructorProcessor();
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
@@ -169,9 +168,9 @@ namespace Unity
 
             // Processors
             var fieldsProcessor = new FieldDiagnostic();
-            var methodsProcessor = new MethodDiagnostic(container);
+            var methodsProcessor = new MethodDiagnostic();
             var propertiesProcessor = new PropertyDiagnostic();
-            var constructorProcessor = new ConstructorDiagnostic(container);
+            var constructorProcessor = new ConstructorDiagnostic();
 
             // Processors chain
             container._processors = new StagedStrategyChain<MemberProcessor, BuilderStage>
@@ -189,7 +188,7 @@ namespace Unity
             Defaults.Set(typeof(BuilderContext.ExecutePlanDelegate), container.ContextExecutePlan);
             Defaults.Set(typeof(ResolveDelegateFactory), container._buildStrategy);
 
-            container._validators = new InternalRegistration();
+            container._validators = new InternalRegistration(container);
 
 
             // Registration Validator

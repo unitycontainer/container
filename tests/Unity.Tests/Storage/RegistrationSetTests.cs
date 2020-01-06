@@ -14,12 +14,13 @@ namespace Unity.Tests.v5.Storage
         [TestMethod]
         public void ShouldHandleCollisions()
         {
+            var container = new UnityContainer();
             var (s1, s2) = MakeCollision();
 
             var registrationSet = new RegistrationSet();
-            var registration1 = new InternalRegistration();
-            var registration2 = new InternalRegistration();
-            var registration3 = new InternalRegistration();
+            var registration1 = new InternalRegistration(container);
+            var registration2 = new InternalRegistration(container);
+            var registration3 = new InternalRegistration(container);
 
             registrationSet.Add(typeof(IService), s1, registration1);
             Assert.AreEqual(1, registrationSet.Count);

@@ -55,7 +55,7 @@ namespace Unity.Processors
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
             // Select ConstructorInfo
-            var selection = Select(type, ((InternalRegistration)registration).InjectionMembers);
+            var selection = Select(type, (InternalRegistration)registration);
 
             // Select constructor for the Type
             var expressions = Enumerable.Empty<Expression>();

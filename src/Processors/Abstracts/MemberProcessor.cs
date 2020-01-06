@@ -48,7 +48,7 @@ namespace Unity.Processors
         /// <inheritdoc />
         public override IEnumerable<Expression> GetExpressions(Type type, IPolicySet registration)
         {
-            foreach (var member in (IReadOnlyCollection<object>)Select(type, ((InternalRegistration)registration).InjectionMembers))
+            foreach (var member in (IReadOnlyCollection<object>)Select(type, (InternalRegistration)registration))
             {
                 switch (member)
                 {
@@ -74,7 +74,7 @@ namespace Unity.Processors
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
             var index = 0;
-            var members = (IReadOnlyCollection<object>)Select(type, ((InternalRegistration)registration).InjectionMembers);
+            var members = (IReadOnlyCollection<object>)Select(type, (InternalRegistration)registration);
             var resolvers = new ResolveDelegate<BuilderContext>[members.Count];
 
             foreach (var member in members)
@@ -111,14 +111,14 @@ namespace Unity.Processors
 
         #region Selection
 
-        protected virtual object Select(Type type, InjectionMember[]? injectionMembers)
+        protected virtual object Select(Type type, InternalRegistration registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != registration.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in registration.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<TMemberInfo, TData>)
                         memberSet.Add(injectionMember);

@@ -11,7 +11,8 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public ContainerRegistration(LinkedNode<Type?, object?>? validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+        public ContainerRegistration(UnityContainer container, LinkedNode<Type?, object?>? validators, Type mappedTo, LifetimeManager lifetimeManager, InjectionMember[]? injectionMembers = null)
+            : base(container)
         {
             Type = mappedTo;
             Key = typeof(LifetimeManager);

@@ -13,18 +13,21 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public InternalRegistration()
+        public InternalRegistration(UnityContainer container)
         {
+            Owner = container;
         }
 
-        public InternalRegistration(Type policyInterface, string? name)
+        public InternalRegistration(UnityContainer container, Type policyInterface, string? name)
         {
+            Owner = container;
             Key = policyInterface;
             Value = name;
         }
 
-        public InternalRegistration(Type policyInterface, object policy)
+        public InternalRegistration(UnityContainer container, Type policyInterface, object policy)
         {
+            Owner = container;
             Key = policyInterface;
             Value = policy;
         }
@@ -41,6 +44,8 @@ namespace Unity.Registration
         public bool BuildRequired { get; set; }
 
         public Converter<Type, Type>? Map { get; set; }
+
+        public UnityContainer Owner { get;}
 
         #endregion
 

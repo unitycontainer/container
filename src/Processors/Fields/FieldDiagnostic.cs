@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -11,14 +12,14 @@ namespace Unity.Processors
     {
         #region Selection
 
-        protected override object Select(Type type, InjectionMember[]? injectionMembers)
+        protected override object Select(Type type, InternalRegistration registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != registration.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in registration.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<FieldInfo, object> && !memberSet.Add(injectionMember))
                         throw new InvalidOperationException($"Field injected more than once '{injectionMember}'");

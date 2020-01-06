@@ -18,7 +18,7 @@ namespace Unity.Processors
         public override ResolveDelegate<BuilderContext> GetResolver(Type type, IPolicySet registration, ResolveDelegate<BuilderContext>? seed)
         {
             // Select ConstructorInfo
-            var selection = Select(type, ((InternalRegistration)registration).InjectionMembers);
+            var selection = Select(type, (InternalRegistration)registration);
 
             // Select constructor for the Type
             ConstructorInfo info;

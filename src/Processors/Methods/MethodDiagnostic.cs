@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
+using Unity.Registration;
 using Unity.Resolution;
 
 namespace Unity.Processors
@@ -32,26 +33,16 @@ namespace Unity.Processors
         #endregion
 
 
-        #region Constructors
-
-        public MethodDiagnostic(UnityContainer container) 
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
-        protected override object Select(Type type, InjectionMember[]? injectionMembers)
+        protected override object Select(Type type, InternalRegistration registration)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != registration.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in registration.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<MethodInfo, object[]> && !memberSet.Add(injectionMember))
                         throw new InvalidOperationException($"Method injected more than once '{injectionMember}'");

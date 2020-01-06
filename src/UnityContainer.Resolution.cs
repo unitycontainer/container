@@ -37,9 +37,9 @@ namespace Unity
                 : GetOrAddGeneric(type, name, info.GetGenericTypeDefinition());
         }
 
-        private IPolicySet CreateRegistration(Type type, string? name)
+        private IPolicySet CreateRegistration(UnityContainer container, Type type, string? name)
         {
-            var registration = new InternalRegistration(type, name);
+            var registration = new InternalRegistration(container, type, name);
 
             if (type.GetTypeInfo().IsGenericType)
             {
@@ -55,9 +55,9 @@ namespace Unity
             return registration;
         }
 
-        private IPolicySet CreateRegistration(Type? type, Type policyInterface, object policy)
+        private IPolicySet CreateRegistration(UnityContainer container, Type? type, Type policyInterface, object policy)
         {
-            var registration = new InternalRegistration(policyInterface, policy);
+            var registration = new InternalRegistration(container, policyInterface, policy);
             registration.BuildChain = GetBuilders(type, registration);
             return registration;
         }
