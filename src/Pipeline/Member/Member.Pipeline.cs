@@ -8,46 +8,21 @@ namespace Unity
 {
     public abstract class MemberPipeline : Pipeline
     {
-        #region Fields
-
-        private UnityContainer _container;
-
-        #endregion
-
-
-        #region Constructor
-
-        public MemberPipeline(UnityContainer container)
-        {
-            _container = container;
-        }
-
-        #endregion
     }
 
     public abstract partial class MemberPipeline<TMemberInfo, TData> : MemberPipeline
                                                    where TMemberInfo : MemberInfo
     {
-        #region Constructors
-
-        protected MemberPipeline(UnityContainer container)
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Selection
 
-        public virtual object Select(Type type, InjectionMember[]? injectionMembers)
+        public virtual object Select(ref PipelineBuilder builder)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<TMemberInfo, TData>)
                         memberSet.Add(injectionMember);
@@ -55,7 +30,7 @@ namespace Unity
             }
 
             // Select Attributed members
-            foreach (var member in DeclaredMembers(type))
+            foreach (var member in DeclaredMembers(builder.Type))
             {
                 if (member.IsDefined(typeof(DependencyResolutionAttribute), true))
                     memberSet.Add(member);

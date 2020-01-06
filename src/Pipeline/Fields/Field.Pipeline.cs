@@ -8,16 +8,6 @@ namespace Unity
 {
     public class FieldPipeline : MemberPipeline<FieldInfo, object>
     {
-        #region Constructors
-
-        public FieldPipeline(UnityContainer container)
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
         
         protected override Type MemberType(FieldInfo info) => info.FieldType;

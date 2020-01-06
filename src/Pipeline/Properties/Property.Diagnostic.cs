@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
@@ -9,26 +8,16 @@ namespace Unity
 {
     public partial class PropertyDiagnostic : PropertyPipeline
     {
-        #region Constructors
-
-        public PropertyDiagnostic(UnityContainer container) 
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
-        public override object Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(ref PipelineBuilder builder)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<PropertyInfo, object> && !memberSet.Add(injectionMember))
                     { 
@@ -38,7 +27,7 @@ namespace Unity
             }
 
             // Select Attributed members
-            foreach (var member in type.DeclaredProperties())
+            foreach (var member in builder.Type.DeclaredProperties())
             {
                 if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member))
                     continue;
@@ -46,13 +35,13 @@ namespace Unity
                 if (!member.CanWrite)
                 { 
                     return new[] { new InvalidRegistrationException(
-                        $"Readonly property '{member.Name}' on type '{type?.FullName}' is marked for injection. Readonly properties cannot be injected") };
+                        $"Readonly property '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Readonly properties cannot be injected") };
                 }
 
                 if (0 != member.GetIndexParameters().Length)
                 { 
                     return new[] { new InvalidRegistrationException(
-                        $"Indexer '{member.Name}' on type '{type?.FullName}' is marked for injection. Indexers cannot be injected") };
+                        $"Indexer '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Indexers cannot be injected") };
                 }
 
                 var setter = member.GetSetMethod(true);
@@ -60,25 +49,25 @@ namespace Unity
                 if (null == setter)
                 { 
                     return new[] { new InvalidRegistrationException(
-                        $"Readonly property '{member.Name}' on type '{type?.FullName}' is marked for injection. Static properties cannot be injected") };
+                        $"Readonly property '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Static properties cannot be injected") };
                 }
 
                 if (setter.IsStatic)
                 { 
                     return new[] { new InvalidRegistrationException(
-                        $"Static property '{member.Name}' on type '{type?.FullName}' is marked for injection. Static properties cannot be injected") };
+                        $"Static property '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Static properties cannot be injected") };
                 }
 
                 if (setter.IsPrivate)
                 { 
                     return new[] { new InvalidRegistrationException(
-                        $"Private property '{member.Name}' on type '{type?.FullName}' is marked for injection. Private properties cannot be injected") };
+                        $"Private property '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Private properties cannot be injected") };
                 }
 
                 if (setter.IsFamily)
                 { 
                     return new[] { new InvalidRegistrationException(
-                        $"Protected property '{member.Name}' on type '{type?.FullName}' is marked for injection. Protected properties cannot be injected") };
+                        $"Protected property '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Protected properties cannot be injected") };
                 }
             }
 

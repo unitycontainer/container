@@ -56,8 +56,6 @@ namespace Unity
         // Pipeline From Registration
         public PipelineBuilder(Type type, ExplicitRegistration registration)
         {
-//            Debug.Assert(null != registration.Type);
-
             Type = type;
             TypeConverter = null;
             LifetimeManager = registration.LifetimeManager;

@@ -8,16 +8,6 @@ namespace Unity
 {
     public class PropertyPipeline : MemberPipeline<PropertyInfo, object>
     {
-        #region Constructors
-
-        public PropertyPipeline(UnityContainer container)
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
         protected override Type MemberType(PropertyInfo info) => info.PropertyType;

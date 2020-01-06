@@ -34,7 +34,7 @@ namespace Unity
             if (null != builder.SeedExpression) return buildSteps;
 
             // Select ConstructorInfo
-            var selection = Select(builder.Type, builder.InjectionMembers);
+            var selection = Select(ref builder);
 
             // Select constructor for the Type
             ConstructorInfo info;

@@ -10,11 +10,10 @@ namespace Unity
         #region Constructors
 
         public ConstructorPipeline(UnityContainer container)
-            : base(typeof(InjectionConstructorAttribute), container)
         {
             SelectMethod = container.ExecutionMode.IsLegacy()
-                ? (Func<Type, ConstructorInfo[], object?>)LegacySelector
-                : SmartSelector;
+                         ? (CtorSelectorDelegate)LegacySelector
+                         : SmartSelector;
         }
 
         #endregion
@@ -22,7 +21,7 @@ namespace Unity
 
         #region Public Properties
 
-        public Func<Type, ConstructorInfo[], object?> SelectMethod { get; set; }
+        public CtorSelectorDelegate SelectMethod { get; set; }
 
         #endregion
 

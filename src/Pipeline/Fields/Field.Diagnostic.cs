@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
@@ -9,25 +8,16 @@ namespace Unity
 {
     public partial class FieldDiagnostic : FieldPipeline
     {
-        #region Constructors
-
-        public FieldDiagnostic(UnityContainer container) : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
-        public override object Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(ref PipelineBuilder builder)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<FieldInfo, object> && !memberSet.Add(injectionMember))
                     { 
@@ -37,7 +27,7 @@ namespace Unity
             }
 
             // Select Attributed members
-            foreach (var member in type.DeclaredFields())
+            foreach (var member in builder.Type.DeclaredFields())
             {
                 if (!member.IsDefined(typeof(DependencyResolutionAttribute)) || !memberSet.Add(member))
                     continue;
@@ -45,25 +35,25 @@ namespace Unity
                 if (member.IsStatic)
                 { 
                     return new [] { new InvalidRegistrationException(
-                        $"Static field '{member.Name}' on type '{type?.FullName}' is marked for injection. Static fields cannot be injected") };
+                        $"Static field '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Static fields cannot be injected") };
                 }
 
                 if (member.IsInitOnly)
                 { 
                     return  new [] { new InvalidRegistrationException(
-                        $"Readonly field '{member.Name}' on type '{type?.FullName}' is marked for injection. Readonly fields cannot be injected") };
+                        $"Readonly field '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Readonly fields cannot be injected") };
                 }
 
                 if (member.IsPrivate)
                 { 
                     return  new [] { new InvalidRegistrationException(
-                        $"Private field '{member.Name}' on type '{type?.FullName}' is marked for injection. Private fields cannot be injected") };
+                        $"Private field '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Private fields cannot be injected") };
                 }
 
                 if (member.IsFamily)
                 { 
                     return  new [] { new InvalidRegistrationException(
-                        $"Protected field '{member.Name}' on type '{type?.FullName}' is marked for injection. Protected fields cannot be injected") };
+                        $"Protected field '{member.Name}' on type '{builder.Type?.FullName}' is marked for injection. Protected fields cannot be injected") };
                 }
             }
 

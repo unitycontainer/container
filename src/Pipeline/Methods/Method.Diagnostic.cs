@@ -11,26 +11,16 @@ namespace Unity
 {
     public partial class MethodDiagnostic : MethodPipeline
     {
-        #region Constructors
-
-        public MethodDiagnostic(UnityContainer container) 
-            : base(container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
-        public override object Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(ref PipelineBuilder builder)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             { 
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<MethodInfo, object[]> && !memberSet.Add(injectionMember))
                         return new[] { new InvalidRegistrationException($"Method injected more than once '{injectionMember}'") };
@@ -38,7 +28,7 @@ namespace Unity
             }
 
             // Select Attributed members
-            foreach (var member in type.DeclaredMethods())
+            foreach (var member in builder.Type.DeclaredMethods())
             {
                 if (!member.IsDefined(typeof(InjectionMethodAttribute)) || !memberSet.Add(member))
                     continue;

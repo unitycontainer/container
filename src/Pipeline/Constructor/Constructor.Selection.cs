@@ -9,12 +9,21 @@ namespace Unity
 {
     public partial class ConstructorPipeline
     {
-        public override object Select(Type type, InjectionMember[]? injectionMembers)
+        #region Delegates
+
+        public delegate object? CtorSelectorDelegate(ref PipelineBuilder builder, ConstructorInfo[] members);
+
+        #endregion
+
+
+        #region Selection
+
+        public override object Select(ref PipelineBuilder builder)
         {
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
@@ -24,11 +33,11 @@ namespace Unity
             }
 
             // Enumerate to array
-            var constructors = DeclaredMembers(type).ToArray();
+            var constructors = DeclaredMembers(builder.Type).ToArray();
 
             // No constructors
             if (0 == constructors.Length) 
-                return new InvalidRegistrationException($"Type {type.FullName} has no accessible constructors");
+                return new InvalidRegistrationException($"Type {builder.Type.FullName} has no accessible constructors");
 
             // One constructor
             if (1 == constructors.Length) 
@@ -43,7 +52,7 @@ namespace Unity
                 return constructor;
             }
 
-            return SelectMethod(type, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {type.FullName}.");
+            return SelectMethod(ref builder, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {builder.Type.FullName}.");
         }
 
         /// <summary>
@@ -52,7 +61,7 @@ namespace Unity
         /// <param name="type"><see cref="Type"/> to be built</param>
         /// <param name="members">All public constructors this type implements</param>
         /// <returns></returns>
-        public virtual object? LegacySelector(Type type, ConstructorInfo[] members)
+        public virtual object? LegacySelector(ref PipelineBuilder builder, ConstructorInfo[] members)
         {
             Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
 
@@ -72,47 +81,67 @@ namespace Unity
                             string.Format(
                                 CultureInfo.CurrentCulture,
                                 "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
-                                type.GetTypeInfo().Name,
+                                builder.Type.GetTypeInfo().Name,
                                 paramLength));
                     }
                     return members[0];
             }
         }
 
-        protected virtual object? SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected virtual object? SmartSelector(ref PipelineBuilder builder, ConstructorInfo[] constructors)
         {
-            Array.Sort(constructors, (a, b) =>
+            Array.Sort(constructors, (left, right) =>
             {
-                var qtd = b.GetParameters().Length.CompareTo(a.GetParameters().Length);
+                var qtd = right.GetParameters().Length.CompareTo(left.GetParameters().Length);
 
                 if (qtd == 0)
                 {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
-                    return b.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0)
-                        .CompareTo(a.GetParameters().Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0));
+                    return right.GetParameters()
+                                .Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0)
+                                .CompareTo(left.GetParameters()
+                                               .Sum(p => p.ParameterType.GetTypeInfo().IsInterface ? 1 : 0));
 #else
-                    return b.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0)
-                        .CompareTo(a.GetParameters().Sum(p => p.ParameterType.IsInterface ? 1 : 0));
+                    return right.GetParameters()
+                            .Sum(p => p.ParameterType.IsInterface ? 1 : 0)
+                            .CompareTo(left.GetParameters()
+                                           .Sum(p => p.ParameterType.IsInterface ? 1 : 0));
 #endif
                 }
                 return qtd;
             });
 
+            UnityContainer container = builder.ContainerContext.Container; 
             foreach (var ctorInfo in constructors)
             {
                 var parameters = ctorInfo.GetParameters();
 #if NET40
                 if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p)))
 #else
-                if (parameters.All(p => p.HasDefaultValue || CanResolve(p)))
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
 #endif
                 {
                     return ctorInfo;
                 }
             }
 
-            return new InvalidRegistrationException(
-                $"Failed to select a constructor for {type.FullName}");
+            return new InvalidRegistrationException($"Failed to select a constructor for {builder.Type.FullName}");
         }
+
+        #endregion
+
+
+        #region Implementation
+
+        protected bool CanResolve(UnityContainer container, ParameterInfo info)
+        {
+            var attribute = info.GetCustomAttribute(typeof(DependencyResolutionAttribute)) as DependencyResolutionAttribute;
+
+            if (null != attribute) return container.CanResolve(info.ParameterType, attribute.Name);
+
+            return container.CanResolve(info.ParameterType, null);
+        }
+
+        #endregion
     }
 }

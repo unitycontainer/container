@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Exceptions;
@@ -11,28 +10,18 @@ namespace Unity
 {
     public partial class MethodPipeline : MethodBasePipeline<MethodInfo>
     {
-        #region Constructors
-
-        public MethodPipeline(UnityContainer container)
-            : base(typeof(InjectionMethodAttribute), container)
-        {
-        }
-
-        #endregion
-
-
         #region Overrides
 
         protected override IEnumerable<MethodInfo> DeclaredMembers(Type type) => type.SupportedMethods();
 
-        public override object Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(ref PipelineBuilder builder)
         {
             HashSet<object> memberSet = new HashSet<object>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<MethodInfo, object[]>)
                         memberSet.Add(injectionMember);
@@ -40,7 +29,7 @@ namespace Unity
             }
 
             // Select Attributed members
-            foreach (var member in DeclaredMembers(type))
+            foreach (var member in DeclaredMembers(builder.Type))
             {
                 if (member.IsDefined(typeof(InjectionMethodAttribute)))
                     memberSet.Add(member);

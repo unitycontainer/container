@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
@@ -37,7 +36,7 @@ namespace Unity
             }
 
             // Select ConstructorInfo
-            var selection = Select(builder.Type, builder.InjectionMembers);
+            var selection = Select(ref builder);
 
             // Select constructor for the Type
             ConstructorInfo info;

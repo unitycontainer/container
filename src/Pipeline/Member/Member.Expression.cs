@@ -31,7 +31,7 @@ namespace Unity
 
             var expressions = builder.Express();
 
-            var members = (IReadOnlyCollection<object>)Select(builder.Type, builder.InjectionMembers);
+            var members = (IReadOnlyCollection<object>)Select(ref builder);
 
             return expressions.Concat(ExpressionsFromSelection(builder.Type, members));
         }

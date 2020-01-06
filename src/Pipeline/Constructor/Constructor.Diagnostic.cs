@@ -73,14 +73,14 @@ namespace Unity
 
         #region Selection Overrides
 
-        public override object Select(Type type, InjectionMember[]? injectionMembers)
+        public override object Select(ref PipelineBuilder builder)
         {
             var members = new List<InjectionMember>();
 
             // Select Injected Members
-            if (null != injectionMembers)
+            if (null != builder.InjectionMembers)
             {
-                foreach (var injectionMember in injectionMembers)
+                foreach (var injectionMember in builder.InjectionMembers)
                 {
                     if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
                     {
@@ -98,16 +98,16 @@ namespace Unity
                     break;
 
                 default:
-                    return new[] { new InvalidRegistrationException($"Multiple Injection Constructors are registered for Type {type.FullName}") };
+                    return new[] { new InvalidRegistrationException($"Multiple Injection Constructors are registered for Type {builder.Type.FullName}") };
             }
 
             // Enumerate to array
-            var constructors = DeclaredMembers(type).ToArray();
+            var constructors = DeclaredMembers(builder.Type).ToArray();
 
 
             // No constructors
             if (0 == constructors.Length)
-                return new InvalidRegistrationException($"Type {type.FullName} has no accessible constructors");
+                return new InvalidRegistrationException($"Type {builder.Type.FullName} has no accessible constructors");
 
             // One constructor
             if (1 == constructors.Length)
@@ -131,13 +131,13 @@ namespace Unity
                     break;
 
                 default:
-                    return new[] { new InvalidRegistrationException($"Multiple Constructors are annotated for injection on Type {type.FullName}") };
+                    return new[] { new InvalidRegistrationException($"Multiple Constructors are annotated for injection on Type {builder.Type.FullName}") };
             }
 
-            return SelectMethod(type, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {type.FullName}.");
+            return SelectMethod(ref builder, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {builder.Type.FullName}.");
         }
 
-        public override object? LegacySelector(Type type, ConstructorInfo[] members)
+        public override object? LegacySelector(ref PipelineBuilder builder, ConstructorInfo[] members)
         {
             // TODO: Add validation to legacy selector
             Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
@@ -158,14 +158,14 @@ namespace Unity
                             string.Format(
                                 CultureInfo.CurrentCulture,
                                 "The type {0} has multiple constructors of length {1}. Unable to disambiguate.",
-                                type.GetTypeInfo().Name,
+                                builder.Type.GetTypeInfo().Name,
                                 paramLength));
                     }
                     return members[0];
             }
         }
 
-        protected override object? SmartSelector(Type type, ConstructorInfo[] constructors)
+        protected override object? SmartSelector(ref PipelineBuilder builder, ConstructorInfo[] constructors)
         {
             Array.Sort(constructors, (a, b) =>
             {
@@ -186,6 +186,7 @@ namespace Unity
 
             int parametersCount = 0;
             ConstructorInfo? bestCtor = null;
+            UnityContainer container = builder.ContainerContext.Container;
 
             foreach (var ctorInfo in constructors)
             {
@@ -197,7 +198,7 @@ namespace Unity
 #if NET40
                 if (parameters.All(p => (null != p.DefaultValue && !(p.DefaultValue is DBNull)) || CanResolve(p)))
 #else
-                if (parameters.All(p => p.HasDefaultValue || CanResolve(p)))
+                if (parameters.All(p => p.HasDefaultValue || CanResolve(container, p)))
 #endif
                 {
                     if (bestCtor == null)
@@ -206,7 +207,7 @@ namespace Unity
                     }
                     else
                     {
-                        var message = $"Ambiguous constructor: Failed to choose between {type.Name}{Regex.Match(bestCtor.ToString(), @"\((.*?)\)")} and {type.Name}{Regex.Match(ctorInfo.ToString(), @"\((.*?)\)")}";
+                        var message = $"Ambiguous constructor: Failed to choose between {builder.Type.Name}{Regex.Match(bestCtor.ToString(), @"\((.*?)\)")} and {builder.Type.Name}{Regex.Match(ctorInfo.ToString(), @"\((.*?)\)")}";
                         return new InvalidRegistrationException(message);
                     }
                 }
@@ -215,7 +216,7 @@ namespace Unity
             if (bestCtor == null)
             {
                 return new InvalidRegistrationException(
-                    $"Failed to select a constructor for {type.FullName}");
+                    $"Failed to select a constructor for {builder.Type.FullName}");
             }
 
             return bestCtor;

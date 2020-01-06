@@ -108,9 +108,9 @@ namespace Unity
                         { typeFactory,                     Stage.Factory },
                         { new MappingDiagnostic(),         Stage.TypeMapping },
                         { new ConstructorDiagnostic(this), Stage.Creation },
-                        { new FieldDiagnostic(this),       Stage.Fields },
-                        { new PropertyDiagnostic(this),    Stage.Properties },
-                        { new MethodDiagnostic(this),      Stage.Methods }
+                        { new FieldDiagnostic(),           Stage.Fields },
+                        { new PropertyDiagnostic(),        Stage.Properties },
+                        { new MethodDiagnostic(),          Stage.Methods }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {
@@ -142,9 +142,9 @@ namespace Unity
                         { typeFactory,                   Stage.Factory },
                         { new MappingPipeline(),         Stage.TypeMapping },
                         { new ConstructorPipeline(this), Stage.Creation },
-                        { new FieldPipeline(this),       Stage.Fields },
-                        { new PropertyPipeline(this),    Stage.Properties },
-                        { new MethodPipeline(this),      Stage.Methods }
+                        { new FieldPipeline(),           Stage.Fields },
+                        { new PropertyPipeline(),        Stage.Properties },
+                        { new MethodPipeline(),          Stage.Methods }
                     },
                     new StagedStrategyChain<Pipeline, Stage> // Factory Resolve Pipeline
                     {

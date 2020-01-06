@@ -17,7 +17,7 @@ namespace Unity
             if (null != builder.SeedMethod) return builder.Pipeline();
 
             var pipeline = builder.Pipeline();
-            var members = (IReadOnlyCollection<object>)Select(builder.Type, builder.InjectionMembers);
+            var members = (IReadOnlyCollection<object>)Select(ref builder);
 
             Debug.Assert(null != members);
 
