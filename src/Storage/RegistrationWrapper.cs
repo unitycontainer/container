@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using Unity.Lifetime;
-using Unity.Policy;
 using Unity.Registration;
 
 namespace Unity.Storage
@@ -9,21 +8,29 @@ namespace Unity.Storage
     [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
     internal sealed class RegistrationWrapper : IContainerRegistration
     {
-        private readonly ExplicitRegistration _registration;
-
-        public RegistrationWrapper(Type type, IPolicySet registration)
+        public RegistrationWrapper(Type type, ExplicitRegistration registration)
         {
             RegisteredType = type;
-            _registration = (ExplicitRegistration)registration;
+            Name = registration.Name;
+            MappedToType = registration.Type ?? RegisteredType;
+            LifetimeManager = registration.LifetimeManager ??
+                              TransientLifetimeManager.Instance;
+        }
+
+        public RegistrationWrapper(Type type, string? name, Type? mappedTo, LifetimeManager manager)
+        {
+            RegisteredType = type;
+            Name = name;
+            MappedToType    = mappedTo ?? RegisteredType;
+            LifetimeManager = manager  ?? TransientLifetimeManager.Instance;
         }
 
         public Type RegisteredType { get; }
 
-        public string? Name => _registration.Name;
+        public string? Name { get; } 
 
-        public Type? MappedToType => _registration.Type ?? RegisteredType;
+        public Type? MappedToType { get; }
 
-        public LifetimeManager LifetimeManager => _registration.LifetimeManager ??
-                                                  TransientLifetimeManager.Instance;
+        public LifetimeManager LifetimeManager { get; }
     }
 }

@@ -50,11 +50,10 @@ namespace Unity
 
                     // Add or replace existing 
                     var registration = new ExplicitRegistration(container, name, type, manager, injectionMembers);
-                    var previous = container.Register(registeredType, name, registration);
+                    var previous = container.RegisterType(registeredType, name, registration);
 
                     // Allow reference adjustment and disposal
-                    if (null != previous && 0 == previous.Release()
-                        && previous.LifetimeManager is IDisposable disposable)
+                    if (null != previous && previous is IDisposable disposable)
                     {
                         // Dispose replaced lifetime manager
                         container.LifetimeContainer.Remove(disposable);

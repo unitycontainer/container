@@ -10,18 +10,17 @@ namespace Unity.Storage
     /// Represents a chain of responsibility for builder strategies partitioned by stages.
     /// </summary>
     /// <typeparam name="TStageEnum">The stage enumeration to partition the strategies.</typeparam>
-    /// <typeparam name="TStrategyType"></typeparam>
-    public class StagedStrategyChain<TStrategyType, TStageEnum> : IStagedStrategyChain<TStrategyType, TStageEnum>
+    /// <typeparam name="Pipeline"></typeparam>
+    public class StagedPipelineChain<TStageEnum> : IStagedStrategyChain<Pipeline, TStageEnum>
     {
         #region Fields
 
-        private static EventArgs _eventArgs = new EventArgs();
         private static readonly int _size = typeof(TStageEnum).GetTypeInfo().DeclaredFields.Count(f => f.IsPublic && f.IsStatic);
         private readonly object _lockObject = new object();
-        private readonly StagedStrategyChain<TStrategyType, TStageEnum>? _innerChain;
-        private readonly IList<TStrategyType>[] _stages = new IList<TStrategyType>[_size];
+        private readonly StagedPipelineChain<TStageEnum>? _innerChain;
+        private readonly IList<Pipeline>[] _stages = new IList<Pipeline>[_size];
 
-        private TStrategyType[]? _cache;
+        private Pipeline[]? _cache;
 
         #endregion
 
@@ -29,31 +28,31 @@ namespace Unity.Storage
         #region Constructors
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType,TStageEnum}"/> class.
+        /// Initialize a new instance of the <see cref="StagedStrategyChain{Pipeline,TStageEnum}"/> class.
         /// </summary>
-        public StagedStrategyChain()
+        public StagedPipelineChain()
         {
             for (var i = 0; i < _stages.Length; ++i)
             {
-                _stages[i] = new List<TStrategyType>();
+                _stages[i] = new List<Pipeline>();
             }
         }
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="StagedStrategyChain{TStrategyType, TStageEnum}"/> class with an inner strategy chain to use when building.
+        /// Initialize a new instance of the <see cref="StagedStrategyChain{Pipeline, TStageEnum}"/> class with an inner strategy chain to use when building.
         /// </summary>
         /// <param name="innerChain">The inner strategy chain to use first when finding strategies in the build operation.</param>
-        public StagedStrategyChain(IStagedStrategyChain<TStrategyType,TStageEnum>? innerChain = null)
+        public StagedPipelineChain(IStagedStrategyChain<Pipeline,TStageEnum>? innerChain = null)
         {
             if (null != innerChain)
             {
-                _innerChain = (StagedStrategyChain<TStrategyType, TStageEnum>)innerChain;
+                _innerChain = (StagedPipelineChain<TStageEnum>)innerChain;
                 _innerChain.Invalidated += OnParentInvalidated;
             }
 
             for (var i = 0; i < _stages.Length; ++i)
             {
-                _stages[i] = new List<TStrategyType>();
+                _stages[i] = new List<Pipeline>();
             }
         }
 
@@ -70,9 +69,9 @@ namespace Unity.Storage
             }
         }
 
-        private IEnumerable<TStrategyType> Enumerate(int i)
+        private IEnumerable<Pipeline> Enumerate(int i)
         {
-            return (_innerChain?.Enumerate(i) ?? Enumerable.Empty<TStrategyType>()).Concat(_stages[i]);
+            return (_innerChain?.Enumerate(i) ?? Enumerable.Empty<Pipeline>()).Concat(_stages[i]);
         }
 
         #endregion
@@ -91,22 +90,13 @@ namespace Unity.Storage
         /// </summary>
         /// <param name="strategy">The strategy to add to the chain.</param>
         /// <param name="stage">The stage to add the strategy.</param>
-        public void Add(TStrategyType strategy, TStageEnum stage)
+        public void Add(Pipeline strategy, TStageEnum stage)
         {
             lock (_lockObject)
             {
                 _stages[Convert.ToInt32(stage)].Add(strategy);
                 _cache = null;
-                Invalidated?.Invoke(this, _eventArgs);
-            }
-        }
-
-        public void Invalidate()
-        {
-            lock (_lockObject)
-            {
-                _cache = null;
-                Invalidated?.Invoke(this, _eventArgs);
+                Invalidated?.Invoke(this, new EventArgs());
             }
         }
 
@@ -115,7 +105,7 @@ namespace Unity.Storage
 
         #region IEnumerable
 
-        public TStrategyType[] ToArray()
+        public Pipeline[] ToArray()
         {
             var cache = _cache;
             if (null != cache) return cache;
@@ -134,7 +124,7 @@ namespace Unity.Storage
             return cache;
         }
 
-        public IEnumerator<TStrategyType> GetEnumerator()
+        public IEnumerator<Pipeline> GetEnumerator()
         {
             var cache = _cache;
             if (null == cache)

@@ -50,12 +50,15 @@ namespace Unity
             _root = this;
             ExecutionMode = mode;
             LifetimeContainer = new LifetimeContainer(this);
-            Register = AddOrReplace;
             
+            // Dynamic Members
+            RegisterType     = AddOrReplaceType;
+            RegisterInstance = AddOrReplaceInstance;
+
             //Built-In Registrations
 
             // Defaults
-            Defaults = new DefaultPolicies(this);
+            DefaultContainerPolicies = new DefaultPolicies(this);
 
             // IUnityContainer, IUnityContainerAsync
             var container = new ExplicitRegistration(this, null, typeof(UnityContainer), new ContainerLifetimeManager())
@@ -66,7 +69,7 @@ namespace Unity
 
             // Create Registries
             _metadata  = new Metadata();
-            _registry  = new Registry(Defaults);
+            _registry  = new Registry(DefaultContainerPolicies);
             _registry.Set(typeof(IUnityContainer),      null, container);  // TODO: Remove redundancy
             _registry.Set(typeof(IUnityContainerAsync), null, container);
             _registry.Set(typeof(IUnityContainer),      null, container.LifetimeManager!.Pipeline);
@@ -224,6 +227,8 @@ namespace Unity
         {
             get
             {
+                // TODO: Requires optimization
+
                 var set = new QuickSet();
                 IContainerRegistration cashe;
 
@@ -257,9 +262,13 @@ namespace Unity
                         if (null == cashe)
                         {
                             Debug.Assert(null != registry.Entries[i].Key.Type);
-                            var type = registry.Entries[i].Key.Type!;
+                        
+                            var registration = registry.Entries[i].Registration;
 
-                            cashe = new RegistrationWrapper(type, registry.Entries[i].Policies);
+                            cashe = new RegistrationWrapper(registry.Entries[i].Key.Type!, 
+                                                            registry.Entries[i].Key.Name, 
+                                                            registration?.Type, 
+                                                            registry.Entries[i].Manager);
                             registry.Entries[i].Cache = cashe;
                         }
 

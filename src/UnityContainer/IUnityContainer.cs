@@ -40,11 +40,10 @@ namespace Unity
 
                 // Add or replace existing 
                 var registration = new ExplicitRegistration(container, name, typeTo, manager, injectionMembers);
-                var previous = container.Register(registeredType, name, registration);
+                var previous = container.RegisterType(registeredType, name, registration);
 
                 // Allow reference adjustment and disposal
-                if (null != previous && 0 == previous.Release()
-                    && previous.LifetimeManager is IDisposable disposable)
+                if (null != previous && previous is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
                     container.LifetimeContainer.Remove(disposable);
@@ -104,27 +103,34 @@ namespace Unity
 
             // Validate input
             if (null == registeredType)
-            {
-                throw new InvalidOperationException(
-                    $"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
-            }
+                throw new InvalidOperationException($"When registering 'null' as an instance 'Type' is required");
 
             try
             {
                 // Lifetime Manager
-                var manager = lifetimeManager as LifetimeManager ??
-                              Context.InstanceLifetimeManager.CreateLifetimePolicy();
+                var manager = lifetimeManager as LifetimeManager ?? Context.InstanceLifetimeManager.CreateLifetimePolicy();
 
-                // Create registration and add to appropriate storage
+                // Root container or local storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
 
-                // Register type
-                var registration = new InstanceRegistration(container, registeredType, name, instance, manager);
-                var previous = container.Register(registeredType, name, registration);
+                // Set Value
+                manager.Set(instance, container.LifetimeContainer);
+                manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)((ref PipelineContext c) =>
+                {
+                    var value = manager.Get(c.LifetimeContainer);
+                    return LifetimeManager.NoValue != value 
+                                                    ? value
+                                                    : throw new ResolutionFailedException(registeredType, name, "Failed to resolve instance");
+                });
+
+                // If Disposable register with the container
+                if (manager is IDisposable disposableManager) container.LifetimeContainer.Add(disposableManager);
+
+                // Register instance
+                var previous = container.RegisterInstance(registeredType, name, manager);
 
                 // Allow reference adjustment and disposal
-                if (null != previous && 0 == previous.Release()
-                    && previous.LifetimeManager is IDisposable disposable)
+                if (null != previous && previous is IDisposable disposable)
                 {
                     // Dispose replaced lifetime manager
                     container.LifetimeContainer.Remove(disposable);
@@ -132,7 +138,7 @@ namespace Unity
                 }
 
                 // Check what strategies to run
-                registration.Processors = Context.InstancePipelineCache;
+                //registration.Processors = Context.InstancePipelineCache;
 
                 // Raise event
                 container.RegisteringInstance?.Invoke(this, new RegisterInstanceEventArgs(registeredType, instance, name, manager));
@@ -172,11 +178,10 @@ namespace Unity
             var registration = new FactoryRegistration(container!, type, name, factory, manager);
 
             // Register
-            var previous = container.Register(type, name, registration);
+            var previous = container.RegisterType(type, name, registration);
 
             // Allow reference adjustment and disposal
-            if (null != previous && 0 == previous.Release()
-                && previous.LifetimeManager is IDisposable disposable)
+            if (null != previous && previous is IDisposable disposable)
             {
                 // Dispose replaced lifetime manager
                 container.LifetimeContainer.Remove(disposable);
@@ -202,8 +207,11 @@ namespace Unity
         [SecuritySafeCritical]
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            var key = new HashKey(type ?? throw new ArgumentNullException(nameof(type)), name);
-            var pipeline = GetPipeline(ref key);
+            // Validate Type
+            if (null == type) throw new ArgumentNullException(nameof(type));
+
+            // Get pipeline
+            var pipeline = GetPipeline(type, name);
 
             // Check if already created and acquire a lock if not
             var manager = pipeline.Target as LifetimeManager;

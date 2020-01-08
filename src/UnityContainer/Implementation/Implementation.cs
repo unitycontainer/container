@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -46,7 +45,7 @@ namespace Unity
         private readonly UnityContainer? _parent;
 
         internal readonly ModeFlags ExecutionMode;
-        internal readonly DefaultPolicies Defaults;
+        internal readonly Storage.DefaultPolicies DefaultContainerPolicies;
         internal readonly ContainerContext Context;
         internal readonly LifetimeContainer LifetimeContainer;
 
@@ -58,7 +57,9 @@ namespace Unity
         private event EventHandler<ChildContainerCreatedEventArgs>? ChildContainerCreated;
 
         // Dynamic Members
-        private Func<Type, string?, ExplicitRegistration, ExplicitRegistration?> Register;
+        private Func<Type, string?, ExplicitRegistration, LifetimeManager?> RegisterType { get; set; }
+
+        private Func<Type, string?, LifetimeManager, LifetimeManager?> RegisterInstance { get; set; }
 
         #endregion
 
@@ -80,11 +81,12 @@ namespace Unity
             // Defaults and policies
             LifetimeContainer = new LifetimeContainer(this);
             ExecutionMode = parent._root.ExecutionMode;
-            Defaults = _root.Defaults;
+            DefaultContainerPolicies = _root.DefaultContainerPolicies;
             Context = new ContainerContext(this);
 
             // Dynamic Members
-            Register = InitAndAdd;
+            RegisterType     = InitAndAddType;
+            RegisterInstance = InitAndAddInstance;
 
             // Validators
             ValidateType = _root.ValidateType;

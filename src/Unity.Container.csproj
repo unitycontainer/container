@@ -30,10 +30,15 @@
 
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
-    <Compile Remove="Utility\Compatibility.Net40.cs" />
+    <Compile Remove="Utility\Compatibility.Net.4.0.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0' ">
+    <Compile Remove="Utility\Compatibility.NetCoreApp.1.0.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netstandard1.0' ">
+    <Compile Remove="Utility\Compatibility.NetStandard.1.0.cs" />
     <Compile Remove="UnityContainer\Utility\ConcurrentDictionary.cs" />
   </ItemGroup>
 

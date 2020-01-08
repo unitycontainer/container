@@ -40,7 +40,7 @@ namespace Unity.Registration
             : base(owner, name, lifetimeManager)
         {
             Type = type;
-            Next = owner.Defaults;
+            Next = owner.DefaultContainerPolicies;
             InjectionMembers = null != injectionMembers && 0 < injectionMembers.Length ? injectionMembers : null;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired) || lifetimeManager is PerResolveLifetimeManager;
             BuildType = GetTypeConverter();

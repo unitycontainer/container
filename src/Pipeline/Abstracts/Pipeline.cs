@@ -10,7 +10,7 @@ using Unity.Resolution;
 
 namespace Unity
 {
-    public abstract class Pipeline
+    public abstract partial class Pipeline
     {
         #region Fields
 
@@ -70,6 +70,36 @@ namespace Unity
         public virtual ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder builder) => builder.Pipeline();
 
         public virtual IEnumerable<Expression> Express(ref PipelineBuilder builder) => builder.Express();
+
+        #endregion
+
+
+
+
+        #region Activation
+
+        public virtual ResolveDelegate<PipelineContext>? PreActivation(ref PipelineBuilder builder)
+            => builder.SeedMethod;
+
+        public virtual ResolveDelegate<PipelineContext>? BuildActivation(ref PipelineBuilder builder)
+            => builder.SeedMethod;
+
+        public virtual ResolveDelegate<PipelineContext>? PostActivation(ref PipelineBuilder builder)
+            => builder.SeedMethod;
+
+        #endregion
+
+
+        #region Expression
+
+        public virtual IEnumerable<Expression> PreExpression(ref PipelineBuilder builder) 
+            => builder.SeedExpression ?? Enumerable.Empty<Expression>();
+
+        public virtual IEnumerable<Expression> BuildExpression(ref PipelineBuilder builder) 
+            => builder.SeedExpression ?? Enumerable.Empty<Expression>();
+
+        public virtual IEnumerable<Expression> PostExpression(ref PipelineBuilder builder) 
+            => builder.SeedExpression ?? Enumerable.Empty<Expression>();
 
         #endregion
     }

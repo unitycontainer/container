@@ -94,13 +94,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var registrationName = registry.Entries[index].Key.Name;
 
-                        if (!set.Add(registration.Name)) continue;
+                        if (!set.Add(registrationName)) continue;
 
                         try
                         {
-                            value = resolve(typeof(TElement), registration.Name);
+                            value = resolve(typeof(TElement), registrationName);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -155,13 +155,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var registrationName = registry.Entries[index].Key.Name;
 
-                        if (!set.Add(registration.Name)) continue;
+                        if (!set.Add(registrationName)) continue;
 
                         try
                         {
-                            value = resolve(typeof(TElement), registration.Name);
+                            value = resolve(typeof(TElement), registrationName);
                         }
                         catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                         {
@@ -270,13 +270,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var name = registry.Entries[index].Key.Name;
 
-                        if (null != registration.Name && set.Add(registration.Name))
+                        if (null != name && set.Add(name))
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -318,13 +318,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var name = registry.Entries[index].Key.Name;
 
-                        if (null != registration.Name && set.Add(registration.Name))
+                        if (null != name && set.Add(name))
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -345,13 +345,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var name = registry.Entries[index].Key.Name;
 
-                        if (null != registration.Name && set.Add(registration.Name))
+                        if (null != name && set.Add(name))
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), name);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }
@@ -389,13 +389,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var name = registry.Entries[index].Key.Name;
 
-                        if (null != registration.Name && set.Add(registration.Name))
+                        if (null != name && set.Add(name))
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -436,13 +436,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var name = registry.Entries[index].Key.Name;
 
-                        if (null != registration.Name && set.Add(registration.Name))
+                        if (null != name && set.Add(name))
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), name);
                             }
                             catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                             {
@@ -461,13 +461,13 @@ namespace Unity
                     for (var i = 1; i < length; i++)
                     {
                         var index = data[i];
-                        var registration = (ExplicitRegistration)registry.Entries[index].Policies;
+                        var name = registry.Entries[index].Key.Name;
 
-                        if (null != registration.Name && set.Add(registration.Name))
+                        if (null != name && set.Add(name))
                         {
                             try
                             {
-                                value = resolve(typeof(TElement), registration.Name);
+                                value = resolve(typeof(TElement), name);
                             }
                             catch (MakeGenericTypeFailedException) { continue; }
                             catch (InvalidRegistrationException)   { continue; }

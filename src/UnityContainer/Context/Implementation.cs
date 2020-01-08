@@ -35,15 +35,15 @@ namespace Unity
 
                 // Initialize Pipelines
                 TypePipeline = type;
-                TypePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
+                TypePipeline.Invalidated += OnTypePipelineChanged;
                 TypePipelineCache = TypePipeline.ToArray();
 
                 FactoryPipeline = factory;
-                FactoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
+                FactoryPipeline.Invalidated += OnFactoryPipelineChanged;
                 FactoryPipelineCache = FactoryPipeline.ToArray();
 
                 InstancePipeline = instance;
-                InstancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
+                InstancePipeline.Invalidated += OnInstancePipelineChanged;
                 InstancePipelineCache = InstancePipeline.ToArray();
             }
 

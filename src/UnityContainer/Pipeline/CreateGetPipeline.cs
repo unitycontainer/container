@@ -36,6 +36,22 @@ namespace Unity
             return null;
         }
 
+        internal ResolveDelegate<PipelineContext> GetPipeline(Type type, string? name)
+        {
+            var key = new HashKey(type, name);
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var info = key.Type?.GetTypeInfo();
+            return null != info && info.IsGenericType 
+                ? GenericGetPipeline(ref key, info) 
+                : GetNonGenericPipeline(ref key);
+#else
+            return null != key.Type && key.Type.IsGenericType
+                ? GenericGetPipeline(ref key)
+                : GetNonGenericPipeline(ref key);
+#endif
+        }
+
         internal ResolveDelegate<PipelineContext> GetPipeline(ref HashKey key)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
