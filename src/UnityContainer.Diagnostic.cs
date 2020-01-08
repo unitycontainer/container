@@ -43,7 +43,7 @@ namespace Unity
             return builder.ToString();
         }
 
-        private static string DataToString(object? value)
+        private static string? DataToString(object? value)
         {
             switch (value)
             {

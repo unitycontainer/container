@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
@@ -60,7 +61,8 @@ namespace Unity.Strategies
             if (plan == null)
             {
                 var typeArgument = context.RegistrationType.GetElementType();
-                var type = ((UnityContainer)context.Container).GetFinalType(typeArgument);
+                Debug.Assert(null != typeArgument);
+                var type = ((UnityContainer)context.Container).GetFinalType(typeArgument!);
 
                 if (type != typeArgument)
                 {

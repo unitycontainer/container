@@ -95,6 +95,9 @@ namespace Unity
         {
             // WithLifetime
             LifetimeContainer = new LifetimeContainer(this);
+            _typeLifetimeManager     = parent._typeLifetimeManager;
+            _factoryLifetimeManager  = parent._factoryLifetimeManager;
+            _instanceLifetimeManager = parent._instanceLifetimeManager;
 
             // Context and policies
             _context = new ContainerContext(this);
@@ -343,7 +346,7 @@ namespace Unity
                 }
                 else if (type.IsArray)
                 {
-                    next = type.GetElementType();
+                    next = type.GetElementType()!;
                     if (IsTypeExplicitlyRegistered(next)) return next;
                 }
                 else

@@ -44,7 +44,7 @@ namespace Unity
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(container, _validators, mappedToType, manager, injectionMembers);
-                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
+                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Owner = container;
 
                 // Add or replace existing 
                 var previous = container.Register(registeredType, name, registration);
@@ -91,7 +91,7 @@ namespace Unity
                 var parts = new List<string>();
                 var generics = null == mappedToType ? registeredType?.Name : $"{registeredType?.Name},{mappedToType?.Name}";
                 if (null != name) parts.Add($" '{name}'");
-                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
+                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString()!);
                 if (null != injectionMembers && 0 != injectionMembers.Length)
                     parts.Add(string.Join(" ,", injectionMembers.Select(m => m.ToString())));
 
@@ -126,7 +126,7 @@ namespace Unity
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(container, null, mappedToType!, manager);
-                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
+                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Owner = container;
 
                 // Add or replace existing 
                 var previous = container.Register(typeFrom, name, registration);
@@ -154,7 +154,7 @@ namespace Unity
                 var parts = new List<string>();
 
                 if (null != name) parts.Add($" '{name}'");
-                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString());
+                if (null != lifetimeManager && !(lifetimeManager is TransientLifetimeManager)) parts.Add(lifetimeManager.ToString()!);
 
                 var message = $"Error in  RegisterInstance<{typeFrom?.Name}>({string.Join(", ", parts)})";
                 throw new InvalidOperationException(message, ex);
@@ -186,7 +186,7 @@ namespace Unity
 #pragma warning restore CS0618
             var injectionMembers = new InjectionMember[] { injectionFactory };
             var registration = new ContainerRegistration(container, _validators, type, manager, injectionMembers);
-            if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
+            if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Owner = container;
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
@@ -239,7 +239,7 @@ namespace Unity
 
             var registration = (InternalRegistration)GetRegistration(type, name);
             var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                          ? (UnityContainer)manager.Scope! 
+                          ? (UnityContainer)manager.Owner! 
                           : this;
 
             var context = new BuilderContext
@@ -275,7 +275,7 @@ namespace Unity
 
             var registration = (InternalRegistration)GetRegistration(type, name);
             var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                          ? (UnityContainer)manager.Scope!
+                          ? (UnityContainer)manager.Owner!
                           : this;
 
             var context = new BuilderContext

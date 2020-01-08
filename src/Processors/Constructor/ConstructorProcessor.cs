@@ -183,7 +183,7 @@ namespace Unity.Processors
                 // Array could be either registered or Type can be resolved
                 if (type.IsArray)
                 {
-                    return container._isExplicitlyRegistered(type, name) || CanResolve(container, type!.GetElementType(), name);
+                    return container._isExplicitlyRegistered(type, name) || CanResolve(container, type.GetElementType()!, name);
                 }
 
                 // Type must be registered if:

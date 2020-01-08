@@ -7,7 +7,7 @@ namespace Unity.Policy
     {
         #region Properties
 
-        protected PolicyEntry Policies { get; private set; }
+        protected PolicyEntry? Policies { get; private set; }
 
         #endregion
 

@@ -52,7 +52,7 @@ namespace Unity.Storage
             Debug.Assert(null != last);
 
             // Not found, so add a new one
-            last.Next = new LinkedNode<string?, IPolicySet>
+            last!.Next = new LinkedNode<string?, IPolicySet>
             {
                 Key = name,
                 Value = value
