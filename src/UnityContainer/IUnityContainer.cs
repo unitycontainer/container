@@ -103,7 +103,7 @@ namespace Unity
 
             // Validate input
             if (null == registeredType)
-                throw new InvalidOperationException($"When registering 'null' as an instance 'Type' is required");
+                throw new ArgumentNullException(nameof(type), $"When registering 'null' as an instance, 'Type' is required");
 
             try
             {

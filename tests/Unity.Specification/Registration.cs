@@ -40,15 +40,6 @@ namespace Registration
     }
 
     [TestClass]
-    public class Instance : Unity.Specification.Registration.Instance.SpecificationTests
-    {
-        public override IUnityContainer GetContainer()
-        {
-            return new UnityContainer();
-        }
-    }
-
-    [TestClass]
     public class Types : Unity.Specification.Registration.Types.SpecificationTests
     {
         public override IUnityContainer GetContainer()
