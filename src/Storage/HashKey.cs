@@ -99,6 +99,7 @@ namespace Unity.Storage
                    x._typeHash == y._typeHash &&
                    x._nameHash == y._nameHash;
         }
+
         public static bool operator !=(HashKey x, HashKey y)
         {
             return x.HashCode != y.HashCode ||

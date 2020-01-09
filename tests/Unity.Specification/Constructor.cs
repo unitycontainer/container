@@ -38,6 +38,15 @@ namespace Compiled.Constructor
             return new UnityContainer(ModeFlags.Compiled);
         }
     }
+
+    [TestClass]
+    public class Selection : Unity.Specification.Constructor.Selection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Compiled);
+        }
+    }
 }
 
 
@@ -79,4 +88,12 @@ namespace Resolved.Constructor
         }
     }
 
+    [TestClass]
+    public class Selection : Unity.Specification.Constructor.Selection.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer(ModeFlags.Activated);
+        }
+    }
 }
