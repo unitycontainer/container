@@ -44,7 +44,7 @@ namespace Unity
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(container, _validators, mappedToType, manager, injectionMembers);
-                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Owner = container;
+                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
                 var previous = container.Register(registeredType, name, registration);
@@ -126,7 +126,7 @@ namespace Unity
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(container, null, mappedToType!, manager);
-                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Owner = container;
+                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
                 var previous = container.Register(typeFrom, name, registration);
@@ -186,7 +186,7 @@ namespace Unity
 #pragma warning restore CS0618
             var injectionMembers = new InjectionMember[] { injectionFactory };
             var registration = new ContainerRegistration(container, _validators, type, manager, injectionMembers);
-            if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Owner = container;
+            if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
@@ -239,7 +239,7 @@ namespace Unity
 
             var registration = (InternalRegistration)GetRegistration(type, name);
             var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                          ? (UnityContainer)manager.Owner! 
+                          ? (UnityContainer)manager.Scope! 
                           : this;
 
             var context = new BuilderContext
@@ -275,7 +275,7 @@ namespace Unity
 
             var registration = (InternalRegistration)GetRegistration(type, name);
             var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                          ? (UnityContainer)manager.Owner!
+                          ? (UnityContainer)manager.Scope!
                           : this;
 
             var context = new BuilderContext
