@@ -61,6 +61,16 @@ namespace Compiled.Constructor
                                        .AddExtension(new ForceCompillation());
         }
     }
+
+    [TestClass]
+    public class Selection : Unity.Specification.Constructor.Selection.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new Diagnostic())
+                                       .AddExtension(new ForceCompillation());
+        }
+    }
 }
 
 namespace Resolved.Constructor
@@ -125,4 +135,13 @@ namespace Resolved.Constructor
         }
     }
 
+    [TestClass]
+    public class Selection : Unity.Specification.Constructor.Selection.Validation.SpecificationTests
+    {
+        public override IUnityContainer GetContainer()
+        {
+            return new UnityContainer().AddExtension(new Diagnostic())
+                                       .AddExtension(new ForceActivation());
+        }
+    }
 }
