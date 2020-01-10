@@ -17,8 +17,8 @@ namespace Unity.Builder
             {
                 var thisContext = this;
                 var containerRegistration = registration as ContainerRegistration;
-                var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                              ? ((UnityContainer)manager.Scope!).LifetimeContainer
+                var container = registration.Get(typeof(LifetimeManager)) is LifetimeManager manager && null != manager.Scope
+                              ? ((UnityContainer)manager.Scope).LifetimeContainer
                               : Lifetime;
 
                 var context = new BuilderContext

@@ -137,6 +137,7 @@ namespace Unity.Processors
 
         #endregion
 
+
         #region Implementation
 
         protected virtual Type MemberType(TMemberInfo info) => throw new NotImplementedException();

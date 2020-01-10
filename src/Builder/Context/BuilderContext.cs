@@ -18,6 +18,7 @@ namespace Unity.Builder
     {
         #region Fields
 
+        public ILifetimeContainer? Scope;
         public ResolverOverride[]? Overrides;
         public IPolicyList List;
 
@@ -123,6 +124,7 @@ namespace Unity.Builder
 
 
         #region Public Properties
+
 
         public object? Existing { get; set; }
 

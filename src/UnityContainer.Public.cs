@@ -27,8 +27,8 @@ namespace Unity
 
             // WithLifetime
             LifetimeContainer = new LifetimeContainer(this);
-            _typeLifetimeManager = TransientLifetimeManager.Instance;
-            _factoryLifetimeManager = TransientLifetimeManager.Instance;
+            _typeLifetimeManager = new TransientLifetimeManager();
+            _factoryLifetimeManager = _typeLifetimeManager;
             _instanceLifetimeManager = new ContainerControlledLifetimeManager();
 
             // Registrations

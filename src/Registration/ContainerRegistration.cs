@@ -17,7 +17,6 @@ namespace Unity.Registration
             Type = mappedTo;
             Key = typeof(LifetimeManager);
             Value = lifetimeManager;
-            LifetimeManager.InUse = true;
             InjectionMembers = null != injectionMembers && 0 == injectionMembers.Length ? null : injectionMembers;
             Next = validators;
         }

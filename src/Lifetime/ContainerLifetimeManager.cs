@@ -1,4 +1,6 @@
-﻿namespace Unity.Lifetime
+﻿using System;
+
+namespace Unity.Lifetime
 {
     /// <summary>
     /// Internal container lifetime manager. 
@@ -15,11 +17,7 @@
             return container?.Container;
         }
 
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new ContainerLifetimeManager();
-        }
-
-        public override bool InUse { get => false; set => base.InUse = false; }
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => throw new NotImplementedException();
     }
 }

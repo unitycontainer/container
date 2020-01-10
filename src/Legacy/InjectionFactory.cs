@@ -105,7 +105,6 @@ namespace Unity.Injection
             public InternalPerResolveLifetimeManager(object? obj)
             {
                 value = obj;
-                InUse = true;
             }
         }
 

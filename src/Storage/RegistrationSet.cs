@@ -126,6 +126,9 @@ namespace Unity.Storage
         [DebuggerTypeProxy(typeof(EntryDebugProxy))]
         public struct Entry : IContainerRegistration
         {
+            private static LifetimeManager Transient = new TransientLifetimeManager();
+
+
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             internal int Next;
 
@@ -142,7 +145,7 @@ namespace Unity.Storage
                 ? registration.Type : null;
 
             public LifetimeManager LifetimeManager => Registration is ContainerRegistration registration 
-                ? registration.LifetimeManager : TransientLifetimeManager.Instance;
+                ? registration.LifetimeManager : Transient;
 
         }
 

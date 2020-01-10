@@ -26,14 +26,15 @@ namespace Unity.Strategies
 
         public override void PreBuildUp(ref BuilderContext context)
         {
-            LifetimeManager? policy = null;
+            LifetimeManager? lifetime = null;
 
             if (context.Registration is ContainerRegistration registration)
-                policy = registration.LifetimeManager;
+                lifetime = registration.LifetimeManager;
 
-            if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
-            if (null == policy)
+            if (null == lifetime || lifetime is PerResolveLifetimeManager)
+                lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
+
+            if (null == lifetime)
             {
 #if NETSTANDARD1_0 || NETCOREAPP1_0
                 if (!context.RegistrationType.GetTypeInfo().IsGenericType) return;
@@ -47,43 +48,50 @@ namespace Unity.Strategies
                 lock (_genericLifetimeManagerLock)
                 {
                     // check whether the policy for closed-generic has been added since first checked
-                    policy = (LifetimeManager?)context.Registration.Get(typeof(LifetimeManager));
-                    if (null == policy)
+                    lifetime = (LifetimeManager?)context.Registration.Get(typeof(LifetimeManager));
+                    if (null == lifetime)
                     {
-                        policy = manager.CreateLifetimePolicy();
-                        context.Registration.Set(typeof(LifetimeManager), policy);
+                        lifetime = (LifetimeManager)manager.Clone();
+                        context.Registration.Set(typeof(LifetimeManager), lifetime);
 
-                        if (policy is IDisposable)
+                        if (lifetime is IDisposable)
                         {
-                            context.Lifetime.Add(policy);
+                            context.Lifetime.Add(lifetime);
                         }
                     }
                 }
             }
 
-            if (policy is SynchronizedLifetimeManager recoveryPolicy)
+            if (lifetime is SynchronizedLifetimeManager recoveryPolicy)
                 context.RequiresRecovery = recoveryPolicy;
 
-            var existing = policy.GetValue(context.Lifetime);
+            var existing = lifetime.GetValue(context.Lifetime);
             if (LifetimeManager.NoValue != existing)
             {
                 context.Existing = existing;
                 context.BuildComplete = true;
             }
+            else if (null != lifetime.Scope)
+            {
+                context.Scope = context.Lifetime;
+                context.Lifetime = ((UnityContainer)lifetime.Scope).LifetimeContainer;
+            }
         }
 
         public override void PostBuildUp(ref BuilderContext context)
         {
-            LifetimeManager? policy = null;
+            if (null != context.Scope) context.Lifetime = context.Scope;
+
+            LifetimeManager? lifetime = null;
 
             if (context.Registration is ContainerRegistration registration)
-                policy = registration.LifetimeManager;
+                lifetime = registration.LifetimeManager;
 
-            if (null == policy || policy is PerResolveLifetimeManager)
-                policy = (LifetimeManager?)context.Get(typeof(LifetimeManager));
+            if (null == lifetime || lifetime is PerResolveLifetimeManager)
+                lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
 
             if (LifetimeManager.NoValue != context.Existing)
-                policy?.SetValue(context.Existing, context.Lifetime);
+                lifetime?.SetValue(context.Existing, context.Lifetime);
         }
 
         #endregion
@@ -93,10 +101,11 @@ namespace Unity.Strategies
 
         public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
-            var policy = registration.Get(typeof(LifetimeManager));
-            if (null != policy)
+            if (registration.Get(typeof(LifetimeManager)) is LifetimeManager manager)
             {
-                return policy is TransientLifetimeManager ? false : true;
+                if (null != manager.Scope) return true;
+
+                return manager is TransientLifetimeManager ? false : true;
             }
 
             // Dynamic registration

@@ -20,7 +20,6 @@ namespace Unity.Lifetime
         public InternalPerResolveLifetimeManager(object? value)
         {
             base.value = value;
-            InUse = true;
         }
     }
 }

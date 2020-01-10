@@ -36,15 +36,17 @@ namespace Unity
 
             try
             {
-                LifetimeManager manager = (null != lifetimeManager) 
-                                        ? (LifetimeManager)lifetimeManager 
-                                        : TypeLifetimeManager.CreateLifetimePolicy();
-                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
+                // Lifetime Manager
+                var manager = null != lifetimeManager 
+                            ? (LifetimeManager)lifetimeManager 
+                            : (LifetimeManager)TypeLifetimeManager.Clone();
+
+                // Determine storage
+                var container = manager is SingletonLifetimeManager ? _root : this;
+                manager.Scope = container;
 
                 // Create registration and add to appropriate storage
-                var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(container, _validators, mappedToType, manager, injectionMembers);
-                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
                 var previous = container.Register(registeredType, name, registration);
@@ -114,19 +116,17 @@ namespace Unity
             var typeFrom = type ?? mappedToType;
             LifetimeManager manager = (null != lifetimeManager)
                                     ? (LifetimeManager)lifetimeManager
-                                    : InstanceLifetimeManager.CreateLifetimePolicy();
+                                    : (LifetimeManager)InstanceLifetimeManager.Clone();
             try
             {
                 // Validate input
                 if (null == typeFrom) throw new InvalidOperationException($"At least one of Type arguments '{nameof(type)}' or '{nameof(instance)}' must be not 'null'");
 
-                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
                 manager.SetValue(instance, LifetimeContainer);
 
                 // Create registration and add to appropriate storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
                 var registration = new ContainerRegistration(container, null, mappedToType!, manager);
-                if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
 
                 // Add or replace existing 
                 var previous = container.Register(typeFrom, name, registration);
@@ -173,11 +173,10 @@ namespace Unity
         {
             LifetimeManager manager = (null != lifetimeManager)
                                     ? (LifetimeManager)lifetimeManager
-                                    : FactoryLifetimeManager.CreateLifetimePolicy();
+                                    : (LifetimeManager)FactoryLifetimeManager.Clone();
             // Validate input
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
-            if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
 
             // Create registration and add to appropriate storage
             var container = manager is SingletonLifetimeManager ? _root : this;
@@ -186,7 +185,8 @@ namespace Unity
 #pragma warning restore CS0618
             var injectionMembers = new InjectionMember[] { injectionFactory };
             var registration = new ContainerRegistration(container, _validators, type, manager, injectionMembers);
-            if (manager is ContainerControlledLifetimeManager lifeteime) lifeteime.Scope = container;
+            
+            manager.Scope = container;
 
             // Add or replace existing 
             var previous = container.Register(type, name, registration);
@@ -232,20 +232,14 @@ namespace Unity
         /// <inheritdoc />
         object? IUnityContainer.Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            var n = type.FullName;
-
             // Verify arguments
             if (null == type) throw new ArgumentNullException(nameof(type));
 
             var registration = (InternalRegistration)GetRegistration(type, name);
-            var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                          ? (UnityContainer)manager.Scope! 
-                          : this;
-
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = container.LifetimeContainer,
+                Lifetime = LifetimeContainer,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,
                 RegistrationType = type,
@@ -255,7 +249,7 @@ namespace Unity
                 Type = registration is ContainerRegistration containerRegistration ? containerRegistration.Type : type,
             };
 
-            return container.ExecutePlan(ref context);
+            return ExecutePlan(ref context);
         }
 
         #endregion
@@ -274,14 +268,10 @@ namespace Unity
             TypeValidator?.Invoke(type, existing.GetType());
 
             var registration = (InternalRegistration)GetRegistration(type, name);
-            var container = registration.Get(typeof(LifetimeManager)) is ContainerControlledLifetimeManager manager
-                          ? (UnityContainer)manager.Scope!
-                          : this;
-
             var context = new BuilderContext
             {
                 List = new PolicyList(),
-                Lifetime = container.LifetimeContainer,
+                Lifetime = LifetimeContainer,
                 Existing = existing,
                 Overrides = null != overrides && 0 == overrides.Length ? null : overrides,
                 Registration = registration,

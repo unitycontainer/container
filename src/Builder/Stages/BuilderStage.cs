@@ -11,6 +11,11 @@ namespace Unity.Builder
     public enum BuilderStage
     {
         /// <summary>
+        /// Strategies at this step adjust required settings
+        /// </summary>
+        Setup,
+
+        /// <summary>
         /// Strategies in this stage run before creation. Typical work done in this stage might
         /// include strategies that use reflection to set policies into the context that other
         /// strategies would later use.
