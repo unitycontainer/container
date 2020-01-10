@@ -113,10 +113,6 @@ namespace Unity.Builder
             Expression.MakeMemberAccess(ContextExpression, 
                 _contextTypeInfo.GetDeclaredProperty(nameof(IResolveContext.Name)));
 
-        public static readonly MemberExpression ContainerExpression = 
-            Expression.MakeMemberAccess(ContextExpression, 
-                _contextTypeInfo.GetDeclaredProperty(nameof(IResolveContext.Container)));
-
         public static readonly MemberExpression ExistingExpression = 
             Expression.MakeMemberAccess(ContextExpression, 
                 _contextTypeInfo.GetDeclaredProperty(nameof(BuilderContext.Existing)));

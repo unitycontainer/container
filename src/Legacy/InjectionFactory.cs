@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Builder;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -77,14 +78,14 @@ namespace Unity.Injection
 
             // Factory methods
 
-            ResolveDelegate<TContext> CreateLegacyPolicy()
+            ResolveDelegate<BuilderContext> CreateLegacyPolicy()
             {
-                return (ref TContext c) => _factoryFunc(c.Container, c.Type, c.Name);
+                return (ref BuilderContext c) => _factoryFunc(c.Container, c.Type, c.Name);
             }
 
-            ResolveDelegate<TContext> CreatePerResolveLegacyPolicy() 
+            ResolveDelegate<BuilderContext> CreatePerResolveLegacyPolicy() 
             {
-                return (ref TContext context) =>
+                return (ref BuilderContext context) =>
                 {
                     var result = _factoryFunc(context.Container, context.Type, context.Name);
                     var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
