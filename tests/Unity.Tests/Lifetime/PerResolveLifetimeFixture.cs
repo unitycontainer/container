@@ -47,8 +47,7 @@ namespace Unity.Tests.v5.Lifetime
         public void PerBuildLifetimeIsHonoredWhenUsingFactory()
         {
             var container = new UnityContainer()
-                .RegisterFactory<SomeService>(c => new SomeService(),
-                    new PerResolveLifetimeManager());
+                .RegisterFactory<SomeService>(c => new SomeService(), new PerResolveLifetimeManager());
 
             var rootService = container.Resolve<AService>();
             Assert.AreSame(rootService.SomeService, rootService.OtherService.SomeService);

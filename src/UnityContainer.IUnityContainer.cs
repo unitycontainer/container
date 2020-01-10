@@ -169,7 +169,8 @@ namespace Unity
         #region Factory Registration
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type type, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager)
+
+        public IUnityContainer RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager) 
         {
             LifetimeManager manager = (null != lifetimeManager)
                                     ? (LifetimeManager)lifetimeManager
@@ -180,12 +181,28 @@ namespace Unity
 
             // Create registration and add to appropriate storage
             var container = manager is SingletonLifetimeManager ? _root : this;
-#pragma warning disable CS0618 // TODO: InjectionFactory
-            var injectionFactory = new InjectionFactory(factory);
-#pragma warning restore CS0618
-            var injectionMembers = new InjectionMember[] { injectionFactory };
-            var registration = new ContainerRegistration(container, _validators, type, manager, injectionMembers);
-            
+
+            var registration = new ContainerRegistration(container, _validators, type, manager);
+
+            if (manager is PerResolveLifetimeManager)
+            {
+                ResolveDelegate<BuilderContext> resolveDelegate = (ref BuilderContext context) =>
+                {
+                    var result = factory(context);
+                    var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
+
+                    context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
+                    return result;
+                };
+
+                registration.Set(typeof(ResolveDelegate<BuilderContext>), resolveDelegate);
+            }
+            else
+            {
+                registration.Set(typeof(ResolveDelegate<BuilderContext>), 
+                    (ResolveDelegate<BuilderContext>)((ref BuilderContext context) => factory(context)));
+            }
+
             manager.Scope = container;
 
             // Add or replace existing 
@@ -202,14 +219,76 @@ namespace Unity
             if (manager is IDisposable managerDisposable)
                 container.LifetimeContainer.Add(managerDisposable);
 
-            // Add Injection Members
-            injectionFactory.AddPolicies<BuilderContext, ContainerRegistration>(
-                type, type, name, ref registration);
+            // Check what strategies to run
+            registration.BuildChain = _strategiesChain.ToArray()
+                                                      .Where(strategy => strategy.RequiredToBuildType(this, type, registration))
+                                                      .ToArray();
+            // Raise event
+            container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));
+            return this;
+        }
+
+
+        public IUnityContainer RegisterFactory(Type type, string? name, ResolveDelegate<IResolveContext> factory, IFactoryLifetimeManager? lifetimeManager) 
+        {
+            LifetimeManager manager = (null != lifetimeManager)
+                                    ? (LifetimeManager)lifetimeManager
+                                    : (LifetimeManager)FactoryLifetimeManager.Clone();
+            // Validate input
+            if (null == type) throw new ArgumentNullException(nameof(type));
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
+
+            // Create registration and add to appropriate storage
+            var container = manager is SingletonLifetimeManager ? _root : this;
+
+            var registration = new ContainerRegistration(container, _validators, type, manager);
+
+            if (manager is PerResolveLifetimeManager)
+            {
+                ResolveDelegate<BuilderContext> resolveDelegate = (ref BuilderContext context) =>
+                {
+                    // TODO: Casting to interface is wrong
+                    IResolveContext c = context;
+                    var result = factory(ref c);
+                    var perBuildLifetime = new InternalPerResolveLifetimeManager(result);
+
+                    context.Set(context.Type, context.Name, typeof(LifetimeManager), perBuildLifetime);
+                    return result;
+                };
+
+                registration.Set(typeof(ResolveDelegate<BuilderContext>), resolveDelegate);
+            }
+            else
+            {
+                ResolveDelegate<BuilderContext> resolveDelegate = (ref BuilderContext context) =>
+                {
+                    // TODO: Casting to interface is wrong
+                    IResolveContext c = context;
+                    return  factory(ref c);
+                };
+
+                registration.Set(typeof(ResolveDelegate<BuilderContext>), resolveDelegate);
+            }
+
+            manager.Scope = container;
+
+            // Add or replace existing 
+            var previous = container.Register(type, name, registration);
+            if (previous is ContainerRegistration old &&
+                old.LifetimeManager is IDisposable disposable)
+            {
+                // Dispose replaced lifetime manager
+                container.LifetimeContainer.Remove(disposable);
+                disposable.Dispose();
+            }
+
+            // If Disposable add to container's lifetime
+            if (manager is IDisposable managerDisposable)
+                container.LifetimeContainer.Add(managerDisposable);
 
             // Check what strategies to run
             registration.BuildChain = _strategiesChain.ToArray()
-                                                      .Where(strategy => strategy.RequiredToBuildType(this,
-                                                          type, registration, injectionMembers))
+                                                      .Where(strategy => strategy.RequiredToBuildType(this, type, registration))
                                                       .ToArray();
             // Raise event
             container.Registering?.Invoke(this, new RegisterEventArgs(type, type, name, manager));

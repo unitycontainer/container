@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using Unity.Builder;
 using Unity.Injection;
@@ -39,13 +38,7 @@ namespace Unity.Strategies
         public override bool RequiredToBuildType(IUnityContainer container, Type? type, InternalRegistration registration, params InjectionMember[] injectionMembers)
         {
             if (registration is ContainerRegistration containerRegistration)
-            {
-                if (type != containerRegistration.Type ||
-#pragma warning disable CS0618 // TODO: InjectionFactory
-                    null != injectionMembers && injectionMembers.Any(i => i is InjectionFactory))
-#pragma warning restore CS0618
-                    return false;
-            }
+                if (type != containerRegistration.Type) return false;
 
             return null != type && type.IsArray && type.GetArrayRank() == 1;
         }
