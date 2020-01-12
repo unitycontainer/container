@@ -203,7 +203,6 @@ namespace Unity
 
             unsafe
             {
-                // TODO: Check if scope is required here
                 if (type != Type || name != Name)
                 {
                     // Setup Context
