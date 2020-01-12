@@ -29,8 +29,8 @@ namespace Unity
                 Container = container;
 
                 // Lifetime Managers
-                _typeLifetimeManager     = TransientLifetimeManager.Instance;
-                _factoryLifetimeManager  = TransientLifetimeManager.Instance;
+                _typeLifetimeManager     = new TransientLifetimeManager();
+                _factoryLifetimeManager  = _typeLifetimeManager;
                 _instanceLifetimeManager = new ContainerControlledLifetimeManager();
 
                 // Initialize Pipelines
@@ -64,15 +64,15 @@ namespace Unity
 
                 // Initialize Pipelines
                 TypePipeline = parent.Context.TypePipeline;
-                TypePipeline.Invalidated += (s, e) => TypePipelineCache = TypePipeline.ToArray();
+                TypePipeline.Invalidated += OnTypePipelineChanged;
                 TypePipelineCache = TypePipeline.ToArray();
 
                 FactoryPipeline = parent.Context.FactoryPipeline;
-                FactoryPipeline.Invalidated += (s, e) => FactoryPipelineCache = FactoryPipeline.ToArray();
+                FactoryPipeline.Invalidated += OnFactoryPipelineChanged;
                 FactoryPipelineCache = FactoryPipeline.ToArray();
 
                 InstancePipeline = parent.Context.InstancePipeline;
-                InstancePipeline.Invalidated += (s, e) => InstancePipelineCache = InstancePipeline.ToArray();
+                InstancePipeline.Invalidated += OnInstancePipelineChanged;
                 InstancePipelineCache = InstancePipeline.ToArray();
             }
 

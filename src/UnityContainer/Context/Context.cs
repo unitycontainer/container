@@ -8,7 +8,7 @@ namespace Unity
     public partial class UnityContainer
     {
         /// <inheritdoc />
-        public partial class ContainerContext
+        public partial class ContainerContext : IDisposable
         {
             #region Extension Context
 
@@ -34,31 +34,52 @@ namespace Unity
 
             #region Lifetime
 
-            public ITypeLifetimeManager TypeLifetimeManager
+            public LifetimeManager TypeLifetimeManager
             {
-                get => (ITypeLifetimeManager)_typeLifetimeManager;
+                get => _typeLifetimeManager;
                 set
                 {
-                    _typeLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(nameof(TypeLifetimeManager)));
+                    if (!(value is ITypeLifetimeManager)) 
+                        throw new ArgumentException($"{value} must implement {nameof(ITypeLifetimeManager)} interface");
+                   
+                    _typeLifetimeManager = value;
                 }
             }
 
-            public IFactoryLifetimeManager FactoryLifetimeManager
+            public LifetimeManager FactoryLifetimeManager
             {
-                get => (IFactoryLifetimeManager)_factoryLifetimeManager;
+                get => _factoryLifetimeManager;
                 set
                 {
-                    _factoryLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(nameof(FactoryLifetimeManager)));
+                    if (!(value is IFactoryLifetimeManager)) 
+                        throw new ArgumentException($"{value} must implement {nameof(IFactoryLifetimeManager)} interface");
+
+                    _factoryLifetimeManager = value;
                 }
             }
 
-            public IInstanceLifetimeManager InstanceLifetimeManager
+            public LifetimeManager InstanceLifetimeManager
             {
-                get => (IInstanceLifetimeManager)_instanceLifetimeManager;
+                get => _instanceLifetimeManager;
                 set
                 {
-                    _instanceLifetimeManager = (LifetimeManager)(value ?? throw new ArgumentNullException(nameof(InstanceLifetimeManager)));
+                    if (!(value is IInstanceLifetimeManager)) 
+                        throw new ArgumentException($"{value} must implement {nameof(IInstanceLifetimeManager)} interface");
+
+                    _instanceLifetimeManager = value;
                 }
+            }
+
+            #endregion
+
+
+            #region IDisposable
+
+            public void Dispose()
+            {
+                TypePipeline.Invalidated -= OnTypePipelineChanged;
+                FactoryPipeline.Invalidated -= OnFactoryPipelineChanged;
+                InstancePipeline.Invalidated -= OnInstancePipelineChanged;
             }
 
             #endregion

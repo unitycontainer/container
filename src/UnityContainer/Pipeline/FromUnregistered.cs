@@ -41,7 +41,7 @@ namespace Unity
                     if (null != existing.Pipeline) return existing.Pipeline;
 
                     // Lifetime Manager
-                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager = Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Type has not been registered
@@ -62,7 +62,7 @@ namespace Unity
                     }
 
                     // Lifetime Manager
-                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager = Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Create new entry
@@ -140,7 +140,7 @@ namespace Unity
                     if (null != existing.Pipeline) return existing.Pipeline;
 
                     // Lifetime Manager
-                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager = Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Type has not been registered
@@ -161,7 +161,7 @@ namespace Unity
                     }
 
                     // Lifetime Manager
-                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager = Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Create new entry
@@ -239,7 +239,7 @@ namespace Unity
                     if (null != existing.Pipeline) return existing.Pipeline;
 
                     // Lifetime Manager
-                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager = Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Type has not been registered
@@ -260,7 +260,7 @@ namespace Unity
                     }
 
                     // Lifetime Manager
-                    manager = Context.TypeLifetimeManager.CreateLifetimePolicy();
+                    manager = Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Create new entry

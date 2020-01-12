@@ -122,7 +122,7 @@ namespace Unity
 
         public static readonly MemberExpression ContainerExpression = 
             Expression.MakeMemberAccess(ContextExpression, 
-                _contextTypeInfo.GetDeclaredProperty(nameof(IResolveContext.Container)));
+                _contextTypeInfo.GetDeclaredProperty(nameof(PipelineContext.Container)));
 
         public static readonly MemberExpression ParentExpression = 
             Expression.MakeMemberAccess(ContextExpression, 
@@ -131,6 +131,10 @@ namespace Unity
         public static readonly MemberExpression ExistingExpression = 
             Expression.MakeMemberAccess(ContextExpression, 
                 _contextTypeInfo.GetDeclaredProperty(nameof(PipelineContext.Existing)));
+
+        public static readonly MemberExpression ContainerContextExpression =
+            Expression.MakeMemberAccess(ContextExpression,
+                _contextTypeInfo.GetDeclaredProperty(nameof(PipelineContext.ContainerContext)));
 
         public static readonly MemberExpression DeclaringTypeExpression = 
             Expression.MakeMemberAccess(ContextExpression, 

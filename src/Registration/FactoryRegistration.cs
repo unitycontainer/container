@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity.Registration
 {
@@ -7,11 +8,9 @@ namespace Unity.Registration
     {
         #region Constructors
 
-        public FactoryRegistration(UnityContainer owner, Type type, string? name, Func<IUnityContainer, Type, string?, object?> factory, LifetimeManager manager) 
+        public FactoryRegistration(UnityContainer owner, Type type, string? name, Func<IResolveContext, object?> factory, LifetimeManager manager) 
             : base(owner, name, type, manager)
         {
-            manager.InUse = true;
-
             // If Disposable add to container's lifetime
             if (manager is IDisposable managerDisposable) owner.Context.Lifetime.Add(managerDisposable);
 
@@ -24,7 +23,7 @@ namespace Unity.Registration
         
         #region Public Properties
 
-        public Func<IUnityContainer, Type, string?, object?> Factory { get; }
+        public Func<IResolveContext, object?> Factory { get; }
 
         #endregion
     }

@@ -40,7 +40,7 @@ namespace Unity
 
                     // Lifetime Manager
                     manager = (LifetimeManager?)set.Get(typeof(LifetimeManager)) ??
-                                               Context.TypeLifetimeManager.CreateLifetimePolicy();
+                                               Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Type has not been registered
@@ -61,7 +61,7 @@ namespace Unity
 
                     // Lifetime Manager
                     manager = (LifetimeManager?)set.Get(typeof(LifetimeManager)) ??
-                                               Context.TypeLifetimeManager.CreateLifetimePolicy();
+                                               Context.TypeLifetimeManager.Clone();
                     manager.PipelineDelegate = (ResolveDelegate<PipelineContext>)SpinWait;
 
                     // Create new entry

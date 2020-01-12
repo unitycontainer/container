@@ -17,7 +17,7 @@ namespace Unity
             Debug.Assert(null != registration);
             var factory = registration!.Factory;
 
-            return builder.Pipeline((ref PipelineContext context) => factory(context.Container, context.Type, context.Name));
+            return builder.Pipeline((ref PipelineContext context) => factory(context));
         }
     }
 }

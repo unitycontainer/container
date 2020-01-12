@@ -43,11 +43,11 @@ namespace Unity.Extension
 
         #region Default Lifetime
 
-        ITypeLifetimeManager     TypeLifetimeManager { get; set; }
+        LifetimeManager TypeLifetimeManager { get; set; }
         
-        IFactoryLifetimeManager  FactoryLifetimeManager { get; set; }
+        LifetimeManager FactoryLifetimeManager { get; set; }
         
-        IInstanceLifetimeManager InstanceLifetimeManager { get; set; }
+        LifetimeManager InstanceLifetimeManager { get; set; }
 
         #endregion
 

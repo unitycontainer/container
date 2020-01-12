@@ -359,6 +359,7 @@ namespace Unity
             {
                 _parent?.LifetimeContainer.Remove(this);
                 LifetimeContainer.Dispose();
+                Context.Dispose();
             }
             catch (Exception exception)
             {

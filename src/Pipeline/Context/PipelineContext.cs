@@ -203,16 +203,13 @@ namespace Unity
 
             unsafe
             {
-
-                if (type != Type || name != Name || 
-                    pipeline.Target is ContainerControlledLifetimeManager lifetimeManager && (ContainerContext?)lifetimeManager.Scope != ContainerContext)
+                // TODO: Check if scope is required here
+                if (type != Type || name != Name || manager is LifetimeManager && (ContainerContext?)manager.Scope != ContainerContext)
                 {
                     // Setup Context
                     var context = new PipelineContext
                     {
-                        ContainerContext = pipeline.Target is ContainerControlledLifetimeManager containerControlled
-                                         ? (ContainerContext)containerControlled.Scope!
-                                         : ContainerContext,
+                        ContainerContext = ContainerContext,
                         List = List,
                         Type = type,
                         Name = name,

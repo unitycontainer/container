@@ -181,6 +181,8 @@ namespace Unity
 
         #region Nested Types
 
+        private delegate ResolveDelegate<PipelineContext> FromEntry(ref Registry.Entry entry);
+
         private delegate ResolveDelegate<PipelineContext> FromUnregistered(ref HashKey key);
         private delegate ResolveDelegate<PipelineContext> FromRegistration(Type? type, ExplicitRegistration registration, int position);
         private delegate ResolveDelegate<PipelineContext> FromOpenGeneric(ref HashKey key, ExplicitRegistration factory);

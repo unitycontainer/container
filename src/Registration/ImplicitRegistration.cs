@@ -45,7 +45,7 @@ namespace Unity.Registration
             Name = name;
             BuildType = factory.BuildType;
             Next = factory.Next;
-            LifetimeManager = factory.LifetimeManager?.CreateLifetimePolicy() ?? new TransientLifetimeManager();
+            LifetimeManager = factory.LifetimeManager?.Clone() ?? new TransientLifetimeManager();
             InjectionMembers = factory.InjectionMembers;
             BuildRequired = null != InjectionMembers && InjectionMembers.Any(m => m.BuildRequired);
         }

@@ -27,11 +27,9 @@ namespace Unity
             try
             {
                 // Lifetime Manager
-                var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.CreateLifetimePolicy();
-                if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-                manager.InUse = true;
+                var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.Clone();
 
-                // Create registration and add to appropriate storage
+                // Registration scope
                 var container = manager is SingletonLifetimeManager ? _root : this;
 
                 // If Disposable add to container's lifetime
@@ -108,7 +106,7 @@ namespace Unity
             try
             {
                 // Lifetime Manager
-                var manager = lifetimeManager as LifetimeManager ?? Context.InstanceLifetimeManager.CreateLifetimePolicy();
+                var manager = lifetimeManager as LifetimeManager ?? Context.InstanceLifetimeManager.Clone();
 
                 // Root container or local storage
                 var container = manager is SingletonLifetimeManager ? _root : this;
@@ -161,15 +159,15 @@ namespace Unity
         #region Factory Registration
 
         /// <inheritdoc />
-        public IUnityContainer RegisterFactory(Type type, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager)
+
+        IUnityContainer IUnityContainer.RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager)
         {
             // Validate input
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             // Lifetime Manager
-            var manager = lifetimeManager as LifetimeManager ??
-                          Context.FactoryLifetimeManager.CreateLifetimePolicy();
+            var manager = lifetimeManager as LifetimeManager ?? Context.FactoryLifetimeManager.Clone();
 
             // Target Container
             var container = manager is SingletonLifetimeManager ? _root : this;
@@ -229,9 +227,7 @@ namespace Unity
                 Type = type,
                 Name = name,
                 Overrides = overrides,
-                ContainerContext = manager is ContainerControlledLifetimeManager container 
-                                 ? (ContainerContext)container.Scope! 
-                                 : Context,
+                ContainerContext = Context,
             };
 
             // Execute pipeline

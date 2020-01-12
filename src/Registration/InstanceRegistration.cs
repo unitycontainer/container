@@ -15,7 +15,6 @@ namespace Unity.Registration
             if (manager is IDisposable disposableManager) owner.Context.Lifetime.Add(disposableManager);
 
             // Setup Manager
-            manager.InUse = true;
             manager.SetValue(instance, owner.Context.Lifetime);
 
             LifetimeManager = manager;

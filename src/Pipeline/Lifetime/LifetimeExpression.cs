@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Unity.Lifetime;
@@ -13,31 +14,15 @@ namespace Unity
         private static readonly MethodInfo _recoverMethod = typeof(SynchronizedLifetimeManager)
             .GetTypeInfo().GetDeclaredMethod(nameof(SynchronizedLifetimeManager.Recover))!;
 
-        private static readonly ParameterExpression _value = Expression.Variable(typeof(object), "value");
-        private static readonly ParameterExpression _lifetime = Expression.Variable(typeof(LifetimeManager), "lifetime");
-
-        private static readonly MethodCallExpression _contextGetLifetimeManager = Expression.Call(
-            PipelineContext.ContextExpression, PipelineContext.GetMethod,
-            Expression.Constant(typeof(LifetimeManager), typeof(Type)));
-
-        private static readonly ConditionalExpression _setPerResolveSingleton = 
+        private static readonly Expression[] _setPerResolveSingleton = new Expression[] {
             Expression.IfThen(
                 Expression.NotEqual(Expression.Constant(null), PipelineContext.DeclaringTypeExpression),
-                SetPerBuildSingletonExpr);
+                SetPerBuildSingletonExpr) };
 
-        private static readonly InvocationExpression _lifetimeGetValue = Expression.Invoke(
-            Expression.MakeMemberAccess(_lifetime, typeof(LifetimeManager).GetTypeInfo().GetDeclaredProperty(nameof(LifetimeManager.Get))),
-            PipelineContext.LifetimeContainerExpression);
-
-        private static readonly Expression ReturnIfResolvedAlready = Expression.Block(new[] { _lifetime, _value }, new Expression[] {
-            Expression.Assign(_lifetime, Expression.Convert(_contextGetLifetimeManager, typeof(LifetimeManager))),
-            Expression.IfThen(
-                Expression.NotEqual(Expression.Constant(null), _lifetime),
-                Expression.Block(new Expression[] {
-                    Expression.Assign(_value, _lifetimeGetValue),
-                    Expression.IfThen(
-                        Expression.NotEqual(Expression.Constant(LifetimeManager.NoValue), _value),
-                        Expression.Return(ReturnTarget, _value))}))});
+        private static readonly ParameterExpression _variable = Expression.Variable(typeof(UnityContainer.ContainerContext));
+        private static readonly ParameterExpression[] _variables = new[] { _variable };
+        private static readonly Expression _saveContainerContext = Expression.Assign(_variable, PipelineContext.ContainerContextExpression);
+        private static readonly Expression _restoreContainerContext = Expression.Assign(PipelineContext.ContainerContextExpression, _variable);
 
         #endregion
 
@@ -50,9 +35,13 @@ namespace Unity
 
             return builder.LifetimeManager switch
             {
-                SynchronizedLifetimeManager manager => SynchronizedLifetimeExpression(manager, expressions),
-                PerResolveLifetimeManager _ => PerResolveLifetimeExpression(expressions),
-                _ => expressions
+                PerResolveLifetimeManager _ 
+                when null == builder.LifetimeManager?.Scope   => expressions.Concat(_setPerResolveSingleton),
+                PerResolveLifetimeManager _ 
+                when null != builder.LifetimeManager?.Scope   => PerResolveLifetimeExpression(expressions, builder.LifetimeManager.Scope),
+                SynchronizedLifetimeManager manager           => SynchronizedLifetimeExpression(expressions, manager),
+                _ when null != builder.LifetimeManager?.Scope => OtherLifetimeExpression(expressions, builder.LifetimeManager.Scope),
+                _                                             => expressions
             };
         }
 
@@ -61,26 +50,48 @@ namespace Unity
 
         #region Implementation
 
-        protected virtual IEnumerable<Expression> SynchronizedLifetimeExpression(SynchronizedLifetimeManager manager, IEnumerable<Expression> expressions)
+        protected virtual IEnumerable<Expression> SynchronizedLifetimeExpression(IEnumerable<Expression> expressions, SynchronizedLifetimeManager manager)
         {
-            var tryBody = Expression.Block(expressions);
-            var catchBody = Expression.Catch(typeof(Exception), Expression.Block(
-                    Expression.Call(Expression.Constant(manager), _recoverMethod),
-                    Expression.Rethrow(tryBody.Type)));
+            if (null == manager.Scope)
+            {
+                var tryBody = Expression.Block(expressions);
+                var catchBody = Expression.Catch(typeof(Exception), Expression.Block(
+                        Expression.Call(Expression.Constant(manager), _recoverMethod),
+                        Expression.Rethrow(tryBody.Type)));
 
-            yield return Expression.TryCatch(tryBody, catchBody);
+                yield return Expression.TryCatch(tryBody, catchBody);
+            }
+            else
+            {
+                var tryBody = Expression.Block(expressions);
+                var catchBody = Expression.Catch(typeof(Exception), Expression.Block(
+                        Expression.Call(Expression.Constant(manager), _recoverMethod),
+                        Expression.Rethrow(tryBody.Type)));
+
+                yield return Expression.Block(_variables,
+                    _saveContainerContext,
+                    Expression.Assign(PipelineContext.ContainerContextExpression, 
+                                      Expression.Constant(manager.Scope, typeof(UnityContainer.ContainerContext))),
+                    Expression.TryCatchFinally(tryBody, _restoreContainerContext, catchBody));
+            }
         }
 
-        protected virtual IEnumerable<Expression> PerResolveLifetimeExpression(IEnumerable<Expression> expressons)
+        protected virtual IEnumerable<Expression> PerResolveLifetimeExpression(IEnumerable<Expression> expressions, object scope)
         {
-            // Check and return if already resolved
-            yield return ReturnIfResolvedAlready; 
+            yield return Expression.Block(_variables,
+                _saveContainerContext,
+                Expression.Assign(PipelineContext.ContainerContextExpression, 
+                                  Expression.Constant(scope, typeof(UnityContainer.ContainerContext))),
+                Expression.TryFinally(Expression.Block(expressions.Concat(_setPerResolveSingleton)), _restoreContainerContext));
+        }
 
-            // Execute Pipeline
-            foreach(var expression in expressons) yield return expression;
-
-            // Save resolved value in per resolve singleton
-            yield return _setPerResolveSingleton;
+        protected virtual IEnumerable<Expression> OtherLifetimeExpression(IEnumerable<Expression> expressions, object scope)
+        {
+            yield return Expression.Block(_variables,
+                _saveContainerContext,
+                Expression.Assign(PipelineContext.ContainerContextExpression, 
+                                  Expression.Constant(scope, typeof(UnityContainer.ContainerContext))),
+                Expression.TryFinally(Expression.Block(expressions), _restoreContainerContext));
         }
 
         #endregion

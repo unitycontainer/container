@@ -37,11 +37,9 @@ namespace Unity
                 try
                 {
                     // Lifetime Manager
-                    var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.CreateLifetimePolicy();
-                    if (manager.InUse) throw new InvalidOperationException(LifetimeManagerInUse);
-                    manager.InUse = true;
+                    var manager = lifetimeManager as LifetimeManager ?? Context.TypeLifetimeManager.Clone();
 
-                    // Create registration and add to appropriate storage
+                    // Determine scope
                     var container = manager is SingletonLifetimeManager ? _root : this;
 
                     // If Disposable add to container's lifetime
