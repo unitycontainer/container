@@ -218,9 +218,7 @@ namespace Unity
                     List = new PolicyList(),
                     Type = type,
                     Overrides = overrides,
-                    ContainerContext = manager is ContainerControlledLifetimeManager container
-                                     ? (ContainerContext)container.Scope!
-                                     : Context,
+                    ContainerContext = Context,
                 };
 
                 // Execute pipeline

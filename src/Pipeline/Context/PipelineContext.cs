@@ -204,7 +204,7 @@ namespace Unity
             unsafe
             {
                 // TODO: Check if scope is required here
-                if (type != Type || name != Name || manager is LifetimeManager && (ContainerContext?)manager.Scope != ContainerContext)
+                if (type != Type || name != Name)
                 {
                     // Setup Context
                     var context = new PipelineContext
