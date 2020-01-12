@@ -18,9 +18,9 @@ namespace Unity.Builder
     {
         #region Fields
 
+        public IPolicyList List;
         public ILifetimeContainer? Scope;
         public ResolverOverride[]? Overrides;
-        public IPolicyList List;
 
         public delegate object? ExecutePlanDelegate(BuilderStrategy[] chain, ref BuilderContext context);
         public delegate object? ResolvePlanDelegate(ref BuilderContext context, ResolveDelegate<BuilderContext> resolver);
@@ -125,7 +125,6 @@ namespace Unity.Builder
 
         #region Public Properties
 
-
         public object? Existing { get; set; }
 
         public ILifetimeContainer Lifetime;
@@ -143,5 +142,18 @@ namespace Unity.Builder
         public ResolvePlanDelegate ResolvePlan;
 
         #endregion
+
+
+        /// <summary>
+        /// Attempts to resolve an instance with requested <see cref="Type"/> and name.
+        /// </summary>
+        /// <param name="type">Type of the contract</param>
+        /// <param name="name">Name of the contract</param>
+        /// <returns>An instance of requested contract or <see cref="LifetimeManager.NoValue"/> value
+        /// if requested object could not be created</returns>
+        object TryResolve(Type type, string? name) 
+        {
+            return LifetimeManager.NoValue;
+        }
     }
 }
