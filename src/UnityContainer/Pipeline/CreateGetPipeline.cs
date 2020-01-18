@@ -11,6 +11,7 @@ namespace Unity
     {
         #region Get Pipeline
 
+        // TODO: Remove redundant methods
         private ResolveDelegate<PipelineContext>? TryGetPipeline(ref HashKey key)
         {
             // Iterate through containers hierarchy
@@ -180,8 +181,6 @@ namespace Unity
 
 
         #region Nested Types
-
-        private delegate ResolveDelegate<PipelineContext> FromEntry(ref Registry.Entry entry);
 
         private delegate ResolveDelegate<PipelineContext> FromUnregistered(ref HashKey key);
         private delegate ResolveDelegate<PipelineContext> FromRegistration(Type? type, ExplicitRegistration registration, int position);

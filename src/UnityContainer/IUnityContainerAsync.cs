@@ -204,7 +204,7 @@ namespace Unity
 
                 // Check if already created and acquire a lock if not
                 var manager = pipeline.Target as LifetimeManager;
-                if (null != manager)
+                if (null != manager) // TODO: this is not required
                 {
                     // Make blocking check for result
                     var value = manager.Get(LifetimeContainer);
@@ -218,7 +218,9 @@ namespace Unity
                     List = new PolicyList(),
                     Type = type,
                     Overrides = overrides,
-                    ContainerContext = Context,
+                    ContainerContext = null == manager?.Scope
+                                     ? Context
+                                     : (ContainerContext)manager.Scope,
                 };
 
                 // Execute pipeline

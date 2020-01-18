@@ -7,11 +7,6 @@ namespace Unity
 {
     public partial struct PipelineContext
     {
-        #region Fields
-
-
-        #endregion
-
         #region Parameter
 
         public object? Override(ParameterInfo parameter, string? name, object? value)

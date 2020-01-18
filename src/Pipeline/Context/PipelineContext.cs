@@ -60,8 +60,7 @@ namespace Unity
                 }
             }
 
-            var key = new HashKey(type, name);
-            var pipeline = ContainerContext.Container.GetPipeline(ref key);
+            var pipeline = ContainerContext.Container.GetPipeline(type, name);
             LifetimeManager? manager = pipeline.Target as LifetimeManager;
 
             // Check if already created and acquire a lock if not
@@ -75,6 +74,20 @@ namespace Unity
                 // Make blocking check for result
                 var value = manager.Get(LifetimeContainer);
                 if (LifetimeManager.NoValue != value) return value;
+
+                if (null != manager.Scope)
+                {
+                    var scope = ContainerContext;
+                    try
+                    {
+                        ContainerContext = (ContainerContext)manager.Scope;
+                        return Resolve(type, name, pipeline);
+                    }
+                    finally
+                    {
+                        ContainerContext = scope;
+                    }
+                }
             }
 
             return Resolve(type, name, pipeline);
@@ -174,9 +187,7 @@ namespace Unity
                 }
             }
 
-
-            var key = new HashKey(type, Name);
-            var pipeline = ContainerContext.Container.GetPipeline(ref key);
+            var pipeline = ContainerContext.Container.GetPipeline(type, Name);
             LifetimeManager? manager = pipeline.Target as LifetimeManager;
 
             // Check if already created and acquire a lock if not
@@ -190,6 +201,20 @@ namespace Unity
                 // Make blocking check for result
                 var value = manager.Get(LifetimeContainer);
                 if (LifetimeManager.NoValue != value) return value;
+
+                if (null != manager.Scope) 
+                {
+                    var scope = ContainerContext;
+                    try
+                    {
+                        ContainerContext = (ContainerContext)manager.Scope;
+                        return Resolve(type, null, pipeline);
+                    }
+                    finally
+                    {
+                        ContainerContext = scope;
+                    }
+                }
             }
 
             return Resolve(type, null, pipeline);
@@ -208,12 +233,14 @@ namespace Unity
                     // Setup Context
                     var context = new PipelineContext
                     {
-                        ContainerContext = ContainerContext,
                         List = List,
                         Type = type,
                         Name = name,
                         Overrides = Overrides,
                         DeclaringType = Type,
+                        ContainerContext = null != manager?.Scope
+                                 ? (ContainerContext)manager.Scope
+                                 : ContainerContext,
 #if !NET40
                         Parent = new IntPtr(Unsafe.AsPointer(ref thisContext))
 #endif

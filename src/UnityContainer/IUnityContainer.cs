@@ -212,13 +212,11 @@ namespace Unity
             var pipeline = GetPipeline(type, name);
 
             // Check if already created and acquire a lock if not
-            var manager = pipeline.Target as LifetimeManager;
-            if (null != manager)
-            {
-                // Make blocking check for result
-                var value = manager.Get(LifetimeContainer);
-                if (LifetimeManager.NoValue != value) return value;
-            }
+            Debug.Assert(null != pipeline.Target);
+            var manager = (LifetimeManager)pipeline.Target;
+            
+            var value = manager.Get(LifetimeContainer);
+            if (LifetimeManager.NoValue != value) return value;
 
             // Setup Context
             var context = new PipelineContext
@@ -227,13 +225,15 @@ namespace Unity
                 Type = type,
                 Name = name,
                 Overrides = overrides,
-                ContainerContext = Context,
+                ContainerContext = null == manager.Scope 
+                                 ? Context 
+                                 : (ContainerContext)manager.Scope,
             };
 
-            // Execute pipeline
             try
             {
-                var value = pipeline(ref context);
+                // Execute pipeline
+                value = pipeline(ref context);
                 manager?.Set(value, LifetimeContainer);
                 return value;
             }
@@ -254,9 +254,8 @@ namespace Unity
         [SecuritySafeCritical]
         public object BuildUp(Type? type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            var key = new HashKey(type ?? existing?.GetType() ?? throw new ArgumentNullException(nameof(existing)), name);
-            var pipeline = GetPipeline(ref key);
-
+            var pipeline = GetPipeline(type ?? existing?.GetType() ?? throw new ArgumentNullException(nameof(existing)), 
+                                       name);
             // Setup Context
             var context = new PipelineContext
             {
@@ -265,10 +264,11 @@ namespace Unity
                 Type = ValidateType(type, existing.GetType()),
                 Name = name,
                 Overrides = overrides,
-                ContainerContext = Context,
+                ContainerContext = pipeline.Target is LifetimeManager manager && null != manager.Scope
+                                 ? (ContainerContext)manager.Scope
+                                 : Context,
             };
 
-            // Initialize an object
             try
             {
                 // Execute pipeline
