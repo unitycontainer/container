@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\src\package.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\src\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
 
@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SpecificationTests\src\Unity.Specification.csproj" />
-    <ProjectReference Include="..\..\src\Unity.Container.csproj" />
+    <ProjectReference Include="..\..\..\..\Specification\Container\optimized\Container.Specification.csproj" />
+    <ProjectReference Include="..\..\..\src\Unity.Container.csproj" />
   </ItemGroup>
 
 </Project>
