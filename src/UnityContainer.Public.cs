@@ -21,7 +21,10 @@ namespace Unity
         /// <summary>
         /// Create a default <see cref="UnityContainer"/>.
         /// </summary>
+// TODO: CS8618
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public UnityContainer()
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _root = this;
 

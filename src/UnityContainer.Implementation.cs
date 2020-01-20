@@ -91,7 +91,10 @@ namespace Unity
         /// </summary>
         /// <param name="parent">The parent <see cref="Unity.UnityContainer"/>. The current object
         /// will apply its own settings first, and then check the parent for additional ones.</param>
+// TODO: CS8618
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         private UnityContainer(UnityContainer parent)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             // WithLifetime
             LifetimeContainer = new LifetimeContainer(this);
