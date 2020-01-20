@@ -73,7 +73,7 @@
   <!-- References -->
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.0" />
   </ItemGroup>
 
   <!-- Sourcelink -->
