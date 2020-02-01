@@ -88,7 +88,7 @@ namespace Unity
 
         #region Resolving Enumerable
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve, string name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(string name, ResolverOverride[] overrides)
         {
             TElement value;
 
@@ -105,16 +105,17 @@ namespace Unity
 #endif
                     {
                         var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name);
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration);
+                        value = (TElement)Resolve(typeof(TElement), set[i].Name, registration, this, overrides);
                     }
                     else
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration);
+                        value = (TElement)Resolve(typeof(TElement), set[i].Name, set[i].Registration, this, overrides);
                 }
                 catch (MakeGenericTypeFailedException) { continue; }
-                catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
-                {
-                    continue;
-                }
+                catch (ArgumentException ex) when (ex.InnerException is TypeLoadException) { continue; }
+                catch (ResolutionFailedException ex) when (ex.InnerException is MakeGenericTypeFailedException) { continue; }
+                catch (ResolutionFailedException ex) when (ex.InnerException is ArgumentException argException && argException.InnerException is TypeLoadException) { continue; }
+
+
                 yield return value;
             }
 
@@ -124,7 +125,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration);
+                    value = (TElement)Resolve(typeof(TElement), name, registration, this, overrides);
                 }
                 catch
                 {
@@ -135,8 +136,7 @@ namespace Unity
             }
         }
 
-        internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve,
-                                                                   Type generic, string name)
+        internal IEnumerable<TElement> ResolveEnumerable<TElement>(string name, Type generic, ResolverOverride[] overrides)
         {
             TElement value;
 
@@ -153,13 +153,16 @@ namespace Unity
 #endif
                     {
                         var registration = (InternalRegistration)GetRegistration(typeof(TElement), set[i].Name);
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, registration);
+                        value = (TElement)Resolve(typeof(TElement), set[i].Name, registration,this, overrides);
                     }
                     else
-                        value = (TElement)resolve(typeof(TElement), set[i].Name, set[i].Registration);
+                        value = (TElement)Resolve(typeof(TElement), set[i].Name, set[i].Registration, this, overrides);
                 }
                 catch (MakeGenericTypeFailedException) { continue; }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException) { continue; }
+                catch (ResolutionFailedException ex) when (ex.InnerException is MakeGenericTypeFailedException) { continue; }
+                catch (ResolutionFailedException ex) when (ex.InnerException is ArgumentException argException && argException.InnerException is TypeLoadException) { continue; }
+
 
                 yield return value;
             }
@@ -170,7 +173,7 @@ namespace Unity
                 try
                 {
                     var registration = GetRegistration(typeof(TElement), name);
-                    value = (TElement)resolve(typeof(TElement), name, (InternalRegistration)registration);
+                    value = (TElement)Resolve(typeof(TElement), name, registration, this, overrides);
                 }
                 catch
                 {

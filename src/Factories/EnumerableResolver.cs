@@ -54,14 +54,13 @@ namespace Unity.Factories
 
         private static object Resolver<TElement>(ref BuilderContext context)
         {
-            return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
-                                                                                   context.Name);
+            return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Name, context.Overrides);
         }
 
         private static ResolveDelegate<BuilderContext> ResolverFactory<TElement>()
         {
             Type type = typeof(TElement).GetGenericTypeDefinition();
-            return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveEnumerable<TElement>(c.Resolve, type, c.Name);
+            return (ref BuilderContext c) => ((UnityContainer) c.Container).ResolveEnumerable<TElement>(c.Name, type, c.Overrides);
         }
 
         #endregion

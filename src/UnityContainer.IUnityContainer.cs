@@ -6,6 +6,7 @@ using Unity.Builder;
 using Unity.Events;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Registration;
 using Unity.Resolution;
 using Unity.Storage;
@@ -243,6 +244,11 @@ namespace Unity
                           ? (UnityContainer)manager.Scope 
                           : this;
 
+            return Resolve(type, name, registration, container, overrides);
+        }
+
+        private object Resolve(Type type, string name, IPolicySet registration, UnityContainer container, ResolverOverride[] overrides)
+        {
             var context = new BuilderContext
             {
                 List = new PolicyList(),
