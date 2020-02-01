@@ -10,37 +10,6 @@ namespace Unity.Tests.v5.CollectionSupport
     [TestClass]
     public class CollectionSupportFixture
     {
-        [TestMethod]
-        public void ResolvingEnumTypeSucceedsIfItWasNotRegistered()
-        {
-            IUnityContainer container = new UnityContainer();
-
-            Assert.IsNotNull(container.Resolve<IEnumerable<TestClass>>());
-        }
-
-
-        [TestMethod]
-        public void ClosedGenericsWinInArray()
-        {
-            // Arrange
-            var Name = "name";
-            var instance = new Foo<IService>(new OtherService());
-            IUnityContainer Container = new UnityContainer();
-
-            Container.RegisterInstance<IFoo<IService>>(Name, instance)
-                     .RegisterType(typeof(IFoo<>), typeof(Foo<>), Name)
-                     .RegisterType<IFoo<IService>, Foo<IService>>("closed")
-                     .RegisterType<IService, Service>();
-
-            // Act
-            var array = Container.Resolve<IFoo<IService>[]>();
-
-            // Assert
-            Assert.AreEqual(2, array.Length);
-            Assert.IsNotNull(array[0]);
-            Assert.IsNotNull(array[1]);
-        }
-
         public interface IFoo<TEntity>
         {
             TEntity Value { get; }
@@ -107,6 +76,27 @@ namespace Unity.Tests.v5.CollectionSupport
             }
         }
 
+        [TestMethod]
+        public void ClosedGenericsWinInArray()
+        {
+            // Arrange
+            var Name = "name";
+            var instance = new Foo<IService>(new OtherService());
+            IUnityContainer container = new UnityContainer();
+
+            container.RegisterInstance<IFoo<IService>>(Name, instance)
+                .RegisterType(typeof(IFoo<>), typeof(Foo<>), Name)
+                .RegisterType<IFoo<IService>, Foo<IService>>("closed")
+                .RegisterType<IService, Service>();
+
+            // Act
+            var array = container.Resolve<IFoo<IService>[]>();
+
+            // Assert
+            Assert.AreEqual(2, array.Length);
+            Assert.IsNotNull(array[0]);
+            Assert.IsNotNull(array[1]);
+        }
 
         [TestMethod]
         public void ResolvingAnArrayTypeSucceedsIfItWasNotRegistered()
@@ -131,31 +121,6 @@ namespace Unity.Tests.v5.CollectionSupport
         }
 
         [TestMethod]
-        public void ResolvingEnumWithFactory()
-        {
-            var name = "test";
-            var data = new [] { new TestClass(), new TestClass() };
-
-            var container = new UnityContainer()
-                .RegisterFactory<IEnumerable<TestClass>>(c => data)
-                .RegisterFactory<IEnumerable<TestClass>>(name, c => data);
-
-            Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>());
-            Assert.AreSame(data, container.Resolve<IEnumerable<TestClass>>(name));
-        }
-
-        [TestMethod]
-        public void ResolvingEnumWithMap()
-        {
-            var container = new UnityContainer()
-                .RegisterType<IEnumerable<TestClass>, List<TestClass>>(new InjectionConstructor());
-
-            var instance = container.Resolve<IEnumerable<TestClass>>();
-
-            Assert.IsInstanceOfType(instance, typeof(List<TestClass>));
-        }
-
-        [TestMethod]
         public void ResolvingAnArrayTypeSucceedsIfItWasRegistered()
         {
             IUnityContainer container = new UnityContainer();
@@ -168,7 +133,7 @@ namespace Unity.Tests.v5.CollectionSupport
         }
 
         [TestMethod]
-        public void ResolvingAllRegistratiosnForaTypeReturnsAnEmptyArrayWhenNothingIsRegisterd()
+        public void ResolvingAllRegistrationsForaTypeReturnsAnEmptyArrayWhenNothingIsRegistered()
         {
             IUnityContainer container = new UnityContainer();
 
@@ -179,7 +144,7 @@ namespace Unity.Tests.v5.CollectionSupport
         }
 
         [TestMethod]
-        public void ResolvingAllRegistratiosnForaTypeReturnsAnEquivalentArrayWhenItemsAreRegisterd()
+        public void ResolvingAllRegistrationsForaTypeReturnsAnEquivalentArrayWhenItemsAreRegistered()
         {
             IUnityContainer container = new UnityContainer();
             container.RegisterType<TestClass>("Element1", new ContainerControlledLifetimeManager());
@@ -263,7 +228,7 @@ namespace Unity.Tests.v5.CollectionSupport
         {
             IUnityContainer container = new UnityContainer();
 
-            TestClassWithDependencyTypeConstructor resolved = container.Resolve<TestClassWithDependencyTypeConstructor>();
+            TestClassWithDependencyArrayConstructor resolved = container.Resolve<TestClassWithDependencyArrayConstructor>();
         }
 
         [TestMethod]
@@ -287,14 +252,6 @@ namespace Unity.Tests.v5.CollectionSupport
             TestClassWithDependencyArrayMethod resolved = container.Resolve<TestClassWithDependencyArrayMethod>();
 
             Assert.AreEqual(3, resolved.Dependency.Length);
-        }
-
-        [TestMethod]
-        public void ConstructingWithMethodInjectionAnDependencyArrayTypeSucceedsIfItWasNotRegistered()
-        {
-            IUnityContainer container = new UnityContainer();
-
-            TestClassWithDependencyTypeMethod resolved = container.Resolve<TestClassWithDependencyTypeMethod>();
         }
     }
 }
