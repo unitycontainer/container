@@ -71,7 +71,7 @@ namespace Unity
         /// <para>If you have multiple children, each will resolve its own instance.</para>
         /// </remarks>
         /// <value>A new instance of a <see cref="HierarchicalLifetimeManager"/> lifetime manager.</value>
-        public static ITypeLifetimeManager Scoped => new HierarchicalLifetimeManager();
+        public static IFactoryLifetimeManager Scoped => new HierarchicalLifetimeManager();
 
         /// <summary>
         /// This lifetime keeps a reference to an instance only for the duration of one resolution call
