@@ -170,7 +170,7 @@ namespace Unity
 
         /// <inheritdoc />
 
-        public IUnityContainer RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager) 
+        public IUnityContainer RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers) 
         {
             LifetimeManager manager = (null != lifetimeManager)
                                     ? (LifetimeManager)lifetimeManager
