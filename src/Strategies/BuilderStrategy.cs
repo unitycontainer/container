@@ -69,7 +69,7 @@ namespace Unity.Strategies
 
         #region Implementation
 
-        public static TPolicyInterface GetPolicy<TPolicyInterface>(ref BuilderContext context)
+        public static TPolicyInterface? GetPolicy<TPolicyInterface>(ref BuilderContext context) where TPolicyInterface : class
         {
             var result = context.Get(context.RegistrationType, context.Name, typeof(TPolicyInterface)) ?? (
 #if NETCOREAPP1_0 || NETSTANDARD1_0

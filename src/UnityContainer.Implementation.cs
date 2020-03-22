@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Unity.Builder;
@@ -44,7 +43,7 @@ namespace Unity
         private readonly ContainerContext _context;
 
         // Strategies
-        private StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
+        private readonly StagedStrategyChain<BuilderStrategy, UnityBuildStage> _strategies;
         private StagedStrategyChain<MemberProcessor, BuilderStage> _processors;
 
         // Caches
@@ -79,7 +78,7 @@ namespace Unity
 
         private static readonly ContainerLifetimeManager _containerManager = new ContainerLifetimeManager();
 #if DEBUG
-        private string id = Guid.NewGuid().ToString();
+        private readonly string id = Guid.NewGuid().ToString();
 #endif
         #endregion
 
@@ -373,7 +372,6 @@ namespace Unity
         /// This class doesn't have a finalizer, so <paramref name="disposing"/> will always be true.</remarks>
         /// <param name="disposing">True if being called typeFrom the IDisposable.Dispose
         /// method, false if being called typeFrom a finalizer.</param>
-        [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing) return;

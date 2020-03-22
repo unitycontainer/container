@@ -60,12 +60,10 @@ namespace Unity
         /// <typeparam name="TConfigurator">The configuration interface required.</typeparam>
         /// <param name="container">Container to configure.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public static TConfigurator Configure<TConfigurator>(this IUnityContainer container)
-            where TConfigurator : IUnityContainerExtensionConfigurator
+        public static TConfigurator? Configure<TConfigurator>(this IUnityContainer container)
+            where TConfigurator : class, IUnityContainerExtensionConfigurator
         {
-            var extension = (container ?? throw new ArgumentNullException(nameof(container))).Configure(typeof(TConfigurator));
-
-            return null == extension ? default : (TConfigurator)extension;
+            return (TConfigurator?)(container ?? throw new ArgumentNullException(nameof(container))).Configure(typeof(TConfigurator));
         }
 
         #endregion

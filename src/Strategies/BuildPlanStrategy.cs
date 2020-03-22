@@ -94,12 +94,11 @@ namespace Unity.Strategies
 
         #region Implementation
 
-        protected static TPolicyInterface Get_Policy<TPolicyInterface>(ref BuilderContext context, Type type, string name)
+        protected static TPolicyInterface? Get_Policy<TPolicyInterface>(ref BuilderContext context, Type type, string name) where TPolicyInterface : class
         {
-            var result = (GetGeneric(ref context, typeof(TPolicyInterface), type, name) ??
-                context.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
+            return (TPolicyInterface?)(GetGeneric(ref context, typeof(TPolicyInterface), type, name) ??
+                                      context.Get(null, null, typeof(TPolicyInterface)));    // Nothing! Get Default
             
-            return null == result ? default : (TPolicyInterface)result;
         }
 
         protected static object? GetGeneric(ref BuilderContext context, Type policyInterface)
