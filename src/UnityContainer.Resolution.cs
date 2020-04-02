@@ -287,8 +287,11 @@ namespace Unity
                 // Check if optimization is required
                 if (0 == Interlocked.Decrement(ref counter))
                 {
+#if NET40
                     Task.Factory.StartNew(() => {
-
+#else
+                    Task.Run(() => {
+#endif
                         // Compile build plan on worker thread
                         var expressions = new List<Expression>();
                         foreach (var processor in chain)
