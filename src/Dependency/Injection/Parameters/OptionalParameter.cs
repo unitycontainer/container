@@ -74,7 +74,7 @@ namespace Unity.Injection
         {
             return (ref TContext c) =>
             {
-                try { return c.Resolve(type, _name); }
+                try { return c.Resolve(ParameterType ?? type, _name); }
                 catch (Exception ex) 
                 when (!(ex is CircularDependencyException))
                 {
