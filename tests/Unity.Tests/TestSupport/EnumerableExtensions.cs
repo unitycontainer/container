@@ -13,22 +13,6 @@ namespace Unity.Tests.v5.TestSupport
     public static class EnumerableExtensions
     {
         /// <summary>
-        /// Execute the provided <paramref name="action"/> on every item in <paramref name="sequence"/>.
-        /// </summary>
-        /// <typeparam name="TItem">Type of the items stored in <paramref name="sequence"/></typeparam>
-        /// <param name="sequence">Sequence of items to process.</param>
-        /// <param name="action">Code to run over each item.</param>
-        public static void ForEach<TItem>(this IEnumerable<TItem> sequence, Action<TItem> action)
-        {
-            Guard.ArgumentNotNull(sequence, "sequence");
-
-            foreach (var item in sequence)
-            {
-                action(item);
-            }
-        }
-
-        /// <summary>
         /// Create a single string from a sequence of items, separated by the provided <paramref name="separator"/>,
         /// and with the conversion to string done by the given <paramref name="converter"/>.
         /// </summary>
