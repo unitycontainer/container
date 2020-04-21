@@ -94,7 +94,7 @@ namespace Unity.Injection
                 switch (value)
                 {
                     case IResolverFactory<Type> factory:
-                        return factory.GetResolver<TContext>(type);
+                        return factory.GetResolver<TContext>(elementType);
 
                     case Type _ when typeof(Type) != elementType:
                         return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
