@@ -217,6 +217,7 @@ namespace Unity
                     else
                         list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
                 }
+                catch (MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                 {
                     // Ignore
