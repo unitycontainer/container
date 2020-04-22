@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using Unity.Extension;
+using Unity.Factories;
+using Unity.Policy;
 
 namespace Unity
 {
@@ -44,6 +48,12 @@ namespace Unity
         {
             ((UnityContainer)Container).SetDefaultPolicies = UnityContainer.SetDiagnosticPolicies;
             ((UnityContainer)Container).SetDefaultPolicies((UnityContainer)Container);
+
+            EnumerableResolver.EnumerableMethod = typeof(EnumerableResolver).GetTypeInfo()
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.DiagnosticResolver));
+
+            EnumerableResolver.EnumerableFactory = typeof(EnumerableResolver).GetTypeInfo()
+                                      .GetDeclaredMethod(nameof(EnumerableResolver.DiagnosticResolverFactory));
         }
     }
 
