@@ -85,7 +85,6 @@ namespace Unity
         #endregion
 
 
-
         #region Resolving Enumerable
 
         internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve, string name)
@@ -217,6 +216,7 @@ namespace Unity
                     else
                         list.Add((TElement)context.Resolve(type, entry.Name, entry.Registration));
                 }
+                catch (MakeGenericTypeFailedException) { /* Ignore */ }
                 catch (ArgumentException ex) when (ex.InnerException is TypeLoadException)
                 {
                     // Ignore
@@ -287,8 +287,11 @@ namespace Unity
                 // Check if optimization is required
                 if (0 == Interlocked.Decrement(ref counter))
                 {
+#if NET40
                     Task.Factory.StartNew(() => {
-
+#else
+                    Task.Run(() => {
+#endif
                         // Compile build plan on worker thread
                         var expressions = new List<Expression>();
                         foreach (var processor in chain)
@@ -374,7 +377,8 @@ namespace Unity
                         !(ex is InvalidRegistrationException) &&
                         !(ex is ObjectDisposedException) && 
                         !(ex is MemberAccessException) && 
-                        !(ex is MakeGenericTypeFailedException))
+                        !(ex is MakeGenericTypeFailedException) &&
+                        !(ex is TargetInvocationException))
                         throw;
 
                     throw new ResolutionFailedException(context.RegistrationType, context.Name, CreateMessage(ex), ex);

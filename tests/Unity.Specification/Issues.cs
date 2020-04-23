@@ -4,11 +4,11 @@ using Unity;
 namespace Issues
 {
     [TestClass]
-    public class GitHub : Unity.Specification.Diagnostic.Issues.GitHub.SpecificationTests
+    public class GitHub : Unity.Specification.Issues.GitHub.SpecificationTests
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddNewExtension<Diagnostic>();
+            return new UnityContainer();
         }
     }
 
@@ -17,7 +17,7 @@ namespace Issues
     {
         public override IUnityContainer GetContainer()
         {
-            return new UnityContainer().AddNewExtension<Diagnostic>();
+            return new UnityContainer();
         }
     }
 }

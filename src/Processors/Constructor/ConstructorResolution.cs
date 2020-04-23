@@ -75,7 +75,7 @@ namespace Unity.Processors
                     var dependencies = new object[parameterResolvers.Length];
                     for (var i = 0; i < dependencies.Length; i++)
                         dependencies[i] = parameterResolvers[i](ref c);
-
+                    
                     c.Existing = info.Invoke(dependencies);
                 }
 
