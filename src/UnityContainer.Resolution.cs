@@ -85,7 +85,6 @@ namespace Unity
         #endregion
 
 
-
         #region Resolving Enumerable
 
         internal IEnumerable<TElement> ResolveEnumerable<TElement>(Func<Type, string, InternalRegistration, object> resolve, string name)
