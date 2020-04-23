@@ -377,7 +377,8 @@ namespace Unity
                         !(ex is InvalidRegistrationException) &&
                         !(ex is ObjectDisposedException) && 
                         !(ex is MemberAccessException) && 
-                        !(ex is MakeGenericTypeFailedException))
+                        !(ex is MakeGenericTypeFailedException) &&
+                        !(ex is TargetInvocationException))
                         throw;
 
                     throw new ResolutionFailedException(context.RegistrationType, context.Name, CreateMessage(ex), ex);
