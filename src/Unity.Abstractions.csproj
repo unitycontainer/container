@@ -8,7 +8,7 @@
     <AssemblyVersion>$(VersionBase).0</AssemblyVersion>
     <PackageId>Unity.Abstractions</PackageId>
     <Description>Unity Container Public Abstractions</Description>
-    <Copyright>Copyright © Unity Container Project 2018</Copyright>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
     <PackageProjectUrl>https://github.com/unitycontainer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unitycontainer/abstractions</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/unitycontainer/abstractions/blob/master/LICENSE</PackageLicenseUrl>
