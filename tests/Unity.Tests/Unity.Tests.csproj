@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net47</TargetFramework>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Unity.Tests.v5</RootNamespace>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
