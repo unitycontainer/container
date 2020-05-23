@@ -70,7 +70,8 @@ jobs:
     # needs: [ Build ]
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        # os: [windows-latest, ubuntu-latest]
+        os: [windows-latest]
     runs-on:  ${{ matrix.os }}
     env:
       TargetFramework: netcoreapp2.1
