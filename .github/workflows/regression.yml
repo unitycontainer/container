@@ -4,10 +4,11 @@ name: Regression Tests
 
 on:
   push:
-    paths:
-      - 'src/*'
-      - 'test/*'
-      - '.github/workflows/*'
+    branches: [ master, develop ]
+    # paths:
+    #   - 'src/*'
+    #   - 'test/*'
+    #   - '.github/workflows/*'
 
   pull_request:
     branches: [ master, develop ]
