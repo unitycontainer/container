@@ -20,12 +20,13 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
+        path: Container
 
     - name: Cache
       id: unity-abstractions
       uses: actions/cache@v1
       with:
-        path: '${{ github.workspace }}/src\bin\Release'
+        path: '${{ github.workspace }}\Container\src\bin\Release'
         key: ${{ github.sha }}
 
     - name: Build Package
