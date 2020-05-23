@@ -112,8 +112,7 @@ jobs:
     # needs: [ Build ]
     strategy:
       matrix:
-        # os: [windows-latest, ubuntu-latest, macos-latest]
-        os: [ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on:  ${{ matrix.os }}
     env:
       TargetFramework: netcoreapp3.1
