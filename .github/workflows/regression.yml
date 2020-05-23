@@ -39,34 +39,33 @@ jobs:
   # TODO: add net40
 
 
-  # net:
+  net:
   #   needs: [ Build ]
-  #   strategy:
-  #     matrix:
-  #       framework: ['net48', 'net47', 'net46', 'net45']
-  #   runs-on:  windows-latest
-  #   env:
-  #     TargetFramework: ${{ matrix.framework }}
+    strategy:
+      matrix:
+        framework: ['net48', 'net47', 'net46', 'net45']
+    runs-on:  windows-latest
+    env:
+      TargetFramework: ${{ matrix.framework }}
 
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-  #   - name: Cache
-  #     id: unity-container
-  #     uses: actions/cache@v1
-  #     with:
-  #       path: '${{ github.workspace }}/package'
+    - name: Cache
+      id: unity-container
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
   #       key: ${{ github.sha }}
+        key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
 
-  #   - name: Build Package
-  #     run: |
-  #       dotnet remove ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj reference "..\src\Unity.Abstractions.csproj"
-  #       dotnet add ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj package --source '${{ github.workspace }}/package' Unity.Abstractions --version 0.0.0
-  #       dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
+    - name: Build
+      run: |
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
 
-  #   - name: Test
-  #     run: dotnet test ${{ github.workspace }}/tests/bin/Release/${{ matrix.framework }}/Unity.Abstractions.Tests.dll
+    - name: Test
+      run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
 
 
   # core-lts-2:
@@ -108,38 +107,36 @@ jobs:
   #     run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp2.1/Unity.Abstractions.Tests.dll
 
 
-  core-lts-3:
-    # needs: [ Build ]
-    strategy:
-      matrix:
-        # os: [windows-latest, ubuntu-latest, macos-latest]
-        os: [windows-latest]
-    runs-on:  ${{ matrix.os }}
-    env:
-      TargetFramework: netcoreapp3.1
+  # core-lts-3:
+  #   needs: [ Build ]
+  #   strategy:
+  #     matrix:
+  #       os: [windows-latest, ubuntu-latest, macos-latest]
+  #   runs-on:  ${{ matrix.os }}
+  #   env:
+  #     TargetFramework: netcoreapp3.1
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        path: Container
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #     with:
+  #       path: Container
 
-    - name: Install DotNet
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.202'
+  #   - name: Install DotNet
+  #     uses: actions/setup-dotnet@v1
+  #     with:
+  #       dotnet-version: '3.1.202'
 
-    - name: Cache
-      id: unity-container
-      uses: actions/cache@v1
-      with:
-        path: '${{ github.workspace }}/Container/src/bin/Release'
-        # key: ${{ github.sha }}
-        key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
+  #   - name: Cache
+  #     id: unity-container
+  #     uses: actions/cache@v1
+  #     with:
+  #       path: '${{ github.workspace }}/Container/src/bin/Release'
+  #       key: ${{ github.sha }}
 
-    - name: Build
-      run: |
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
+  #   - name: Build
+  #     run: |
+  #       dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
 
-    - name: Test
-      run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
+  #   - name: Test
+  #     run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
