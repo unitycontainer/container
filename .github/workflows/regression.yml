@@ -141,4 +141,4 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
 
     - name: Test
-      run: dotnet vstest ${{ github.workspace }}/Container/tests/Unity.Tests
+      run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
