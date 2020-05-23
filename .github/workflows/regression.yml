@@ -41,8 +41,7 @@ jobs:
   #   needs: [ Build ]
     strategy:
       matrix:
-        # framework: ['net48', 'net47', 'net46', 'net45']
-        framework: ['net48']
+        framework: ['net48', 'net47', 'net46', 'net45']
     runs-on:  windows-latest
     env:
       TargetFramework: ${{ matrix.framework }}
