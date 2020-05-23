@@ -14,26 +14,26 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  # build:
-  #   runs-on: windows-latest
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #     with:
-  #       fetch-depth: 0
-  #       path: Container
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        path: Container
 
-  #   - name: Cache
-  #     id: unity-container
-  #     uses: actions/cache@v1
-  #     with:
-  #       path: '${{ github.workspace }}\Container\src\bin\Release'
-  #       key: ${{ github.sha }}
+    - name: Cache
+      id: unity-container
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}\Container\src\bin\Release'
+        key: ${{ github.sha }}
 
-  #   - name: Build Package
-  #     env:
-  #       PackageVersion: '0.0.0'
-  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
+    - name: Build Package
+      env:
+        PackageVersion: '0.0.0'
+      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
 
 
   # TODO: add net40
@@ -109,7 +109,7 @@ jobs:
 
 
   core-lts-3:
-    # needs: [ Build ]
+    needs: [ Build ]
     strategy:
       matrix:
         # os: [windows-latest, ubuntu-latest, macos-latest]
@@ -134,8 +134,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: '${{ github.workspace }}/Container/src/bin/Release'
-        # key: ${{ github.sha }}
-        key: '8e63fb8feaf0c896a7aa589d56606985e5e1214c'
+        key: ${{ github.sha }}
+        # key: '8e63fb8feaf0c896a7aa589d56606985e5e1214c'
 
     - name: Build Package
         # dotnet remove ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj reference "..\..\src\Unity.Container.csproj"
