@@ -1,0 +1,135 @@
+name: Regression Tests
+# https://dotnet.microsoft.com/download/dotnet-core
+# https://dotnet.microsoft.com/download/dotnet-framework
+
+on:
+  [ push ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache
+      id: unity-abstractions
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
+        key: ${{ github.sha }}
+
+    - name: Build Package
+      env:
+        PackageVersion: '0.0.0'
+        PackageOutputPath: '${{ github.workspace }}/package'
+      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
+
+  net:
+    needs: [ Build ]
+    strategy:
+      matrix:
+        framework: ['net48', 'net47', 'net46', 'net45']
+    runs-on:  windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache
+      id: unity-abstractions
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
+        key: ${{ github.sha }}
+
+    - name: Build Package
+      env:
+        TargetFramework: ${{ matrix.framework }}
+      run: |
+        dotnet remove ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj reference "..\src\Unity.Abstractions.csproj"
+        dotnet add ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj package --source '${{ github.workspace }}/package' Unity.Abstractions --version 0.0.0
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
+
+    - name: Test
+      env:
+        TargetFramework: ${{ matrix.framework }}
+      run: dotnet test ${{ github.workspace }}/tests/bin/Release/${{ matrix.framework }}/Unity.Abstractions.Tests.dll
+
+
+  core-lts-2:
+    needs: [ Build ]
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on:  ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install DotNet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '2.1.806'
+
+    - name: Install Nuget
+      uses: nuget/setup-nuget@v1
+
+    - name: Cache
+      id: unity-abstractions
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
+        key: ${{ github.sha }}
+
+    - name: Build Package
+      env:
+        TargetFramework: netcoreapp2.1
+      run: |
+        nuget add ${{ github.workspace }}/package/Unity.Abstractions.0.0.0.nupkg -Source packages
+        dotnet remove ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj reference "..\src\Unity.Abstractions.csproj"
+        dotnet add ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj package --source packages Unity.Abstractions --version 0.0.0
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
+
+    - name: Test
+      env:
+        TargetFramework: netcoreapp2.1
+      run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp2.1/Unity.Abstractions.Tests.dll
+
+
+  core-lts-3:
+    needs: [ Build ]
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on:  ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install DotNet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.202'
+
+    - name: Cache
+      id: unity-abstractions
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
+        key: ${{ github.sha }}
+
+    - name: Build Package
+      env:
+        TargetFramework: netcoreapp3.1
+      run: |
+        dotnet remove ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj reference "..\src\Unity.Abstractions.csproj"
+        dotnet add ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj package --source '${{ github.workspace }}/package' Unity.Abstractions --version 0.0.0
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
+
+    - name: Test
+      env:
+        TargetFramework: netcoreapp3.1
+      run: dotnet test ${{ github.workspace }}/tests/bin/Release/netcoreapp3.1/Unity.Abstractions.Tests.dll
