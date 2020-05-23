@@ -32,7 +32,7 @@ jobs:
     - name: Build Package
       env:
         PackageVersion: '0.0.0'
-      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
+      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
 
 
   # TODO: add net40
