@@ -112,7 +112,8 @@ jobs:
     # needs: [ Build ]
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest]
     runs-on:  ${{ matrix.os }}
     env:
       TargetFramework: netcoreapp3.1
@@ -136,7 +137,7 @@ jobs:
         # key: ${{ github.sha }}
         key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
 
-    - name: Build Tests
+    - name: Build
       run: |
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
 
