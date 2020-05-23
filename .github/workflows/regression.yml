@@ -37,57 +37,20 @@ jobs:
 
   # TODO: add net40
 
-  net:
-  #   needs: [ Build ]
-    strategy:
-      matrix:
-        framework: ['net48', 'net47', 'net46', 'net45']
-    runs-on:  windows-latest
-    env:
-      TargetFramework: ${{ matrix.framework }}
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        path: Container
-
-    - name: Cache
-      id: unity-container
-      uses: actions/cache@v1
-      with:
-        path: '${{ github.workspace }}/package'
-  #       key: ${{ github.sha }}
-        key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
-
-    - name: Build
-      run: |
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
-
-    - name: Test
-      run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
-
-
-  # core-lts-2:
+  # net:
   #   needs: [ Build ]
   #   strategy:
   #     matrix:
-  #       os: [windows-latest, ubuntu-latest]
-  #   runs-on:  ${{ matrix.os }}
+  #       framework: ['net48', 'net47', 'net46', 'net45']
+  #   runs-on:  windows-latest
   #   env:
-  #     TargetFramework: netcoreapp2.1
+  #     TargetFramework: ${{ matrix.framework }}
 
   #   steps:
   #   - name: Checkout
   #     uses: actions/checkout@v2
-
-  #   - name: Install DotNet
-  #     uses: actions/setup-dotnet@v1
   #     with:
-  #       dotnet-version: '2.1.806'
-
-  #   - name: Install Nuget
-  #     uses: nuget/setup-nuget@v1
+  #       path: Container
 
   #   - name: Cache
   #     id: unity-container
@@ -95,16 +58,47 @@ jobs:
   #     with:
   #       path: '${{ github.workspace }}/package'
   #       key: ${{ github.sha }}
-
-  #   - name: Build Package
-  #     run: |
-  #       nuget add ${{ github.workspace }}/package/* -Source packages
-  #       dotnet remove ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj reference "..\src\Unity.Abstractions.csproj"
-  #       dotnet add ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj package --source packages Unity.Abstractions --version 0.0.0
-  #       dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
+  
+  #   - name: Build
+  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
 
   #   - name: Test
-  #     run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp2.1/Unity.Abstractions.Tests.dll
+  #     run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
+
+
+  core-lts-2:
+    # needs: [ Build ]
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on:  ${{ matrix.os }}
+    env:
+      TargetFramework: netcoreapp2.1
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        path: Container
+
+    - name: Install DotNet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '2.1.806'
+
+    - name: Cache
+      id: unity-container
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/Container/src/bin/Release'
+        # key: ${{ github.sha }}
+        key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
+
+    - name: Build
+      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
+
+    - name: Test
+      run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
 
 
   # core-lts-3:
@@ -135,8 +129,7 @@ jobs:
   #       key: ${{ github.sha }}
 
   #   - name: Build
-  #     run: |
-  #       dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
+  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
 
   #   - name: Test
   #     run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
