@@ -132,7 +132,7 @@ jobs:
       id: unity-container
       uses: actions/cache@v1
       with:
-        path: '${{ github.workspace }}\Container\src\bin\Release'
+        path: '${{ github.workspace }}/Container/src/bin/Release'
         # key: ${{ github.sha }}
         key: '8e63fb8feaf0c896a7aa589d56606985e5e1214c'
 
