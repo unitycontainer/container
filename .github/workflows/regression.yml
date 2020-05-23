@@ -13,26 +13,26 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-        path: Container
+  # build:
+  #   runs-on: windows-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #     with:
+  #       fetch-depth: 0
+  #       path: Container
 
-    - name: Cache
-      id: unity-container
-      uses: actions/cache@v1
-      with:
-        path: '${{ github.workspace }}\Container\src\bin\Release'
-        key: ${{ github.sha }}
+  #   - name: Cache
+  #     id: unity-container
+  #     uses: actions/cache@v1
+  #     with:
+  #       path: '${{ github.workspace }}\Container\src\bin\Release'
+  #       key: ${{ github.sha }}
 
-    - name: Build Package
-      env:
-        PackageVersion: '0.0.0'
-      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
+  #   - name: Build Package
+  #     env:
+  #       PackageVersion: '0.0.0'
+  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
 
 
   # TODO: add net40
@@ -111,7 +111,8 @@ jobs:
     needs: [ Build ]
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
     runs-on:  ${{ matrix.os }}
     env:
       TargetFramework: netcoreapp3.1
@@ -133,12 +134,12 @@ jobs:
       with:
         path: '${{ github.workspace }}\Container\src\bin\Release'
         # key: ${{ github.sha }}
-        key: 'd093437a55004359f5ebb8fee4c28ded2a1b02e4'
+        key: '8e63fb8feaf0c896a7aa589d56606985e5e1214c'
 
     - name: Build Package
+        # dotnet remove ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj reference "..\..\src\Unity.Container.csproj"
+        # dotnet add ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj package --source '${{ github.workspace }}\Container\src\bin\Release' Unity.Container --version 0.0.0
       run: |
-        dotnet remove ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj reference "..\..\src\Unity.Container.csproj"
-        dotnet add ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj package --source '${{ github.workspace }}\Container\src\bin\Release' Unity.Container --version 0.0.0
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
 
     - name: Test
