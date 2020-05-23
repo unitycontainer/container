@@ -14,22 +14,22 @@ namespace Unity.Tests.v5.Storage
         [TestMethod]
         public void ShouldHandleCollisions()
         {
-            var (s1, s2) = MakeCollision();
+            Tuple<string, string> s = MakeCollision();
 
             var registrationSet = new RegistrationSet();
             var registration1 = new InternalRegistration();
             var registration2 = new InternalRegistration();
             var registration3 = new InternalRegistration();
 
-            registrationSet.Add(typeof(IService), s1, registration1);
+            registrationSet.Add(typeof(IService), s.Item1, registration1);
             Assert.AreEqual(1, registrationSet.Count);
-            registrationSet.Add(typeof(IService), s2, registration2);
+            registrationSet.Add(typeof(IService), s.Item2, registration2);
             Assert.AreEqual(2, registrationSet.Count);
-            registrationSet.Add(typeof(IService), s1, registration3);
+            registrationSet.Add(typeof(IService), s.Item1, registration3);
             Assert.AreEqual(2, registrationSet.Count);
         }
 
-        private static (string, string) MakeCollision()
+        private static Tuple<string, string> MakeCollision()
         {
             var strings = new Dictionary<int, string>();
             var random = new Random();
@@ -44,7 +44,7 @@ namespace Unity.Tests.v5.Storage
                 var str = builder.ToString();
                 var hash = str.GetHashCode();
                 if (strings.TryGetValue(hash, out var other))
-                    return (str, other);
+                    return new Tuple<string, string> (str, other);
 
                 strings[hash] = str;
                 builder.Clear();
