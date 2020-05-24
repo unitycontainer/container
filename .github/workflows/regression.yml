@@ -149,13 +149,13 @@ jobs:
 
     - name: Build
       run: |
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Specification\Unity.Specification.Tests.csproj
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Diagnostic\Unity.Specification.Tests.Diagnostic.csproj
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Specification/Unity.Specification.Tests.csproj
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Diagnostic/Unity.Specification.Tests.Diagnostic.csproj
 
     - name: Test
       run: |
-        dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
-        dotnet test ${{ github.workspace }}\Container\tests\Unity.Specification
-        dotnet test ${{ github.workspace }}\Container\tests\Unity.Diagnostic
+        dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
+        dotnet test ${{ github.workspace }}/Container/tests/Unity.Specification
+        dotnet test ${{ github.workspace }}/Container/tests/Unity.Diagnostic
 
