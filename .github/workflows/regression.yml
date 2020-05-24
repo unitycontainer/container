@@ -124,10 +124,15 @@ jobs:
       TargetFramework: netcoreapp3.1
 
     steps:
-    - name: Checkout
+    - name: Checkout Container
       uses: actions/checkout@v2
       with:
         path: Container
+    - name: Checkout Tests
+      uses: actions/checkout@v2
+      with:
+        repository: 'unitycontainer/specification-tests'
+        path: SpecificationTests
 
     - name: Install DotNet
       uses: actions/setup-dotnet@v1
