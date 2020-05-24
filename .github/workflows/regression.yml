@@ -70,9 +70,9 @@ jobs:
   
     - name: Build
       run: |
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Specification\src
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Specification\diagnostic
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests
 
     - name: Test
       run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
