@@ -57,7 +57,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="!Exists('$(UnityAbstractions)')">
-    <PackageReference Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
+    <PackageReference Include="Unity.Abstractions" Version="5.11.5" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

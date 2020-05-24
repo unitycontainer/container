@@ -91,7 +91,7 @@ namespace Unity.Processors
         /// <returns></returns>
         public object LegacySelector(Type type, ConstructorInfo[] members)
         {
-            Array.Sort(members, (x, y) => y?.GetParameters().Length ?? 0 - x?.GetParameters().Length ?? 0);
+            Array.Sort(members, (x, y) => x?.GetParameters().Length ?? 0 - y?.GetParameters().Length ?? 0);
 
             switch (members.Length)
             {
@@ -112,6 +112,37 @@ namespace Unity.Processors
                                 type.GetTypeInfo().Name,
                                 paramLength), new InvalidRegistrationException());
                     }
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                    var typeInfo = type.GetTypeInfo();
+#else
+                    var typeInfo = type;
+#endif
+                    // Validate if Type could be created
+                    if (typeInfo.IsInterface)
+                    {
+                        return new InvalidOperationException($"The type {type.GetTypeInfo().Name} is an interface. Unable to create an interface.", 
+                                                             new InvalidRegistrationException());
+                    }
+
+                    if (typeInfo.IsAbstract)
+                    {
+                        return new InvalidOperationException($"The type {type.GetTypeInfo().Name} is an abstract class. Unable to create an abstract.",
+                                                             new InvalidRegistrationException());
+                    }
+
+                    if (typeInfo.IsSubclassOf(typeof(Delegate)))
+                    {
+                        return new InvalidOperationException($"The type {type.GetTypeInfo().Name} is a delegate. Unable to create a delegate.",
+                                                             new InvalidRegistrationException());
+                    }
+
+                    if (type == typeof(string))
+                    {
+                        return new InvalidOperationException($"Unable to create a string",
+                                                             new InvalidRegistrationException());
+                    }
+
                     return members[0];
             }
         }
