@@ -14,31 +14,31 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  # build:
-  #   runs-on: windows-latest
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #     with:
-  #       path: Container
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        path: Container
 
-  #   - name: Cache
-  #     id: unity-container
-  #     uses: actions/cache@v1
-  #     with:
-  #       path: '${{ github.workspace }}\Container\src\bin\Release'
-  #       key: ${{ github.sha }}
+    - name: Cache
+      id: unity-container
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}\Container\src\bin\Release'
+        key: ${{ github.sha }}
 
-  #   - name: Build
-  #     env:
-  #       PackageVersion: '0.0.0'
-  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
+    - name: Build
+      env:
+        PackageVersion: '0.0.0'
+      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\src
 
 
   # TODO: add net40
 
   net:
-  #   needs: [ Build ]
+    needs: [ Build ]
     strategy:
       matrix:
         framework: ['net48', 'net47', 'net46', 'net45']
@@ -64,8 +64,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: '${{ github.workspace }}\Container\src\bin\Release'
-        # key: ${{ github.sha }}
-        key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
+        key: ${{ github.sha }}
+        # key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
   
     - name: Build
       run: |
