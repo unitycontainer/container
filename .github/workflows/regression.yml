@@ -140,7 +140,7 @@ jobs:
       with:
         path: '${{ github.workspace }}/Container/src/bin/Release'
         # key: ${{ github.sha }}
-        # key: '6f357fa8bc808958b7b2b8f08217308b2c22c18c'
+        key: '6f357fa8bc808958b7b2b8f08217308b2c22c18c'
 
     - name: Build
       run: |
