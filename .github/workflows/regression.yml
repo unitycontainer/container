@@ -37,44 +37,15 @@ jobs:
 
   # TODO: add net40
 
-  # net:
+  net:
   #   needs: [ Build ]
-  #   strategy:
-  #     matrix:
-  #       framework: ['net48', 'net47', 'net46', 'net45']
-  #   runs-on:  windows-latest
-  #   env:
-  #     TargetFramework: ${{ matrix.framework }}
-
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #     with:
-  #       path: Container
-
-  #   - name: Cache
-  #     id: unity-container
-  #     uses: actions/cache@v1
-  #     with:
-  #       path: '${{ github.workspace }}/package'
-  #       key: ${{ github.sha }}
-  
-  #   - name: Build
-  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
-
-  #   - name: Test
-  #     run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
-
-
-  core-lts-2:
-    # needs: [ Build ]
     strategy:
       matrix:
-        # os: [windows-latest, ubuntu-latest]
-        os: [windows-latest]
-    runs-on:  ${{ matrix.os }}
+        # framework: ['net48', 'net47', 'net46', 'net45']
+        framework: ['net48']
+    runs-on:  windows-latest
     env:
-      TargetFramework: netcoreapp2.1
+      TargetFramework: ${{ matrix.framework }}
 
     steps:
     - name: Checkout
@@ -82,24 +53,54 @@ jobs:
       with:
         path: Container
 
-    - name: Install DotNet
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '2.1.806'
-
     - name: Cache
       id: unity-container
       uses: actions/cache@v1
       with:
-        path: '${{ github.workspace }}/Container/src/bin/Release'
+        path: '${{ github.workspace }}/package'
         # key: ${{ github.sha }}
         key: '75bec15aa5fdd0f4f89576e35766e39caf509edb'
-
+  
     - name: Build
-      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
+      run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
 
     - name: Test
-      run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
+      run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
+
+
+  # core-lts-2:
+  #   needs: [ Build ]
+  #   strategy:
+  #     matrix:
+  #       os: [windows-latest, ubuntu-latest]
+  #       os: [windows-latest]
+  #   runs-on:  ${{ matrix.os }}
+  #   env:
+  #     TargetFramework: netcoreapp2.1
+
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #     with:
+  #       path: Container
+
+  #   - name: Install DotNet
+  #     uses: actions/setup-dotnet@v1
+  #     with:
+  #       dotnet-version: '2.1.806'
+
+  #   - name: Cache
+  #     id: unity-container
+  #     uses: actions/cache@v1
+  #     with:
+  #       path: '${{ github.workspace }}/Container/src/bin/Release'
+  #       key: ${{ github.sha }}
+
+  #   - name: Build
+  #     run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/Container/tests/Unity.Tests/Unity.Tests.csproj
+
+  #   - name: Test
+  #     run: dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
 
 
   # core-lts-3:
