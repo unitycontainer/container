@@ -57,7 +57,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: 'unitycontainer/specification-tests'
-        path: Specification
+        path: SpecificationTests
 
 
     - name: Cache
