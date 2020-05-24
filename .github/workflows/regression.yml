@@ -75,7 +75,7 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests
 
     - name: Test
-      run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
+      run: dotnet test ${{ github.workspace }}\Container\tests
 
 
   # core-lts-2:
