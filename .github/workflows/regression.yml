@@ -72,10 +72,12 @@ jobs:
       run: |
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Specification\src
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Specification\diagnostic
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Tests\Unity.Tests.csproj
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Specification\Unity.Specification.Tests.csproj
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}\Container\tests\Unity.Diagnostic\Unity.Specification.Tests.Diagnostic.csproj
 
     - name: Test
-      run: dotnet test ${{ github.workspace }}\Container\tests
+      run: dotnet test ${{ github.workspace }}\Container\tests\Unity.Tests
 
 
   # core-lts-2:
