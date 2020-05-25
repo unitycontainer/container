@@ -35,7 +35,7 @@ jobs:
         dotnet remove ${{ github.workspace }}\src\Unity.Container.csproj reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
         dotnet add src\Unity.Container.csproj package Unity.Abstractions --version *-*
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests\Unity.Tests
 
     - name: Test
       run: | 
