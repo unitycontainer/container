@@ -93,7 +93,7 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
 
     - name: Test
-      run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/{{ env.TargetFramework }}/Unity.Abstractions.Tests.dll
+      run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp2.0/Unity.Abstractions.Tests.dll
 
 
   core-lts-3:
@@ -128,4 +128,4 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
 
     - name: Test
-      run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/{{ env.TargetFramework }}/Unity.Abstractions.Tests.dll
+      run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp3.0/Unity.Abstractions.Tests.dll
