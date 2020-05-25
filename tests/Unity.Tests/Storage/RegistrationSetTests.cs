@@ -14,6 +14,7 @@ namespace Unity.Tests.v5.Storage
         [TestMethod]
         public void ShouldHandleCollisions()
         {
+            var container = new UnityContainer();
             Tuple<string, string> s = MakeCollision();
 
             var registrationSet = new RegistrationSet();
