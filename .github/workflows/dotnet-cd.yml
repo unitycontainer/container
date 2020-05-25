@@ -39,7 +39,7 @@ jobs:
 
     - name: Test
       run: | 
-        dotnet test tests
+        dotnet test tests\Unity.Tests
 
     - name: Publish Local Package
       run: |
