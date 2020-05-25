@@ -35,13 +35,8 @@
   
   <!-- Unity.Abstractions -->
 
-  <PropertyGroup>
-    <UnityAbstractionsProject>..\..\Abstractions\src\Unity.Abstractions.csproj</UnityAbstractionsProject>
-    <UnityAbstractionsVersion Condition="'$(UnityAbstractionsVersion)' == ''">$(UnityAbstractions)</UnityAbstractionsVersion>
-  </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')" Include="$(UnityAbstractionsProject)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="5.12.*-*" />
+    <ProjectReference Include="..\..\Abstractions\src\Unity.Abstractions.csproj" />
   </ItemGroup>
 
   <!-- Project Configuration -->
