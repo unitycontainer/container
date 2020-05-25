@@ -4,9 +4,9 @@
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
     <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
-    <PackageProjectUrl>https://github.com/unitycontainer/unity</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/unitycontainer/unity</RepositoryUrl>
-    <License>https://github.com/unitycontainer/unity/blob/master/LICENSE</License>
+    <PackageProjectUrl>https://github.com/unitycontainer/container</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/unitycontainer/container</RepositoryUrl>
+    <License>https://github.com/unitycontainer/container/blob/master/LICENSE</License>
     <IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Unity Open Source Project</Authors>
