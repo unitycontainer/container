@@ -41,10 +41,14 @@ jobs:
         dotnet add    ${{ env.containerProject }} package Unity.Abstractions --version *-*
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Unity.Tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Optimized
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Diagnostic
 
     - name: Test
       run: | 
         dotnet test Container\tests\Unity.Tests
+        dotnet test Container\tests\Specification\Optimized
+        dotnet test Container\tests\Specification\Diagnostic
 
     - name: Publish Local Package
       run: |
