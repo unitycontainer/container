@@ -85,7 +85,7 @@ jobs:
         os: [windows-latest]
     runs-on:  ${{ matrix.os }}
     env:
-      TargetFramework: netcoreapp2.0
+      TargetFramework: netcoreapp2.1
 
     steps:
     - name: Checkout Container
@@ -130,7 +130,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on:  ${{ matrix.os }}
     env:
-      TargetFramework: netcoreapp3.0
+      TargetFramework: netcoreapp3.1
 
     steps:
     - name: Checkout Container
