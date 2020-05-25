@@ -21,9 +21,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup msbuild
-      uses: microsoft/setup-msbuild@v1.0.0
-
     - name: Install DotNet
       uses: actions/setup-dotnet@v1
       with:
@@ -37,8 +34,8 @@ jobs:
       run: | 
         dotnet remove ${{ github.workspace }}\src\Unity.Container.csproj reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
         dotnet add src\Unity.Container.csproj package Unity.Abstractions --version *-*
-        msbuild -property:Configuration=Release -verbosity:m -restore:True src
-        msbuild -property:Configuration=Release -verbosity:m -restore:True tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests
 
     - name: Test
       run: | 
