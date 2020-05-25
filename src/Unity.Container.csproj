@@ -65,12 +65,6 @@
     <None Remove="Unity.Container.csproj.DotSettings" />
   </ItemGroup>
 
-  <!-- References -->
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.0" />
-  </ItemGroup>
-
   <!-- Sourcelink -->
   
   <PropertyGroup>
@@ -78,6 +72,8 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+
+  <!-- References -->
 
   <ItemGroup>
     <PackageReference Include="GitVersionTask" Version="5.3.4">
@@ -88,6 +84,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,7 @@ jobs:
     runs-on: windows-latest
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
+      LocalSource: ${{ github.workspace }}/packages
 
     steps:
     - name: Checkout
@@ -27,16 +28,17 @@ jobs:
         nuget-api-key: ${{ secrets.GITHUB_TOKEN }}
         nuget-version: '5.6'
 
-    - name: Restore
+    - name: Install Abstractions
       run: |
-        dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
-        nuget restore src\Unity.Container.csproj
-        nuget restore src\Unity.Container.csproj
+        nuget install Unity.Abstractions -Prerelease -ExcludeVersion -OutputDirectory ${{ env.LocalSource }}
 
     - name: Build
       run: | 
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:False src
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:False tests
+        dotnet remove ${{ github.workspace }}\src\Unity.Container.csproj reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
+        dotnet add ${{ github.workspace }}\src\Unity.Container.csproj package --source ${{ env.LocalSource }} Unity.Abstractions
+              
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests
 
     - name: Test
       run: | 
