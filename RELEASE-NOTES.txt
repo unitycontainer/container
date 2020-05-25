@@ -1,0 +1,1 @@
+This package is distributed as .NET Standard 1.0, 2.0, .Net Core 1.0, 2.0, and .NET 4.0, 4.5, 4.6, 4.7, and 4.8

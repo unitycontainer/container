@@ -6,8 +6,8 @@
     <Copyright>Copyright © Unity Container Project 2018</Copyright>
     <PackageProjectUrl>https://github.com/unitycontainer/unity</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unitycontainer/unity</RepositoryUrl>
-    <PackageLicenseUrl>https://github.com/unitycontainer/unity/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageIconUrl>https://avatars1.githubusercontent.com/u/12849707</PackageIconUrl>
+    <License>https://github.com/unitycontainer/unity/blob/master/LICENSE</License>
+    <IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Unity Open Source Project</Authors>
     <Company>Unity Open Source Project</Company>
@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')" Include="$(UnityAbstractionsProject)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(UnityAbstractionsVersion)" />
+    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(Major).$(Minor).*" />
   </ItemGroup>
 
   <!-- Project Configuration -->
@@ -85,15 +85,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="5.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Selection\Constructor\" />
-  </ItemGroup>
-
 
 </Project>
