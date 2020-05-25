@@ -54,6 +54,7 @@ namespace Unity.Tests.v5.Container
                 .AddExtension(new SpyExtension(new ThrowingStrategy(), UnityBuildStage.PostInitialization))
                 .RegisterType<object>(new ContainerControlledLifetimeManager());
 
+            bool failed = true;
             object result1 = null;
             object result2 = null;
             bool thread2Finished = false;
@@ -65,8 +66,11 @@ namespace Unity.Tests.v5.Container
                     {
                         result1 = container.Resolve<object>();
                     }
-                    catch (ResolutionFailedException)
+                    catch (ResolutionFailedException) { /* ignore */ }
+                    catch (Exception)
                     {
+                        // Make sure user exception is passed through
+                        failed = false;
                     }
                 });
 
@@ -86,6 +90,7 @@ namespace Unity.Tests.v5.Container
             thread2.Start();
             thread2.Join(1000);
 
+            Assert.IsFalse(failed);
             Assert.IsTrue(thread2Finished);
             Assert.IsNull(result1);
             Assert.IsNotNull(result2);
@@ -115,7 +120,7 @@ namespace Unity.Tests.v5.Container
                 if (this.shouldThrow)
                 {
                     this.shouldThrow = false;
-                    throw new Exception("Throwing from buildup chain");
+                    throw new Exception("Expected test exception thrown from test strategy the first time it is executed");
                 }
             }
         }

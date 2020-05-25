@@ -104,6 +104,9 @@ namespace Unity.Processors
 
             try
             {
+                var variable = Expression.Variable(info.DeclaringType);
+                var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
+
                 return Expression.IfThen(
                     Expression.Equal(Expression.Constant(null), BuilderContext.ExistingExpression),
                     Expression.Block(new[] { variable }, new Expression[]

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>Unity.Container</PackageId>
     <Description>Unity Core Engine</Description>
-    <Copyright>Copyright © Unity Container Project 2018</Copyright>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
     <PackageProjectUrl>https://github.com/unitycontainer/unity</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unitycontainer/unity</RepositoryUrl>
     <License>https://github.com/unitycontainer/unity/blob/master/LICENSE</License>

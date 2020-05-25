@@ -11,11 +11,11 @@ namespace Unity.Factories
     {
         #region Fields
 
-        private static readonly MethodInfo EnumerableMethod =
+        internal static MethodInfo EnumerableMethod =
             typeof(EnumerableResolver).GetTypeInfo()
                                       .GetDeclaredMethod(nameof(EnumerableResolver.Resolver))!;
 
-        private static readonly MethodInfo EnumerableFactory =
+        internal static MethodInfo EnumerableFactory =
             typeof(EnumerableResolver).GetTypeInfo()
                                       .GetDeclaredMethod(nameof(EnumerableResolver.ResolverFactory))!;
 
@@ -62,6 +62,19 @@ namespace Unity.Factories
         {
             Type type = typeof(TElement).GetGenericTypeDefinition();
             return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveEnumerable<TElement>(c.Resolve, type, c.Name);
+        }
+
+
+        internal static object DiagnosticResolver<TElement>(ref BuilderContext context)
+        {
+            return ((UnityContainer)context.Container).ResolveEnumerable<TElement>(context.Resolve,
+                                                                                   context.Name).ToArray();
+        }
+
+        internal static ResolveDelegate<BuilderContext> DiagnosticResolverFactory<TElement>()
+        {
+            Type type = typeof(TElement).GetGenericTypeDefinition();
+            return (ref BuilderContext c) => ((UnityContainer)c.Container).ResolveEnumerable<TElement>(c.Resolve, type, c.Name).ToArray();
         }
 
         #endregion

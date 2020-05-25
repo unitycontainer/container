@@ -56,7 +56,10 @@ namespace Unity.Strategies
 
                         if (lifetime is IDisposable)
                         {
-                            context.Lifetime.Add(lifetime);
+                            var scope = policy is ContainerControlledLifetimeManager container
+                                      ? ((UnityContainer)container.Scope)?.LifetimeContainer ?? context.Lifetime
+                                      : context.Lifetime;
+                            scope.Add(policy);
                         }
                     }
                 }
