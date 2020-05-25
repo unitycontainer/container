@@ -1,0 +1,36 @@
+name:  Continuous Deployment
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'src/*'
+      - 'test/*'
+
+jobs:
+
+  build:
+
+    runs-on: windows-latest
+    env:
+      PackageOutputPath: '${{ github.workspace }}\package'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Build
+      run: | 
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests
+
+    - name: Test
+      run: | 
+        dotnet test tests
+
+    - name: Publish Local Package
+      run: |
+        dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
+        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github
