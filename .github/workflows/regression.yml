@@ -166,4 +166,3 @@ jobs:
         dotnet test ${{ github.workspace }}/Container/tests/Unity.Tests
         dotnet test ${{ github.workspace }}/Container/tests/Unity.Specification
         dotnet test ${{ github.workspace }}/Container/tests/Unity.Diagnostic
-
