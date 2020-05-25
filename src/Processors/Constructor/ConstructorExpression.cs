@@ -94,11 +94,11 @@ namespace Unity.Processors
 
         protected override Expression GetResolverExpression(ConstructorInfo info, object resolvers)
         {
-            var variable = Expression.Variable(info.DeclaringType);
-            var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
-
             try
             {
+                var variable = Expression.Variable(info.DeclaringType);
+                var parametersExpr = CreateParameterExpressions(info.GetParameters(), resolvers);
+
                 return Expression.IfThen(
                     Expression.Equal(Expression.Constant(null), BuilderContextExpression.Existing),
                     Expression.Block(new[] { variable }, new Expression[]
