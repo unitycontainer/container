@@ -44,11 +44,11 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Optimized
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Diagnostic
 
+        # dotnet test Container\tests\Specification\Optimized
+        # dotnet test Container\tests\Specification\Diagnostic
     - name: Test
       run: | 
         dotnet test Container\tests\Unity.Tests
-        dotnet test Container\tests\Specification\Optimized
-        dotnet test Container\tests\Specification\Diagnostic
 
     - name: Publish Local Package
       run: |
