@@ -84,6 +84,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Unity.Abstractions" Version="*-alpha*" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net40' ">
