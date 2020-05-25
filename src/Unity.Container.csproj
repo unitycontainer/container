@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Condition="Exists('$(UnityAbstractionsProject)')" Include="$(UnityAbstractionsProject)" />
-    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(Major).$(Minor).*" />
+    <PackageReference Condition="!Exists('$(UnityAbstractionsProject)')" Include="Unity.Abstractions" Version="$(GitVersion_Major).$(GitVersion_Minor).*" />
   </ItemGroup>
 
   <!-- Project Configuration -->
