@@ -5,7 +5,7 @@ name: Regression Tests
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ master]
     paths:
       - 'src/*'
       - 'test/*'
