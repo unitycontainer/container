@@ -112,7 +112,7 @@ namespace Unity
 
             // Methods
             _get = _parent._get;
-            _getGenericRegistration = _parent._getGenericRegistration;
+            _getGenericRegistration = (t, n, o) => _parent._getGenericRegistration(t, n, o);
             _isExplicitlyRegistered = _parent._isExplicitlyRegistered;
             IsTypeExplicitlyRegistered = _parent.IsTypeExplicitlyRegistered;
 
