@@ -4,7 +4,7 @@
     <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\src\package.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\src\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\SpecificationTests\diagnostic\Unity.Specification.Diagnostic.csproj" />
+    <ProjectReference Include="..\..\..\..\SpecificationTests\Container\diagnostic\Unity.Specification.Container.Diagnostic.csproj" />
     <ProjectReference Include="..\..\..\src\Unity.Container.csproj" />
   </ItemGroup>
 
