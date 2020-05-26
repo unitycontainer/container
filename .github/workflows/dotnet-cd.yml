@@ -34,21 +34,21 @@ jobs:
       with:
         dotnet-version: '3.1.300'
 
+    # dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Optimized
+    # dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Diagnostic
+
+    # dotnet test Container\tests\Specification\Optimized
+    # dotnet test Container\tests\Specification\Diagnostic
     - name: Build
       run: | 
         dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
         dotnet remove ${{ env.containerProject }} reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
-        dotnet add    ${{ env.containerProject }} package Unity.Abstractions --version *-*
+        dotnet add    ${{ env.containerProject }} package Unity.Abstractions --version *-alpha*
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Unity.Tests
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Optimized
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Specification\Diagnostic
-
     - name: Test
       run: | 
         dotnet test Container\tests\Unity.Tests
-        dotnet test Container\tests\Specification\Optimized
-        dotnet test Container\tests\Specification\Diagnostic
 
     - name: Publish Local Package
       run: |
