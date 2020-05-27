@@ -23,6 +23,14 @@ namespace Unity.Lifetime
     /// </remarks>
     public class SingletonLifetimeManager : ContainerControlledLifetimeManager
     {
+        protected override LifetimeManager OnCreateLifetimeManager()
+        {
+            return new SingletonLifetimeManager()
+            { 
+                Scope = Scope
+            };
+        }
+
         #region Overrides
         /// <summary>
         /// This method provides human readable representation of the lifetime

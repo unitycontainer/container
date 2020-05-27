@@ -70,7 +70,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference  Condition="'$(TargetFramework)' != 'net40'" Include="System.Threading.Tasks.Extensions">
+    <PackageReference Condition="'$(TargetFramework)' != 'net40'" Include="System.Threading.Tasks.Extensions">
       <Version>4.5.2</Version>
     </PackageReference>
   </ItemGroup>
