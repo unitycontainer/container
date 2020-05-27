@@ -3,7 +3,7 @@ name: Regression Tests
 # https://dotnet.microsoft.com/download/dotnet-framework
 
 on:
-  [ push ]
+  [ push, pull_request ]
 
 jobs:
   build:
