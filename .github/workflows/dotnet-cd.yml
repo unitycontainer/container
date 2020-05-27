@@ -23,6 +23,11 @@ jobs:
         path: Container
         fetch-depth: 0
 
+    - name: Label Fixed Issues
+      uses: gh-bot/fix-labeler@master        
+      with:
+        path: Container
+
     - name: Checkout Tests
       uses: actions/checkout@v2
       with:
