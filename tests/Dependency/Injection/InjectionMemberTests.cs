@@ -164,6 +164,17 @@ namespace Injection.Members
             Assert.AreNotEqual(0, member.GetHashCode());
         }
 
+
+        [TestMethod]
+        public virtual void ToStringTest()
+        {
+            // Arrange
+            var TestMember = GetInjectionMember();
+
+            // Validate
+            Assert.IsFalse(string.IsNullOrWhiteSpace(TestMember.ToString()));
+        }
+
         #endregion
 
 

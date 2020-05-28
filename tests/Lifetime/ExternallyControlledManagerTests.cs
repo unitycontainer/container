@@ -35,10 +35,12 @@ namespace Lifetime.Managers
         public override void IsDisposedTest()
         {
             // Arrange
-            TestManager.SetValue(TestObject, LifetimeContainer);
-
             var manager = TestManager as IDisposable;
             var disposable = TestObject as FakeDisposable;
+            
+            if (null == manager) return;
+
+            TestManager.SetValue(TestObject, LifetimeContainer);
 
             Assert.IsNotNull(disposable);
             Assert.IsNotNull(manager);

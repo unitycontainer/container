@@ -151,8 +151,10 @@ namespace Lifetime.Managers
             // Arrange
             TestManager.SetValue(TestObject, LifetimeContainer);
 
-            var manager    = TestManager as IDisposable;
             var disposable = TestObject as FakeDisposable;
+            var manager    = TestManager as IDisposable;
+            
+            if (null == manager) return;
 
             Assert.IsNotNull(disposable);
             Assert.IsNotNull(manager);
@@ -167,7 +169,7 @@ namespace Lifetime.Managers
         public virtual void DisposedUnInitializedTest()
         {
             var manager = TestManager as IDisposable;
-            Assert.IsNotNull(manager);
+            if (null == manager) return;
 
             // Act
             manager.Dispose();
