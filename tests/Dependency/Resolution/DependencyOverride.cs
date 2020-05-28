@@ -5,10 +5,10 @@ using Unity.Resolution;
 namespace Dependency.Overrides
 {
     [TestClass]
-    public class DependencyOverrideTests : ResolverOverrideTests
+    public class DependencyOverride : ResolverOverrideTests
     {
-        protected override ResolverOverride GetResolverOverride() => new DependencyOverride(typeof(object), OverrideValue);
-        protected override ResolverOverride GetNamedResolverOverride() => new DependencyOverride(nameof(Name), new TestResolver());
+        protected override ResolverOverride GetResolverOverride() => new Unity.Resolution.DependencyOverride(typeof(object), OverrideValue);
+        protected override ResolverOverride GetNamedResolverOverride() => new Unity.Resolution.DependencyOverride(nameof(Name), new TestResolver());
 
         [TestMethod]
         [ExpectedException(typeof(InvalidCastException))]

@@ -1,23 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading;
 using Unity.Lifetime;
 
 namespace Lifetime.Managers
 {
     [TestClass]
-    public class TransientManagerTests : LifetimeManagerTests
+    public class PerResolve : LifetimeManagerTests
     {
-        protected override LifetimeManager GetManager() => new TransientLifetimeManager();
-
-        [TestMethod]
-        public override void InUseTest()
-        {
-            Assert.IsFalse(TestManager.InUse);
-
-            TestManager.InUse = true;
-
-            Assert.IsFalse(TestManager.InUse);
-        }
+        protected override LifetimeManager GetManager() => new PerResolveLifetimeManager();
 
         [TestMethod]
         public override void TryGetValueTest()

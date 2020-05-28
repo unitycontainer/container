@@ -6,7 +6,7 @@ using Unity.Lifetime;
 namespace Lifetime.Managers
 {
     [TestClass]
-    public class PerThreadManagerTests : LifetimeManagerTests
+    public class PerThread : LifetimeManagerTests
     {
         private object TestObject1;
         private object TestObject2;

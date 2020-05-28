@@ -6,7 +6,7 @@ using Unity.Lifetime;
 namespace Lifetime.Managers
 {
     [TestClass]
-    public class ContainerTransientManagerTests : LifetimeManagerTests
+    public class ContainerTransient : LifetimeManagerTests
     {
         protected override LifetimeManager GetManager() => new ContainerControlledTransientManager();
 

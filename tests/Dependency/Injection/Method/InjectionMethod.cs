@@ -5,9 +5,9 @@ using Unity.Injection;
 namespace Injection.Members
 {
     [TestClass]
-    public partial class InjectionMethodTests : MethodBaseTests<MethodInfo>
+    public partial class InjectionMethod : MethodBaseTests<MethodInfo>
     {
-        protected override InjectionMember<MethodInfo, object[]> GetInjectionMember() => new InjectionMethod(nameof(TestPolicySet.TestMethod));
+        protected override InjectionMember<MethodInfo, object[]> GetInjectionMember() => new Unity.Injection.InjectionMethod(nameof(TestPolicySet.TestMethod));
 
         protected override MethodInfo GetMemberInfo() => typeof(TestPolicySet).GetMethod(nameof(TestPolicySet.TestMethod));
     }

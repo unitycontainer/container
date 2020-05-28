@@ -5,14 +5,28 @@ using Unity.Lifetime;
 namespace Lifetime.Managers
 {
     [TestClass]
-    public class ExternallyControlledManagerTests : SynchronizedManagerTests
+    public class Hierarchical : Synchronized
     {
-        protected override LifetimeManager GetManager() => new ExternallyControlledLifetimeManager();
+        protected override LifetimeManager GetManager() => new HierarchicalLifetimeManager();
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public override void TryGetSetNoContainerTest()
+        {
+            base.TryGetSetNoContainerTest();
+        }
 
         [TestMethod]
         public override void TryGetSetOtherContainerTest()
         {
             base.TryGetSetOtherContainerTest();
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(OtherContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(OtherContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, OtherContainer);
 
             // Validate
             Assert.AreSame(TestObject, TestManager.TryGetValue(OtherContainer));
@@ -29,26 +43,6 @@ namespace Lifetime.Managers
         public override void SetDifferentValuesTwiceTest()
         {
             base.SetDifferentValuesTwiceTest();
-        }
-
-        [TestMethod]
-        public override void IsDisposedTest()
-        {
-            // Arrange
-            var manager = TestManager as IDisposable;
-            var disposable = TestObject as FakeDisposable;
-            
-            if (null == manager) return;
-
-            TestManager.SetValue(TestObject, LifetimeContainer);
-
-            Assert.IsNotNull(disposable);
-            Assert.IsNotNull(manager);
-            Assert.IsFalse(disposable.Disposed);
-
-            // Act
-            manager.Dispose();
-            Assert.IsFalse(disposable.Disposed);
         }
     }
 }

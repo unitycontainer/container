@@ -5,9 +5,9 @@ using Unity.Lifetime;
 namespace Lifetime.Managers
 {
     [TestClass]
-    public class SingletonManagerTests : SynchronizedManagerTests
+    public class ContainerControlled : Synchronized
     {
-        protected override LifetimeManager GetManager() => new SingletonLifetimeManager();
+        protected override LifetimeManager GetManager() => new ContainerControlledLifetimeManager();
 
         [TestMethod]
         public override void TryGetSetOtherContainerTest()

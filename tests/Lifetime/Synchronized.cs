@@ -6,7 +6,7 @@ using System.Threading;
 namespace Lifetime.Managers
 {
     [TestClass]
-    public abstract class SynchronizedManagerTests : LifetimeManagerTests
+    public abstract class Synchronized : LifetimeManagerTests
     {
         [TestInitialize]
         public override void SetupTest()
