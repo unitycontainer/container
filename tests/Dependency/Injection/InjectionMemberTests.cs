@@ -28,10 +28,10 @@ namespace Injection.Members
             // Arrange
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
             Assert.AreEqual(0, set.Count);
@@ -44,45 +44,45 @@ namespace Injection.Members
             // Arrange
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
         }
 
         [TestMethod]
         public virtual void BuildRequiredTest()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Validate
-            Assert.IsTrue(TestMember.BuildRequired);
+            Assert.IsTrue(member.BuildRequired);
         }
 
         [TestMethod]
         public virtual void IsNotInitializedTest()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Validate
-            Assert.IsFalse(TestMember.IsInitialized);
+            Assert.IsFalse(member.IsInitialized);
         }
 
         [TestMethod]
         public virtual void IsInitializedTest()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
-            Assert.IsTrue(TestMember.IsInitialized);
+            Assert.IsTrue(member.IsInitialized);
         }
 
         #endregion
@@ -95,10 +95,10 @@ namespace Injection.Members
         public virtual void MemberInfoNotInitializedTest()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Act
-            var info = TestMember.MemberInfo(typeof(TestPolicySet));
+            var info = member.MemberInfo(typeof(TestPolicySet));
         }
 
         [TestMethod]
@@ -107,11 +107,11 @@ namespace Injection.Members
             // Arrange
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
-            var info = TestMember.MemberInfo(typeof(TestPolicySet));
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            var info = member.MemberInfo(typeof(TestPolicySet));
 
             // Validate
             Assert.AreEqual(GetMemberInfo(), info);
@@ -125,13 +125,13 @@ namespace Injection.Members
             // Arrange
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
-            Assert.IsNull(TestMember.MemberInfo(typeof(TestClassAttribute)));
+            Assert.IsNull(member.MemberInfo(typeof(TestClassAttribute)));
         }
 
         #endregion
@@ -143,25 +143,25 @@ namespace Injection.Members
         public virtual void GetHashCodeNotInitialized()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
 
             // Validate
-            Assert.AreEqual(0, TestMember.GetHashCode());
+            Assert.AreEqual(0, member.GetHashCode());
         }
 
         [TestMethod]
         public virtual void GetHashCodeInitialized()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
-            Assert.AreNotEqual(0, TestMember.GetHashCode());
+            Assert.AreNotEqual(0, member.GetHashCode());
         }
 
         #endregion
@@ -173,8 +173,8 @@ namespace Injection.Members
         public virtual void EqualsMemberInfoNotInitialized()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
-            IEquatable<TMemberInfo> equatable = TestMember as IEquatable<TMemberInfo>;
+            var member = GetInjectionMember();
+            IEquatable<TMemberInfo> equatable = member as IEquatable<TMemberInfo>;
             TMemberInfo info = GetMemberInfo();
 
             // Validate
@@ -185,14 +185,14 @@ namespace Injection.Members
         public virtual void EqualsMemberInfoInitialized()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
-            IEquatable<TMemberInfo> equatable = TestMember;
+            IEquatable<TMemberInfo> equatable = member;
             TMemberInfo info = GetMemberInfo();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
             Assert.IsTrue(equatable.Equals(info));
@@ -202,59 +202,59 @@ namespace Injection.Members
         public virtual void EqualsObjectNotInitialized()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             object info = GetMemberInfo();
 
             // Validate
-            Assert.IsFalse(TestMember.Equals(info));
+            Assert.IsFalse(member.Equals(info));
         }
 
         [TestMethod]
         public virtual void EqualsObjectWrong()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
             object info = GetMemberInfo();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
-            Assert.IsFalse(TestMember.Equals(this));
+            Assert.IsFalse(member.Equals(this));
         }
 
         [TestMethod]
         public virtual void EqualsObjectSame()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
             object info = GetMemberInfo();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
-            Assert.IsTrue(TestMember.Equals(TestMember));
+            Assert.IsTrue(member.Equals(member));
         }
 
         [TestMethod]
         public virtual void EqualsObjectInitialized()
         {
             // Arrange
-            var TestMember = GetInjectionMember();
+            var member = GetInjectionMember();
             var set = new TestPolicySet();
             var cast = set as IPolicySet;
             object info = GetMemberInfo();
 
             // Act
-            TestMember.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
 
             // Validate
-            Assert.IsTrue(TestMember.Equals(info));
+            Assert.IsTrue(member.Equals(info));
         }
 
         #endregion
