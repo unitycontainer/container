@@ -8,6 +8,8 @@ namespace Injection.Parameters
     [TestClass]
     public class ValidationTests
     {
+        // TODO: Add tests for CircularDependencyException
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void InjectionParameterCtorTest()
