@@ -9,7 +9,7 @@ using Unity.Resolution;
 namespace Injection.Members
 {
     [TestClass]
-    public abstract class InjectionMemberTests<TMemberInfo, TData> where TMemberInfo : MemberInfo
+    public abstract class InjectionParameterTests<TMemberInfo, TData> where TMemberInfo : MemberInfo
     {
         #region Initialization
 

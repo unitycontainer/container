@@ -5,7 +5,7 @@ using System.Reflection;
 namespace Injection.Members
 {
     [TestClass]
-    public abstract class MemberInfoBase<TMemberInfo> : InjectionMemberTests<TMemberInfo, object>
+    public abstract class MethodBaseTests<TMemberInfo> : InjectionParameterTests<TMemberInfo, object[]>
         where TMemberInfo : MemberInfo
     {
     }

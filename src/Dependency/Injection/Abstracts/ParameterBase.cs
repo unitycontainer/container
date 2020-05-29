@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -7,6 +8,7 @@ namespace Unity.Injection
     /// A base class for implementing <see cref="ParameterValue"/> classes
     /// that deal in explicit types.
     /// </summary>
+    [DebuggerDisplay("Parameter: {ParameterType?.Name ?? \"Any Type\"}")]
     public abstract class ParameterBase : ParameterValue
     {
         #region Fields
@@ -44,16 +46,16 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override bool Equals(Type t)
+        public override bool Equals(Type type)
         {
             if (null == _type) return true;
 
-            var cInfo = (t ?? throw new ArgumentNullException(nameof(t))).GetTypeInfo();
+            var cInfo = type.GetTypeInfo();
             var info = _type.GetTypeInfo();
 
             if (cInfo.IsGenericType && cInfo.ContainsGenericParameters && info.IsGenericType && info.ContainsGenericParameters)
             {
-                return t.GetGenericTypeDefinition() == _type.GetGenericTypeDefinition();
+                return type.GetGenericTypeDefinition() == _type.GetGenericTypeDefinition();
             }
 
             return cInfo.IsAssignableFrom(info);

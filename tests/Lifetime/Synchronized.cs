@@ -92,18 +92,19 @@ namespace Lifetime.Managers
             object value1 = null;
             object value2 = null;
             object value3 = null;
+            var manager = GetManager();
 
             Thread thread1 = new Thread(delegate ()
             {
-                value1 = TestManager.GetValue(LifetimeContainer);
-                ((SynchronizedLifetimeManager)TestManager).Recover();
+                value1 = manager.GetValue(LifetimeContainer);
+                ((SynchronizedLifetimeManager)manager).Recover();
             });
 
             Thread thread2 = new Thread(delegate ()
             {
-                value2 = TestManager.GetValue(LifetimeContainer);
-                TestManager.SetValue(TestObject, LifetimeContainer);
-                value3 = TestManager.GetValue(LifetimeContainer);
+                value2 = manager.GetValue(LifetimeContainer);
+                manager.SetValue(TestObject, LifetimeContainer);
+                value3 = manager.GetValue(LifetimeContainer);
             });
 
             thread1.Start();
@@ -122,17 +123,18 @@ namespace Lifetime.Managers
         {
             object value1 = null;
             object value2 = null;
+            var manager = GetManager();
 
             Thread thread1 = new Thread(delegate ()
             {
-                ((SynchronizedLifetimeManager)TestManager).Recover();
+                ((SynchronizedLifetimeManager)manager).Recover();
             });
 
             Thread thread2 = new Thread(delegate ()
             {
-                value1 = TestManager.GetValue(LifetimeContainer);
-                TestManager.SetValue(TestObject, LifetimeContainer);
-                value2 = TestManager.GetValue(LifetimeContainer);
+                value1 = manager.GetValue(LifetimeContainer);
+                manager.SetValue(TestObject, LifetimeContainer);
+                value2 = manager.GetValue(LifetimeContainer);
             });
 
             thread1.Start();
