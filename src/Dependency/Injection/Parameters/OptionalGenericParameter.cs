@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Exceptions;
 using Unity.Resolution;
 
@@ -9,6 +10,7 @@ namespace Unity.Injection
     /// an instance of a generic type parameter should be resolved, providing the <see langword="null"/>
     /// value if resolving fails.
     /// </summary>
+    [DebuggerDisplay("OptionalGenericParameter: Type={ParameterTypeName}")]
     public class OptionalGenericParameter : GenericBase
     {
         #region Constructors
@@ -48,6 +50,11 @@ namespace Unity.Injection
                     return null;
                 }
             };
+        }
+
+        public override string ToString()
+        {
+            return $"OptionalGenericParameter: Type={ParameterTypeName}";
         }
 
         #endregion
