@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -8,6 +9,7 @@ namespace Unity.Injection
     /// the required <see cref="IResolve"/>
     /// when the container is configured.
     /// </summary>
+    [DebuggerDisplay("InjectionParameter: Type={ParameterType.Name ?? \"Any\"} Value={_value ?? \"null\"}")]
     public class InjectionParameter : ParameterBase, IResolve
     {
         #region Fields
@@ -52,6 +54,16 @@ namespace Unity.Injection
             where TContext : IResolveContext
         {
             return _value;
+        }
+
+        #endregion
+
+
+        #region Overrides
+
+        public override string ToString()
+        {
+            return $"InjectionParameter: Type={ParameterType.Name} Value={_value ?? "null"}";
         }
 
         #endregion

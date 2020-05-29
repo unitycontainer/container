@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Resolution;
@@ -10,6 +11,7 @@ namespace Unity.Injection
     /// resolver object that resolves all the named instances or the
     /// type registered in a container.
     /// </summary>
+    [DebuggerDisplay("ResolvedArrayParameter: Type={ParameterType.Name}")]
     public class ResolvedArrayParameter : ParameterBase,
                                           IResolverFactory<Type>,
                                           IResolverFactory<ParameterInfo>
@@ -131,6 +133,16 @@ namespace Unity.Injection
             }).ToArray();
 
             return (ref TContext context) => resolverMethod.Invoke(ref context, values);
+        }
+
+        #endregion
+
+
+        #region Overrides
+
+        public override string ToString()
+        {
+            return $"ResolvedArrayParameter: Type={ParameterType.Name}";
         }
 
         #endregion

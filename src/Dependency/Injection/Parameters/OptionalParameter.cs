@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Exceptions;
 using Unity.Resolution;
@@ -10,6 +11,7 @@ namespace Unity.Injection
     /// <see cref="IUnityContainer.RegisterType"/> to configure a
     /// parameter or property as an optional dependency.
     /// </summary>
+    [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
     public class OptionalParameter : ParameterBase,
                                      IResolverFactory<Type>,
                                      IResolverFactory<ParameterInfo>
@@ -123,6 +125,16 @@ namespace Unity.Injection
                     return value;
                 }
             };
+        }
+
+        #endregion
+
+
+        #region Overrides
+
+        public override string ToString()
+        {
+            return $"OptionalParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
         }
 
         #endregion

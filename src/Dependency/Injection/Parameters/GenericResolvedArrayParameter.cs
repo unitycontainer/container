@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Unity.Resolution;
@@ -10,6 +11,7 @@ namespace Unity.Injection
     /// an array containing the registered instances of a generic type parameter 
     /// should be resolved.
     /// </summary>
+    [DebuggerDisplay("GenericResolvedArrayParameter: Type={ParameterTypeName}")]
     public class GenericResolvedArrayParameter : GenericBase
     {
         #region Fields
@@ -86,6 +88,11 @@ namespace Unity.Injection
             }).ToArray();
 
             return (ref TContext context) => resolverMethod.Invoke(ref context, values);
+        }
+
+        public override string ToString()
+        {
+            return $"GenericResolvedArrayParameter: Type={ParameterTypeName}";
         }
 
         #endregion

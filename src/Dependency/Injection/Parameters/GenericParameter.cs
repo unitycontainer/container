@@ -1,9 +1,12 @@
-﻿namespace Unity.Injection
+﻿using System.Diagnostics;
+
+namespace Unity.Injection
 {
     /// <summary>
     /// A <see cref="ParameterValue"/> that lets you specify that
     /// an instance of a generic type parameter should be resolved.
     /// </summary>
+    [DebuggerDisplay("GenericParameter: Type={ParameterTypeName}")]
     public class GenericParameter : GenericBase
     {
         #region Constructors
@@ -26,6 +29,16 @@
         public GenericParameter(string genericParameterName, string name)
             : base(genericParameterName, name)
         { }
+
+        #endregion
+        
+        
+        #region Overrides
+
+        public override string ToString()
+        {
+            return $"GenericParameter: Type={ParameterTypeName}";
+        }
 
         #endregion
     }

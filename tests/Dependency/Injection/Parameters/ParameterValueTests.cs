@@ -36,6 +36,17 @@ namespace Injection.Parameters
 
         #endregion
 
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetToStringData), DynamicDataSourceType.Method)]
+        public void ToStringTest(ParameterValue parameter)
+        {
+            var name = parameter.GetType().Name;
+
+            Assert.IsTrue(parameter.ToString().StartsWith(name));
+        }
+
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsData), DynamicDataSourceType.Method)]
         public virtual void EqualsTest(ParameterValue parameter, Type type, bool result)
@@ -44,84 +55,94 @@ namespace Injection.Parameters
             Assert.AreEqual(result, parameter.Equals(type));
         }
 
-        public class GetType<T>
-        { 
+        #region Test Data
+        public static IEnumerable<object[]> GetToStringData()
+        {
+            yield return new object[] { new InjectionParameter(string.Empty) };
+            yield return new object[] { new InjectionParameter(typeof(string), null) };
+            yield return new object[] { new OptionalParameter() };
+            yield return new object[] { new ResolvedParameter() };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string)) };
+            yield return new object[] { new GenericParameter("T[]") };
+            yield return new object[] { new GenericResolvedArrayParameter("T[]") };
         }
 
         public static IEnumerable<object[]> GetEqualsData()
         {
 
-            yield return new object[] { new InjectionParameter(typeof(List<string>), string.Empty),    typeof(List<>),              false };
-            yield return new object[] { new InjectionParameter(typeof(List<string>), string.Empty),    typeof(List<string>),        true };
-            yield return new object[] { new InjectionParameter(typeof(List<>), string.Empty),          typeof(List<string>),        false };
-            yield return new object[] { new InjectionParameter(typeof(List<>), string.Empty),          typeof(List<>),              true };
-            yield return new object[] { new InjectionParameter(AddInfo.ParameterType, string.Empty),   AddInfo.ParameterType,       true };
-            yield return new object[] { new InjectionParameter(AddInfo.ParameterType, string.Empty),   AddStringInfo.ParameterType, false };
-            yield return new object[] { new InjectionParameter(string.Empty),                          typeof(string),              true  };
-            yield return new object[] { new InjectionParameter(typeof(string), string.Empty),          typeof(string),              true  };
-            yield return new object[] { new InjectionParameter(string.Empty),                          ParamInfo.ParameterType,     false  };
-            yield return new object[] { new InjectionParameter(typeof(string), string.Empty),          ParamInfo.ParameterType,     false  };
-            yield return new object[] { new InjectionParameter(ParamInfo.ParameterType, string.Empty), ParamInfo.ParameterType,     true  };
+            yield return new object[] { new InjectionParameter(typeof(List<string>), string.Empty), typeof(List<>), false };
+            yield return new object[] { new InjectionParameter(typeof(List<string>), string.Empty), typeof(List<string>), true };
+            yield return new object[] { new InjectionParameter(typeof(List<>), string.Empty), typeof(List<string>), false };
+            yield return new object[] { new InjectionParameter(typeof(List<>), string.Empty), typeof(List<>), true };
+            yield return new object[] { new InjectionParameter(AddInfo.ParameterType, string.Empty), AddInfo.ParameterType, true };
+            yield return new object[] { new InjectionParameter(AddInfo.ParameterType, string.Empty), AddStringInfo.ParameterType, false };
+            yield return new object[] { new InjectionParameter(string.Empty), typeof(string), true };
+            yield return new object[] { new InjectionParameter(typeof(string), string.Empty), typeof(string), true };
+            yield return new object[] { new InjectionParameter(string.Empty), ParamInfo.ParameterType, false };
+            yield return new object[] { new InjectionParameter(typeof(string), string.Empty), ParamInfo.ParameterType, false };
+            yield return new object[] { new InjectionParameter(ParamInfo.ParameterType, string.Empty), ParamInfo.ParameterType, true };
 
 
-            yield return new object[] { new OptionalParameter(),                              typeof(string), true  };
-            yield return new object[] { new OptionalParameter(),                              typeof(object), true  };
-            yield return new object[] { new OptionalParameter(),                              typeof(double), true  };
-            yield return new object[] { new OptionalParameter(typeof(string)),                typeof(string), true  };
-            yield return new object[] { new OptionalParameter(typeof(string)),                typeof(object), true  };
-            yield return new object[] { new OptionalParameter(typeof(string)),                typeof(double), false };
-            yield return new object[] { new OptionalParameter(string.Empty),                  typeof(string), true  };
-            yield return new object[] { new OptionalParameter(string.Empty),                  typeof(object), true  };
-            yield return new object[] { new OptionalParameter(string.Empty),                  typeof(double), true  };
-            yield return new object[] { new OptionalParameter(typeof(string), string.Empty),  typeof(string), true  };
-            yield return new object[] { new OptionalParameter(typeof(string), string.Empty),  typeof(object), true  };
-            yield return new object[] { new OptionalParameter(typeof(string), string.Empty),  typeof(double), false };
-
-            
-            yield return new object[] { new ResolvedParameter(),                              typeof(string), true  };
-            yield return new object[] { new ResolvedParameter(),                              typeof(object), true  };
-            yield return new object[] { new ResolvedParameter(),                              typeof(double), true  };
-            yield return new object[] { new ResolvedParameter(typeof(string)),                typeof(string), true  };
-            yield return new object[] { new ResolvedParameter(typeof(string)),                typeof(object), true  };
-            yield return new object[] { new ResolvedParameter(typeof(string)),                typeof(double), false };
-            yield return new object[] { new ResolvedParameter(string.Empty),                  typeof(string), true  };
-            yield return new object[] { new ResolvedParameter(string.Empty),                  typeof(double), true  };
-            yield return new object[] { new ResolvedParameter(typeof(string), string.Empty),  typeof(string), true  };
-            yield return new object[] { new ResolvedParameter(typeof(string), string.Empty),  typeof(object), true  };
-            yield return new object[] { new ResolvedParameter(typeof(string), string.Empty),  typeof(double), false };
+            yield return new object[] { new OptionalParameter(), typeof(string), true };
+            yield return new object[] { new OptionalParameter(), typeof(object), true };
+            yield return new object[] { new OptionalParameter(), typeof(double), true };
+            yield return new object[] { new OptionalParameter(typeof(string)), typeof(string), true };
+            yield return new object[] { new OptionalParameter(typeof(string)), typeof(object), true };
+            yield return new object[] { new OptionalParameter(typeof(string)), typeof(double), false };
+            yield return new object[] { new OptionalParameter(string.Empty), typeof(string), true };
+            yield return new object[] { new OptionalParameter(string.Empty), typeof(object), true };
+            yield return new object[] { new OptionalParameter(string.Empty), typeof(double), true };
+            yield return new object[] { new OptionalParameter(typeof(string), string.Empty), typeof(string), true };
+            yield return new object[] { new OptionalParameter(typeof(string), string.Empty), typeof(object), true };
+            yield return new object[] { new OptionalParameter(typeof(string), string.Empty), typeof(double), false };
 
 
-            yield return new object[] { new ResolvedArrayParameter(typeof(string)),                               typeof(string[]), true  };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string)),                               typeof(object[]), true  };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string)),                               typeof(double[]), false };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string), string.Empty),                 typeof(string[]), true  };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string), string.Empty),                 typeof(object[]), true  };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string), string.Empty),                 typeof(double[]), false };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string), typeof(string), string.Empty), typeof(string[]), true  };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string), typeof(string), string.Empty), typeof(object[]), true  };
+            yield return new object[] { new ResolvedParameter(), typeof(string), true };
+            yield return new object[] { new ResolvedParameter(), typeof(object), true };
+            yield return new object[] { new ResolvedParameter(), typeof(double), true };
+            yield return new object[] { new ResolvedParameter(typeof(string)), typeof(string), true };
+            yield return new object[] { new ResolvedParameter(typeof(string)), typeof(object), true };
+            yield return new object[] { new ResolvedParameter(typeof(string)), typeof(double), false };
+            yield return new object[] { new ResolvedParameter(string.Empty), typeof(string), true };
+            yield return new object[] { new ResolvedParameter(string.Empty), typeof(double), true };
+            yield return new object[] { new ResolvedParameter(typeof(string), string.Empty), typeof(string), true };
+            yield return new object[] { new ResolvedParameter(typeof(string), string.Empty), typeof(object), true };
+            yield return new object[] { new ResolvedParameter(typeof(string), string.Empty), typeof(double), false };
+
+
+            yield return new object[] { new ResolvedArrayParameter(typeof(string)), typeof(string[]), true };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string)), typeof(object[]), true };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string)), typeof(double[]), false };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string), string.Empty), typeof(string[]), true };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string), string.Empty), typeof(object[]), true };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string), string.Empty), typeof(double[]), false };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string), typeof(string), string.Empty), typeof(string[]), true };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string), typeof(string), string.Empty), typeof(object[]), true };
             yield return new object[] { new ResolvedArrayParameter(typeof(string), typeof(string), string.Empty), typeof(double[]), false };
 
 
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name),               ParamInfo.ParameterType,               true };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), ParamInfo.ParameterType,               true };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name),               ParamInfo.ParameterType,               true };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), ParamInfo.ParameterType,               true };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name),               ArrayInfo.ParameterType,               false };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), ArrayInfo.ParameterType,               false };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name),               typeof(string),                        false };
-            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), typeof(string),                        false };
-            yield return new object[] { new GenericParameter("T[]"),                                      AddInfo.ParameterType,                 false };
-            yield return new object[] { new GenericParameter("T[]"),                                      AddInfo.ParameterType.MakeArrayType(), true };
-            yield return new object[] { new GenericParameter("TArray[]"),                                 ArrayInfo.ParameterType,               true };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name), ParamInfo.ParameterType, true };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), ParamInfo.ParameterType, true };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name), ParamInfo.ParameterType, true };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), ParamInfo.ParameterType, true };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name), ArrayInfo.ParameterType, false };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), ArrayInfo.ParameterType, false };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name), typeof(string), false };
+            yield return new object[] { new GenericParameter(ParamInfo.ParameterType.Name, string.Empty), typeof(string), false };
+            yield return new object[] { new GenericParameter("T[]"), AddInfo.ParameterType, false };
+            yield return new object[] { new GenericParameter("T[]"), AddInfo.ParameterType.MakeArrayType(), true };
+            yield return new object[] { new GenericParameter("TArray[]"), ArrayInfo.ParameterType, true };
 
 
-            yield return new object[] { new GenericResolvedArrayParameter("T[]"),                                      typeof(List<string>[]), false };
-            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name),               ArrayInfo.ParameterType, true };
+            yield return new object[] { new GenericResolvedArrayParameter("T[]"), typeof(List<string>[]), false };
+            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name), ArrayInfo.ParameterType, true };
             yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name, string.Empty), ArrayInfo.ParameterType, true };
-            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name),               typeof(string),          false };
-            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name, string.Empty), typeof(string),          false };
-            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name),               ParamInfo.ParameterType, false };
+            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name), typeof(string), false };
+            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name, string.Empty), typeof(string), false };
+            yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name), ParamInfo.ParameterType, false };
             yield return new object[] { new GenericResolvedArrayParameter(ArrayInfo.ParameterType.Name, string.Empty), ParamInfo.ParameterType, false };
         }
+
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Resolution;
 
@@ -9,6 +10,7 @@ namespace Unity.Injection
     /// resolver object that resolves the parameter via the
     /// container.
     /// </summary>
+    [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
     public class ResolvedParameter : ParameterBase, 
                                      IResolverFactory<Type>,
                                      IResolverFactory<ParameterInfo>
@@ -102,6 +104,16 @@ namespace Unity.Injection
             }
 
             return (ref TContext c) => c.Resolve(ParameterType, _name);
+        }
+
+        #endregion
+
+
+        #region Overrides
+
+        public override string ToString()
+        {
+            return $"ResolvedParameter: Type={ParameterType?.Name ?? "Any"} Name={_name ?? "null"}";
         }
 
         #endregion

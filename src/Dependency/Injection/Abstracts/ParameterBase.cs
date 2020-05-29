@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -8,7 +7,6 @@ namespace Unity.Injection
     /// A base class for implementing <see cref="ParameterValue"/> classes
     /// that deal in explicit types.
     /// </summary>
-    [DebuggerDisplay("Parameter: {ParameterType?.Name ?? \"Any Type\"}")]
     public abstract class ParameterBase : ParameterValue
     {
         #region Fields
