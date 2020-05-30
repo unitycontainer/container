@@ -74,6 +74,8 @@ namespace Unity.Injection
 
         public override bool Equals(Type type)
         {
+            if (null == type)return false;
+
             if (!_isArray)
             {
                 return type.GetTypeInfo().IsGenericParameter && type.GetTypeInfo().Name == _genericParameterName;
