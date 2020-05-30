@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\src\package.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

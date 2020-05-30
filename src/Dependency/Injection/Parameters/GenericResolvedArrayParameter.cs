@@ -55,14 +55,12 @@ namespace Unity.Injection
 
         public override bool Equals(Type type)
         {
-            var t = type ?? throw new ArgumentNullException(nameof(type));
-
-            if (!t.IsArray || t.GetArrayRank() != 1)
+            if (null == type || !type.IsArray || type.GetArrayRank() != 1)
             {
                 return false;
             }
 
-            Type elementType = t.GetElementType();
+            Type elementType = type.GetElementType();
             return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == base.ParameterTypeName;
         }
 
@@ -100,7 +98,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        private static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
+        public static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
             where TContext : IResolveContext
         {
             var result = new TElement[values.Length];

@@ -14,23 +14,27 @@ namespace Injection.Parameters
     {
         #region Fields
 
-        public void TestMethod(List<string> first, List<string>[] last) => throw new NotImplementedException();
-
         private static ParameterInfo FirstInfo =
-            typeof(ResolutionTests).GetMethod(nameof(TestMethod))
-                                   .GetParameters()
-                                   .First();
+            typeof(TestClass<List<string>>).GetMethod(nameof(TestClass<List<string>>.FirstTestMethod))
+                                           .GetParameters()
+                                           .First();
 
-        private static ParameterInfo LastInfo =
-            typeof(ResolutionTests).GetMethod(nameof(TestMethod))
-                                   .GetParameters()
-                                   .Last();
+        private static ParameterInfo ObjectInfo =
+            typeof(TestClass<List<string>>).GetMethod(nameof(TestClass<List<string>>.TestMethod))
+                                           .GetParameters()
+                                           .First();
+
+        private static ParameterInfo ArrayInfo =
+            typeof(TestClass<List<string>>).GetMethod(nameof(TestClass<List<string>>.TestMethod))
+                                           .GetParameters()
+                                           .Last();
 
         private const string            StringConst = "test";
         private static List<string>     ListConst = new List<string> { StringConst };
         private static List<string>[]   ListArrayConst = new [] { ListConst };
-        private static IResolveContext  Context = new TestContect
+        private static IResolveContext  Context = new DictionaryContext
         {
+            { typeof(object),         ListArrayConst },
             { typeof(List<string>),   ListConst },
             { typeof(IList<string>),  ListConst },
             { typeof(List<string>[]), ListArrayConst },
@@ -38,6 +42,8 @@ namespace Injection.Parameters
 
         #endregion
 
+
+        #region IResolve
 
         [DataTestMethod]
         [DynamicData(nameof(GetIResolveData), DynamicDataSourceType.Method)]
@@ -51,10 +57,15 @@ namespace Injection.Parameters
             Assert.AreSame(StringConst, value);
         }
 
+        #endregion
+
+
+        #region IResolverFactory<Type>
+
 
         [DataTestMethod]
         [DynamicData(nameof(GetResolveFactoryTypeData), DynamicDataSourceType.Method)]
-        public void ResolveFactoryTypeTest(IResolverFactory<Type> factory)
+        public void TypeFactoryTest(IResolverFactory<Type> factory)
         {
             // Act
             var resolver = factory.GetResolver<IResolveContext>(FirstInfo.ParameterType);
@@ -68,10 +79,48 @@ namespace Injection.Parameters
             Assert.AreSame(ListConst, value);
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
+        public void TypeArrayTest(IResolverFactory<Type> factory)
+        {
+            // Act
+            var resolver = factory.GetResolver<IResolveContext>(ArrayInfo.ParameterType);
+
+            // Validate
+            Assert.IsNotNull(resolver);
+
+            var value = resolver(ref Context) as List<string>[];
+
+            Assert.IsNotNull(value);
+            Assert.AreSame(ListArrayConst[0], value[0]);
+        }
+
+        [Ignore] // TODO: Issue #148 
+        [DataTestMethod]
+        [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
+        public void TypeObjectTest(IResolverFactory<Type> factory)
+        {
+            // Act
+            var resolver = factory.GetResolver<IResolveContext>(ObjectInfo.ParameterType);
+
+            // Validate
+            Assert.IsNotNull(resolver);
+
+            var array = resolver(ref Context) as List<string>[];
+
+            Assert.IsNotNull(array);
+            Assert.IsTrue(0 < array.Length);
+            Assert.AreEqual(ListArrayConst[0], array[0]);
+        }
+
+        #endregion
+
+
+        #region IResolverFactory<ParameterInfo>
 
         [DataTestMethod]
         [DynamicData(nameof(GetResolveFactoryTypeData), DynamicDataSourceType.Method)]
-        public void ResolveFactoryInfoTest(IResolverFactory<ParameterInfo> factory)
+        public void InfoFactoryTest(IResolverFactory<ParameterInfo> factory)
         {
             // Act
             var resolver = factory.GetResolver<IResolveContext>(FirstInfo);
@@ -85,13 +134,12 @@ namespace Injection.Parameters
             Assert.AreSame(ListConst, value);
         }
 
-
         [DataTestMethod]
         [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
-        public void ResolveFactoryTypeArrayTest(IResolverFactory<Type> factory)
+        public void InfoArrayTest(IResolverFactory<ParameterInfo> factory)
         {
             // Act
-            var resolver = factory.GetResolver<IResolveContext>(LastInfo.ParameterType);
+            var resolver = factory.GetResolver<IResolveContext>(ArrayInfo);
 
             // Validate
             Assert.IsNotNull(resolver);
@@ -102,13 +150,13 @@ namespace Injection.Parameters
             Assert.AreSame(ListArrayConst[0], value[0]);
         }
 
-
+        [Ignore] // TODO: Issue #148 
         [DataTestMethod]
         [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
-        public void ResolveFactoryInfoArrayTest(IResolverFactory<ParameterInfo> factory)
+        public void InfoObjectTest(IResolverFactory<ParameterInfo> factory)
         {
             // Act
-            var resolver = factory.GetResolver<IResolveContext>(LastInfo);
+            var resolver = factory.GetResolver<IResolveContext>(ObjectInfo);
 
             // Validate
             Assert.IsNotNull(resolver);
@@ -118,6 +166,8 @@ namespace Injection.Parameters
             Assert.IsNotNull(value);
             Assert.AreSame(ListArrayConst[0], value[0]);
         }
+
+        #endregion
 
 
         #region Test Data
@@ -185,7 +235,7 @@ namespace Injection.Parameters
             yield return new object[] { new OptionalGenericParameter("T[]", string.Empty) };
         }
 
-        public class TestContect : Dictionary<Type, object>, IResolveContext
+        public class DictionaryContext : Dictionary<Type, object>, IResolveContext
         {
             public IUnityContainer Container => throw new NotImplementedException();
 
@@ -207,6 +257,12 @@ namespace Injection.Parameters
             public void Set(Type type, Type policyInterface, object policy) => throw new NotImplementedException();
 
             public void Set(Type type, string name, Type policyInterface, object policy) => throw new NotImplementedException();
+        }
+
+        public class TestClass<T>
+        {
+            public void FirstTestMethod(T first) => throw new NotImplementedException();
+            public void TestMethod(object second, T[] last) => throw new NotImplementedException();
         }
 
         #endregion
