@@ -82,7 +82,7 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsGenericParameterData), DynamicDataSourceType.Method)]
-        public virtual void EqualsGenericParameterTest(ParameterValue parameter)
+        public virtual void EqualsGenericTest(ParameterValue parameter)
         {
             // Validate
             Assert.IsTrue(parameter.Equals(TrueType));
@@ -92,7 +92,7 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsGenericArrayParameterData), DynamicDataSourceType.Method)]
-        public virtual void EqualsGenericArrayParameterTest(ParameterValue parameter)
+        public virtual void EqualsGenericArrayTest(ParameterValue parameter)
         {
             // Validate
             Assert.IsTrue(parameter.Equals(TrueArrayType));

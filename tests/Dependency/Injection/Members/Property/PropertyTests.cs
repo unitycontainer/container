@@ -5,7 +5,7 @@ using Unity.Injection;
 namespace Injection.Members
 {
     [TestClass]
-    public partial class InjectionProperty : MemberInfoBase<PropertyInfo>
+    public partial class PropertyTests : MemberInfoBase<PropertyInfo>
     {
         protected override InjectionMember<PropertyInfo, object> GetInjectionMember() => new Unity.Injection.InjectionProperty(nameof(TestPolicySet.TestProperty));
 
