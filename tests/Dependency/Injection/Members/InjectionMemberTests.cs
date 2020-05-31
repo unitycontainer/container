@@ -14,11 +14,11 @@ namespace Injection.Members
     {
         #region Fields
 
-        private static ConstructorInfo CtorInfo       = typeof(PolicySet).GetConstructor(new Type[0]);
-        private static ConstructorInfo CtorStringInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) });
-        private static FieldInfo       FieldInfo      = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
-        private static PropertyInfo    PropertyInfo   = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
-        private static MethodInfo      MethodInfo     = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
+        public static ConstructorInfo CtorInfo       = typeof(PolicySet).GetConstructor(new Type[0]);
+        public static ConstructorInfo CtorStringInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) });
+        public static FieldInfo       FieldInfo      = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
+        public static PropertyInfo    PropertyInfo   = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
+        public static MethodInfo      MethodInfo     = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
         private static MethodInfo      ToStringMethod = typeof(InjectionMember).GetMethods(BindingFlags.Instance|BindingFlags.NonPublic)
                                                                                .Where(i => i.Name == nameof(InjectionMember.ToString))
                                                                                .First();
@@ -104,17 +104,33 @@ namespace Injection.Members
 
 
         [DataTestMethod]
-        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
         public virtual void ToStringTest(InjectionMember member, MemberInfo _)
         {
+            // Arrange
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
             // Act
-            var debug     = ToStringMethod.Invoke(member, new object[] { true }) as string;
+            var debugCold = ToStringMethod.Invoke(member, new object[] { true }) as string;
             var optimized = ToStringMethod.Invoke(member, new object[] { false }) as string;
 
             // Validate
             Assert.IsFalse(string.IsNullOrWhiteSpace(optimized));
-            Assert.IsFalse(string.IsNullOrWhiteSpace(debug));
-            Assert.IsTrue(debug.StartsWith(member.GetType().Name));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(debugCold));
+            Assert.IsTrue(debugCold.StartsWith(member.GetType().Name));
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+            var debugInitialzed = ToStringMethod.Invoke(member, new object[] { true }) as string;
+            var initialized     = ToStringMethod.Invoke(member, new object[] { false }) as string;
+
+            // Validate
+            Assert.IsFalse(string.IsNullOrWhiteSpace(debugInitialzed));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(initialized    ));
+
+            Assert.AreNotEqual(debugCold, debugInitialzed);
+            Assert.AreNotEqual(optimized, initialized);
         }
 
         #endregion

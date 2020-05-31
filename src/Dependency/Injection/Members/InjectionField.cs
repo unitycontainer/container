@@ -65,8 +65,12 @@ namespace Unity.Injection
             else
             {
                 return Data is DependencyResolutionAttribute
-                    ? $"Resolve.Field('{Name}')"
-                    : $"Inject.Field('{Name}', {Data})";
+                    ? null == Selection 
+                            ? $"Resolve.Field('{Name}')"        
+                            : $"Resolve: '{Selection.DeclaringType}.{Name}'"
+                    : null == Selection 
+                            ? $"Inject.Field('{Name}', {Data})" 
+                            : $"Inject: '{Selection.DeclaringType}.{Name}' with '{Data}'";
             }
         }
 

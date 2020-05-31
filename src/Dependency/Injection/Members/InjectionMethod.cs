@@ -71,7 +71,7 @@ namespace Unity.Injection
             {
                 return null == Selection
                     ? $"Invoke.Method('{Name}', {Data.Signature()})"
-                    : $"Invoke.Method('{Name}', {Selection.Signature()})";
+                    : $"Invoke: {Selection.DeclaringType}.{Name}({Selection.Signature()})";
             }
         }
 

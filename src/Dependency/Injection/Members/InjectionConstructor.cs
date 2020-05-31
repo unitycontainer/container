@@ -67,7 +67,7 @@ namespace Unity.Injection
             {
                 return null == Selection
                         ? $"Invoke.Constructor({Data.Signature()})"
-                        : $"Invoke.Constructor({Selection.Signature()})";
+                        : $"Invoke {Selection.DeclaringType}({Selection.Signature()})";
             }
         }
 

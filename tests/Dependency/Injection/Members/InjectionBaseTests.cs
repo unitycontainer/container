@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Injection;
@@ -13,20 +12,11 @@ namespace Injection.Members
     public abstract class InjectionBaseTests<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
     {
-        #region Fields
-
-        protected static ConstructorInfo CtorInfo = typeof(PolicySet).GetConstructor(new Type[0]);
-        protected static ConstructorInfo CtorStringInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) });
-        protected static FieldInfo FieldInfo = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
-        protected static PropertyInfo PropertyInfo = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
-        protected static MethodInfo MethodInfo = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
-
-        #endregion
-
-
-        public virtual void InitializationTest(InjectionMember<TMemberInfo, TData> member, TMemberInfo info)
+        [TestMethod]
+        public virtual void InitializationTest()
         {
             // Arrange
+            var member = GetDefaultMember();
             var set = new PolicySet();
             var cast = set as IPolicySet;
 
@@ -35,20 +25,21 @@ namespace Injection.Members
             Assert.IsFalse(member.IsInitialized);
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass), typeof(TestClass), null, ref cast);
 
             // Validate
             Assert.IsTrue(member.IsInitialized);
         }
 
-
-        public virtual void DeclaredMembersTest(InjectionMember<TMemberInfo, TData> member, Type type, TMemberInfo[] infos)
+        [TestMethod]
+        public virtual void DeclaredMembersTest()
         {
             // Act
-            var members = member.DeclaredMembers(type)
+            var member = GetDefaultMember();
+            var members = member.DeclaredMembers(typeof(TestClass))
                                 .ToArray();
             // Validate
-            Assert.AreEqual(infos.Length, members.Length);
+            Assert.AreEqual(2, members.Length);
         }
 
 
@@ -126,5 +117,49 @@ namespace Injection.Members
         #endregion
 
 
+        #region Test Data
+
+        protected abstract InjectionMember<TMemberInfo, TData> GetDefaultMember();
+
+        protected class TestClass
+        {
+            #region Constructors
+            static TestClass() { }
+            public TestClass() { }
+            private TestClass(string _) { }
+            protected TestClass(long _) { }
+            internal TestClass(int _) { }
+            #endregion
+
+            #region Fields
+
+            public readonly string TestReadonlyField;
+            static string TestStaticField;
+            public string TestField;
+            private string TestPrivateField;
+            protected string TestProtectedField;
+            internal string TestInternalField;
+
+            #endregion
+
+            #region Properties
+            public string TestReadonlyProperty { get; }
+            static string TestStaticProperty { get; set; }
+            public string TestProperty { get; set; }
+            private string TestPrivateProperty { get; set; }
+            protected string TestProtectedProperty { get; set; }
+            internal string TestInternalProperty { get; set; }
+            #endregion
+
+            #region Methods
+            static void TestMethod() { }
+            public void TestMethod(string _) { }
+            private void TestMethod(int _) { }
+            protected void TestMethod(long _) { }
+            internal void TestMethod(object _) { }
+            #endregion
+        }
+
+        #endregion
     }
 }
