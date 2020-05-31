@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Policy;
@@ -18,7 +19,9 @@ namespace Injection.Members
         private static FieldInfo       FieldInfo      = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
         private static PropertyInfo    PropertyInfo   = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
         private static MethodInfo      MethodInfo     = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
-
+        private static MethodInfo      ToStringMethod = typeof(InjectionMember).GetMethods(BindingFlags.Instance|BindingFlags.NonPublic)
+                                                                               .Where(i => i.Name == nameof(InjectionMember.ToString))
+                                                                               .First();
         #endregion
 
 
@@ -105,10 +108,13 @@ namespace Injection.Members
         public virtual void ToStringTest(InjectionMember member, MemberInfo _)
         {
             // Act
-            var value = member.ToString();
+            var debug     = ToStringMethod.Invoke(member, new object[] { true }) as string;
+            var optimized = ToStringMethod.Invoke(member, new object[] { false }) as string;
 
             // Validate
-            Assert.IsFalse(string.IsNullOrWhiteSpace(value));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(optimized));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(debug));
+            Assert.IsTrue(debug.StartsWith(member.GetType().Name));
         }
 
         #endregion
