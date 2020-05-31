@@ -37,7 +37,7 @@ namespace Unity.Injection
             {
                 if (null != Name)
                 {
-                    if (Name != member.Name) continue;
+                    if (Name != member.Name) continue; // TODO: redundant check. Remove!
                     if (noData) return member;
                 }
 

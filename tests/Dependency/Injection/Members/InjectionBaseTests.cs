@@ -25,10 +25,79 @@ namespace Injection.Members
             Assert.IsFalse(member.IsInitialized);
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass), typeof(TestClass), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
 
             // Validate
             Assert.IsTrue(member.IsInitialized);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))] // TODO: wrong exception
+        public virtual void MemberInfoCold()
+        {
+            // Arrange
+            var member = GetDefaultMember();
+            _ = member.MemberInfo(typeof(TestClass<object>));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public virtual void NoMatchAddPolicies()
+        {
+            var member = GetDefaultMember();
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(NoMatchClass), typeof(NoMatchClass), null, ref cast);
+        }
+
+        [Ignore] // TODO: Inconsistent across members
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public virtual void NoMatchMemberInfo()
+        {
+            // Arrange
+            var member = GetDefaultMember();
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
+            _ = member.MemberInfo(typeof(NoMatchClass));
+        }
+
+        [TestMethod]
+        public virtual void MemberInfoSimpleTest()
+        {
+            // Arrange
+            var member = GetDefaultMember();
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(SimpleClass), typeof(SimpleClass), null, ref cast);
+            var info = member.MemberInfo(typeof(SimpleClass));
+
+            // Validate
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public virtual void MemberInfoTest()
+        {
+            // Arrange
+            var member = GetDefaultMember();
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
+            var info = member.MemberInfo(typeof(TestClass<object>));
+
+            // Validate
+            Assert.IsNotNull(info);
+            Assert.AreEqual(typeof(TestClass<object>), info.DeclaringType);
         }
 
         [TestMethod]
@@ -36,130 +105,69 @@ namespace Injection.Members
         {
             // Act
             var member = GetDefaultMember();
-            var members = member.DeclaredMembers(typeof(TestClass))
+            var members = member.DeclaredMembers(typeof(TestClass<object>))
                                 .ToArray();
             // Validate
             Assert.AreEqual(2, members.Length);
         }
 
-
-        #region MemberInfo
-
-        //[DataTestMethod]
-        //[DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
-        //[ExpectedException(typeof(NullReferenceException))]
-        //public virtual void MemberInfoNotInitializedTest(InjectionMember member, MemberInfo info)
-        //{
-        //    // Arrange
-        //    MemberInfo selection = null;
-
-        //    // Act
-        //    switch (member)
-        //    {
-        //        case InjectionMember<MemberInfo, object> injector:
-        //            selection = injector.MemberInfo(typeof(PolicySet));
-        //            break;
-
-        //        case InjectionMember<MemberInfo, object[]> method:
-        //            selection = method.MemberInfo(typeof(PolicySet));
-        //            break;
-        //    }
-
-        //    // Validate
-        //    Assert.AreEqual(info, selection);
-        //}
-
-        //[DataTestMethod]
-        //[DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
-        //public virtual void MemberInfoTest(InjectionMember member, MemberInfo info)
-        //{
-        //    // Arrange
-        //    var set = new PolicySet();
-        //    var cast = set as IPolicySet;
-        //    MemberInfo selection = null;
-
-        //    // Act
-        //    member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
-
-        //    // Validate
-        //    Assert.AreEqual(info, selection);
-
-        //    // Validate
-        //    switch (member)
-        //    {
-        //        case InjectionMember<MemberInfo, object> injector:
-        //            Assert.AreEqual(info, injector.MemberInfo(typeof(PolicySet)));
-        //            break;
-
-        //        case InjectionMember<MemberInfo, object[]> method:
-        //            Assert.AreEqual(info, method.MemberInfo(typeof(PolicySet)));
-        //            break;
-        //    }
-        //}
-
-        //[Ignore]
-        //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public virtual void MemberWrongInfoTest()
-        //{
-        //    // Arrange
-        //    var set = new TestPolicySet();
-        //    var cast = set as IPolicySet;
-        //    var member = GetInjectionMember();
-
-        //    // Act
-        //    member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
-
-        //    // Validate
-        //    Assert.IsNull(member.MemberInfo(typeof(TestClassAttribute)));
-        //}
-
-        #endregion
-
-
-        #region Test Data
-
         protected abstract InjectionMember<TMemberInfo, TData> GetDefaultMember();
 
-        protected class TestClass
-        {
-            #region Constructors
-            static TestClass() { }
-            public TestClass() { }
-            private TestClass(string _) { }
-            protected TestClass(long _) { }
-            internal TestClass(int _) { }
-            #endregion
+    }
 
-            #region Fields
+    #region Test Data
 
-            public readonly string TestReadonlyField;
-            static string TestStaticField;
-            public string TestField;
-            private string TestPrivateField;
-            protected string TestProtectedField;
-            internal string TestInternalField;
+    public class SimpleClass
+    {
+        public string TestField;
+        public SimpleClass() => throw new NotImplementedException();
+        public string TestProperty { get; set; }
+        public void TestMethod(string a) => throw new NotImplementedException();
+    }
 
-            #endregion
+    public class NoMatchClass
+    {
+        private NoMatchClass() { }
+    }
 
-            #region Properties
-            public string TestReadonlyProperty { get; }
-            static string TestStaticProperty { get; set; }
-            public string TestProperty { get; set; }
-            private string TestPrivateProperty { get; set; }
-            protected string TestProtectedProperty { get; set; }
-            internal string TestInternalProperty { get; set; }
-            #endregion
+    public class TestClass<T>
+    {
+        #region Constructors
+        static TestClass() { }
+        public TestClass() { }
+        private TestClass(string _) { }
+        protected TestClass(long _) { }
+        internal TestClass(int _) { }
+        #endregion
 
-            #region Methods
-            static void TestMethod() { }
-            public void TestMethod(string _) { }
-            private void TestMethod(int _) { }
-            protected void TestMethod(long _) { }
-            internal void TestMethod(object _) { }
-            #endregion
-        }
+        #region Fields
+
+        public readonly string TestReadonlyField;
+        internal string TestInternalField;
+        static string TestStaticField;
+        public string TestField;
+        private string TestPrivateField;
+        protected string TestProtectedField;
 
         #endregion
+
+        #region Properties
+        internal string TestInternalProperty { get; set; }
+        public string TestReadonlyProperty { get; }
+        static string TestStaticProperty { get; set; }
+        public string TestProperty { get; set; }
+        private string TestPrivateProperty { get; set; }
+        protected string TestProtectedProperty { get; set; }
+        #endregion
+
+        #region Methods
+        static void TestMethod() { }
+        public void TestMethod(string _) { }
+        public void TestMethod(string a, T b, out object c) { c = null; }
+        private void TestMethod(int _) { }
+        protected void TestMethod(long _) { }
+        #endregion
     }
+
+    #endregion
 }

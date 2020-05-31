@@ -19,9 +19,9 @@ namespace Injection.Members
         public static FieldInfo       FieldInfo      = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
         public static PropertyInfo    PropertyInfo   = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
         public static MethodInfo      MethodInfo     = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
-        private static MethodInfo      ToStringMethod = typeof(InjectionMember).GetMethods(BindingFlags.Instance|BindingFlags.NonPublic)
-                                                                               .Where(i => i.Name == nameof(InjectionMember.ToString))
-                                                                               .First();
+        private static MethodInfo     ToStringMethod = typeof(InjectionMember).GetMethods(BindingFlags.Instance|BindingFlags.NonPublic)
+                                                                              .Where(i => i.Name == nameof(InjectionMember.ToString))
+                                                                              .First();
         #endregion
 
 

@@ -5,12 +5,12 @@ using Unity.Injection;
 namespace Injection.Members
 {
     [TestClass]
-    public class FieldTests : InjectionBaseTests<FieldInfo, object>
+    public class FieldTests : InjectionInfoBaseTests<FieldInfo>
     {
         #region Test Data
 
         protected override InjectionMember<FieldInfo, object> GetDefaultMember() => 
-            new InjectionField(nameof(TestClass.TestField));
+            new InjectionField("TestField");
 
         #endregion
     }
