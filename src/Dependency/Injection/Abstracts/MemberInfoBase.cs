@@ -62,5 +62,14 @@ namespace Unity.Injection
         protected abstract Type MemberType { get; }
 
         #endregion
+
+
+        #region Debug
+
+        protected override string DebugView => null == Selection 
+            ? $"{GetType().Name}: {Name}" 
+            : $"{GetType().Name}: {Selection.DeclaringType}.{Name}";
+
+        #endregion
     }
 }

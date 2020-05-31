@@ -59,10 +59,9 @@ namespace Unity.Injection
             }
         }
 
-        public override string ToString()
-        {
-            return $"Invoke.Method('{Name}', {Data.Signature()})";
-        }
+        public override string ToString() => null == Selection 
+            ? $"Invoke.Method('{Name}', {Data.Signature()})"
+            : $"Invoke.Method('{Name}', {Signature})";
 
 #if NETSTANDARD1_0
 

@@ -64,7 +64,7 @@ namespace Injection.Parameters
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetSupportedParametersData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetSupportedParameters), DynamicDataSourceType.Method)]
         public void ToStringTest(ParameterValue parameter)
         {
             var name = parameter.GetType().Name;
@@ -75,7 +75,7 @@ namespace Injection.Parameters
         [Ignore] // TODO: validate
         [DataTestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        [DynamicData(nameof(GetSupportedParametersData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetSupportedParameters), DynamicDataSourceType.Method)]
         public void EqualsValidationTest(ParameterValue parameter)
         {
             Assert.IsTrue(parameter.Equals(null));
@@ -174,7 +174,7 @@ namespace Injection.Parameters
 
         #region Test Data
 
-        public static IEnumerable<object[]> GetSupportedParametersData()
+        public static IEnumerable<object[]> GetSupportedParameters()
         {
             yield return new object[] { new InjectionParameter(string.Empty) };
             yield return new object[] { new InjectionParameter(typeof(string), null) };

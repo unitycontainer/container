@@ -46,7 +46,7 @@ namespace Injection.Parameters
         #region IResolve
 
         [DataTestMethod]
-        [DynamicData(nameof(GetIResolveData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetIResolvers), DynamicDataSourceType.Method)]
         public void IResolveTest(IResolve resolver)
         {
             // Act
@@ -64,7 +64,7 @@ namespace Injection.Parameters
 
 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactoryTypeData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetResolveFactories), DynamicDataSourceType.Method)]
         public void TypeFactoryTest(IResolverFactory<Type> factory)
         {
             // Act
@@ -80,7 +80,7 @@ namespace Injection.Parameters
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
         public void TypeArrayTest(IResolverFactory<Type> factory)
         {
             // Act
@@ -97,7 +97,7 @@ namespace Injection.Parameters
 
         [Ignore] // TODO: Issue #148 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
         public void TypeObjectTest(IResolverFactory<Type> factory)
         {
             // Act
@@ -119,7 +119,7 @@ namespace Injection.Parameters
         #region IResolverFactory<ParameterInfo>
 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactoryTypeData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetResolveFactories), DynamicDataSourceType.Method)]
         public void InfoFactoryTest(IResolverFactory<ParameterInfo> factory)
         {
             // Act
@@ -135,7 +135,7 @@ namespace Injection.Parameters
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
         public void InfoArrayTest(IResolverFactory<ParameterInfo> factory)
         {
             // Act
@@ -152,7 +152,7 @@ namespace Injection.Parameters
 
         [Ignore] // TODO: Issue #148 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactoryArrayTypeData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
         public void InfoObjectTest(IResolverFactory<ParameterInfo> factory)
         {
             // Act
@@ -172,13 +172,13 @@ namespace Injection.Parameters
 
         #region Test Data
 
-        public static IEnumerable<object[]> GetIResolveData()
+        public static IEnumerable<object[]> GetIResolvers()
         {
             yield return new object[] { new InjectionParameter(StringConst) };
             yield return new object[] { new InjectionParameter(typeof(string), StringConst) };
         }
 
-        public static IEnumerable<object[]> GetResolveFactoryTypeData()
+        public static IEnumerable<object[]> GetResolveFactories()
         {
             yield return new object[] { new ResolvedParameter() };
             yield return new object[] { new ResolvedParameter(typeof(List<string>)) };
@@ -201,7 +201,7 @@ namespace Injection.Parameters
             yield return new object[] { new OptionalGenericParameter("T", string.Empty) };
         }
 
-        public static IEnumerable<object[]> GetResolveFactoryArrayTypeData()
+        public static IEnumerable<object[]> GetAllResolveFactories()
         {
             yield return new object[] { new ResolvedArrayParameter(typeof(List<string>), ListConst,                                         // Constant
                                                                                          new InjectionParameter(ListConst),                 // IResolve

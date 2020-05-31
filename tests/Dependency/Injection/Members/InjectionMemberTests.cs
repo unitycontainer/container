@@ -9,129 +9,61 @@ using Unity.Resolution;
 namespace Injection.Members
 {
     [TestClass]
-    public abstract class InjectionParameterTests<TMemberInfo, TData> where TMemberInfo : MemberInfo
+    public class InjectionMemberTests
     {
+        #region Fields
+
+        private static ConstructorInfo CtorInfo       = typeof(PolicySet).GetConstructor(new Type[0]);
+        private static ConstructorInfo CtorStringInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) });
+        private static FieldInfo       FieldInfo      = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
+        private static PropertyInfo    PropertyInfo   = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
+        private static MethodInfo      MethodInfo     = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
+
+        #endregion
+
+
         #region Initialization
 
-        protected abstract InjectionMember<TMemberInfo, TData> GetInjectionMember();
-        
-        protected abstract TMemberInfo GetMemberInfo();
 
         #endregion
 
 
         #region InjectionMember
 
-        [TestMethod]
-        public virtual void AddPoliciesTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
+        public virtual void NoAddedPoliciesTest(InjectionMember member, MemberInfo _)
         {
             // Arrange
-            var set = new TestPolicySet();
+            var set = new PolicySet();
             var cast = set as IPolicySet;
-            var member = GetInjectionMember();
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
 
             // Validate
             Assert.AreEqual(0, set.Count);
         }
 
-        [TestMethod]
+        [DataTestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public virtual void AddWrongTypeTest()
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void AddWrongTypeTest(InjectionMember member, MemberInfo _)
         {
             // Arrange
-            var set = new TestPolicySet();
+            var set = new PolicySet();
             var cast = set as IPolicySet;
-            var member = GetInjectionMember();
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(WrongType), typeof(WrongType), null, ref cast);
         }
 
-        [TestMethod]
-        public virtual void BuildRequiredTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void BuildRequiredTest(InjectionMember member, MemberInfo _)
         {
-            // Arrange
-            var member = GetInjectionMember();
-
             // Validate
             Assert.IsTrue(member.BuildRequired);
-        }
-
-        [TestMethod]
-        public virtual void IsNotInitializedTest()
-        {
-            // Arrange
-            var member = GetInjectionMember();
-
-            // Validate
-            Assert.IsFalse(member.IsInitialized);
-        }
-
-        [TestMethod]
-        public virtual void IsInitializedTest()
-        {
-            // Arrange
-            var member = GetInjectionMember();
-            var set = new TestPolicySet();
-            var cast = set as IPolicySet;
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
-
-            // Validate
-            Assert.IsTrue(member.IsInitialized);
-        }
-
-        #endregion
-
-
-        #region MemberInfo
-
-        [TestMethod]
-        [ExpectedException(typeof(NullReferenceException))]
-        public virtual void MemberInfoNotInitializedTest()
-        {
-            // Arrange
-            var member = GetInjectionMember();
-
-            // Act
-            var info = member.MemberInfo(typeof(TestPolicySet));
-        }
-
-        [TestMethod]
-        public virtual void MemberInfoTest()
-        {
-            // Arrange
-            var set = new TestPolicySet();
-            var cast = set as IPolicySet;
-            var member = GetInjectionMember();
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
-            var info = member.MemberInfo(typeof(TestPolicySet));
-
-            // Validate
-            Assert.AreEqual(GetMemberInfo(), info);
-        }
-
-        [Ignore]
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public virtual void MemberWrongInfoTest()
-        {
-            // Arrange
-            var set = new TestPolicySet();
-            var cast = set as IPolicySet;
-            var member = GetInjectionMember();
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
-
-            // Validate
-            Assert.IsNull(member.MemberInfo(typeof(TestClassAttribute)));
         }
 
         #endregion
@@ -139,40 +71,44 @@ namespace Injection.Members
 
         #region Object Overrides
 
-        [TestMethod]
-        public virtual void GetHashCodeNotInitialized()
+        [DataTestMethod]
+        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
+        public virtual void HashCodeCold(InjectionMember member, MemberInfo _)
         {
-            // Arrange
-            var member = GetInjectionMember();
+            // Act
+            var hash = member.GetHashCode();
 
             // Validate
-            Assert.AreEqual(0, member.GetHashCode());
+            Assert.AreEqual(0, hash);
         }
 
-        [TestMethod]
-        public virtual void GetHashCodeInitialized()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void HashCodeTest(InjectionMember member, MemberInfo _)
         {
             // Arrange
-            var member = GetInjectionMember();
-            var set = new TestPolicySet();
+            var set = new PolicySet();
             var cast = set as IPolicySet;
 
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            var hash = member.GetHashCode();
 
             // Validate
-            Assert.AreNotEqual(0, member.GetHashCode());
+            Assert.AreNotEqual(0, hash);
         }
 
 
-        [TestMethod]
-        public virtual void ToStringTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void ToStringTest(InjectionMember member, MemberInfo _)
         {
-            // Arrange
-            var TestMember = GetInjectionMember();
+            // Act
+            var value = member.ToString();
 
             // Validate
-            Assert.IsFalse(string.IsNullOrWhiteSpace(TestMember.ToString()));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(value));
         }
 
         #endregion
@@ -180,89 +116,77 @@ namespace Injection.Members
 
         #region Equitability
 
-        [TestMethod]
-        public virtual void EqualsMemberInfoNotInitialized()
+        [DataTestMethod]
+        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
+        public virtual void EqualsCold(InjectionMember member, MemberInfo info)
         {
-            // Arrange
-            var member = GetInjectionMember();
-            IEquatable<TMemberInfo> equatable = member as IEquatable<TMemberInfo>;
-            TMemberInfo info = GetMemberInfo();
-
-            // Validate
-            Assert.IsFalse(equatable.Equals(info));
-        }
-
-        [TestMethod]
-        public virtual void EqualsMemberInfoInitialized()
-        {
-            // Arrange
-            var member = GetInjectionMember();
-            var set = new TestPolicySet();
-            var cast = set as IPolicySet;
-            IEquatable<TMemberInfo> equatable = member;
-            TMemberInfo info = GetMemberInfo();
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
-
-            // Validate
-            Assert.IsTrue(equatable.Equals(info));
-        }
-
-        [TestMethod]
-        public virtual void EqualsObjectNotInitialized()
-        {
-            // Arrange
-            var member = GetInjectionMember();
-            object info = GetMemberInfo();
-
             // Validate
             Assert.IsFalse(member.Equals(info));
         }
 
-        [TestMethod]
-        public virtual void EqualsObjectWrong()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void EqualsTest(InjectionMember member, MemberInfo info)
         {
             // Arrange
-            var member = GetInjectionMember();
-            var set = new TestPolicySet();
+            var set = new PolicySet();
             var cast = set as IPolicySet;
-            object info = GetMemberInfo();
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+
+            // Validate
+            Assert.IsTrue(member.Equals(info));
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
+        public virtual void EqualsObjectCold(InjectionMember member, MemberInfo info)
+        {
+            // Validate
+            Assert.IsFalse(member.Equals(info));
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void EqualsObjectWrong(InjectionMember member, MemberInfo info)
+        {
+            // Arrange
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
 
             // Validate
             Assert.IsFalse(member.Equals(this));
         }
 
-        [TestMethod]
-        public virtual void EqualsObjectSame()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void EqualsObjectSame(InjectionMember member, MemberInfo info)
         {
             // Arrange
-            var member = GetInjectionMember();
-            var set = new TestPolicySet();
+            var set = new PolicySet();
             var cast = set as IPolicySet;
-            object info = GetMemberInfo();
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
 
             // Validate
             Assert.IsTrue(member.Equals(member));
         }
 
-        [TestMethod]
-        public virtual void EqualsObjectInitialized()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
+        public virtual void EqualsObjectTest(InjectionMember member, MemberInfo info)
         {
             // Arrange
-            var member = GetInjectionMember();
-            var set = new TestPolicySet();
+            var set = new PolicySet();
             var cast = set as IPolicySet;
-            object info = GetMemberInfo();
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(TestPolicySet), null, ref cast);
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
 
             // Validate
             Assert.IsTrue(member.Equals(info));
@@ -273,45 +197,71 @@ namespace Injection.Members
 
         #region Test Data
 
+        public static IEnumerable<object[]> GetNotInitializedMembers()
+        {
+            yield return new object[] { new InjectionConstructor(), CtorInfo };
+            yield return new object[] { new InjectionConstructor(typeof(string)), CtorStringInfo };
+
+            yield return new object[] { new InjectionMethod(nameof(PolicySet.TestMethod)), MethodInfo };
+            yield return new object[] { new InjectionMethod(nameof(PolicySet.TestMethod), typeof(Type)), MethodInfo };
+
+            yield return new object[] { new InjectionField(nameof(PolicySet.NameField)), FieldInfo };
+            yield return new object[] { new InjectionField(nameof(PolicySet.NameField), string.Empty), FieldInfo };
+
+            yield return new object[] { new InjectionProperty(nameof(PolicySet.NameProperty)), PropertyInfo };
+            yield return new object[] { new InjectionProperty(nameof(PolicySet.NameProperty), string.Empty), PropertyInfo };
+
+        }
+
+        public static IEnumerable<object[]> GetAllInjectionMembers()
+        {
+            yield return new object[] { new InjectionConstructor()                                  , CtorInfo };
+            yield return new object[] { new InjectionConstructor(typeof(string))                    , CtorStringInfo };
+            yield return new object[] { new InjectionConstructor(CtorStringInfo, typeof(string))    , CtorStringInfo };
+
+            yield return new object[] { new InjectionMethod(nameof(PolicySet.TestMethod))                , MethodInfo };
+            yield return new object[] { new InjectionMethod(nameof(PolicySet.TestMethod), typeof(Type))  , MethodInfo };
+
+            yield return new object[] { new InjectionField(nameof(PolicySet.NameField))               , FieldInfo };
+            yield return new object[] { new InjectionField(nameof(PolicySet.NameField), string.Empty) , FieldInfo }; 
+                                                                                                                 
+            yield return new object[] { new InjectionProperty(nameof(PolicySet.NameProperty))               , PropertyInfo };
+            yield return new object[] { new InjectionProperty(nameof(PolicySet.NameProperty), string.Empty) , PropertyInfo };
+
+        }
+
         public class PolicySet : Dictionary<Type, object>, IPolicySet
         {
-            private string _name;
+            public string NameField;
+            public string NameProperty { get; set; }
+
+            public PolicySet()
+            {
+            }
 
             public PolicySet(string name)
             {
-                _name = name;
+                NameField = name;
+                NameProperty = name;
             }
 
-            public void Clear(Type policyInterface)
-            {
-                Remove(policyInterface);
-            }
+            public void TestMethod(Type @interface) => throw new NotImplementedException();
 
-            public object Get(Type policyInterface)
-            {
-                return TryGetValue(policyInterface, out object value)
+            public void Clear(Type policyInterface) => Remove(policyInterface);
+
+            public object Get(Type policyInterface) => 
+                TryGetValue(policyInterface, out object value)
                     ? value : null;
-            }
 
-            public void Set(Type policyInterface, object policy)
-            {
-                Set(policyInterface, policy);
-            }
+            public void Set(Type policyInterface, object policy) => Set(policyInterface, policy);
         }
 
-        public class TestPolicySet : PolicySet
+        public class WrongType
         {
-            public TestPolicySet()
-                : base("test")
+            public WrongType(int a)
             {
 
             }
-
-            public object TestField;
-
-            public object TestProperty { get; set; }
-
-            public void TestMethod() { }
         }
 
         #endregion

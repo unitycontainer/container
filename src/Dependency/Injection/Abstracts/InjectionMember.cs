@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -44,7 +45,7 @@ namespace Unity.Injection
         public virtual bool BuildRequired => false;
     }
 
-
+    [DebuggerDisplay("{DebugView}")]
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember,
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
@@ -139,6 +140,13 @@ namespace Unity.Injection
         #region Implementation
 
         protected virtual TMemberInfo SelectMember(Type type, InjectionMember member) => throw new NotImplementedException();
+
+        #endregion
+
+
+        #region Debug
+
+        protected abstract string DebugView { get; }
 
         #endregion
     }
