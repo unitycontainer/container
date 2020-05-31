@@ -56,11 +56,18 @@ namespace Unity.Injection
 
         protected override Type MemberType => Selection.FieldType;
 
-        public override string ToString()
+        protected override string ToString(bool debug = false)
         {
-            return Data is DependencyResolutionAttribute
-                ? $"Resolve.Field('{Name}')"
-                : $"Inject.Field('{Name}', {Data})";
+            if (debug)
+            {
+                return base.ToString(debug);
+            }
+            else
+            {
+                return Data is DependencyResolutionAttribute
+                    ? $"Resolve.Field('{Name}')"
+                    : $"Inject.Field('{Name}', {Data})";
+            }
         }
 
         #endregion

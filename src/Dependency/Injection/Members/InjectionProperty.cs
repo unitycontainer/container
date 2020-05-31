@@ -63,11 +63,18 @@ namespace Unity.Injection
 
         protected override Type MemberType => Selection.PropertyType;
 
-        public override string ToString()
+        protected override string ToString(bool debug = false)
         {
-            return Data is DependencyResolutionAttribute 
-                ? $"Resolve.Property('{Name}')"
-                : $"Inject.Property('{Name}', {Data})";
+            if (debug)
+            {
+                return base.ToString(debug);
+            }
+            else
+            {
+                return Data is DependencyResolutionAttribute
+                    ? $"Resolve.Property('{Name}')"
+                    : $"Inject.Property('{Name}', {Data})";
+            }
         }
 
         #endregion

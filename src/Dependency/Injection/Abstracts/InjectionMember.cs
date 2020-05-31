@@ -43,9 +43,16 @@ namespace Unity.Injection
         /// it requires different constructor so it should be built instead.
         /// </remarks>
         public virtual bool BuildRequired => false;
+
+        /// <summary>
+        /// Debugger Display support
+        /// </summary>
+        /// <param name="debug">Indicates if member is rendered in Debug mode</param>
+        /// <returns>String representation on the member</returns>
+        protected abstract string ToString(bool debug = false);
     }
 
-    [DebuggerDisplay("{DebugView}")]
+    [DebuggerDisplay("{ToString(true)}")]
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember,
                                                                 IEquatable<TMemberInfo>
                                             where TMemberInfo : MemberInfo
@@ -134,19 +141,14 @@ namespace Unity.Injection
             Selection = select(mappedToType, this);
         }
 
+        public override string ToString() => ToString(false);
+
         #endregion
 
 
         #region Implementation
 
         protected virtual TMemberInfo SelectMember(Type type, InjectionMember member) => throw new NotImplementedException();
-
-        #endregion
-
-
-        #region Debug
-
-        protected abstract string DebugView { get; }
 
         #endregion
     }

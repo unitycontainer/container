@@ -97,26 +97,5 @@ namespace Unity.Injection
         }
 
         #endregion
-
-
-        #region Debug
-
-        protected override string DebugView => null == Selection 
-            ? $"{GetType().Name}: {Name}({Data.Signature()})" 
-            : $"{GetType().Name}: {Selection.DeclaringType}.{Name}({Signature})";
-
-        protected virtual string Signature
-        {
-            get
-            {
-                var sb = new List<string>();
-                foreach (var parameter in Selection.GetParameters())
-                    sb.Add($"{parameter.ParameterType} {parameter.Name}");
-
-                return string.Join(", ", sb);
-            }
-        }
-
-        #endregion
     }
 }

@@ -1,61 +1,58 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Unity.Injection;
+using Unity.Policy;
+using Unity.Resolution;
+using static Injection.Members.InjectionMemberTests;
 
 namespace Injection.Members
 {
-    [TestClass]
-    public class MethodBaseTests : InjectionBasesTests<MemberInfo, object[]>
-    { 
-    }
-
-    [TestClass]
-    public class MemberInfoTests : InjectionBasesTests<MemberInfo, object>
-    {
-    }
-
-    public abstract class InjectionBasesTests<TMemberInfo, TData>
+    public abstract class InjectionBaseTests<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
     {
+        #region Fields
+
+        protected static ConstructorInfo CtorInfo = typeof(PolicySet).GetConstructor(new Type[0]);
+        protected static ConstructorInfo CtorStringInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) });
+        protected static FieldInfo FieldInfo = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
+        protected static PropertyInfo PropertyInfo = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
+        protected static MethodInfo MethodInfo = typeof(PolicySet).GetMethod(nameof(PolicySet.TestMethod));
+
+        #endregion
+
+
+        public virtual void InitializationTest(InjectionMember<TMemberInfo, TData> member, TMemberInfo info)
+        {
+            // Arrange
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Validate
+            Assert.IsNotNull(member);
+            Assert.IsFalse(member.IsInitialized);
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
+
+            // Validate
+            Assert.IsTrue(member.IsInitialized);
+        }
+
+
+        public virtual void DeclaredMembersTest(InjectionMember<TMemberInfo, TData> member, Type type, TMemberInfo[] infos)
+        {
+            // Act
+            var members = member.DeclaredMembers(type)
+                                .ToArray();
+            // Validate
+            Assert.AreEqual(infos.Length, members.Length);
+        }
+
+
         #region MemberInfo
-
-
-
-        //[DataTestMethod]
-        //[DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
-        //public virtual void IsNotInitializedTest(InjectionMember member, MemberInfo _)
-        //{
-        //    // Validate
-        //    if (member is InjectionMember<MemberInfo, object> injector)
-        //        Assert.IsFalse(injector.IsInitialized);
-        //    else if (member is InjectionMember<MemberInfo, object[]> method)
-        //        Assert.IsFalse(method.IsInitialized);
-        //    else
-        //        Assert.Fail();
-        //}
-
-        //[DataTestMethod]
-        //[DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
-        //public virtual void IsInitializedTest(InjectionMember member, MemberInfo _)
-        //{
-        //    // Arrange
-        //    var set = new PolicySet();
-        //    var cast = set as IPolicySet;
-
-        //    // Act
-        //    member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
-
-        //    // Validate
-        //    switch (member)
-        //    {
-        //        case InjectionMember<MemberInfo, object> injector:
-        //            Assert.IsTrue(injector.IsInitialized);
-        //            break;
-
-        //        case InjectionMember<MemberInfo, object[]> method:
-        //            Assert.IsTrue(method.IsInitialized);
-        //            break;
-        //    }
-        //}
 
         //[DataTestMethod]
         //[DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]

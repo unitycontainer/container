@@ -55,18 +55,21 @@ namespace Unity.Injection
                        .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
         }
 
-        public override string ToString() => null == Selection 
-            ? $"Invoke.Constructor({Data.Signature()})" 
-            : $"Invoke.Constructor({Signature})";
-
-        #endregion
-
-
-        #region Debug
-
-        protected override string DebugView => null == Selection 
-            ? $"{GetType().Name}({Data.Signature()})" 
-            : $"{GetType().Name}: {Selection.DeclaringType}({Signature})";
+        protected override string ToString(bool debug = false)
+        {
+            if (debug)
+            {
+                return null == Selection
+                        ? $"{GetType().Name}: ctor({Data.Signature()})"
+                        : $"{GetType().Name}: {Selection.DeclaringType}({Selection.Signature()})";
+            }
+            else
+            {
+                return null == Selection
+                        ? $"Invoke.Constructor({Data.Signature()})"
+                        : $"Invoke.Constructor({Selection.Signature()})";
+            }
+        }
 
         #endregion
     }

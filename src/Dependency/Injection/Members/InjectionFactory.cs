@@ -95,6 +95,11 @@ namespace Unity.Injection
             }
         }
 
+        protected override string ToString(bool debug = false)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
 

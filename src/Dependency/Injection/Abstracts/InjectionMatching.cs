@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -114,6 +115,17 @@ namespace Unity.Injection
         {
             return string.Join(", ", data?.Select(d => d.ToString()) ?? Enumerable.Empty<string>());
         }
+
+
+        public static string Signature(this MethodBase selection)
+        {
+            var sb = new List<string>();
+            foreach (var parameter in selection.GetParameters())
+                sb.Add($"{parameter.ParameterType} {parameter.Name}");
+
+            return string.Join(", ", sb);
+        }
+
 
         #endregion
     }

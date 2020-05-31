@@ -66,8 +66,8 @@ namespace Unity.Injection
 
         #region Debug
 
-        protected override string DebugView => null == Selection 
-            ? $"{GetType().Name}: {Name}" 
+        protected override string ToString(bool debug = false) => null == Selection
+            ? $"{GetType().Name}: {Name}"
             : $"{GetType().Name}: {Selection.DeclaringType}.{Name}";
 
         #endregion
