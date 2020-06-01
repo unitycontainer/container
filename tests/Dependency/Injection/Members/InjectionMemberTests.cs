@@ -26,12 +26,6 @@ namespace Injection.Members
         #endregion
 
 
-        #region Initialization
-
-
-        #endregion
-
-
         #region InjectionMember
 
         [DataTestMethod]
