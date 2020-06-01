@@ -6,19 +6,27 @@ using Unity.Injection;
 namespace Injection.Matching
 {
     [TestClass]
-    public class InjectionMatchingTests
+    public class ParametersMatchTests
     {
         [DataTestMethod]
-        [DynamicData(nameof(GetMatchesTypeData), DynamicDataSourceType.Method)]
-        public void MatchesType(Type type, Type match, bool result)
+        [DynamicData(nameof(GetMatchesData), DynamicDataSourceType.Method)]
+        public void MatchesTest(object data, Type match, bool result)
+        {
+            // Validate
+            Assert.AreEqual(result, data.Matches(match));
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetTypeMatchesData), DynamicDataSourceType.Method)]
+        public void MatchesTypeTest(Type type, Type match, bool result)
         {
             // Validate
             Assert.AreEqual(result, type.MatchesType(match));
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetMatchesObjectData), DynamicDataSourceType.Method)]
-        public void MatchesObject(object parameter, Type match, bool result)
+        [DynamicData(nameof(GetObjectMatchesData), DynamicDataSourceType.Method)]
+        public void MatchesObjectTest(object parameter, Type match, bool result)
         {
             // Validate
             Assert.AreEqual(result, parameter.MatchesObject(match));
@@ -27,7 +35,14 @@ namespace Injection.Matching
 
         #region Test Data
 
-        public static IEnumerable<object[]> GetMatchesTypeData()
+        public static IEnumerable<object[]> GetMatchesData()
+        {
+            yield return new object[] { null,                                   null,           true };
+            yield return new object[] { typeof(object),                         typeof(object), true };
+            yield return new object[] { new ResolvedParameter(typeof(object)),  typeof(object), true };
+        }
+
+        public static IEnumerable<object[]> GetTypeMatchesData()
         {
             yield return new object[] { null,               null,               true };
             yield return new object[] { null,               typeof(object),     true };
@@ -50,12 +65,12 @@ namespace Injection.Matching
             yield return new object[] { typeof(List<int>),  typeof(List<int>),  true };
         }
 
-        public static IEnumerable<object[]> GetMatchesObjectData()
+        public static IEnumerable<object[]> GetObjectMatchesData()
         {
             // Generic
 
             // Array
-   // TODO: yield return new object[] { new string[0],      typeof(int[]),      false };
+// TODO: Issue #152 yield return new object[] { new string[0],      typeof(int[]),      false };
             yield return new object[] { new string[0],      typeof(int[]),      true };
 
             // match.IsAssignableFrom
