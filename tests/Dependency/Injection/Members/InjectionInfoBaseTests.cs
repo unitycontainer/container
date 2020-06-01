@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Policy.Tests;
 using Unity.Resolution;
-using static Injection.Members.InjectionMemberTests;
 
 namespace Injection.Members
 {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Policy.Tests;
 using Unity.Resolution;
 
 namespace Injection.Members
@@ -250,32 +251,6 @@ namespace Injection.Members
             yield return new object[] { new InjectionProperty(nameof(PolicySet.NameProperty))               , PropertyInfo };
             yield return new object[] { new InjectionProperty(nameof(PolicySet.NameProperty), string.Empty) , PropertyInfo };
 
-        }
-
-        public class PolicySet : Dictionary<Type, object>, IPolicySet
-        {
-            public string NameField;
-            public string NameProperty { get; set; }
-
-            public PolicySet()
-            {
-            }
-
-            public PolicySet(string name)
-            {
-                NameField = name;
-                NameProperty = name;
-            }
-
-            public void TestMethod(Type @interface) => throw new NotImplementedException();
-
-            public void Clear(Type policyInterface) => Remove(policyInterface);
-
-            public object Get(Type policyInterface) => 
-                TryGetValue(policyInterface, out object value)
-                    ? value : null;
-
-            public void Set(Type policyInterface, object policy) => Set(policyInterface, policy);
         }
 
         public class WrongType

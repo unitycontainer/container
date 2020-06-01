@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Policy.Tests;
 using Unity.Resolution;
-using static Injection.Members.InjectionMemberTests;
 
 namespace Injection.Members
 {
@@ -142,12 +142,18 @@ namespace Injection.Members
 
         #region Fields
 
+#pragma warning disable CS0169
+#pragma warning disable CS0649
+
         public readonly string TestReadonlyField;
         internal string TestInternalField;
         static string TestStaticField;
         public string TestField;
         private string TestPrivateField;
         protected string TestProtectedField;
+
+#pragma warning restore CS0169
+#pragma warning restore CS0649
 
         #endregion
 
