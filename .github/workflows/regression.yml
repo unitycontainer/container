@@ -2,8 +2,10 @@ name: Regression Tests
 # https://dotnet.microsoft.com/download/dotnet-core
 # https://dotnet.microsoft.com/download/dotnet-framework
 
-on:
-  [ push, pull_request ]
+on: [ push, pull_request ]
+  paths:
+    - 'src/*'
+    - 'tests/*'
 
 jobs:
   build:
