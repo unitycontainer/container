@@ -8,7 +8,6 @@ on:
     paths:
       - 'src/*'
       - 'tests/*'
-      - '.github/workflows/*'
 
   pull_request:
     paths:
