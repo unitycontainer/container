@@ -36,6 +36,11 @@ namespace Injection.Parameters
         [ExpectedException(typeof(AmbiguousMatchException))]
         public void InjectionParameterCtorTest()
         {
+            // Validate can init with null and type
+            Assert.IsNotNull(new InjectionParameter<string>(null));
+            Assert.IsNotNull(new InjectionParameter(typeof(string), null));
+
+            // Validate throws on no type
             new InjectionParameter(null);
         }
 
@@ -43,6 +48,7 @@ namespace Injection.Parameters
         [ExpectedException(typeof(ArgumentNullException))]
         public void GenericParameterCtorTest()
         {
+            // Validate throws on null
             new GenericParameter(null);
         }
 
