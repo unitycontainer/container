@@ -97,7 +97,6 @@ namespace Injection.Members
             Assert.AreNotEqual(0, hash);
         }
 
-
         [DataTestMethod]
         [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
         public virtual void ToStringTest(InjectionMember member, MemberInfo _)

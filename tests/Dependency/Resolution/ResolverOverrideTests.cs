@@ -13,7 +13,8 @@ namespace Resolution.Overrides
         #region Fields
 
         public static object OverrideValue { get; } = new object();
-        public static object ValueOverride { get; } = new TestResolverOverride();
+        public static object ValueOverride { get; } = new TestResolver();
+        public static object FactoryOverride { get; } = new TestResolverFactory();
 
         #endregion
 
@@ -130,23 +131,39 @@ namespace Resolution.Overrides
 
         public static IEnumerable<object[]> GetOverriddenResolvers()
         {
-
             yield return new object[] { new FieldOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new FieldOverride(string.Empty, FactoryOverride) };
 
             yield return new object[] { new PropertyOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new PropertyOverride(string.Empty, FactoryOverride) };
 
             yield return new object[] { new DependencyOverride(typeof(object), ValueOverride) };
-            yield return new object[] { new DependencyOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(string.Empty,   ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(object), FactoryOverride) };
+            yield return new object[] { new DependencyOverride(string.Empty,   FactoryOverride) };
             yield return new object[] { new DependencyOverride(typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, FactoryOverride) };
             yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, FactoryOverride) };
 
-            yield return new object[] { new ParameterOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new ParameterOverride(string.Empty,   ValueOverride) };
+            yield return new object[] { new ParameterOverride(string.Empty,   FactoryOverride) };
             yield return new object[] { new ParameterOverride(typeof(object), ValueOverride) };
+            yield return new object[] { new ParameterOverride(typeof(object), FactoryOverride) };
             yield return new object[] { new ParameterOverride(typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, FactoryOverride) };
 
         }
 
-        public class TestResolverOverride : IResolve
+        public class TestResolverFactory : IResolverFactory<Type>
+        {
+            public ResolveDelegate<TContext> GetResolver<TContext>(Type info) where TContext : IResolveContext
+            {
+                return (ref TContext context) => context;
+            }
+        }
+
+        public class TestResolver : IResolve
         {
             public object Resolve<TContext>(ref TContext context) 
                 where TContext : IResolveContext
