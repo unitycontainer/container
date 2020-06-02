@@ -13,7 +13,7 @@ on:
     paths:
       - 'src/*'
       - 'tests/*'
-      - '.github/workflows/*'
+#      - '.github/workflows/*'
 
 jobs:
   build:
