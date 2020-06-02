@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -27,8 +28,12 @@ namespace Unity.Injection
         /// type of the parameter.
         /// </summary>
         /// <param name="value">Value to be injected for this parameter.</param>
+        /// <exception cref="AmbiguousMatchException">Throws and exception when <see cref="Type"/> 
+        /// of the parameter can not be inferred from value</exception>
         public InjectionParameter(object value)
-            : base((value ?? throw new ArgumentNullException(nameof(value))).GetType())
+            : base((value ?? throw new AmbiguousMatchException($"The {nameof(value)} is 'null'. " +
+                "Unable to infer type of injected parameter\n" +
+                "If you need to pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType())
         {
             _value = value;
         }
