@@ -1,54 +1,45 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using Unity;
 using Unity.Resolution;
 
 
-namespace Dependency.Overrides
+namespace Resolution.Overrides
 {
     [TestClass]
-    public abstract class ResolverOverrideTests
+    public class ResolverOverrideTests
     {
-        #region Initialization
+        #region Fields
 
-        public const string Name = "name";
-
-        public object OverrideValue { get; } = new object();
-
-        protected abstract ResolverOverride GetResolverOverride();
-        protected abstract ResolverOverride GetNamedResolverOverride();
+        public static object OverrideValue { get; } = new object();
+        public static object ValueOverride { get; } = new TestResolverOverride();
 
         #endregion
 
 
         #region Resolver
 
-        [TestMethod]
-        public virtual void GetResolverTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
+        public virtual void ResolveTest(ResolverOverride instance)
         {
-            var instance = GetResolverOverride();
-
-            var resolver = instance.GetResolver<IResolveContext>(typeof(ResolverOverrideTests));
-            Assert.IsNotNull(resolver);
-        }
-
-        [TestMethod]
-        public virtual void ResolveTest()
-        {
-            var instance = GetResolverOverride();
+            // Arrange
             var context = new TestContext() as IResolveContext;
 
+            // Act
             var resolver = instance.GetResolver<IResolveContext>(typeof(ResolverOverrideTests));
             Assert.IsNotNull(resolver);
 
+            // Validate
             var value = resolver(ref context);
             Assert.AreSame(OverrideValue, value);
         }
 
-        [TestMethod]
-        public virtual void ResolveWithOverrideTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetOverriddenResolvers), DynamicDataSourceType.Method)]
+        public virtual void ResolveWithOverrideTest(ResolverOverride instance)
         {
-            var instance = GetNamedResolverOverride();
             var context = new TestContext() as IResolveContext;
 
             var resolver = instance.GetResolver<IResolveContext>(typeof(ResolverOverrideTests));
@@ -63,76 +54,55 @@ namespace Dependency.Overrides
 
         #region Object
 
-        [TestMethod]
-        public void GetHashCodeTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
+        public void GetHashCodeTest(ResolverOverride instance)
         {
-            // Act
-            var typed = GetResolverOverride().GetHashCode();
-            var named = GetNamedResolverOverride().GetHashCode();
-            var typedTargeted = GetResolverOverride().OnType<ResolverOverrideTests>().GetHashCode();
-            var namedTargeted = GetNamedResolverOverride().OnType<ResolverOverrideTests>().GetHashCode();
-
             // Produces same result every time
-            Assert.AreEqual(typed, GetResolverOverride().GetHashCode());
-            Assert.AreEqual(named, GetNamedResolverOverride().GetHashCode());
-            Assert.AreEqual(typedTargeted, GetResolverOverride().OnType<ResolverOverrideTests>().GetHashCode());
-            Assert.AreEqual(namedTargeted, GetNamedResolverOverride().OnType<ResolverOverrideTests>().GetHashCode());
+            var typed = instance.GetHashCode();
+            Assert.AreEqual(typed, instance.GetHashCode());
+
+            var once = instance.OnType<ResolverOverrideTests>().GetHashCode();
+            Assert.AreEqual(once, instance.GetHashCode());
+
+            var twice = instance.OnType(typeof(object)).GetHashCode();
+            Assert.AreEqual(twice, instance.GetHashCode());
 
             // But different value
-            Assert.AreNotEqual(typed, named);
-            Assert.AreNotEqual(typed, typedTargeted);
-            Assert.AreNotEqual(typed, namedTargeted);
-            Assert.AreNotEqual(named, typedTargeted);
-            Assert.AreNotEqual(named, namedTargeted);
-            Assert.AreNotEqual(typedTargeted, namedTargeted);
+            Assert.AreNotEqual(typed, once);
+            Assert.AreNotEqual(typed, twice);
+            Assert.AreNotEqual(twice, once);
         }
 
-        [TestMethod]
-        public void EqualsTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
+        public void EqualsTest(ResolverOverride resolver)
         {
-            // Arrange
-            var resolver = GetResolverOverride();
-
             // Act
             var result = resolver.Equals((object)resolver);
 
             // Validate
             Assert.IsTrue(result);
-            Assert.IsFalse(resolver.Equals(GetNamedResolverOverride()));
         }
 
-        [TestMethod]
-        public void EqualsWrongTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
+        public void EqualsWrongTest(ResolverOverride resolver)
         {
-            // Arrange
-            var resolver = GetResolverOverride();
-
             // Validate
             Assert.IsFalse(resolver.Equals(this));
         }
 
-        [TestMethod]
-        public void EqualsOperatorTest()
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
+        public void EqualsOperatorTest(ResolverOverride resolver)
         {
-            // Arrange
-            var typed = GetResolverOverride();
-            var named = GetNamedResolverOverride();
-
             // Validate
-            Assert.IsTrue( typed == GetResolverOverride());
-            Assert.IsFalse(typed == named);
-            Assert.IsFalse(null == named);
-            Assert.IsFalse(typed == null);
-        }
+            Assert.IsFalse(null     == resolver);
+            Assert.IsFalse(resolver == null);
 
-        [TestMethod]
-        public void NotEqualsOperatorTest()
-        {
-            // Arrange
-            var resolver = GetResolverOverride();
-
-            // Validate
-            Assert.IsTrue(resolver != GetNamedResolverOverride());
+            Assert.IsTrue(null     != resolver);
+            Assert.IsTrue(resolver != null);
         }
 
         #endregion
@@ -140,7 +110,43 @@ namespace Dependency.Overrides
 
         #region Test Data
 
-        public class TestResolver : IResolve
+        public static IEnumerable<object[]> GetAllResolvers()
+        {
+
+            yield return new object[] { new FieldOverride(string.Empty, OverrideValue) };
+
+            yield return new object[] { new PropertyOverride(string.Empty, OverrideValue) };
+
+            yield return new object[] { new DependencyOverride(                          typeof(object),               OverrideValue) };
+            yield return new object[] { new DependencyOverride(                                          string.Empty, OverrideValue) };
+            yield return new object[] { new DependencyOverride(                          typeof(object), string.Empty, OverrideValue) };
+            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, OverrideValue) };
+
+            yield return new object[] { new ParameterOverride(                string.Empty, OverrideValue) };
+            yield return new object[] { new ParameterOverride(typeof(object),               OverrideValue) };
+            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, OverrideValue) };
+
+        }
+
+        public static IEnumerable<object[]> GetOverriddenResolvers()
+        {
+
+            yield return new object[] { new FieldOverride(string.Empty, ValueOverride) };
+
+            yield return new object[] { new PropertyOverride(string.Empty, ValueOverride) };
+
+            yield return new object[] { new DependencyOverride(typeof(object), ValueOverride) };
+            yield return new object[] { new DependencyOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, ValueOverride) };
+
+            yield return new object[] { new ParameterOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new ParameterOverride(typeof(object), ValueOverride) };
+            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, ValueOverride) };
+
+        }
+
+        public class TestResolverOverride : IResolve
         {
             public object Resolve<TContext>(ref TContext context) 
                 where TContext : IResolveContext

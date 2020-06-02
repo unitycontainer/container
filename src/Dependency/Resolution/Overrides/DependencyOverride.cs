@@ -67,6 +67,10 @@ namespace Unity.Resolution
                 case DependencyOverride dependency:
                     return (dependency.Type == Type) &&
                            (dependency.Name == Name);
+                
+                case NamedType type:
+                    return Equals(type);
+
                 default:
                     return false;
             }
