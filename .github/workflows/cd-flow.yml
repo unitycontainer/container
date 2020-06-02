@@ -21,7 +21,7 @@ jobs:
         fetch-depth: 0
 
     - name: Label Fixed Issues
-      uses: gh-bot/fix-labeler@master        
+      uses: gh-bot/fix-labeler@1.2        
 
     - name: Build
       run: | 
