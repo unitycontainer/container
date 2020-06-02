@@ -1,4 +1,4 @@
-name:  Continuous Deployment
+name:  Beta Continuous Deployment
 
 on:
   push:
