@@ -35,6 +35,7 @@ jobs:
     - name: Build Package
       env:
         PackageVersion: '0.0.0'
+        UpdateVersionProperties: 'false'
         PackageOutputPath: '${{ github.workspace }}/package'
       run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
 

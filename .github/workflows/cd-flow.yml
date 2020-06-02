@@ -1,14 +1,15 @@
-name:  Beta Continuous Deployment
+name:  Continuous Deployment
 
 on:
   push:
     branches:
+      - 'develop'
+      - 'hotfix/**'    
       - 'release/**'    
 
 jobs:
 
-  build:
-
+  build-deploy:
     runs-on: windows-latest
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
