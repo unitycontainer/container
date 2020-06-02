@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Policy.Tests;
 using Unity.Resolution;
@@ -15,7 +17,9 @@ namespace Resolution.Overrides
         public static FieldInfo     FieldInfo = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
         public static PropertyInfo  PropertyInfo = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
         public static NamedType     NamedType = new NamedType { Type = typeof(object), Name = string.Empty };
-
+        public static ParameterInfo ParameterInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) })
+                                                                     .GetParameters()
+                                                                     .First();
         #endregion
 
         [TestMethod]
@@ -83,9 +87,27 @@ namespace Resolution.Overrides
                                         new DependencyOverride(typeof(string), typeof(object), string.Empty, OverrideValue),                    true  };
             yield return new object[] { new DependencyOverride<object>(OverrideValue),             new NamedType { Type = typeof(object) },     true  }; // TODO: Issue #158
 
-            //yield return new object[] { new ParameterOverride(string.Empty, OverrideValue),                 OverrideValue, false };
-            //yield return new object[] { new ParameterOverride(typeof(object), OverrideValue),               OverrideValue, false };
-            //yield return new object[] { new ParameterOverride(typeof(object), string.Empty, OverrideValue), OverrideValue, false };
+            yield return new object[] { new ParameterOverride(string.Empty, OverrideValue),                                      OverrideValue, false };
+            yield return new object[] { new ParameterOverride(typeof(string), OverrideValue),                                    OverrideValue, false };
+            yield return new object[] { new ParameterOverride(typeof(string), string.Empty, OverrideValue),                      OverrideValue, false };
+            yield return new object[] { new ParameterOverride((string)null, OverrideValue),                                      ParameterInfo, true };
+            yield return new object[] { new ParameterOverride(string.Empty, OverrideValue),                                      ParameterInfo, false };
+            yield return new object[] { new ParameterOverride(ParameterInfo.Name, OverrideValue),                                ParameterInfo, true  };
+            yield return new object[] { new ParameterOverride(ParameterInfo.Name, OverrideValue).OnType<PolicySet>(),            ParameterInfo, true };
+            yield return new object[] { new ParameterOverride(typeof(string), OverrideValue),                                    ParameterInfo, true  };
+            yield return new object[] { new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue),                ParameterInfo, true  };
+            yield return new object[] { new ParameterOverride(ParameterInfo.Name, OverrideValue), 
+                                        new ParameterOverride(ParameterInfo.Name, OverrideValue),                                               true };
+            yield return new object[] { new ParameterOverride(typeof(string), OverrideValue),
+                                        new ParameterOverride(typeof(string), OverrideValue),                                                   true };
+            yield return new object[] { new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue),
+                                        new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue),                               true };
+            yield return new object[] { new ParameterOverride(typeof(object), ParameterInfo.Name, OverrideValue),
+                                        new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue),                               false };
+            yield return new object[] { new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue),
+                                        new ParameterOverride(typeof(string), string.Empty, OverrideValue),                                     false };
+            yield return new object[] { new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue).OnType<PolicySet>(),
+                                        new ParameterOverride(typeof(string), ParameterInfo.Name, OverrideValue).OnType<PolicySet>(),           true };
         }
 
         #endregion
