@@ -85,8 +85,9 @@ namespace Unity.Resolution
             switch (other)
             {
                 case DependencyOverride dependency:
-                    return (dependency.Type == Type) &&
-                           (dependency.Name == Name);
+                    return (null == Target || dependency.Target == Target) &&
+                           (null == Type   || dependency.Type == Type ) &&
+                           (null == Name   || dependency.Name == Name);
                 
                 case NamedType type:
                     return Equals(type);
