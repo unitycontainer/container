@@ -40,8 +40,9 @@ namespace Unity.Resolution
                     return Equals(info);
 
                 case PropertyOverride property:
-                    return (null == Target || property.Target == Target) &&
-                           (null == Name   || property.Name == Name);
+                    return property.Name == Name && 
+                        (null == Target || property.Target == Target);
+
                 default:
                     return base.Equals(other);
             }
@@ -49,9 +50,8 @@ namespace Unity.Resolution
 
         public bool Equals(PropertyInfo other)
         {
-            return null != other && 
-                  (null == Target || other.DeclaringType == Target) &&
-                  (null == Name   || other.Name == Name);
+            return null != other  && other.Name == Name &&
+                  (null == Target || other.DeclaringType == Target);
         }
 
         #endregion
