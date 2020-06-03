@@ -70,7 +70,7 @@ namespace Injection.Parameters
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetSupportedParameters), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(SupportedParametersData), DynamicDataSourceType.Method)]
         public void ToStringTest(ParameterValue parameter)
         {
             var name = parameter.GetType().Name;
@@ -78,20 +78,18 @@ namespace Injection.Parameters
             Assert.IsTrue(parameter.ToString().StartsWith(name));
         }
 
-        [Ignore] // TODO: validate
         [DataTestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        [DynamicData(nameof(GetSupportedParameters), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(ParametersWithTypeData), DynamicDataSourceType.Method)]
         public void EqualsValidationTest(ParameterValue parameter)
         {
-            Assert.IsTrue(parameter.Equals(null));
+            Assert.IsFalse(parameter.Equals(null));
         }
 
 
         #region Exceptions
 
         [DataTestMethod]
-        [DynamicData(nameof(GetOptionalParametersData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
         public void OptionalExceptionTest(IResolverFactory<Type> factory)
         {
             var context = new DictionaryContext() as IResolveContext;
@@ -105,7 +103,7 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [ExpectedException(typeof(CircularDependencyException))]
-        [DynamicData(nameof(GetOptionalParametersData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
         public void OptionalCircularExceptionTest(IResolverFactory<Type> factory)
         {
             var context = new CircularExceptionContect() as IResolveContext;
@@ -120,7 +118,7 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [ExpectedException(typeof(CircularDependencyException))]
-        [DynamicData(nameof(GetOptionalParametersData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
         public void OptionalCircularExceptionInfoTest(IResolverFactory<ParameterInfo> factory)
         {
             var context = new CircularExceptionContect() as IResolveContext;
@@ -180,7 +178,7 @@ namespace Injection.Parameters
 
         #region Test Data
 
-        public static IEnumerable<object[]> GetSupportedParameters()
+        public static IEnumerable<object[]> SupportedParametersData()
         {
             yield return new object[] { new InjectionParameter(string.Empty) };
             yield return new object[] { new InjectionParameter(typeof(string), null) };
@@ -193,7 +191,20 @@ namespace Injection.Parameters
             yield return new object[] { new GenericResolvedArrayParameter("T[]") };
         }
 
-        public static IEnumerable<object[]> GetOptionalParametersData()
+        public static IEnumerable<object[]> ParametersWithTypeData()
+        {
+            yield return new object[] { new InjectionParameter(string.Empty) };
+            yield return new object[] { new InjectionParameter(typeof(string), null) };
+            yield return new object[] { new OptionalParameter(typeof(string)) };
+            yield return new object[] { new ResolvedParameter(typeof(string)) };
+            yield return new object[] { new ResolvedArrayParameter(typeof(string)) };
+            yield return new object[] { new GenericParameter("T[]") };
+            yield return new object[] { new OptionalGenericParameter("T") };
+            yield return new object[] { new OptionalGenericParameter("T", string.Empty) };
+            yield return new object[] { new GenericResolvedArrayParameter("T[]") };
+        }
+
+        public static IEnumerable<object[]> OptionalParametersData()
         {
             yield return new object[] { new OptionalGenericParameter("T") };
             yield return new object[] { new OptionalGenericParameter("T", string.Empty) };
@@ -203,7 +214,6 @@ namespace Injection.Parameters
             yield return new object[] { new OptionalParameter(string.Empty) };
             yield return new object[] { new OptionalParameter(typeof(string), string.Empty) };
         }
-
 
         public class CircularExceptionContect : IResolveContext
         {

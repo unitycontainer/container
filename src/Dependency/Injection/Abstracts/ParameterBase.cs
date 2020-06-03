@@ -47,6 +47,7 @@ namespace Unity.Injection
         public override bool Equals(Type type)
         {
             if (null == _type) return true;
+            if (null == type) return false;
 
             var cInfo = type.GetTypeInfo();
             var info = _type.GetTypeInfo();
