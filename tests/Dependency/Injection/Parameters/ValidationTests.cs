@@ -33,7 +33,7 @@ namespace Injection.Parameters
         #endregion
 
         [TestMethod]
-        [ExpectedException(typeof(AmbiguousMatchException))]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void InjectionParameterCtorTest()
         {
             // Validate can init with null and type

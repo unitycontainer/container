@@ -118,10 +118,12 @@ namespace Resolution.Overrides
 
             yield return new object[] { new PropertyOverride(string.Empty, OverrideValue) };
 
-            yield return new object[] { new DependencyOverride(                          typeof(object),               OverrideValue) };
-            yield return new object[] { new DependencyOverride(                                          string.Empty, OverrideValue) };
-            yield return new object[] { new DependencyOverride(                          typeof(object), string.Empty, OverrideValue) };
+            yield return new object[] { new DependencyOverride(typeof(object), OverrideValue) };
+            yield return new object[] { new DependencyOverride(string.Empty, OverrideValue) };
+            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, OverrideValue) };
             yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, OverrideValue) };
+            yield return new object[] { new DependencyOverride<object>(OverrideValue) };
+            yield return new object[] { new DependencyOverride<object>(string.Empty, OverrideValue) };
 
             yield return new object[] { new ParameterOverride(                string.Empty, OverrideValue) };
             yield return new object[] { new ParameterOverride(typeof(object),               OverrideValue) };
@@ -138,13 +140,17 @@ namespace Resolution.Overrides
             yield return new object[] { new PropertyOverride(string.Empty, FactoryOverride) };
 
             yield return new object[] { new DependencyOverride(typeof(object), ValueOverride) };
-            yield return new object[] { new DependencyOverride(string.Empty,   ValueOverride) };
+            yield return new object[] { new DependencyOverride(string.Empty, ValueOverride) };
             yield return new object[] { new DependencyOverride(typeof(object), FactoryOverride) };
-            yield return new object[] { new DependencyOverride(string.Empty,   FactoryOverride) };
+            yield return new object[] { new DependencyOverride(string.Empty, FactoryOverride) };
             yield return new object[] { new DependencyOverride(typeof(object), string.Empty, ValueOverride) };
             yield return new object[] { new DependencyOverride(typeof(object), string.Empty, FactoryOverride) };
             yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, ValueOverride) };
             yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, FactoryOverride) };
+            yield return new object[] { new DependencyOverride<object>(ValueOverride) };
+            yield return new object[] { new DependencyOverride<object>(FactoryOverride) };
+            yield return new object[] { new DependencyOverride<object>(string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride<object>(string.Empty, FactoryOverride) };
 
             yield return new object[] { new ParameterOverride(string.Empty,   ValueOverride) };
             yield return new object[] { new ParameterOverride(string.Empty,   FactoryOverride) };

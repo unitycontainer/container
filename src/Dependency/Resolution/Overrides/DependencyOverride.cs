@@ -22,28 +22,50 @@ namespace Unity.Resolution
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
-        /// the given type with the given value.
+        /// dependencies matching the given type
         /// </summary>
-        /// <param name="typeToConstruct">Type of the dependency.</param>
-        /// <param name="dependencyValue">InjectionParameterValue to use.</param>
-        public DependencyOverride(Type typeToConstruct, object dependencyValue)
-            : base(null, typeToConstruct, null)
+        /// <param name="type">Type of the dependency.</param>
+        /// <param name="value">Value to override with</param>
+        public DependencyOverride(Type type, object value)
+            : base(null, type, null)
         {
-            Value = dependencyValue;
+            Value = value;
         }
 
-        public DependencyOverride(string name, object dependencyValue)
+        /// <summary>
+        /// Create an instance of <see cref="DependencyOverride"/> to override
+        /// dependencies matching the given name
+        /// </summary>
+        /// <param name="name">Name of the dependency</param>
+        /// <param name="value">Value to override with</param>
+        public DependencyOverride(string name, object value)
             : base(null, null, name)
         {
-            Value = dependencyValue;
+            Value = value;
         }
 
+
+        /// <summary>
+        /// Create an instance of <see cref="DependencyOverride"/> to override
+        /// dependencies matching the given type and a name
+        /// </summary>
+        /// <param name="name">Name of the dependency</param>
+        /// <param name="type">Type of the dependency.</param>
+        /// <param name="value">Value to override with</param>
         public DependencyOverride(Type type, string name, object value)
             : base(null, type, name)
         {
             Value = value;
         }
 
+        /// <summary>
+        /// Create an instance of <see cref="DependencyOverride"/> to override
+        /// dependency on cpecific type matching the given type and a name
+        /// </summary>
+        /// <param name="target">Target type</param>
+        /// <param name="name">Name of the dependency</param>
+        /// <param name="type">Type of the dependency.</param>
+        /// <param name="value">Value to override with</param>
         public DependencyOverride(Type target, Type type, string name, object value)
             : base(target, type, name)
         {
@@ -113,11 +135,35 @@ namespace Unity.Resolution
     public class DependencyOverride<T> : DependencyOverride
     {
         /// <summary>
-        /// Construct a new <see cref="DependencyOverride{T}"/> object that will
-        /// override the given dependency, and pass the given value.
+        /// Create an instance of <see cref="DependencyOverride"/> to override
+        /// dependencies matching the given type and a name
         /// </summary>
-        public DependencyOverride(object dependencyValue)
-            : base(null, typeof(T), null, dependencyValue)
+        /// <remarks>
+        /// This constructor creates an override that will match with any
+        /// target type as long as the dependency type and name match. To 
+        /// target specific type use <see cref="ResolverOverride.OnType(Type)"/> 
+        /// method.
+        /// </remarks>
+        /// <param name="name">Name of the dependency</param>
+        /// <param name="value">Override value</param>
+        public DependencyOverride(string name, object value)
+            : base(null, typeof(T), name, value)
+        {
+        }
+
+        /// <summary>
+        /// Create an instance of <see cref="DependencyOverride"/> to override
+        /// dependencies matching the given type
+        /// </summary>
+        /// <remarks>
+        /// This constructor creates an override that will match with any
+        /// target type as long as the dependency type match. To 
+        /// target specific type use <see cref="ResolverOverride.OnType(Type)"/> 
+        /// method.
+        /// </remarks>
+        /// <param name="value">Override value</param>
+        public DependencyOverride(object value)
+            : base(null, typeof(T), null, value)
         {
         }
     }

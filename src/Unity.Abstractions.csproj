@@ -17,6 +17,7 @@
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard1.0' ">
@@ -69,8 +70,8 @@
   <!-- Release Notes -->
 
   <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
-    <ReadLinesFromFile File="../RELEASE-NOTES.txt" >
-      <Output TaskParameter="Lines" ItemName="ReleaseNoteLines"/>
+    <ReadLinesFromFile File="../RELEASE-NOTES.txt">
+      <Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
     </ReadLinesFromFile>
     <PropertyGroup>
       <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
@@ -80,19 +81,8 @@
   <!-- References -->
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.3.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
-    <PackageReference Include="System.Threading.Tasks.Extensions">
-      <Version>4.5.3</Version>
+    <PackageReference Condition="'$(TargetFramework)' != 'net40'" Include="System.Threading.Tasks.Extensions">
+      <Version>4.5.4</Version>
     </PackageReference>
   </ItemGroup>
   

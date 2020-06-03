@@ -21,10 +21,12 @@ jobs:
         fetch-depth: 0
 
     - name: Label Fixed Issues
-      uses: gh-bot/fix-labeler@1.2        
+      uses: gh-bot/fix-labeler@master        
 
     - name: Build
       run: | 
+        dotnet add src/Unity.Abstractions.csproj package GitVersionTask
+        dotnet add src/Unity.Abstractions.csproj package Microsoft.SourceLink.GitHub
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests
 

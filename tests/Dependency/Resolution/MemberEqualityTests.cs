@@ -85,7 +85,8 @@ namespace Resolution.Overrides
                                         new DependencyOverride(typeof(object), typeof(object), string.Empty, OverrideValue),                    false };
             yield return new object[] { new DependencyOverride(typeof(object), typeof(object), string.Empty, OverrideValue),                             // TODO: Issue #157
                                         new DependencyOverride(typeof(string), typeof(object), string.Empty, OverrideValue),                    true  };
-            yield return new object[] { new DependencyOverride<object>(OverrideValue),             new NamedType { Type = typeof(object) },     true  }; // TODO: Issue #158
+            yield return new object[] { new DependencyOverride<object>(OverrideValue), new NamedType { Type = typeof(object) }, true };
+            yield return new object[] { new DependencyOverride<object>(string.Empty, OverrideValue), NamedType, true };
 
             yield return new object[] { new ParameterOverride(string.Empty, OverrideValue),                                      OverrideValue, false };
             yield return new object[] { new ParameterOverride(typeof(string), OverrideValue),                                    OverrideValue, false };
