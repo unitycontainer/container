@@ -6,29 +6,30 @@ namespace Unity.Resolution
     /// Base class for all override objects passed in the
     /// <see cref="IUnityContainer.Resolve"/> method.
     /// </summary>
-    public abstract class ResolverOverride
+    public abstract class ResolverOverride : IResolve
     {
         #region Fields
 
-        protected Type Target;
-        protected readonly Type   Type;
+        protected          Type   Target;
         protected readonly string Name;
+        protected readonly object Value;
 
         #endregion
 
 
         #region Constructors
 
-        protected ResolverOverride(string name)
+        protected ResolverOverride(string name, object value)
         {
             Name = name;
+            Value = value;
         }
 
-        protected ResolverOverride(Type target, Type type, string name)
+        protected ResolverOverride(Type target, string name, object value)
         {
             Target = target;
-            Type = type;
             Name = name;
+            Value = value;
         }
 
         #endregion
@@ -63,14 +64,29 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region IResolverFactory
+        #region IResolve
+
+        public virtual object Resolve<TContext>(ref TContext context)
+            where TContext : IResolveContext
+        {
+            return Value switch
+            {
+                IResolve resolve               => resolve.Resolve(ref context),
+                IResolverFactory<Type> factory => factory.GetResolver<TContext>(context.Type)
+                                                         .Invoke(ref context),
+                _ => Value,
+            };
+        }
 
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-            return this is IResolve policy
-                ? (ResolveDelegate<TContext>)policy.Resolve
-                : throw new InvalidCastException("Derived type does not implement IResolve policy");
+            return Value switch
+            {
+                IResolve resolve               => resolve.Resolve,
+                IResolverFactory<Type> factory => factory.GetResolver<TContext>(type),
+                _ => (ref TContext context)    => Value,
+            };
         }
 
         #endregion
@@ -80,7 +96,7 @@ namespace Unity.Resolution
 
         public override int GetHashCode()
         {
-            return ((Target?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^  GetType().GetHashCode();
+            return ((Target?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^ GetType().GetHashCode();
 
         }
 

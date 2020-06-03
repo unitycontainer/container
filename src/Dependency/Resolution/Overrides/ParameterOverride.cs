@@ -8,12 +8,11 @@ namespace Unity.Resolution
     /// override a named parameter passed to a constructor.
     /// </summary>
     public class ParameterOverride : ResolverOverride,
-                                     IEquatable<ParameterInfo>,
-                                     IResolve
+                                     IEquatable<ParameterInfo>
     {
         #region Fields
 
-        protected readonly object Value;
+        protected readonly Type Type;
 
         #endregion
 
@@ -25,12 +24,11 @@ namespace Unity.Resolution
         /// override the given named constructor parameter, and pass the given
         /// value.
         /// </summary>
-        /// <param name="parameterName">Name of the constructor parameter.</param>
-        /// <param name="parameterValue">InjectionParameterValue to pass for the constructor.</param>
-        public ParameterOverride(string parameterName, object parameterValue)
-            : base(null, null, parameterName)
+        /// <param name="name">Name of the constructor parameter.</param>
+        /// <param name="value">InjectionParameterValue to pass for the constructor.</param>
+        public ParameterOverride(string name, object value)
+            : base(name, value)
         {
-            Value = parameterValue;
         }
 
         /// <summary>
@@ -38,12 +36,12 @@ namespace Unity.Resolution
         /// override the given named constructor parameter, and pass the given
         /// value.
         /// </summary>
-        /// <param name="parameterType">Type of the parameter.</param>
-        /// <param name="parameterValue">Value to pass for the MethodBase.</param>
-        public ParameterOverride(Type parameterType, object parameterValue)
-            : base(null, parameterType, null)
+        /// <param name="type">Type of the parameter.</param>
+        /// <param name="value">Value to pass for the MethodBase.</param>
+        public ParameterOverride(Type type, object value)
+            : base(null, value)
         {
-            Value = parameterValue;
+            Type = type;
         }
 
         /// <summary>
@@ -51,13 +49,13 @@ namespace Unity.Resolution
         /// override the given named constructor parameter, and pass the given
         /// value.
         /// </summary>
-        /// <param name="parameterType">Type of the parameter.</param>
-        /// <param name="parameterName">Name of the constructor parameter.</param>
-        /// <param name="parameterValue">Value to pass for the MethodBase.</param>
-        public ParameterOverride(Type parameterType, string parameterName, object parameterValue)
-            : base(null, parameterType, parameterName)
+        /// <param name="type">Type of the parameter.</param>
+        /// <param name="name">Name of the constructor parameter.</param>
+        /// <param name="value">Value to pass for the MethodBase.</param>
+        public ParameterOverride(Type type, string name, object value)
+            : base(name, value)
         {
-            Value = parameterValue;
+            Type = type;
         }
 
         #endregion
@@ -95,26 +93,6 @@ namespace Unity.Resolution
                   (null == Name   || other.Name == Name);
         }
 
-
-        #endregion
-
-
-        #region IResolverPolicy
-
-        public object Resolve<TContext>(ref TContext context)
-            where TContext : IResolveContext
-        {
-            if (Value is IResolve policy)
-                return policy.Resolve(ref context);
-
-            if (Value is IResolverFactory<Type> factory)
-            {
-                var resolveDelegate = factory.GetResolver<TContext>(Type);
-                return resolveDelegate(ref context);
-            }
-
-            return Value;
-        }
 
         #endregion
     }

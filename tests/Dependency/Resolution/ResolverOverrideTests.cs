@@ -12,8 +12,8 @@ namespace Resolution.Overrides
     {
         #region Fields
 
-        public static object OverrideValue { get; } = new object();
-        public static object ValueOverride { get; } = new TestResolver();
+        public static object TestValue { get; } = new object();
+        public static object ResolverOverride { get; } = new TestResolver();
         public static object FactoryOverride { get; } = new TestResolverFactory();
 
         #endregion
@@ -34,7 +34,7 @@ namespace Resolution.Overrides
 
             // Validate
             var value = resolver(ref context);
-            Assert.AreSame(OverrideValue, value);
+            Assert.AreSame(TestValue, value);
         }
 
         [DataTestMethod]
@@ -48,6 +48,25 @@ namespace Resolution.Overrides
 
             var value = resolver(ref context);
             Assert.AreSame(context, value);
+        }
+
+        #endregion
+
+
+        #region Validation
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InvalidFieldTest()
+        {
+            _ = new FieldOverride(null, TestValue);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void InvalidPropertyTest()
+        {
+            _ = new PropertyOverride(null, TestValue);
         }
 
         #endregion
@@ -75,37 +94,6 @@ namespace Resolution.Overrides
             Assert.AreNotEqual(twice, once);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
-        public void EqualsTest(ResolverOverride resolver)
-        {
-            // Act
-            var result = resolver.Equals((object)resolver);
-
-            // Validate
-            Assert.IsTrue(result);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
-        public void EqualsWrongTest(ResolverOverride resolver)
-        {
-            // Validate
-            Assert.IsFalse(resolver.Equals(this));
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
-        public void EqualsOperatorTest(ResolverOverride resolver)
-        {
-            // Validate
-            Assert.IsFalse(null     == resolver);
-            Assert.IsFalse(resolver == null);
-
-            Assert.IsTrue(null     != resolver);
-            Assert.IsTrue(resolver != null);
-        }
-
         #endregion
 
 
@@ -114,49 +102,50 @@ namespace Resolution.Overrides
         public static IEnumerable<object[]> GetAllResolvers()
         {
 
-            yield return new object[] { new FieldOverride(string.Empty, OverrideValue) };
+            yield return new object[] { new FieldOverride(string.Empty, TestValue) };
 
-            yield return new object[] { new PropertyOverride(string.Empty, OverrideValue) };
+            yield return new object[] { new PropertyOverride(string.Empty, TestValue) };
 
-            yield return new object[] { new DependencyOverride(typeof(object), OverrideValue) };
-            yield return new object[] { new DependencyOverride(string.Empty, OverrideValue) };
-            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, OverrideValue) };
-            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, OverrideValue) };
-            yield return new object[] { new DependencyOverride<object>(OverrideValue) };
-            yield return new object[] { new DependencyOverride<object>(string.Empty, OverrideValue) };
+            yield return new object[] { new DependencyOverride(typeof(object), TestValue) };
+            yield return new object[] { new DependencyOverride(string.Empty, TestValue) };
+            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, TestValue) };
+            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, TestValue) };
+            yield return new object[] { new DependencyOverride<object>(TestValue) };
+            yield return new object[] { new DependencyOverride<object>(string.Empty, TestValue) };
 
-            yield return new object[] { new ParameterOverride(                string.Empty, OverrideValue) };
-            yield return new object[] { new ParameterOverride(typeof(object),               OverrideValue) };
-            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, OverrideValue) };
+            yield return new object[] { new ParameterOverride(                string.Empty, TestValue) };
+            yield return new object[] { new ParameterOverride(typeof(object),               TestValue) };
+            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, TestValue) };
 
         }
 
         public static IEnumerable<object[]> GetOverriddenResolvers()
         {
-            yield return new object[] { new FieldOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new FieldOverride(string.Empty, ResolverOverride) };
             yield return new object[] { new FieldOverride(string.Empty, FactoryOverride) };
 
-            yield return new object[] { new PropertyOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new PropertyOverride(string.Empty, ResolverOverride) };
             yield return new object[] { new PropertyOverride(string.Empty, FactoryOverride) };
 
-            yield return new object[] { new DependencyOverride(typeof(object), ValueOverride) };
-            yield return new object[] { new DependencyOverride(string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(object), ResolverOverride) };
+            yield return new object[] { new DependencyOverride(string.Empty, ResolverOverride) };
             yield return new object[] { new DependencyOverride(typeof(object), FactoryOverride) };
             yield return new object[] { new DependencyOverride(string.Empty, FactoryOverride) };
-            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(object), string.Empty, ResolverOverride) };
             yield return new object[] { new DependencyOverride(typeof(object), string.Empty, FactoryOverride) };
-            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, ResolverOverride) };
             yield return new object[] { new DependencyOverride(typeof(ResolverOverride), typeof(object), string.Empty, FactoryOverride) };
-            yield return new object[] { new DependencyOverride<object>(ValueOverride) };
+            yield return new object[] { new DependencyOverride<object>(ResolverOverride) };
             yield return new object[] { new DependencyOverride<object>(FactoryOverride) };
-            yield return new object[] { new DependencyOverride<object>(string.Empty, ValueOverride) };
+            yield return new object[] { new DependencyOverride<object>(string.Empty, ResolverOverride) };
             yield return new object[] { new DependencyOverride<object>(string.Empty, FactoryOverride) };
+            yield return new object[] { new DependencyOverride<object>(typeof(ResolverOverrideTests), string.Empty, FactoryOverride) };
 
-            yield return new object[] { new ParameterOverride(string.Empty,   ValueOverride) };
+            yield return new object[] { new ParameterOverride(string.Empty,   ResolverOverride) };
             yield return new object[] { new ParameterOverride(string.Empty,   FactoryOverride) };
-            yield return new object[] { new ParameterOverride(typeof(object), ValueOverride) };
+            yield return new object[] { new ParameterOverride(typeof(object), ResolverOverride) };
             yield return new object[] { new ParameterOverride(typeof(object), FactoryOverride) };
-            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, ValueOverride) };
+            yield return new object[] { new ParameterOverride(typeof(object), string.Empty, ResolverOverride) };
             yield return new object[] { new ParameterOverride(typeof(object), string.Empty, FactoryOverride) };
 
         }
