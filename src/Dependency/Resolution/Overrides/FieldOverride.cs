@@ -8,27 +8,18 @@ namespace Unity.Resolution
     /// the value for a specified field.
     /// </summary>
     public class FieldOverride : ResolverOverride,
-                                 IEquatable<FieldInfo>,
-                                 IResolve
+                                 IEquatable<FieldInfo>
     {
-        #region Fields
-
-        protected readonly object Value;
-
-        #endregion
-
-
         #region Constructors
 
         /// <summary>
         /// Create an instance of <see cref="FieldOverride"/>.
         /// </summary>
-        /// <param name="fieldName">The Field name.</param>
-        /// <param name="fieldValue">InjectionParameterValue to use for the Field.</param>
-        public FieldOverride(string fieldName, object fieldValue)
-            : base(fieldName)
+        /// <param name="name">The Field name.</param>
+        /// <param name="value">InjectionParameterValue to use for the Field.</param>
+        public FieldOverride(string name, object value)
+            : base(name ?? throw new ArgumentNullException(nameof(name)), value)
         {
-            Value = fieldValue;
         }
 
         #endregion
@@ -50,7 +41,6 @@ namespace Unity.Resolution
 
                 case FieldOverride field:
                     return (null == Target || field.Target == Target) &&
-                           (null == Type   || field.Type == Type) &&
                            (null == Name   || field.Name == Name);
                 default:
                     return base.Equals(other);
@@ -61,28 +51,7 @@ namespace Unity.Resolution
         {
             return null != other && 
                   (null == Target || other.DeclaringType == Target) &&
-                  (null == Type   || other.FieldType == Type) &&
                   (null == Name   || other.Name == Name);
-        }
-
-        #endregion
-
-
-        #region IResolverPolicy
-
-        public object Resolve<TContext>(ref TContext context)
-            where TContext : IResolveContext
-        {
-            if (Value is IResolve policy)
-                return policy.Resolve(ref context);
-
-            if (Value is IResolverFactory<Type> factory)
-            {
-                var resolveDelegate = factory.GetResolver<TContext>(Type);
-                return resolveDelegate(ref context);
-            }
-
-            return Value;
         }
 
         #endregion
