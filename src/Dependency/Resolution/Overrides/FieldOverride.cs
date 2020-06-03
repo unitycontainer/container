@@ -40,8 +40,8 @@ namespace Unity.Resolution
                     return Equals(info);
 
                 case FieldOverride field:
-                    return (null == Target || field.Target == Target) &&
-                           (null == Name   || field.Name == Name);
+                    return (null == Name   || field.Name == Name) &&
+                           (null == Target || field.Target == Target);
                 default:
                     return base.Equals(other);
             }
@@ -49,9 +49,9 @@ namespace Unity.Resolution
 
         public bool Equals(FieldInfo other)
         {
-            return null != other && 
-                  (null == Target || other.DeclaringType == Target) &&
-                  (null == Name   || other.Name == Name);
+            return null != other &&
+                  (null == Name   || other.Name == Name) &&
+                  (null == Target || other.DeclaringType == Target);
         }
 
         #endregion
