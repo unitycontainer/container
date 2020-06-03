@@ -46,6 +46,24 @@ namespace Injection.Members
         }
 
 
+        [TestMethod]
+        public virtual void NoParametersSelectionTest()
+        {
+            // Arrange
+            var member = new InjectionMethod("OtherTestMethod", (object[])null);
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(MethodTestClass<>), typeof(MethodTestClass<>), null, ref cast);
+            var info = member.MemberInfo(typeof(MethodTestClass<>));
+
+            // Validate
+            Assert.IsNotNull(info);
+            Assert.AreEqual(0, info.GetParameters().ToArray().Length);
+        }
+
+
         #region Test Data
 
         protected override InjectionMember<MethodInfo, object[]> GetDefaultMember() => 
@@ -53,7 +71,7 @@ namespace Injection.Members
 
         protected class MethodTestClass<T>
         {
-            public void OtherTestMethod(string a) { }
+            public void OtherTestMethod() { }
             public void Test_Method(TestClass<T> a) { }
             public void TestMethod(T a) { }
             public void TestMethod(string a) { }

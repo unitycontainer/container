@@ -35,11 +35,7 @@ namespace Unity.Injection
 
             foreach (var member in DeclaredMembers(type))
             {
-                if (null != Name)
-                {
-                    if (Name != member.Name) continue; // TODO: redundant check. Remove!
-                    if (noData) return member;
-                }
+                if (null != Name && noData) return member;
 
                 if (!Data.MatchMemberInfo(member)) continue;
 
