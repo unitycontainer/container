@@ -17,7 +17,7 @@ namespace Unity.Injection
 
             for (var i = 0; i < (data?.Length ?? 0); i++)
             {
-                if (Matches(data?[i], parameters[i].ParameterType))
+                if (Matches(data[i], parameters[i].ParameterType))
                     continue;
 
                 return false;
@@ -33,17 +33,12 @@ namespace Unity.Injection
 
         public static bool Matches(this object data, Type match)
         {
-            switch (data)
+            return data switch
             {
-                case IEquatable<Type> equatable:
-                    return equatable.Equals(match);
-
-                case Type type:
-                    return MatchesType(type, match);
-
-                default:
-                    return MatchesObject(data, match);
-            }
+                Type type                  => MatchesType(type, match),
+                IEquatable<Type> equatable => equatable.Equals(match),
+                _                          => MatchesObject(data, match),
+            };
         }
 
         public static bool MatchesType(this Type type, Type match)
@@ -54,18 +49,20 @@ namespace Unity.Injection
             var typeInfo = type.GetTypeInfo();
             var matchInfo = match.GetTypeInfo();
 
-            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-            if ((typeInfo.IsArray || typeof(Array) == type) &&
-               (matchInfo.IsArray || match == typeof(Array)))
+            if (matchInfo.IsAssignableFrom(typeInfo)) 
+                return true;
+
+            if (typeof(Array) == type && matchInfo.IsArray)
                 return true;
 
             if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
                 typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
                 return true;
 #else
-            if (match.IsAssignableFrom(type)) return true;
-            if ((type.IsArray || typeof(Array) == type) &&
-               (match.IsArray || match == typeof(Array)))
+            if (match.IsAssignableFrom(type)) 
+                return true;
+
+            if (typeof(Array) == type && match.IsArray)
                 return true;
 
             if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
@@ -75,9 +72,9 @@ namespace Unity.Injection
             return false;
         }
 
-        public static bool MatchesObject(this object parameter, Type match)
+        public static bool MatchesObject(this object data, Type match)
         {
-            var type = parameter is Type ? typeof(Type) : parameter?.GetType();
+            var type = data is Type ? typeof(Type) : data?.GetType();
 
             if (null == type) return true;
 
@@ -86,22 +83,8 @@ namespace Unity.Injection
             var matchInfo = match.GetTypeInfo();
 
             if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-            if ((typeInfo.IsArray || typeof(Array) == type) &&
-                (matchInfo.IsArray || match == typeof(Array)))
-                return true;
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
 #else
             if (match.IsAssignableFrom(type)) return true;
-            if ((type.IsArray || typeof(Array) == type) &&
-                (match.IsArray || match == typeof(Array)))
-                return true;
-
-            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
-                type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
-                return true;
 #endif
             return false;
         }
