@@ -52,7 +52,22 @@ namespace Injection.Members
             member.AddPolicies<IResolveContext, IPolicySet>(typeof(NoMatchClass), typeof(NoMatchClass), null, ref cast);
         }
 
-        [Ignore] // TODO: Inconsistent across members
+        [TestMethod]
+        public virtual void DerivedMemberInfo()
+        {
+            // Arrange
+            var member = GetDefaultMember();
+            var set = new PolicySet();
+            var cast = set as IPolicySet;
+
+            // Act
+            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
+            TMemberInfo info = member.MemberInfo(typeof(TestClass<int>));
+
+            // Validate
+            Assert.AreEqual(member.Name, info.Name);
+        }
+
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public virtual void NoMatchMemberInfo()

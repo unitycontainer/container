@@ -31,7 +31,8 @@ namespace Unity.Injection
                !Selection.DeclaringType.ContainsGenericParameters)
                 return Selection;
 #endif
-            return DeclaredMember(type, Selection.Name);
+            return DeclaredMember(type, Selection.Name) ?? 
+                throw new InvalidOperationException($"Type {type} does not implement {Selection.Name}");
         }
 
         protected override TMemberInfo SelectMember(Type type, InjectionMember _)

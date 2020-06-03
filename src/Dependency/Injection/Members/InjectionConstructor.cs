@@ -12,6 +12,13 @@ namespace Unity.Injection
     /// </summary>
     public class InjectionConstructor : MethodBase<ConstructorInfo>
     {
+        #region Fields
+
+        private const string ctor = ".ctor";
+
+        #endregion
+
+
         #region Constructors
 
         /// <summary>
@@ -21,12 +28,12 @@ namespace Unity.Injection
         /// <param name="arguments">The values for the constructor's parameters, that will
         /// be used to create objects.</param>
         public InjectionConstructor(params object[] arguments)
-            : base((string)null, arguments)
+            : base(ctor, arguments)
         {
         }
 
         public InjectionConstructor(ConstructorInfo info, params object[] arguments)
-            : base((string)null, arguments)
+            : base(ctor, arguments)
         {
             Selection = info;
         }
@@ -60,7 +67,7 @@ namespace Unity.Injection
             if (debug)
             {
                 return null == Selection
-                        ? $"{GetType().Name}: ctor({Data.Signature()})"
+                        ? $"{GetType().Name}: {ctor}({Data.Signature()})"
                         : $"{GetType().Name}: {Selection.DeclaringType}({Selection.Signature()})";
             }
             else
