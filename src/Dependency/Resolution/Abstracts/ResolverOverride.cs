@@ -19,12 +19,23 @@ namespace Unity.Resolution
 
         #region Constructors
 
+        /// <summary>
+        /// This constructor is used when no target is required
+        /// </summary>
+        /// <param name="name">Name of the dependency</param>
+        /// <param name="value">Value to pass to resolver</param>
         protected ResolverOverride(string name, object value)
         {
             Name = name;
             Value = value;
         }
 
+        /// <summary>
+        /// This constructor is used with targeted overrides
+        /// </summary>
+        /// <param name="target"><see cref="Type"/> of the target</param>
+        /// <param name="name">Name of the dependency</param>
+        /// <param name="value">Value to pass to resolver</param>
         protected ResolverOverride(Type target, string name, object value)
         {
             Target = target;
@@ -38,8 +49,9 @@ namespace Unity.Resolution
         #region Type Based Override
 
         /// <summary>
-        /// Wrap this resolver in one that verifies the type of the object being built.
-        /// This allows you to narrow any override down to a specific type easily.
+        /// This method adds target information to the override. Only targeted
+        /// <see cref="Type"/> will be overriden even if other dependencies match
+        /// the type of the name of the override.
         /// </summary>
         /// <typeparam name="T">Type to constrain the override to.</typeparam>
         /// <returns>The new override.</returns>
@@ -50,8 +62,9 @@ namespace Unity.Resolution
         }
 
         /// <summary>
-        /// Wrap this resolver in one that verifies the type of the object being built.
-        /// This allows you to narrow any override down to a specific type easily.
+        /// This method adds target information to the override. Only targeted
+        /// <see cref="Type"/> will be overriden even if other dependencies match
+        /// the type of the name of the override.
         /// </summary>
         /// <param name="targetType">Type to constrain the override to.</param>
         /// <returns>The new override.</returns>
