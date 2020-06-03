@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Unity.Lifetime
 {
@@ -26,9 +27,7 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        [ThreadStatic]
-        private static Dictionary<Guid, object> _values;
-        private readonly Guid _key = Guid.NewGuid();
+        private ThreadLocal<object> _value = new ThreadLocal<object>(() => NoValue);
 
         #endregion
 
@@ -38,19 +37,13 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         public override object GetValue(ILifetimeContainer container = null)
         {
-            if (null == _values) return NoValue;
-
-            return _values.TryGetValue(_key, out var result) ? result : NoValue;
+            return _value.Value;
         }
 
         /// <inheritdoc/>
         public override void SetValue(object newValue, ILifetimeContainer container = null)
         {
-            // no need for locking, values is TLS
-            if (_values == null)
-                _values = new Dictionary<Guid, object>();
-
-            _values[_key] = newValue;
+            _value.Value = newValue;
         }
 
         /// <inheritdoc/>
