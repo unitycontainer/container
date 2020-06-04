@@ -4,6 +4,10 @@ using Unity.Injection;
 
 namespace Unity
 {
+    /// <summary>
+    /// This extension allows more concise notation while registering
+    /// parameters with Unity Container
+    /// </summary>
     public static partial class Resolve
     {
         #region Dependency
