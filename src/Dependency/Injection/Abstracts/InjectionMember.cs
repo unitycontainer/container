@@ -22,11 +22,9 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public virtual void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
-                where TContext   : IResolveContext
-                where TPolicySet : IPolicySet
-        {
-        }
+        public abstract void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string name, ref TPolicySet policies)
+                where TContext : IResolveContext
+                where TPolicySet : IPolicySet;
 
         /// <summary>
         /// This injection member instructs engine, when type mapping is present, 
@@ -42,7 +40,7 @@ namespace Unity.Injection
         /// It is expected that IService resolves instance registered on line 1. But when IOtherService is resolved 
         /// it requires different constructor so it should be built instead.
         /// </remarks>
-        public virtual bool BuildRequired => false;
+        public abstract bool BuildRequired { get; }
 
         /// <summary>
         /// Debugger Display support
