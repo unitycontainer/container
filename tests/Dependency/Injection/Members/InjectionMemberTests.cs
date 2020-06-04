@@ -130,7 +130,7 @@ namespace Injection.Members
         #endregion
 
 
-        #region Equitability
+        #region Equality
 
         [DataTestMethod]
         [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
@@ -248,10 +248,7 @@ namespace Injection.Members
 
         public class WrongType
         {
-            public WrongType(int a)
-            {
-
-            }
+            public WrongType(int a) { }
         }
 
         #endregion

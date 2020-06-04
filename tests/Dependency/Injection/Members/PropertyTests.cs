@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Reflection;
+using Unity;
 using Unity.Injection;
 
 namespace Injection.Members
@@ -21,6 +22,14 @@ namespace Injection.Members
         public void ValidationTest()
         {
             _ = new InjectionProperty(null);
+        }
+
+
+        [TestMethod]
+        public virtual void OptionalVsRequiredTest()
+        {
+            var member = new InjectionProperty("TestProperty", ResolutionOption.Optional);
+            Assert.IsInstanceOfType(member.Data, typeof(OptionalDependencyAttribute));
         }
 
         #region Test Data

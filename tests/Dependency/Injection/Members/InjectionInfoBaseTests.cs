@@ -1,7 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Policy.Tests;
@@ -35,6 +37,13 @@ namespace Injection.Members
             // Validate
             Assert.IsNotNull(value);
             Assert.IsInstanceOfType(value, typeof(Type));
+        }
+
+        [TestMethod]
+        public virtual void IsRequiredTest()
+        {
+            var member = GetDefaultMember();
+            Assert.IsInstanceOfType(member.Data, typeof(DependencyAttribute));
         }
     }
 }
