@@ -116,6 +116,8 @@ namespace Resolution.Overrides
             yield return new object[] { new FieldOverride(nameof(PolicySet.NameField),       TestValue).OnType<PolicySet>(),  FieldInfo,     true  };
             yield return new object[] { new FieldOverride(nameof(PolicySet.NameField),       TestValue).OnType<PolicySet>(), 
                                         new FieldOverride(nameof(PolicySet.NameField),       TestValue).OnType<PolicySet>(),                 true  };
+            yield return new object[] { new FieldOverride(string.Empty,                      TestValue).OnType<PolicySet>(),
+                                        new FieldOverride(nameof(PolicySet.NameField),       TestValue).OnType<PolicySet>(),                 false  };
 
             yield return new object[] { new PropertyOverride(string.Empty,                   TestValue),                      TestValue,     false };
             yield return new object[] { new PropertyOverride(string.Empty,                   TestValue),                      PropertyInfo,  false };
@@ -123,6 +125,8 @@ namespace Resolution.Overrides
             yield return new object[] { new PropertyOverride(nameof(PolicySet.NameProperty), TestValue).OnType<FieldInfo>(),  PropertyInfo,  false };
             yield return new object[] { new PropertyOverride(nameof(PolicySet.NameProperty), TestValue).OnType<PolicySet>(), 
                                         new PropertyOverride(nameof(PolicySet.NameProperty), TestValue).OnType<PolicySet>(),                true  };
+            yield return new object[] { new PropertyOverride(string.Empty,                   TestValue).OnType<PolicySet>(),
+                                        new PropertyOverride(nameof(PolicySet.NameProperty), TestValue).OnType<PolicySet>(),                false  };
 
             yield return new object[] { new DependencyOverride(typeof(object), TestValue),                                   TestValue,     false };
             yield return new object[] { new DependencyOverride(string.Empty, TestValue),                                     NamedType,     false };
@@ -157,7 +161,7 @@ namespace Resolution.Overrides
             yield return new object[] { new ParameterOverride(typeof(string), ParameterInfo.Name, TestValue),
                                         new ParameterOverride(typeof(string), string.Empty, TestValue),                                     false };
             yield return new object[] { new ParameterOverride(typeof(string), ParameterInfo.Name, TestValue).OnType<PolicySet>(),
-                                        new ParameterOverride(typeof(string), ParameterInfo.Name, TestValue).OnType<PolicySet>(),           true };
+                                        new ParameterOverride(typeof(string), ParameterInfo.Name, TestValue).OnType(typeof(PolicySet)),     true };
         }
 
         #endregion
