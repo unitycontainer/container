@@ -13,6 +13,14 @@ namespace Injection.Members
         protected override InjectionMember<ConstructorInfo, object[]> GetDefaultMember() => 
             new InjectionConstructor();
 
+        // TODO: Move to proper place
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ConstructorInfoTest()
+        {
+            _ = new InjectionConstructor((ConstructorInfo)null);
+        }
+
         #endregion
     }
 }

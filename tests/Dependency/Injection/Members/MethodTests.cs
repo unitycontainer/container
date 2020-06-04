@@ -11,6 +11,14 @@ namespace Injection.Members
     [TestClass]
     public class MethodTests : InjectionBaseTests<MethodInfo, object[]>
     {
+        // TODO: Move to proper place
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ValidationTest()
+        {
+            _ = new InjectionMethod(null);
+        }
+
         [TestMethod]
         public virtual void InfoSelectionTest()
         {
@@ -44,7 +52,6 @@ namespace Injection.Members
             Assert.IsNotNull(info);
             Assert.AreEqual(typeof(string), info.GetParameters().First().ParameterType);
         }
-
 
         [TestMethod]
         public virtual void NoParametersSelectionTest()

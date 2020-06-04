@@ -4,6 +4,10 @@ using Unity.Resolution;
 
 namespace Unity
 {
+    /// <summary>
+    /// This extension allows more concise notation while overriding 
+    /// dependencies during resolution
+    /// </summary>
     public static partial class Override
     {
 #if !NET40

@@ -35,7 +35,7 @@ namespace Unity.Injection
         public InjectionConstructor(ConstructorInfo info, params object[] arguments)
             : base(ctor, arguments)
         {
-            Selection = info;
+            Selection = info ?? throw new ArgumentNullException(nameof(info));
         }
 
         #endregion
