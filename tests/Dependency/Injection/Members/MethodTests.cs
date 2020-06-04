@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
 using System.Reflection;
 using Unity.Injection;
@@ -11,7 +12,14 @@ namespace Injection.Members
     [TestClass]
     public class MethodTests : InjectionBaseTests<MethodInfo, object[]>
     {
-        // TODO: Move to proper place
+        // TODO: Issue #162
+        //[TestMethod]
+        //[ExpectedException(typeof(ArgumentNullException))]
+        //public void InfoNullTest()
+        //{
+        //    _ = new InjectionMethod((MethodInfo)null);
+        //}
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ValidationTest()

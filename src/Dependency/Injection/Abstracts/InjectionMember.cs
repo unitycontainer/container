@@ -70,13 +70,13 @@ namespace Unity.Injection
 
         protected InjectionMember(string name, TData data)
         {
-            Name = name;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             Data = data;
         }
 
         protected InjectionMember(TMemberInfo info, TData data)
         {
-            Selection = info;
+            Selection = info ?? throw new ArgumentNullException(nameof(info));
             Name = info.Name;
             Data = data;
         }
