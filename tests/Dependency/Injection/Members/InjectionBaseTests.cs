@@ -32,15 +32,6 @@ namespace Injection.Members
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NullReferenceException))] // TODO: wrong exception
-        public virtual void MemberInfoCold()
-        {
-            // Arrange
-            var member = GetDefaultMember();
-            _ = member.MemberInfo(typeof(TestClass<object>));
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public virtual void NoMatchAddPolicies()
         {

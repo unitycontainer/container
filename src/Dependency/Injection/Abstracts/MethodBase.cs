@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -27,6 +28,8 @@ namespace Unity.Injection
 
         public override TMemberInfo MemberInfo(Type type)
         {
+            Debug.Assert(null != Selection, $"{GetType().Name} is not initialized");
+
             var methodHasOpenGenericParameters = Selection.GetParameters()
                                                      .Select(p => p.ParameterType.GetTypeInfo())
                                                      .Any(i => i.IsGenericType && i.ContainsGenericParameters);
