@@ -40,7 +40,8 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public ResolvedArrayParameter(Type elementType, params object[] elementValues)
-            : this(elementType.MakeArrayType(), elementType, elementValues)
+            : this((elementType ?? throw new ArgumentNullException(nameof(elementType))).MakeArrayType(), 
+                    elementType, elementValues)
         {
         }
 

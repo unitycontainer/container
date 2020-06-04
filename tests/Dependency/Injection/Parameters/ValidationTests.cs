@@ -36,7 +36,7 @@ namespace Injection.Parameters
         [ExpectedException(typeof(ArgumentNullException))]
         public void InjectionParameterCtorTest()
         {
-            // Validate can init with null and type
+            // Validate can initialize with null and type
             Assert.IsNotNull(new InjectionParameter<string>(null));
             Assert.IsNotNull(new InjectionParameter(typeof(string), null));
 
@@ -52,21 +52,11 @@ namespace Injection.Parameters
             new GenericParameter(null);
         }
 
-
-        // Issue https://github.com/unitycontainer/abstractions/issues/146
-        [Ignore]
-        [TestMethod]
-        public void ResolvedArrayParameterCtorTest()
-        {
-            new ResolvedArrayParameter(null, typeof(string));
-        }
-
-        [Ignore]
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void ResolvedArrayParameterElementTest()
+        public void ResolvedArrayParameterCtorTest()
         {
-            new ResolvedArrayParameter(typeof(string), null);
+            new ResolvedArrayParameter(null);
         }
 
         [DataTestMethod]
