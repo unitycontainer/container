@@ -78,12 +78,6 @@ namespace Unity.Lifetime
         /// <param name="container">The container this lifetime is associated with</param>
         public virtual void SetValue(object newValue, ILifetimeContainer container = null) { }
 
-        /// <summary>
-        /// Remove the given object from backing store.
-        /// </summary>
-        /// <param name="container">The container this lifetime belongs to</param>
-        public virtual void RemoveValue(ILifetimeContainer container = null) { }
-
         #endregion
 
 

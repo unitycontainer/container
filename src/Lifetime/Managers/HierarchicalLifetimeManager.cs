@@ -54,7 +54,7 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        public override void RemoveValue(ILifetimeContainer container = null)
+        private void RemoveValue(ILifetimeContainer container = null)
         {
             if (null == container) throw new ArgumentNullException(nameof(container));
             if (!_values.TryGetValue(container, out object value)) return;

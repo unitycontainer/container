@@ -78,9 +78,6 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null) => Value = newValue;
 
-        /// <inheritdoc/>
-        public override void RemoveValue(ILifetimeContainer container = null) => Dispose();
-
         #endregion
 
 

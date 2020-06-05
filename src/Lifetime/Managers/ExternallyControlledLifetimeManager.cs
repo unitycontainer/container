@@ -39,10 +39,6 @@ namespace Unity.Lifetime
             _value = new WeakReference(newValue);
         }
 
-
-        /// <inheritdoc/>
-        public override void RemoveValue(ILifetimeContainer container = null) => _value = null;
-
         #endregion
 
 
