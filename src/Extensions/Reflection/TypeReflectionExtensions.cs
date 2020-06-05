@@ -14,8 +14,15 @@ namespace Unity
         {
             var rank = typeToReflect.GetArrayRank();
             var element = typeToReflect.GetElementType();
-            var type = element.IsArray ? element.GetArrayParameterType(genericArguments)
-                                       : genericArguments[element.GenericParameterPosition];
+            Type type;
+            if (element.IsArray)
+            {
+                type = element.GetArrayParameterType(genericArguments);
+            }
+            else
+            { 
+                type = genericArguments[element.GenericParameterPosition];
+            }
 
             return 1 == rank ? type.MakeArrayType() : type.MakeArrayType(rank);
         }

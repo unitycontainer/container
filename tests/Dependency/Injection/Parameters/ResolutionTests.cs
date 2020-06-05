@@ -14,33 +14,39 @@ namespace Injection.Parameters
     {
         #region Fields
 
-        private static ParameterInfo FirstInfo =
-            typeof(TestClass<List<string>>).GetMethod(nameof(TestClass<List<string>>.FirstTestMethod))
-                                           .GetParameters()
-                                           .First();
-
-        private static ParameterInfo ObjectInfo =
-            typeof(TestClass<List<string>>).GetMethod(nameof(TestClass<List<string>>.TestMethod))
-                                           .GetParameters()
-                                           .First();
-
+        private static ParameterInfo ListInfo =
+            typeof(TestClass<IList<string>>).GetMethod(nameof(TestClass<IList<string>>.TestMethod))
+                                            .GetParameters()
+                                            .First();
         private static ParameterInfo ArrayInfo =
-            typeof(TestClass<List<string>>).GetMethod(nameof(TestClass<List<string>>.TestMethod))
-                                           .GetParameters()
-                                           .Last();
+            typeof(TestClass<IList<string>[]>).GetMethod(nameof(TestClass<IList<string>[]>.TestMethod))
+                                            .GetParameters()
+                                            .First();
+        private static ParameterInfo MultiInfo =
+            typeof(TestClass<IList<string>[][]>).GetMethod(nameof(TestClass<IList<string>[][]>.TestMethod))
+                                            .GetParameters()
+                                            .First();
 
-        private const string            StringConst = "test";
-        private static List<string>     ListConst = new List<string> { StringConst };
-        private static List<string>[]   ListArrayConst = new [] { ListConst };
+        private static string             StringConst = "test";
+        private static IList<string>      ListConst = new List<string> { StringConst };
+        private static IList<string>[]    ArrayConst = new[] { ListConst };
+        private static IList<string>[][]  MultiConst = new[] { ArrayConst };
+
         private static IResolveContext  Context = new DictionaryContext
         {
-            { typeof(object),         ListArrayConst },
-            { typeof(List<string>),   ListConst },
-            { typeof(IList<string>),  ListConst },
-            { typeof(List<string>[]), ListArrayConst },
+            { typeof(IList<string>),   ListConst },
+            { typeof(IList<string>[]), ArrayConst },
         };
 
         #endregion
+
+        [TestMethod]
+        public void BaseLineTest()
+        {
+            Assert.AreEqual(typeof(IList<string>[]),   ArrayInfo.ParameterType);
+            Assert.AreSame(ArrayConst, Context.Resolve(ArrayInfo.ParameterType, null));
+            Assert.AreSame(ArrayConst, Context.Resolve(ArrayInfo.ParameterType, string.Empty));
+        }
 
 
         #region IResolve
@@ -54,7 +60,7 @@ namespace Injection.Parameters
 
             // Validate
             Assert.IsNotNull(value);
-            Assert.AreSame(StringConst, value);
+            Assert.AreSame(ArrayConst, value);
         }
 
         #endregion
@@ -62,55 +68,26 @@ namespace Injection.Parameters
 
         #region IResolverFactory<Type>
 
-
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactories), DynamicDataSourceType.Method)]
-        public void TypeFactoryTest(IResolverFactory<Type> factory)
+        [DynamicData(nameof(ResolverFactoryData), DynamicDataSourceType.Method)]
+        public void TypeFactoryTest(IResolverFactory<Type> factory, ParameterInfo info, object expected)
         {
             // Act
-            var resolver = factory.GetResolver<IResolveContext>(FirstInfo.ParameterType);
+            var resolver = factory.GetResolver<IResolveContext>(info.ParameterType);
 
             // Validate
             Assert.IsNotNull(resolver);
 
-            var value = resolver(ref Context) as List<string>;
+            // Resolve
+            var value = resolver(ref Context);
 
+            // Validate
             Assert.IsNotNull(value);
-            Assert.AreSame(ListConst, value);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
-        public void TypeArrayTest(IResolverFactory<Type> factory)
-        {
-            // Act
-            var resolver = factory.GetResolver<IResolveContext>(ArrayInfo.ParameterType);
-
-            // Validate
-            Assert.IsNotNull(resolver);
-
-            var value = resolver(ref Context) as List<string>[];
-
-            Assert.IsNotNull(value);
-            Assert.AreSame(ListArrayConst[0], value[0]);
-        }
-
-        [Ignore] // TODO: Issue #148 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
-        public void TypeObjectTest(IResolverFactory<Type> factory)
-        {
-            // Act
-            var resolver = factory.GetResolver<IResolveContext>(ObjectInfo.ParameterType);
-
-            // Validate
-            Assert.IsNotNull(resolver);
-
-            var array = resolver(ref Context) as List<string>[];
-
-            Assert.IsNotNull(array);
-            Assert.IsTrue(0 < array.Length);
-            Assert.AreEqual(ListArrayConst[0], array[0]);
+            
+            if (value is object[] array)
+                Assert.AreSame(expected, array[0]);
+            else
+                Assert.AreSame(expected, value);
         }
 
         #endregion
@@ -119,52 +96,24 @@ namespace Injection.Parameters
         #region IResolverFactory<ParameterInfo>
 
         [DataTestMethod]
-        [DynamicData(nameof(GetResolveFactories), DynamicDataSourceType.Method)]
-        public void InfoFactoryTest(IResolverFactory<ParameterInfo> factory)
+        [DynamicData(nameof(ResolverFactoryData), DynamicDataSourceType.Method)]
+        public void InfoFactoryTest(IResolverFactory<ParameterInfo> factory, ParameterInfo info, object expected)
         {
             // Act
-            var resolver = factory.GetResolver<IResolveContext>(FirstInfo);
+            var resolver = factory.GetResolver<IResolveContext>(info);
 
             // Validate
             Assert.IsNotNull(resolver);
 
-            var value = resolver(ref Context) as List<string>;
-
-            Assert.IsNotNull(value);
-            Assert.AreSame(ListConst, value);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
-        public void InfoArrayTest(IResolverFactory<ParameterInfo> factory)
-        {
-            // Act
-            var resolver = factory.GetResolver<IResolveContext>(ArrayInfo);
+            // Resolve
+            var value = resolver(ref Context);
 
             // Validate
-            Assert.IsNotNull(resolver);
-
-            var value = resolver(ref Context) as List<string>[];
-
             Assert.IsNotNull(value);
-            Assert.AreSame(ListArrayConst[0], value[0]);
-        }
-
-        [Ignore] // TODO: Issue #148 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllResolveFactories), DynamicDataSourceType.Method)]
-        public void InfoObjectTest(IResolverFactory<ParameterInfo> factory)
-        {
-            // Act
-            var resolver = factory.GetResolver<IResolveContext>(ObjectInfo);
-
-            // Validate
-            Assert.IsNotNull(resolver);
-
-            var value = resolver(ref Context) as List<string>[];
-
-            Assert.IsNotNull(value);
-            Assert.AreSame(ListArrayConst[0], value[0]);
+            if (value is object[] array)
+                Assert.AreSame(expected, array[0]);
+            else
+                Assert.AreSame(expected, value);
         }
 
         #endregion
@@ -174,65 +123,48 @@ namespace Injection.Parameters
 
         public static IEnumerable<object[]> GetIResolvers()
         {
-            yield return new object[] { new InjectionParameter(StringConst) };
-            yield return new object[] { new InjectionParameter(typeof(string), StringConst) };
+            yield return new object[] { new InjectionParameter(ArrayConst) };
+            yield return new object[] { new InjectionParameter(ArrayInfo.ParameterType, ArrayConst) };
         }
 
-        public static IEnumerable<object[]> GetResolveFactories()
+        public static IEnumerable<object[]> ResolverFactoryData()
         {
-            yield return new object[] { new ResolvedParameter() };
-            yield return new object[] { new ResolvedParameter(typeof(List<string>)) };
-            yield return new object[] { new ResolvedParameter<List<string>>() };
-            yield return new object[] { new ResolvedParameter(string.Empty) };
-            yield return new object[] { new ResolvedParameter(typeof(List<string>), string.Empty) };
-            yield return new object[] { new ResolvedParameter<List<string>>(string.Empty) };
+            yield return new object[] { new ResolvedArrayParameter(ArrayInfo.ParameterType, new object[] { ArrayConst }),                MultiInfo, ArrayConst };
+            yield return new object[] { new ResolvedParameter(),                                                                         ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedParameter(string.Empty),                                                             ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedParameter<IList<string>[]>(),                                                        ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedParameter<IList<string>[]>(string.Empty),                                            ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedParameter(ArrayInfo.ParameterType),                                                  ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedParameter(ArrayInfo.ParameterType, string.Empty),                                    ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedParameter(ListInfo.ParameterType),                                                   ListInfo,  ListConst };
 
-            yield return new object[] { new OptionalParameter() };
-            yield return new object[] { new OptionalParameter(typeof(List<string>)) };
-            yield return new object[] { new OptionalParameter<List<string>>() };
-            yield return new object[] { new OptionalParameter(string.Empty) };
-            yield return new object[] { new OptionalParameter(typeof(List<string>), string.Empty) };
-            yield return new object[] { new OptionalParameter<List<string>>(string.Empty) };
+            yield return new object[] { new OptionalParameter(),                                                                         ArrayInfo, ListConst };
+            yield return new object[] { new OptionalParameter(string.Empty),                                                             ArrayInfo, ListConst };
+            yield return new object[] { new OptionalParameter(ArrayInfo.ParameterType),                                                  ArrayInfo, ListConst };
+            yield return new object[] { new OptionalParameter(ArrayInfo.ParameterType, string.Empty),                                    ArrayInfo, ListConst };
+            yield return new object[] { new OptionalParameter<IList<string>[]>(),                                                        ArrayInfo, ListConst };
+            yield return new object[] { new OptionalParameter<IList<string>[]>(string.Empty),                                            ArrayInfo, ListConst };
+            yield return new object[] { new OptionalParameter(ListInfo.ParameterType),                                                   ListInfo,  ListConst };
 
-            yield return new object[] { new GenericParameter("T") };
-            yield return new object[] { new GenericParameter("T", string.Empty) };
-
-            yield return new object[] { new OptionalGenericParameter("T") };
-            yield return new object[] { new OptionalGenericParameter("T", string.Empty) };
-        }
-
-        public static IEnumerable<object[]> GetAllResolveFactories()
-        {
-            yield return new object[] { new ResolvedArrayParameter(typeof(List<string>), ListConst,                                         // Constant
-                                                                                         new InjectionParameter(ListConst),                 // IResolve
-                                                                                        // TODO: typeof(IList<string>),                             // Type    
-                                                                                         new ResolvedParameter(typeof(List<string>))) };    // Factory
-            yield return new object[] { new GenericResolvedArrayParameter("T", ListConst,                                                   // Constant
-                                                                               new InjectionParameter(ListConst),                           // IResolve
-                                                                               typeof(IList<string>),                                       // Type    
-                                                                               new ResolvedParameter(typeof(List<string>))) };              // Factory
-
-            yield return new object[] { new ResolvedArrayParameter(typeof(List<string>), typeof(List<string>), ListConst, 
-                                                                                                               new ResolvedParameter(typeof(List<string>))) };
-            yield return new object[] { new ResolvedParameter() };
-            yield return new object[] { new ResolvedParameter(typeof(List<string>[])) };
-            yield return new object[] { new ResolvedParameter<List<string>[]>() };
-            yield return new object[] { new ResolvedParameter(string.Empty) };
-            yield return new object[] { new ResolvedParameter(typeof(List<string>[]), string.Empty) };
-            yield return new object[] { new ResolvedParameter<List<string>[]>(string.Empty) };
-
-            yield return new object[] { new OptionalParameter() };
-            yield return new object[] { new OptionalParameter(typeof(List<string>[])) };
-            yield return new object[] { new OptionalParameter<List<string>[]>() };
-            yield return new object[] { new OptionalParameter(string.Empty) };
-            yield return new object[] { new OptionalParameter(typeof(List<string>[]), string.Empty) };
-            yield return new object[] { new OptionalParameter<List<string>[]>(string.Empty) };
-
-            yield return new object[] { new GenericParameter("T[]") };
-            yield return new object[] { new GenericParameter("T[]", string.Empty) };
-
-            yield return new object[] { new OptionalGenericParameter("T[]") };
-            yield return new object[] { new OptionalGenericParameter("T[]", string.Empty) };
+            yield return new object[] { new GenericParameter("T"),                                                                       ArrayInfo, ListConst };
+            yield return new object[] { new GenericParameter("T", string.Empty),                                                         ArrayInfo, ListConst };
+            yield return new object[] { new GenericParameter("T[]"),                                                                     ArrayInfo, ListConst };
+            yield return new object[] { new GenericParameter("T[]", string.Empty),                                                       ArrayInfo, ListConst };
+                                                                                                                                         
+            yield return new object[] { new OptionalGenericParameter("T"),                                                               ArrayInfo, ListConst };
+            yield return new object[] { new OptionalGenericParameter("T", string.Empty),                                                 ArrayInfo, ListConst };
+            yield return new object[] { new OptionalGenericParameter("T[]"),                                                             ArrayInfo, ListConst };
+            yield return new object[] { new OptionalGenericParameter("T[]", string.Empty),                                               ArrayInfo, ListConst };
+                                                                                                                                         
+            yield return new object[] { new GenericResolvedArrayParameter("T", ListConst),                                               ArrayInfo, ListConst };
+            yield return new object[] { new GenericResolvedArrayParameter("T", typeof(IList<string>)),                                   ArrayInfo, ListConst };
+            yield return new object[] { new GenericResolvedArrayParameter("T", new InjectionParameter(ListConst)),                       ArrayInfo, ListConst };
+            yield return new object[] { new GenericResolvedArrayParameter("T", new ResolvedParameter(typeof(IList<string>))),            ArrayInfo, ListConst };
+                                                                                                                                         
+            yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, ListConst),                                    ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, typeof(IList<string>)),                        ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, new InjectionParameter(ListConst)),            ArrayInfo, ListConst };
+            yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, new ResolvedParameter(typeof(IList<string>))), ArrayInfo, ListConst };
         }
 
         public class DictionaryContext : Dictionary<Type, object>, IResolveContext
@@ -261,8 +193,7 @@ namespace Injection.Parameters
 
         public class TestClass<T>
         {
-            public void FirstTestMethod(T first) => throw new NotImplementedException();
-            public void TestMethod(object second, T[] last) => throw new NotImplementedException();
+            public void TestMethod(T array) => throw new NotImplementedException();
         }
 
         #endregion
