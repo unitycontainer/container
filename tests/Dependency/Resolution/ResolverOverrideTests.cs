@@ -23,7 +23,42 @@ namespace Resolution.Overrides
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
-        public virtual void ResolveTest(ResolverOverride instance)
+        public virtual void ResolverTest(IResolve resolver)
+        {
+            // Arrange
+            var context = new TestContext(typeof(ResolverOverrideTests)) as IResolveContext;
+
+            // Act
+            var value = resolver.Resolve(ref context);
+            Assert.IsNotNull(value);
+
+            // Validate
+            Assert.AreSame(TestValue, value);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetOverriddenResolvers), DynamicDataSourceType.Method)]
+        public virtual void ResolverWithOverride(IResolve resolver)
+        {
+            // Arrange
+            var context = new TestContext(typeof(ResolverOverrideTests)) as IResolveContext;
+
+            // Act
+            var value = resolver.Resolve(ref context);
+            Assert.IsNotNull(value);
+
+            // Validate
+            Assert.AreSame(context, value);
+        }
+
+        #endregion
+
+
+        #region Factory
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllResolvers), DynamicDataSourceType.Method)]
+        public virtual void GetResolverTest(ResolverOverride instance)
         {
             // Arrange
             var context = new TestContext() as IResolveContext;
@@ -39,7 +74,7 @@ namespace Resolution.Overrides
 
         [DataTestMethod]
         [DynamicData(nameof(GetOverriddenResolvers), DynamicDataSourceType.Method)]
-        public virtual void ResolveWithOverrideTest(ResolverOverride instance)
+        public virtual void GetResolverWithOverride(ResolverOverride instance)
         {
             var context = new TestContext() as IResolveContext;
 
@@ -169,9 +204,16 @@ namespace Resolution.Overrides
 
         public class TestContext : IResolveContext
         {
+            public TestContext() { }
+
+            public TestContext(Type type)
+            {
+                Type = type;
+            }
+
             public IUnityContainer Container => throw new NotImplementedException();
 
-            public Type Type => throw new NotImplementedException();
+            public Type Type { get; }
 
             public string Name => throw new NotImplementedException();
 
