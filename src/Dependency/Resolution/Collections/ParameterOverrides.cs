@@ -24,19 +24,6 @@ namespace Unity.Resolution
             _values.Add(new Tuple<string, object>(key, value));
         }
 
-        ///// <summary>
-        ///// When implemented in derived classes, this method is called from the <see cref="OverrideCollection{TOverride,TKey,TValue}.Add"/>
-        ///// method to create the actual <see cref="ResolverOverride"/> objects.
-        ///// </summary>
-        ///// <param name="key">Key value to create the resolver.</param>
-        ///// <param name="value">InjectionParameterValue to store in the resolver.</param>
-        ///// <returns>The created <see cref="ResolverOverride"/>.</returns>
-        //protected override ParameterOverride MakeOverride(string key, object value)
-        //{
-        //    return new ParameterOverride(key, value);
-        //}
-
-
         #region Type Based Override
 
         /// <summary>
@@ -59,7 +46,8 @@ namespace Unity.Resolution
         /// <returns>The new override.</returns>
         public ResolverOverride[] OnType(Type targetType)
         {
-            return new ResolverOverride[0];
+            return _values.Select(p => new ParameterOverride(p.Item1, p.Item2).OnType(targetType))
+                          .ToArray();
         }
 
         #endregion
