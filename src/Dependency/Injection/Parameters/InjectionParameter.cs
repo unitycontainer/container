@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -40,12 +39,12 @@ namespace Unity.Injection
         /// Create an instance of <see cref="InjectionParameter"/> that stores
         /// the given value, associated with the given type.
         /// </summary>
-        /// <param name="parameterType">Type of the parameter.</param>
-        /// <param name="parameterValue">InjectionParameterValue of the parameter</param>
-        public InjectionParameter(Type parameterType, object parameterValue)
-            : base(parameterType)
+        /// <param name="type">Type of the parameter.</param>
+        /// <param name="value">InjectionParameterValue of the parameter</param>
+        public InjectionParameter(Type type, object value)
+            : base(type)
         {
-            _value = parameterValue;
+            _value = value;
         }
 
         #endregion

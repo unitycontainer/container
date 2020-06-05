@@ -146,7 +146,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected virtual TMemberInfo SelectMember(Type type, InjectionMember member) => throw new NotImplementedException();
+        protected abstract TMemberInfo SelectMember(Type type, InjectionMember member);
 
         #endregion
     }

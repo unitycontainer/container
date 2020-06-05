@@ -56,8 +56,12 @@ namespace Unity.Injection
         protected ResolvedArrayParameter(Type arrayParameterType, Type elementType, params object[] elementValues)
             : base(arrayParameterType)
         {
-            _elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
+            _elementType = elementType;
             _values = elementValues;
+
+            // Exit if no data
+            if (null == elementValues || 0 == elementValues.Length) 
+                return;
 
             // Verify array elements
             foreach (var pv in elementValues)

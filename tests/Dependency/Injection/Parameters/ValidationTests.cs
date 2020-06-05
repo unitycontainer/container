@@ -52,13 +52,6 @@ namespace Injection.Parameters
             new GenericParameter(null);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void ResolvedArrayParameterCtorTest()
-        {
-            new ResolvedArrayParameter(null);
-        }
-
         [DataTestMethod]
         [DynamicData(nameof(SupportedParametersData), DynamicDataSourceType.Method)]
         public void ToStringTest(ParameterValue parameter)
@@ -74,6 +67,7 @@ namespace Injection.Parameters
         {
             Assert.IsFalse(parameter.Equals(null));
         }
+
 
 
         #region Exceptions

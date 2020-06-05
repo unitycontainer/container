@@ -20,12 +20,12 @@ namespace Unity.Injection
 
         /// <summary>
         /// Create a new <see cref="ParameterBase"/> that exposes
-        /// information about the given <paramref name="parameterType"/>.
+        /// information about the given <paramref name="type"/>.
         /// </summary>
-        /// <param name="parameterType">Type of the parameter.</param>
-        protected ParameterBase(Type parameterType = null)
+        /// <param name="type">Type of the parameter.</param>
+        protected ParameterBase(Type type = null)
         {
-            _type = parameterType;
+            _type = type;
         }
 
 
