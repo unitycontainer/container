@@ -31,8 +31,12 @@ namespace Unity.Injection
             Debug.Assert(null != Selection, $"{GetType().Name} is not initialized");
 
             var methodHasOpenGenericParameters = Selection.GetParameters()
-                                                     .Select(p => p.ParameterType.GetTypeInfo())
-                                                     .Any(i => i.IsGenericType && i.ContainsGenericParameters);
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                                                          .Select(p => p.ParameterType.GetTypeInfo())
+#else
+                                                          .Select(p => p.ParameterType)
+#endif
+                                                          .Any(i => i.IsGenericType && i.ContainsGenericParameters);
 
             var info = Selection.DeclaringType.GetTypeInfo();
             if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))

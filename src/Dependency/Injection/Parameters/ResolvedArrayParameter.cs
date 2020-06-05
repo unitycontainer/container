@@ -89,22 +89,17 @@ namespace Unity.Injection
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-            var elementType = !_elementType.IsArray
-                            ? _elementType
-                            : _elementType.GetArrayParameterType(type.GetTypeInfo()
-                                                                     .GenericTypeArguments);
-
-            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), _elementType)
                                                                    .CreateDelegate(typeof(Resolver<TContext>));
             var values = _values.Select(value =>
             {
                 switch (value)
                 {
                     case IResolverFactory<Type> factory:
-                        return factory.GetResolver<TContext>(elementType);
+                        return factory.GetResolver<TContext>(_elementType);
 
-                    case Type _ when typeof(Type) != elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+                    case Type _ when typeof(Type) != _elementType:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(_elementType, null));
 
                     default:
                         return value;
@@ -118,18 +113,17 @@ namespace Unity.Injection
         public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
             where TContext : IResolveContext
         {
-            var elementType = info.ParameterType.IsArray ? info.ParameterType.GetElementType() : _elementType;
-            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
+            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), _elementType)
                                                                    .CreateDelegate(typeof(Resolver<TContext>));
             var values = _values.Select(value =>
             {
                 switch (value)
                 {
                     case IResolverFactory<Type> factory:
-                        return factory.GetResolver<TContext>(elementType);
+                        return factory.GetResolver<TContext>(_elementType);
 
-                    case Type _ when typeof(Type) != elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(elementType, null));
+                    case Type _ when typeof(Type) != _elementType:
+                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(_elementType, null));
 
                     default:
                         return value;

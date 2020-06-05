@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Injection;
@@ -117,8 +118,28 @@ namespace Injection.Members
             Assert.AreEqual(2, members.Length);
         }
 
+        [TestMethod]
+        public void ValidateParametersTest()
+        {
+            // Arrange
+            var member = GetMember(typeof(TestClass<>), 2);
+            
+            // Act
+            var info = member.MemberInfo(typeof(TestClass<object>));
+
+            // Validate
+            Assert.IsNotNull(info);
+            Assert.AreEqual(typeof(TestClass<object>), info.DeclaringType);
+        }
+
+
+        #region Test Data
+
         protected abstract InjectionMember<TMemberInfo, TData> GetDefaultMember();
 
+        protected abstract InjectionMember<TMemberInfo, TData> GetMember(Type type, int position, object value = null);
+
+        #endregion
     }
 
     #region Test Data
@@ -143,7 +164,7 @@ namespace Injection.Members
         public TestClass() { }
         private TestClass(string _) { }
         protected TestClass(long _) { }
-        internal TestClass(int _) { }
+        internal TestClass(string a, IList<T> b) {}
         #endregion
 
         #region Fields
@@ -175,9 +196,9 @@ namespace Injection.Members
         #region Methods
         static void TestMethod() { }
         public void TestMethod(string _) { }
-        public void TestMethod(string a, T b, out object c) { c = null; }
         private void TestMethod(int _) { }
         protected void TestMethod(long _) { }
+        public void TestMethod(string a, IList<T> b, out object c) { c = null; }
         #endregion
     }
 

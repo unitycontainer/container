@@ -6,25 +6,25 @@ using Unity.Injection;
 using Unity.Policy;
 using Unity.Policy.Tests;
 using Unity.Resolution;
+using Unity;
 
 namespace Injection.Members
 {
     [TestClass]
     public class MethodTests : InjectionBaseTests<MethodInfo, object[]>
     {
-        // TODO: Issue #162
-        //[TestMethod]
-        //[ExpectedException(typeof(ArgumentNullException))]
-        //public void InfoNullTest()
-        //{
-        //    _ = new InjectionMethod((MethodInfo)null);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NameValidationTest()
+        {
+            _ = new InjectionMethod((string)null);
+        }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void ValidationTest()
+        public void InfoValidationTest()
         {
-            _ = new InjectionMethod(null);
+            _ = new InjectionMethod((MethodInfo)null);
         }
 
         [TestMethod]
@@ -83,6 +83,16 @@ namespace Injection.Members
 
         protected override InjectionMember<MethodInfo, object[]> GetDefaultMember() => 
             new InjectionMethod("TestMethod");
+
+        protected override InjectionMember<MethodInfo, object[]> GetMember(Type type, int position, object data)
+        {
+            var info = type.GetDeclaredMethods()
+                           .Where(member => !member.IsFamily && !member.IsPrivate && !member.IsStatic)
+                           .Take(position)
+                           .Last();
+
+            return new InjectionMethod(info, data);
+        }
 
         protected class MethodTestClass<T>
         {

@@ -9,9 +9,9 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Configure the container to inject the given field name.
+        /// Configures the container to inject a specified field with a resolved value.
         /// </summary>
-        /// <param name="name">Name of property to inject.</param>
+        /// <param name="name">Name of field to inject.</param>
         /// <param name="option">Tells Unity if this field is optional.</param>
         public InjectionField(string name, ResolutionOption option = ResolutionOption.Required)
             : base(name, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance 
@@ -20,15 +20,34 @@ namespace Unity.Injection
         }
 
         /// <summary>
-        /// Configure the container to inject the given field name,
-        /// using the value supplied.
+        /// Configures the container to inject a specified field with a resolved value.
         /// </summary>
-        /// <param name="name">Name of property to inject.</param>
-        /// <param name="value">InjectionParameterValue for property.</param>
+        /// <param name="info"><see cref="FieldInfo"/> of the field</param>
+        /// <param name="option">Tells Unity if this field is optional.</param>
+        public InjectionField(FieldInfo info, ResolutionOption option = ResolutionOption.Required)
+            : base(info, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance
+                                                             : (object)DependencyAttribute.Instance)
+        {
+        }
+
+        /// <summary>
+        /// Configures the container to inject the given field with provided value.
+        /// </summary>
+        /// <param name="name">Name of the field to inject.</param>
+        /// <param name="value">Value to be injected into the field</param>
         public InjectionField(string name, object value)
             : base(name, value)
         {
         }
+
+        /// <summary>
+        /// Configures the container to inject the given field with provided value.
+        /// </summary>
+        /// <param name="info"><see cref="FieldInfo"/> of the field</param>
+        /// <param name="value">Value to be injected into the field</param>
+        public InjectionField(FieldInfo info, object value)
+            : base(info, value)
+        { }
 
         #endregion
 

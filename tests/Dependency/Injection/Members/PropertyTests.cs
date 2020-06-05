@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 using System.Reflection;
 using Unity;
 using Unity.Injection;
@@ -9,21 +10,19 @@ namespace Injection.Members
     [TestClass]
     public class PropertyTests : InjectionInfoBaseTests<PropertyInfo>
     {
-        // TODO: Issue #162
-        //[TestMethod]
-        //[ExpectedException(typeof(ArgumentNullException))]
-        //public void InfoNullTest()
-        //{
-        //    _ = new InjectionProperty((PropertyInfo)null);
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NameValidationTest()
+        {
+            _ = new InjectionProperty((string)null);
+        }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void ValidationTest()
+        public void InfoValidationTest()
         {
-            _ = new InjectionProperty(null);
+            _ = new InjectionProperty((PropertyInfo)null);
         }
-
 
         [TestMethod]
         public virtual void OptionalVsRequiredTest()
@@ -32,10 +31,39 @@ namespace Injection.Members
             Assert.IsInstanceOfType(member.Data, typeof(OptionalDependencyAttribute));
         }
 
+        [TestMethod]
+        public virtual void OptionalVsRequiredInfo()
+        {
+            var info = GetType().GetProperty(nameof(TestProperty));
+            var member = new InjectionProperty(info, ResolutionOption.Optional);
+            Assert.IsInstanceOfType(member.Data, typeof(OptionalDependencyAttribute));
+        }
+
         #region Test Data
+
+        public string TestProperty { get; }
 
         protected override InjectionMember<PropertyInfo, object> GetDefaultMember() => 
             new InjectionProperty("TestProperty");
+
+        protected override InjectionMember<PropertyInfo, object> GetMember(Type type, int position, object value)
+        {
+            var info = type.GetDeclaredProperties()
+                           .Where(member => {
+                               if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
+                                   return false;
+
+                               var setter = member.GetSetMethod(true);
+                               if (setter.IsPrivate || setter.IsFamily)
+                                   return false;
+                               
+                               return true;
+                           })
+                           .Take(position)
+                           .Last();
+
+            return new InjectionProperty(info, value);
+        }
 
         #endregion
     }

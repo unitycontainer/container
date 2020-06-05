@@ -15,6 +15,11 @@ namespace Unity.Injection
         }
 
 
+        protected MemberInfoBase(TMemberInfo info, object data)
+            : base(info, data)
+        {
+        }
+
         #endregion
 
 

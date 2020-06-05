@@ -14,8 +14,7 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Configure the container to inject the given property name,
-        /// using the value supplied.
+        /// Configures the container to inject a specified property with a resolved value.
         /// </summary>
         /// <param name="name">Name of property to inject.</param>
         /// <param name="option">Tells Unity if this field is optional.</param>
@@ -25,14 +24,35 @@ namespace Unity.Injection
         {
         }
 
+
         /// <summary>
-        /// Configure the container to inject the given property name,
-        /// using the value supplied.
+        /// Configures the container to inject a specified property with a resolved value.
+        /// </summary>
+        /// <param name="info"><see cref="PropertyInfo"/> of the property</param>
+        /// <param name="option">Tells Unity if this field is optional.</param>
+        public InjectionProperty(PropertyInfo info, ResolutionOption option = ResolutionOption.Required)
+            : base(info, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance
+                                                             : (object)DependencyAttribute.Instance)
+        {
+        }
+
+        /// <summary>
+        /// Configures the container to inject the given property with the provided value
         /// </summary>
         /// <param name="name">Name of property to inject.</param>
-        /// <param name="value">InjectionParameterValue for property.</param>
+        /// <param name="value">Value to be injected into the property.</param>
         public InjectionProperty(string name, object value)
             : base(name, value)
+        {
+        }
+
+        /// <summary>
+        /// Configures the container to inject the given property with the provided value
+        /// </summary>
+        /// <param name="info"><see cref="PropertyInfo"/> of the property</param>
+        /// <param name="value">Value to be injected into the property.</param>
+        public InjectionProperty(PropertyInfo info, object value)
+            : base(info, value)
         {
         }
 

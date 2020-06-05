@@ -44,5 +44,13 @@ namespace Injection.Members
             var member = GetDefaultMember();
             Assert.IsInstanceOfType(member.Data, typeof(DependencyAttribute));
         }
+
+
+
+        #region Test Data
+
+
+
+        #endregion
     }
 }

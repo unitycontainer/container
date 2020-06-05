@@ -67,6 +67,31 @@ namespace Injection.Parameters
         }
 
 
+        #region ResolvedArrayParameter
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ArrayParameterNullTest()
+        {
+            new ResolvedArrayParameter(null);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(ResolvedArrayParameterData), DynamicDataSourceType.Method)]
+        public void ArrayParameterCtorTest(Type elementType, object[] elementValues)
+        {
+            Assert.IsNotNull(new ResolvedArrayParameter(elementType, elementValues));
+        }
+
+        [DataTestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        [DynamicData(nameof(ResolvedArrayInvalidData), DynamicDataSourceType.Method)]
+        public void ArrayParameterInvalid(Type elementType, object[] elementValues)
+        {
+            Assert.IsNotNull(new ResolvedArrayParameter(elementType, elementValues));
+        }
+
+        #endregion
 
 
         #region Default Value
@@ -138,6 +163,21 @@ namespace Injection.Parameters
             yield return new object[] { new OptionalGenericParameter("T") };
             yield return new object[] { new OptionalGenericParameter("T", string.Empty) };
             yield return new object[] { new GenericResolvedArrayParameter("T[]") };
+        }
+
+        public static IEnumerable<object[]> ResolvedArrayParameterData()
+        {
+            yield return new object[] { typeof(object), null };
+            yield return new object[] { typeof(object), new object[] { } };
+            yield return new object[] { typeof(object), new object[] { new InjectionParameter(typeof(object), null) } };
+            yield return new object[] { typeof(object), new object[] { typeof(object) } };
+            yield return new object[] { typeof(IList<string>), new object[] { new List<string>() } };
+        }
+
+        public static IEnumerable<object[]> ResolvedArrayInvalidData()
+        {
+            yield return new object[] { typeof(IList<string>), new object[] { typeof(List<string>) } };
+            yield return new object[] { typeof(object), new object[] { null } };
         }
 
         #endregion
