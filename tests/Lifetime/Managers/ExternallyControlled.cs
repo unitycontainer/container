@@ -20,18 +20,6 @@ namespace Lifetime.Managers
         }
 
         [TestMethod]
-        public override void SetValueTwiceTest()
-        {
-            base.SetValueTwiceTest();
-        }
-
-        [TestMethod]
-        public override void SetDifferentValuesTwiceTest()
-        {
-            base.SetDifferentValuesTwiceTest();
-        }
-
-        [TestMethod]
         public override void IsDisposedTest()
         {
             // Arrange
@@ -49,6 +37,27 @@ namespace Lifetime.Managers
             // Act
             manager.Dispose();
             Assert.IsFalse(disposable.Disposed);
+        }
+
+        [TestMethod]
+        public void CollectedTest()
+        {
+            // Arrange
+            var instance = new object();
+
+            // Validate set value
+            TestManager.SetValue(instance, LifetimeContainer);
+            instance = TestManager.GetValue(LifetimeContainer);
+            Assert.AreNotSame(LifetimeManager.NoValue, instance);
+
+            // Act
+            instance = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            // Validate
+            instance = TestManager.GetValue(LifetimeContainer);
+            Assert.AreSame(LifetimeManager.NoValue, instance);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Unity.Lifetime
             if (null == _value) return NoValue;
 
             var target = _value.Target;
-            if (null != target) return target;
+            if (_value.IsAlive) return target;
 
             _value = null;
 

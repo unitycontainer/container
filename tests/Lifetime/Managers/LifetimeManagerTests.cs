@@ -59,13 +59,11 @@ namespace Lifetime.Managers
         {
             // Validate
             Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(LifetimeContainer));
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(LifetimeContainer));
 
             // Act
             TestManager.SetValue(TestObject, LifetimeContainer);
 
             // Validate
-            Assert.AreSame(TestObject, TestManager.TryGetValue(LifetimeContainer));
             Assert.AreSame(TestObject, TestManager.TryGetValue(LifetimeContainer));
         }
 
@@ -74,13 +72,11 @@ namespace Lifetime.Managers
         {
             // Validate
             Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(LifetimeContainer));
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(LifetimeContainer));
 
             // Act
             TestManager.SetValue(TestObject, LifetimeContainer);
 
             // Validate
-            Assert.AreSame(TestObject, TestManager.GetValue(LifetimeContainer));
             Assert.AreSame(TestObject, TestManager.GetValue(LifetimeContainer));
         }
 
