@@ -105,8 +105,12 @@ namespace Unity.Lifetime
 
         #region Nested Types
 
-        public class InvalidValue
+        public sealed class InvalidValue
         {
+            internal InvalidValue()
+            {
+            }
+
             public override bool Equals(object obj)
             {
                 return ReferenceEquals(this, obj);
