@@ -54,9 +54,8 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        private void RemoveValue(ILifetimeContainer container = null)
+        private void RemoveValue(ILifetimeContainer container)
         {
-            if (null == container) throw new ArgumentNullException(nameof(container));
             if (!_values.TryGetValue(container, out object value)) return;
 
             _values.Remove(container);
@@ -115,7 +114,7 @@ namespace Unity.Lifetime
 
             public DisposableAction(Action action)
             {
-                _action = action ?? throw new ArgumentNullException(nameof(action));
+                _action = action;
             }
 
             public void Dispose()

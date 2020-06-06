@@ -54,12 +54,21 @@ namespace Lifetime.Managers
             Assert.IsTrue(TestManager.InUse);
         }
 
+
+        [TestMethod]
+        public void BaselineTest()
+        { 
+            // Act
+            var before = TestManager.TryGetValue(LifetimeContainer);
+
+            // Validate
+            Assert.IsTrue(LifetimeManager.NoValue.Equals(before));
+            Assert.IsTrue(LifetimeManager.NoValue.GetHashCode() == before.GetHashCode());
+        }
+
         [TestMethod]
         public virtual void TryGetValueTest()
         {
-            // Validate
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(LifetimeContainer));
-
             // Act
             TestManager.SetValue(TestObject, LifetimeContainer);
 
