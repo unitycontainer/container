@@ -14,6 +14,18 @@ namespace Injection.Parameters
     {
         #region Fields
 
+        public const string DefaultValue = "default";
+
+        public static ParameterInfo NoDefaultInfo =
+            typeof(TestClass<string>).GetMethod(nameof(TestClass<string>.TestMethod))
+                                     .GetParameters()
+                                     .First();
+
+        public static ParameterInfo DefaultInfo =
+            typeof(TestClass<string>).GetMethod(nameof(TestClass<string>.TestMethod))
+                                     .GetParameters()
+                                     .Last();
+
         private static ParameterInfo ListInfo =
             typeof(TestClass<IList<string>>).GetMethod(nameof(TestClass<IList<string>>.TestMethod))
                                             .GetParameters()
@@ -193,7 +205,7 @@ namespace Injection.Parameters
 
         public class TestClass<T>
         {
-            public void TestMethod(T array) => throw new NotImplementedException();
+            public void TestMethod(T array, string name = DefaultValue) => throw new NotImplementedException();
         }
 
         #endregion

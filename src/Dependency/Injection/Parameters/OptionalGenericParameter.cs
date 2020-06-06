@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using Unity.Exceptions;
 using Unity.Resolution;
 
@@ -13,6 +14,12 @@ namespace Unity.Injection
     [DebuggerDisplay("OptionalGenericParameter: Type={ParameterTypeName}")]
     public class OptionalGenericParameter : GenericBase
     {
+        #region Fields
+
+        private object _defaultValue;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -39,6 +46,16 @@ namespace Unity.Injection
 
         #region Overrides
 
+        public override ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
+        {
+#if NET40
+            _defaultValue = null;
+#else
+            _defaultValue = info.HasDefaultValue ? info.DefaultValue : null;
+#endif
+            return base.GetResolver<TContext>(info);
+        }
+
         protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
         {
             return (ref TContext context) =>
@@ -47,7 +64,7 @@ namespace Unity.Injection
                 catch (Exception ex) 
                 when (!(ex is CircularDependencyException))
                 {
-                    return null;
+                    return _defaultValue;
                 }
             };
         }

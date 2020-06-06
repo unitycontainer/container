@@ -16,13 +16,10 @@ namespace Injection.Parameters
     {
         #region Fields
 
-        public void TestMethod(string first, string last = "default") => throw new NotImplementedException();
+        private const string TestValue = "test";
 
-        private static ParameterInfo NoDefaultInfo =
-            typeof(ValidationTests).GetMethod(nameof(TestMethod))
-                                   .GetParameters()
-                                   .First();
         #endregion
+
 
         [DataTestMethod]
         [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
@@ -65,6 +62,53 @@ namespace Injection.Parameters
 
             _ = resolver(ref context);
         }
+
+
+        #region Default Value
+
+        [DataTestMethod]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
+        public void OptionalResolvedTest(IResolverFactory<ParameterInfo> factory)
+        {
+            var context = new DictionaryContext() { { typeof(string), TestValue } } as IResolveContext;
+            var resolver = factory.GetResolver<IResolveContext>(DefaultInfo);
+
+            // Validate
+            Assert.IsNotNull(resolver);
+
+            var value = resolver(ref context);
+            Assert.AreSame(TestValue, value);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
+        public void OptionalDefaultTest(IResolverFactory<ParameterInfo> factory)
+        {
+            var context = new DictionaryContext() as IResolveContext;
+            var resolver = factory.GetResolver<IResolveContext>(DefaultInfo);
+
+            // Validate
+            Assert.IsNotNull(resolver);
+
+            var value = resolver(ref context);
+            Assert.AreEqual(DefaultValue, value);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
+        public void OptionalNoDefaultTest(IResolverFactory<ParameterInfo> factory)
+        {
+            var context = new DictionaryContext() as IResolveContext;
+            var resolver = factory.GetResolver<IResolveContext>(NoDefaultInfo);
+
+            // Validate
+            Assert.IsNotNull(resolver);
+
+            Assert.IsNull(resolver(ref context));
+        }
+
+
+        #endregion
 
 
         #region Test Data
