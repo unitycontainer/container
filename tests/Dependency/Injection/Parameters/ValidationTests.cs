@@ -1,7 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Unity.Injection;
+using Unity.Resolution;
+using static Injection.Parameters.ResolutionTests;
 
 namespace Injection.Parameters
 {
@@ -70,6 +74,22 @@ namespace Injection.Parameters
         }
 
         #endregion
+
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GenericArrayTest()
+        {
+            // Arrange
+            var factory = new GenericResolvedArrayParameter("T[]");
+
+            ParameterInfo info = 
+                typeof(TestClass<string>).GetMethod(nameof(TestClass<string>.TestMethod))
+                                           .GetParameters()
+                                           .First();
+            // Act
+            _ = factory.GetResolver<IResolveContext>(info);
+        }
 
 
         #region Test Data

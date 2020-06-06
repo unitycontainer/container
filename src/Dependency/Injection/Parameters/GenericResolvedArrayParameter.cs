@@ -66,6 +66,8 @@ namespace Unity.Injection
 
         protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
         {
+            if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
+
             Type elementType = type.GetElementType();
             var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
                                                                    .CreateDelegate(typeof(Resolver<TContext>));
