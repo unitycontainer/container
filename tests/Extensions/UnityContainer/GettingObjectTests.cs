@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity;
 
@@ -82,18 +83,17 @@ namespace Extensions.Tests
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll<IUnityContainer>());
         }
 
-        [Ignore]
         [TestMethod]
         public void ResolveAll()
         {
             // Arrange
-            container.Data = Enumerable.Range(0, 5);
+            container.Data = new bool[] { true, true, false } as object;
 
             // Act
-            container.ResolveAll(typeof(IUnityContainer));
+            container.ResolveAll(typeof(bool));
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer[]), container.Type);
+            Assert.AreEqual(typeof(bool[]), container.Type);
             Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.IsNotNull(container.Data);
@@ -102,20 +102,20 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void ResolveAllArray()
+        public void ResolveAllEnumerable()
         {
             // Arrange
             container.Data = new int[] { 0, 1 };
 
             // Act
-            container.ResolveAll(typeof(IUnityContainer));
+            container.ResolveAll(typeof(int));
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer[]), container.Type);
+            Assert.AreEqual(typeof(int[]), container.Type);
             Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.IsNotNull(container.Data);
-            Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(IUnityContainer)));
+            Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(int)));
             Assert.ThrowsException<ArgumentNullException>(() => container.ResolveAll(null));
         }
 
