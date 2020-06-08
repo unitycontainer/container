@@ -9,6 +9,8 @@ namespace Lifetime.Managers
     {
         protected override LifetimeManager GetManager() => new ExternallyControlledLifetimeManager();
 
+        public TestContext TestContext { get; set; }
+
         [TestMethod]
         public override void TryGetSetOtherContainerTest()
         {
@@ -44,6 +46,7 @@ namespace Lifetime.Managers
         {
             // Arrange
             var instance = new object();
+            var reference = new WeakReference(instance);
 
             // Validate set value
             TestManager.SetValue(instance, LifetimeContainer);
@@ -56,6 +59,12 @@ namespace Lifetime.Managers
             GC.WaitForPendingFinalizers();
 
             // Validate
+            if (reference.IsAlive) 
+            {
+                TestContext.WriteLine("GC did not collect memory, skipping test 'ExternallyControlled.CollectedTest()'");
+                return;
+            }
+
             instance = TestManager.GetValue(LifetimeContainer);
             Assert.AreSame(LifetimeManager.NoValue, instance);
         }

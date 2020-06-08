@@ -6,6 +6,9 @@ on:
       - 'develop'
       - 'hotfix/**'    
       - 'release/**'    
+    paths:
+      - 'src/*'
+      - 'tests/*'
 
 jobs:
 
