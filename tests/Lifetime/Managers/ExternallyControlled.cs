@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Runtime.CompilerServices;
 using Unity.Lifetime;
 
 namespace Lifetime.Managers
@@ -8,8 +9,6 @@ namespace Lifetime.Managers
     public class ExternallyControlled : Synchronized
     {
         protected override LifetimeManager GetManager() => new ExternallyControlledLifetimeManager();
-
-        public TestContext TestContext { get; set; }
 
         [TestMethod]
         public override void TryGetSetOtherContainerTest()
@@ -45,29 +44,29 @@ namespace Lifetime.Managers
         public void CollectedTest()
         {
             // Arrange
+            var manager = GetInitializedManager();
+
+            // Act
+            GC.Collect(1, GCCollectionMode.Forced, true);
+            GC.WaitForPendingFinalizers();
+            var instance = manager.GetValue(LifetimeContainer);
+
+            // Validate
+            if (!LifetimeManager.NoValue.Equals(instance))
+                Assert.Inconclusive("GC did not collect memory, skipping test 'ExternallyControlled.CollectedTest()'");
+        }
+
+        private LifetimeManager GetInitializedManager()
+        {
+            // Arrange
             var instance = new object();
-            var reference = new WeakReference(instance);
 
             // Validate set value
             TestManager.SetValue(instance, LifetimeContainer);
-            instance = TestManager.GetValue(LifetimeContainer);
-            Assert.AreNotSame(LifetimeManager.NoValue, instance);
 
-            // Act
-            instance = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            Assert.AreSame(instance, TestManager.GetValue(LifetimeContainer));
 
-            // Validate
-            if (reference.IsAlive) 
-            {
-                TestContext.WriteLine("GC did not collect memory, skipping test 'ExternallyControlled.CollectedTest()'");
-                
-                return;
-            }
-
-            instance = TestManager.GetValue(LifetimeContainer);
-            Assert.AreSame(LifetimeManager.NoValue, instance);
+            return TestManager;
         }
     }
 }
