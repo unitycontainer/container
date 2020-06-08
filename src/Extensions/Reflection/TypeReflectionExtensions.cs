@@ -10,6 +10,7 @@ namespace Unity
     /// </summary>
     internal static class TypeReflectionExtensions
     {
+#if NETSTANDARD1_0
         public static Type GetArrayParameterType(this Type typeToReflect, Type[] genericArguments)
         {
             var rank = typeToReflect.GetArrayRank();
@@ -26,6 +27,7 @@ namespace Unity
 
             return 1 == rank ? type.MakeArrayType() : type.MakeArrayType(rank);
         }
+#endif
 
         public static IEnumerable<FieldInfo> GetDeclaredFields(this Type type)
         {
