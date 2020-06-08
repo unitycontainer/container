@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading.Tasks;
@@ -249,6 +248,20 @@ namespace Unity
         public static Task RegisterType(this IUnityContainerAsync container, Type type, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(null, type, null, null, injectionMembers);
+        }
+
+        /// <summary>
+        /// Register a type with specific members to be injected.
+        /// </summary>
+        /// <param name="container">Container to configure.</param>
+        /// <param name="type">Registered type this registration is for.</param>
+        /// <param name="mappedTo">Type to create when requested</param>
+        /// <param name="injectionMembers">Injection configuration objects.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task RegisterType(this IUnityContainerAsync container, Type type, Type mappedTo, params InjectionMember[] injectionMembers)
+        {
+            return (container ?? throw new ArgumentNullException(nameof(container))).RegisterType(new[] { type }, mappedTo, null, null, injectionMembers);
         }
 
         /// <summary>

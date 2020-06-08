@@ -17,7 +17,7 @@ namespace Extensions.Tests
         private InjectionMember[] members;
         private LifetimeManager manager;
         private string name;
-        private IUnityContainerAsync unity = null;
+        private readonly IUnityContainerAsync unity = null;
 
         [TestInitialize]
         public void InitializeTest() 
@@ -31,9 +31,11 @@ namespace Extensions.Tests
         [TestMethod]
         public void BaselineTest()
         {
-            IUnityContainerAsync container = new FakeIUCA();
-            
             Assert.IsNotNull(container);
+            Assert.IsNotNull(members);
+            Assert.IsNotNull(manager);
+            Assert.IsNotNull(name);
+            Assert.IsNull(unity);
         }
     }
 
