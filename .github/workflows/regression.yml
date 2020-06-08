@@ -5,9 +5,10 @@ name: Regression Tests
 on:
 
   push:
-    paths:
-      - 'src/*'
-      - 'tests/*'
+    branches:
+      - master
+      - develop
+      - release/*
 
   pull_request:
     paths:
