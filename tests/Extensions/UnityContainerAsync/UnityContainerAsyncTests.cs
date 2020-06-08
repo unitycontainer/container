@@ -42,6 +42,7 @@ namespace Extensions.Tests
     public class FakeIUCA : IUnityContainerAsync
     {
         public Type Type { get; private set; }
+        public IEnumerable<Type> Types { get; private set; }
         public string Name { get; private set; }
         public Type MappedTo { get; private set; }
         public LifetimeManager LifetimeManager { get; private set; }
@@ -73,27 +74,50 @@ namespace Extensions.Tests
 
         public Task RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
         {
-            throw new NotImplementedException();
+            Types = interfaces;
+            Name = name;
+            Data = factory;
+            LifetimeManager = (LifetimeManager)lifetimeManager;
+
+            return null;
         }
 
         public Task RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager)
         {
-            throw new NotImplementedException();
+            Types = interfaces;
+            Name = name;
+            Data = instance;
+            LifetimeManager = (LifetimeManager)lifetimeManager;
+
+            return null;
         }
 
         public Task RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
-            throw new NotImplementedException();
+            Types = interfaces;
+            Name = name;
+            LifetimeManager = (LifetimeManager)lifetimeManager;
+            InjectionMembers = injectionMembers;
+
+            return null;
         }
 
         public ValueTask<IEnumerable<object>> Resolve(Type type, Regex regex, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            Type = type;
+            Data = regex;
+            ResolverOverrides = overrides;
+
+            return new ValueTask<IEnumerable<object>>();
         }
 
         public ValueTask<object> ResolveAsync(Type type, string name, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            Type = type;
+            Name = name;
+            ResolverOverrides = overrides;
+
+            return new ValueTask<object>();
         }
     }
 
