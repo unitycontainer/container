@@ -9,6 +9,9 @@ on:
       - master
       - develop
       - 'release/**'
+    paths:
+      - 'src/**'
+      - 'tests/**'
 
   pull_request:
     paths:

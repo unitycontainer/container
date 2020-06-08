@@ -62,6 +62,7 @@ namespace Lifetime.Managers
             if (reference.IsAlive) 
             {
                 TestContext.WriteLine("GC did not collect memory, skipping test 'ExternallyControlled.CollectedTest()'");
+                
                 return;
             }
 
