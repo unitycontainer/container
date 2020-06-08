@@ -7,8 +7,8 @@ on:
       - 'hotfix/**'    
       - 'release/**'    
     paths:
-      - 'src/*'
-      - 'tests/*'
+      - 'src/**'
+      - 'tests/**'
 
 jobs:
 
