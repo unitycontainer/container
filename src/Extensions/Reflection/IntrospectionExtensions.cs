@@ -230,12 +230,10 @@ namespace System.Reflection
         {
             return method.Method;
         }
-#else
-        public static MethodInfo GetGetMethod(this PropertyInfo info, bool _)
-        {
-            return info.GetMethod;
-        }
+#endif
 
+
+#if NETSTANDARD1_0
         public static MethodInfo GetSetMethod(this PropertyInfo info, bool _)
         {
             return info.SetMethod;

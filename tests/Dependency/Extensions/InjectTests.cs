@@ -6,14 +6,14 @@ using Unity.Injection;
 namespace Injection.Extensions
 {
     [TestClass]
-    public class RegistrationTests
+    public class InjectTests
     {
         [DataTestMethod]
         [DynamicData(nameof(GetInjectArrayVariants), DynamicDataSourceType.Method)]
         public void InjectArrayTests(object instance)
         {
             // Validate
-            Assert.IsInstanceOfType(instance, typeof(ResolvedArrayParameter));
+            Assert.IsInstanceOfType(instance, typeof(ParameterBase));
         }
 
         public static IEnumerable<object[]> GetInjectArrayVariants()

@@ -49,7 +49,7 @@ namespace Unity.Injection
         /// Construct a new <see cref="ResolvedArrayParameter"/> that
         /// resolves to the given array and element types and collection of element values.
         /// </summary>
-        /// <param name="arrayParameterType">The type for the array of elements to resolve.</param>
+        /// <param name="arrayParameterType">The type for the array.</param>
         /// <param name="elementType">The type of elements to resolve.</param>
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
