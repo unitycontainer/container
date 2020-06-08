@@ -5,19 +5,16 @@ name: Regression Tests
 on:
 
   push:
-    branches:
-      - master
-      - develop
-      - 'release/**'
     paths:
       - 'src/**'
       - 'tests/**'
 
   pull_request:
-    paths:
-      - 'src/*'
-      - 'tests/*'
-      - '.github/workflows/*'
+    branches:
+      - master
+      - develop
+      - 'hotfix/**'    
+      - 'release/**'
 
 jobs:
   build:
