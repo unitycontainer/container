@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Unity;
 
 namespace Extensions.Tests
@@ -82,11 +82,30 @@ namespace Extensions.Tests
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll<IUnityContainer>());
         }
 
+        [Ignore]
         [TestMethod]
         public void ResolveAll()
         {
             // Arrange
-            container.Data = new object[0] as IEnumerable<object>;
+            container.Data = Enumerable.Range(0, 5);
+
+            // Act
+            container.ResolveAll(typeof(IUnityContainer));
+
+            // Validate
+            Assert.AreEqual(typeof(IUnityContainer[]), container.Type);
+            Assert.IsNull(container.MappedTo);
+            Assert.IsNull(container.Name);
+            Assert.IsNotNull(container.Data);
+            Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(IUnityContainer)));
+            Assert.ThrowsException<ArgumentNullException>(() => container.ResolveAll(null));
+        }
+
+        [TestMethod]
+        public void ResolveAllArray()
+        {
+            // Arrange
+            container.Data = new int[] { 0, 1 };
 
             // Act
             container.ResolveAll(typeof(IUnityContainer));
