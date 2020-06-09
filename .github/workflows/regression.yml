@@ -70,7 +70,7 @@ jobs:
       run: dotnet test ${{ github.workspace }}/tests/bin/Release/${{ matrix.framework }}/Unity.Abstractions.Tests.dll
 
 
-  core-lts-2:
+  core-2:
     needs: [ Build ]
     strategy:
       matrix:
@@ -109,7 +109,7 @@ jobs:
       run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp2.1/Unity.Abstractions.Tests.dll
 
 
-  core-lts-3:
+  core-3:
     needs: [ Build ]
     strategy:
       matrix:
@@ -144,7 +144,7 @@ jobs:
       run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp3.1/Unity.Abstractions.Tests.dll
 
 
-  UWP:
+  Uap10:
     needs: [ Build ]
     runs-on:  windows-latest
 
