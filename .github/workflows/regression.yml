@@ -144,7 +144,7 @@ jobs:
       run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp3.1/Unity.Abstractions.Tests.dll
 
 
-  Uap10:
+  uap-10:
     needs: [ Build ]
     runs-on:  windows-latest
 
