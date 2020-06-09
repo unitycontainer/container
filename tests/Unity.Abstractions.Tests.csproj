@@ -28,9 +28,5 @@
   <ItemGroup>
     <ProjectReference Include="..\src\Unity.Abstractions.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
   
 </Project>
