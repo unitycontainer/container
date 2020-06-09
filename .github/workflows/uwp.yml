@@ -14,6 +14,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Cache
+      id: unity-abstractions
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
+        # key: ${{ github.sha }}
+        key: '748e5364551fc1f798b35eb42f9a35bb77b08c76'
+
     - name: Build Package
       run: |
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj
