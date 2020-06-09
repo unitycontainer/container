@@ -14,23 +14,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Cache
-      id: unity-abstractions
-      uses: actions/cache@v1
-      with:
-        path: '${{ github.workspace }}/package'
-        # key: ${{ github.sha }}
-        key: '748e5364551fc1f798b35eb42f9a35bb77b08c76'
-
     - name: Build Package
-      env:
-        TargetFramework: ${{ matrix.framework }}
       run: |
-        dotnet remove ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj reference "..\src\Unity.Abstractions.csproj"
-        dotnet add ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj package --source '${{ github.workspace }}/package' Unity.Abstractions --version 0.0.0
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj
 
     - name: Test
-      env:
-        TargetFramework: ${{ matrix.framework }}
       run: dotnet test ${{ github.workspace }}/tests/bin/Release
