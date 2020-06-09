@@ -22,9 +22,12 @@ jobs:
         # key: ${{ github.sha }}
         key: '748e5364551fc1f798b35eb42f9a35bb77b08c76'
 
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.0
+
     - name: Build Package
       run: |
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj
+        msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj
 
     - name: Test
       run: dotnet test ${{ github.workspace }}/tests/bin/Release
