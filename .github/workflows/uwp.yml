@@ -25,9 +25,9 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.0
 
-    - name: Build Package
+    - name: Build Tests
       run: |
         msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj
 
     - name: Test
-      run: dotnet test ${{ github.workspace }}/tests/bin/Release
+      run: vstest.console.exe tests\bin\x86\Release\Unity.Abstractions.UWP.build.appxrecipe /framework:FrameworkUap10
