@@ -37,6 +37,7 @@ jobs:
         PackageOutputPath: '${{ github.workspace }}/package'
       run: dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
 
+
   net:
     needs: [ Build ]
     strategy:
@@ -141,3 +142,31 @@ jobs:
 
     - name: Test
       run: dotnet vstest ${{ github.workspace }}/tests/bin/Release/netcoreapp3.1/Unity.Abstractions.Tests.dll
+
+
+  UWP:
+    needs: [ Build ]
+    runs-on:  windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache
+      id: unity-abstractions
+      uses: actions/cache@v1
+      with:
+        path: '${{ github.workspace }}/package'
+        key: ${{ github.sha }}
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.0.0
+
+    - name: Build Tests
+      run: msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.UWP.csproj
+
+    - name: Setup VSTest
+      uses: darenm/Setup-VSTest@v1
+
+    - name: Test
+      run: vstest.console.exe tests\bin\x86\Release\Unity.Abstractions.UWP.build.appxrecipe /framework:FrameworkUap10
