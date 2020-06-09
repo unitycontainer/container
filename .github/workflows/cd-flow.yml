@@ -30,11 +30,11 @@ jobs:
         dotnet add src/Unity.Abstractions.csproj package GitVersionTask
         dotnet add src/Unity.Abstractions.csproj package Microsoft.SourceLink.GitHub
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
 
     - name: Test
       run: | 
-        dotnet test tests
+        dotnet test ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
 
     - name: Publish Local Package
       run: |
