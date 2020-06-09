@@ -36,7 +36,7 @@ namespace Unity.Lifetime
         #endregion
 
         /// <inheritdoc/>
-        public override object TryGetValue(ILifetimeContainer container = null)
+        public override object? TryGetValue(ILifetimeContainer? container = null)
         {
             if (Monitor.TryEnter(_lock))
             {
@@ -50,7 +50,7 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             if (Monitor.TryEnter(_lock, ResolveTimeout))
             {
@@ -73,11 +73,11 @@ namespace Unity.Lifetime
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.GetValue"/>
         /// after it has acquired its lock.</remarks>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        protected abstract object SynchronizedGetValue(ILifetimeContainer container);
+        protected abstract object? SynchronizedGetValue(ILifetimeContainer? container);
 
 
         /// <inheritdoc/>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
         {
             SynchronizedSetValue(newValue, container);
             TryExit();
@@ -90,7 +90,7 @@ namespace Unity.Lifetime
         /// <param name="container">Instance of the lifetime's container</param>
         /// <remarks>This method is invoked by <see cref="SynchronizedLifetimeManager.SetValue"/>
         /// before releasing its lock.</remarks>
-        protected abstract void SynchronizedSetValue(object newValue, ILifetimeContainer container);
+        protected abstract void SynchronizedSetValue(object? newValue, ILifetimeContainer? container);
 
         /// <summary>
         /// A method that does whatever is needed to clean up

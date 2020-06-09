@@ -70,22 +70,35 @@ namespace Extensions.Tests
             return true;
         }
 
-        public IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
+        public IUnityContainer RegisterFactory(Type type, string name, Func<IResolveContext, object> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             Type = type;
             Name = name;
             Data = factory;
             LifetimeManager = (LifetimeManager)lifetimeManager;
+            // TODO: InjectionMembers = injectionMembers;
 
             return this;
         }
 
-        public IUnityContainer RegisterInstance(Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager)
+        public IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        {
+            Type = type;
+            Name = name;
+            Data = factory;
+            LifetimeManager = (LifetimeManager)lifetimeManager;
+            // TODO: InjectionMembers = injectionMembers;
+
+            return this;
+        }
+
+        public IUnityContainer RegisterInstance(Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             Type = type;
             Name = name;
             Data = instance;
             LifetimeManager = (LifetimeManager)lifetimeManager;
+            // TODO: InjectionMembers = injectionMembers;
 
             return this;
         }

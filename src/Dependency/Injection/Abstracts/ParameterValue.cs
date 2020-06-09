@@ -16,7 +16,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="type"><see cref="Type"/> to compare to</param>
         /// <returns>True if <see cref="Type"/> is equal</returns>
-        public abstract bool Equals(Type type);
+        public abstract bool Equals(Type? type);
 
         #endregion
     }

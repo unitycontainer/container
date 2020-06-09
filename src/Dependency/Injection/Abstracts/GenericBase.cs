@@ -13,7 +13,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly string _name;
+        private readonly string? _name;
         private readonly bool   _isArray;
         private readonly string _genericParameterName;
 
@@ -37,7 +37,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         /// <param name="resolutionName">Registration name to use when looking up in the container.</param>
-        protected GenericBase(string genericParameterName, string resolutionName)
+        protected GenericBase(string genericParameterName, string? resolutionName)
         {
             if (null == genericParameterName) throw new ArgumentNullException(nameof(genericParameterName));
 
@@ -72,7 +72,7 @@ namespace Unity.Injection
 
         #region  Overrides
 
-        public override bool Equals(Type type)
+        public override bool Equals(Type? type)
         {
             if (null == type)return false;
 
@@ -106,7 +106,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
+        protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
             where TContext : IResolveContext
         {
             return (ref TContext context) => context.Resolve(type, name);

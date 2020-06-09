@@ -56,7 +56,7 @@ namespace Unity.Injection
         }
 
 #if NETSTANDARD1_0
-        public override bool Equals(TMemberInfo other)
+        public override bool Equals(TMemberInfo? other)
         {
             return null != other && other.Name == Name;
         }

@@ -14,7 +14,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly object _value;
+        private readonly object? _value;
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="value">Value to be injected for this parameter.</param>
         /// <exception cref="ArgumentNullException">Throws and exception when value in null</exception>
-        public InjectionParameter(object value)
+        public InjectionParameter(object? value)
             : base((value ?? throw new ArgumentNullException($"The {nameof(value)} is 'null'. Unable to infer type of injected parameter\n" +
                 $"If you need to pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType())
         {
@@ -41,7 +41,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
         /// <param name="value">InjectionParameterValue of the parameter</param>
-        public InjectionParameter(Type type, object value)
+        public InjectionParameter(Type type, object? value)
             : base(type)
         {
             _value = value;
@@ -52,7 +52,7 @@ namespace Unity.Injection
 
         #region IResolve
 
-        public object Resolve<TContext>(ref TContext context) 
+        public object? Resolve<TContext>(ref TContext context) 
             where TContext : IResolveContext
         {
             return _value;

@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 
+#nullable disable
+
 namespace System.Collections.Concurrent
 {
     /// <summary>
@@ -1943,3 +1945,5 @@ namespace System.Collections.Concurrent
         }
     }
 }
+
+#nullable enable

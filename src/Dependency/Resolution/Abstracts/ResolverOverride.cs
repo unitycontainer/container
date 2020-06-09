@@ -10,9 +10,9 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected          Type   Target;
-        protected readonly string Name;
-        protected readonly object Value;
+        protected Type?            Target;
+        protected readonly string? Name;
+        protected readonly object? Value;
 
         #endregion
 
@@ -79,7 +79,7 @@ namespace Unity.Resolution
 
         #region IResolve
 
-        public virtual object Resolve<TContext>(ref TContext context)
+        public virtual object? Resolve<TContext>(ref TContext context)
             where TContext : IResolveContext
         {
             return Value switch
@@ -113,9 +113,9 @@ namespace Unity.Resolution
 
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return this == obj as ResolverOverride;
+            return obj is ResolverOverride other && this == other;
         }
 
         public static bool operator ==(ResolverOverride left, ResolverOverride right)

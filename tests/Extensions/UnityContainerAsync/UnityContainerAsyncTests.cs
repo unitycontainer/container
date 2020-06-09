@@ -74,7 +74,7 @@ namespace Extensions.Tests
             return true;
         }
 
-        public Task RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager)
+        public Task RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             Types = interfaces;
             Name = name;

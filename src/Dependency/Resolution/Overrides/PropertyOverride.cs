@@ -17,7 +17,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">The property name.</param>
         /// <param name="value">InjectionParameterValue to use for the property.</param>
-        public PropertyOverride(string name, object value)
+        public PropertyOverride(string name, object? value)
             : base(name ?? throw new ArgumentNullException(nameof(name)), value)
         {
         }
@@ -32,7 +32,7 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object other)
+        public override bool Equals(object? other)
         {
             switch (other)
             {
@@ -48,7 +48,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(PropertyInfo other)
+        public bool Equals(PropertyInfo? other)
         {
             return null != other  && other.Name == Name &&
                   (null == Target || other.DeclaringType == Target);

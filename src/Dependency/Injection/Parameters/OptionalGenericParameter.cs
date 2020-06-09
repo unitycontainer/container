@@ -57,7 +57,7 @@ namespace Unity.Injection
             return base.GetResolver<TContext>(info);
         }
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
         {
             return (ref TContext context) =>
             {

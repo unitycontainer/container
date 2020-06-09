@@ -26,7 +26,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">InjectionParameterValue to pass for the constructor.</param>
-        public ParameterOverride(string name, object value)
+        public ParameterOverride(string name, object? value)
             : base(name, value)
         {
         }
@@ -38,7 +38,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        public ParameterOverride(Type type, object value)
+        public ParameterOverride(Type type, object? value)
             : base(null, value)
         {
             Type = type;
@@ -52,7 +52,7 @@ namespace Unity.Resolution
         /// <param name="type">Type of the parameter.</param>
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        public ParameterOverride(Type type, string name, object value)
+        public ParameterOverride(Type type, string? name, object? value)
             : base(name, value)
         {
             Type = type;
@@ -69,7 +69,7 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object other)
+        public override bool Equals(object? other)
         {
             switch (other)
             {
@@ -85,7 +85,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(ParameterInfo other)
+        public bool Equals(ParameterInfo? other)
         {
             return null != other && 
                   (null == Target || other.Member.DeclaringType == Target) &&

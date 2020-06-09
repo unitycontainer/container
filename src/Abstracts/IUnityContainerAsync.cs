@@ -28,7 +28,7 @@ namespace Unity
         /// <param name="lifetimeManager">Lifetime manager that will be responsible for managing created object's lifetime.</param>
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>Returns <see cref="Task"/> indicating when registration is done</returns>
-        Task RegisterType(IEnumerable<Type> interfaces, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        Task RegisterType(IEnumerable<Type>? interfaces, Type type, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Unity
         /// Following are the only valid options: <see cref="ContainerControlledLifetimeManager"/>, <see cref="SingletonLifetimeManager"/>, <see cref="ExternallyControlledLifetimeManager"/>
         /// </param>
         /// <returns>Returns <see cref="Task"/> indicating when registration is done</returns>
-        Task RegisterInstance(IEnumerable<Type> interfaces, string name, object instance, IInstanceLifetimeManager lifetimeManager);
+        Task RegisterInstance(IEnumerable<Type>? interfaces, string? name, object? instance, IInstanceLifetimeManager? lifetimeManager);
 
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Unity
         /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
         /// of the returned instance.</param>
         /// <returns>Returns <see cref="Task"/> indicating when registration is done</returns>
-        Task RegisterFactory(IEnumerable<Type> interfaces, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
+        Task RegisterFactory(IEnumerable<Type>? interfaces, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Unity
         /// <param name="type"><see cref="Type"/> to look for</param>
         /// <param name="name">Name of the registration</param>
         /// <returns></returns>
-        bool IsRegistered(Type type, string name);
+        bool IsRegistered(Type type, string? name);
 
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Unity
         /// <param name="name">Name of the object to retrieve.</param>
         /// <param name="overrides">Any overrides for the resolve call.</param>
         /// <returns>The retrieved object.</returns>
-        ValueTask<object> ResolveAsync(Type type, string name, params ResolverOverride[] overrides);
+        ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides);
 
 
         /// <summary>

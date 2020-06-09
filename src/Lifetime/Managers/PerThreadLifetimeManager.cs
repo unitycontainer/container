@@ -26,7 +26,7 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private ThreadLocal<object> _value = new ThreadLocal<object>(() => NoValue);
+        private ThreadLocal<object?> _value = new ThreadLocal<object?>(() => NoValue);
 
         #endregion
 
@@ -34,13 +34,13 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             return _value.Value;
         }
 
         /// <inheritdoc/>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
         {
             _value.Value = newValue;
         }

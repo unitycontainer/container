@@ -42,11 +42,11 @@ namespace Unity.Lifetime
 
         #region  Optimizers
 
-        public virtual Func<ILifetimeContainer, object> TryGet { get; protected set; }
+        public virtual Func<ILifetimeContainer?, object?> TryGet { get; protected set; }
 
-        public virtual Func<ILifetimeContainer, object> Get { get; protected set; }
+        public virtual Func<ILifetimeContainer?, object?> Get { get; protected set; }
 
-        public virtual Action<object, ILifetimeContainer> Set { get; protected set; }
+        public virtual Action<object?, ILifetimeContainer?> Set { get; protected set; }
 
         #endregion
 
@@ -62,14 +62,14 @@ namespace Unity.Lifetime
         /// </remarks>
         /// <param name="container">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object TryGetValue(ILifetimeContainer container = null) => GetValue(container);
+        public virtual object? TryGetValue(ILifetimeContainer? container = null) => GetValue(container);
 
         /// <summary>
         /// Retrieves a value from the backing store associated with this Lifetime policy.
         /// </summary>
         /// <param name="container">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object GetValue(ILifetimeContainer container = null) => NoValue;
+        public virtual object? GetValue(ILifetimeContainer? container = null) => NoValue;
 
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
@@ -111,7 +111,7 @@ namespace Unity.Lifetime
             {
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 return ReferenceEquals(this, obj);
             }
@@ -127,9 +127,9 @@ namespace Unity.Lifetime
 
         #region Internal Use
 
-        internal Delegate PipelineDelegate;
+        internal Delegate? PipelineDelegate;
 
-        internal virtual object Pipeline<TContext>(ref TContext context) where TContext : IResolveContext 
+        internal virtual object? Pipeline<TContext>(ref TContext context) where TContext : IResolveContext 
             => ((ResolveDelegate<TContext>)PipelineDelegate)(ref context);
 
         #endregion

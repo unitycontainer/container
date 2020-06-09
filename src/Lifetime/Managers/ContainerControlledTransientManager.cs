@@ -12,7 +12,7 @@ namespace Unity.Lifetime
                                                        ITypeLifetimeManager
     {
         /// <inheritdoc/>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
         {
             if (newValue is IDisposable disposable)
                 container?.Add(disposable);

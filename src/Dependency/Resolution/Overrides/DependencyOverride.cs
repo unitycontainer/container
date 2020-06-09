@@ -25,7 +25,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type type, object value)
+        public DependencyOverride(Type type, object? value)
             : base(null, value)
         {
             Type = type;
@@ -37,7 +37,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(string name, object value)
+        public DependencyOverride(string name, object? value)
             : base(name, value)
         {
         }
@@ -50,7 +50,7 @@ namespace Unity.Resolution
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type type, string name, object value)
+        public DependencyOverride(Type type, string? name, object? value)
             : base(name, value)
         {
             Type = type;
@@ -64,7 +64,7 @@ namespace Unity.Resolution
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type target, Type type, string name, object value)
+        public DependencyOverride(Type target, Type type, string? name, object? value)
             : base(target, name, value)
         {
             Type = type;
@@ -80,7 +80,7 @@ namespace Unity.Resolution
             return base.GetHashCode();
         }
 
-        public override bool Equals(object other)
+        public override bool Equals(object? other)
         {
             switch (other)
             {

@@ -31,7 +31,7 @@ namespace Unity.Lifetime
         /// An instance of the object this manager is associated with.
         /// </summary>
         /// <value>This field holds a strong reference to the associated object.</value>
-        protected object Value = NoValue;
+        protected object? Value = NoValue;
 
         #endregion
 
@@ -58,13 +58,13 @@ namespace Unity.Lifetime
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             return Get(container);
         }
 
         /// <inheritdoc/>
-        public override void SetValue(object newValue, ILifetimeContainer container = null)
+        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
         {
             Set(newValue, container);
             Set = (o, c) => throw new InvalidOperationException("ContainerControlledLifetimeManager can only be set once");
@@ -73,10 +73,10 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override object SynchronizedGetValue(ILifetimeContainer container = null) => Value;
+        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null) => Value;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object newValue, ILifetimeContainer container = null) => Value = newValue;
+        protected override void SynchronizedSetValue(object? newValue, ILifetimeContainer? container = null) => Value = newValue;
 
         #endregion
 

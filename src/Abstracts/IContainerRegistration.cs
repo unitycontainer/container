@@ -33,7 +33,7 @@ namespace Unity
         /// (<c>name == null</c>) is called <c>default registration</c>. The container uses these as implicit defaults when required.
         /// </remarks>
         /// <value>Name of the registration</value>
-        string Name { get; }
+        string? Name { get; }
 
         /// <summary>
         /// The type that this registration is mapped to. 
@@ -43,7 +43,7 @@ namespace Unity
         /// <see cref="Type"/> could be built from this registration or redirected to mapped registration to satisfy the request. 
         /// </remarks>
         /// <value>The type of object created when registered type is requested</value>
-        Type MappedToType { get; }
+        Type? MappedToType { get; }
 
         /// <summary>
         /// The lifetime manager for this registration.

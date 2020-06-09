@@ -76,7 +76,7 @@ namespace Unity
         /// <seealso cref="Unity.TypeLifetime"/>
         /// <exception cref="InvalidOperationException">If error occur during registration container will throw an exception.</exception>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        IUnityContainer RegisterType(Type registeredType, Type mappedToType, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type registeredType, Type? mappedToType, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -88,6 +88,7 @@ namespace Unity
         /// <param name="name">Registration name</param>
         /// <param name="lifetimeManager">An <see cref="InstanceLifetime"/> manager that controls the lifetime. If no manager is provided 
         /// (<c>lifetimeManager == null</c>) container uses <see cref="InstanceLifetime.PerContainer"/> lifetime by default</param>
+        /// <param name="injectionMembers">Optional injection configuration objects</param>
         /// <remarks>
         /// <para>
         /// Instance registration makes objects created outside of the container to be available for dependency injection. Container registers 
@@ -126,7 +127,7 @@ namespace Unity
         /// <seealso cref="Unity.InstanceLifetime"/>
         /// <exception cref="InvalidOperationException">If types of registration and the instance are not assignable, method throws an exception</exception>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        IUnityContainer RegisterInstance(Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager);
+        IUnityContainer RegisterInstance(Type? type, string? name, object? instance, IInstanceLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -137,6 +138,7 @@ namespace Unity
         /// <param name="factory">Predefined factory delegate</param>
         /// <param name="lifetimeManager">The <see cref="FactoryLifetime"/> that controls the lifetime of objects. 
         /// If <paramref name="lifetimeManager"/> is <c>null</c>, container uses default <see cref="TypeLifetime.Transient"/> lifetime</param>
+        /// <param name="injectionMembers">Optional injection configuration objects</param>
         /// <remarks>
         /// <para>
         /// This method allows registration of factory function for specific <see cref="Type"/>. 
@@ -156,10 +158,11 @@ namespace Unity
         ///                    null);                      // Transient
         /// </code>
         /// </example>
-        /// <seealso cref="Unity.FactoryLifetime"/>
-        /// <exception cref="InvalidOperationException">If delegate is <c>null</c> method throws</exception>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        IUnityContainer RegisterFactory(Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager lifetimeManager);
+        /// <seealso cref="FactoryLifetime"/>
+        /// <exception cref="InvalidOperationException">If <paramref name="factory"/> is <c>null</c> method throws</exception>
+        /// <returns>The <see cref="IUnityContainer"/> container.</returns>
+        IUnityContainer RegisterFactory(Type type, string? name, Func<IUnityContainer, Type, string, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
+        //IUnityContainer RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>
@@ -181,7 +184,7 @@ namespace Unity
         /// </para>
         /// </remarks>
         /// <returns><c>True</c> if <see cref="Type"/> is registered or <c>False</c> if no registration found</returns>
-        bool IsRegistered(Type type, string name);
+        bool IsRegistered(Type type, string? name);
 
 
         /// <summary>
@@ -232,7 +235,7 @@ namespace Unity
         /// <seealso cref="Unity.Override"/>
         /// <exception cref="ResolutionFailedException">Throws if any errors occur during resolution</exception>
         /// <returns>The retrieved object.</returns>
-        object Resolve(Type type, string name, params ResolverOverride[] overrides);
+        object? Resolve(Type type, string? name, params ResolverOverride[] overrides);
 
 
         /// <summary>
@@ -258,7 +261,7 @@ namespace Unity
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would
         /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
-        object BuildUp(Type type, object existing, string name, params ResolverOverride[] overrides);
+        object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides);
 
 
         /// <summary>
@@ -269,7 +272,7 @@ namespace Unity
         /// the container that created this instance.
         /// </remarks>
         /// <value>The parent container, or null if this container doesn't have one.</value>
-        IUnityContainer Parent { get; }
+        IUnityContainer? Parent { get; }
 
 
         /// <summary>

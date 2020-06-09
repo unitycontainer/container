@@ -12,7 +12,7 @@
     {
         #region Fields
 
-        protected object value = NoValue;
+        protected object? value = NoValue;
 
         #endregion
 
@@ -20,7 +20,7 @@
         #region Overrides
 
         /// <inheritdoc/>
-        public override object GetValue(ILifetimeContainer container = null)
+        public override object? GetValue(ILifetimeContainer? container = null)
         {
             return value;
         }

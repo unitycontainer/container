@@ -11,7 +11,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly Type _type;
+        private readonly Type? _type;
 
         #endregion
 
@@ -23,7 +23,7 @@ namespace Unity.Injection
         /// information about the given <paramref name="type"/>.
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
-        protected ParameterBase(Type type = null)
+        protected ParameterBase(Type? type = null)
         {
             _type = type;
         }
@@ -37,14 +37,14 @@ namespace Unity.Injection
         /// <summary>
         /// The type of parameter this object represents.
         /// </summary>
-        public virtual Type ParameterType => _type;
+        public virtual Type? ParameterType => _type;
 
         #endregion
 
 
         #region Overrides
 
-        public override bool Equals(Type type)
+        public override bool Equals(Type? type)
         {
             if (null == _type) return true;
             if (null == type) return false;

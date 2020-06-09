@@ -53,7 +53,7 @@ namespace Unity.Injection
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
 
-        public override bool Equals(Type type)
+        public override bool Equals(Type? type)
         {
             if (null == type || !type.IsArray || type.GetArrayRank() != 1)
             {
@@ -64,7 +64,7 @@ namespace Unity.Injection
             return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == base.ParameterTypeName;
         }
 
-        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string name)
+        protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
         {
             if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
 
@@ -102,18 +102,19 @@ namespace Unity.Injection
 
         public static object DoResolve<TContext, TElement>(ref TContext context, object[] values)
             where TContext : IResolveContext
+            where TElement : class
         {
-            var result = new TElement[values.Length];
+            var result = new TElement?[values.Length];
 
             for (var i = 0; i < values.Length; i++)
             {
-                result[i] = (TElement)ResolveValue(ref context, values[i]);
+                result[i] = (TElement?)ResolveValue(ref context, values[i]);
             }
 
             return result;
 
             // Interpret factories
-            object ResolveValue(ref TContext c, object value)
+            object? ResolveValue(ref TContext c, object value)
             {
                 switch (value)
                 {

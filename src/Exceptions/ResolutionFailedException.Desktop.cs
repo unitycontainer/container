@@ -20,9 +20,9 @@ namespace Unity
         private struct ResolutionFailedExceptionSerializationData : ISafeSerializationData
         {
             private readonly string _typeRequested;
-            private readonly string _nameRequested;
+            private readonly string? _nameRequested;
 
-            public ResolutionFailedExceptionSerializationData(string typeRequested, string nameRequested)
+            public ResolutionFailedExceptionSerializationData(string typeRequested, string? nameRequested)
             {
                 _typeRequested = typeRequested;
                 _nameRequested = nameRequested;

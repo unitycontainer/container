@@ -17,7 +17,7 @@ namespace Unity
         /// <param name="name">Name requested from the container.</param>
         /// <param name="message">Error message</param>
         /// <param name="innerException">The actual exception that caused the failure of the build.</param>
-        public ResolutionFailedException(Type type, string name, string message, Exception innerException = null)
+        public ResolutionFailedException(Type type, string? name, string message, Exception? innerException = null)
             : base(message, innerException)
         {
             TypeRequested = (type ?? throw new ArgumentNullException(nameof(type))).GetTypeInfo().Name;
@@ -33,7 +33,7 @@ namespace Unity
         /// <summary>
         /// The name that was being requested from the container at the time of failure.
         /// </summary>
-        public string NameRequested { get; private set; }
+        public string? NameRequested { get; private set; }
 
         partial void RegisterSerializationHandler();
     }
