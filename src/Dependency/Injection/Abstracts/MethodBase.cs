@@ -42,7 +42,7 @@ namespace Unity.Injection
             if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
                 return Selection;
 
-#if NETSTANDARD1_0
+#if NETSTANDARD
             var typeInfo = type.GetTypeInfo();
             var parameterTypes = Selection.GetParameters()
                                           .Select(pi => GetClosedParameterType(pi.ParameterType, typeInfo.GenericTypeArguments))

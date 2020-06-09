@@ -10,7 +10,7 @@ namespace Unity
     /// </summary>
     internal static class TypeReflectionExtensions
     {
-#if NETSTANDARD1_0
+#if NETSTANDARD
         public static Type GetArrayParameterType(this Type typeToReflect, Type[] genericArguments)
         {
             var rank = typeToReflect.GetArrayRank();
