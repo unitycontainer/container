@@ -125,6 +125,7 @@
     <Compile Include="Dependency\Injection\Members\*.cs" />
     <Compile Include="Dependency\Injection\Parameters\*.cs" />
     <Compile Include="Dependency\Resolution\*.cs" />
+    <Compile Include="Exceptions\ExceptionTests.cs" />
     <Compile Include="Lifetime\Extensions\*.cs" />
     <Compile Include="Lifetime\Managers\*.cs" />
     <Compile Include="Policy\*.cs" />
