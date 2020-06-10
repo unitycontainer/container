@@ -1,39 +1,28 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Security;
 
 namespace Unity
 {
     [Serializable]
-    partial class ResolutionFailedException
+    partial class ResolutionFailedException : ISerializable
     {
         #region Serialization Support
 
-        partial void RegisterSerializationHandler()
+        public ResolutionFailedException(SerializationInfo info, StreamingContext context) 
+            : base(info, context) 
         {
-            SerializeObjectState += (s, e) =>
-                {
-                    e.AddSerializedState(new ResolutionFailedExceptionSerializationData(TypeRequested, NameRequested));
-                };
+            TypeRequested = (string)info.GetValue(nameof(TypeRequested), typeof(string));
+            NameRequested = (string)info.GetValue(nameof(NameRequested), typeof(string));
         }
 
-        [Serializable]
-        private struct ResolutionFailedExceptionSerializationData : ISafeSerializationData
+        [SecurityCritical]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            private readonly string _typeRequested;
-            private readonly string? _nameRequested;
+            base.GetObjectData(info, context);
 
-            public ResolutionFailedExceptionSerializationData(string typeRequested, string? nameRequested)
-            {
-                _typeRequested = typeRequested;
-                _nameRequested = nameRequested;
-            }
-
-            public void CompleteDeserialization(object deserialized)
-            {
-                var exception = (ResolutionFailedException)deserialized;
-                exception.TypeRequested = _typeRequested;
-                exception.NameRequested = _nameRequested;
-            }
+            info.AddValue(nameof(TypeRequested), TypeRequested, typeof(string));
+            info.AddValue(nameof(NameRequested), NameRequested, typeof(string));
         }
 
         #endregion

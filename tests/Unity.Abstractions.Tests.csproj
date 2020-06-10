@@ -9,14 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-    <Compile Remove="UnitTestApp.xaml.cs" />
+    <EmbeddedResource Remove="Assets\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Assets\**" />
+    <Compile Remove="UnitTestApp.xaml.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\**" />
+    <None Remove="UnitTestApp.xaml" />
     <None Remove="Package.appxmanifest" />
     <None Remove="Properties\Default.rd.xml" />
-    <None Remove="UnitTestApp.xaml" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
+    <Compile Remove="Exceptions\ExceptionTests.Desktop.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +37,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Unity.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
   </ItemGroup>
   
 </Project>

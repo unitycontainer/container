@@ -22,7 +22,6 @@ namespace Unity
         {
             TypeRequested = (type ?? throw new ArgumentNullException(nameof(type))).GetTypeInfo().Name;
             NameRequested = name;
-            RegisterSerializationHandler();
         }
 
         /// <summary>
@@ -34,7 +33,5 @@ namespace Unity
         /// The name that was being requested from the container at the time of failure.
         /// </summary>
         public string? NameRequested { get; private set; }
-
-        partial void RegisterSerializationHandler();
     }
 }
