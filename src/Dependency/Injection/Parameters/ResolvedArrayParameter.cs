@@ -68,7 +68,7 @@ namespace Unity.Injection
             foreach (var pv in elementValues)
             {
                 if ((pv is IEquatable<Type> equatable && equatable.Equals(elementType)) ||
-                    (pv is Type type && type == _elementType) || _elementType.IsAssignableFrom(pv?.GetType()))
+                    (pv is Type type && type == _elementType) || _elementType.IsAssignableFrom(pv?.GetType()!))
                     continue;
 
                 throw new InvalidOperationException(

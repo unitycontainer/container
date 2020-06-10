@@ -93,16 +93,7 @@ namespace Unity.Injection
 #else
             var value = info.HasDefaultValue ? info.DefaultValue : null;
 #endif
-#if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var typeInfo = ParameterType?.GetTypeInfo();
-            if (null == ParameterType ||  null == typeInfo || typeInfo.IsGenericType && typeInfo.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                ParameterType.IsGenericParameter)
-#else
-            if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
-                ParameterType.IsGenericParameter)
-#endif
+            if (IsInvalidParameterType)
             {
                 var type = info.ParameterType;
                 return (ref TContext c) =>
@@ -118,7 +109,7 @@ namespace Unity.Injection
 
             return (ref TContext c) =>
             {
-                try { return c.Resolve(ParameterType, _name); }
+                try { return c.Resolve(ParameterType!, _name); }
                 catch (Exception ex) 
                 when (!(ex is CircularDependencyException))
                 {

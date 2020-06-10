@@ -64,6 +64,16 @@ namespace Unity
 
             return matchInfo.IsAssignableFrom(typeInfo);
         }
+
+        public static bool Equals(this PropertyInfo property, PropertyInfo? other)
+        {
+            return null != other && other.Name == property.Name;
+        }
+
+        public static bool Equals(this FieldInfo field, FieldInfo? other)
+        {
+            return null != other && other.Name == field.Name;
+        }
     }
 }
 

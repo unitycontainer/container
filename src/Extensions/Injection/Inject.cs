@@ -23,19 +23,13 @@ namespace Unity
 
         #region Parameter
 
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static ParameterBase Parameter(object value) => new InjectionParameter(value);
 
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static ParameterBase Parameter(Type type, object value) 
             => new InjectionParameter(type ?? throw new ArgumentNullException(nameof(type)), value);
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static ParameterBase Parameter<TTarget>(object value) => new InjectionParameter(typeof(TTarget), value);
 
         #endregion
@@ -43,9 +37,7 @@ namespace Unity
 
         #region Field
 
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static InjectionMember Field(string name, object value) 
             => new InjectionField(name ?? throw new ArgumentNullException(nameof(name)), value);
         
@@ -54,9 +46,7 @@ namespace Unity
 
         #region Property
 
-#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static InjectionMember Property(string name, object value) 
             => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)), value);
         

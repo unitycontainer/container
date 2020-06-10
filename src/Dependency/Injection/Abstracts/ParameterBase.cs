@@ -61,5 +61,30 @@ namespace Unity.Injection
         }
 
         #endregion
+
+
+        #region Implementation
+
+        protected bool IsInvalidParameterType
+        {
+            get
+            {
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                var info = ParameterType?.GetTypeInfo();
+                return null == ParameterType || null == info || 
+                    info.IsGenericType && info.ContainsGenericParameters ||
+                    ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
+                    ParameterType.IsGenericParameter;
+#else
+                return null == ParameterType || 
+                    ParameterType.IsGenericType && ParameterType.ContainsGenericParameters      ||
+                    ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
+                    ParameterType.IsGenericParameter;
+#endif
+            }
+        }
+
+
+        #endregion
     }
 }

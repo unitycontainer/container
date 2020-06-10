@@ -68,42 +68,24 @@ namespace Unity.Injection
         public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
             where TContext : IResolveContext
         {
-#if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var info = ParameterType?.GetTypeInfo();
-            if (null == ParameterType || null == info || info.IsGenericType && info.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                ParameterType.IsGenericParameter)
-#else
-            if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
-                ParameterType.IsGenericParameter)
-#endif
+            if (IsInvalidParameterType)
             {
                 return (ref TContext c) => c.Resolve(type, _name);
             }
 
-            return (ref TContext c) => c.Resolve(ParameterType, _name);
+            return (ref TContext c) => c.Resolve(ParameterType!, _name);
         }
 
         public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
             where TContext : IResolveContext
         {
-#if NETSTANDARD1_0 || NETCOREAPP1_0 
-            var parameterInfo = ParameterType?.GetTypeInfo();
-            if (null == ParameterType || null == parameterInfo || parameterInfo.IsGenericType && parameterInfo.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                ParameterType.IsGenericParameter)
-#else
-            if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
-                ParameterType.IsGenericParameter)
-#endif
+            if (IsInvalidParameterType)
             {
                 var type = info.ParameterType;
                 return (ref TContext c) => c.Resolve(type, _name);
             }
 
-            return (ref TContext c) => c.Resolve(ParameterType, _name);
+            return (ref TContext c) => c.Resolve(ParameterType!, _name);
         }
 
         #endregion
@@ -118,6 +100,7 @@ namespace Unity.Injection
 
         #endregion
     }
+
 
     /// <summary>
     /// A generic version of <see cref="ResolvedParameter"/> for convenience

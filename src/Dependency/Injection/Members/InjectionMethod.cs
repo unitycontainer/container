@@ -82,28 +82,6 @@ namespace Unity.Injection
             }
         }
 
-
-#if NETSTANDARD1_0
-
-        public override bool Equals(MethodInfo? other)
-        {
-            if (null == Selection || 
-                null == other     || 
-                other.Name != Name) return false;
-
-            var parameterTypes = other.GetParameters()
-                                      .Select(p => p.ParameterType)
-                                      .ToArray();
-            
-            if (Selection.ContainsGenericParameters)
-                return Data.Length == parameterTypes.Length;
-
-            return Selection.GetParameters()
-                             .Select(p => p.ParameterType)
-                             .SequenceEqual(parameterTypes);
-        }
-
-#endif
         #endregion
     }
 }

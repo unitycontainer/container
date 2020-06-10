@@ -215,4 +215,25 @@ namespace Unity
 
     }
 
+    internal sealed class MethodImplAttribute : Attribute
+    {
+        public MethodImplAttribute() { }
+        public MethodImplAttribute(MethodImplOptions methodImplOptions) { }
+        public MethodImplAttribute(short value) { }
+        public MethodImplOptions Value { get; }
+    }
+
+    [Flags]
+    internal enum MethodImplOptions
+    {
+        Unmanaged = 4,
+        NoInlining = 8,
+        ForwardRef = 16,
+        Synchronized = 32,
+        NoOptimization = 64,
+        PreserveSig = 128,
+        AggressiveInlining = 256,
+        SecurityMitigations = 1024,
+        InternalCall = 4096
+    }
 }

@@ -54,12 +54,6 @@ namespace Unity.Injection
             throw new ArgumentException(NoMatchFound);
         }
 
-#if NETSTANDARD1_0
-        public override bool Equals(TMemberInfo? other)
-        {
-            return null != other && other.Name == Name;
-        }
-#endif
         #endregion
 
 
