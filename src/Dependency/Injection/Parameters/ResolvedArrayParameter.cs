@@ -67,16 +67,10 @@ namespace Unity.Injection
             // Verify array elements
             foreach (var pv in elementValues)
             {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-                var info = _elementType.GetTypeInfo();
-                if ((pv is IEquatable<Type> equatable && equatable.Equals(elementType)) ||
-                    (pv is Type type && type == _elementType) || info.IsAssignableFrom(pv?.GetType().GetTypeInfo()))
-                    continue;
-#else
                 if ((pv is IEquatable<Type> equatable && equatable.Equals(elementType)) ||
                     (pv is Type type && type == _elementType) || _elementType.IsAssignableFrom(pv?.GetType()))
                     continue;
-#endif
+
                 throw new InvalidOperationException(
                     $"The type {pv?.GetType()} cannot be assigned to variables of type {elementType}.");
             }

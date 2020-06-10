@@ -1,12 +1,46 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Reflection;
 
-namespace System.Reflection
+namespace Unity
 {
-#if NET40
+    internal static class Compatibility_Net_4_0
+    {
+        public static Attribute GetCustomAttribute(this ParameterInfo info, Type type)
+        {
+            return info.GetCustomAttributes(type, true)
+                       .Cast<Attribute>()
+                       .FirstOrDefault();
+        }
 
-    internal class TypeInfo 
+        public static TypeInfo GetTypeInfo(this Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            return new TypeInfo(type);
+        }
+
+        public static Delegate CreateDelegate(this MethodInfo method, Type delegateType)
+        {
+            return Delegate.CreateDelegate(delegateType, method);
+        }
+
+        public static Delegate CreateDelegate(this MethodInfo method, Type delegateType, object target)
+        {
+            return Delegate.CreateDelegate(delegateType, target, method);
+        }
+
+        public static MethodInfo GetMethodInfo(this Delegate method)
+        {
+            return method.Method;
+        }
+    }
+
+    internal class TypeInfo
     {
         private const BindingFlags DeclaredOnlyLookup = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
         private Type _type;
@@ -54,7 +88,7 @@ namespace System.Reflection
 
         public Type GetGenericTypeDefinition() => _type.GetGenericTypeDefinition();
 
-    #region moved over from Type
+        #region moved over from Type
 
         //// Fields
 
@@ -77,19 +111,6 @@ namespace System.Reflection
             {
                 if (method.Name == name)
                     yield return method;
-            }
-        }
-
-        public virtual System.Reflection.TypeInfo? GetDeclaredNestedType(String name)
-        {
-            var nt = _type.GetNestedType(name, DeclaredOnlyLookup);
-            if (nt == null)
-            {
-                return null; //the extension method GetTypeInfo throws for null
-            }
-            else
-            {
-                return nt.GetTypeInfo();
             }
         }
 
@@ -140,7 +161,8 @@ namespace System.Reflection
                 return _type.GetMethods(DeclaredOnlyLookup);
             }
         }
-        public virtual IEnumerable<System.Reflection.TypeInfo> DeclaredNestedTypes
+
+        public virtual IEnumerable<TypeInfo> DeclaredNestedTypes
         {
             get
             {
@@ -169,7 +191,7 @@ namespace System.Reflection
         }
 
 
-    #endregion
+        #endregion
 
         public override int GetHashCode()
         {
@@ -181,64 +203,16 @@ namespace System.Reflection
             return _type.Equals(obj);
         }
 
-        public static bool operator ==(TypeInfo? left, TypeInfo? right)
+        public static bool operator ==(TypeInfo left, TypeInfo right)
         {
             return left?.GetHashCode() == right?.GetHashCode();
         }
 
-        public static bool operator !=(TypeInfo? left, TypeInfo? right)
+        public static bool operator !=(TypeInfo left, TypeInfo right)
         {
             return left?.GetHashCode() != right?.GetHashCode();
         }
 
     }
-#endif
 
-
-    internal static class IntrospectionExtensions
-    {
-#if NET40
-
-        public static Attribute GetCustomAttribute(this ParameterInfo info, Type type)
-        {
-            return info.GetCustomAttributes(type, true)
-                       .Cast<Attribute>()
-                       .FirstOrDefault();
-        }
-
-        public static TypeInfo GetTypeInfo(this Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            return new TypeInfo(type);
-        }
-
-        public static Delegate CreateDelegate(this MethodInfo method, Type delegateType)
-        {
-            return Delegate.CreateDelegate(delegateType, method);
-        }
-
-        public static Delegate CreateDelegate(this MethodInfo method, Type delegateType, object target)
-        {
-            return Delegate.CreateDelegate(delegateType, target, method);
-        }
-        
-        public static MethodInfo GetMethodInfo(this Delegate method)
-        {
-            return method.Method;
-        }
-#endif
-
-
-#if NETSTANDARD1_0
-        public static MethodInfo GetSetMethod(this PropertyInfo info, bool _)
-        {
-            return info.SetMethod;
-        }
-#endif
-    }
 }
-

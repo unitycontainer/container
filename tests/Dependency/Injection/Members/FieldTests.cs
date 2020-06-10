@@ -49,9 +49,8 @@ namespace Injection.Members
 
         protected override InjectionMember<FieldInfo, object> GetMember(Type type, int position, object value)
         {
-            var info = type.GetDeclaredFields()
-                           .Where(member => !member.IsFamily   && !member.IsPrivate && 
-                                            !member.IsInitOnly && !member.IsStatic)
+            var info = type.GetFields(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
+                           .Where(member => !member.IsFamily   && !member.IsPrivate && !member.IsInitOnly)
                            .Take(position)
                            .Last();
 

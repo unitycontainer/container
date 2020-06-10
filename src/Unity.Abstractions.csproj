@@ -22,8 +22,16 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard1.0' ">
-    <Compile Remove="Lifetime\Managers\ConcurrentDictionary.cs" />
+    <Compile Remove="Utility\ConcurrentDictionary.cs" />
     <Compile Remove="Utility\Compatibility.NetStandard.1.0.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
+    <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'">
+    <Compile Remove="Utility\Compatibility.NetStandard.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0'">
@@ -31,10 +39,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.StartsWith('netcoreapp'))">
-    <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
     <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
@@ -62,6 +66,7 @@
   </PropertyGroup>
 
   <!-- Sourcelink -->
+  
   <PropertyGroup>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

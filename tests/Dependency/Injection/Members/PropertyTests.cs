@@ -48,7 +48,7 @@ namespace Injection.Members
 
         protected override InjectionMember<PropertyInfo, object> GetMember(Type type, int position, object value)
         {
-            var info = type.GetDeclaredProperties()
+            var info = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                            .Where(member => {
                                if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
                                    return false;

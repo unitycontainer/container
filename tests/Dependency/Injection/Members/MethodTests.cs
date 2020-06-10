@@ -86,7 +86,7 @@ namespace Injection.Members
 
         protected override InjectionMember<MethodInfo, object[]> GetMember(Type type, int position, object data)
         {
-            var info = type.GetDeclaredMethods()
+            var info = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                            .Where(member => !member.IsFamily && !member.IsPrivate && !member.IsStatic)
                            .Take(position)
                            .Last();

@@ -68,7 +68,9 @@ namespace Unity.Injection
 
         public override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
         {
-            foreach (var member in type.GetDeclaredProperties())
+            foreach (var member in type.GetProperties(BindingFlags.NonPublic |
+                                                      BindingFlags.Public    |
+                                                      BindingFlags.Instance))
             {
                 if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
                     continue;

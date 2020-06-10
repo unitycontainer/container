@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -56,21 +57,17 @@ namespace Unity.Injection
 
         protected override FieldInfo? DeclaredMember(Type type, string name)
         {
-#if NETSTANDARD1_0 || NETCOREAPP1_0 
-            return type.GetTypeInfo().GetDeclaredField(Selection!.Name);
-#else
             return type.GetField(Selection!.Name);
-#endif
         }
 
         public override IEnumerable<FieldInfo> DeclaredMembers(Type type)
         {
-            foreach (var member in type.GetDeclaredFields())
-            {
-                if (!member.IsFamily && !member.IsPrivate &&
-                    !member.IsInitOnly && !member.IsStatic)
-                    yield return member;
-            }
+            return type.GetFields(BindingFlags.NonPublic | 
+                                  BindingFlags.Public    | 
+                                  BindingFlags.Instance)
+                       .Where(member => !member.IsFamily  && 
+                                        !member.IsPrivate && 
+                                        !member.IsInitOnly);
         }
 
         protected override Type? MemberType => Selection?.FieldType;

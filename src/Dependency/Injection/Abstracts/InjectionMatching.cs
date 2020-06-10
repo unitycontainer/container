@@ -45,26 +45,20 @@ namespace Unity.Injection
         {
             if (null == type) return true;
 
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (matchInfo.IsAssignableFrom(typeInfo)) 
-                return true;
-
-            if (typeof(Array) == type && matchInfo.IsArray)
-                return true;
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-#else
             if (match.IsAssignableFrom(type)) 
                 return true;
 
             if (typeof(Array) == type && match.IsArray)
                 return true;
 
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = type.GetTypeInfo();
+            var matchInfo = match.GetTypeInfo();
+
+            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
+                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
+                return true;
+#else
             if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
                 type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
                 return true;
@@ -78,15 +72,7 @@ namespace Unity.Injection
 
             if (null == type) return true;
 
-#if NETSTANDARD1_0 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (matchInfo.IsAssignableFrom(typeInfo)) return true;
-#else
-            if (match.IsAssignableFrom(type)) return true;
-#endif
-            return false;
+            return match.IsAssignableFrom(type);
         }
 
         #endregion
