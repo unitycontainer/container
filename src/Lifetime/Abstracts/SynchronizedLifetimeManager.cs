@@ -108,10 +108,7 @@ namespace Unity.Lifetime
 
         protected virtual void TryExit()
         {
-#if !NET40
-            // Prevent first chance exception when abandoning a lock that has not been entered
-            if (!Monitor.IsEntered(_lock)) return;
-#endif
+#if NET40
             try
             {
                 Monitor.Exit(_lock);
@@ -120,6 +117,11 @@ namespace Unity.Lifetime
             {
                 // Noop here - we don't hold the lock and that's ok.
             }
+#else
+            // Prevent first chance exception when abandoning a lock that has not been entered
+            if (!Monitor.IsEntered(_lock)) return;
+            Monitor.Exit(_lock);
+#endif
         }
 
 

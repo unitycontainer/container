@@ -65,7 +65,7 @@ namespace Unity.Injection
 
         public override string ToString()
         {
-            return $"InjectionParameter: Type={ParameterType.Name} Value={_value ?? "null"}";
+            return $"InjectionParameter: Type={ParameterType!.Name} Value={_value ?? "null"}";
         }
 
         #endregion

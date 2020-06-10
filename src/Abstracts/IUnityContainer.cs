@@ -76,7 +76,7 @@ namespace Unity
         /// <seealso cref="Unity.TypeLifetime"/>
         /// <exception cref="InvalidOperationException">If error occur during registration container will throw an exception.</exception>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        IUnityContainer RegisterType(Type registeredType, Type? mappedToType, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type? registeredType, Type? mappedToType, string? name, ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
 
         /// <summary>

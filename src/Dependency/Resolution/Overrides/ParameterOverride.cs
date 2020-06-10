@@ -12,7 +12,7 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected readonly Type Type;
+        protected readonly Type? Type;
 
         #endregion
 

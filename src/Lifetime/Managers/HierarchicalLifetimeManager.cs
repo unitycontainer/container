@@ -54,7 +54,7 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        private void RemoveValue(ILifetimeContainer? container)
+        private void RemoveValue(ILifetimeContainer container)
         {
             if (!_values.TryGetValue(container, out object? value)) return;
 

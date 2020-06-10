@@ -17,7 +17,7 @@ namespace Unity.Injection
 
             for (var i = 0; i < (data?.Length ?? 0); i++)
             {
-                if (Matches(data[i], parameters[i].ParameterType))
+                if (Matches(data![i], parameters[i].ParameterType))
                     continue;
 
                 return false;

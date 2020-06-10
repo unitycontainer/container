@@ -48,7 +48,7 @@ namespace Unity.Injection
             {
                 if (null != Name && noData) return member;
 
-                if (!Data.MatchMemberInfo(member)) continue;
+                if (!Data!.MatchMemberInfo(member)) continue;
 
                 return member;
             }
@@ -85,14 +85,16 @@ namespace Unity.Injection
 
 #if NETSTANDARD1_0
 
-        public override bool Equals(MethodInfo other)
+        public override bool Equals(MethodInfo? other)
         {
-            if (null == other || other.Name != Name) return false;
+            if (null == Selection || 
+                null == other     || 
+                other.Name != Name) return false;
 
             var parameterTypes = other.GetParameters()
                                       .Select(p => p.ParameterType)
                                       .ToArray();
-
+            
             if (Selection.ContainsGenericParameters)
                 return Data.Length == parameterTypes.Length;
 

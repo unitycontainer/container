@@ -22,7 +22,7 @@ namespace Unity.Injection
         /// <param name="mappedToType">Type of concrete type being registered.</param>
         /// <param name="name">Name used to resolve the type object.</param>
         /// <param name="policies">Policy list to add policies to.</param>
-        public abstract void AddPolicies<TContext, TPolicySet>(Type registeredType, Type? mappedToType, string? name, ref TPolicySet policies)
+        public abstract void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string? name, ref TPolicySet policies)
                 where TContext : IResolveContext
                 where TPolicySet : IPolicySet;
 
@@ -59,14 +59,14 @@ namespace Unity.Injection
 
         protected const string NoMatchFound = "No member matching data has been found.";
 
-        protected TMemberInfo Selection { get; set; }
+        protected TMemberInfo? Selection { get; set; }
 
         #endregion
 
 
         #region Constructors
 
-        protected InjectionMember(string? name, TData data)
+        protected InjectionMember(string name, TData data)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Data = data;
@@ -112,7 +112,7 @@ namespace Unity.Injection
                     return Equals(info);
 
                 case IEquatable<TMemberInfo> equatable:
-                    return equatable.Equals(Selection);
+                    return equatable.Equals(Selection!);
 
                 default:
                     return false;
@@ -131,7 +131,7 @@ namespace Unity.Injection
 
         public override bool BuildRequired => true;
 
-        public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type? mappedToType, string? name, ref TPolicySet policies)
+        public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string? name, ref TPolicySet policies)
         {
             var select = policies.Get<Func<Type, InjectionMember, TMemberInfo>>() 
                       ?? SelectMember;

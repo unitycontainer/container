@@ -54,12 +54,12 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override FieldInfo DeclaredMember(Type type, string name)
+        protected override FieldInfo? DeclaredMember(Type type, string name)
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
-            return type.GetTypeInfo().GetDeclaredField(Selection.Name);
+            return type.GetTypeInfo().GetDeclaredField(Selection!.Name);
 #else
-            return type.GetField(Selection.Name);
+            return type.GetField(Selection!.Name);
 #endif
         }
 
@@ -73,7 +73,7 @@ namespace Unity.Injection
             }
         }
 
-        protected override Type MemberType => Selection.FieldType;
+        protected override Type? MemberType => Selection?.FieldType;
 
         protected override string ToString(bool debug = false)
         {

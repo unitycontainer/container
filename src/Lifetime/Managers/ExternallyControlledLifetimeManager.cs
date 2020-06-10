@@ -13,7 +13,7 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private WeakReference _value;
+        private WeakReference? _value;
 
         #endregion
 

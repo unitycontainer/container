@@ -22,7 +22,8 @@ namespace Unity.Injection
         private readonly Type _elementType;
 
         private static readonly MethodInfo ResolverMethod =
-            typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(GenericResolvedArrayParameter.DoResolve));
+            typeof(GenericResolvedArrayParameter).GetTypeInfo()
+                                                 .GetDeclaredMethod(nameof(GenericResolvedArrayParameter.DoResolve))!;
 
         private delegate object Resolver<TContext>(ref TContext context, object[] values)
             where TContext : IResolveContext;
@@ -141,7 +142,7 @@ namespace Unity.Injection
 
         public override string ToString()
         {
-            return $"ResolvedArrayParameter: Type={ParameterType.Name}";
+            return $"ResolvedArrayParameter: Type={ParameterType!.Name}";
         }
 
         #endregion

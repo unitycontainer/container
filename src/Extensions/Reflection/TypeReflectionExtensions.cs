@@ -31,7 +31,7 @@ namespace Unity
 
         public static IEnumerable<FieldInfo> GetDeclaredFields(this Type type)
         {
-            var info = type.GetTypeInfo();
+            TypeInfo? info = type.GetTypeInfo();
             while (null != info)
             {
                 foreach (var member in info.DeclaredFields)
@@ -43,7 +43,7 @@ namespace Unity
 
         public static IEnumerable<PropertyInfo> GetDeclaredProperties(this Type type)
         {
-            var info = type.GetTypeInfo();
+            TypeInfo? info = type.GetTypeInfo();
             while (null != info)
             {
                 foreach (var member in info.DeclaredProperties)
@@ -55,7 +55,7 @@ namespace Unity
 
         public static IEnumerable<MethodInfo> GetDeclaredMethods(this Type type)
         {
-            var info = type.GetTypeInfo();
+            TypeInfo? info = type.GetTypeInfo();
             while (null != info)
             {
                 foreach (var member in info.DeclaredMethods)

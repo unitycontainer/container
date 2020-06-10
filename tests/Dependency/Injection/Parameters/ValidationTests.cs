@@ -99,6 +99,7 @@ namespace Injection.Parameters
             yield return new object[] { new InjectionParameter(typeof(string), null) };
             yield return new object[] { new OptionalParameter() };
             yield return new object[] { new ResolvedParameter() };
+            yield return new object[] { new ResolvedParameter(string.Empty) };
             yield return new object[] { new ResolvedArrayParameter(typeof(string)) };
             yield return new object[] { new GenericParameter("T[]") };
             yield return new object[] { new OptionalGenericParameter("T") };

@@ -17,7 +17,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly string _name;
+        private readonly string? _name;
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="parameterType">Type of this parameter.</param>
         /// <param name="name">Name to use when resolving parameter.</param>
-        public ResolvedParameter(Type parameterType, string name)
+        public ResolvedParameter(Type parameterType, string? name)
             : base(parameterType)
         {
             _name = name;
@@ -70,12 +70,12 @@ namespace Unity.Injection
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
             var info = ParameterType?.GetTypeInfo();
-            if (null == info || info.IsGenericType && info.ContainsGenericParameters ||
+            if (null == ParameterType || null == info || info.IsGenericType && info.ContainsGenericParameters ||
                 ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
                 ParameterType.IsGenericParameter)
 #else
             if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType().IsGenericParameter ||
+                ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
                 ParameterType.IsGenericParameter)
 #endif
             {
@@ -90,12 +90,12 @@ namespace Unity.Injection
         {
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
             var parameterInfo = ParameterType?.GetTypeInfo();
-            if (null == parameterInfo || parameterInfo.IsGenericType && parameterInfo.ContainsGenericParameters ||
+            if (null == ParameterType || null == parameterInfo || parameterInfo.IsGenericType && parameterInfo.ContainsGenericParameters ||
                 ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
                 ParameterType.IsGenericParameter)
 #else
             if (null == ParameterType || ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                ParameterType.IsArray && ParameterType.GetElementType().IsGenericParameter ||
+                ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
                 ParameterType.IsGenericParameter)
 #endif
             {

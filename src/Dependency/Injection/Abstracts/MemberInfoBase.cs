@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -27,7 +26,7 @@ namespace Unity.Injection
 
         public override TMemberInfo MemberInfo(Type type)
         {
-            Debug.Assert(null != Selection, $"{GetType().Name} is not initialized");
+            if (null == Selection) throw new InvalidOperationException($"{GetType().Name} is not initialized");
 
 #if NETSTANDARD1_0 || NETCOREAPP1_0 
             var declaringType = Selection.DeclaringType.GetTypeInfo();
@@ -66,9 +65,9 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected abstract TMemberInfo DeclaredMember(Type type, string name);
+        protected abstract TMemberInfo? DeclaredMember(Type type, string name);
 
-        protected abstract Type MemberType { get; }
+        protected abstract Type? MemberType { get; }
 
         #endregion
 

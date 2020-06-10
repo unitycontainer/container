@@ -39,6 +39,19 @@ namespace Injection.Members
         }
 
         [TestMethod]
+        public virtual void MemberTypeNullTest()
+        {
+            // Arrange
+            var member = GetDefaultMember();
+
+            // Act
+            var value = MemberTypeProperty.GetValue(member);
+
+            // Validate
+            Assert.IsNull(value);
+        }
+
+        [TestMethod]
         public virtual void IsRequiredTest()
         {
             var member = GetDefaultMember();

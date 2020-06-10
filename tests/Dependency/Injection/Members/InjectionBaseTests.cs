@@ -45,6 +45,17 @@ namespace Injection.Members
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public virtual void DeclaredMemberCold()
+        {
+            // Act
+            var member = GetDefaultMember();
+
+            // Validate
+            _ = member.MemberInfo(typeof(TestClass<object>));
+        }
+
+        [TestMethod]
         public virtual void DerivedMemberInfo()
         {
             // Arrange

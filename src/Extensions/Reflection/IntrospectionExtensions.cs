@@ -80,7 +80,7 @@ namespace System.Reflection
             }
         }
 
-        public virtual System.Reflection.TypeInfo GetDeclaredNestedType(String name)
+        public virtual System.Reflection.TypeInfo? GetDeclaredNestedType(String name)
         {
             var nt = _type.GetNestedType(name, DeclaredOnlyLookup);
             if (nt == null)
@@ -181,12 +181,12 @@ namespace System.Reflection
             return _type.Equals(obj);
         }
 
-        public static bool operator ==(TypeInfo left, TypeInfo right)
+        public static bool operator ==(TypeInfo? left, TypeInfo? right)
         {
             return left?.GetHashCode() == right?.GetHashCode();
         }
 
-        public static bool operator !=(TypeInfo left, TypeInfo right)
+        public static bool operator !=(TypeInfo? left, TypeInfo? right)
         {
             return left?.GetHashCode() != right?.GetHashCode();
         }

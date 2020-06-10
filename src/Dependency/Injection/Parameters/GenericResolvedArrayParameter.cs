@@ -19,7 +19,7 @@ namespace Unity.Injection
         private readonly object[] _values;
 
         private static readonly MethodInfo ResolverMethod =
-            typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve));
+            typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve))!;
 
         private delegate object Resolver<TContext>(ref TContext context, object[] values) 
             where TContext : IResolveContext;
@@ -56,19 +56,17 @@ namespace Unity.Injection
         public override bool Equals(Type? type)
         {
             if (null == type || !type.IsArray || type.GetArrayRank() != 1)
-            {
                 return false;
-            }
 
-            Type elementType = type.GetElementType();
-            return elementType.GetTypeInfo().IsGenericParameter && elementType.GetTypeInfo().Name == base.ParameterTypeName;
+            Type elementType = type.GetElementType()!;
+            return elementType.IsGenericParameter && elementType.Name == base.ParameterTypeName;
         }
 
         protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
         {
             if (!type.IsArray) throw new InvalidOperationException($"Type {type} is not an Array. {GetType().Name} can only resolve array types.");
 
-            Type elementType = type.GetElementType();
+            Type elementType = type.GetElementType()!;
             var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), elementType)
                                                                    .CreateDelegate(typeof(Resolver<TContext>));
             var values = _values.Select(value =>

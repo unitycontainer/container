@@ -24,7 +24,7 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        protected ResolverOverride(string name, object value)
+        protected ResolverOverride(string? name, object? value)
         {
             Name = name;
             Value = value;
@@ -36,7 +36,7 @@ namespace Unity.Resolution
         /// <param name="target"><see cref="Type"/> of the target</param>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        protected ResolverOverride(Type target, string name, object value)
+        protected ResolverOverride(Type? target, string? name, object? value)
         {
             Target = target;
             Name = name;
@@ -115,15 +115,15 @@ namespace Unity.Resolution
 
         public override bool Equals(object? obj)
         {
-            return obj is ResolverOverride other && this == other;
+            return this == obj as ResolverOverride;
         }
 
-        public static bool operator ==(ResolverOverride left, ResolverOverride right)
+        public static bool operator ==(ResolverOverride? left, ResolverOverride? right)
         {
             return left?.GetHashCode() == right?.GetHashCode();
         }
 
-        public static bool operator !=(ResolverOverride left, ResolverOverride right)
+        public static bool operator !=(ResolverOverride? left, ResolverOverride? right)
         {
             return !(left == right);
         }

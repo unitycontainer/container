@@ -50,6 +50,7 @@ namespace Unity.Lifetime
 
         #endregion
 
+// TODO: Verify if container could ever be null
 
         #region   LifetimeManager Members
 
@@ -76,7 +77,7 @@ namespace Unity.Lifetime
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
         /// <param name="container">The container this lifetime is associated with</param>
-        public virtual void SetValue(object newValue, ILifetimeContainer container = null) { }
+        public virtual void SetValue(object? newValue, ILifetimeContainer? container = null) { }
 
         #endregion
 
@@ -129,8 +130,13 @@ namespace Unity.Lifetime
 
         internal Delegate? PipelineDelegate;
 
-        internal virtual object? Pipeline<TContext>(ref TContext context) where TContext : IResolveContext 
+        internal virtual object? Pipeline<TContext>(ref TContext context) where TContext : IResolveContext
+// TODO: Revisit Nullability implementation
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             => ((ResolveDelegate<TContext>)PipelineDelegate)(ref context);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
         #endregion
 

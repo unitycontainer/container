@@ -12,7 +12,7 @@ namespace Unity.Resolution
     {
         #region Fields
 
-        protected readonly Type Type;
+        protected readonly Type? Type;
 
         #endregion
 
@@ -58,13 +58,13 @@ namespace Unity.Resolution
 
         /// <summary>
         /// Create an instance of <see cref="DependencyOverride"/> to override
-        /// dependency on cpecific type matching the given type and a name
+        /// dependency on specific type matching the given type and a name
         /// </summary>
         /// <param name="target">Target type to override dependency on</param>
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type target, Type type, string? name, object? value)
+        public DependencyOverride(Type? target, Type type, string? name, object? value)
             : base(target, name, value)
         {
             Type = type;

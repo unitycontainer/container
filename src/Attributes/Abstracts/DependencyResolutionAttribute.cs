@@ -9,7 +9,7 @@ namespace Unity
     /// </summary>
     public abstract class DependencyResolutionAttribute : Attribute
     {
-        protected DependencyResolutionAttribute(string name)
+        protected DependencyResolutionAttribute(string? name)
         {
             Name = name;
         }
@@ -17,6 +17,6 @@ namespace Unity
         /// <summary>
         /// The name specified in the constructor.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
     }
 }

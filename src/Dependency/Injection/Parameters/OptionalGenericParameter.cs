@@ -16,7 +16,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private object _defaultValue;
+        private object? _defaultValue;
 
         #endregion
 

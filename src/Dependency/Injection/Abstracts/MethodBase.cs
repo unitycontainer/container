@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -28,7 +27,7 @@ namespace Unity.Injection
 
         public override TMemberInfo MemberInfo(Type type)
         {
-            Debug.Assert(null != Selection, $"{GetType().Name} is not initialized");
+            if (null == Selection) throw new InvalidOperationException($"{GetType().Name} is not initialized");
 
             var methodHasOpenGenericParameters = Selection.GetParameters()
 #if NETSTANDARD1_0 || NETCOREAPP1_0
@@ -38,7 +37,7 @@ namespace Unity.Injection
 #endif
                                                           .Any(i => i.IsGenericType && i.ContainsGenericParameters);
 
-            var info = Selection.DeclaringType.GetTypeInfo();
+            var info = Selection.DeclaringType!.GetTypeInfo();
             if (!methodHasOpenGenericParameters && !(info.IsGenericType && info.ContainsGenericParameters))
                 return Selection;
 
