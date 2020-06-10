@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Resolution;
 
 namespace Unity.Lifetime
 {
@@ -7,7 +6,7 @@ namespace Unity.Lifetime
     /// Base class for all lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager 
+    public abstract class LifetimeManager
     {
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
@@ -42,11 +41,22 @@ namespace Unity.Lifetime
 
         #region  Optimizers
 
-        public virtual Func<ILifetimeContainer?, object?> TryGet { get; protected set; }
+        /// <summary>
+        /// The property holding a method that attempts to get value. 
+        /// Synchronized lifetime managers will not set a lock by calling the method.
+        /// </summary>
+        public Func<ILifetimeContainer?, object?> TryGet { get; protected set; }
 
-        public virtual Func<ILifetimeContainer?, object?> Get { get; protected set; }
+        /// <summary>
+        /// The property holding a method that gets the value. 
+        /// Synchronized lifetime managers will set a lock by calling the method.
+        /// </summary>
+        public Func<ILifetimeContainer?, object?> Get { get; protected set; }
 
-        public virtual Action<object?, ILifetimeContainer?> Set { get; protected set; }
+        /// <summary>
+        /// The property holding a method that sets the value. 
+        /// </summary>
+        public Action<object?, ILifetimeContainer?> Set { get; protected set; }
 
         #endregion
 
@@ -82,13 +92,13 @@ namespace Unity.Lifetime
         #endregion
 
 
-        #region ILifetimeFactoryPolicy
+        #region ICloneable
 
         /// <summary>
         /// Creates a new lifetime manager of the same type as this Lifetime Manager
         /// </summary>
         /// <returns>A new instance of the appropriate lifetime manager</returns>
-        public LifetimeManager CreateLifetimePolicy() => OnCreateLifetimeManager();
+        public LifetimeManager Clone() => OnCreateLifetimeManager();
 
         #endregion
 
@@ -96,7 +106,7 @@ namespace Unity.Lifetime
         #region Implementation
 
         /// <summary>
-        /// Implementation of <see cref="CreateLifetimePolicy"/> policy.
+        /// Implementation of <see cref="Clone"/> policy.
         /// </summary>
         /// <returns>A new instance of the same lifetime manager of appropriate type</returns>
         protected abstract LifetimeManager OnCreateLifetimeManager();
@@ -123,28 +133,6 @@ namespace Unity.Lifetime
             }
         }
 
-        #endregion
-
-
-        #region Internal Use
-
-        internal Delegate? PipelineDelegate;
-
-        internal virtual object? Pipeline<TContext>(ref TContext context) where TContext : IResolveContext
-// TODO: Revisit Nullability implementation
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            => ((ResolveDelegate<TContext>)PipelineDelegate)(ref context);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-
-        #endregion
-
-
-        #region Debugger
-#if DEBUG
-        public string ID { get; } = Guid.NewGuid().ToString();
-#endif
         #endregion
     }
 }

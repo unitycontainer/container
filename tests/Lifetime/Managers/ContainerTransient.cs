@@ -144,6 +144,48 @@ namespace Lifetime.Managers
             Assert.AreEqual(1, LifetimeContainer.Count);
         }
 
+
+        #region Optimizers
+
+        [TestMethod]
+        public override void TryGetTest()
+        {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+        }
+
+        [TestMethod]
+        public override void GetTest()
+        {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+        }
+
+        [TestMethod]
+        public override void SetTest()
+        {
+            // Act
+            TestManager.Set(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+        }
+
+        #endregion
+
         public class FakeDisposable : IDisposable
         {
             public bool Disposed { get; private set; }

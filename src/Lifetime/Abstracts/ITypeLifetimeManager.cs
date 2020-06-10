@@ -10,6 +10,6 @@
     /// </remarks>
     public interface ITypeLifetimeManager
     {
-        LifetimeManager CreateLifetimePolicy();
+        LifetimeManager Clone();
     }
 }

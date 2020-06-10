@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Threading;
 using Unity.Lifetime;
 
@@ -116,5 +115,47 @@ namespace Lifetime.Managers
             Assert.AreSame(LifetimeManager.NoValue, value3);
             Assert.AreSame(LifetimeManager.NoValue, value4);
         }
+
+
+        #region Optimizers
+
+        [TestMethod]
+        public override void TryGetTest()
+        {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+        }
+
+        [TestMethod]
+        public override void GetTest()
+        {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+        }
+
+        [TestMethod]
+        public override void SetTest()
+        {
+            // Act
+            TestManager.Set(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+        }
+
+        #endregion
     }
 }

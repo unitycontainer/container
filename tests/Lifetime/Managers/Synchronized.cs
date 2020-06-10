@@ -11,9 +11,13 @@ namespace Lifetime.Managers
         [TestInitialize]
         public override void SetupTest()
         {
-            base.SetupTest();
-            TestObject = new FakeDisposable();
+            TestObject        = new FakeDisposable();
+            TestManager       = GetManager();
+            OtherContainer    = new FakeLifetimeContainer();
+            LifetimeContainer = new FakeLifetimeContainer();
         }
+
+        #region Synchronized
 
         [TestMethod]
         public virtual void GetSynchronizedValueTest()
@@ -86,6 +90,11 @@ namespace Lifetime.Managers
             var value = TestManager.GetValue(LifetimeContainer);
         }
 
+        #endregion
+
+
+        #region Error Handling
+
         [TestMethod]
         public virtual void RecoverTest()
         {
@@ -147,6 +156,88 @@ namespace Lifetime.Managers
             Assert.AreSame(TestObject, value2);
         }
 
+        #endregion
+
+
+        #region Optimizers
+
+        [TestMethod]
+        public override void TryGetTest()
+        {
+            var semaphor = new ManualResetEvent(false);
+
+            new Thread(delegate ()
+            {
+                // Enter the lock
+                _ = TestManager.TryGet(LifetimeContainer);
+                semaphor.Set();
+
+                Thread.Sleep(100);
+
+                // Act
+                TestManager.SetValue(TestObject, LifetimeContainer);
+            }).Start();
+
+            semaphor.WaitOne();
+            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
+            var value = TestManager.GetValue(LifetimeContainer);
+
+            Assert.AreSame(LifetimeManager.NoValue, value);
+        }
+
+        [TestMethod]
+        public override void GetTest()
+        {
+            var semaphor = new ManualResetEvent(false);
+
+            new Thread(delegate ()
+            {
+                // Enter the lock
+                _ = TestManager.Get(LifetimeContainer);
+                semaphor.Set();
+
+                Thread.Sleep(100);
+
+                // Act
+                TestManager.SetValue(TestObject, LifetimeContainer);
+            }).Start();
+
+            semaphor.WaitOne();
+            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
+            var value = TestManager.Get(LifetimeContainer);
+
+            Assert.AreSame(TestObject, value);
+        }
+
+        [TestMethod]
+        public override void SetTest()
+        {
+            var semaphor = new ManualResetEvent(false);
+
+            new Thread(delegate ()
+            {
+                // Enter the lock
+                _ = TestManager.GetValue(LifetimeContainer);
+                semaphor.Set();
+
+                Thread.Sleep(100);
+
+                // Act
+                TestManager.Set(TestObject, LifetimeContainer);
+            }).Start();
+
+            semaphor.WaitOne();
+            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
+            var value = TestManager.GetValue(LifetimeContainer);
+
+            Assert.AreSame(TestObject, value);
+        }
+
+        #endregion
+
+
+        #region Disposable
+
         [TestMethod]
         public virtual void IsDisposedTest()
         {
@@ -154,8 +245,8 @@ namespace Lifetime.Managers
             TestManager.SetValue(TestObject, LifetimeContainer);
 
             var disposable = TestObject as FakeDisposable;
-            var manager    = TestManager as IDisposable;
-            
+            var manager = TestManager as IDisposable;
+
             if (null == manager) return;
 
             Assert.IsNotNull(disposable);
@@ -186,5 +277,7 @@ namespace Lifetime.Managers
                 Disposed = true;
             }
         }
+        
+        #endregion
     }
 }

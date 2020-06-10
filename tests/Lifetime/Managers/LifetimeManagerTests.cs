@@ -35,10 +35,19 @@ namespace Lifetime.Managers
         #region   LifetimeManager Members
 
         [TestMethod]
-        public virtual void CreateLifetimePolicyTest()
+        public void OptimizersTest()
+        {
+            // Validate
+            Assert.IsNotNull(TestManager.Get);
+            Assert.IsNotNull(TestManager.Set);
+            Assert.IsNotNull(TestManager.TryGet);
+        }
+
+        [TestMethod]
+        public virtual void CloneTest()
         {
             // Act
-            var clone = TestManager.CreateLifetimePolicy();
+            var clone = TestManager.Clone();
 
             // Validate
             Assert.IsInstanceOfType(clone, TestManager.GetType());
@@ -54,21 +63,23 @@ namespace Lifetime.Managers
             Assert.IsTrue(TestManager.InUse);
         }
 
-
         [TestMethod]
-        public void BaselineTest()
-        { 
-            // Act
-            var before = TestManager.TryGetValue(LifetimeContainer);
-
-            // Validate
-            Assert.IsTrue(LifetimeManager.NoValue.Equals(before));
-            Assert.IsTrue(LifetimeManager.NoValue.GetHashCode() == before.GetHashCode());
+        public void ToStringTest()
+        {
+            Assert.IsFalse(string.IsNullOrWhiteSpace(TestManager.ToString()));
         }
+
+        #endregion
+
+
+        #region Get Value
 
         [TestMethod]
         public virtual void TryGetValueTest()
         {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(LifetimeContainer));
+
             // Act
             TestManager.SetValue(TestObject, LifetimeContainer);
 
@@ -87,6 +98,32 @@ namespace Lifetime.Managers
 
             // Validate
             Assert.AreSame(TestObject, TestManager.GetValue(LifetimeContainer));
+        }
+
+        [TestMethod]
+        public virtual void TryGetTest()
+        {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGet(LifetimeContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(TestObject, TestManager.TryGet(LifetimeContainer));
+        }
+
+        [TestMethod]
+        public virtual void GetTest()
+        {
+            // Validate
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.Get(LifetimeContainer));
+
+            // Act
+            TestManager.SetValue(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(TestObject, TestManager.Get(LifetimeContainer));
         }
 
         [TestMethod]
@@ -119,6 +156,11 @@ namespace Lifetime.Managers
             Assert.AreSame(TestObject, TestManager.GetValue());
         }
 
+        #endregion
+
+
+        #region Set Value
+
         [TestMethod]
         public virtual void SetValueTwiceTest()
         {
@@ -144,9 +186,38 @@ namespace Lifetime.Managers
         }
 
         [TestMethod]
-        public void ToStringTest()
+        public virtual void SetTwiceTest()
         {
-            Assert.IsFalse(string.IsNullOrWhiteSpace(TestManager.ToString()));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(LifetimeContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(LifetimeContainer));
+
+            // Act
+            TestManager.Set(TestObject, LifetimeContainer);
+            TestManager.Set(TestObject, LifetimeContainer);
+        }
+
+        [TestMethod]
+        public virtual void SetValuesTwiceTest()
+        {
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(LifetimeContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(OtherContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(LifetimeContainer));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(OtherContainer));
+
+            // Act
+            TestManager.Set(TestObject, LifetimeContainer);
+            TestManager.Set(TestObject, OtherContainer);
+        }
+
+        [TestMethod]
+        public virtual void SetTest()
+        {
+            // Act
+            TestManager.Set(TestObject, LifetimeContainer);
+
+            // Validate
+            Assert.AreSame(TestObject, TestManager.TryGet(LifetimeContainer));
+            Assert.AreSame(TestObject, TestManager.Get(LifetimeContainer));
         }
 
         #endregion
