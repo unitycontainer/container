@@ -15,6 +15,7 @@ namespace Lifetime.Managers
             TestManager       = GetManager();
             OtherContainer    = new FakeLifetimeContainer();
             LifetimeContainer = new FakeLifetimeContainer();
+            SynchronizedLifetimeManager.ResolveTimeout = 100;
         }
 
         #region Synchronized
@@ -30,14 +31,13 @@ namespace Lifetime.Managers
                 _ = TestManager.GetValue(LifetimeContainer);
                 semaphor.Set();
 
-                Thread.Sleep(100);
+                Thread.Sleep(10);
 
                 // Act
                 TestManager.SetValue(TestObject, LifetimeContainer);
             }).Start();
 
             semaphor.WaitOne();
-            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
             var value = TestManager.GetValue(LifetimeContainer);
 
             Assert.AreSame(TestObject, value);
@@ -54,14 +54,13 @@ namespace Lifetime.Managers
                 _ = TestManager.GetValue(LifetimeContainer);
 
                 semaphor.Set();
-                Thread.Sleep(100);
+                Thread.Sleep(10);
 
                 // Act
                 TestManager.SetValue(TestObject, LifetimeContainer);
             }).Start();
 
             semaphor.WaitOne();
-            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
             var value = TestManager.TryGetValue(LifetimeContainer);
 
             Assert.AreSame(LifetimeManager.NoValue, value);
@@ -79,15 +78,15 @@ namespace Lifetime.Managers
                 _ = TestManager.GetValue(LifetimeContainer);
                 semaphor.Set();
 
-                Thread.Sleep(100);
+                Thread.Sleep(200);
 
                 // Act
                 TestManager.SetValue(TestObject, LifetimeContainer);
             }).Start();
 
             semaphor.WaitOne();
-            SynchronizedLifetimeManager.ResolveTimeout = 10;
             var value = TestManager.GetValue(LifetimeContainer);
+            Assert.AreSame(LifetimeManager.NoValue, value);
         }
 
         #endregion

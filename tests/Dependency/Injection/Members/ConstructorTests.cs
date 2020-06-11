@@ -7,7 +7,7 @@ using Unity.Injection;
 namespace Injection.Members
 {
     [TestClass]
-    public class ConstructorTests : InjectionBaseTests<ConstructorInfo, object[]>
+    public class ConstructorTests : MethodBaseTests<ConstructorInfo, object[]>
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]

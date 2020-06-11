@@ -8,7 +8,7 @@ using Unity.Injection;
 namespace Injection.Members
 {
     [TestClass]
-    public class FieldTests : InjectionInfoBaseTests<FieldInfo>
+    public class FieldTests : MemberInfoBaseTests<FieldInfo>
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]

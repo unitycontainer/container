@@ -10,7 +10,7 @@ using Unity.Resolution;
 
 namespace Injection.Members
 {
-    public abstract class InjectionBaseTests<TMemberInfo, TData>
+    public abstract class MethodBaseTests<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
     {
         [TestMethod]

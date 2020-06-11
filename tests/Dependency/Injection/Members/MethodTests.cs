@@ -11,7 +11,7 @@ using Unity;
 namespace Injection.Members
 {
     [TestClass]
-    public class MethodTests : InjectionBaseTests<MethodInfo, object[]>
+    public class MethodTests : MethodBaseTests<MethodInfo, object[]>
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]

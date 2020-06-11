@@ -8,7 +8,7 @@ using Unity.Injection;
 namespace Injection.Members
 {
     [TestClass]
-    public class PropertyTests : InjectionInfoBaseTests<PropertyInfo>
+    public class PropertyTests : MemberInfoBaseTests<PropertyInfo>
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
