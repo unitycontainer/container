@@ -120,7 +120,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dependency\Attributes\AttributesTests.cs" />
-    <Compile Include="Dependency\Extensions\*.cs" />
+    <Compile Include="Dependency\Extensions\*.cs" /> 
+    <Compile Include="Dependency\Injection\Abstracts\*.cs" />
     <Compile Include="Dependency\Injection\Matching\*.cs" />
     <Compile Include="Dependency\Injection\Members\*.cs" />
     <Compile Include="Dependency\Injection\Parameters\*.cs" />
