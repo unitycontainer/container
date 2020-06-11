@@ -54,12 +54,8 @@ namespace Unity.Injection
             throw new ArgumentException(NoMatchFound);
         }
 
-        public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
-        {
-            return type.GetTypeInfo()
-                       .DeclaredConstructors
-                       .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic);
-        }
+        public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => 
+            type.SupportedConstructors();
 
         protected override string ToString(bool debug = false)
         {
