@@ -55,20 +55,11 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override FieldInfo? DeclaredMember(Type type, string name)
-        {
-            return type.GetField(Selection!.Name);
-        }
+        protected override FieldInfo? DeclaredMember(Type type, string name) => 
+            type.GetField(Selection!.Name);
 
-        public override IEnumerable<FieldInfo> DeclaredMembers(Type type)
-        {
-            return type.GetFields(BindingFlags.NonPublic | 
-                                  BindingFlags.Public    | 
-                                  BindingFlags.Instance)
-                       .Where(member => !member.IsFamily  && 
-                                        !member.IsPrivate && 
-                                        !member.IsInitOnly);
-        }
+        public override IEnumerable<FieldInfo> DeclaredMembers(Type type) => 
+            type.SupportedFields();
 
         protected override Type? MemberType => Selection?.FieldType;
 

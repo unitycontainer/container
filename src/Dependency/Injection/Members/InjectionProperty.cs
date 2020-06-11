@@ -60,27 +60,11 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override PropertyInfo DeclaredMember(Type type, string name)
-        {
-            return DeclaredMembers(type).FirstOrDefault(p => p.Name == Selection!.Name);
-        }
+        protected override PropertyInfo? DeclaredMember(Type type, string name) => 
+            type.GetProperty(Selection!.Name);
 
-        public override IEnumerable<PropertyInfo> DeclaredMembers(Type type)
-        {
-            foreach (var member in type.GetProperties(BindingFlags.NonPublic |
-                                                      BindingFlags.Public    |
-                                                      BindingFlags.Instance))
-            {
-                if (!member.CanWrite || 0 != member.GetIndexParameters().Length)
-                    continue;
-
-                var setter = member.GetSetMethod(true);
-                if (null == setter || setter.IsPrivate || setter.IsFamily)
-                    continue;
-
-                yield return member;
-            }
-        }
+        public override IEnumerable<PropertyInfo> DeclaredMembers(Type type) => 
+            type.SupportedProperties();
 
         protected override Type? MemberType => Selection?.PropertyType;
 

@@ -58,12 +58,8 @@ namespace Unity.Injection
 
         public override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
-            return type.GetMethods(BindingFlags.NonPublic |
-                                   BindingFlags.Public    |
-                                   BindingFlags.Instance)
-                       .Where(member => member.Name == Name &&
-                                       !member.IsFamily     &&
-                                       !member.IsPrivate);
+            return type.SupportedMethods()
+                       .Where(member => member.Name == Name);
         }
 
         protected override string ToString(bool debug = false)
