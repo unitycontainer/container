@@ -13,10 +13,10 @@ namespace Unity.Injection
         /// Configures the container to inject a specified field with a resolved value.
         /// </summary>
         /// <param name="name">Name of field to inject.</param>
-        /// <param name="option">Tells Unity if this field is optional.</param>
-        public InjectionField(string name, ResolutionOption option = ResolutionOption.Required)
-            : base(name, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance 
-                                                             : (object)DependencyAttribute.Instance)
+        /// <param name="optional">Tells Unity if this field is optional.</param>
+        public InjectionField(string name, bool optional = false)
+            : base(name, optional ? OptionalDependencyAttribute.Instance 
+                                  : (object)DependencyAttribute.Instance)
         {
         }
 
@@ -24,10 +24,10 @@ namespace Unity.Injection
         /// Configures the container to inject a specified field with a resolved value.
         /// </summary>
         /// <param name="info"><see cref="FieldInfo"/> of the field</param>
-        /// <param name="option">Tells Unity if this field is optional.</param>
-        public InjectionField(FieldInfo info, ResolutionOption option = ResolutionOption.Required)
-            : base(info, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance
-                                                             : (object)DependencyAttribute.Instance)
+        /// <param name="optional">Tells Unity if this field is optional.</param>
+        public InjectionField(FieldInfo info, bool optional = false)
+            : base(info, optional ? OptionalDependencyAttribute.Instance
+                                  : (object)DependencyAttribute.Instance)
         {
         }
 

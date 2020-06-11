@@ -84,7 +84,7 @@ namespace Unity
         public static InjectionMember Field(string name) => new InjectionField(name);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static InjectionMember OptionalField(string name) => new InjectionField(name, ResolutionOption.Optional);
+        public static InjectionMember OptionalField(string name) => new InjectionField(name, true);
 
         #endregion
 
@@ -95,7 +95,7 @@ namespace Unity
         public static InjectionMember Property(string name) => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static InjectionMember OptionalProperty(string name) => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)), ResolutionOption.Optional);
+        public static InjectionMember OptionalProperty(string name) => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)), true);
 
         #endregion
     }

@@ -27,7 +27,7 @@ namespace Injection.Members
         [TestMethod]
         public virtual void OptionalVsRequiredTest()
         {
-            var member = new InjectionProperty("TestProperty", ResolutionOption.Optional);
+            var member = new InjectionProperty("TestProperty", true);
             Assert.IsInstanceOfType(member.Data, typeof(OptionalDependencyAttribute));
         }
 
@@ -35,7 +35,7 @@ namespace Injection.Members
         public virtual void OptionalVsRequiredInfo()
         {
             var info = GetType().GetProperty(nameof(TestProperty));
-            var member = new InjectionProperty(info, ResolutionOption.Optional);
+            var member = new InjectionProperty(info, true);
             Assert.IsInstanceOfType(member.Data, typeof(OptionalDependencyAttribute));
         }
 

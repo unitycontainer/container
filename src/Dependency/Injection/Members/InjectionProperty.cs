@@ -17,22 +17,21 @@ namespace Unity.Injection
         /// Configures the container to inject a specified property with a resolved value.
         /// </summary>
         /// <param name="name">Name of property to inject.</param>
-        /// <param name="option">Tells Unity if this field is optional.</param>
-        public InjectionProperty(string name, ResolutionOption option = ResolutionOption.Required)
-            : base(name, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance
-                                                             : (object)DependencyAttribute.Instance)
+        /// <param name="optional">Tells Unity if this field is optional.</param>
+        public InjectionProperty(string name, bool optional = false)
+            : base(name, optional ? OptionalDependencyAttribute.Instance
+                                  : (object)DependencyAttribute.Instance)
         {
         }
-
 
         /// <summary>
         /// Configures the container to inject a specified property with a resolved value.
         /// </summary>
         /// <param name="info"><see cref="PropertyInfo"/> of the property</param>
-        /// <param name="option">Tells Unity if this field is optional.</param>
-        public InjectionProperty(PropertyInfo info, ResolutionOption option = ResolutionOption.Required)
-            : base(info, ResolutionOption.Optional == option ? OptionalDependencyAttribute.Instance
-                                                             : (object)DependencyAttribute.Instance)
+        /// <param name="optional">Tells Unity if this field is optional.</param>
+        public InjectionProperty(PropertyInfo info, bool optional = false)
+            : base(info, optional ? OptionalDependencyAttribute.Instance
+                                  : (object)DependencyAttribute.Instance)
         {
         }
 
