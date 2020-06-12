@@ -32,13 +32,13 @@ namespace Injection.Matching
             Assert.AreEqual(result, parameter.MatchesObject(match));
         }
 
-
         #region Test Data
 
         public static IEnumerable<object[]> MatchTestData()
         {
             yield return new object[] { null,                                   null,           true };
             yield return new object[] { typeof(object),                         typeof(object), true };
+            yield return new object[] { typeof(Type),                           typeof(Type), true };
             yield return new object[] { new ResolvedParameter(typeof(object)),  typeof(object), true };
         }
 

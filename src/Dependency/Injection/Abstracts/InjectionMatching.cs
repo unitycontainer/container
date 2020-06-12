@@ -35,6 +35,8 @@ namespace Unity.Injection
         {
             return data switch
             {
+                null => (Type?)data == match,
+                Type _ when typeof(Type).Equals(match) => true,
                 Type type                  => MatchesType(type, match),
                 IEquatable<Type> equatable => equatable.Equals(match),
                 _                          => MatchesObject(data, match),
@@ -82,7 +84,15 @@ namespace Unity.Injection
 
         public static string Signature(this object[] data)
         {
-            return string.Join(", ", data?.Select(d => d.ToString()) ?? Enumerable.Empty<string>());
+            return string.Join(", ", data?.Select(GetSignature) ?? Enumerable.Empty<string>());
+
+            string GetSignature(object param)
+            {
+                if (null == param) return "null";
+                if (param is Type) return $"Type {param}";
+
+                return $"{param.GetType().Name} {param}";
+            }
         }
 
 

@@ -14,6 +14,16 @@ namespace Unity.Injection
     public abstract class InjectionMember
     {
         /// <summary>
+        /// This method performs diagnostic validation of provided <see cref="Type"/>.
+        /// It evaluates if this member could be matched with appropriate <see cref="MemberInfo"/>
+        /// of the <see cref="Type"/>.
+        /// </summary>
+        /// <param name="type"><see cref="Type"/> to validate this member with</param>
+        /// <exception cref="ArgumentException">Thrown if member does not
+        /// match with provided <see cref="Type"/></exception>
+        public abstract void Validate(Type type);
+
+        /// <summary>
         /// Add policies to the <paramref name="policies"/> to configure the
         /// container to call this constructor with the appropriate parameter values.
         /// </summary>
@@ -92,6 +102,7 @@ namespace Unity.Injection
 
         public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
+        // TODO: Redundant
         public bool IsInitialized => null != Selection;
 
         #endregion
@@ -128,6 +139,8 @@ namespace Unity.Injection
 
 
         #region Overrides
+
+        public override void Validate(Type type) { }
 
         public override bool BuildRequired => true;
 
