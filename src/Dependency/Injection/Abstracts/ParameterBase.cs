@@ -49,15 +49,29 @@ namespace Unity.Injection
             if (null == _type) return true;
             if (null == type) return false;
 
-            var cInfo = type.GetTypeInfo();
+#if NETSTANDARD1_0 || NETCOREAPP1_0
             var info = _type.GetTypeInfo();
-
-            if (cInfo.IsGenericType && cInfo.ContainsGenericParameters && info.IsGenericType && info.ContainsGenericParameters)
+            var cInfo = type.GetTypeInfo();
+#else
+            var info = _type;
+            var cInfo = type;
+#endif
+            if (info.IsGenericTypeDefinition || cInfo.IsGenericTypeDefinition)
             {
-                return type.GetGenericTypeDefinition() == _type.GetGenericTypeDefinition();
+                var left = info.IsGenericTypeDefinition  ? _type : _type.GetGenericTypeDefinition();
+                var right = cInfo.IsGenericTypeDefinition ? type : type.GetGenericTypeDefinition();
+
+                return left == right;
             }
 
             return cInfo.IsAssignableFrom(info);
+        }
+
+        public override bool Equals(ParameterInfo? other)
+        {
+            if (null == other) return false;
+
+            return Equals(other.ParameterType);
         }
 
         #endregion
@@ -76,8 +90,8 @@ namespace Unity.Injection
                     ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
                     ParameterType.IsGenericParameter;
 #else
-                return null == ParameterType || 
-                    ParameterType.IsGenericType && ParameterType.ContainsGenericParameters      ||
+                return null == ParameterType ||
+                    ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
                     ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
                     ParameterType.IsGenericParameter;
 #endif

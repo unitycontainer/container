@@ -7,7 +7,7 @@ namespace Unity.Injection
     /// an instance of a generic type parameter should be resolved.
     /// </summary>
     [DebuggerDisplay("GenericParameter: Type={ParameterTypeName}")]
-    public class GenericParameter : GenericBase
+    public class GenericParameter : GenericParameterBase
     {
         #region Constructors
 

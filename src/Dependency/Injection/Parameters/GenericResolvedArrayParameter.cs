@@ -12,7 +12,7 @@ namespace Unity.Injection
     /// should be resolved.
     /// </summary>
     [DebuggerDisplay("GenericResolvedArrayParameter: Type={ParameterTypeName}")]
-    public class GenericResolvedArrayParameter : GenericBase
+    public class GenericResolvedArrayParameter : GenericParameterBase
     {
         #region Fields
 

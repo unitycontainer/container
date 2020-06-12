@@ -76,8 +76,8 @@ namespace Injection.Parameters
         {
             // Validate
             Assert.IsTrue(parameter.Equals(typeof(List<>)));
+            Assert.IsTrue(parameter.Equals(typeof(List<string>)));
             Assert.IsFalse(parameter.Equals(typeof(IEnumerable<>)));
-            Assert.IsFalse(parameter.Equals(typeof(List<string>)));
         }
 
         [DataTestMethod]

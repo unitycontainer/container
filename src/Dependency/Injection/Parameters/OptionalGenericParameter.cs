@@ -12,7 +12,7 @@ namespace Unity.Injection
     /// value if resolving fails.
     /// </summary>
     [DebuggerDisplay("OptionalGenericParameter: Type={ParameterTypeName}")]
-    public class OptionalGenericParameter : GenericBase
+    public class OptionalGenericParameter : GenericParameterBase
     {
         #region Fields
 
