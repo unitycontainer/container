@@ -144,6 +144,23 @@ namespace Unity.Injection
             }
         }
 
+        public override bool Equals(MethodInfo? other)
+        {
+            if (null == other) return false;
+
+            if (null != Info)
+            {
+                if (Info.Equals(other)) return true;
+
+                return false;
+            }
+
+            if (Name != other.Name) return false;
+            if (null == Data) return true;
+
+            return base.Equals(other);
+        }
+
         #endregion
     }
 }

@@ -71,6 +71,8 @@ namespace Unity.Injection
 
         protected TMemberInfo? Selection { get; set; }
 
+        protected TMemberInfo? Info { get; set; }
+
         #endregion
 
 
@@ -84,7 +86,9 @@ namespace Unity.Injection
 
         protected InjectionMember(TMemberInfo info, TData data)
         {
-            Selection = info ?? throw new ArgumentNullException(nameof(info));
+            Selection = info;
+
+            Info = info ?? throw new ArgumentNullException(nameof(info));
             Name = info.Name;
             Data = data;
         }
@@ -160,6 +164,41 @@ namespace Unity.Injection
         #region Implementation
 
         protected abstract TMemberInfo SelectMember(Type type, InjectionMember member);
+
+        protected static bool MatchesType(Type type, Type match)
+        {
+            if (null == type) return true;
+
+            if (match.IsAssignableFrom(type))
+                return true;
+
+            if (typeof(Array) == type && match.IsArray)
+                return true;
+
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+            var typeInfo = type.GetTypeInfo();
+            var matchInfo = match.GetTypeInfo();
+
+            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
+                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
+                return true;
+#else
+            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
+                type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
+                return true;
+#endif
+            return false;
+        }
+
+        protected static bool MatchesObject(object data, Type match)
+        {
+            var type = data is Type ? typeof(Type) : data?.GetType();
+
+            if (null == type) return true;
+
+            return match.IsAssignableFrom(type);
+        }
+
 
         #endregion
     }

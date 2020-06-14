@@ -101,6 +101,42 @@ namespace Unity.Injection
             throw new InvalidOperationException($"Error selecting member on type {type}");
         }
 
+        public override bool Equals(TMemberInfo? other)
+        {
+            var length = Data?.Length ?? 0;
+            var parameters = other!.GetParameters();
+
+            if (length != parameters.Length) return false;
+
+            for (var i = 0; i < length; i++)
+            {
+                var parameter = parameters[i];
+                var value = Data![i];
+                var match = value switch
+                {
+                    null => null == parameter.ParameterType,
+
+                    IEquatable<ParameterInfo> equatableParam
+                              => equatableParam.Equals(parameter),
+
+                    IEquatable<Type> equatableType
+                              => equatableType.Equals(parameter.ParameterType),
+
+                    Type _ when typeof(Type).Equals(parameter.ParameterType)
+                              => true,
+
+                    Type type => MatchesType(type, parameter.ParameterType),
+                    _ =>         MatchesObject(value, parameter.ParameterType),
+                };
+
+                if (match) continue;
+
+                return false;
+            }
+
+            return true;
+        }
+
         #endregion
     }
 }

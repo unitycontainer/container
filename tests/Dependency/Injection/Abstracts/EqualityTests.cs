@@ -12,14 +12,6 @@ namespace Injection.Members
         #region Equals
 
         [DataTestMethod]
-        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
-        public virtual void EqualsCold(InjectionMember member, MemberInfo info)
-        {
-            // Validate
-            Assert.IsFalse(member.Equals(info));
-        }
-
-        [DataTestMethod]
         [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
         public virtual void EqualsTest(InjectionMember member, MemberInfo info)
         {
@@ -38,14 +30,6 @@ namespace Injection.Members
 
 
         #region Object
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
-        public virtual void EqualsObjectCold(InjectionMember member, MemberInfo info)
-        {
-            // Validate
-            Assert.IsFalse(member.Equals(info));
-        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]

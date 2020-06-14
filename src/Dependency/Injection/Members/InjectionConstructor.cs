@@ -139,6 +139,20 @@ namespace Unity.Injection
             }
         }
 
+        public override bool Equals(ConstructorInfo? other)
+        {
+            if (null == other) return false;
+
+            if (null != Info)
+            {
+                if (Info.Equals(other)) return true;
+
+                return false;
+            }
+
+            return base.Equals(other);
+        }
+
         #endregion
     }
 }
