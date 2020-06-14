@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -8,7 +9,7 @@ namespace Unity.Resolution
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
     public class DependencyOverride : ResolverOverride, 
-                                      IEquatable<NamedType>
+                                      IMatch<NamedType>
     {
         #region Fields
 
@@ -90,14 +91,14 @@ namespace Unity.Resolution
                            (null == Name   || dependency.Name == Name);
                 
                 case NamedType type:
-                    return Equals(type);
+                    return Match(type);
 
                 default:
                     return false;
             }
         }
 
-        public bool Equals(NamedType other)
+        public bool Match(NamedType other)
         {
             return (other.Type == Type) &&
                    (other.Name == Name);

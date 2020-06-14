@@ -62,7 +62,7 @@ namespace Unity.Injection
 
     [DebuggerDisplay("{ToString(true)}")]
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember,
-                                                                IEquatable<TMemberInfo>
+                                                                IMatch<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
         #region Fields
@@ -112,22 +112,27 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Equatable
+        #region IMatch
 
-        public virtual bool Equals(TMemberInfo? other)
+        public virtual bool Match(TMemberInfo other)
         {
             return Selection?.Equals(other) ?? false;
         }
+
+        #endregion
+
+
+        #region Object Overrides
 
         public override bool Equals(object? obj)
         {
             switch (obj)
             {
                 case TMemberInfo info:
-                    return Equals(info);
+                    return Match(info);
 
-                case IEquatable<TMemberInfo> equatable:
-                    return equatable.Equals(Selection!);
+                case IMatch<TMemberInfo> other:
+                    return other.Match(Selection!);
 
                 default:
                     return false;
@@ -136,6 +141,7 @@ namespace Unity.Injection
 
         public override int GetHashCode()
         {
+            // TODO: refactor
             return Selection?.GetHashCode() ?? 0;
         }
 

@@ -22,8 +22,8 @@ namespace Injection.Matching
             var member = members[position];
             
             // Validate
-            Assert.AreEqual(result, initd.Equals(member));
-            Assert.AreEqual(result, named.Equals(member));
+            Assert.AreEqual(result, initd.Match(member));
+            Assert.AreEqual(result, named.Match(member));
         }
 
 

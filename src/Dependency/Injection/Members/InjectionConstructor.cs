@@ -40,6 +40,23 @@ namespace Unity.Injection
         #endregion
 
 
+        #region IMatch
+
+        public override bool Match(ConstructorInfo other)
+        {
+            if (null != Info)
+            {
+                if (Info.Equals(other)) return true;
+
+                return false;
+            }
+
+            return base.Match(other);
+        }
+
+        #endregion
+
+
         #region Validation
 
         public override void Validate(Type type)
@@ -137,20 +154,6 @@ namespace Unity.Injection
                         ? $"Invoke.Constructor({Data.Signature()})"
                         : $"Invoke {Selection.DeclaringType}({Selection.Signature()})";
             }
-        }
-
-        public override bool Equals(ConstructorInfo? other)
-        {
-            if (null == other) return false;
-
-            if (null != Info)
-            {
-                if (Info.Equals(other)) return true;
-
-                return false;
-            }
-
-            return base.Equals(other);
         }
 
         #endregion

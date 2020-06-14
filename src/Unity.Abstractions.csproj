@@ -21,34 +21,22 @@
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard1.0' ">
-    <Compile Remove="Utility\ConcurrentDictionary.cs" />
-    <Compile Remove="Utility\Compatibility.NetStandard.1.0.cs" />
+  <ItemGroup>
+    <Compile Condition="'$(TargetFramework)' != 'netstandard1.0' " Remove="Utility\ConcurrentDictionary.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netstandard1.0' " Remove="Utility\Compatibility.NetStandard.1.0.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'" Remove="Utility\Compatibility.NetCoreApp.1.0.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
-    <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+  <ItemGroup>
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Utility\Compatibility.NetStandard.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'">
-    <Compile Remove="Utility\Compatibility.NetStandard.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.0'">
-    <Compile Remove="Utility\Compatibility.NetCoreApp.1.0.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('netcoreapp'))">
-    <Compile Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
-    <Compile Remove="Utility\Compatibility.Net.4.0.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <Compile Remove="Abstracts\IUnityContainerAsync.cs" />
-    <Compile Remove="Extensions\Container\UnityContainerAsync.cs" />
+  <ItemGroup>
+    <Compile Condition="'$(TargetFramework)' != 'net40'" Remove="Utility\Compatibility.Net.4.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Abstracts\IUnityContainerAsync.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Extensions\Container\UnityContainerAsync.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -90,10 +78,6 @@
     <PackageReference Condition="'$(TargetFramework)' != 'net40'" Include="System.Threading.Tasks.Extensions">
       <Version>4.5.4</Version>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Extensions\Reflection\" />
   </ItemGroup>
   
 </Project>

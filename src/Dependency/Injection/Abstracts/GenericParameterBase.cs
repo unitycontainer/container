@@ -72,9 +72,9 @@ namespace Unity.Injection
         #endregion
 
 
-        #region  Overrides
+        #region  IMatch
 
-        public override bool Equals(Type? type)
+        public override bool Match(Type type)
         {
             if (null == type) return false;
             if (!_isArray) return type.IsGenericParameter && type.Name == _genericParameterName;
@@ -84,7 +84,7 @@ namespace Unity.Injection
             return element.IsGenericParameter && element.Name == _genericParameterName;
         }
 
-        public override bool Equals(ParameterInfo? other)
+        public override bool Match(ParameterInfo other)
         {
             if (null == other) return false;
 
@@ -95,7 +95,7 @@ namespace Unity.Injection
 #endif
             var info = GenericParameterInfo(other);
 
-            return Equals(info.ParameterType);
+            return Match(info.ParameterType);
         }
 
         #endregion

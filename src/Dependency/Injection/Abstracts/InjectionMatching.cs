@@ -38,7 +38,7 @@ namespace Unity.Injection
                 null => (Type?)data == match,
                 Type _ when typeof(Type).Equals(match) => true,
                 Type type                  => MatchesType(type, match),
-                IEquatable<Type> equatable => equatable.Equals(match),
+                IMatch<Type> equatable => equatable.Match(match),
                 _                          => MatchesObject(data, match),
             };
         }

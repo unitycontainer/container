@@ -38,6 +38,26 @@ namespace Unity.Injection
         #endregion
 
 
+        #region IMatch
+
+        public override bool Match(MethodInfo other)
+        {
+            if (null != Info)
+            {
+                if (Info.Equals(other)) return true;
+
+                return false;
+            }
+
+            if (Name != other.Name) return false;
+            if (null == Data) return true;
+
+            return base.Match(other);
+        }
+
+        #endregion
+
+
         #region Validation
 
         public override void Validate(Type type)
@@ -142,23 +162,6 @@ namespace Unity.Injection
                     ? $"Invoke.Method('{Name}', {Data.Signature()})"
                     : $"Invoke: {Selection.DeclaringType}.{Name}({Selection.Signature()})";
             }
-        }
-
-        public override bool Equals(MethodInfo? other)
-        {
-            if (null == other) return false;
-
-            if (null != Info)
-            {
-                if (Info.Equals(other)) return true;
-
-                return false;
-            }
-
-            if (Name != other.Name) return false;
-            if (null == Data) return true;
-
-            return base.Equals(other);
         }
 
         #endregion

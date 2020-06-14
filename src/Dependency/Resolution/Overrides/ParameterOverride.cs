@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -8,7 +9,7 @@ namespace Unity.Resolution
     /// override a named parameter passed to a constructor.
     /// </summary>
     public class ParameterOverride : ResolverOverride,
-                                     IEquatable<ParameterInfo>
+                                     IMatch<ParameterInfo>
     {
         #region Fields
 
@@ -74,7 +75,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case ParameterInfo info:
-                    return Equals(info);
+                    return Match(info);
 
                 case ParameterOverride parameter:
                     return (null == Target || parameter.Target == Target) &&
@@ -85,7 +86,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(ParameterInfo? other)
+        public bool Match(ParameterInfo? other)
         {
             return null != other && 
                   (null == Target || other.Member.DeclaringType == Target) &&

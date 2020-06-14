@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -8,7 +9,7 @@ namespace Unity.Resolution
     /// the value for a specified field.
     /// </summary>
     public class FieldOverride : ResolverOverride,
-                                 IEquatable<FieldInfo>
+                                 IMatch<FieldInfo>
     {
         #region Constructors
 
@@ -37,7 +38,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case FieldInfo info:
-                    return Equals(info);
+                    return Match(info);
 
                 case FieldOverride field:
                     return field.Name == Name &&
@@ -48,7 +49,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(FieldInfo? other)
+        public bool Match(FieldInfo? other)
         {
             return null != other && other.Name == Name &&
                 (null == Target || other.DeclaringType == Target);

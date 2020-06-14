@@ -63,7 +63,7 @@ namespace Unity.Injection
 
         protected abstract Type? MemberType { get; }
 
-        public override bool Equals(TMemberInfo? other)
+        public override bool Match(TMemberInfo? other)
         {
             if (null == other) return false;
 

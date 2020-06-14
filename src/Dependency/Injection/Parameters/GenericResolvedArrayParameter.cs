@@ -44,7 +44,21 @@ namespace Unity.Injection
 
         #endregion
 
-        
+
+        #region IMatch
+
+        public override bool Match(Type type)
+        {
+            if (!type.IsArray || type.GetArrayRank() != 1)
+                return false;
+
+            Type elementType = type.GetElementType()!;
+            return elementType.IsGenericParameter && elementType.Name == base.ParameterTypeName;
+        }
+
+        #endregion
+
+
         #region Overrides
 
         /// <summary>
@@ -52,15 +66,6 @@ namespace Unity.Injection
         /// This may be an actual type name or a generic argument name.
         /// </summary>
         public override string ParameterTypeName => base.ParameterTypeName + "[]";
-
-        public override bool Equals(Type? type)
-        {
-            if (null == type || !type.IsArray || type.GetArrayRank() != 1)
-                return false;
-
-            Type elementType = type.GetElementType()!;
-            return elementType.IsGenericParameter && elementType.Name == base.ParameterTypeName;
-        }
 
         protected override ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
         {

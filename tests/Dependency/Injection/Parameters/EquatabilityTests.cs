@@ -38,14 +38,14 @@ namespace Injection.Parameters
         public virtual void EqualsAnyTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Equals(typeof(int)));
-            Assert.IsTrue(parameter.Equals(typeof(object)));
-            Assert.IsTrue(parameter.Equals(typeof(string)));
-            Assert.IsTrue(parameter.Equals(typeof(List<>)));
-            Assert.IsTrue(parameter.Equals(typeof(List<string>)));
-            Assert.IsTrue(parameter.Equals(typeof(string[])));
-            Assert.IsTrue(parameter.Equals(typeof(object[])));
-            Assert.IsTrue(parameter.Equals(typeof(int[])));
+            Assert.IsTrue(parameter.Match(typeof(int)));
+            Assert.IsTrue(parameter.Match(typeof(object)));
+            Assert.IsTrue(parameter.Match(typeof(string)));
+            Assert.IsTrue(parameter.Match(typeof(List<>)));
+            Assert.IsTrue(parameter.Match(typeof(List<string>)));
+            Assert.IsTrue(parameter.Match(typeof(string[])));
+            Assert.IsTrue(parameter.Match(typeof(object[])));
+            Assert.IsTrue(parameter.Match(typeof(int[])));
         }
 
         [DataTestMethod]
@@ -53,9 +53,9 @@ namespace Injection.Parameters
         public virtual void EqualsValueTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Equals(typeof(int)));
-            Assert.IsTrue(parameter.Equals(typeof(object)));
-            Assert.IsFalse(parameter.Equals(typeof(string)));
+            Assert.IsTrue(parameter.Match(typeof(int)));
+            Assert.IsTrue(parameter.Match(typeof(object)));
+            Assert.IsFalse(parameter.Match(typeof(string)));
         }
 
         [DataTestMethod]
@@ -63,11 +63,11 @@ namespace Injection.Parameters
         public virtual void EqualsArrayTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Equals(typeof(string[])));
-            Assert.IsTrue(parameter.Equals(typeof(object[])));
-            Assert.IsFalse(parameter.Equals(typeof(string[,])));
-            Assert.IsFalse(parameter.Equals(typeof(int)));
-            Assert.IsFalse(parameter.Equals(typeof(int[])));
+            Assert.IsTrue(parameter.Match(typeof(string[])));
+            Assert.IsTrue(parameter.Match(typeof(object[])));
+            Assert.IsFalse(parameter.Match(typeof(string[,])));
+            Assert.IsFalse(parameter.Match(typeof(int)));
+            Assert.IsFalse(parameter.Match(typeof(int[])));
         }
 
         [DataTestMethod]
@@ -75,9 +75,9 @@ namespace Injection.Parameters
         public virtual void EqualsGenericTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Equals(typeof(List<>)));
-            Assert.IsTrue(parameter.Equals(typeof(List<string>)));
-            Assert.IsFalse(parameter.Equals(typeof(IEnumerable<>)));
+            Assert.IsTrue(parameter.Match(typeof(List<>)));
+            Assert.IsTrue(parameter.Match(typeof(List<string>)));
+            Assert.IsFalse(parameter.Match(typeof(IEnumerable<>)));
         }
 
         [DataTestMethod]
@@ -85,9 +85,9 @@ namespace Injection.Parameters
         public virtual void EqualsGenericTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Equals(TrueType));
-            Assert.IsFalse(parameter.Equals(typeof(string)));
-            Assert.IsFalse(parameter.Equals(FalseType));
+            Assert.IsTrue(parameter.Match(TrueType));
+            Assert.IsFalse(parameter.Match(typeof(string)));
+            Assert.IsFalse(parameter.Match(FalseType));
         }
 
         [DataTestMethod]
@@ -95,11 +95,11 @@ namespace Injection.Parameters
         public virtual void EqualsGenericArrayTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Equals(TrueArrayType));
-            Assert.IsFalse(parameter.Equals(typeof(string)));
-            Assert.IsFalse(parameter.Equals(typeof(string[])));
-            Assert.IsFalse(parameter.Equals(typeof(string[,])));
-            Assert.IsFalse(parameter.Equals(FalseArrayType));
+            Assert.IsTrue(parameter.Match(TrueArrayType));
+            Assert.IsFalse(parameter.Match(typeof(string)));
+            Assert.IsFalse(parameter.Match(typeof(string[])));
+            Assert.IsFalse(parameter.Match(typeof(string[,])));
+            Assert.IsFalse(parameter.Match(FalseArrayType));
         }
 
         #endregion

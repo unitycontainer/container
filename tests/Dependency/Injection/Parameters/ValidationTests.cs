@@ -41,21 +41,6 @@ namespace Injection.Parameters
             Assert.IsTrue(parameter.ToString().StartsWith(name));
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(ParametersWithTypeData), DynamicDataSourceType.Method)]
-        public void EqualsValidationTest(ParameterValue parameter)
-        {
-            Assert.IsFalse(parameter.Equals((Type)null));
-        }
-
-
-        [DataTestMethod]
-        [DynamicData(nameof(ParametersWithTypeData), DynamicDataSourceType.Method)]
-        public void EqualsInfoValidationTest(ParameterValue parameter)
-        {
-            Assert.IsFalse(parameter.Equals((ParameterInfo)null));
-        }
-
         #region ResolvedArrayParameter
 
         [TestMethod]
