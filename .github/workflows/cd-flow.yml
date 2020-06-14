@@ -6,8 +6,8 @@ on:
       - 'develop'
       - 'hotfix/**'    
       - 'release/**'    
-    paths:
-      - 'src/**'
+    # paths:
+    #   - 'src/**'
 
 jobs:
 
@@ -25,10 +25,14 @@ jobs:
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
 
-    - name: Build
+
+    - name: Add Git Version and SourceLink
       run: | 
         dotnet add src/Unity.Abstractions.csproj package GitVersionTask
         dotnet add src/Unity.Abstractions.csproj package Microsoft.SourceLink.GitHub
+
+    - name: Build
+      run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True src
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ github.workspace }}/tests/Unity.Abstractions.Tests.csproj
 
