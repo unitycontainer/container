@@ -11,6 +11,7 @@ namespace Injection.Members
     {
         #region Equals
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
         public virtual void EqualsTest(InjectionMember member, MemberInfo info)
@@ -46,6 +47,7 @@ namespace Injection.Members
             Assert.IsFalse(member.Equals(this));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
         public virtual void EqualsObjectSame(InjectionMember member, MemberInfo info)
@@ -61,6 +63,7 @@ namespace Injection.Members
             Assert.IsTrue(member.Equals(member));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
         public virtual void EqualsObjectTest(InjectionMember member, MemberInfo info)
