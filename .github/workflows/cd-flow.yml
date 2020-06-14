@@ -25,8 +25,7 @@ jobs:
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
 
-
-    - name: Add Git Version and SourceLink
+    - name: Add GitVersion and SourceLink
       run: | 
         dotnet add src/Unity.Abstractions.csproj package GitVersionTask
         dotnet add src/Unity.Abstractions.csproj package Microsoft.SourceLink.GitHub
