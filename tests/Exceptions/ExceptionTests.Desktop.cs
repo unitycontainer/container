@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization.Formatters.Soap;
 using Unity;
 
 namespace Exceptions.Tests
@@ -28,22 +27,6 @@ namespace Exceptions.Tests
             Assert.AreEqual(ex.Message, exception.Message);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(ExceptionTestData), DynamicDataSourceType.Method)]
-        public void SoapFormatterTest(ResolutionFailedException ex)
-        {
-            // Arrange
-            IFormatter formatter = new SoapFormatter();
-
-            // Act
-            var exception = ReFormatException(formatter, ex);
-
-            // Validate
-            Assert.IsNotNull(exception);
-            Assert.AreEqual(ex.TypeRequested, exception.TypeRequested);
-            Assert.AreEqual(ex.NameRequested, exception.NameRequested);
-            Assert.AreEqual(ex.Message, exception.Message);
-        }
 
         #region Test Data
 
