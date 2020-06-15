@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Policy;
 
 namespace Unity.Injection
 {
@@ -10,7 +11,7 @@ namespace Unity.Injection
     /// for a constructor, so that the container can
     /// be configured to call this constructor.
     /// </summary>
-    public class InjectionConstructor : MethodBase<ConstructorInfo>
+    public class InjectionConstructor : MethodBase<ConstructorInfo>, IAddPolicies
     {
         #region Fields
 
@@ -157,5 +158,15 @@ namespace Unity.Injection
         }
 
         #endregion
+
+
+        public void AddPolicies<TPolicySet>(Type type, string? name, ref TPolicySet policies)
+            where TPolicySet : IPolicySet
+        {
+            var select = policies.Get<Func<Type, InjectionMember, ConstructorInfo>>()
+                      ?? SelectMember;
+
+            Selection = select(type, this);
+        }
     }
 }

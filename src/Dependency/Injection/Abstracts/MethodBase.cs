@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Policy;
 
 namespace Unity.Injection
 {
@@ -65,6 +67,8 @@ namespace Unity.Injection
 
 
         #region Overrides
+
+        public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
         public override TMemberInfo MemberInfo(Type type)
         {
@@ -141,6 +145,8 @@ namespace Unity.Injection
 #endif
             throw new InvalidOperationException($"Error selecting member on type {type}");
         }
+
+        protected abstract TMemberInfo SelectMember(Type type, InjectionMember member);
 
         #endregion
     }

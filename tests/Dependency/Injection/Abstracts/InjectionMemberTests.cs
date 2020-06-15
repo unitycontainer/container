@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Injection;
-using Unity.Policy;
 using Unity.Policy.Tests;
-using Unity.Resolution;
 
 namespace Injection.Members
 {
@@ -27,34 +25,6 @@ namespace Injection.Members
 
 
         #region InjectionMember
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetNotInitializedMembers), DynamicDataSourceType.Method)]
-        public virtual void AddPoliciesTest(InjectionMember member, MemberInfo _)
-        {
-            // Arrange
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(IPolicySet), typeof(PolicySet), null, ref cast);
-
-            // Validate
-            Assert.AreEqual(0, set.Count);
-        }
-
-        [DataTestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]
-        public virtual void AddWrongTypeTest(InjectionMember member, MemberInfo _)
-        {
-            // Arrange
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(WrongType), typeof(WrongType), null, ref cast);
-        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllInjectionMembers), DynamicDataSourceType.Method)]

@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Policy;
@@ -14,57 +13,12 @@ namespace Injection.Members
         where TMemberInfo : MemberInfo
     {
         [TestMethod]
-        public virtual void InitializationTest()
-        {
-            // Arrange
-            var member = GetDefaultMember();
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
-
-            // Validate
-            Assert.IsNotNull(member);
-            Assert.IsFalse(member.IsInitialized);
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
-
-            // Validate
-            Assert.IsTrue(member.IsInitialized);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public virtual void NoMatchAddPolicies()
-        {
-            var member = GetDefaultMember();
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(NoMatchClass), typeof(NoMatchClass), null, ref cast);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public virtual void DeclaredMemberCold()
-        {
-            // Act
-            var member = GetDefaultMember();
-
-            // Validate
-            _ = member.MemberInfo(typeof(TestClass<object>));
-        }
-
-        [TestMethod]
         public virtual void DerivedMemberInfo()
         {
             // Arrange
             var member = GetDefaultMember();
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
             TMemberInfo info = member.MemberInfo(typeof(TestClass<int>));
 
             // Validate
@@ -72,29 +26,12 @@ namespace Injection.Members
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public virtual void NoMatchMemberInfo()
-        {
-            // Arrange
-            var member = GetDefaultMember();
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
-
-            // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
-            _ = member.MemberInfo(typeof(NoMatchClass));
-        }
-
-        [TestMethod]
         public virtual void MemberInfoSimpleTest()
         {
             // Arrange
             var member = GetDefaultMember();
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(SimpleClass), typeof(SimpleClass), null, ref cast);
             var info = member.MemberInfo(typeof(SimpleClass));
 
             // Validate
@@ -106,11 +43,8 @@ namespace Injection.Members
         {
             // Arrange
             var member = GetDefaultMember();
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(TestClass<>), typeof(TestClass<>), null, ref cast);
             var info = member.MemberInfo(typeof(TestClass<object>));
 
             // Validate

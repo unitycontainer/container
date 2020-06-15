@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Policy;
@@ -24,19 +23,6 @@ namespace Unity.Injection
         public abstract void Validate(Type type);
 
         /// <summary>
-        /// Add policies to the <paramref name="policies"/> to configure the
-        /// container to call this constructor with the appropriate parameter values.
-        /// </summary>
-        /// <param name="registeredType">Type of interface being registered. If no interface,
-        /// this will be null.</param>
-        /// <param name="mappedToType">Type of concrete type being registered.</param>
-        /// <param name="name">Name used to resolve the type object.</param>
-        /// <param name="policies">Policy list to add policies to.</param>
-        public abstract void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string? name, ref TPolicySet policies)
-                where TContext : IResolveContext
-                where TPolicySet : IPolicySet;
-
-        /// <summary>
         /// This injection member instructs engine, when type mapping is present, 
         /// to build type instead of resolving it
         /// </summary>
@@ -50,7 +36,7 @@ namespace Unity.Injection
         /// It is expected that IService resolves instance registered on line 1. But when IOtherService is resolved 
         /// it requires different constructor so it should be built instead.
         /// </remarks>
-        public abstract bool BuildRequired { get; }
+        public virtual bool BuildRequired => true;
 
         /// <summary>
         /// Debugger Display support
@@ -98,16 +84,11 @@ namespace Unity.Injection
 
         #region Public Members
 
-        public string? Name { get; }
+        public string Name { get; }
 
         public virtual TData Data { get; }
 
-        public abstract TMemberInfo MemberInfo(Type type);
-
-        public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
-
-        // TODO: Redundant
-        public bool IsInitialized => null != Selection;
+        public abstract TMemberInfo? MemberInfo(Type type);
 
         #endregion
 
@@ -123,6 +104,8 @@ namespace Unity.Injection
 
 
         #region Object Overrides
+        
+        public override int GetHashCode() => base.GetHashCode();
 
         public override bool Equals(object? obj)
         {
@@ -139,12 +122,6 @@ namespace Unity.Injection
             }
         }
 
-        public override int GetHashCode()
-        {
-            // TODO: refactor
-            return Selection?.GetHashCode() ?? 0;
-        }
-
         #endregion
 
 
@@ -152,15 +129,6 @@ namespace Unity.Injection
 
         public override void Validate(Type type) { }
 
-        public override bool BuildRequired => true;
-
-        public override void AddPolicies<TContext, TPolicySet>(Type registeredType, Type mappedToType, string? name, ref TPolicySet policies)
-        {
-            var select = policies.Get<Func<Type, InjectionMember, TMemberInfo>>() 
-                      ?? SelectMember;
-
-            Selection = select(mappedToType, this);
-        }
 
         public override string ToString() => ToString(false);
 
@@ -169,7 +137,6 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected abstract TMemberInfo SelectMember(Type type, InjectionMember member);
 
         protected static bool MatchesType(Type type, Type match)
         {

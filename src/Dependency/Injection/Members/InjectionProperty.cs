@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -59,13 +58,12 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override PropertyInfo? DeclaredMember(Type type, string name) => 
-            type.GetProperty(Selection!.Name);
+        public override PropertyInfo? MemberInfo(Type type)
+        {
+            if (null != Info && Info.DeclaringType == type) return Info;
 
-        public override IEnumerable<PropertyInfo> DeclaredMembers(Type type) => 
-            type.SupportedProperties();
-
-        protected override Type? MemberType => Selection?.PropertyType;
+            return type.GetProperty(Name);
+        }
 
         protected override string ToString(bool debug = false)
         {
@@ -76,12 +74,12 @@ namespace Unity.Injection
             else
             {
                 return Data is DependencyResolutionAttribute
-                    ? null == Selection 
+                    ? null == Info
                             ? $"Resolve.Property('{Name}')"        
-                            : $"Resolve: '{Selection.DeclaringType}.{Name}'"
-                    : null == Selection 
+                            : $"Resolve: '{Info.DeclaringType}.{Name}'"
+                    : null == Info
                             ? $"Inject.Property('{Name}', {Data})" 
-                            : $"Inject: '{Selection.DeclaringType}.{Name}' with {Data})";
+                            : $"Inject: '{Info.DeclaringType}.{Name}' with {Data})";
             }
         }
 

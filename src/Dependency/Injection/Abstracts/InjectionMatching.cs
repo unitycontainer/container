@@ -35,11 +35,15 @@ namespace Unity.Injection
         {
             return data switch
             {
-                null => (Type?)data == match,
+#if NETSTANDARD1_0 || NETCOREAPP1_0
+                null => (null == match) || !match.GetTypeInfo().IsValueType || (null != Nullable.GetUnderlyingType(match)),
+#else
+                null => (null == match) || !match.IsValueType || (null != Nullable.GetUnderlyingType(match)),
+#endif
                 Type _ when typeof(Type).Equals(match) => true,
-                Type type                  => MatchesType(type, match),
-                IMatch<Type> equatable => equatable.Match(match),
-                _                          => MatchesObject(data, match),
+                Type type                              => MatchesType(type, match),
+                IMatch<Type> equatable                 => equatable.Match(match),
+                _                                      => MatchesObject(data, match),
             };
         }
 

@@ -32,11 +32,8 @@ namespace Injection.Members
         {
             // Arrange
             var member = new InjectionMethod("TestMethod", "test");
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(MethodTestClass<>), typeof(MethodTestClass<>), null, ref cast);
             var info = member.MemberInfo(typeof(MethodTestClass<int>));
 
             // Validate
@@ -49,11 +46,8 @@ namespace Injection.Members
         {
             // Arrange
             var member = new InjectionMethod("TestMethod", "test");
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(MethodTestClass<>), typeof(MethodTestClass<>), null, ref cast);
             var info = member.MemberInfo(typeof(MethodTestClass<>));
 
             // Validate
@@ -66,11 +60,8 @@ namespace Injection.Members
         {
             // Arrange
             var member = new InjectionMethod("OtherTestMethod", (object[])null);
-            var set = new PolicySet();
-            var cast = set as IPolicySet;
 
             // Act
-            member.AddPolicies<IResolveContext, IPolicySet>(typeof(MethodTestClass<>), typeof(MethodTestClass<>), null, ref cast);
             var info = member.MemberInfo(typeof(MethodTestClass<>));
 
             // Validate
