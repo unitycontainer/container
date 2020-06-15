@@ -12,11 +12,9 @@ namespace Injection.Matching
     {
         protected override InjectionConstructor GetMember(object info, object[] data)
         {
-            return info switch
-            {
-                ConstructorInfo ctor => new InjectionConstructor(ctor, data),
-                _ => new InjectionConstructor(data),
-            };
+            return info is ConstructorInfo ctor
+                ? new InjectionConstructor(ctor, data)
+                : new InjectionConstructor(data);
         }
 
         protected override IEnumerable<ConstructorInfo> GetSupportedMembers(Type type)
@@ -30,12 +28,9 @@ namespace Injection.Matching
     {
         protected override InjectionMethod GetMember(object info, object[] data)
         {
-            return info switch
-            {
-                MethodInfo method => new InjectionMethod(method, data),
-                string name       => new InjectionMethod(name, data),
-                _ => throw new System.NotImplementedException(),
-            };
+            return info is MethodInfo method
+                ? new InjectionMethod(method, data)
+                : new InjectionMethod(info as string, data);
         }
 
         protected override IEnumerable<MethodInfo> GetSupportedMembers(Type type)
@@ -49,12 +44,9 @@ namespace Injection.Matching
     {
         protected override InjectionField GetMember(object info, object data)
         {
-            return info switch
-            {
-                FieldInfo field => new InjectionField(field, data),
-                string name     => new InjectionField(name, data),
-                _ => throw new System.NotImplementedException(),
-            };
+            return info is FieldInfo field
+                ? new InjectionField(field, data)
+                : new InjectionField(info as string, data);
         }
 
         protected override IEnumerable<FieldInfo> GetSupportedMembers(Type type)
@@ -69,12 +61,9 @@ namespace Injection.Matching
     {
         protected override InjectionProperty GetMember(object info, object data)
         {
-            return info switch
-            {
-                PropertyInfo prop => new InjectionProperty(prop, data),
-                string name       => new InjectionProperty(name, data),
-                _ => throw new System.NotImplementedException(),
-            };
+            return info is PropertyInfo prop
+                ? new InjectionProperty(prop, data)
+                : new InjectionProperty(info as string, data);
         }
 
         protected override IEnumerable<PropertyInfo> GetSupportedMembers(Type type)
