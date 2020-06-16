@@ -43,7 +43,6 @@ namespace Unity.Injection
             foreach (var member in DeclaredMembers(type))
             {
                 if (!Match(member)) continue;
-                //if (!Data.MatchMemberInfo(member)) continue;
 
                 return member;
             }

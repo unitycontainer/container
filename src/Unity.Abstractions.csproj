@@ -23,15 +23,15 @@
 
   <ItemGroup>
     <Compile Condition="'$(TargetFramework)' != 'netstandard1.6' " Remove="Extensions\Reflection\Compatibility.NetStandard.1.x.cs" />
-    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'"   Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
-    <Compile Condition="'$(TargetFramework)' != 'net40'"           Remove="Extensions\Reflection\Compatibility.Net.4.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'net40'"           Remove="Extensions\Container\UnityContainerAsync.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'net40'"           Remove="Abstracts\IUnityContainerAsync.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'net40'" Remove="Extensions\Reflection\Compatibility.Net.4.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Extensions\Container\UnityContainerAsync.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Abstracts\IUnityContainerAsync.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))"             Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))"            Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
   </ItemGroup>
 
