@@ -7,6 +7,19 @@ namespace Unity
 {
     internal static class Compatibility_Net_4_0
     {
+        public static Attribute GetCustomAttribute(this MemberInfo info, Type type)
+        {
+            return info.GetCustomAttributes(true)
+                       .Cast<Attribute>()
+                       .Where(a => a.GetType()
+                                    .GetTypeInfo()
+                                    .IsAssignableFrom(type.GetTypeInfo()))
+                       .FirstOrDefault();
+        }
+
+        public static bool IsDefined(this MemberInfo element, Type attributeType) => 
+            element.IsDefined(attributeType, true);
+
         public static Attribute GetCustomAttribute(this ParameterInfo info, Type type)
         {
             return info.GetCustomAttributes(type, true)

@@ -58,11 +58,8 @@ namespace Unity.Injection
             if (null != Info && Info.DeclaringType == type) 
                 return Info;
 
-            return DeclaredMember(type);
+            return type.GetField(Name);
         }
-
-        protected override FieldInfo DeclaredMember(Type type) => 
-            type.GetField(Name);
 
         protected override string ToString(bool debug = false)
         {

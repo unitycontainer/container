@@ -88,11 +88,7 @@ namespace Unity.Injection
         public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
             where TContext : IResolveContext
         {
-#if NET40
-            object? value = null;
-#else
-            var value = info.HasDefaultValue ? info.DefaultValue : null;
-#endif
+            var value = info.GetDefaultValue();
             if (IsInvalidParameterType)
             {
                 var type = info.ParameterType;

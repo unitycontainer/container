@@ -52,6 +52,14 @@ namespace Unity.Injection
                                                                 IMatch<TMemberInfo>
                                             where TMemberInfo : MemberInfo
     {
+        #region Defaults
+
+        internal static BindingFlags BindingFlags = BindingFlags.NonPublic |
+                                                    BindingFlags.Public    |
+                                                    BindingFlags.Instance;
+        #endregion
+
+
         #region Fields
 
         protected const string NoMatchFound = "No member matching data has been found.";
@@ -143,8 +151,6 @@ namespace Unity.Injection
 
         #region Implementation
 
-        protected abstract TMemberInfo DeclaredMember(Type type);
-
         protected static bool MatchesType(Type type, Type match)
         {
             if (null == type) return true;
@@ -155,18 +161,10 @@ namespace Unity.Injection
             if (typeof(Array) == type && match.IsArray)
                 return true;
 
-#if NETSTANDARD1_6 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-#else
-            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
+            if (type.IsGenericType() && type.IsGenericTypeDefinition() && match.IsGenericType() &&
                 type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
                 return true;
-#endif
+
             return false;
         }
 

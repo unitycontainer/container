@@ -35,11 +35,7 @@ namespace Unity.Injection
         {
             return data switch
             {
-#if NETSTANDARD1_6 || NETCOREAPP1_0
-                null => (null == match) || !match.GetTypeInfo().IsValueType || (null != Nullable.GetUnderlyingType(match)),
-#else
-                null => (null == match) || !match.IsValueType || (null != Nullable.GetUnderlyingType(match)),
-#endif
+                null => (null == match) || !match.IsValueType() || (null != Nullable.GetUnderlyingType(match)),
                 Type _ when typeof(Type).Equals(match) => true,
                 Type type                              => MatchesType(type, match),
                 IMatch<Type> equatable                 => equatable.Match(match),
@@ -57,18 +53,10 @@ namespace Unity.Injection
             if (typeof(Array) == type && match.IsArray)
                 return true;
 
-#if NETSTANDARD1_6 || NETCOREAPP1_0
-            var typeInfo = type.GetTypeInfo();
-            var matchInfo = match.GetTypeInfo();
-
-            if (typeInfo.IsGenericType && typeInfo.IsGenericTypeDefinition && matchInfo.IsGenericType &&
-                typeInfo.GetGenericTypeDefinition() == matchInfo.GetGenericTypeDefinition())
-                return true;
-#else
-            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
+            if (type.IsGenericType() && type.IsGenericTypeDefinition() && match.IsGenericType() &&
                 type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
                 return true;
-#endif
+
             return false;
         }
 

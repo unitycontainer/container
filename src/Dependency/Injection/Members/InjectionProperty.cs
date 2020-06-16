@@ -63,11 +63,8 @@ namespace Unity.Injection
             if (null != Info && Info.DeclaringType == type) 
                 return Info;
 
-            return DeclaredMember(type);
+            return type.GetProperty(Name);
         }
-
-        protected override PropertyInfo DeclaredMember(Type type) => 
-            type.GetProperty(Name);
 
         protected override string ToString(bool debug = false)
         {

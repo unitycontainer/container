@@ -126,7 +126,8 @@ namespace Unity.Injection
         #region Overrides
 
         public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => 
-            type.SupportedConstructors();
+            type.GetConstructors(BindingFlags)
+                .Where(SupportedMembersFilter);
 
         protected override string ToString(bool debug = false)
         {

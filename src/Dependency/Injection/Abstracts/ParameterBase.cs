@@ -49,22 +49,15 @@ namespace Unity.Injection
             if (null == _type) return true;
             if (null == type) return false;
 
-#if NETSTANDARD1_6 || NETCOREAPP1_0
-            var info = _type.GetTypeInfo();
-            var cInfo = type.GetTypeInfo();
-#else
-            var info = _type;
-            var cInfo = type;
-#endif
-            if (info.IsGenericTypeDefinition || cInfo.IsGenericTypeDefinition)
+            if (_type.IsGenericTypeDefinition() || type.IsGenericTypeDefinition())
             {
-                var left = info.IsGenericTypeDefinition  ? _type : _type.GetGenericTypeDefinition();
-                var right = cInfo.IsGenericTypeDefinition ? type : type.GetGenericTypeDefinition();
+                var left = _type.IsGenericTypeDefinition() ? _type : _type.GetGenericTypeDefinition();
+                var right = type.IsGenericTypeDefinition() ?  type : type.GetGenericTypeDefinition();
 
                 return left == right;
             }
 
-            return cInfo.IsAssignableFrom(info);
+            return type.IsAssignableFrom(_type);
         }
 
         public override bool Match(ParameterInfo? other)
@@ -83,18 +76,10 @@ namespace Unity.Injection
         {
             get
             {
-#if NETSTANDARD1_6 || NETCOREAPP1_0
-                var info = ParameterType?.GetTypeInfo();
-                return null == ParameterType || null == info || 
-                    info.IsGenericType && info.ContainsGenericParameters ||
-                    ParameterType.IsArray && ParameterType.GetElementType().GetTypeInfo().IsGenericParameter ||
-                    ParameterType.IsGenericParameter;
-#else
                 return null == ParameterType ||
-                    ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                    ParameterType.IsArray && ParameterType.GetElementType()!.IsGenericParameter ||
+                    ParameterType.IsGenericType() && ParameterType.ContainsGenericParameters() ||
+                    ParameterType.IsArray         && ParameterType.GetElementType()!.IsGenericParameter ||
                     ParameterType.IsGenericParameter;
-#endif
             }
         }
 

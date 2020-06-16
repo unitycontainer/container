@@ -86,14 +86,10 @@ namespace Unity.Injection
 
         public override bool Match(ParameterInfo other)
         {
-#if NETCOREAPP1_0 || NETSTANDARD1_6
-            if (!other.Member.DeclaringType!.GetTypeInfo().IsGenericType) return false;
-#else
-            if (!other.Member.DeclaringType!.IsGenericType) return false;
-#endif
-            var info = GenericParameterInfo(other);
+            if (!other.Member.DeclaringType!.IsGenericType()) 
+                return false;
 
-            return Match(info.ParameterType);
+            return Match(GenericParameterInfo(other).ParameterType);
         }
 
         #endregion
@@ -128,30 +124,9 @@ namespace Unity.Injection
         protected ParameterInfo GenericParameterInfo(ParameterInfo other)
         {
             var definition = other.Member.DeclaringType!.GetGenericTypeDefinition();
-#if NETSTANDARD1_6 || NETCOREAPP1_0
-            var memberType = other.Member.Name == ".ctor" ? MemberTypes.Constructor : MemberTypes.Method;
-            IEnumerable < MethodBase> members = memberType switch
-            {
-                MemberTypes.Constructor => definition.SupportedConstructors(),
-                MemberTypes.Method      => definition.SupportedMethods(),
-                _ => throw new InvalidOperationException()
-            };
+            var info = ((MethodBase)other.Member).GetMemberFromInfo(definition);
 
-            foreach (MethodBase member in members)
-            {
-                if (member.MetadataToken != other.Member.MetadataToken) continue;
-
-                var parameters = member.GetParameters();
-                return parameters[other.Position];
-            }
-
-            throw new InvalidOperationException();
-#else
-            var info = MethodBase.GetMethodFromHandle(((MethodBase)other.Member).MethodHandle, definition.TypeHandle);
-            
-            return info.GetParameters()[other.Position];
-#endif
-
+            return info!.GetParameters()[other.Position];
         }
 
         #endregion

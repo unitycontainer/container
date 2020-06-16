@@ -106,11 +106,10 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override IEnumerable<MethodInfo> DeclaredMembers(Type type)
-        {
-            return type.SupportedMethods()
-                       .Where(member => member.Name == Name);
-        }
+        public override IEnumerable<MethodInfo> DeclaredMembers(Type type) => 
+            type.GetMethods(BindingFlags)
+                .Where(SupportedMembersFilter)
+                .Where(member => member.Name == Name);
 
         protected override string ToString(bool debug = false)
         {

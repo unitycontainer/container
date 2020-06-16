@@ -49,11 +49,7 @@ namespace Unity.Injection
 
         public override ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
         {
-#if NET40
-            _defaultValue = null;
-#else
-            _defaultValue = info.HasDefaultValue ? info.DefaultValue : null;
-#endif
+            _defaultValue = info.GetDefaultValue();
             return base.GetResolver<TContext>(info);
         }
 
