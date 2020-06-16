@@ -39,36 +39,37 @@ namespace Injection.Matching
         }
     }
 
-    [TestClass]
-    public class FieldTests : MemberBaseTests<InjectionField, FieldInfo>
-    {
-        protected override InjectionField GetMember(object info, object data)
-        {
-            return info is FieldInfo field
-                ? new InjectionField(field, data)
-                : new InjectionField(info as string, data);
-        }
+    // TODO: Reenable
+    //[TestClass]
+    //public class FieldTests : MemberBaseTests<InjectionField, FieldInfo>
+    //{
+    //    protected override InjectionField GetMember(object info, object data)
+    //    {
+    //        return info is FieldInfo field
+    //            ? new InjectionField(field, data)
+    //            : new InjectionField(info as string, data);
+    //    }
 
-        protected override IEnumerable<FieldInfo> GetSupportedMembers(Type type)
-        {
-            return type.SupportedFields();
-        }
-    }
+    //    protected override IEnumerable<FieldInfo> GetSupportedMembers(Type type)
+    //    {
+    //        return type.SupportedFields();
+    //    }
+    //}
 
 
-    [TestClass]
-    public class PropertyTests : MemberBaseTests<InjectionProperty, PropertyInfo>
-    {
-        protected override InjectionProperty GetMember(object info, object data)
-        {
-            return info is PropertyInfo prop
-                ? new InjectionProperty(prop, data)
-                : new InjectionProperty(info as string, data);
-        }
+    //[TestClass]
+    //public class PropertyTests : MemberBaseTests<InjectionProperty, PropertyInfo>
+    //{
+    //    protected override InjectionProperty GetMember(object info, object data)
+    //    {
+    //        return info is PropertyInfo prop
+    //            ? new InjectionProperty(prop, data)
+    //            : new InjectionProperty(info as string, data);
+    //    }
 
-        protected override IEnumerable<PropertyInfo> GetSupportedMembers(Type type)
-        {
-            return type.SupportedProperties();
-        }
-    }
+    //    protected override IEnumerable<PropertyInfo> GetSupportedMembers(Type type)
+    //    {
+    //        return type.SupportedProperties();
+    //    }
+    //}
 }

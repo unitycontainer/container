@@ -44,6 +44,7 @@ namespace Unity.Injection
         /// <param name="debug">Indicates if member is rendered in Debug mode</param>
         /// <returns>String representation on the member</returns>
         protected abstract string ToString(bool debug = false);
+        // TODO: Remove
     }
 
     [DebuggerDisplay("{ToString(true)}")]
@@ -132,11 +133,17 @@ namespace Unity.Injection
 
         public override string ToString() => ToString(false);
 
+        protected override string ToString(bool debug = false) => 
+            null == Info
+            ? $"{GetType().Name}: {Name}"
+            : $"{GetType().Name}: {Info.DeclaringType}.{Name}";
+
         #endregion
 
 
         #region Implementation
 
+        protected abstract TMemberInfo DeclaredMember(Type type);
 
         protected static bool MatchesType(Type type, Type match)
         {
@@ -148,7 +155,7 @@ namespace Unity.Injection
             if (typeof(Array) == type && match.IsArray)
                 return true;
 
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_6 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
             var matchInfo = match.GetTypeInfo();
 

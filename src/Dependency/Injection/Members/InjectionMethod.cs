@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity.Policy;
 
 namespace Unity.Injection
 {
@@ -10,7 +9,7 @@ namespace Unity.Injection
     /// An <see cref="InjectionMember"/> that configures the
     /// container to call a method as part of buildup.
     /// </summary>
-    public class InjectionMethod : MethodBase<MethodInfo>, IAddPolicies
+    public class InjectionMethod : MethodBase<MethodInfo>
     {
         #region Constructors
 
@@ -34,26 +33,6 @@ namespace Unity.Injection
         public InjectionMethod(MethodInfo info, params object[] arguments)
             : base(info, arguments)
         {
-        }
-
-        #endregion
-
-
-        #region IMatch
-
-        public override bool Match(MethodInfo other)
-        {
-            if (null != Info)
-            {
-                if (Info.Equals(other)) return true;
-
-                return false;
-            }
-
-            if (Name != other.Name) return false;
-            if (null == Data) return true;
-
-            return base.Match(other);
         }
 
         #endregion
@@ -127,22 +106,6 @@ namespace Unity.Injection
 
         #region Overrides
 
-        protected override MethodInfo SelectMember(Type type, InjectionMember _)
-        {
-            var noData = 0 == (Data?.Length ?? 0);
-
-            foreach (var member in DeclaredMembers(type))
-            {
-                if (null != Name && noData) return member;
-
-                if (!Data!.MatchMemberInfo(member)) continue;
-
-                return member;
-            }
-
-            throw new ArgumentException(NoMatchFound);
-        }
-
         public override IEnumerable<MethodInfo> DeclaredMembers(Type type)
         {
             return type.SupportedMethods()
@@ -166,16 +129,5 @@ namespace Unity.Injection
         }
 
         #endregion
-
-
-
-        public void AddPolicies<TPolicySet>(Type type, string? name, ref TPolicySet policies)
-            where TPolicySet : IPolicySet
-        {
-            var select = policies.Get<Func<Type, InjectionMember, MethodInfo>>()
-                      ?? SelectMember;
-
-            Selection = select(type, this);
-        }
     }
 }

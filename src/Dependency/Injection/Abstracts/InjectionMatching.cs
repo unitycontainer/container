@@ -35,7 +35,7 @@ namespace Unity.Injection
         {
             return data switch
             {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_6 || NETCOREAPP1_0
                 null => (null == match) || !match.GetTypeInfo().IsValueType || (null != Nullable.GetUnderlyingType(match)),
 #else
                 null => (null == match) || !match.IsValueType || (null != Nullable.GetUnderlyingType(match)),
@@ -57,7 +57,7 @@ namespace Unity.Injection
             if (typeof(Array) == type && match.IsArray)
                 return true;
 
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_6 || NETCOREAPP1_0
             var typeInfo = type.GetTypeInfo();
             var matchInfo = match.GetTypeInfo();
 

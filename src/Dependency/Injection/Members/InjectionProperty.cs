@@ -7,7 +7,7 @@ namespace Unity.Injection
     /// This class stores information about which properties to inject,
     /// and will configure the container accordingly.
     /// </summary>
-    public class InjectionProperty : MemberInfoBase<PropertyInfo>
+    public class InjectionProperty : InjectionMember<PropertyInfo, object>
     {
         #region Constructors
 
@@ -60,10 +60,14 @@ namespace Unity.Injection
 
         public override PropertyInfo? MemberInfo(Type type)
         {
-            if (null != Info && Info.DeclaringType == type) return Info;
+            if (null != Info && Info.DeclaringType == type) 
+                return Info;
 
-            return type.GetProperty(Name);
+            return DeclaredMember(type);
         }
+
+        protected override PropertyInfo DeclaredMember(Type type) => 
+            type.GetProperty(Name);
 
         protected override string ToString(bool debug = false)
         {

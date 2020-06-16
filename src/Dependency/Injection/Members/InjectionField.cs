@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public class InjectionField : MemberInfoBase<FieldInfo>
+    public class InjectionField : InjectionMember<FieldInfo, object>
     {
         #region Constructors
 
@@ -55,10 +55,14 @@ namespace Unity.Injection
 
         public override FieldInfo? MemberInfo(Type type)
         {
-            if (null != Info && Info.DeclaringType == type) return Info;
+            if (null != Info && Info.DeclaringType == type) 
+                return Info;
 
-            return type.GetField(Name);
+            return DeclaredMember(type);
         }
+
+        protected override FieldInfo DeclaredMember(Type type) => 
+            type.GetField(Name);
 
         protected override string ToString(bool debug = false)
         {

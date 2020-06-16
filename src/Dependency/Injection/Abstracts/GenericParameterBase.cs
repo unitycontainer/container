@@ -86,9 +86,7 @@ namespace Unity.Injection
 
         public override bool Match(ParameterInfo other)
         {
-            if (null == other) return false;
-
-#if NETCOREAPP1_0 || NETSTANDARD1_0
+#if NETCOREAPP1_0 || NETSTANDARD1_6
             if (!other.Member.DeclaringType!.GetTypeInfo().IsGenericType) return false;
 #else
             if (!other.Member.DeclaringType!.IsGenericType) return false;
@@ -130,12 +128,8 @@ namespace Unity.Injection
         protected ParameterInfo GenericParameterInfo(ParameterInfo other)
         {
             var definition = other.Member.DeclaringType!.GetGenericTypeDefinition();
-
-#if NETSTANDARD1_0
+#if NETSTANDARD1_6 || NETCOREAPP1_0
             var memberType = other.Member.Name == ".ctor" ? MemberTypes.Constructor : MemberTypes.Method;
-#else
-            var memberType = other.Member.MemberType;
-#endif
             IEnumerable < MethodBase> members = memberType switch
             {
                 MemberTypes.Constructor => definition.SupportedConstructors(),
@@ -143,17 +137,21 @@ namespace Unity.Injection
                 _ => throw new InvalidOperationException()
             };
 
-            var expected = ((MethodBase)other.Member).GetParameters()
-                                                     .Select(p => p.Name)
-                                                     .ToArray();
             foreach (MethodBase member in members)
             {
+                if (member.MetadataToken != other.Member.MetadataToken) continue;
+
                 var parameters = member.GetParameters();
-                if ( expected.SequenceEqual(parameters.Select(p => p.Name)))
-                    return parameters[other.Position];
+                return parameters[other.Position];
             }
 
             throw new InvalidOperationException();
+#else
+            var info = MethodBase.GetMethodFromHandle(((MethodBase)other.Member).MethodHandle, definition.TypeHandle);
+            
+            return info.GetParameters()[other.Position];
+#endif
+
         }
 
         #endregion

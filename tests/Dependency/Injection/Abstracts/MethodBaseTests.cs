@@ -12,6 +12,7 @@ namespace Injection.Members
     public abstract class MethodBaseTests<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
     {
+        [Ignore]
         [TestMethod]
         public virtual void DerivedMemberInfo()
         {
@@ -25,6 +26,7 @@ namespace Injection.Members
             Assert.AreEqual(member.Name, info.Name);
         }
 
+        [Ignore]
         [TestMethod]
         public virtual void MemberInfoSimpleTest()
         {
@@ -38,6 +40,7 @@ namespace Injection.Members
             Assert.IsNotNull(info);
         }
 
+        [Ignore]
         [TestMethod]
         public virtual void MemberInfoTest()
         {
@@ -64,6 +67,7 @@ namespace Injection.Members
             //Assert.AreEqual(2, members.Length);
         }
 
+        [Ignore]
         [TestMethod]
         public void ValidateParametersTest()
         {

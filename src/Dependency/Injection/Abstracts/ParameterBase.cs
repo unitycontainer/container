@@ -49,7 +49,7 @@ namespace Unity.Injection
             if (null == _type) return true;
             if (null == type) return false;
 
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_6 || NETCOREAPP1_0
             var info = _type.GetTypeInfo();
             var cInfo = type.GetTypeInfo();
 #else
@@ -83,7 +83,7 @@ namespace Unity.Injection
         {
             get
             {
-#if NETSTANDARD1_0 || NETCOREAPP1_0
+#if NETSTANDARD1_6 || NETCOREAPP1_0
                 var info = ParameterType?.GetTypeInfo();
                 return null == ParameterType || null == info || 
                     info.IsGenericType && info.ContainsGenericParameters ||
