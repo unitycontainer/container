@@ -26,7 +26,7 @@ namespace Unity
         public static TInfo? GetMemberFromInfo<TInfo>(this TInfo info, Type type)
             where TInfo : MethodBase
         {
-            return (TInfo)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
+            return (TInfo?)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
         }
 
 #endif

@@ -20,7 +20,7 @@ namespace Unity.Injection
         /// <param name="type"><see cref="Type"/> to validate this member with</param>
         /// <exception cref="ArgumentException">Thrown if member does not
         /// match with provided <see cref="Type"/></exception>
-        public abstract void Validate(Type type);
+        public virtual void Validate(Type type) { } // TODO: Remove
 
         /// <summary>
         /// This injection member instructs engine, when type mapping is present, 
@@ -66,7 +66,6 @@ namespace Unity.Injection
 
         protected TMemberInfo? Selection { get; set; }
 
-        protected TMemberInfo? Info { get; set; }
 
         #endregion
 
@@ -96,6 +95,8 @@ namespace Unity.Injection
         public string Name { get; }
 
         public virtual TData Data { get; }
+
+        public TMemberInfo? Info { get; private set; }
 
         public abstract TMemberInfo? MemberInfo(Type type);
 
