@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Policy;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -12,16 +10,6 @@ namespace Unity.Injection
     /// </summary>
     public abstract class InjectionMember
     {
-        /// <summary>
-        /// This method performs diagnostic validation of provided <see cref="Type"/>.
-        /// It evaluates if this member could be matched with appropriate <see cref="MemberInfo"/>
-        /// of the <see cref="Type"/>.
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to validate this member with</param>
-        /// <exception cref="ArgumentException">Thrown if member does not
-        /// match with provided <see cref="Type"/></exception>
-        public virtual void Validate(Type type) { } // TODO: Remove
-
         /// <summary>
         /// This injection member instructs engine, when type mapping is present, 
         /// to build type instead of resolving it
@@ -136,9 +124,6 @@ namespace Unity.Injection
 
 
         #region Overrides
-
-        public override void Validate(Type type) { }
-
 
         public override string ToString() => ToString(false);
 
