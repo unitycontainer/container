@@ -27,7 +27,7 @@ jobs:
 
     - name: Add GitVersion and SourceLink
       run: | 
-        dotnet add src/Unity.Abstractions.csproj package GitVersionTask --version 5.3.5
+        dotnet add src/Unity.Abstractions.csproj package GitVersionTask --no-restore --version 5.3.5
         dotnet add src/Unity.Abstractions.csproj package Microsoft.SourceLink.GitHub
 
     - name: Build
