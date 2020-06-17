@@ -26,7 +26,7 @@
     <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
     <Compile Condition="'$(TargetFramework)' != 'net40'" Remove="Extensions\Reflection\Compatibility.Net.4.0.cs" />
     <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Extensions\Container\UnityContainerAsync.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Abstracts\IUnityContainerAsync.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Interfaces\IUnityContainerAsync.cs" />
   </ItemGroup>
 
   <ItemGroup>
