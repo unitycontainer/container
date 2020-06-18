@@ -34,13 +34,14 @@
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <Optimize>true</Optimize>
-    <NoWarn>;2008</NoWarn>
+    <NoWarn>;2008;ILT0003;0003;ILT0010;0010;ILT0005;0005</NoWarn>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -119,16 +120,11 @@
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dependency\Attributes\AttributesTests.cs" />
-    <Compile Include="Dependency\Extensions\*.cs" /> 
-    <Compile Include="Dependency\Injection\Abstracts\*.cs" />
-    <Compile Include="Dependency\Injection\Matching\*.cs" />
-    <Compile Include="Dependency\Injection\Members\*.cs" />
-    <Compile Include="Dependency\Injection\Parameters\*.cs" />
-    <Compile Include="Dependency\Resolution\*.cs" />
+    <Compile Include="Annotation\*.cs" />
+    <Compile Include="Extensions\**\*.cs" />
+    <Compile Include="Dependency\**\*.cs" />
     <Compile Include="Exceptions\ExceptionTests.cs" />
-    <Compile Include="Lifetime\Extensions\*.cs" />
-    <Compile Include="Lifetime\Managers\*.cs" />
+    <Compile Include="Lifetime\**\*.cs" />
     <Compile Include="Policy\*.cs" />
   </ItemGroup>
   <ItemGroup>

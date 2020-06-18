@@ -13,7 +13,7 @@ namespace Injection.Members
 
         [DataTestMethod]
         [DynamicData(nameof(MemberInfoData))]
-        public virtual void MemberInfo(string name, object[] data, Type type, int index)
+        public virtual void MemberInfoTest(string name, object[] data, Type type, int index)
         {
             // Arrange 
             TMemberInfo[] members = GetMembers(type);
@@ -33,7 +33,7 @@ namespace Injection.Members
             {
                 yield return new object[]
                 {
-                    "int, int?",
+                    "int, bool - negative",
                     new object[] { 5, null },
                     typeof(TestClass<int,string>),
                     6
