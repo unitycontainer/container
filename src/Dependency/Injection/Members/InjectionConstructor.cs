@@ -12,13 +12,6 @@ namespace Unity.Injection
     /// </summary>
     public class InjectionConstructor : MethodBase<ConstructorInfo>
     {
-        #region Fields
-
-        private const string ctor = ".ctor";
-
-        #endregion
-
-
         #region Constructors
 
         /// <summary>
@@ -28,10 +21,16 @@ namespace Unity.Injection
         /// <param name="arguments">The values for the constructor's parameters, that will
         /// be used to create objects.</param>
         public InjectionConstructor(params object[] arguments)
-            : base(ctor, arguments)
+            : base(".ctor", arguments)
         {
         }
 
+        /// <summary>
+        /// Creates a new <see cref="InjectionConstructor"/> instance which will configure
+        /// the container to invoke the given constructor with the given parameters.
+        /// </summary>
+        /// <param name="info"><see cref="ConstructorInfo"/> of the method to call</param>
+        /// <param name="arguments">Arguments to pass to the method</param>
         public InjectionConstructor(ConstructorInfo info, params object[] arguments)
             : base(info, arguments)
         {
@@ -40,44 +39,11 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IMatch
-
-        public override bool Match(ConstructorInfo other)
-        {
-            if (null != Info)
-            {
-                if (Info.Equals(other)) return true;
-
-                return false;
-            }
-
-            return base.Match(other);
-        }
-
-        #endregion
-
-
         #region Overrides
 
         public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => 
-            type.GetConstructors(BindingFlags)
+            type.GetConstructors(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
                 .Where(SupportedMembersFilter);
-
-        protected override string ToString(bool debug = false)
-        {
-            if (debug)
-            {
-                return null == Selection
-                        ? $"{GetType().Name}: {ctor}({Data.Signature()})"
-                        : $"{GetType().Name}: {Selection.DeclaringType}({Selection.Signature()})";
-            }
-            else
-            {
-                return null == Selection
-                        ? $"Invoke.Constructor({Data.Signature()})"
-                        : $"Invoke {Selection.DeclaringType}({Selection.Signature()})";
-            }
-        }
 
         #endregion
     }

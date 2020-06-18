@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\ExceptionTests.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))"  Remove="Exceptions\ExceptionTests.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\ExceptionTests.Desktop.cs" />
   </ItemGroup>
 
   <ItemGroup>

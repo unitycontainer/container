@@ -47,7 +47,7 @@ namespace Unity.Injection
 
         #region IMatch
 
-        public override bool Match(Type type)
+        public override bool Matching(Type type)
         {
             if (!type.IsArray || type.GetArrayRank() != 1)
                 return false;

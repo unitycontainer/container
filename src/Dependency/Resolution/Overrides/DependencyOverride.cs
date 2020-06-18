@@ -9,7 +9,7 @@ namespace Unity.Resolution
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
     public class DependencyOverride : ResolverOverride, 
-                                      IMatch<NamedType>
+                                      IMatching<NamedType>
     {
         #region Fields
 
@@ -91,14 +91,14 @@ namespace Unity.Resolution
                            (null == Name   || dependency.Name == Name);
                 
                 case NamedType type:
-                    return Match(type);
+                    return Matching(type);
 
                 default:
                     return false;
             }
         }
 
-        public bool Match(NamedType other)
+        public bool Matching(NamedType other)
         {
             return (other.Type == Type) &&
                    (other.Name == Name);

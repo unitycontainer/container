@@ -41,25 +41,9 @@ namespace Unity.Injection
         #region Overrides
 
         public override IEnumerable<MethodInfo> DeclaredMembers(Type type) => 
-            type.GetMethods(BindingFlags)
+            type.GetMethods(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
                 .Where(SupportedMembersFilter)
                 .Where(member => member.Name == Name);
-
-        protected override string ToString(bool debug = false)
-        {
-            if (debug)
-            {
-                return null == Selection
-                        ? $"{GetType().Name}: {Name}({Data.Signature()})"
-                        : $"{GetType().Name}: {Selection.DeclaringType}.{Name}({Selection.Signature()})";
-            }
-            else
-            {
-                return null == Selection
-                    ? $"Invoke.Method('{Name}', {Data.Signature()})"
-                    : $"Invoke: {Selection.DeclaringType}.{Name}({Selection.Signature()})";
-            }
-        }
 
         #endregion
     }

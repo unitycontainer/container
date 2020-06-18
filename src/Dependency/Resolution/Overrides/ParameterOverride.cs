@@ -9,7 +9,7 @@ namespace Unity.Resolution
     /// override a named parameter passed to a constructor.
     /// </summary>
     public class ParameterOverride : ResolverOverride,
-                                     IMatch<ParameterInfo>
+                                     IMatching<ParameterInfo>
     {
         #region Fields
 
@@ -75,7 +75,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case ParameterInfo info:
-                    return Match(info);
+                    return Matching(info);
 
                 case ParameterOverride parameter:
                     return (null == Target || parameter.Target == Target) &&
@@ -86,7 +86,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Match(ParameterInfo? other)
+        public bool Matching(ParameterInfo? other)
         {
             return null != other && 
                   (null == Target || other.Member.DeclaringType == Target) &&

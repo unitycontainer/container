@@ -5,13 +5,16 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public abstract class MethodBase<TMemberInfo> : InjectionMember<TMemberInfo, object[]>
+    public abstract class MethodBase<TMemberInfo> : InjectionMember<TMemberInfo, object[]>, 
+                                                    IComparable<TMemberInfo>
                                 where TMemberInfo : MethodBase
     {
-        #region Defaults
+        #region Fields
 
         internal static Func<TMemberInfo, bool> SupportedMembersFilter = 
             (TMemberInfo member) => !member.IsFamily && !member.IsPrivate;
+
+        private TMemberInfo? _info;
 
         #endregion
 
@@ -24,10 +27,17 @@ namespace Unity.Injection
         }
 
         protected MethodBase(TMemberInfo info, params object[] arguments)
-            : base(info, arguments)
+            : base((info ?? throw new ArgumentNullException(nameof(info))).Name, arguments)
         {
+            _info = info;
         }
 
+        #endregion
+
+
+        #region Public Members
+
+        public virtual TMemberInfo? MemberInfo() => _info;
 
         #endregion
 
@@ -38,58 +48,55 @@ namespace Unity.Injection
 
         public override TMemberInfo? MemberInfo(Type type)
         {
-            if (null != Info) return Info.GetMemberFromInfo(type);
-
-            foreach (var member in DeclaredMembers(type))
-            {
-                if (!Match(member)) continue;
-
-                return member;
+            if (null != _info)
+            { 
+                return _info.DeclaringType == type
+                    ? _info
+                    : _info.GetMemberFromInfo(type);
             }
 
-            return null;
+            var candidate = 0;
+            TMemberInfo? selection = null;
+            foreach (TMemberInfo member in DeclaredMembers(type))
+            {
+                var compatibility = CompareTo(member);
+                
+                if (0 == compatibility) return member;
+
+                if (candidate < compatibility)
+                { 
+                    selection = member;
+                    candidate = compatibility;
+                }
+            }
+
+            return selection;
         }
 
         #endregion
 
 
-        #region IMatch
+        #region Matching
 
-        public override bool Match(TMemberInfo other)
+        public int CompareTo(TMemberInfo? other)
         {
+            System.Diagnostics.Debug.Assert(null != other);
+
             var length = Data?.Length ?? 0;
-            var parameters = other.GetParameters();
+            var parameters = other!.GetParameters();
 
-            if (length != parameters.Length) return false;
+            if (length != parameters.Length) return -1;
 
+            int result = 0;
             for (var i = 0; i < length; i++)
             {
-                var parameter = parameters[i];
-                var value     = Data![i];
-                var match     = value switch
-                {
-                    null => !parameter.ParameterType.IsValueType() || 
-                            (null != Nullable.GetUnderlyingType(parameter.ParameterType)),
+                var compatibility = Data![i].CompareTo(parameters[i]);
 
-                    IMatch<ParameterInfo> matchParam
-                              => matchParam.Match(parameter),
-
-                    IMatch<Type> matchType
-                              => matchType.Match(parameter.ParameterType),
-
-                    Type _ when typeof(Type).Equals(parameter.ParameterType)
-                              => true,
-
-                    Type type => MatchesType(type, parameter.ParameterType),
-                    _         => MatchesObject(value, parameter.ParameterType),
-                };
-
-                if (match) continue;
-
-                return false;
+                if (-1 == compatibility) return -1;
+                if (result < compatibility) result = compatibility;
             }
 
-            return true;
+            return result;
         }
 
         #endregion

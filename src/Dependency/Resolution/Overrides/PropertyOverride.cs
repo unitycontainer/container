@@ -9,7 +9,7 @@ namespace Unity.Resolution
     /// the value for a specified property.
     /// </summary>
     public class PropertyOverride : ResolverOverride,
-                                    IMatch<PropertyInfo>
+                                    IMatching<PropertyInfo>
     {
         #region Constructors
 
@@ -38,7 +38,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case PropertyInfo info:
-                    return Match(info);
+                    return Matching(info);
 
                 case PropertyOverride property:
                     return property.Name == Name && 
@@ -49,7 +49,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Match(PropertyInfo? other)
+        public bool Matching(PropertyInfo? other)
         {
             return null != other  && other.Name == Name &&
                   (null == Target || other.DeclaringType == Target);

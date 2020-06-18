@@ -1,13 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 
 namespace Injection.Members
 {
     [TestClass]
-    public class ConstructorTests : MethodBaseTests<ConstructorInfo, object[]>
+    public class ConstructorTests : MethodBaseTests<ConstructorInfo>
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -16,22 +15,10 @@ namespace Injection.Members
             _ = new InjectionConstructor((ConstructorInfo)null);
         }
 
-        #region Test Data
 
-        protected override InjectionMember<ConstructorInfo, object[]> GetDefaultMember() => 
-            new InjectionConstructor();
+        protected override MethodBase<ConstructorInfo> GetMatchToMember(string name, object[] data) => new InjectionConstructor(data);
+        
+        protected override ConstructorInfo[] GetMembers(Type type) => type.GetConstructors();
 
-        protected override InjectionMember<ConstructorInfo, object[]> GetMember(Type type, int position, object data)
-        {
-            var info = type.GetTypeInfo()
-                           .DeclaredConstructors
-                           .Where(ctor => !ctor.IsFamily && !ctor.IsPrivate && !ctor.IsStatic)
-                           .Take(position)
-                           .Last();
-
-            return new InjectionConstructor(info, data);
-        }
-
-        #endregion
     }
 }

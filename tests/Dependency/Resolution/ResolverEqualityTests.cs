@@ -28,17 +28,17 @@ namespace Resolution.Overrides
             // Field
             var field = new FieldOverride(string.Empty, TestValue);
             Assert.IsFalse(field.Equals((object)null));
-            Assert.IsFalse(field.Match((FieldInfo)null));
+            Assert.IsFalse(field.Matching((FieldInfo)null));
 
             // Property
             var property = new PropertyOverride(string.Empty, TestValue);
             Assert.IsFalse(property.Equals((object)null));
-            Assert.IsFalse(property.Match((PropertyInfo)null));
+            Assert.IsFalse(property.Matching((PropertyInfo)null));
 
             // Parameter
             var parameter = new ParameterOverride(string.Empty, TestValue);
             Assert.IsFalse(parameter.Equals((object)null));
-            Assert.IsFalse(parameter.Match((ParameterInfo)null));
+            Assert.IsFalse(parameter.Matching((ParameterInfo)null));
 
             // Dependency
             Assert.IsFalse(new DependencyOverride(typeof(object), TestValue).Equals(null));

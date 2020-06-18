@@ -44,7 +44,7 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override bool Match(Type? type)
+        public override bool Matching(Type? type)
         {
             if (null == _type) return true;
             if (null == type) return false;
@@ -60,11 +60,11 @@ namespace Unity.Injection
             return type.IsAssignableFrom(_type);
         }
 
-        public override bool Match(ParameterInfo? other)
+        public override bool Matching(ParameterInfo? other)
         {
             if (null == other) return false;
 
-            return Match(other.ParameterType);
+            return Matching(other.ParameterType);
         }
 
         #endregion

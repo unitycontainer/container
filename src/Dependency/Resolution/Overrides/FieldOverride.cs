@@ -9,7 +9,7 @@ namespace Unity.Resolution
     /// the value for a specified field.
     /// </summary>
     public class FieldOverride : ResolverOverride,
-                                 IMatch<FieldInfo>
+                                 IMatching<FieldInfo>
     {
         #region Constructors
 
@@ -38,7 +38,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case FieldInfo info:
-                    return Match(info);
+                    return Matching(info);
 
                 case FieldOverride field:
                     return field.Name == Name &&
@@ -49,7 +49,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Match(FieldInfo? other)
+        public bool Matching(FieldInfo? other)
         {
             return null != other && other.Name == Name &&
                 (null == Target || other.DeclaringType == Target);
