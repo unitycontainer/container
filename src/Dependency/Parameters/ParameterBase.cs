@@ -46,22 +46,13 @@ namespace Unity.Injection
 
         public override MatchRank MatchTo(Type type)
         {
-            if (null == _type) return MatchRank.ExactMatch;
-
-            if (_type.IsGenericTypeDefinition() || type.IsGenericTypeDefinition())
-            {
-                var left = _type.IsGenericTypeDefinition() ? _type : _type.GetGenericTypeDefinition();
-                var right = type.IsGenericTypeDefinition() ?  type : type.GetGenericTypeDefinition();
-
-                return left == right ? MatchRank.ExactMatch : MatchRank.NoMatch;
-            }
-
-            return type.IsAssignableFrom(_type)
-                ? MatchRank.Compatible
-                : MatchRank.NoMatch;
+            return null == _type 
+                ? MatchRank.ExactMatch
+                : _type.MatchTo(type);
         }
 
-        public override MatchRank MatchTo(ParameterInfo parameter) => MatchTo(parameter.ParameterType);
+        public override MatchRank MatchTo(ParameterInfo parameter) => 
+            MatchTo(parameter.ParameterType);
 
         #endregion
 

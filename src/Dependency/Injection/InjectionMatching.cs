@@ -19,9 +19,6 @@ namespace Unity.Injection
                 case IMatchTo<ParameterInfo> iMatchParam:
                     return iMatchParam.MatchTo(parameter);
 
-                case IMatchTo<Type> iMatchType:
-                    return iMatchType.MatchTo(parameter.ParameterType);
-
                 case Type type:
                     return MatchTo(type, parameter.ParameterType);
             }
@@ -53,7 +50,7 @@ namespace Unity.Injection
             if (typeof(Type).Equals(match))
                 return MatchRank.ExactMatch;
 
-            if (type == match)
+            if (type == match || Nullable.GetUnderlyingType(type) == match)
                 return MatchRank.HigherProspect;
 
             if (match.IsAssignableFrom(type))

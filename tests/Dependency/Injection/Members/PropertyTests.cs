@@ -22,17 +22,36 @@ namespace Injection.Members
         {
             _ = new InjectionProperty((string)null);
         }
+
         [TestMethod]
-        public virtual void OptionalVsRequiredTest()
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void NameValueValidationTest()
         {
-            Assert.IsInstanceOfType(new InjectionProperty("TestProperty").Data, 
-                                    typeof(DependencyAttribute));
-
-            Assert.IsInstanceOfType(new InjectionProperty("TestProperty", false).Data,
-                                    typeof(DependencyAttribute));
-
-            Assert.IsInstanceOfType(new InjectionProperty("TestProperty", true).Data,
-                                    typeof(OptionalDependencyAttribute));
+            _ = new InjectionProperty(null, string.Empty);
         }
+
+        [TestMethod]
+        public void OptionalVsRequiredTest()
+        {
+            // Validate
+            Assert.AreSame(DependencyAttribute.Instance, new InjectionProperty(nameof(TestProperty)).Data);
+            Assert.AreSame(DependencyAttribute.Instance, new InjectionProperty(nameof(TestProperty), false).Data);
+            Assert.AreSame(OptionalDependencyAttribute.Instance, new InjectionProperty(nameof(TestProperty), true).Data);
+        }
+
+
+        [TestMethod]
+        public void MemberInfoTest()
+        {
+            var info = GetType().GetProperty(nameof(TestProperty));
+
+            // Validate
+            Assert.AreSame(info, new InjectionProperty(nameof(TestProperty), false).MemberInfo(typeof(PropertyTests)));
+            Assert.AreSame(info, new InjectionProperty(nameof(TestProperty), true).MemberInfo(typeof(PropertyTests)));
+            Assert.AreSame(info, new InjectionProperty(nameof(TestProperty)).MemberInfo(typeof(PropertyTests)));
+            Assert.AreSame(info, new InjectionProperty(nameof(TestProperty), string.Empty).MemberInfo(typeof(PropertyTests)));
+        }
+
+        public override InjectionMember<PropertyInfo, object> GetInjectionMember() => new InjectionProperty(string.Empty);
     }
 }

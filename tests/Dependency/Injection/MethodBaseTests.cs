@@ -32,17 +32,88 @@ namespace Injection.Members
         {
             get
             {
-                // Generic
+                // Resolved
                 yield return new object[]
                 {
-                    "GenericParameter(A), GenericParameter(T[])",
+                    "InjectionParameter(int?, 0)",
+                    new object[] { new InjectionParameter(typeof(int?), 0) },
+                    typeof(TestClass<int, string>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "InjectionParameter<int?>(0)",
+                    new object[] { new InjectionParameter<int?>(0) },
+                    typeof(TestClass<int, string>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "InjectionParameter(string)",
+                    new object[] { new InjectionParameter(string.Empty) },
+                    typeof(TestClass<int, string>),
+                    3
+                };
+                yield return new object[]
+                {
+                    "ResolvedArrayParameter(string)",
+                    new object[] { 0, new ResolvedArrayParameter(typeof(string)) },
+                    typeof(TestClass<int, string>),
+                    6
+                };
+                yield return new object[]
+                {
+                    "ResolvedArrayParameter<string>()",
+                    new object[] { 0, new ResolvedArrayParameter<string>() },
+                    typeof(TestClass<int, string>),
+                    6
+                };
+                yield return new object[]
+                {
+                    "ResolvedParameter<int>()",
+                    new object[] { new ResolvedParameter<int>() },
+                    typeof(TestClass<int, string>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "ResolvedParameter(int)",
+                    new object[] { new ResolvedParameter(typeof(int)) },
+                    typeof(TestClass<int, string>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "ResolvedParameter() any type",
+                    new object[] { new ResolvedParameter() },
+                    typeof(TestClass<int, string>),
+                    1
+                };
+                // Generic arrays
+                yield return new object[]
+                {
+                    "march array GenericResolvedArrayParameter(B)",
+                    new object[] { new GenericParameter("A"), new GenericResolvedArrayParameter("B") },
+                    typeof(TestClass<object[], string>),
+                    6
+                };
+                yield return new object[]
+                {
+                    "no match GenericResolvedArrayParameter(T)",
+                    new object[] { new GenericParameter("A"), new GenericResolvedArrayParameter("T") },
+                    typeof(TestClass<object[], string>),
+                    -1
+                };
+                yield return new object[]
+                {
+                    "no match GenericParameter(T[])",
                     new object[] { new GenericParameter("A"), new GenericParameter("T[]") },
                     typeof(TestClass<object[], string>),
                     -1
                 };
                 yield return new object[]
                 {
-                    "GenericParameter(A), GenericParameter(B[])",
+                    "match GenericParameter(B[])",
                     new object[] { new GenericParameter("A"), new GenericParameter("B[]") },
                     typeof(TestClass<object[], string>),
                     6
@@ -54,6 +125,7 @@ namespace Injection.Members
                     typeof(TestClass<object[], List<string>>),
                     -1
                 };
+                // Generic
                 yield return new object[]
                 {
                     "matching object[] with GenericParameter(A)",

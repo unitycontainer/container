@@ -8,9 +8,10 @@ namespace Injection.Members
     public abstract class InjectionMemberTests<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
     {
-        #region Fields
 
-        #endregion
+        public abstract InjectionMember<TMemberInfo, TData> GetInjectionMember();
 
+        [TestMethod]
+        public void BuildRequiredTest() => Assert.IsTrue(GetInjectionMember().BuildRequired);
     }
 }

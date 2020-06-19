@@ -12,7 +12,7 @@ namespace Unity.Injection
         /// <summary>
         /// This property triggers mandatory build if true
         /// </summary>
-        public virtual bool BuildRequired => true;
+        public abstract bool BuildRequired { get; }
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember
@@ -44,6 +44,13 @@ namespace Unity.Injection
         public virtual TData Data { get; }
 
         public abstract TMemberInfo? MemberInfo(Type type);
+
+        #endregion
+
+
+        #region Overrides
+
+        public override bool BuildRequired => true;
 
         #endregion
     }

@@ -8,6 +8,7 @@ namespace Injection.Members
     [TestClass]
     public class MethodTests : MethodBaseTests<MethodInfo>
     {
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void NameValidationTest()
@@ -15,6 +16,7 @@ namespace Injection.Members
             _ = new InjectionMethod((string)null);
         }
 
+        public override InjectionMember<MethodInfo, object[]> GetInjectionMember() => new InjectionMethod(string.Empty);
 
         protected override MethodBase<MethodInfo> GetMatchToMember(string name, object[] data) => new InjectionMethod(name, data);
 
