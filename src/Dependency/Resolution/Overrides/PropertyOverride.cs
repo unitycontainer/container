@@ -7,7 +7,8 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> that lets you override
     /// the value for a specified property.
     /// </summary>
-    public class PropertyOverride : ResolverOverride
+    public class PropertyOverride : ResolverOverride, 
+                                    IEquatable<PropertyInfo>
     {
         #region Constructors
 
@@ -46,6 +47,12 @@ namespace Unity.Resolution
                 default:
                     return base.Equals(other);
             }
+        }
+
+        public bool Equals(PropertyInfo other)
+        {
+            return null != other && other.Name == Name &&
+                  (null == Target || other.DeclaringType == Target);
         }
 
         #endregion

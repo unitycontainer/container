@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -8,7 +7,8 @@ namespace Unity.Resolution
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride
+    public class DependencyOverride : ResolverOverride,
+                                      IEquatable<NamedType>
     {
         #region Fields
 
@@ -96,6 +96,12 @@ namespace Unity.Resolution
                 default:
                     return false;
             }
+        }
+
+        public bool Equals(NamedType other)
+        {
+            return (other.Type == Type) &&
+                   (other.Name == Name);
         }
 
         #endregion
