@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Unity;
 using Unity.Exceptions;
@@ -12,7 +11,7 @@ using static Injection.Parameters.ResolutionTests;
 namespace Injection.Parameters
 {
     [TestClass]
-    public class OptionalTests
+    public class OptionalParameterTests
     {
         #region Fields
 

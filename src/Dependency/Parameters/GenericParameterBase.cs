@@ -8,6 +8,7 @@ namespace Unity.Injection
     /// Base class for generic type parameters.
     /// </summary>
     public abstract class GenericParameterBase : ParameterValue,
+                                                 IMatchTo<ParameterInfo>,
                                                  IResolverFactory<Type>,
                                                  IResolverFactory<ParameterInfo>
     {
@@ -89,7 +90,7 @@ namespace Unity.Injection
                 : MatchRank.NoMatch;
         }
 
-        public override MatchRank MatchTo(ParameterInfo other)
+        public virtual MatchRank MatchTo(ParameterInfo other)
         {
             if (!other.Member.DeclaringType!.IsGenericType()) 
                 return MatchRank.NoMatch;
@@ -103,17 +104,10 @@ namespace Unity.Injection
         #region IResolverFactory
 
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            return GetResolver<TContext>(type, _name);
-        }
+            where TContext : IResolveContext => GetResolver<TContext>(type, _name);
 
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
-            where TContext : IResolveContext
-        {
-            var type = info.ParameterType;
-            return GetResolver<TContext>(type, _name);
-        }
+            where TContext : IResolveContext => GetResolver<TContext>(info.ParameterType, _name);
 
         #endregion
 
@@ -121,11 +115,9 @@ namespace Unity.Injection
         #region Implementation
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
-            where TContext : IResolveContext
-        {
-            return (ref TContext context) => context.Resolve(type, name);
-        }
+            where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);
 
+        // TODO: simplify out
         protected ParameterInfo GenericParameterInfo(ParameterInfo other)
         {
             var definition = other.Member.DeclaringType!.GetGenericTypeDefinition();

@@ -5,47 +5,15 @@ using System.Linq;
 using System.Reflection;
 using Unity.Injection;
 using Unity.Resolution;
-using static Injection.Parameters.ResolutionTests;
 
 namespace Injection.Parameters
 {
     [TestClass]
-    public class ValidationTests
+    public class ArrayParameterTests
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void InjectionParameterCtorTest()
-        {
-            // Validate can initialize with null and type
-            Assert.IsNotNull(new InjectionParameter<string>(null));
-            Assert.IsNotNull(new InjectionParameter(typeof(string), null));
-
-            // Validate throws on no type
-            new InjectionParameter(null);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void GenericParameterCtorTest()
-        {
-            // Validate throws on null
-            new GenericParameter(null);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(SupportedParametersData), DynamicDataSourceType.Method)]
-        public void ToStringTest(ParameterValue parameter)
-        {
-            var name = parameter.GetType().Name;
-
-            Assert.IsTrue(parameter.ToString().StartsWith(name));
-        }
-
-        #region ResolvedArrayParameter
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void ArrayParameterNullTest()
+        public void ArrayParameter_Null()
         {
             new ResolvedArrayParameter(null);
         }
@@ -65,8 +33,6 @@ namespace Injection.Parameters
             Assert.IsNotNull(new ResolvedArrayParameter(elementType, elementValues));
         }
 
-        #endregion
-
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
@@ -75,7 +41,7 @@ namespace Injection.Parameters
             // Arrange
             var factory = new GenericResolvedArrayParameter("T[]");
 
-            ParameterInfo info = 
+            ParameterInfo info =
                 typeof(TestClass<string>).GetMethod(nameof(TestClass<string>.TestMethod))
                                            .GetParameters()
                                            .First();
@@ -85,19 +51,6 @@ namespace Injection.Parameters
 
 
         #region Test Data
-        public static IEnumerable<object[]> SupportedParametersData()
-        {
-            yield return new object[] { new InjectionParameter(string.Empty) };
-            yield return new object[] { new InjectionParameter(typeof(string), null) };
-            yield return new object[] { new OptionalParameter() };
-            yield return new object[] { new ResolvedParameter() };
-            yield return new object[] { new ResolvedParameter(string.Empty) };
-            yield return new object[] { new ResolvedArrayParameter(typeof(string)) };
-            yield return new object[] { new GenericParameter("T[]") };
-            yield return new object[] { new OptionalGenericParameter("T") };
-            yield return new object[] { new OptionalGenericParameter("T", string.Empty) };
-            yield return new object[] { new GenericResolvedArrayParameter("T[]") };
-        }
 
         public static IEnumerable<object[]> ParametersWithTypeData()
         {
@@ -125,6 +78,14 @@ namespace Injection.Parameters
         {
             yield return new object[] { typeof(IList<string>), new object[] { typeof(List<string>) } };
             yield return new object[] { typeof(object), new object[] { null } };
+        }
+
+
+        public const string DefaultValue = "default";
+
+        public class TestClass<T>
+        {
+            public void TestMethod(T array, string name = DefaultValue) => throw new NotImplementedException();
         }
 
         #endregion
