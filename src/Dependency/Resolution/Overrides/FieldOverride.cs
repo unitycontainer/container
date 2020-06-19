@@ -37,8 +37,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case FieldInfo info:
-                    return null != info   && info.Name == Name &&
-                          (null == Target || info.DeclaringType == Target);
+                    return Equals(info);
 
                 case FieldOverride field:
                     return field.Name == Name &&

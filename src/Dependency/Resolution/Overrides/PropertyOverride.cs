@@ -37,8 +37,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case PropertyInfo info:
-                    return null != info   && info.Name == Name &&
-                          (null == Target || info.DeclaringType == Target);
+                    return Equals(info);
 
                 case PropertyOverride property:
                     return property.Name == Name && 

@@ -74,10 +74,7 @@ namespace Unity.Resolution
             switch (other)
             {
                 case ParameterInfo info:
-                    return null != info &&
-                          (null == Target || info.Member.DeclaringType == Target) &&
-                          (null == Type || info.ParameterType == Type) &&
-                          (null == Name || info.Name == Name);
+                    return Equals(info);
 
                 case ParameterOverride parameter:
                     return (null == Target || parameter.Target == Target) &&

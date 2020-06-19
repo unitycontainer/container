@@ -90,8 +90,7 @@ namespace Unity.Resolution
                            (null == Name   || dependency.Name == Name);
                 
                 case NamedType type:
-                    return (type.Type == Type) &&
-                           (type.Name == Name);
+                    return Equals(type);
 
                 default:
                     return false;

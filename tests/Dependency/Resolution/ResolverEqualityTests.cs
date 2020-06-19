@@ -22,27 +22,27 @@ namespace Resolution.Overrides
                                                                      .First();
         #endregion
 
-        [Ignore]
+
         [TestMethod]
         public void EqualsNull()
         {
-            //// Field
-            //var field = new FieldOverride(string.Empty, TestValue);
-            //Assert.IsFalse(field.Equals((object)null));
-            //Assert.IsFalse(field.Matching((FieldInfo)null));
+            // Field
+            var field = new FieldOverride(string.Empty, TestValue);
+            Assert.IsFalse(field.Equals((object)null));
+            Assert.IsFalse(field.Equals((FieldInfo)null));
 
-            //// Property
-            //var property = new PropertyOverride(string.Empty, TestValue);
-            //Assert.IsFalse(property.Equals((object)null));
-            //Assert.IsFalse(property.Matching((PropertyInfo)null));
+            // Property
+            var property = new PropertyOverride(string.Empty, TestValue);
+            Assert.IsFalse(property.Equals((object)null));
+            Assert.IsFalse(property.Equals((PropertyInfo)null));
 
-            //// Parameter
-            //var parameter = new ParameterOverride(string.Empty, TestValue);
-            //Assert.IsFalse(parameter.Equals((object)null));
-            //Assert.IsFalse(parameter.Matching((ParameterInfo)null));
+            // Parameter
+            var parameter = new ParameterOverride(string.Empty, TestValue);
+            Assert.IsFalse(parameter.Equals((object)null));
+            Assert.IsFalse(parameter.Equals((ParameterInfo)null));
 
-            //// Dependency
-            //Assert.IsFalse(new DependencyOverride(typeof(object), TestValue).Equals(null));
+            // Dependency
+            Assert.IsFalse(new DependencyOverride(typeof(object), TestValue).Equals(null));
         }
 
 
