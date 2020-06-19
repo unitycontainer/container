@@ -5,9 +5,8 @@ using Unity.Injection;
 namespace Injection.Parameters
 {
     [TestClass]
-    public class ParameterValueTests
+    public class ParameterBaseTests
     {
-
         [DataTestMethod]
         [DynamicData(nameof(SupportedParameters))]
         public void ToStringTest(ParameterValue parameter)

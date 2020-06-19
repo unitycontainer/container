@@ -46,7 +46,6 @@ namespace Unity.Injection
         public override MatchRank MatchTo(Type type)
         {
             if (null == _type) return MatchRank.NoMatch;
-            if (null == type)  return MatchRank.NoMatch;
 
             if (_type.IsGenericTypeDefinition() || type.IsGenericTypeDefinition())
             {

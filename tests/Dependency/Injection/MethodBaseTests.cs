@@ -12,8 +12,8 @@ namespace Injection.Members
         #region IMatchTo
 
         [DataTestMethod]
-        [DynamicData(nameof(CompareToParametersData))]
         [DynamicData(nameof(CompareToMethodBaseData))]
+        [DynamicData(nameof(CompareToParametersData))]
         public virtual void MemberInfoTest(string name, object[] data, Type type, int index)
         {
             // Arrange 
@@ -35,10 +35,59 @@ namespace Injection.Members
                 // Generic
                 yield return new object[]
                 {
-                    "matching generics",
-                    new object[] { typeof(List<>) },
+                    "GenericParameter(A), GenericParameter(T[])",
+                    new object[] { new GenericParameter("A"), new GenericParameter("T[]") },
+                    typeof(TestClass<object[], string>),
+                    -1
+                };
+                yield return new object[]
+                {
+                    "GenericParameter(A), GenericParameter(B[])",
+                    new object[] { new GenericParameter("A"), new GenericParameter("B[]") },
+                    typeof(TestClass<object[], string>),
+                    6
+                };
+                yield return new object[]
+                {
+                    "not matching object[] with GenericParameter(A[])",
+                    new object[] { new GenericParameter("A[]") },
+                    typeof(TestClass<object[], List<string>>),
+                    -1
+                };
+                yield return new object[]
+                {
+                    "matching object[] with GenericParameter(A)",
+                    new object[] { new GenericParameter("A") },
+                    typeof(TestClass<object[], List<string>>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "matching Array with GenericParameter(A)",
+                    new object[] { new GenericParameter("A") },
+                    typeof(TestClass<Array, List<string>>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "matching int with GenericParameter(A)",
+                    new object[] { new GenericParameter("A") },
                     typeof(TestClass<int, List<string>>),
-                    3
+                    2
+                };
+                yield return new object[]
+                {
+                    "no match",
+                    new object[] { new GenericParameter("T") },
+                    typeof(TestClass<int, List<string>>),
+                    -1
+                };
+                yield return new object[]
+                {
+                    "non generics with GenericParameter(A)",
+                    new object[] { new GenericParameter("A") },
+                    typeof(SolidType),
+                    -1
                 };
             }
         }
@@ -220,25 +269,38 @@ namespace Injection.Members
         protected abstract TMemberInfo[] GetMembers(Type type);
 
         #endregion
-
-
-        #region Test Data
-
-        public class TestClass<A,B>
-        {
-            public TestClass() { }                                      // 0
-            public TestClass(object obj) { }                            // 1
-            public TestClass(A a) { }                                   // 2
-            public TestClass(B b) { }                                   // 3
-            public TestClass(A a1, B b1) { }                            // 4
-
-            public void TestMethod() { }                                // 0
-            public void TestMethod(object obj) { }                      // 1
-            public void TestMethod(A a) { }                             // 2
-            public void TestMethod(B b) { }                             // 3
-            public void TestMethod(A a1, B b1) { }                      // 4
-        }
-
-        #endregion
     }
+
+
+    #region Test Data
+
+    public sealed class SolidType
+    {
+        public SolidType() { }                                      // 0
+        public SolidType(object obj) { }                            // 1
+
+        public void TestMethod() { }                                // 0
+        public void TestMethod(object obj) { }                      // 1
+    }
+
+    public class TestClass<A, B>
+    {
+        public TestClass() { }                                      // 0
+        public TestClass(object obj) { }                            // 1
+        public TestClass(A a) { }                                   // 2
+        public TestClass(B b) { }                                   // 3
+        public TestClass(A a1, B b1) { }                            // 4
+        public TestClass(bool b, object[] a1) { }                   // 5
+        public TestClass(A a1, B[] b1) { }                          // 6
+
+        public void TestMethod() { }                                // 0
+        public void TestMethod(object obj) { }                      // 1
+        public void TestMethod(A a) { }                             // 2
+        public void TestMethod(B b) { }                             // 3
+        public void TestMethod(A a1, B b1) { }                      // 4
+        public void TestMethod(bool b, object[] a1) { }             // 5
+        public void TestMethod(A a1, B[] b1) { }                    // 6
+    }
+
+    #endregion
 }

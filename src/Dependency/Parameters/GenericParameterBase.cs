@@ -14,9 +14,9 @@ namespace Unity.Injection
     {
         #region Fields
 
+        private readonly bool    _isArray;
         private readonly string? _name;
-        private readonly bool _isArray;
-        private readonly string _genericParameterName;
+        private readonly string  _genericParameterName;
 
         #endregion
 
@@ -75,17 +75,14 @@ namespace Unity.Injection
 
         public override MatchRank MatchTo(Type type)
         {
-            if (null == type) return MatchRank.NoMatch;
-            
-            if (!_isArray) 
+            if (false == _isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch; 
 
             if (!type.IsArray) return MatchRank.NoMatch;
 
-            var element = type.GetElementType()!;
-            return element.IsGenericParameter && element.Name == _genericParameterName
+            return _genericParameterName.Equals(type.GetElementType()!.Name) 
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch;
         }
@@ -95,7 +92,10 @@ namespace Unity.Injection
             if (!other.Member.DeclaringType!.IsGenericType()) 
                 return MatchRank.NoMatch;
 
-            return MatchTo(GenericParameterInfo(other).ParameterType);
+            var definition = other.Member.DeclaringType!.GetGenericTypeDefinition();
+            var parameter = ((MethodBase)other.Member).GetMemberFromInfo(definition)!
+                                                      .GetParameters()[other.Position];
+            return MatchTo(parameter.ParameterType);
         }
 
         #endregion
@@ -116,15 +116,6 @@ namespace Unity.Injection
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
             where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);
-
-        // TODO: simplify out
-        protected ParameterInfo GenericParameterInfo(ParameterInfo other)
-        {
-            var definition = other.Member.DeclaringType!.GetGenericTypeDefinition();
-            var info = ((MethodBase)other.Member).GetMemberFromInfo(definition);
-
-            return info!.GetParameters()[other.Position];
-        }
 
         #endregion
     }
