@@ -82,8 +82,11 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [DynamicData(nameof(ResolverFactoryData), DynamicDataSourceType.Method)]
-        public void TypeFactoryTest(IResolverFactory<Type> factory, ParameterInfo info, object expected)
+        public void TypeFactoryTest(ParameterValue parameter, ParameterInfo info, object expected)
         {
+            // Arrange
+            if (!(parameter is IResolverFactory<Type> factory)) return;
+
             // Act
             var resolver = factory.GetResolver<IResolveContext>(info.ParameterType);
 
@@ -109,8 +112,11 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [DynamicData(nameof(ResolverFactoryData), DynamicDataSourceType.Method)]
-        public void InfoFactoryTest(IResolverFactory<ParameterInfo> factory, ParameterInfo info, object expected)
+        public void InfoFactoryTest(ParameterValue parameter, ParameterInfo info, object expected)
         {
+            // Arrange
+            if (!(parameter is IResolverFactory<ParameterInfo> factory)) return;
+
             // Act
             var resolver = factory.GetResolver<IResolveContext>(info);
 

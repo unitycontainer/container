@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Unity;
+using Unity.Injection;
 
 namespace Dependency.Annotation
 {
@@ -14,6 +15,7 @@ namespace Dependency.Annotation
         public void DependencyAttributesTest(DependencyResolutionAttribute attribute)
         {
             Assert.IsNull(attribute.Name);
+            Assert.AreEqual(MatchRank.ExactMatch, attribute.MatchTo(typeof(AttributesTests)));
         }
 
         [DataTestMethod]
@@ -21,6 +23,7 @@ namespace Dependency.Annotation
         public void NamedAttributesTest(DependencyResolutionAttribute attribute)
         {
             Assert.IsNotNull(attribute.Name);
+            Assert.AreEqual(MatchRank.ExactMatch, attribute.MatchTo(typeof(AttributesTests)));
         }
 
         #region Test Data

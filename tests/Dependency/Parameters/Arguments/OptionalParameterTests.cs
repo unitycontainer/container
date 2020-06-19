@@ -22,8 +22,11 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
-        public void OptionalParametersTest(IResolverFactory<Type> factory)
+        public void OptionalParametersTest(ParameterValue parameter)
         {
+            // Arrange
+            if (!(parameter is IResolverFactory<Type> factory)) return;
+
             var context = new DictionaryContext() as IResolveContext;
             var resolver = factory.GetResolver<IResolveContext>(typeof(string));
 
@@ -32,21 +35,6 @@ namespace Injection.Parameters
 
             Assert.IsNull(resolver(ref context));
         }
-
-        [DataTestMethod]
-        [ExpectedException(typeof(CircularDependencyException))]
-        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
-        public void OptionalCircularExceptionTest(IResolverFactory<Type> factory)
-        {
-            var context = new CircularExceptionContect() as IResolveContext;
-            var resolver = factory.GetResolver<IResolveContext>(typeof(string));
-
-            // Validate
-            Assert.IsNotNull(resolver);
-
-            _ = resolver(ref context);
-        }
-
 
         [DataTestMethod]
         [ExpectedException(typeof(CircularDependencyException))]
