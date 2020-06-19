@@ -8,7 +8,6 @@ namespace Unity.Injection
     /// Base class for generic type parameters.
     /// </summary>
     public abstract class GenericParameterBase : ParameterValue,
-                                                 IMatchTo<ParameterInfo>,
                                                  IResolverFactory<Type>,
                                                  IResolverFactory<ParameterInfo>
     {
@@ -73,6 +72,18 @@ namespace Unity.Injection
 
         #region  IMatch
 
+        public override MatchRank MatchTo(ParameterInfo parameter)
+        {
+            if (!parameter.Member.DeclaringType!.IsGenericType())
+                return MatchRank.NoMatch;
+
+            var definition = parameter.Member.DeclaringType!.GetGenericTypeDefinition();
+            var type = ((MethodBase)parameter.Member).GetMemberFromInfo(definition)!
+                                                     .GetParameters()[parameter.Position]
+                                                     .ParameterType;
+            return MatchTo(type);
+        }
+
         public override MatchRank MatchTo(Type type)
         {
             if (false == _isArray)
@@ -85,17 +96,6 @@ namespace Unity.Injection
             return _genericParameterName.Equals(type.GetElementType()!.Name) 
                 ? MatchRank.ExactMatch
                 : MatchRank.NoMatch;
-        }
-
-        public virtual MatchRank MatchTo(ParameterInfo other)
-        {
-            if (!other.Member.DeclaringType!.IsGenericType()) 
-                return MatchRank.NoMatch;
-
-            var definition = other.Member.DeclaringType!.GetGenericTypeDefinition();
-            var parameter = ((MethodBase)other.Member).GetMemberFromInfo(definition)!
-                                                      .GetParameters()[other.Position];
-            return MatchTo(parameter.ParameterType);
         }
 
         #endregion

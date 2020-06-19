@@ -88,7 +88,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(ParameterInfo other)
+        public bool Equals(ParameterInfo? other)
         {
             return null != other &&
                   (null == Target || other.Member.DeclaringType == Target) &&

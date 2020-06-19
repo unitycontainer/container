@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Unity.Injection
 {
@@ -45,7 +46,7 @@ namespace Unity.Injection
 
         public override MatchRank MatchTo(Type type)
         {
-            if (null == _type) return MatchRank.NoMatch;
+            if (null == _type) return MatchRank.ExactMatch;
 
             if (_type.IsGenericTypeDefinition() || type.IsGenericTypeDefinition())
             {
@@ -59,6 +60,8 @@ namespace Unity.Injection
                 ? MatchRank.Compatible
                 : MatchRank.NoMatch;
         }
+
+        public override MatchRank MatchTo(ParameterInfo parameter) => MatchTo(parameter.ParameterType);
 
         #endregion
 

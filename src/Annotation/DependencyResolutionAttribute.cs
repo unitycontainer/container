@@ -30,6 +30,6 @@ namespace Unity
         /// </summary>
         /// <param name="type">Type to resolve</param>
         /// <returns>Returns true in assumption that any time can be resolved</returns>
-        public virtual MatchRank MatchTo(Type type) => MatchRank.NoMatch;
+        public virtual MatchRank MatchTo(Type type) => MatchRank.ExactMatch;
     }
 }

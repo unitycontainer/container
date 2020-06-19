@@ -49,7 +49,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(PropertyInfo other)
+        public bool Equals(PropertyInfo? other)
         {
             return null != other && other.Name == Name &&
                   (null == Target || other.DeclaringType == Target);
