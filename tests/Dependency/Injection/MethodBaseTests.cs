@@ -12,7 +12,8 @@ namespace Injection.Members
         #region IMatchTo
 
         [DataTestMethod]
-        [DynamicData(nameof(MemberInfoData))]
+        [DynamicData(nameof(CompareToParametersData))]
+        [DynamicData(nameof(CompareToMethodBaseData))]
         public virtual void MemberInfoTest(string name, object[] data, Type type, int index)
         {
             // Arrange 
@@ -27,53 +28,99 @@ namespace Injection.Members
             Assert.AreEqual(index, actual);
         }
 
-        public static IEnumerable<object[]> MemberInfoData
+        public static IEnumerable<object[]> CompareToParametersData
+        {
+            get
+            {
+                // Generic
+                yield return new object[]
+                {
+                    "matching generics",
+                    new object[] { typeof(List<>) },
+                    typeof(TestClass<int, List<string>>),
+                    3
+                };
+            }
+        }
+
+        public static IEnumerable<object[]> CompareToMethodBaseData
         {
             get 
             {
+                // Generic
                 yield return new object[]
                 {
-                    "int, bool - negative",
-                    new object[] { 5, null },
-                    typeof(TestClass<int,string>),
-                    6
+                    "matching generics",
+                    new object[] { typeof(List<>) },
+                    typeof(TestClass<int, List<string>>),
+                    3
                 };
+                yield return new object[]
+                {
+                    "matching generics",
+                    new object[] { typeof(List<string>) },
+                    typeof(TestClass<int, List<string>>),
+                    3
+                };
+                yield return new object[]
+                {
+                    "closed generic on non-generic",
+                    new object[] { typeof(List<string>) },
+                    typeof(TestClass<int,string>),
+                    1
+                };
+                // Arrays
+                yield return new object[]
+                {
+                    "Array as type",
+                    new object[] { typeof(Array) },
+                    typeof(TestClass<Array,object[]>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "Array bool[]",
+                    new object[] { new bool[] { false } },
+                    typeof(TestClass<Array,object[]>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "Array string[]",
+                    new object[] { new [] { string.Empty } },
+                    typeof(TestClass<Array,object[]>),
+                    2
+                };
+                yield return new object[]
+                {
+                    "Array object[]",
+                    new object[] { new object[] { string.Empty } },
+                    typeof(TestClass<Array,object[]>),
+                    3
+                };
+                // Ranking
                 yield return new object[]
                 {
                     "Type as exact match",
-                    new object[] { typeof(string), null },
-                    typeof(TestClass<int,string>),
-                    8
+                    new object[] { typeof(string) },
+                    typeof(TestClass<int,Type>),
+                    3
                 };
-                 
                 yield return new object[]
                 {
                     "Type as higher rank",
                     new object[] { typeof(string) },
                     typeof(TestClass<int,string>),
-                    2
+                    3
                 };
                 yield return new object[]
                 {
                     "Exact match string",
                     new object[] { string.Empty },
                     typeof(TestClass<int,string>),
-                    2
+                    3
                 };
-                yield return new object[]
-                {
-                    "(string)null",
-                    new object[] { (string)null },
-                    typeof(TestClass<int,string>),
-                    1
-                };
-                yield return new object[]
-                {
-                    "null",
-                    new object[] { null },
-                    typeof(TestClass<int,string>),
-                    1
-                };
+                // Defaulting to object
                 yield return new object[]
                 {
                     "Type of TestClass",
@@ -90,47 +137,56 @@ namespace Injection.Members
                 };
                 yield return new object[]
                 {
+                    "short as object",
+                    new object[] { (short)0 },
+                    typeof(TestClass<int,string>),
+                    1
+                };
+                // Nullable vs non nullable
+                yield return new object[]
+                {
                     "exact match long",
                     new object[] { (long)0 },
-                    typeof(TestClass<int,string>),
-                    3
+                    typeof(TestClass<long,long?>),
+                    2
                 };
                 yield return new object[]
                 {
                     "exact match long?",
                     new object[] { new long?(0) },
-                    typeof(TestClass<int,string>),
-                    3
-                };
-                yield return new object[]
-                {
-                    "casting to long?",
-                    new object[] { (long?)0 },
-                    typeof(TestClass<int,string>),
-                    3
+                    typeof(TestClass<long,long?>),
+                    2
                 };
                 yield return new object[]
                 {
                     "nullable Int",
                     new object[] { new int?(0) },
                     typeof(TestClass<int,string>),
-                    5
+                    2
                 };
                 yield return new object[]
                 {
                     "exact match Int",
                     new object[] { 0 },
                     typeof(TestClass<int,string>),
-                    5
+                    2
+                };
+                // Data == null
+                yield return new object[]
+                {
+                    "int, bool - negative",
+                    new object[] { null, null },
+                    typeof(TestClass<int,bool>),
+                    -1
                 };
                 yield return new object[]
                 {
-                    "short as object",
-                    new object[] { (short)0 },
+                    "null",
+                    new object[] { null },
                     typeof(TestClass<int,string>),
                     1
                 };
-                 
+                // No Data
                 yield return new object[]
                 {
                     "Default Closed Generic",
@@ -172,25 +228,15 @@ namespace Injection.Members
         {
             public TestClass() { }                                      // 0
             public TestClass(object obj) { }                            // 1
-            public TestClass(string s1) { }                             // 2
-            public TestClass(long lng) { }                              // 3
-            public TestClass(long? lng) { }                             // 4
-            public TestClass(int intgr) { }                             // 5
-            public TestClass(object o1, object o2) { }                  // 6
-            public TestClass(string s1, object o2) { }                  // 7
-            public TestClass(Type t1,   object o2) { }                  // 8
-            public TestClass(int i1, bool b2) { }                       // 9
+            public TestClass(A a) { }                                   // 2
+            public TestClass(B b) { }                                   // 3
+            public TestClass(A a1, B b1) { }                            // 4
 
             public void TestMethod() { }                                // 0
             public void TestMethod(object obj) { }                      // 1
-            public void TestMethod(string s1) { }                       // 2
-            public void TestMethod(long lng) { }                        // 3
-            public void TestMethod(long? lng) { }                       // 4
-            public void TestMethod(int intgr) { }                       // 5
-            public void TestMethod(object o1, object o2) { }            // 6
-            public void TestMethod(string s1, object o2) { }            // 7
-            public void TestMethod(Type t1,   object o2) { }            // 8
-            public void TestMethod(int i1, bool i2) { }                 // 9
+            public void TestMethod(A a) { }                             // 2
+            public void TestMethod(B b) { }                             // 3
+            public void TestMethod(A a1, B b1) { }                      // 4
         }
 
         #endregion

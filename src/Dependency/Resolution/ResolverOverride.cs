@@ -50,7 +50,7 @@ namespace Unity.Resolution
 
         /// <summary>
         /// This method adds target information to the override. Only targeted
-        /// <see cref="Type"/> will be overriden even if other dependencies match
+        /// <see cref="Type"/> will be overridden even if other dependencies match
         /// the type of the name of the override.
         /// </summary>
         /// <typeparam name="T">Type to constrain the override to.</typeparam>
@@ -63,7 +63,7 @@ namespace Unity.Resolution
 
         /// <summary>
         /// This method adds target information to the override. Only targeted
-        /// <see cref="Type"/> will be overriden even if other dependencies match
+        /// <see cref="Type"/> will be overridden even if other dependencies match
         /// the type of the name of the override.
         /// </summary>
         /// <param name="targetType">Type to constrain the override to.</param>

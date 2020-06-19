@@ -15,13 +15,6 @@ namespace Injection.Members
             _ = new InjectionMethod((string)null);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void InfoValidationTest()
-        {
-            _ = new InjectionMethod((MethodInfo)null);
-        }
-
 
         protected override MethodBase<MethodInfo> GetMatchToMember(string name, object[] data) => new InjectionMethod(name, data);
 

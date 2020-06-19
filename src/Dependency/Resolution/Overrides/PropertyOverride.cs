@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Injection;
 
 namespace Unity.Resolution
 {
@@ -8,8 +7,7 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> that lets you override
     /// the value for a specified property.
     /// </summary>
-    public class PropertyOverride : ResolverOverride,
-                                    IMatching<PropertyInfo>
+    public class PropertyOverride : ResolverOverride
     {
         #region Constructors
 
@@ -38,7 +36,8 @@ namespace Unity.Resolution
             switch (other)
             {
                 case PropertyInfo info:
-                    return Matching(info);
+                    return null != info   && info.Name == Name &&
+                          (null == Target || info.DeclaringType == Target);
 
                 case PropertyOverride property:
                     return property.Name == Name && 
@@ -47,12 +46,6 @@ namespace Unity.Resolution
                 default:
                     return base.Equals(other);
             }
-        }
-
-        public bool Matching(PropertyInfo? other)
-        {
-            return null != other  && other.Name == Name &&
-                  (null == Target || other.DeclaringType == Target);
         }
 
         #endregion

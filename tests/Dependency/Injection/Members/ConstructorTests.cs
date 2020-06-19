@@ -8,14 +8,6 @@ namespace Injection.Members
     [TestClass]
     public class ConstructorTests : MethodBaseTests<ConstructorInfo>
     {
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void InfoValidationTest()
-        {
-            _ = new InjectionConstructor((ConstructorInfo)null);
-        }
-
-
         protected override MethodBase<ConstructorInfo> GetMatchToMember(string name, object[] data) => new InjectionConstructor(data);
         
         protected override ConstructorInfo[] GetMembers(Type type) => type.GetConstructors();

@@ -44,27 +44,29 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override bool Matching(Type? type)
+        public override MatchRank MatchTo(Type? type)
         {
-            if (null == _type) return true;
-            if (null == type) return false;
+            if (null == _type) return MatchRank.NoMatch;
+            if (null == type)  return MatchRank.NoMatch;
 
             if (_type.IsGenericTypeDefinition() || type.IsGenericTypeDefinition())
             {
                 var left = _type.IsGenericTypeDefinition() ? _type : _type.GetGenericTypeDefinition();
                 var right = type.IsGenericTypeDefinition() ?  type : type.GetGenericTypeDefinition();
 
-                return left == right;
+                return left == right ? MatchRank.ExactMatch : MatchRank.NoMatch;
             }
 
-            return type.IsAssignableFrom(_type);
+            return type.IsAssignableFrom(_type)
+                ? MatchRank.Compatible
+                : MatchRank.NoMatch;
         }
 
-        public override bool Matching(ParameterInfo? other)
+        public override MatchRank MatchTo(ParameterInfo? other)
         {
-            if (null == other) return false;
+            if (null == other) return MatchRank.NoMatch;
 
-            return Matching(other.ParameterType);
+            return MatchTo(other.ParameterType);
         }
 
         #endregion

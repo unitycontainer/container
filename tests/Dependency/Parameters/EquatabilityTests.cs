@@ -33,73 +33,79 @@ namespace Injection.Parameters
 
         #region IEquatable
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsAnyTypeData), DynamicDataSourceType.Method)]
         public virtual void EqualsAnyTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Matching(typeof(int)));
-            Assert.IsTrue(parameter.Matching(typeof(object)));
-            Assert.IsTrue(parameter.Matching(typeof(string)));
-            Assert.IsTrue(parameter.Matching(typeof(List<>)));
-            Assert.IsTrue(parameter.Matching(typeof(List<string>)));
-            Assert.IsTrue(parameter.Matching(typeof(string[])));
-            Assert.IsTrue(parameter.Matching(typeof(object[])));
-            Assert.IsTrue(parameter.Matching(typeof(int[])));
+            //Assert.IsTrue(parameter.Matching(typeof(int)));
+            //Assert.IsTrue(parameter.Matching(typeof(object)));
+            //Assert.IsTrue(parameter.Matching(typeof(string)));
+            //Assert.IsTrue(parameter.Matching(typeof(List<>)));
+            //Assert.IsTrue(parameter.Matching(typeof(List<string>)));
+            //Assert.IsTrue(parameter.Matching(typeof(string[])));
+            //Assert.IsTrue(parameter.Matching(typeof(object[])));
+            //Assert.IsTrue(parameter.Matching(typeof(int[])));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsValueTypeData), DynamicDataSourceType.Method)]
         public virtual void EqualsValueTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Matching(typeof(int)));
-            Assert.IsTrue(parameter.Matching(typeof(object)));
-            Assert.IsFalse(parameter.Matching(typeof(string)));
+            //Assert.IsTrue(parameter.Matching(typeof(int)));
+            //Assert.IsTrue(parameter.Matching(typeof(object)));
+            //Assert.IsFalse(parameter.Matching(typeof(string)));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsArrayTypeData), DynamicDataSourceType.Method)]
         public virtual void EqualsArrayTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Matching(typeof(string[])));
-            Assert.IsTrue(parameter.Matching(typeof(object[])));
-            Assert.IsFalse(parameter.Matching(typeof(string[,])));
-            Assert.IsFalse(parameter.Matching(typeof(int)));
-            Assert.IsFalse(parameter.Matching(typeof(int[])));
+            //Assert.IsTrue(parameter.Matching(typeof(string[])));
+            //Assert.IsTrue(parameter.Matching(typeof(object[])));
+            //Assert.IsFalse(parameter.Matching(typeof(string[,])));
+            //Assert.IsFalse(parameter.Matching(typeof(int)));
+            //Assert.IsFalse(parameter.Matching(typeof(int[])));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsGenericTypeData), DynamicDataSourceType.Method)]
         public virtual void EqualsGenericTypeTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Matching(typeof(List<>)));
-            Assert.IsTrue(parameter.Matching(typeof(List<string>)));
-            Assert.IsFalse(parameter.Matching(typeof(IEnumerable<>)));
+            //Assert.IsTrue(parameter.Matching(typeof(List<>)));
+            //Assert.IsTrue(parameter.Matching(typeof(List<string>)));
+            //Assert.IsFalse(parameter.Matching(typeof(IEnumerable<>)));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsGenericParameterData), DynamicDataSourceType.Method)]
         public virtual void EqualsGenericTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Matching(TrueType));
-            Assert.IsFalse(parameter.Matching(typeof(string)));
-            Assert.IsFalse(parameter.Matching(FalseType));
+            //Assert.IsTrue(parameter.Matching(TrueType));
+            //Assert.IsFalse(parameter.Matching(typeof(string)));
+            //Assert.IsFalse(parameter.Matching(FalseType));
         }
 
+        [Ignore]
         [DataTestMethod]
         [DynamicData(nameof(GetEqualsGenericArrayParameterData), DynamicDataSourceType.Method)]
         public virtual void EqualsGenericArrayTest(ParameterValue parameter)
         {
             // Validate
-            Assert.IsTrue(parameter.Matching(TrueArrayType));
-            Assert.IsFalse(parameter.Matching(typeof(string)));
-            Assert.IsFalse(parameter.Matching(typeof(string[])));
-            Assert.IsFalse(parameter.Matching(typeof(string[,])));
-            Assert.IsFalse(parameter.Matching(FalseArrayType));
+            //Assert.IsTrue(parameter.Matching(TrueArrayType));
+            //Assert.IsFalse(parameter.Matching(typeof(string)));
+            //Assert.IsFalse(parameter.Matching(typeof(string[])));
+            //Assert.IsFalse(parameter.Matching(typeof(string[,])));
+            //Assert.IsFalse(parameter.Matching(FalseArrayType));
         }
 
         #endregion

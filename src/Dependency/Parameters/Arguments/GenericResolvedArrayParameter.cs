@@ -47,13 +47,15 @@ namespace Unity.Injection
 
         #region IMatch
 
-        public override bool Matching(Type type)
+        public override MatchRank MatchTo(Type type)
         {
             if (!type.IsArray || type.GetArrayRank() != 1)
-                return false;
+                return MatchRank.NoMatch;
 
             Type elementType = type.GetElementType()!;
-            return elementType.IsGenericParameter && elementType.Name == base.ParameterTypeName;
+            return elementType.IsGenericParameter && elementType.Name == base.ParameterTypeName
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch;
         }
 
         #endregion

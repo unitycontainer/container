@@ -24,17 +24,6 @@ namespace Unity.Injection
         {
         }
 
-        /// <summary>
-        /// Creates a new <see cref="InjectionMethod"/> instance which will configure
-        /// the container to call the given method with the given parameters.
-        /// </summary>
-        /// <param name="info"><see cref="MethodInfo"/> of the method to call</param>
-        /// <param name="arguments">Arguments to pass to the method</param>
-        public InjectionMethod(MethodInfo info, params object[] arguments)
-            : base(info, arguments)
-        {
-        }
-
         #endregion
 
 

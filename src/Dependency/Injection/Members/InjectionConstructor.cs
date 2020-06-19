@@ -25,17 +25,6 @@ namespace Unity.Injection
         {
         }
 
-        /// <summary>
-        /// Creates a new <see cref="InjectionConstructor"/> instance which will configure
-        /// the container to invoke the given constructor with the given parameters.
-        /// </summary>
-        /// <param name="info"><see cref="ConstructorInfo"/> of the method to call</param>
-        /// <param name="arguments">Arguments to pass to the method</param>
-        public InjectionConstructor(ConstructorInfo info, params object[] arguments)
-            : base(info, arguments)
-        {
-        }
-
         #endregion
 
 

@@ -14,8 +14,6 @@ namespace Unity.Injection
         internal static Func<TMemberInfo, bool> SupportedMembersFilter = 
             (TMemberInfo member) => !member.IsFamily && !member.IsPrivate;
 
-        private TMemberInfo? _info;
-
         #endregion
 
 
@@ -26,19 +24,6 @@ namespace Unity.Injection
         {
         }
 
-        protected MethodBase(TMemberInfo info, params object[] arguments)
-            : base((info ?? throw new ArgumentNullException(nameof(info))).Name, arguments)
-        {
-            _info = info;
-        }
-
-        #endregion
-
-
-        #region Public Members
-
-        public virtual TMemberInfo? MemberInfo() => _info;
-
         #endregion
 
 
@@ -48,29 +33,23 @@ namespace Unity.Injection
 
         public override TMemberInfo? MemberInfo(Type type)
         {
-            if (null != _info)
-            { 
-                return _info.DeclaringType == type
-                    ? _info
-                    : _info.GetMemberFromInfo(type);
-            }
-
-            var candidate = 0;
-            TMemberInfo? selection = null;
+            int          bestSoFar = -1;
+            TMemberInfo? candidate = null;
+            
             foreach (TMemberInfo member in DeclaredMembers(type))
             {
                 var compatibility = CompareTo(member);
                 
                 if (0 == compatibility) return member;
 
-                if (candidate < compatibility)
+                if (bestSoFar < compatibility)
                 { 
-                    selection = member;
-                    candidate = compatibility;
+                    candidate = member;
+                    bestSoFar = compatibility;
                 }
             }
 
-            return selection;
+            return candidate;
         }
 
         #endregion
@@ -87,16 +66,16 @@ namespace Unity.Injection
 
             if (length != parameters.Length) return -1;
 
-            int result = 0;
+            int rank = 0;
             for (var i = 0; i < length; i++)
             {
-                var compatibility = Data![i].CompareTo(parameters[i]);
+                var compatibility = (int)Data![i].MatchTo(parameters[i]);
 
-                if (-1 == compatibility) return -1;
-                if (result < compatibility) result = compatibility;
+                if (0 > compatibility) return -1;
+                rank += compatibility;
             }
 
-            return result;
+            return (int)MatchRank.ExactMatch * parameters.Length == rank ? 0 : rank;
         }
 
         #endregion

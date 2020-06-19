@@ -8,7 +8,7 @@ namespace Unity
     /// or properties to specify how to resolve the value for
     /// that parameter or property.
     /// </summary>
-    public abstract class DependencyResolutionAttribute : Attribute, IMatching<Type>
+    public abstract class DependencyResolutionAttribute : Attribute, IMatchTo<Type>
     {
         /// <summary>
         /// Default constructor
@@ -30,6 +30,6 @@ namespace Unity
         /// </summary>
         /// <param name="type">Type to resolve</param>
         /// <returns>Returns true in assumption that any time can be resolved</returns>
-        public virtual bool Matching(Type type) => true;
+        public virtual MatchRank MatchTo(Type type) => MatchRank.NoMatch;
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Unity.Resolution;
 
@@ -74,22 +72,29 @@ namespace Unity.Injection
 
         #region  IMatch
 
-        public override bool Matching(Type type)
+        public override MatchRank MatchTo(Type type)
         {
-            if (null == type) return false;
-            if (!_isArray) return type.IsGenericParameter && type.Name == _genericParameterName;
-            if (!type.IsArray) return false;
+            if (null == type) return MatchRank.NoMatch;
+            
+            if (!_isArray) 
+                return type.IsGenericParameter && type.Name == _genericParameterName
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch; 
+
+            if (!type.IsArray) return MatchRank.NoMatch;
 
             var element = type.GetElementType()!;
-            return element.IsGenericParameter && element.Name == _genericParameterName;
+            return element.IsGenericParameter && element.Name == _genericParameterName
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch;
         }
 
-        public override bool Matching(ParameterInfo other)
+        public override MatchRank MatchTo(ParameterInfo other)
         {
             if (!other.Member.DeclaringType!.IsGenericType()) 
-                return false;
+                return MatchRank.NoMatch;
 
-            return Matching(GenericParameterInfo(other).ParameterType);
+            return MatchTo(GenericParameterInfo(other).ParameterType);
         }
 
         #endregion
