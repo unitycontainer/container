@@ -10,7 +10,7 @@ namespace Unity.Injection
     /// for a constructor, so that the container can
     /// be configured to call this constructor.
     /// </summary>
-    public class InjectionConstructor : MethodBase<ConstructorInfo>
+    public class InjectionConstructor : InjectionMethodBase<ConstructorInfo>
     {
         #region Constructors
 

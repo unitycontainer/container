@@ -337,7 +337,7 @@ namespace Injection.Members
 
         #region Implementation
 
-        protected abstract MethodBase<TMemberInfo> GetMatchToMember(string name, object[] data);
+        protected abstract InjectionMethodBase<TMemberInfo> GetMatchToMember(string name, object[] data);
         protected abstract TMemberInfo[] GetMembers(Type type);
 
         #endregion

@@ -18,7 +18,7 @@ namespace Injection.Members
 
         public override InjectionMember<MethodInfo, object[]> GetInjectionMember() => new InjectionMethod(string.Empty);
 
-        protected override MethodBase<MethodInfo> GetMatchToMember(string name, object[] data) => new InjectionMethod(name, data);
+        protected override InjectionMethodBase<MethodInfo> GetMatchToMember(string name, object[] data) => new InjectionMethod(name, data);
 
         protected override MethodInfo[] GetMembers(Type type) => type.GetMethods();
     }

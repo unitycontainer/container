@@ -10,7 +10,7 @@ namespace Injection.Members
     {
         public override InjectionMember<ConstructorInfo, object[]> GetInjectionMember() => new InjectionConstructor();
 
-        protected override MethodBase<ConstructorInfo> GetMatchToMember(string name, object[] data) => new InjectionConstructor(data);
+        protected override InjectionMethodBase<ConstructorInfo> GetMatchToMember(string name, object[] data) => new InjectionConstructor(data);
         
         protected override ConstructorInfo[] GetMembers(Type type) => type.GetConstructors();
 

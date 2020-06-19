@@ -9,7 +9,7 @@ namespace Unity.Injection
     /// An <see cref="InjectionMember"/> that configures the
     /// container to call a method as part of buildup.
     /// </summary>
-    public class InjectionMethod : MethodBase<MethodInfo>
+    public class InjectionMethod : InjectionMethodBase<MethodInfo>
     {
         #region Constructors
 
