@@ -5,7 +5,8 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public abstract class InjectionMethodBase<TMemberInfo> : InjectionMember<TMemberInfo, object[]>, IComparable<TMemberInfo>
+    public abstract class InjectionMethodBase<TMemberInfo> : InjectionMember<TMemberInfo, object[]>, 
+                                                             IComparable<TMemberInfo>
                                          where TMemberInfo : MethodBase
     {
         #region Fields
