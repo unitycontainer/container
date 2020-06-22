@@ -186,7 +186,7 @@ namespace Dependency.Annotation
         public void CircularExceptionTest(DependencyResolutionAttribute attribute)
         {
             // Arrange
-            var context = new DictionaryContext() { Resolver = (t, n) => 
+            var context = new DictionaryContext() { Resolver = (t) => 
             throw new ResolutionFailedException(typeof(AttributesTests), null, null, 
                 new CircularDependencyException(typeof(AttributesTests), null))};
 

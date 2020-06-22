@@ -658,6 +658,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager? lifetimeManager = null)
         {
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
             return (container ?? throw new ArgumentNullException(nameof(container)))
                 .RegisterFactory(typeof(TInterface), null, factory, lifetimeManager);
         }
@@ -699,6 +700,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager? lifetimeManager = null)
         {
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
             return (container ?? throw new ArgumentNullException(nameof(container)))
                 .RegisterFactory(typeof(TInterface), name, factory, lifetimeManager);
         }
@@ -722,6 +724,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object> factory, IFactoryLifetimeManager? lifetimeManager = null)
         {
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
             return (container ?? throw new ArgumentNullException(nameof(container)))
                 .RegisterFactory(type, null, (c, t, n) => factory(c), lifetimeManager);
         }
@@ -741,6 +744,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager? lifetimeManager = null)
         {
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
             return (container ?? throw new ArgumentNullException(nameof(container)))
                 .RegisterFactory(type, null, factory, lifetimeManager);
         }
@@ -761,6 +765,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object> factory, IFactoryLifetimeManager? lifetimeManager = null)
         {
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
             return (container ?? throw new ArgumentNullException(nameof(container)))
                 .RegisterFactory(type, name, (c, t, n) => factory(c), lifetimeManager);
         }
@@ -781,6 +786,7 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string, object> factory, IFactoryLifetimeManager? lifetimeManager = null)
         {
+            if (null == factory) throw new ArgumentNullException(nameof(factory));
             return (container ?? throw new ArgumentNullException(nameof(container)))
                 .RegisterFactory(type, name, factory, lifetimeManager);
         }
@@ -885,7 +891,9 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> ResolveAll<T>(this IUnityContainer container, params ResolverOverride[] resolverOverrides)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container))).ResolveAll(typeof(T), resolverOverrides).Cast<T>();
+            return (container ?? throw new ArgumentNullException(nameof(container)))
+                .ResolveAll(typeof(T), resolverOverrides)
+                .Cast<T>();
         }
 
         #endregion

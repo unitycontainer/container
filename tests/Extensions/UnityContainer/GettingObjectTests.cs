@@ -68,16 +68,15 @@ namespace Extensions.Tests
         public void ResolveAllGeneric()
         {
             // Arrange
-            container.Data = new object[0];
+            container.Add(typeof(object[]), new object[] { new object() } as object);
 
             // Act
-            container.ResolveAll<IUnityContainer>();
+            container.ResolveAll<object>();
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer[]), container.Type);
+            Assert.AreEqual(typeof(object[]), container.Type);
             Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
-            Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll<IUnityContainer>());
         }
 
@@ -85,7 +84,7 @@ namespace Extensions.Tests
         public void ResolveAll()
         {
             // Arrange
-            container.Data = new bool[] { true, true, false } as object;
+            container.Add(typeof(bool[]), new bool[] { true, true, false } as object);
 
             // Act
             container.ResolveAll(typeof(bool));
@@ -94,7 +93,6 @@ namespace Extensions.Tests
             Assert.AreEqual(typeof(bool[]), container.Type);
             Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
-            Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(IUnityContainer)));
             Assert.ThrowsException<ArgumentNullException>(() => container.ResolveAll(null));
         }
@@ -103,7 +101,7 @@ namespace Extensions.Tests
         public void ResolveAllEnumerable()
         {
             // Arrange
-            container.Data = new int[] { 0, 1 };
+            container.Add(typeof(int[]), new int[] { 0, 1 } as object);
 
             // Act
             container.ResolveAll(typeof(int));
@@ -112,7 +110,6 @@ namespace Extensions.Tests
             Assert.AreEqual(typeof(int[]), container.Type);
             Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
-            Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(int)));
             Assert.ThrowsException<ArgumentNullException>(() => container.ResolveAll(null));
         }

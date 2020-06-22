@@ -6,10 +6,9 @@ namespace Unity.Abstractions.Tests
 {
     public class DictionaryContext : Dictionary<Type, object>, IResolveContext
     {
-        public Func<Type, string, object> Resolver { get; set; }
+        public Func<Type, object> Resolver { get; set; }
 
         public DictionaryContext() => Resolver = DefaultResolver;
-
 
         public IUnityContainer Container => throw new NotImplementedException();
 
@@ -23,13 +22,13 @@ namespace Unity.Abstractions.Tests
 
         public object Get(Type type, string name, Type policyInterface) => throw new NotImplementedException();
 
-        public object Resolve(Type type, string name) => Resolver(type, name);
+        public object Resolve(Type type, string name) => Resolver(type);
 
         public void Set(Type type, Type policyInterface, object policy) => throw new NotImplementedException();
 
         public void Set(Type type, string name, Type policyInterface, object policy) => throw new NotImplementedException();
 
-        private object DefaultResolver(Type type, string name)
+        private object DefaultResolver(Type type)
         {
             try
             {
@@ -37,7 +36,7 @@ namespace Unity.Abstractions.Tests
             }
             catch
             {
-                throw new ResolutionFailedException(type, name, $"{type} is not registered");
+                throw new ResolutionFailedException(type, null, $"{type} is not registered");
             }
         }
     }
