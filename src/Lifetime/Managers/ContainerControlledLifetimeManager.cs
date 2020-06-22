@@ -48,13 +48,6 @@ namespace Unity.Lifetime
         #endregion
 
 
-        #region Scope
-
-        public object? Scope { get; set; }
-
-        #endregion
-
-
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>

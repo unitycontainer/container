@@ -8,6 +8,13 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract class LifetimeManager
     {
+        #region Fields
+
+        private object? _scope;
+
+        #endregion
+
+
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
         /// unless value is set with a valid object. Null is a value and is not equal 
@@ -35,7 +42,26 @@ namespace Unity.Lifetime
             Get    = GetValue;
             TryGet = TryGetValue;
         }
-        
+
+        #endregion
+
+
+        #region Scope
+
+        /// <summary>
+        /// This is a reference to the container this manager is registered with.
+        /// </summary>
+        public object? Scope
+        {
+            get => _scope; 
+            set
+            {
+                System.Diagnostics.Debug.Assert(null == _scope, $"Manager {this} is already registered with {_scope} scope");
+                
+                _scope = value;
+            }
+        }
+
         #endregion
 
 
