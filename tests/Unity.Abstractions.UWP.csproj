@@ -126,6 +126,7 @@
     <Compile Include="Exceptions\ExceptionTests.cs" />
     <Compile Include="Lifetime\**\*.cs" />
     <Compile Include="Policy\*.cs" />
+    <Compile Include="Utility\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
