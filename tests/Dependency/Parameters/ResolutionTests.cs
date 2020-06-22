@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Unity;
+using Unity.Abstractions.Tests;
 using Unity.Injection;
 using Unity.Resolution;
 
@@ -183,30 +183,6 @@ namespace Injection.Parameters
             yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, typeof(IList<string>)),                        ArrayInfo, ListConst };
             yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, new InjectionParameter(ListConst)),            ArrayInfo, ListConst };
             yield return new object[] { new ResolvedArrayParameter(ListInfo.ParameterType, new ResolvedParameter(typeof(IList<string>))), ArrayInfo, ListConst };
-        }
-
-        public class DictionaryContext : Dictionary<Type, object>, IResolveContext
-        {
-            public IUnityContainer Container => throw new NotImplementedException();
-
-            public Type Type => throw new NotImplementedException();
-
-            public string Name => throw new NotImplementedException();
-
-            public void Clear(Type type, string name, Type policyInterface) => throw new NotImplementedException();
-
-            public object Get(Type type, Type policyInterface) => throw new NotImplementedException();
-
-            public object Get(Type type, string name, Type policyInterface) => throw new NotImplementedException();
-
-            public object Resolve(Type type, string name)
-            {
-                return this[type];
-            }
-
-            public void Set(Type type, Type policyInterface, object policy) => throw new NotImplementedException();
-
-            public void Set(Type type, string name, Type policyInterface, object policy) => throw new NotImplementedException();
         }
 
         public class TestClass<T>

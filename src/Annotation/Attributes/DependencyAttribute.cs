@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -14,8 +15,15 @@ namespace Unity
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Field)]
     public sealed class DependencyAttribute : DependencyResolutionAttribute
     {
+        #region Singleton
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal static DependencyAttribute Instance = new DependencyAttribute();
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Create an instance of <see cref="DependencyAttribute"/> with no name.
@@ -29,5 +37,16 @@ namespace Unity
         /// <param name="name">Name to use when resolving this dependency.</param>
         public DependencyAttribute(string name)
             : base(name) { }
+
+        #endregion
+
+
+        #region Overrides
+
+        /// <inheritdoc />
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type) => 
+            (ref TContext context) => context.Resolve(type, Name);
+
+        #endregion
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity;
+using Unity.Abstractions.Tests;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;

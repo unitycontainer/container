@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Exceptions;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -11,8 +13,15 @@ namespace Unity
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class OptionalDependencyAttribute : DependencyResolutionAttribute
     {
+        #region Singleton
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal static OptionalDependencyAttribute Instance = new OptionalDependencyAttribute();
+
+        #endregion
+
+
+        #region Constructors
 
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object.
@@ -27,5 +36,26 @@ namespace Unity
         /// <param name="name">Name of the dependency.</param>
         public OptionalDependencyAttribute(string name)
             : base(name) { }
+
+        #endregion
+
+
+        #region Overrides
+
+        /// <inheritdoc />
+        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type) => 
+            (ref TContext context) =>
+            {
+                try
+                {
+                    return context.Resolve(type, Name);
+                }
+                catch (Exception ex) when (!(ex.InnerException is CircularDependencyException))
+                {
+                    return null;
+                }
+            };
+
+        #endregion
     }
 }
