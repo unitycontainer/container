@@ -33,9 +33,12 @@ namespace Unity
 
         #region Member Info
 
+#if !NETCOREAPP1_0 && !NETSTANDARD1_6 && !NETSTANDARD1_0
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TInfo? GetMemberFromInfo<TInfo>(this TInfo info, Type type)
             where TInfo : MethodBase => (TInfo?)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
+#endif
 
         public static object? GetDefaultValue(this ParameterInfo info, object? @default = null)
         {
