@@ -103,7 +103,7 @@ namespace Unity
         #region Factory
 
         /// <inheritdoc />
-        Task IUnityContainerAsync.RegisterFactory(IEnumerable<Type>? interfaces, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager)
+        Task IUnityContainerAsync.RegisterFactory(IEnumerable<Type>? interfaces, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
             throw new NotImplementedException();
             //// Validate input

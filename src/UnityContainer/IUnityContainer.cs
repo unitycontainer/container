@@ -160,7 +160,7 @@ namespace Unity
 
         /// <inheritdoc />
 
-        IUnityContainer IUnityContainer.RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager)
+        IUnityContainer IUnityContainer.RegisterFactory(Type type, string? name, Func<IResolveContext, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
             // Validate input
             if (null == type) throw new ArgumentNullException(nameof(type));
