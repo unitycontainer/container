@@ -17,6 +17,15 @@ namespace Unity
         public static bool IsClass(this Type type) => type.IsClass;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAbstract(this Type type) => type.IsAbstract;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPrimitive(this Type type) => type.IsPrimitive;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEnum(this Type type) => type.IsEnum;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsGenericType(this Type type) => type.IsGenericType;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

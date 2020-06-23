@@ -15,6 +15,15 @@ namespace Unity
         public static bool IsClass(this Type type) => type.GetTypeInfo().IsClass;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAbstract(this Type type) => type.GetTypeInfo().IsAbstract;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPrimitive(this Type type) => type.GetTypeInfo().IsPrimitive;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEnum(this Type type) => type.GetTypeInfo().IsEnum;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsGenericType(this Type type) => type.GetTypeInfo().IsGenericType;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +37,9 @@ namespace Unity
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAssignableFrom(this Type match, Type type) => match.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsSubclassOf(this Type match, Type type) => match.GetTypeInfo().IsSubclassOf(type);
 
         #endregion
 
