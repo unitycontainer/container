@@ -7,6 +7,19 @@ namespace Unity
 {
     internal static class Compatibility_Net_4_0
     {
+        #region Type
+
+        public static TypeInfo GetTypeInfo(this Type type)
+        {
+            System.Diagnostics.Debug.Assert(null != type);
+            return new TypeInfo(type!);
+        }
+
+        #endregion
+
+
+        #region Custom Attribute
+
         public static Attribute GetCustomAttribute(this MemberInfo info, Type type)
         {
             return info.GetCustomAttributes(true)
@@ -17,9 +30,6 @@ namespace Unity
                        .FirstOrDefault();
         }
 
-        public static bool IsDefined(this MemberInfo element, Type attributeType) => 
-            element.IsDefined(attributeType, true);
-
         public static Attribute GetCustomAttribute(this ParameterInfo info, Type type)
         {
             return info.GetCustomAttributes(type, true)
@@ -27,15 +37,13 @@ namespace Unity
                        .FirstOrDefault();
         }
 
-        public static TypeInfo GetTypeInfo(this Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
+        public static bool IsDefined(this MemberInfo element, Type attributeType) =>
+            element.IsDefined(attributeType, true);
 
-            return new TypeInfo(type);
-        }
+        #endregion
+
+
+        #region Delegate
 
         public static Delegate CreateDelegate(this MethodInfo method, Type delegateType)
         {
@@ -51,7 +59,12 @@ namespace Unity
         {
             return method.Method;
         }
+
+        #endregion
     }
+
+
+    #region Missing Types
 
     internal class TypeInfo
     {
@@ -249,4 +262,6 @@ namespace Unity
         SecurityMitigations = 1024,
         InternalCall = 4096
     }
+    
+    #endregion
 }

@@ -8,15 +8,13 @@ namespace Unity
 {
     internal static class Compatibility_NetStandard_1
     {
-        public static Attribute GetCustomAttribute(this MemberInfo info, Type type)
-        {
-            return info.GetCustomAttributes()
-                       .Where(a => a.GetType()
-                                    .GetTypeInfo()
-                                    .IsAssignableFrom(type.GetTypeInfo()))
-                       .FirstOrDefault();
-        }
+        #region Type
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInterface(this Type type) => type.GetTypeInfo().IsInterface;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsClass(this Type type) => type.GetTypeInfo().IsClass;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsGenericType(this Type type) => type.GetTypeInfo().IsGenericType;
@@ -30,6 +28,27 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsGenericParameters(this Type type) => type.GetTypeInfo().ContainsGenericParameters;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAssignableFrom(this Type match, Type type) => match.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+
+        #endregion
+
+
+        #region Custom Attribute
+
+        public static Attribute GetCustomAttribute(this MemberInfo info, Type type)
+        {
+            return info.GetCustomAttributes()
+                       .Where(a => a.GetType()
+                                    .GetTypeInfo()
+                                    .IsAssignableFrom(type.GetTypeInfo()))
+                       .FirstOrDefault();
+        }
+
+        #endregion
+
+
+        #region Member Info
 
         public static TInfo? GetMemberFromInfo<TInfo>(this TInfo info, Type type)
             where TInfo : MethodBase
@@ -105,12 +124,11 @@ namespace Unity
             return info.SetMethod;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAssignableFrom(this Type match, Type type)
-        { 
-            return match.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
-        }
+        #endregion
     }
+
+
+    #region Missing Types
 
     [Flags]
     internal enum BindingFlags
@@ -137,4 +155,6 @@ namespace Unity
         IgnoreReturn = 16777216,
         DoNotWrapExceptions = 33554432
     }
+
+    #endregion
 }

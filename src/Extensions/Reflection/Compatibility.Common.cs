@@ -6,8 +6,15 @@ namespace Unity
 {
     internal static class Compatibility_Common
     {
+        #region Type
+
 #if !NETCOREAPP1_0 && !NETSTANDARD1_6 && !NETSTANDARD1_0
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInterface(this Type type) => type.IsInterface;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsClass(this Type type) => type.IsClass;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsGenericType(this Type type) => type.IsGenericType;
@@ -20,16 +27,15 @@ namespace Unity
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsGenericParameters(this Type type) => type.ContainsGenericParameters;
+#endif
+        #endregion
 
+
+        #region Member Info
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TInfo? GetMemberFromInfo<TInfo>(this TInfo info, Type type)
-            where TInfo : MethodBase
-        {
-            return (TInfo?)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
-        }
-
-#endif
+            where TInfo : MethodBase => (TInfo?)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
 
         public static object? GetDefaultValue(this ParameterInfo info, object? @default = null)
         {
@@ -39,5 +45,8 @@ namespace Unity
             return info.HasDefaultValue ? info.DefaultValue : @default;
 #endif
         }
+
+        #endregion
+
     }
 }

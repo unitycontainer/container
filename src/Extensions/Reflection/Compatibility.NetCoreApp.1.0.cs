@@ -5,28 +5,14 @@ using System.Runtime.CompilerServices;
 
 namespace Unity
 {
-    internal interface ICloneable
-    {
-        object Clone();
-    }
-
-
     internal static class Compatibility_NetCoreApp_1_0
     {
-        public static FieldInfo? GetField(this Type type, string name)
-        { 
-            return type.GetField(name);
-        }
+        #region Type
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInterface(this Type type) => type.GetTypeInfo().IsInterface;
 
-        public static Attribute GetCustomAttribute(this MemberInfo info, Type type)
-        {
-            return info.GetCustomAttributes()
-                       .Where(a => a.GetType()
-                                    .GetTypeInfo()
-                                    .IsAssignableFrom(type.GetTypeInfo()))
-                       .FirstOrDefault();
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsClass(this Type type) => type.GetTypeInfo().IsClass;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsGenericType(this Type type) => type.GetTypeInfo().IsGenericType;
@@ -41,11 +27,27 @@ namespace Unity
         public static bool ContainsGenericParameters(this Type type) => type.GetTypeInfo().ContainsGenericParameters;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAssignableFrom(this Type match, Type type)
+        public static bool IsAssignableFrom(this Type match, Type type) => match.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+
+        #endregion
+
+
+
+        #region Custom Attribute
+
+        public static Attribute GetCustomAttribute(this MemberInfo info, Type type)
         {
-            return match.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            return info.GetCustomAttributes()
+                       .Where(a => a.GetType()
+                                    .GetTypeInfo()
+                                    .IsAssignableFrom(type.GetTypeInfo()))
+                       .FirstOrDefault();
         }
 
+        #endregion
+
+
+        #region Member Info
 
         public static TInfo? GetMemberFromInfo<TInfo>(this TInfo info, Type type)
             where TInfo : MethodBase
@@ -70,5 +72,22 @@ namespace Unity
 
             return null;
         }
+
+        public static FieldInfo? GetField(this Type type, string name)
+        { 
+            return type.GetField(name);
+        }
+
+        #endregion
     }
+
+
+    #region Missing Types
+
+    internal interface ICloneable
+    {
+        object Clone();
+    }
+
+    #endregion
 }
