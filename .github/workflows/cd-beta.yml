@@ -1,0 +1,53 @@
+name:  Continuous Deployment
+
+on:
+  push:
+    branches:
+      - 'release/**'    
+    paths:
+      - 'src/*'
+      - 'test/*'
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+    env:
+      PackageOutputPath: '${{ github.workspace }}\package'
+      containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
+
+    steps:
+
+    - name: Checkout Container
+      uses: actions/checkout@v2
+      with:
+        path: Container
+        fetch-depth: 0
+
+    - name: Label Fixed Issues
+      uses: gh-bot/fix-labeler@master        
+      with:
+        path: Container
+
+    - name: Setup local NuGet source
+      run: dotnet nuget add source "https://nuget.pkg.github.com/unitycontainer/index.json" -n github -u unitycontainer -p ${{secrets.GITHUB_TOKEN}} --store-password-in-clear-text
+
+    - name: Add GitVersion, SourceLink, and Abstractions packages
+      run: | 
+        dotnet remove ${{ env.containerProject }} reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
+        dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore --version 5.3.5
+        dotnet add ${{ env.containerProject }} package Microsoft.SourceLink.GitHub --no-restore
+        dotnet add ${{ env.containerProject }} package Unity.Abstractions --version *-beta*
+
+    - name: Build
+      run: | 
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Unity.Tests
+
+    - name: Test
+      run: | 
+        dotnet test Container\tests\Unity.Tests
+
+    - name: Publish Local Package
+      run: |
+        dotnet nuget push '${{ env.PackageOutputPath }}\*' --skip-duplicate --source github

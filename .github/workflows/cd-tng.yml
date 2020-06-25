@@ -1,0 +1,27 @@
+name:  Continuous Deployment
+
+on:
+  push:
+    branches:
+      - 'TNG'    
+    paths:
+      - 'src/*'
+      - 'test/*'
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+
+    steps:
+
+    - name: Checkout Container
+      uses: actions/checkout@v2
+      with:
+        path: Container
+        fetch-depth: 0
+
+    - name: Label Fixed Issues
+      uses: gh-bot/fix-labeler@master        
+      with:
+        path: Container
