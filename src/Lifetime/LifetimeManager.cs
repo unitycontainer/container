@@ -14,7 +14,7 @@ namespace Unity.Lifetime
         private object? _scope;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public Registration Registration;
+        public RegistrationData Registration;
 
         #endregion
 

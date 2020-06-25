@@ -27,7 +27,7 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public struct Registration
+    public struct RegistrationData
     {
         public readonly object            Scope;
         public readonly Type[]            Interfaces;
@@ -36,7 +36,7 @@ namespace Unity
         public readonly RegistrationType  RegistrationType;
         public readonly InjectionMember[] InjectionMembers;
 
-        internal Registration(object scope, Type[] interfaces, string? name, object data, RegistrationType registrationType, InjectionMember[] injectionMembers)
+        internal RegistrationData(object scope, Type[] interfaces, string? name, object data, RegistrationType registrationType, InjectionMember[] injectionMembers)
         {
             Scope            = scope;
             Interfaces       = interfaces;
