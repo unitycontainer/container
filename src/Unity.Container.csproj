@@ -75,8 +75,8 @@
     <ProjectReference Include="..\..\Abstractions\src\Unity.Abstractions.csproj" />
   </ItemGroup>
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <PackageReference Condition="'$(TargetFramework)' != 'net40' " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-  </ItemGroup>-->
+  </ItemGroup>
 
 </Project>

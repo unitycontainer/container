@@ -1,4 +1,6 @@
 ﻿using Unity.Policy;
+using Unity.Storage;
+using Unity.Pipeline;
 
 namespace Unity.Extension
 {
@@ -16,31 +18,19 @@ namespace Unity.Extension
         /// <value>The <see cref="IUnityContainer"/> object.</value>
         public abstract UnityContainer Container { get; }
 
-        ///// <summary>
-        ///// The <see cref="Unity.WithLifetime.ILifetimeContainer"/> that this container uses.
-        ///// </summary>
-        ///// <value>The <see cref="Unity.WithLifetime.ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
-        //public abstract ILifetimeContainer Lifetime { get; }
 
         #endregion
 
 
-        //#region Strategies
+        #region Strategies
 
-        ///// <summary>
-        ///// The strategies this container uses.
-        ///// </summary>
-        ///// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that the container uses to build objects.</value>
-        //public abstract IStagedStrategyChain<BuilderStrategy, UnityBuildStage> Strategies { get; }
+        public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; }
+        
+        public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> InstancePipeline { get; }
+        
+        public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline { get; }
 
-        ///// <summary>
-        ///// The strategies this container uses to construct build plans.
-        ///// </summary>
-        ///// <value>The <see cref="IStagedStrategyChain{TStrategyType,TStageEnum}"/> that this container uses when creating
-        ///// build plans.</value>
-        //public abstract IStagedStrategyChain<MemberProcessor, BuilderStage> BuildPlanStrategies { get; }
-
-        //#endregion
+        #endregion
 
 
         #region Policy Lists
@@ -54,27 +44,30 @@ namespace Unity.Extension
         #endregion
 
 
-        //#region Events
+        #region Events
 
-        ///// <summary>
-        ///// This event is raised when the 
-        ///// <see cref="IUnityContainer.RegisterType(Type,Type,string,LifetimeManager, InjectionMember[])"/> 
-        ///// method, or one of its overloads, is called.
-        ///// </summary>
-        //public abstract event EventHandler<RegisterEventArgs> Registering;
+        /// <summary>
+        /// This event is raised when new <see cref="Type"/> is registered.
+        /// </summary>
+        public abstract event RegistrationEvent TypeRegistered;
 
-        ///// <summary>
-        ///// This event is raised when the <see cref="IUnityContainer.RegisterInstance(Type,string,object,LifetimeManager)"/> method,
-        ///// or one of its overloads, is called.
-        ///// </summary>
-        //public abstract event EventHandler<RegisterInstanceEventArgs> RegisteringInstance;
+        /// <summary>
+        /// This event is raised when new instance is registered.
+        /// </summary>
+        public abstract event RegistrationEvent InstanceRegistered;
 
-        ///// <summary>
-        ///// This event is raised when the <see cref="IUnityContainer.CreateChildContainer"/> method is called, providing 
-        ///// the newly created child container to extensions to act on as they see fit.
-        ///// </summary>
-        //public abstract event EventHandler<ChildContainerCreatedEventArgs> ChildContainerCreated;
+        /// <summary>
+        /// This event is raised when new instance is registered.
+        /// </summary>
+        public abstract event RegistrationEvent FactoryRegistered;
 
-        //#endregion
+        /// <summary>
+        /// This event is raised when the <see cref="IUnityContainer.CreateChildContainer"/> 
+        /// method is called and new child container is created. It allow extensions to 
+        /// perform any additional initialization they may require.
+        /// </summary>
+        public abstract event ChildCreatedEvent ChildContainerCreated;
+
+        #endregion
     }
 }
