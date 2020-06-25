@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Unity.Lifetime
 {
@@ -11,6 +12,9 @@ namespace Unity.Lifetime
         #region Fields
 
         private object? _scope;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public Registration Registration;
 
         #endregion
 
