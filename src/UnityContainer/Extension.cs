@@ -18,18 +18,6 @@ namespace Unity
         private ExtensionContext _context;
         private List<object> _extensions;
 
-        private StagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; } 
-            = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
-        private StagedStrategyChain<PipelineProcessor, PipelineStage> InstancePipeline { get; } 
-            = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
-        private StagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline { get; } 
-            = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
-
-        private event RegistrationEvent? TypeRegistered;
-        private event RegistrationEvent? InstanceRegistered;
-        private event RegistrationEvent? FactoryRegistered;
-        private event ChildCreatedEvent? ChildContainerCreated;
-
         #endregion
 
 

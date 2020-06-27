@@ -10,7 +10,7 @@ namespace Unity
         #region Constructors
 
         /// <summary>
-        /// Create a <see cref="UnityContainer"/>.
+        /// Default <see cref="UnityContainer"/> constructor
         /// </summary>
         public UnityContainer()
         {

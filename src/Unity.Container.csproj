@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' != 'netstandard1.6' " Remove="Utility\ConcurrentDictionary.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40' " Remove="UnityContainer\IUnityContainerAsync.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,10 +77,6 @@
   <ItemGroup>
     <PackageReference Condition="'$(TargetFramework)' != 'net40'" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Context\" />
   </ItemGroup>
 
 </Project>
