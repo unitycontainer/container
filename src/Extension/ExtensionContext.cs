@@ -1,6 +1,7 @@
 ﻿using Unity.Policy;
 using Unity.Storage;
 using Unity.Pipeline;
+using Unity.Lifetime;
 
 namespace Unity.Extension
 {
@@ -10,41 +11,29 @@ namespace Unity.Extension
     /// </summary>
     public abstract class ExtensionContext
     {
-        #region Container
+        #region Global Settings
+
+        #region Pipelines
 
         /// <summary>
-        /// The container that this context is associated with.
+        /// Pipeline chain required to process factory registrations
         /// </summary>
-        /// <value>The <see cref="IUnityContainer"/> object.</value>
-        public abstract UnityContainer Container { get; }
-
-
-        #endregion
-
-
-        #region Strategies
-
         public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; }
-        
+
+        /// <summary>
+        /// Pipeline chain required to process instance registrations
+        /// </summary>
         public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> InstancePipeline { get; }
-        
+
+        /// <summary>
+        /// Pipeline chain required to process type registrations
+        /// </summary>
         public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline { get; }
 
         #endregion
 
 
-        #region Policy Lists
-
-        /// <summary>
-        /// The policies this container uses.
-        /// </summary>
-        /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
-        public abstract IPolicyList Policies { get; }
-
-        #endregion
-
-
-        #region Events
+        #region Global Events
 
         /// <summary>
         /// This event is raised when new <see cref="Type"/> is registered.
@@ -67,6 +56,48 @@ namespace Unity.Extension
         /// perform any additional initialization they may require.
         /// </summary>
         public abstract event ChildCreatedEvent ChildContainerCreated;
+
+        #endregion
+
+
+        /// <summary>
+        /// The global singleton <see cref="UnityContainer"/> owner instance 
+        /// </summary>
+        /// <value>The <see cref="UnityContainer"/> object.</value>
+        public abstract UnityContainer Container { get; }
+
+        #endregion
+
+
+        #region Root Container Settings
+
+        /// <summary>
+        /// The policies this container uses.
+        /// </summary>
+        /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
+        public abstract IPolicyList Policies { get; }
+
+        /// <summary>
+        /// The <see cref="ILifetimeContainer"/> that this container uses.
+        /// </summary>
+        /// <value>The <see cref="ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
+        public abstract ILifetimeContainer Lifetime { get; }
+
+
+        /// <summary>
+        /// Default implicit lifetime of type registrations 
+        /// </summary>
+        public abstract ITypeLifetimeManager DefaultTypeLifetime { get; set; }
+
+        /// <summary>
+        /// Default implicit lifetime of factory registrations 
+        /// </summary>
+        public abstract IFactoryLifetimeManager DefaultFactoryLifetime { get; set; }
+
+        /// <summary>
+        /// Default implicit lifetime of instance registrations 
+        /// </summary>
+        public abstract IInstanceLifetimeManager DefaultInstanceLifetime { get; set; }
 
         #endregion
     }

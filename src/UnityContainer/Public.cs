@@ -1,18 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Extension;
 
 namespace Unity
 {
-    public partial class UnityContainer : IDisposable
+    public partial class UnityContainer
     {
-        #region Fields
-
-        private bool disposedValue;
-
-        #endregion
-
-
         #region Constructors
 
         /// <summary>
@@ -21,20 +15,21 @@ namespace Unity
         public UnityContainer()
         {
             // Extension Management
-            _context = new ExtensionContextImpl(this);
+            _context = new RootExtensionContext(this);
+            _extensions = new List<object> { _context };
         }
 
-    #endregion
+        #endregion
 
 
-    #region Extension Management
+        #region Extension Management
 
-    /// <summary>
-    /// Add an extension to the container.
-    /// </summary>
-    /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
-    /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
-    public UnityContainer AddExtension(UnityContainerExtension extension)
+        /// <summary>
+        /// Add an extension to the container.
+        /// </summary>
+        /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
+        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
+        public UnityContainer AddExtension(UnityContainerExtension extension)
         {
             _extensions.Add(extension ?? throw new ArgumentNullException(nameof(extension)));
             extension.InitializeExtension(_context);
@@ -54,40 +49,6 @@ namespace Unity
         public object Configure(Type configurationInterface)
         {
             return _extensions.FirstOrDefault(ex => configurationInterface.IsAssignableFrom(ex.GetType()));
-        }
-
-        #endregion
-
-
-        #region IDisposable Implementation
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects)
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
-            }
-        }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~UnityContainer()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

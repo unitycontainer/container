@@ -45,6 +45,35 @@ namespace Unity
         }
 
         /// <summary>
+        /// Add an extension to the container.
+        /// </summary>
+        /// <param name="container">Container to add the extension to.</param>
+        /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
+        public static void Add(this UnityContainer container, UnityContainerExtension extension)
+        {
+            if (null == container) throw new ArgumentNullException(nameof(container));
+
+            container.AddExtension(extension);
+        }
+
+        /// <summary>
+        /// Add an extension to the container.
+        /// </summary>
+        /// <param name="container">Container to add the extension to.</param>
+        /// <param name="type"><see cref="Type"/> of the extension to add</param>
+        public static void Add(this UnityContainer container, Type type)
+        {
+            if (null == container) throw new ArgumentNullException(nameof(container));
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (!typeof(UnityContainerExtension).IsAssignableFrom(type)) 
+                throw new ArgumentException($"Type {type} must be subclass of 'UnityContainerExtension'", nameof(type));
+
+            var extension = (UnityContainerExtension)Activator.CreateInstance(type);
+            container.AddExtension(extension);
+        }
+
+
+        /// <summary>
         /// Get extension of <typeparamref name="TConfigurator"/> type.
         /// </summary>
         /// <remarks>Extensions can expose configuration interfaces as well as adding

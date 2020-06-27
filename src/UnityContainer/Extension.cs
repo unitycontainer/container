@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Extension;
+using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Policy;
 using Unity.Storage;
@@ -9,12 +11,12 @@ using Unity.Storage;
 namespace Unity
 {
     // Extension Management
-    public partial class UnityContainer
+    public partial class UnityContainer : IEnumerable
     {
         #region Fields
 
         private ExtensionContext _context;
-        private List<UnityContainerExtension> _extensions = new List<UnityContainerExtension>();
+        private List<object> _extensions;
 
         private StagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; } 
             = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
@@ -23,10 +25,29 @@ namespace Unity
         private StagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline { get; } 
             = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
 
-        private event RegistrationEvent TypeRegistered;
-        private event RegistrationEvent InstanceRegistered;
-        private event RegistrationEvent FactoryRegistered;
-        private event ChildCreatedEvent ChildContainerCreated;
+        private event RegistrationEvent? TypeRegistered;
+        private event RegistrationEvent? InstanceRegistered;
+        private event RegistrationEvent? FactoryRegistered;
+        private event ChildCreatedEvent? ChildContainerCreated;
+
+        #endregion
+
+
+        #region IEnumerable
+
+
+        /// <summary>
+        /// This method returns <see cref="IEnumerator<Type>"/> with types of installed extensions
+        /// </summary>
+        /// <returns><see cref="Type"/> enumerator of extensions</returns>
+        public IEnumerator GetEnumerator()
+        {
+            foreach (var extension in _extensions)
+            {
+                if (!(extension is UnityContainerExtension)) continue;
+                yield return extension.GetType();
+            }
+        }
 
         #endregion
 
@@ -41,21 +62,23 @@ namespace Unity
         /// would otherwise be inaccessible.
         /// </remarks>
         [DebuggerTypeProxy(typeof(ExtensionContext))]
-        private class ExtensionContextImpl : ExtensionContext
+        private class RootExtensionContext : ExtensionContext
         {
             #region Constructors
 
-            public ExtensionContextImpl(UnityContainer container) => 
+            public RootExtensionContext(UnityContainer container) => 
                 Container = container;
 
             #endregion
 
 
-            #region ExtensionContext
+            #region Root Container
 
             public override IPolicyList Policies => throw new NotImplementedException();
 
             public override UnityContainer Container { get; }
+
+            public override ILifetimeContainer Lifetime => throw new NotImplementedException();
 
             #endregion
 
@@ -70,6 +93,29 @@ namespace Unity
             
             public override IStagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline 
                 => Container.TypePipeline;
+
+            #endregion
+
+
+            #region Lifetimes
+
+            public override ITypeLifetimeManager DefaultTypeLifetime 
+            { 
+                get => throw new NotImplementedException(); 
+                set => throw new NotImplementedException(); 
+            }
+
+            public override IFactoryLifetimeManager DefaultFactoryLifetime
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
+            
+            public override IInstanceLifetimeManager DefaultInstanceLifetime
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
 
             #endregion
 
