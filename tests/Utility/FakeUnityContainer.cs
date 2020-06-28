@@ -54,8 +54,6 @@ namespace Unity.Abstractions.Tests
             return Data;
         }
 
-        public IUnityContainer CreateChildContainer() => throw new NotImplementedException();
-
         public void Dispose() => throw new NotImplementedException();
 
         public bool IsRegistered(Type type, string name)
@@ -153,6 +151,13 @@ namespace Unity.Abstractions.Tests
         public IEnumerator GetEnumerator()
         {
             return _context.GetEnumerator();
+        }
+
+        public IUnityContainer CreateChildContainer() => throw new NotImplementedException();
+        
+        public IUnityContainer CreateChildContainer(string name = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

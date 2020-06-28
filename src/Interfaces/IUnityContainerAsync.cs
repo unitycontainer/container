@@ -15,6 +15,11 @@ namespace Unity
     public interface IUnityContainerAsync : IDisposable
     {
         /// <summary>
+        /// Name of this container
+        /// </summary>
+        string? Name { get; }
+
+        /// <summary>
         /// Registers implementation type <param name="injectionMembers"></param> via provided collection of it's interfaces.
         /// </summary>
         /// <remarks>
@@ -113,16 +118,17 @@ namespace Unity
         /// The parent of this container.
         /// </summary>
         /// <value>The parent container, or null if this container doesn't have one.</value>
-        IUnityContainerAsync Parent { get; }
+        IUnityContainerAsync? Parent { get; }
 
 
         /// <summary>
         /// Create a child container.
         /// </summary>
+        /// <param name="name">Name of the child container</param>
         /// <remarks>
         /// A child container shares the parent's configuration, but can be configured with different
         /// settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
-        IUnityContainerAsync CreateChildContainer();
+        IUnityContainerAsync CreateChildContainer(string name = null);
     }
 }

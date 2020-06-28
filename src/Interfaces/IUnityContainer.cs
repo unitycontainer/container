@@ -16,6 +16,11 @@ namespace Unity
     public interface IUnityContainer : IDisposable
     {
         /// <summary>
+        /// Name of this container
+        /// </summary>
+        string? Name { get; }
+
+        /// <summary>
         /// Register a type or a type mapping with the container.
         /// </summary>
         /// <param name="registeredType">Registration <see cref="Type"/>. This <see cref="Type"/> will be 
@@ -274,14 +279,14 @@ namespace Unity
         /// <value>The parent container, or null if this container doesn't have one.</value>
         IUnityContainer? Parent { get; }
 
-
         /// <summary>
         /// Create a child container.
         /// </summary>
+        /// <param name="name">Name of the child container</param>
         /// <remarks>
         /// Unity allows creating scopes with the help of child container. A child container shares the 
         /// parent's configuration but can be configured with different settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
-        IUnityContainer CreateChildContainer();
+        IUnityContainer CreateChildContainer(string? name = null);
     }
 }

@@ -61,6 +61,11 @@ namespace Extensions.Tests
             throw new NotImplementedException();
         }
 
+        public IUnityContainerAsync CreateChildContainer(string name = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             throw new NotImplementedException();
