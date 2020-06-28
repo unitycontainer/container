@@ -16,7 +16,7 @@ namespace Unity.Policy
         object? Get(Type type, Type policyInterface);
 
         /// <summary>
-        /// Get policy
+        /// Get policy for named type contract
         /// </summary>
         /// <param name="type">Type of the registration</param>
         /// <param name="name">Name of the registration</param>
@@ -25,7 +25,7 @@ namespace Unity.Policy
         object? Get(Type? type, string? name, Type policyInterface);
 
         /// <summary>
-        /// Set default policy for the type
+        /// Set policy for the type
         /// </summary>
         /// <param name="type">Type of the registration</param>
         /// <param name="policyInterface">Type of policy to be set</param>
@@ -33,7 +33,7 @@ namespace Unity.Policy
         void Set(Type type, Type policyInterface, object policy);
 
         /// <summary>
-        /// Set policy
+        /// Set policy for named type contract
         /// </summary>
         /// <param name="type">Type of the registration</param>
         /// <param name="name">Name of the registration</param>
