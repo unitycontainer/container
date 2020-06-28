@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Container\Unity\IUnityContainerAsync.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Container\Interfaces\IUnityContainerAsync.cs" />
   </ItemGroup>
 
   <ItemGroup>

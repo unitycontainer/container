@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -9,21 +8,11 @@ namespace Unity
 {
     public partial class UnityContainer : IUnityContainer
     {
+        IUnityContainer? IUnityContainer.Parent => _parent;
+
         public IEnumerable<IContainerRegistration> Registrations => throw new NotImplementedException();
 
-        public IUnityContainer? Parent => throw new NotImplementedException();
-
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IUnityContainer CreateChildContainer()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
         {
             throw new NotImplementedException();
         }
@@ -52,5 +41,8 @@ namespace Unity
         {
             throw new NotImplementedException();
         }
+
+
+        IUnityContainer IUnityContainer.CreateChildContainer(string? name) => CreateChildContainer(name);
     }
 }

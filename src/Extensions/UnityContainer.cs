@@ -4,7 +4,7 @@ using Unity.Extension;
 namespace Unity
 {
     // Extension Management
-    public static class UnityContainerExtensions
+    public static partial class UnityContainerExtensions
     {
         #region Extension management and configuration
 
@@ -83,11 +83,12 @@ namespace Unity
         /// <typeparam name="TConfigurator">The configuration interface required.</typeparam>
         /// <param name="container">Container to configure.</param>
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
-        public static TConfigurator Configure<TConfigurator>(this UnityContainer container)
+        public static TConfigurator? Configure<TConfigurator>(this UnityContainer container)
+            where TConfigurator : class
         {
             if (null == container) throw new ArgumentNullException(nameof(container));
             
-            return (TConfigurator)container.Configure(typeof(TConfigurator));
+            return (TConfigurator?)container.Configure(typeof(TConfigurator));
         }
 
         #endregion

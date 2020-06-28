@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Lifetime;
 using Unity.Policy;
 
@@ -7,13 +8,23 @@ namespace Unity.Extension
     /// <summary>
     /// Context of a local scope
     /// </summary>
-    public abstract class ContainerContext : IPolicyList
+    public abstract class ContainerContext
     {
-        #region Scope Lifetime Container
+        /// <summary>
+        /// Name of the container
+        /// </summary>
+        public abstract string? Name { get; set; }
 
-        public abstract ILifetimeContainer LifetimeContainer { get; }
+        /// <summary>
+        /// The policies this container uses.
+        /// </summary>
+        /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
+        public abstract IPolicyList Policies { get; }
 
-        #endregion
+        /// <summary>
+        /// List of disposable objects this container holds
+        /// </summary>
+        public abstract ICollection<IDisposable> Lifetime { get; }
 
 
         #region Default Lifetime Managers
@@ -32,26 +43,6 @@ namespace Unity.Extension
         /// Default implicit lifetime of instance registrations 
         /// </summary>
         public abstract LifetimeManager DefaultInstanceLifetime { get; set; }
-
-        #endregion
-
-
-        #region IPolicyList
-
-        /// <inheritdoc />
-        public abstract void Clear(Type? type, string? name, Type policyInterface);
-
-        /// <inheritdoc />
-        public abstract object? Get(Type type, Type policyInterface);
-
-        /// <inheritdoc />
-        public abstract object? Get(Type? type, string? name, Type policyInterface);
-
-        /// <inheritdoc />
-        public abstract void Set(Type type, Type policyInterface, object policy);
-
-        /// <inheritdoc />
-        public abstract void Set(Type? type, string? name, Type policyInterface, object policy);
 
         #endregion
     }

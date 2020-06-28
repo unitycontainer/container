@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity.Injection;
@@ -11,9 +10,7 @@ namespace Unity
 {
     public partial class UnityContainer : IUnityContainerAsync
     {
-        public string Name => throw new NotImplementedException();
-
-        IUnityContainerAsync IUnityContainerAsync.Parent => throw new NotImplementedException();
+        IUnityContainerAsync? IUnityContainerAsync.Parent => _parent;
 
         public Task RegisterFactory(IEnumerable<Type>? interfaces, string? name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
@@ -40,9 +37,7 @@ namespace Unity
             throw new NotImplementedException();
         }
 
-        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer()
-        {
-            throw new NotImplementedException();
-        }
+
+        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer(string? name) => CreateChildContainer(name);
     }
 }

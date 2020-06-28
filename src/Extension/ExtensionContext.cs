@@ -2,6 +2,8 @@
 using Unity.Storage;
 using Unity.Pipeline;
 using Unity.Lifetime;
+using System.Collections.Generic;
+using System;
 
 namespace Unity.Extension
 {
@@ -61,6 +63,11 @@ namespace Unity.Extension
 
 
         /// <summary>
+        /// Name of the root container
+        /// </summary>
+        public abstract string? Name { get; set; }
+
+        /// <summary>
         /// The global singleton <see cref="UnityContainer"/> owner instance 
         /// </summary>
         /// <value>The <see cref="UnityContainer"/> object.</value>
@@ -78,10 +85,10 @@ namespace Unity.Extension
         public abstract IPolicyList Policies { get; }
 
         /// <summary>
-        /// The <see cref="ILifetimeContainer"/> that this container uses.
+        /// The collection of disposable objects this container holds
         /// </summary>
-        /// <value>The <see cref="ILifetimeContainer"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
-        public abstract ILifetimeContainer Lifetime { get; }
+        /// <value>The <see cref="ICollection{IDisposable}"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
+        public abstract ICollection<IDisposable> Lifetime { get; }
 
 
         /// <summary>

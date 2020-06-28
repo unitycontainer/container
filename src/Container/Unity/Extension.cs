@@ -15,14 +15,12 @@ namespace Unity
     {
         #region Fields
 
-        private ExtensionContext _context;
-        private List<object> _extensions;
+        private List<UnityContainerExtension>? _extensions;
 
         #endregion
 
 
         #region IEnumerable
-
 
         /// <summary>
         /// This method returns <see cref="IEnumerator<Type>"/> with types of installed extensions
@@ -30,9 +28,10 @@ namespace Unity
         /// <returns><see cref="Type"/> enumerator of extensions</returns>
         public IEnumerator GetEnumerator()
         {
+            if (null == _extensions) yield break;
+
             foreach (var extension in _extensions)
             {
-                if (!(extension is UnityContainerExtension)) continue;
                 yield return extension.GetType();
             }
         }
@@ -40,7 +39,7 @@ namespace Unity
         #endregion
 
 
-        #region Extension Context Implementation
+        #region Root Extension Context class
 
         /// <summary>
         /// Implementation of the ExtensionContext that is used extension management.
@@ -52,57 +51,87 @@ namespace Unity
         [DebuggerTypeProxy(typeof(ExtensionContext))]
         private class RootExtensionContext : ExtensionContext
         {
+            #region Fields
+
+            private event RegistrationEvent? _typeRegistered;
+            private event RegistrationEvent? _instanceRegistered;
+            private event RegistrationEvent? _factoryRegistered;
+            private event ChildCreatedEvent? _childContainerCreated;
+
+            #endregion
+
+
             #region Constructors
 
-            public RootExtensionContext(UnityContainer container) => 
+            public RootExtensionContext(UnityContainer container)
+            {
                 Container = container;
+
+                FactoryPipeline  = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
+                InstancePipeline = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
+                TypePipeline     = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
+            }
 
             #endregion
 
 
             #region Root Container
 
-            public override IPolicyList Policies => throw new NotImplementedException();
+            /// <inheritdoc />
+            public override string? Name 
+            { 
+                get => Container._name;
+                set => Container._name = value; 
+            }
 
+            /// <inheritdoc />
             public override UnityContainer Container { get; }
 
-            public override ILifetimeContainer Lifetime => throw new NotImplementedException();
+            /// <inheritdoc />
+            public override IPolicyList Policies => Container._scope;
+
+            /// <inheritdoc />
+            public override ICollection<IDisposable> Lifetime => Container._scope.Lifetime;
 
             #endregion
 
 
             #region Pipelines
 
-            public override IStagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline 
-                => Container.FactoryPipeline;
-            
-            public override IStagedStrategyChain<PipelineProcessor, PipelineStage> InstancePipeline 
-                => Container.InstancePipeline;
-            
-            public override IStagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline 
-                => Container.TypePipeline;
+
+            /// <inheritdoc />
+            public override IStagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; }
+
+            /// <inheritdoc />
+            public override IStagedStrategyChain<PipelineProcessor, PipelineStage> InstancePipeline { get; }
+
+            /// <inheritdoc />
+            public override IStagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline { get; }
 
             #endregion
 
 
             #region Lifetimes
 
-            public override ITypeLifetimeManager DefaultTypeLifetime 
-            { 
-                get => throw new NotImplementedException(); 
-                set => throw new NotImplementedException(); 
+            /// <inheritdoc />
+            public override ITypeLifetimeManager DefaultTypeLifetime
+            {
+                get => (ITypeLifetimeManager)Container._typeLifetime;
+                set => Container._typeLifetime = (LifetimeManager)value;
             }
 
+            /// <inheritdoc />
             public override IFactoryLifetimeManager DefaultFactoryLifetime
             {
-                get => throw new NotImplementedException();
-                set => throw new NotImplementedException();
+                get => (IFactoryLifetimeManager)Container._factoryLifetime;
+                set => Container._factoryLifetime = (LifetimeManager)value;
             }
-            
+
+            /// <inheritdoc />
             public override IInstanceLifetimeManager DefaultInstanceLifetime
             {
-                get => throw new NotImplementedException();
-                set => throw new NotImplementedException();
+                get => (IInstanceLifetimeManager)Container._instanceLifetime;
+                set => Container._instanceLifetime = (LifetimeManager)value;
             }
 
             #endregion
@@ -110,29 +139,48 @@ namespace Unity
 
             #region Events
 
+            /// <inheritdoc />
             public override event RegistrationEvent TypeRegistered
             {
-                add => Container.TypeRegistered += value;
-                remove => Container.TypeRegistered -= value;
+                add    => _typeRegistered += value;
+                remove => _typeRegistered -= value;
             }
 
+            /// <inheritdoc />
             public override event RegistrationEvent InstanceRegistered
             {
-                add => Container.InstanceRegistered += value;
-                remove => Container.InstanceRegistered -= value;
+                add    => _instanceRegistered += value;
+                remove => _instanceRegistered -= value;
             }
 
+            /// <inheritdoc />
             public override event RegistrationEvent FactoryRegistered
             {
-                add => Container.FactoryRegistered += value;
-                remove => Container.FactoryRegistered -= value;
+                add    => _factoryRegistered += value;
+                remove => _factoryRegistered -= value;
             }
 
-            public override event ChildCreatedEvent ChildContainerCreated 
+            /// <inheritdoc />
+            public override event ChildCreatedEvent ChildContainerCreated
             {
-                add => Container.ChildContainerCreated += value;
-                remove => Container.ChildContainerCreated -= value;
+                add    => _childContainerCreated += value;
+                remove => _childContainerCreated -= value;
             }
+
+            #endregion
+
+
+            #region Implementation
+
+            public bool RaiseTypeRegistered     => null != _typeRegistered;
+            public bool RaiseInstanceRegistered => null != _instanceRegistered;
+            public bool RaiseFactoryRegistered  => null != _factoryRegistered;
+            public bool RaiseChildCreated       => null != _childContainerCreated;
+
+            public void OnChildContainerCreated(ContainerContext context)       => _childContainerCreated!(context);
+            public void OnTypeRegistered(ref RegistrationData registration)     => _typeRegistered!(ref registration);
+            public void OnInstanceRegistered(ref RegistrationData registration) => _instanceRegistered!(ref registration);
+            public void OnFactoryRegistered(ref RegistrationData registration)  => _factoryRegistered!(ref registration);
 
             #endregion
         }

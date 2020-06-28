@@ -15,26 +15,12 @@ namespace Unity.Scope
 
         internal RegistrationScope()
         {
-            // Disposable Container
-            LifetimeContainer = new LifetimeContainer();
-
-            _typeLifetime     = new TransientLifetimeManager();
-            _factoryLifetime  = _typeLifetime;
-            _instanceLifetime = new ContainerControlledLifetimeManager();
         }
 
         protected RegistrationScope(RegistrationScope parent)
         {
             // Parent
             _parent = parent;
-
-            // Disposable Container
-            LifetimeContainer = new LifetimeContainer();
-
-            // Default Lifetime
-            _typeLifetime = _parent._typeLifetime;
-            _factoryLifetime  = _parent._factoryLifetime;
-            _instanceLifetime = _parent._instanceLifetime;
         }
 
         #endregion
