@@ -129,6 +129,6 @@ namespace Unity
         /// A child container shares the parent's configuration, but can be configured with different
         /// settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
-        IUnityContainerAsync CreateChildContainer(string name = null);
+        IUnityContainerAsync CreateChildContainer(string? name = null);
     }
 }
