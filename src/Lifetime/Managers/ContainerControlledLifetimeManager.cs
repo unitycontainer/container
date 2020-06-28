@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Unity.Lifetime
 {
@@ -51,13 +52,13 @@ namespace Unity.Lifetime
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>
-        public override object? GetValue(ILifetimeContainer? container = null)
+        public override object? GetValue(ICollection<IDisposable>? container = null)
         {
             return Get(container);
         }
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
+        public override void SetValue(object? newValue, ICollection<IDisposable>? container = null)
         {
             Set(newValue, container);
             Set = (o, c) => throw new InvalidOperationException("ContainerControlledLifetimeManager can only be set once");
@@ -66,10 +67,10 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null) => Value;
+        protected override object? SynchronizedGetValue(ICollection<IDisposable>? container = null) => Value;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ILifetimeContainer? container = null) => Value = newValue;
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable>? container = null) => Value = newValue;
 
         #endregion
 

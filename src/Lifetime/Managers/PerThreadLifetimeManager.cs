@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Unity.Lifetime
@@ -34,13 +35,13 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? GetValue(ILifetimeContainer? container = null)
+        public override object? GetValue(ICollection<IDisposable>? container = null)
         {
             return _value.Value;
         }
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
+        public override void SetValue(object? newValue, ICollection<IDisposable>? container = null)
         {
             _value.Value = newValue;
         }

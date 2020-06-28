@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Unity.Lifetime
 {
@@ -12,7 +13,7 @@ namespace Unity.Lifetime
                                                        ITypeLifetimeManager
     {
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ILifetimeContainer? container = null)
+        public override void SetValue(object? newValue, ICollection<IDisposable>? container = null)
         {
             if (newValue is IDisposable disposable)
                 container?.Add(disposable);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,8 +12,8 @@ namespace Lifetime.Managers
     {
         #region Initialization
 
-        protected ILifetimeContainer LifetimeContainer;
-        protected ILifetimeContainer OtherContainer;
+        protected ICollection<IDisposable> LifetimeContainer;
+        protected ICollection<IDisposable> OtherContainer;
         protected LifetimeManager TestManager;
 
         protected object TestObject;
@@ -270,7 +271,7 @@ namespace Lifetime.Managers
 
         #region Implementation
 
-        public class FakeLifetimeContainer : List<object>, ILifetimeContainer
+        public class FakeLifetimeContainer : List<IDisposable>
         {
             public IUnityContainer Container => throw new System.NotImplementedException();
 
@@ -278,10 +279,6 @@ namespace Lifetime.Managers
             {
                 throw new System.NotImplementedException();
             }
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            void ILifetimeContainer.Remove(object item) => Remove(item);
         }
 
         #endregion

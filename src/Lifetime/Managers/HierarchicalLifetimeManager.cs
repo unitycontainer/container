@@ -30,8 +30,8 @@ namespace Unity.Lifetime
     {
         #region Fields
 
-        private readonly IDictionary<ILifetimeContainer, object?> _values = 
-            new ConcurrentDictionary<ILifetimeContainer, object?>();
+        private readonly IDictionary<ICollection<IDisposable>, object?> _values = 
+            new ConcurrentDictionary<ICollection<IDisposable>, object?>();
 
         #endregion
 
@@ -39,14 +39,14 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null)
+        protected override object? SynchronizedGetValue(ICollection<IDisposable>? container = null)
         {
             return _values.TryGetValue(container ?? throw new ArgumentNullException(nameof(container)), 
                                        out object? value) ? value : NoValue;
         }
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ILifetimeContainer? container = null)
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable>? container = null)
         {
             _values[container ?? throw new ArgumentNullException(nameof(container))] = newValue;
             container.Add(new DisposableAction(() => RemoveValue(container)));
@@ -54,7 +54,7 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        private void RemoveValue(ILifetimeContainer container)
+        private void RemoveValue(ICollection<IDisposable> container)
         {
             if (!_values.TryGetValue(container, out object? value)) return;
 

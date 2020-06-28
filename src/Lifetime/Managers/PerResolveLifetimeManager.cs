@@ -1,4 +1,7 @@
-﻿namespace Unity.Lifetime
+﻿using System;
+using System.Collections.Generic;
+
+namespace Unity.Lifetime
 {
     /// <summary>
     /// This is a custom lifetime manager that acts like <see cref="TransientLifetimeManager"/>,
@@ -20,7 +23,7 @@
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? GetValue(ILifetimeContainer? container = null)
+        public override object? GetValue(ICollection<IDisposable>? container = null)
         {
             return value;
         }

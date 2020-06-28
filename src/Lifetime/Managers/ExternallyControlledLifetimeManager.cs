@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Unity.Lifetime
 {
@@ -21,7 +22,7 @@ namespace Unity.Lifetime
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ILifetimeContainer? container = null)
+        protected override object? SynchronizedGetValue(ICollection<IDisposable>? container = null)
         {
             if (null == _value) return NoValue;
 
@@ -34,7 +35,7 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ILifetimeContainer? container = null)
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable>? container = null)
         {
             _value = new WeakReference(newValue);
         }
