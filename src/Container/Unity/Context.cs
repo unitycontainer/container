@@ -1,12 +1,13 @@
 ﻿using Unity.Extension;
 using Unity.Pipeline;
+using Unity.Scope;
 using Unity.Storage;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Fields
+        #region Global Extension Context
 
         private StagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; }
             = new StagedStrategyChain<PipelineProcessor, PipelineStage>();
@@ -19,6 +20,13 @@ namespace Unity
         private event RegistrationEvent? InstanceRegistered;
         private event RegistrationEvent? FactoryRegistered;
         private event ChildCreatedEvent? ChildContainerCreated;
+
+        #endregion
+
+
+        #region Container Scope
+
+        private RegistrationScope _scope;
 
         #endregion
     }

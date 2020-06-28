@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Unity.Scope
 {
-    public partial class InjectionScope 
+    public partial class RegistrationScopeAsync
     {
     }
 }

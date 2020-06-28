@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Extension;
+using Unity.Scope;
 
 namespace Unity
 {
@@ -17,6 +18,9 @@ namespace Unity
             // Extension Management
             _context = new RootExtensionContext(this);
             _extensions = new List<object> { _context };
+
+            // Container Scope // TODO: replace
+            _scope = new RegistrationScopeAsync();
         }
 
         #endregion

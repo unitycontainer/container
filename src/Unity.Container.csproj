@@ -23,11 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0' AND '$(TargetFramework)' != 'netstandard1.6'" Remove="Policy\Converter.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' == 'net40' " Remove="UnityContainer\IUnityContainerAsync.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Container\Unity\IUnityContainerAsync.cs" />
   </ItemGroup>
 
   <ItemGroup>
