@@ -103,6 +103,7 @@ namespace Lifetime.Managers
             object value2 = null;
             object value3 = null;
             var manager = GetManager();
+            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
 
             Thread thread1 = new Thread(delegate ()
             {
