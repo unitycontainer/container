@@ -49,15 +49,6 @@ namespace Unity
             where TInfo : MethodBase => (TInfo?)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
 #endif
 
-        public static object? GetDefaultValue(this ParameterInfo info, object? @default = null)
-        {
-#if NET40
-            return @default;
-#else
-            return info.HasDefaultValue ? info.DefaultValue : @default;
-#endif
-        }
-
         #endregion
 
     }

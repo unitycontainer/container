@@ -70,11 +70,7 @@ namespace Unity
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
             where TContext : IResolveContext
         {
-#if NET40
-            if (!(info.DefaultValue is DBNull))
-#else
             if (info.HasDefaultValue)
-#endif
             {
                 return (ref TContext context) =>
                 {

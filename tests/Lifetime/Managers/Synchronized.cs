@@ -74,6 +74,8 @@ namespace Lifetime.Managers
 
             new Thread(delegate ()
             {
+                SynchronizedLifetimeManager.ResolveTimeout = 100;
+
                 // Enter the lock
                 _ = TestManager.GetValue(LifetimeContainer);
                 semaphor.Set();

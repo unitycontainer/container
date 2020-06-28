@@ -109,20 +109,9 @@ namespace Unity.Lifetime
 
         protected virtual void TryExit()
         {
-#if NET40
-            try
-            {
-                Monitor.Exit(_lock);
-            }
-            catch (SynchronizationLockException)
-            {
-                // Noop here - we don't hold the lock and that's ok.
-            }
-#else
-            // Prevent first chance exception when abandoning a lock that has not been entered
             if (!Monitor.IsEntered(_lock)) return;
+
             Monitor.Exit(_lock);
-#endif
         }
 
 
