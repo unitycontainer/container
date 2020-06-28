@@ -102,17 +102,19 @@ namespace Lifetime.Managers
             object value1 = null;
             object value2 = null;
             object value3 = null;
+            var semaphor = new ManualResetEvent(false);
             var manager = GetManager();
-            SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
 
             Thread thread1 = new Thread(delegate ()
             {
                 value1 = manager.GetValue(LifetimeContainer);
+                semaphor.Set();
                 ((SynchronizedLifetimeManager)manager).Recover();
             });
 
             Thread thread2 = new Thread(delegate ()
             {
+                semaphor.WaitOne();
                 value2 = manager.GetValue(LifetimeContainer);
                 manager.SetValue(TestObject, LifetimeContainer);
                 value3 = manager.GetValue(LifetimeContainer);
