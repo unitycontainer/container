@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Unity.Lifetime
 {
@@ -73,22 +72,20 @@ namespace Unity.Lifetime
         /// The property holding a method that attempts to get value. 
         /// Synchronized lifetime managers will not set a lock by calling the method.
         /// </summary>
-        public Func<ICollection<IDisposable>?, object?> TryGet { get; protected set; }
+        public Func<ICollection<IDisposable>, object?> TryGet { get; protected set; }
 
         /// <summary>
         /// The property holding a method that gets the value. 
         /// Synchronized lifetime managers will set a lock by calling the method.
         /// </summary>
-        public Func<ICollection<IDisposable>?, object?> Get { get; protected set; }
+        public Func<ICollection<IDisposable>, object?> Get { get; protected set; }
 
         /// <summary>
         /// The property holding a method that sets the value. 
         /// </summary>
-        public Action<object?, ICollection<IDisposable>?> Set { get; protected set; }
+        public Action<object?, ICollection<IDisposable>> Set { get; protected set; }
 
         #endregion
-
-// TODO: Verify if container could ever be null
 
         #region   LifetimeManager Members
 
@@ -99,23 +96,23 @@ namespace Unity.Lifetime
         /// This method does not block and does not acquire a lock on synchronization 
         /// primitives.
         /// </remarks>
-        /// <param name="container">The container this lifetime is associated with</param>
+        /// <param name="lifetime">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object? TryGetValue(ICollection<IDisposable>? container = null) => GetValue(container);
+        public virtual object? TryGetValue(ICollection<IDisposable> lifetime) => GetValue(lifetime);
 
         /// <summary>
         /// Retrieves a value from the backing store associated with this Lifetime policy.
         /// </summary>
-        /// <param name="container">The container this lifetime is associated with</param>
+        /// <param name="lifetime">The container this lifetime is associated with</param>
         /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object? GetValue(ICollection<IDisposable>? container = null) => NoValue;
+        public virtual object? GetValue(ICollection<IDisposable> lifetime) => NoValue;
 
         /// <summary>
         /// Stores the given value into backing store for retrieval later.
         /// </summary>
         /// <param name="newValue">The object being stored.</param>
-        /// <param name="container">The container this lifetime is associated with</param>
-        public virtual void SetValue(object? newValue, ICollection<IDisposable>? container = null) { }
+        /// <param name="lifetime">The container this lifetime is associated with</param>
+        public virtual void SetValue(object? newValue, ICollection<IDisposable> lifetime) { }
 
         #endregion
 

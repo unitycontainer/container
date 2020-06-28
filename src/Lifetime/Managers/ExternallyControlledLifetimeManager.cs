@@ -22,7 +22,7 @@ namespace Unity.Lifetime
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable>? container = null)
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime)
         {
             if (null == _value) return NoValue;
 
@@ -35,7 +35,7 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable>? container = null)
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime)
         {
             _value = new WeakReference(newValue);
         }

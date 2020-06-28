@@ -35,13 +35,13 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable>? container = null)
+        public override object? GetValue(ICollection<IDisposable> lefetime)
         {
             return _value.Value;
         }
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable>? container = null)
+        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
         {
             _value.Value = newValue;
         }

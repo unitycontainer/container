@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity;
 using Unity.Abstractions.Tests;
@@ -17,6 +18,16 @@ namespace Injection.Parameters
         #region Fields
 
         private const string TestValue = "test";
+        
+        public static ParameterInfo NoDefaultObject =
+            typeof(TestClass<object>).GetMethod(nameof(TestClass<object>.TestMethod))
+                                     .GetParameters()
+                                     .First();
+
+        public static ParameterInfo NoDefaultInt =
+            typeof(TestClass<int>).GetMethod(nameof(TestClass<int>.TestMethod))
+                                     .GetParameters()
+                                     .First();
 
         #endregion
 
@@ -84,7 +95,7 @@ namespace Injection.Parameters
 
         [DataTestMethod]
         [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
-        public void OptionalNoDefaultTest(IResolverFactory<ParameterInfo> factory)
+        public void OptionalNoDefaultString(IResolverFactory<ParameterInfo> factory)
         {
             var context = new DictionaryContext() as IResolveContext;
             var resolver = factory.GetResolver<IResolveContext>(NoDefaultInfo);
@@ -95,6 +106,31 @@ namespace Injection.Parameters
             Assert.IsNull(resolver(ref context));
         }
 
+
+        [DataTestMethod]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
+        public void OptionalNoDefaultObject(IResolverFactory<ParameterInfo> factory)
+        {
+            var context = new DictionaryContext() as IResolveContext;
+            var resolver = factory.GetResolver<IResolveContext>(NoDefaultObject);
+
+            // Validate
+            Assert.IsNotNull(resolver);
+
+            Assert.IsNull(resolver(ref context));
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(OptionalParametersData), DynamicDataSourceType.Method)]
+        public void OptionalNoDefaultValue(IResolverFactory<ParameterInfo> factory)
+        {
+            var context = new DictionaryContext() as IResolveContext;
+            var resolver = factory.GetResolver<IResolveContext>(NoDefaultInt);
+            var value = resolver(ref context);
+
+            // Validate
+            Assert.AreEqual(0, value);
+        }
 
         #endregion
 

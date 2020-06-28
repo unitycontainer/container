@@ -145,16 +145,18 @@ namespace Lifetime.Managers
         [TestMethod]
         public virtual void TryGetSetNoContainerTest()
         {
+            var lifetime = new List<IDisposable>();
+
             // Validate
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue());
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue());
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(lifetime));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(lifetime));
 
             // Act
-            TestManager.SetValue(TestObject);
+            TestManager.SetValue(TestObject, lifetime);
 
             // Validate
-            Assert.AreSame(TestObject, TestManager.TryGetValue());
-            Assert.AreSame(TestObject, TestManager.GetValue());
+            Assert.AreSame(TestObject, TestManager.TryGetValue(lifetime));
+            Assert.AreSame(TestObject, TestManager.GetValue(lifetime));
         }
 
         #endregion

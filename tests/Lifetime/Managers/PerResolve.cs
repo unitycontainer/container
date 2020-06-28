@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using Unity.Lifetime;
 
@@ -38,16 +40,18 @@ namespace Lifetime.Managers
         [TestMethod]
         public override void TryGetSetNoContainerTest()
         {
+            var lifetime = new List<IDisposable>();
+
             // Validate
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue());
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue());
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(lifetime));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(lifetime));
 
             // Act
-            TestManager.SetValue(TestObject);
+            TestManager.SetValue(TestObject, lifetime);
 
             // Validate
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue());
-            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue());
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.TryGetValue(lifetime));
+            Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(lifetime));
         }
 
         [TestMethod]

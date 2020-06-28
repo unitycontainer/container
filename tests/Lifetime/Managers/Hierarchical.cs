@@ -10,13 +10,6 @@ namespace Lifetime.Managers
         protected override LifetimeManager GetManager() => new HierarchicalLifetimeManager();
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public override void TryGetSetNoContainerTest()
-        {
-            base.TryGetSetNoContainerTest();
-        }
-
-        [TestMethod]
         public override void TryGetSetOtherContainerTest()
         {
             base.TryGetSetOtherContainerTest();
@@ -33,13 +26,6 @@ namespace Lifetime.Managers
             Assert.AreSame(TestObject, TestManager.GetValue(OtherContainer));
         }
 
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void ValidationTest()
-        {
-            TestManager.SetValue(TestObject);
-        }
 
         [TestMethod]
         public void HierarchicalTest()

@@ -52,25 +52,25 @@ namespace Unity.Lifetime
         #region SynchronizedLifetimeManager
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable>? container = null)
+        public override object? GetValue(ICollection<IDisposable> lefetime)
         {
-            return Get(container);
+            return Get(lefetime);
         }
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable>? container = null)
+        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
         {
-            Set(newValue, container);
+            Set(newValue, lefetime);
             Set = (o, c) => throw new InvalidOperationException("ContainerControlledLifetimeManager can only be set once");
             Get    = SynchronizedGetValue;
             TryGet = SynchronizedGetValue;
         }
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable>? container = null) => Value;
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime) => Value;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable>? container = null) => Value = newValue;
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime) => Value = newValue;
 
         #endregion
 
