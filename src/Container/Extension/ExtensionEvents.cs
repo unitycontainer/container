@@ -5,8 +5,8 @@ namespace Unity.Extension
     /// <summary>
     /// Registration event handler
     /// </summary>
-    /// <param name="registration">Reference to <see cref="RegistrationData"/> structure</param>
-    public delegate void RegistrationEvent(ref RegistrationData registration);
+    /// <param name="registration">Reference to <see cref="RegistrationManager"/> structure</param>
+    public delegate void RegistrationEvent(ref RegistrationManager registration);
 
     /// <summary>
     /// Child container created event handler

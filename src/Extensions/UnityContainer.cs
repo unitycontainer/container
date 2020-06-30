@@ -68,7 +68,7 @@ namespace Unity
             if (!typeof(UnityContainerExtension).IsAssignableFrom(type)) 
                 throw new ArgumentException($"Type {type} must be subclass of 'UnityContainerExtension'", nameof(type));
 
-            var extension = (UnityContainerExtension)Activator.CreateInstance(type);
+            var extension = (UnityContainerExtension)Activator.CreateInstance(type)!;
             container.AddExtension(extension);
         }
 

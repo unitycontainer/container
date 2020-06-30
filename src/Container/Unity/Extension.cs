@@ -178,9 +178,9 @@ namespace Unity
             public bool RaiseChildCreated       => null != _childContainerCreated;
 
             public void OnChildContainerCreated(ContainerContext context)       => _childContainerCreated!(context);
-            public void OnTypeRegistered(ref RegistrationData registration)     => _typeRegistered!(ref registration);
-            public void OnInstanceRegistered(ref RegistrationData registration) => _instanceRegistered!(ref registration);
-            public void OnFactoryRegistered(ref RegistrationData registration)  => _factoryRegistered!(ref registration);
+            public void OnTypeRegistered(ref RegistrationManager registration)     => _typeRegistered!(ref registration);
+            public void OnInstanceRegistered(ref RegistrationManager registration) => _instanceRegistered!(ref registration);
+            public void OnFactoryRegistered(ref RegistrationManager registration)  => _factoryRegistered!(ref registration);
 
             #endregion
         }

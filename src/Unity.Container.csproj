@@ -19,21 +19,42 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.6;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.6;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45</TargetFrameworks>
   </PropertyGroup>
 
+  <!-- References -->
+
   <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' == 'net40'" Remove="Container\Interfaces\IUnityContainerAsync.cs" />
+    <ProjectReference Include="..\..\Abstractions\src\Unity.Abstractions.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel" Version="4.3.0" />
+  </ItemGroup>
+
+  <!-- Framework Compatibility -->
 
   <ItemGroup>
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
   </ItemGroup>
 
+
+  <!-- C# 8.0 Compatibility -->
+
   <ItemGroup>
-    <None Remove="Unity.Container.csproj.DotSettings" />
+    <Compile Condition="'$(TargetFramework)' == 'net46'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net46'" Remove="Container\Scope\Scope.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Container\Scope\Scope.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Container\Scope\Scope.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Container\Scope\Scope.CS8.0.cs" />
   </ItemGroup>
+
+  <!-- Configuration Settings -->
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -45,8 +66,8 @@
     <DebugType>Full</DebugType>
   </PropertyGroup>
 
-
   <!-- Sourcelink -->
+
   <PropertyGroup>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -63,16 +84,5 @@
       <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
-
-  <!-- References -->
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Abstractions\src\Unity.Abstractions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' != 'net40'" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
 
 </Project>
