@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -29,6 +30,17 @@ namespace Unity.Lifetime
 
         private ThreadLocal<object?> _value = new ThreadLocal<object?>(() => NoValue);
 
+        #endregion
+
+
+        #region Constructors
+
+        public PerThreadLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+
+        }
+        
         #endregion
 
 

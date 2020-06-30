@@ -41,7 +41,7 @@ namespace Extensions.Tests
 
     #region Test Data
 
-    public class FakeIUCA : IUnityContainerAsync
+    public class FakeIUCA// : IUnityContainerAsync
     {
         public Type Type { get; private set; }
         public IEnumerable<Type> Types { get; private set; }

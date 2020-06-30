@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -35,6 +36,18 @@ namespace Unity.Lifetime
         public static int ResolveTimeout = Timeout.Infinite;
 
         #endregion
+
+
+        #region Constructors
+
+        public SynchronizedLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+
+        }
+
+        #endregion
+
 
         /// <inheritdoc/>
         public override object? TryGetValue(ICollection<IDisposable> lifetime)

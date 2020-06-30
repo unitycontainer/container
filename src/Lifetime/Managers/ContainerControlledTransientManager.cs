@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -12,6 +13,12 @@ namespace Unity.Lifetime
                                                        IFactoryLifetimeManager,
                                                        ITypeLifetimeManager
     {
+        public ContainerControlledTransientManager(params InjectionMember[] members)
+            : base(members)
+        {
+        }
+
+
         /// <inheritdoc/>
         public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
         {

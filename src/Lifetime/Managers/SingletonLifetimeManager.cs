@@ -1,4 +1,6 @@
 ﻿
+using Unity.Injection;
+
 namespace Unity.Lifetime
 {
     /// <summary>
@@ -23,6 +25,13 @@ namespace Unity.Lifetime
     /// </remarks>
     public class SingletonLifetimeManager : ContainerControlledLifetimeManager
     {
+        /// <inheritdoc/>
+        public SingletonLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+        }
+
+
         protected override LifetimeManager OnCreateLifetimeManager()
         {
             return new SingletonLifetimeManager()

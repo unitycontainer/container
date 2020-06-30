@@ -74,20 +74,19 @@ namespace Lifetime.Managers
 
             new Thread(delegate ()
             {
-                SynchronizedLifetimeManager.ResolveTimeout = 100;
-
                 // Enter the lock
+                SynchronizedLifetimeManager.ResolveTimeout = 100;
                 _ = TestManager.GetValue(LifetimeContainer);
+                
                 semaphor.Set();
-
-                Thread.Sleep(200);
-
-                // Act
+                Thread.Sleep(300);
+                
                 TestManager.SetValue(TestObject, LifetimeContainer);
             }).Start();
 
             semaphor.WaitOne();
             var value = TestManager.GetValue(LifetimeContainer);
+
             Assert.AreSame(LifetimeManager.NoValue, value);
         }
 

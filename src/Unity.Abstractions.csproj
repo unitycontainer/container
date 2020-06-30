@@ -21,20 +21,38 @@
     <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.6;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45</TargetFrameworks>
   </PropertyGroup>
 
+  <!-- References -->
+
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+  </ItemGroup>
+
+  <!-- Framework Compatibility -->
+
   <ItemGroup>
     <Compile Condition="'$(TargetFramework)' != 'netstandard1.6' " Remove="Extensions\Reflection\Compatibility.NetStandard.1.x.cs" />
-    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'"   Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))"    Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))"   Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))"   Remove="Extensions\Reflection\Compatibility.Common.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard1'))"  Remove="Extensions\Reflection\Compatibility.Common.cs" />
   </ItemGroup>
 
+  <!-- C# 8.0 Compatibility -->
+  
   <ItemGroup>
-    <None Remove="Unity.Abstractions.csproj.DotSettings" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net48'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net47'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <Compile Condition="'$(TargetFramework)' == 'net46'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
   </ItemGroup>
+
+ <!-- Configuration Settings --> 
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -64,11 +82,5 @@
       <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
-
-  <!-- References -->
-
-  <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-  </ItemGroup>
   
 </Project>

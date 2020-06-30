@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -39,7 +40,8 @@ namespace Unity.Lifetime
 
         #region Constructor
 
-        public ContainerControlledLifetimeManager()
+        public ContainerControlledLifetimeManager(params InjectionMember[] members)
+            : base(members)
         {
             Set    = base.SetValue;
             Get    = base.GetValue;

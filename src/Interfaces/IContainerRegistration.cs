@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -44,6 +45,16 @@ namespace Unity
         /// </remarks>
         /// <value>The type of object created when registered type is requested</value>
         Type? MappedToType { get; }
+
+        /// <summary>
+        /// Instance registered with Register Instance
+        /// </summary>
+        object? Instance { get; }
+
+        /// <summary>
+        /// Factory registered with RegisterFactory
+        /// </summary>
+        ResolveDelegate<IResolveContext> Factory { get; }
 
         /// <summary>
         /// The lifetime manager for this registration.

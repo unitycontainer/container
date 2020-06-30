@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -15,6 +16,17 @@ namespace Unity.Lifetime
         #region Fields
 
         private WeakReference? _value;
+
+        #endregion
+
+
+        #region Constructors
+
+        public ExternallyControlledLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+
+        }
 
         #endregion
 

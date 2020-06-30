@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -7,7 +8,7 @@ namespace Unity.Lifetime
     /// Base class for all lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager
+    public abstract class LifetimeManager : RegistrationManager
     {
         #region Fields
 
@@ -37,11 +38,13 @@ namespace Unity.Lifetime
         
         #region Constructors
 
-        public LifetimeManager()
+        public LifetimeManager(params InjectionMember[] members)
         {
             Set    = SetValue;
             Get    = GetValue;
             TryGet = TryGetValue;
+
+            InjectionMembers = members;
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -33,6 +34,16 @@ namespace Unity.Lifetime
         private readonly IDictionary<ICollection<IDisposable>, object?> _values = 
             new ConcurrentDictionary<ICollection<IDisposable>, object?>();
 
+        #endregion
+
+
+        #region Constructors
+
+        public HierarchicalLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+        }
+        
         #endregion
 
 

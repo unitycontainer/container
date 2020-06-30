@@ -1,4 +1,6 @@
-﻿namespace Unity.Lifetime
+﻿using Unity.Injection;
+
+namespace Unity.Lifetime
 {
     /// <summary>
     /// An <see cref="LifetimeManager"/> implementation that does nothing,
@@ -25,6 +27,17 @@
         /// <value>An instance of a <see cref="TransientLifetimeManager"/> object.</value>
         public static readonly TransientLifetimeManager Instance = new TransientLifetimeManager();
 
+        #endregion
+
+
+        #region Constructors
+
+        /// <inheritdoc/>
+        public TransientLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+        }
+        
         #endregion
 
 

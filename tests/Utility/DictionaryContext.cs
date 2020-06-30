@@ -12,9 +12,9 @@ namespace Unity.Abstractions.Tests
 
         public IUnityContainer Container => throw new NotImplementedException();
 
-        public Type Type => throw new NotImplementedException();
+        public Type Type { get; set;}
 
-        public string Name => throw new NotImplementedException();
+        public string Name { get; set; }
 
         public void Clear(Type type, string name, Type policyInterface) => throw new NotImplementedException();
 

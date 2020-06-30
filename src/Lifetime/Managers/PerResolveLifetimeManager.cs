@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -17,6 +18,16 @@ namespace Unity.Lifetime
 
         protected object? value = NoValue;
 
+        #endregion
+
+
+        #region Constructors
+
+        public PerResolveLifetimeManager(params InjectionMember[] members)
+            : base(members)
+        {
+        }
+        
         #endregion
 
 
