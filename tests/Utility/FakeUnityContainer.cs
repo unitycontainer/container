@@ -16,7 +16,7 @@ namespace Unity.Abstractions.Tests
         public string Name { get; private set; }
         public Type MappedTo { get; private set; }
         public LifetimeManager LifetimeManager { get; private set; }
-        public InjectionMember[] InjectionMembers { get; private set; }
+        public ICollection<InjectionMember> InjectionMembers { get; private set; }
         public ResolverOverride[] ResolverOverrides { get; private set; }
         public object Data { get; set; }
 

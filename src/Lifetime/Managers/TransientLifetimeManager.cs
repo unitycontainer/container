@@ -44,9 +44,6 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
-        public override bool InUse { get => false; set { } }
-
-        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() => new TransientLifetimeManager();
 
         /// <summary>

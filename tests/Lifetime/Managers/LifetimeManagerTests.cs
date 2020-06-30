@@ -55,16 +55,6 @@ namespace Lifetime.Managers
         }
 
         [TestMethod]
-        public virtual void InUseTest()
-        {
-            Assert.IsFalse(TestManager.InUse);
-
-            TestManager.InUse = true;
-
-            Assert.IsTrue(TestManager.InUse);
-        }
-
-        [TestMethod]
         public void ToStringTest()
         {
             Assert.IsFalse(string.IsNullOrWhiteSpace(TestManager.ToString()));

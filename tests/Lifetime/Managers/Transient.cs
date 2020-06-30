@@ -12,16 +12,6 @@ namespace Lifetime.Managers
         protected override LifetimeManager GetManager() => new TransientLifetimeManager();
 
         [TestMethod]
-        public override void InUseTest()
-        {
-            Assert.IsFalse(TestManager.InUse);
-
-            TestManager.InUse = true;
-
-            Assert.IsFalse(TestManager.InUse);
-        }
-
-        [TestMethod]
         public override void TryGetValueTest()
         {
             // Validate

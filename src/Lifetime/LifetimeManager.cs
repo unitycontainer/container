@@ -10,30 +10,12 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract class LifetimeManager : RegistrationManager
     {
-        #region Fields
-
-        private object? _scope;
-
-        #endregion
-
-
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
         /// unless value is set with a valid object. Null is a value and is not equal 
         /// to NoValue 
         /// </summary>
         public static readonly object NoValue = new InvalidValue();
-
-        /// <summary>
-        /// A <see cref="Boolean"/> indicating if this manager is being used in 
-        /// one of the registrations.
-        /// </summary>
-        /// <remarks>
-        /// The Unity container requires that each registration used its own, unique
-        /// lifetime manager. This property is being used to track that condition.
-        /// </remarks>
-        /// <value>True is this instance already in use, False otherwise.</value>
-        public virtual bool InUse { get; set; }
 
         
         #region Constructors
@@ -44,26 +26,7 @@ namespace Unity.Lifetime
             Get    = GetValue;
             TryGet = TryGetValue;
 
-            InjectionMembers = members;
-        }
-
-        #endregion
-
-
-        #region Scope
-
-        /// <summary>
-        /// This is a reference to the container this manager is registered with.
-        /// </summary>
-        public object? Scope
-        {
-            get => _scope; 
-            set
-            {
-                System.Diagnostics.Debug.Assert(null == _scope, $"Manager {this} is already registered with {_scope} scope");
-                
-                _scope = value;
-            }
+            InjectionMembers = null == members || 0 == members.Length ? null : members;
         }
 
         #endregion
@@ -89,6 +52,7 @@ namespace Unity.Lifetime
         public Action<object?, ICollection<IDisposable>> Set { get; protected set; }
 
         #endregion
+
 
         #region   LifetimeManager Members
 

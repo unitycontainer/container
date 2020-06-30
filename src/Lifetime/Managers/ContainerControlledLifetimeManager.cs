@@ -80,13 +80,7 @@ namespace Unity.Lifetime
         #region IFactoryLifetimeManager
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new ContainerControlledLifetimeManager
-            {
-                Scope = Scope
-            };
-        }
+        protected override LifetimeManager OnCreateLifetimeManager() => new ContainerControlledLifetimeManager();
 
         #endregion
 

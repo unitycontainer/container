@@ -29,13 +29,6 @@ namespace Unity.Lifetime
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() => this;
 
-        /// <inheritdoc/>
-        public override bool InUse
-        {
-            get => false;
-            set { }
-        }
-
         /// <summary>
         /// This method provides human readable representation of the lifetime
         /// </summary>

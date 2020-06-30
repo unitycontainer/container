@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Injection;
 
 namespace Unity
@@ -49,6 +51,6 @@ namespace Unity
         internal RegistrationType   RegistrationType;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal InjectionMember[]? InjectionMembers;
+        internal ICollection<InjectionMember>? InjectionMembers;
     }
 }

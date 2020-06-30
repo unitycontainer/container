@@ -31,16 +31,10 @@ namespace Unity.Lifetime
         {
         }
 
-
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new SingletonLifetimeManager()
-            { 
-                Scope = Scope
-            };
-        }
-
         #region Overrides
+
+        protected override LifetimeManager OnCreateLifetimeManager() => new SingletonLifetimeManager();
+
         /// <summary>
         /// This method provides human readable representation of the lifetime
         /// </summary>
