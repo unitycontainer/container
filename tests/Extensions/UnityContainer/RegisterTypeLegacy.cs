@@ -12,7 +12,7 @@ namespace Extensions.Tests
         #region Generic Register Type
 
         [TestMethod]
-        public void RegisterType_Generic()
+        public void RegisterType_Generic_Legacy()
         {
             // Act
             container.RegisterType<FakeUnityContainer>();
@@ -28,7 +28,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Manager_Generic()
+        public void RegisterType_Manager_Generic_Legacy()
         {
             // Act
             container.RegisterType<FakeUnityContainer>((ITypeLifetimeManager)manager);
@@ -45,7 +45,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Name_Generic()
+        public void RegisterType_Name_Generic_Legacy()
         {
             // Act
             container.RegisterType<FakeUnityContainer>(name);
@@ -61,7 +61,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Name_Manager_Generic()
+        public void RegisterType_Name_Manager_Generic_Legacy()
         {
             // Act
             container.RegisterType<FakeUnityContainer>(name, (ITypeLifetimeManager)manager);
@@ -78,7 +78,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterTypeFrom_Generic()
+        public void RegisterTypeFrom_Generic_Legacy()
         {
             // Act
             container.RegisterType<IUnityContainer, FakeUnityContainer>();
@@ -94,7 +94,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterTypeFrom_Manager_Generic()
+        public void RegisterTypeFrom_Manager_Generic_Legacy()
         {
             // Act
             container.RegisterType<IUnityContainer, FakeUnityContainer>((ITypeLifetimeManager)manager);
@@ -111,7 +111,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterTypeFrom_Name_Generic()
+        public void RegisterTypeFrom_Name_Generic_Legacy()
         {
             // Act
             container.RegisterType<IUnityContainer, FakeUnityContainer>(name);
@@ -127,7 +127,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterTypeFrom_Name_Manager_Generic()
+        public void RegisterTypeFrom_Name_Manager_Generic_Legacy()
         {
             // Act
             container.RegisterType<IUnityContainer, FakeUnityContainer>(name, (ITypeLifetimeManager)manager);
@@ -149,7 +149,7 @@ namespace Extensions.Tests
         #region Register Type
 
         [TestMethod]
-        public void RegisterType()
+        public void RegisterType_Legacy()
         {
             // Act
             container.RegisterType(typeof(FakeUnityContainer));
@@ -165,7 +165,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Manager()
+        public void RegisterType_Manager_Legacy()
         {
             // Act
             container.RegisterType(typeof(FakeUnityContainer), (ITypeLifetimeManager)manager);
@@ -182,7 +182,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Name()
+        public void RegisterType_Name_Legacy()
         {
             // Act
             container.RegisterType(typeof(FakeUnityContainer), name);
@@ -198,7 +198,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Name_Manager()
+        public void RegisterType_Name_Manager_Legacy()
         {
             // Arrange
             var member = new InjectionConstructor();
@@ -219,7 +219,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_ToFrom()
+        public void RegisterType_ToFrom_Legacy()
         {
             // Act
             container.RegisterType(typeof(IUnityContainer), typeof(FakeUnityContainer));
@@ -235,7 +235,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Manager_ToFrom()
+        public void RegisterType_Manager_ToFrom_Legacy()
         {
             // Act
             container.RegisterType(typeof(IUnityContainer), typeof(FakeUnityContainer), (ITypeLifetimeManager)manager);
@@ -253,7 +253,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Name_ToFrom()
+        public void RegisterType_Name_ToFrom_Legacy()
         {
             // Act
             container.RegisterType(typeof(IUnityContainer), typeof(FakeUnityContainer), name);
@@ -269,7 +269,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterType_Name_Manager_ToFrom()
+        public void RegisterType_Name_Manager_ToFrom_Legacy()
         {
             // Act
             container.RegisterType(typeof(IUnityContainer), typeof(FakeUnityContainer), name, (ITypeLifetimeManager)manager);

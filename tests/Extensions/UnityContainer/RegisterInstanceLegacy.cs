@@ -11,7 +11,7 @@ namespace Extensions.Tests
         #region Generic Register Instance
 
         [TestMethod]
-        public void RegisterInstance_Generic()
+        public void RegisterInstance_Generic_Legacy()
         {
             // Act
             container.RegisterInstance<IUnityContainer>(container);
@@ -29,7 +29,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterInstance_Generic_Manager()
+        public void RegisterInstance_Generic_Manager_Legacy()
         {
             // Act
             container.RegisterInstance<IUnityContainer>(container, (IInstanceLifetimeManager)manager);
@@ -47,7 +47,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterInstance_Generic_Name()
+        public void RegisterInstance_Generic_Name_Legacy()
         {
             // Act
             container.RegisterInstance<IUnityContainer>(name, container);
@@ -65,7 +65,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterInstance_Generic_Name_Manger()
+        public void RegisterInstance_Generic_Name_Manger_Legacy()
         {
             // Act
             container.RegisterInstance<IUnityContainer>(name, container, (IInstanceLifetimeManager)manager);
@@ -88,7 +88,7 @@ namespace Extensions.Tests
         #region Register Instance
 
         [TestMethod]
-        public void RegisterInstance()
+        public void RegisterInstance_Legacy()
         {
             // Act
             container.RegisterInstance(typeof(IUnityContainer), container);
@@ -106,7 +106,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterInstance_Manager()
+        public void RegisterInstance_Manager_Legacy()
         {
             // Act
             container.RegisterInstance(typeof(IUnityContainer), container, (IInstanceLifetimeManager)manager);
@@ -124,7 +124,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterInstance_Name()
+        public void RegisterInstance_Name_Legacy()
         {
             // Act
             container.RegisterInstance(typeof(IUnityContainer), name, container);
@@ -142,7 +142,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterInstance_Name_Manger()
+        public void RegisterInstance_Name_Manger_Legacy()
         {
             // Act
             container.RegisterInstance(typeof(IUnityContainer), name, container, (IInstanceLifetimeManager)manager);
