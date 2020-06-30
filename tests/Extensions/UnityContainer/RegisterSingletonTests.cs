@@ -27,6 +27,22 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
+        public void RegisterSingleton_Generic_FromTo()
+        {
+            // Act
+            container.RegisterSingleton<IUnityContainer, FakeUnityContainer>();
+
+            // Validate
+            Assert.AreEqual(typeof(IUnityContainer), container.Type);
+            Assert.AreEqual(typeof(FakeUnityContainer), container.MappedTo);
+            Assert.IsNull(container.Name);
+            Assert.IsInstanceOfType(container.LifetimeManager, typeof(ContainerControlledLifetimeManager));
+            Assert.IsNotNull(container.InjectionMembers);
+            Assert.AreEqual(0, container.InjectionMembers.Length);
+            Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterSingleton<IUnityContainer, FakeUnityContainer>());
+        }
+
+        [TestMethod]
         public void RegisterSingleton_Name_Generic()
         {
             // Act
@@ -43,23 +59,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterSingleton_FromTo_Generic()
-        {
-            // Act
-            container.RegisterSingleton<IUnityContainer, FakeUnityContainer>();
-
-            // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.AreEqual(typeof(FakeUnityContainer), container.MappedTo);
-            Assert.IsNull(container.Name);
-            Assert.IsInstanceOfType(container.LifetimeManager, typeof(ContainerControlledLifetimeManager));
-            Assert.IsNotNull(container.InjectionMembers);
-            Assert.AreEqual(0, container.InjectionMembers.Length);
-            Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterSingleton<IUnityContainer, FakeUnityContainer>());
-        }
-
-        [TestMethod]
-        public void RegisterSingleton_FromTo_Name_Generic()
+        public void RegisterSingleton_Name_Generic_FromTo()
         {
             // Act
             container.RegisterSingleton<IUnityContainer, FakeUnityContainer>(name);
@@ -128,7 +128,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterSingleton_FromTo_Name()
+        public void RegisterSingleton_Name_FromTo()
         {
             // Act
             container.RegisterSingleton(typeof(IUnityContainer), typeof(FakeUnityContainer), name);
