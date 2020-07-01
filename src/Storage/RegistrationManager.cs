@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Unity.Injection;
+using Unity.Lifetime;
 
 namespace Unity
 {
@@ -39,18 +42,63 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract class RegistrationManager
+    public abstract class RegistrationManager : IEnumerable<InjectionMember>
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal string? Name; // TODO
+        #region Constructors
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal object? Data;
+        public RegistrationManager(params InjectionMember[] members) 
+            => InjectionMembers = members;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal RegistrationType   RegistrationType;
+        #endregion
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal ICollection<InjectionMember>? InjectionMembers;
+
+        #region Registration Data
+
+        public object? Data { get; internal set; }
+
+        public RegistrationType RegistrationType { get; internal set; }
+
+        public ICollection<InjectionMember> InjectionMembers { get; protected set; }
+
+        #endregion
+
+
+        #region Initializers Support
+
+        public IEnumerator<InjectionMember> GetEnumerator() 
+            => InjectionMembers.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() 
+            => ((IEnumerable)InjectionMembers).GetEnumerator();
+
+        public void Add(InjectionMember member)
+        {
+            if (!(InjectionMembers is List<InjectionMember> list))
+            {
+                list = new List<InjectionMember>(InjectionMembers);
+                InjectionMembers = list;
+            }
+
+            list.Add(member);
+        }
+
+        public void Add(ICollection<InjectionMember> members)
+        {
+            if (0 == InjectionMembers.Count)
+            {
+                InjectionMembers = members;
+            }
+            else if (InjectionMembers is List<InjectionMember> list)
+            {
+                foreach (var member in members) list.Add(member);
+            }
+            else
+            {
+                InjectionMembers = InjectionMembers.Concat(members)
+                                                   .ToList();
+            }
+        }
+
+        #endregion
     }
 }

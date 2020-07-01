@@ -21,12 +21,11 @@ namespace Unity.Lifetime
         #region Constructors
 
         public LifetimeManager(params InjectionMember[] members)
+            : base(members)
         {
             Set    = SetValue;
             Get    = GetValue;
             TryGet = TryGetValue;
-
-            InjectionMembers = null == members || 0 == members.Length ? null : members;
         }
 
         #endregion

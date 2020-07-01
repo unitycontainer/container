@@ -8,20 +8,6 @@ namespace Unity
     internal static class Compatibility_NetCoreApp_1_0
     {
         #region Type
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsInterface(this Type type) => type.GetTypeInfo().IsInterface;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsClass(this Type type) => type.GetTypeInfo().IsClass;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAbstract(this Type type) => type.GetTypeInfo().IsAbstract;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsPrimitive(this Type type) => type.GetTypeInfo().IsPrimitive;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnum(this Type type) => type.GetTypeInfo().IsEnum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsGenericType(this Type type) => type.GetTypeInfo().IsGenericType;
@@ -42,7 +28,6 @@ namespace Unity
         public static bool IsSubclassOf(this Type match, Type type) => match.GetTypeInfo().IsSubclassOf(type);
 
         #endregion
-
 
 
         #region Custom Attribute

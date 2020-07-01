@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -7,18 +8,19 @@ namespace Unity
     /// <summary>
     /// Information about the type registered in a container.
     /// </summary>
-    public readonly struct ContainerRegistration : IContainerRegistration
+    [DebuggerDisplay("Type = { RegisteredType.Name.PadRight(20),nq } Name = { Name ?? \"null\",nq }")]
+    public struct ContainerRegistration : IContainerRegistration
     {
-        public Type RegisteredType => throw new NotImplementedException();
+        public Type RegisteredType { get; internal set; }
 
-        public string? Name => throw new NotImplementedException();
+        public string? Name { get; internal set; }
 
-        public Type? MappedToType => throw new NotImplementedException();
+        public Type? MappedToType { get; internal set; }
 
-        public object? Instance => throw new NotImplementedException();
+        public object? Instance { get; internal set; }
 
-        public ResolveDelegate<IResolveContext> Factory => throw new NotImplementedException();
+        public ResolveDelegate<IResolveContext>? Factory { get; internal set; }
 
-        public LifetimeManager LifetimeManager => throw new NotImplementedException();
+        public LifetimeManager LifetimeManager { get; internal set; }
     }
 }

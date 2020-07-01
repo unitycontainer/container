@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -46,7 +47,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager) 
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -87,7 +88,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -137,7 +138,7 @@ namespace Unity
             params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -184,7 +185,7 @@ namespace Unity
             params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -226,7 +227,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -267,7 +268,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -317,7 +318,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -364,7 +365,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -430,7 +431,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -485,7 +486,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -545,7 +546,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -603,7 +604,7 @@ namespace Unity
             params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -666,7 +667,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -728,7 +729,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -789,7 +790,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -851,7 +852,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -916,7 +917,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -980,7 +981,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -1042,7 +1043,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
@@ -1106,7 +1107,7 @@ namespace Unity
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
-                manager.InjectionMembers = injectionMembers;
+                manager.Add(injectionMembers);
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 

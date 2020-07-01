@@ -31,12 +31,12 @@
 
   <ItemGroup>
     <Compile Condition="'$(TargetFramework)' != 'netstandard1.6' " Remove="Extensions\Reflection\Compatibility.NetStandard.1.x.cs" />
-    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'"   Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))"    Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))"   Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))"   Remove="Extensions\Reflection\Compatibility.Common.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard1'))"  Remove="Extensions\Reflection\Compatibility.Common.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))" Remove="Extensions\Reflection\Compatibility.Common.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard1'))" Remove="Extensions\Reflection\Compatibility.Common.cs" />
   </ItemGroup>
 
   <!-- C# 8.0 Compatibility -->

@@ -32,7 +32,6 @@ namespace Lifetime.Extensions
             }
         }
 
-
         [TestMethod]
         public void TypeLifetimeTest()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -54,7 +55,7 @@ namespace Unity
         /// <summary>
         /// Factory registered with RegisterFactory
         /// </summary>
-        ResolveDelegate<IResolveContext> Factory { get; }
+        ResolveDelegate<IResolveContext>? Factory { get; }
 
         /// <summary>
         /// The lifetime manager for this registration.
