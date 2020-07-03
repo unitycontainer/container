@@ -9,7 +9,7 @@ namespace Storage.Tests
     [TestClass]
     public class PolicyListTests
     {
-        PolicyList PolicyList;
+        TestPolicyList PolicyList;
         object instance1 = new object();
         object instance2 = new object();
         object instance3 = new object();
@@ -19,7 +19,7 @@ namespace Storage.Tests
         object instance7 = new object();
 
         [TestInitialize]
-        public void InitializeTest() => PolicyList = new PolicyList();
+        public void InitializeTest() => PolicyList = new TestPolicyList();
 
 
         [TestMethod]
@@ -30,6 +30,7 @@ namespace Storage.Tests
         {
             // Validate
             Assert.IsNull(PolicyList.Get(typeof(PolicyListTests), typeof(PolicyListTests)));
+            Assert.AreEqual(0, PolicyList.Count);
         }
 
         [TestMethod]
@@ -41,6 +42,7 @@ namespace Storage.Tests
 
             // Validate
             Assert.AreSame(instance1, instance);
+            Assert.AreEqual(1, PolicyList.Count);
         }
 
         [TestMethod]
@@ -52,6 +54,7 @@ namespace Storage.Tests
 
             // Validate
             Assert.IsNull(PolicyList.Get(null, typeof(PolicyListTests)));
+            Assert.AreEqual(1, PolicyList.Count);
         }
 
         [TestMethod]
@@ -64,6 +67,7 @@ namespace Storage.Tests
 
             // Validate
             Assert.AreSame(instance1, instance);
+            Assert.AreEqual(2, PolicyList.Count);
         }
 
         [TestMethod]
@@ -75,13 +79,13 @@ namespace Storage.Tests
 
             // Validate
             Assert.IsNull(PolicyList.Get(typeof(PolicyListTests), typeof(PolicyListTests)));
+            Assert.AreEqual(1, PolicyList.Count);
         }
 
         [TestMethod]
         public void ExpandTest()
         {
             // Arrange
-            PolicyList = new PolicyList(0);
             var instance1 = new object();
             var instance2 = new object();
             var instance3 = new object();
@@ -109,14 +113,12 @@ namespace Storage.Tests
             Assert.AreSame(instance5, PolicyList.Get(null, typeof(List<long>)));
             Assert.AreSame(instance6, PolicyList.Get(null, typeof(List<object>)));
             Assert.AreSame(instance7, PolicyList.Get(null, typeof(List<uint>)));
+            Assert.AreEqual(7, PolicyList.Count);
         }
 
         [TestMethod]
         public void ReplaceTest()
         {
-            // Arrange
-            PolicyList = new PolicyList(1);
-
             // Act
             PolicyList.Set(typeof(List<object>), typeof(List<int>),    instance1);
             PolicyList.Set(typeof(List<object>), typeof(List<char>),   instance2);
@@ -133,6 +135,7 @@ namespace Storage.Tests
             Assert.AreSame(instance7, PolicyList.Get(typeof(List<object>), typeof(List<bool>)));
             Assert.AreSame(instance5, PolicyList.Get(typeof(List<object>), typeof(List<long>)));
             Assert.AreSame(instance6, PolicyList.Get(typeof(List<object>), typeof(List<object>)));
+            Assert.AreEqual(6, PolicyList.Count);
         }
 
         [TestMethod]
@@ -156,6 +159,7 @@ namespace Storage.Tests
             // Missing
             Assert.IsNull(PolicyList.Get(typeof(List<object>), typeof(List<object>)));
             Assert.IsNull(PolicyList.Get(typeof(List<string>), typeof(List<string>)));
+            Assert.AreEqual(5, PolicyList.Count);
         }
 
 
@@ -180,6 +184,7 @@ namespace Storage.Tests
             Assert.IsNull(PolicyList.Get(typeof(List<object>), typeof(List<int>)));
             Assert.IsNull(PolicyList.Get(typeof(List<object>), typeof(List<char>)));
             Assert.IsNull(PolicyList.Get(typeof(List<object>), typeof(List<string>)));
+            Assert.AreEqual(3, PolicyList.Count);
         }
 
         #region Test Data
@@ -187,6 +192,10 @@ namespace Storage.Tests
         [DebuggerDisplay("{Name}")]
         public class TestPolicyList : PolicyList
         {
+            public TestPolicyList() : base(0) { }
+
+            public int Count => _count;
+
             public int Code { get; set; }
 
             protected override int HashCode(Type type, Type policy) 

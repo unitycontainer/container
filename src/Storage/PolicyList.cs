@@ -58,6 +58,7 @@ namespace Unity.Storage
                 if (candidate.Type != type || candidate.Policy != policy) continue;
 
                 candidate.Value = null;
+                return;
             }
         }
 
@@ -86,6 +87,7 @@ namespace Unity.Storage
                 if (candidate.Type != type || candidate.Policy != policy) continue;
 
                 candidate.Value = instance;
+                return;
             }
 
             // Expand if required
