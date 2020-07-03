@@ -3,33 +3,31 @@ using System;
 namespace Unity.Policy
 {
     /// <summary>
-    /// This interface allows retrieval and registration of various
-    /// policies Unity Container uses to operate.
+    /// This interface allows manipulation of targeted policies
     /// </summary>
     public interface IPolicyList
     {
         /// <summary>
-        /// Get default policy for the type
+        /// Get policy for the <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Type of the registration</param>
-        /// <param name="policyInterface">Type of policy to retrieve</param>
+        /// <param name="type">Target <see cref="Type"/> this policy applies to</param>
+        /// <param name="policy"><see cref="Type"/> of the policy to get</param>
         /// <returns>Instance of the policy or null if none found</returns>
-        object? Get(Type type, Type policyInterface);
+        object? Get(Type? type, Type policy);
 
         /// <summary>
-        /// Set policy for the type
+        /// Set policy for the <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Type of the registration</param>
-        /// <param name="policyInterface">Type of policy to be set</param>
-        /// <param name="policy">Policy instance to be set</param>
-        void Set(Type type, Type policyInterface, object policy);
+        /// <param name="type">Target <see cref="Type"/> this policy applies to</param>
+        /// <param name="policy"><see cref="Type"/> of the policy to set</param>
+        /// <param name="instance">Instance of the policy to apply</param>
+        void Set(Type? type, Type policy, object instance);
 
         /// <summary>
-        /// Remove specific policy from the list
+        /// Remove a policy from the <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Type of the registration</param>
-        /// <param name="name">Name of the registration</param>
-        /// <param name="policyInterface">Type of policy to be removed</param>
-        void Clear(Type type, Type policyInterface);
+        /// <param name="type">Target <see cref="Type"/> this policy should be applied to</param>
+        /// <param name="policy"><see cref="Type"/> of the policy to clear</param>
+        void Clear(Type? type, Type policy);
     }
 }
