@@ -3,7 +3,7 @@ using Unity.Policy;
 
 namespace Unity.Container
 {
-    public partial class Policies : IPolicySet
+    public partial class Defaults : IPolicySet
     {
         ///<inheritdoc/>
         public void Clear(Type type)

@@ -9,7 +9,7 @@ namespace Unity
         #region Fields
         
         private readonly string?  _name;
-        private readonly Policies _policies;
+        private readonly Defaults _policies;
         private readonly UnityContainer  _root;
         private readonly UnityContainer? _parent;
         
@@ -27,7 +27,7 @@ namespace Unity
         {
             // Singletons
             _root = this;
-            _policies = new Policies();
+            _policies = new Defaults();
 
             // Each Container
             _name = name;

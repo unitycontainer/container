@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public delegate void DefaultPolicyChangedHandler(Type type, object? value);
 
-    public partial class Policies : PolicyList
+    public partial class Defaults : PolicyList
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        public Policies() : base(2)
+        internal Defaults() : base(2)
         {
             // Build Chains
             InstancePipeline = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
