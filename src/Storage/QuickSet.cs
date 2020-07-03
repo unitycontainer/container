@@ -20,7 +20,7 @@ namespace Unity.Storage
 
         private int _max;
         private int _count;
-        private int _prime;
+        private int _prime = 3;
         private Entry[]    _entries;
         private Metadata[] _metadata;
 
