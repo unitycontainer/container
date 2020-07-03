@@ -1,9 +1,8 @@
-﻿using Unity.Policy;
-using Unity.Storage;
-using Unity.Pipeline;
-using Unity.Lifetime;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using Unity.Pipeline;
+using Unity.Policy;
+using Unity.Storage;
 
 namespace Unity.Extension
 {
@@ -13,29 +12,55 @@ namespace Unity.Extension
     /// </summary>
     public abstract class ExtensionContext
     {
-        #region Global Settings
-
-        #region Pipelines
+        #region Container
 
         /// <summary>
-        /// Pipeline chain required to process factory registrations
+        /// The instance of extended container
         /// </summary>
-        public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> FactoryPipeline { get; }
+        /// <value>The instance of <see cref="UnityContainer"/></value>
+        public abstract UnityContainer Container { get; }
 
         /// <summary>
-        /// Pipeline chain required to process instance registrations
+        /// The collection of disposable objects this container is responsible for
         /// </summary>
-        public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> InstancePipeline { get; }
-
-        /// <summary>
-        /// Pipeline chain required to process type registrations
-        /// </summary>
-        public abstract IStagedStrategyChain<PipelineProcessor, PipelineStage> TypePipeline { get; }
+        /// <value>The <see cref="ICollection{IDisposable}"/> of <see cref="IDisposable"/> objects</value>
+        public abstract ICollection<IDisposable> Lifetime { get; }
 
         #endregion
 
 
-        #region Global Events
+        #region Strategies
+
+        /// <summary>
+        /// Pipeline chain required to process factory registrations
+        /// </summary>
+        public abstract IStagedStrategyChain<PipelineProcessor, BuilderStage> FactoryPipeline { get; }
+
+        /// <summary>
+        /// Pipeline chain required to process instance registrations
+        /// </summary>
+        public abstract IStagedStrategyChain<PipelineProcessor, BuilderStage> InstancePipeline { get; }
+
+        /// <summary>
+        /// Pipeline chain required to process type registrations
+        /// </summary>
+        public abstract IStagedStrategyChain<PipelineProcessor, BuilderStage> TypePipeline { get; }
+
+        #endregion
+
+
+        #region Policy Lists
+
+        /// <summary>
+        /// The policies this container uses.
+        /// </summary>
+        /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
+        public abstract IPolicyList Policies { get; }
+
+        #endregion
+
+
+        #region Events
 
         /// <summary>
         /// This event is raised when new <see cref="Type"/> is registered.
@@ -58,53 +83,6 @@ namespace Unity.Extension
         /// perform any additional initialization they may require.
         /// </summary>
         public abstract event ChildCreatedEvent ChildContainerCreated;
-
-        #endregion
-
-
-        /// <summary>
-        /// Name of the root container
-        /// </summary>
-        public abstract string? Name { get; set; }
-
-        /// <summary>
-        /// The global singleton <see cref="UnityContainer"/> owner instance 
-        /// </summary>
-        /// <value>The <see cref="UnityContainer"/> object.</value>
-        public abstract UnityContainer Container { get; }
-
-        #endregion
-
-
-        #region Root Container Settings
-
-        /// <summary>
-        /// The policies this container uses.
-        /// </summary>
-        /// <remarks>The <see cref="IPolicyList"/> the that container uses to build objects.</remarks>
-        public abstract IPolicyList Policies { get; }
-
-        /// <summary>
-        /// The collection of disposable objects this container holds
-        /// </summary>
-        /// <value>The <see cref="ICollection{IDisposable}"/> is used to manage <see cref="IDisposable"/> objects that the container is managing.</value>
-        public abstract ICollection<IDisposable> Lifetime { get; }
-
-
-        /// <summary>
-        /// Default implicit lifetime of type registrations 
-        /// </summary>
-        public abstract ITypeLifetimeManager DefaultTypeLifetime { get; set; }
-
-        /// <summary>
-        /// Default implicit lifetime of factory registrations 
-        /// </summary>
-        public abstract IFactoryLifetimeManager DefaultFactoryLifetime { get; set; }
-
-        /// <summary>
-        /// Default implicit lifetime of instance registrations 
-        /// </summary>
-        public abstract IInstanceLifetimeManager DefaultInstanceLifetime { get; set; }
 
         #endregion
     }

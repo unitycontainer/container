@@ -20,13 +20,28 @@ namespace Unity
         /// Add an extension to the container.
         /// </summary>
         /// <param name="extension"><see cref="UnityContainerExtension"/> to add.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on (this in C#, Me in Visual Basic).</returns>
+        /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(UnityContainerExtension extension)
         {
-            (_root._extensions ??= new List<UnityContainerExtension>())
-                .Add(extension ?? throw new ArgumentNullException(nameof(extension)));
+            if (extension is IUnityContainerExtensionConfigurator configurator)
+            { 
+                (_extensions ??= new List<IUnityContainerExtensionConfigurator>())
+                    .Add(configurator);
+            }
 
-            extension.InitializeExtension(_rootContext);
+            extension?.InitializeExtension(_context ??= new PrivateExtensionContext(this));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Add an extension to the container.
+        /// </summary>
+        /// <param name="method"><see cref="Action{ExtensionContext}"/> delegate</param>
+        /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
+        public UnityContainer AddExtension(Action<ExtensionContext> method)
+        {
+            method?.Invoke(_context ??= new PrivateExtensionContext(this));
 
             return this;
         }
@@ -42,7 +57,7 @@ namespace Unity
         /// <returns>The requested extension's configuration interface, or null if not found.</returns>
         public object? Configure(Type configurationInterface)
         {
-            return _root._extensions?.FirstOrDefault(ex => configurationInterface.IsAssignableFrom(ex.GetType()));
+            return _extensions?.FirstOrDefault(ex => configurationInterface.IsAssignableFrom(ex.GetType()));
         }
 
         #endregion

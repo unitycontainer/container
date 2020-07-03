@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity;
-using Unity.Container.Tests;
 using Unity.Extension;
 
 namespace Container.Extending
 {
     [TestClass]
-    public class ExtensionInitializeTests
+    public class ExtensionInitializationTests
     {
         MockContainerExtension    mock;
         OtherContainerExtension   other;
@@ -22,6 +21,16 @@ namespace Container.Extending
             mock    = new MockContainerExtension();
             other   = new OtherContainerExtension();
             derived = new DerivedContainerExtension();
+        }
+
+
+        [TestMethod]
+        public void Baseline()
+        {
+            // Act
+            var types = new UnityContainer().ToArray();
+            // Validate
+            Assert.AreEqual(0, types.Length);
         }
 
         [TestMethod]
@@ -49,29 +58,56 @@ namespace Container.Extending
 
             // Validate
             // Act
-            var types = container.OfType<Type>().ToArray();
+            var types = container.ToArray();
 
             // Validate
-            Assert.AreEqual(3, types.Length);
+            Assert.AreEqual(2, types.Length);
+        }
+
+
+        [TestMethod]
+        public void AddLambda()
+        {
+            ExtensionContext local = null;
+
+            // Act
+            var container = new UnityContainer
+            {
+                (context) => local = context 
+            };
+
+            // Validate
+            // Act
+            var types = container.ToArray();
+
+            // Validate
+            Assert.AreEqual(0, types.Length);
+            Assert.IsNotNull(local);
+            Assert.AreSame(container, local.Container);
         }
 
         [TestMethod]
         public void AddMix()
         {
+            ExtensionContext local = null;
+
             // Act
             var container = new UnityContainer
             {
                 new MockContainerExtension(),
                 typeof(OtherContainerExtension),
-                typeof(DerivedContainerExtension)
+                typeof(DerivedContainerExtension),
+                (context) => local = context
             };
 
             // Validate
             // Act
-            var types = container.OfType<Type>().ToArray();
+            var types = container.ToArray();
 
             // Validate
-            Assert.AreEqual(3, types.Length);
+            Assert.AreEqual(2, types.Length);
+            Assert.IsNotNull(local);
+            Assert.AreSame(container, local.Container);
         }
 
         [TestMethod]
@@ -85,7 +121,7 @@ namespace Container.Extending
             foreach (var extension in container) types.Add(extension);
 
             // Validate
-            Assert.AreEqual(3, types.Count);
+            Assert.AreEqual(2, types.Count);
         }
 
         [TestMethod]
@@ -95,10 +131,10 @@ namespace Container.Extending
             var container = new UnityContainer { mock, other, derived };
 
             // Act
-            var types = container.OfType<Type>().ToArray();
+            var types = container.Cast<Type>().ToArray();
 
             // Validate
-            Assert.AreEqual(3, types.Length);
+            Assert.AreEqual(2, types.Length);
         }
 
         [TestMethod]
@@ -106,7 +142,7 @@ namespace Container.Extending
         public void AddWrongType()
         {
             // Act
-            _ = new UnityContainer { typeof(ExtensionInitializeTests) };
+            _ = new UnityContainer { typeof(ExtensionInitializationTests) };
         }
 
         [TestMethod]
@@ -118,11 +154,27 @@ namespace Container.Extending
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void AddNullExtension()
         {
             // Act
             _ = new UnityContainer { (UnityContainerExtension)null };
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void AddNullAction()
+        {
+            // Act
+            _ = new UnityContainer { (Action<ExtensionContext>)null };
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void AddActionNull()
+        {
+            UnityContainer unity = null;
+            // Act
+            unity.Add((Action<ExtensionContext>)null);
         }
     }
 }

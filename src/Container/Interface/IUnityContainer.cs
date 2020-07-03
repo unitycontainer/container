@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -58,7 +59,7 @@ namespace Unity
 
 
         /// <inheritdoc />
-        public IEnumerable<ContainerRegistration> Registrations => (IEnumerable<ContainerRegistration>)_scope.GetEnumerator();
+        public IEnumerable<ContainerRegistration> Registrations => _scope;
 
         #endregion
 

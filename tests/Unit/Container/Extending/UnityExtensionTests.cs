@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Unity;
-using Unity.Container.Tests;
 
 namespace Container.Extending
 {
@@ -46,7 +45,7 @@ namespace Container.Extending
 
             // Validate
             Assert.AreSame(derived, container.Configure(typeof(DerivedContainerExtension)));
-            Assert.AreSame(other, container.Configure(typeof(OtherContainerExtension)));
+            Assert.IsNull(container.Configure(typeof(OtherContainerExtension)));
             Assert.AreSame(mock, container.Configure(typeof(MockContainerExtension)));
         }
 
@@ -60,7 +59,6 @@ namespace Container.Extending
 
             // Validate
             Assert.AreSame(derived, container.Configure<DerivedContainerExtension>());
-            Assert.AreSame(other,   container.Configure<OtherContainerExtension>());
             Assert.AreSame(mock,    container.Configure<MockContainerExtension>());
         }
 
@@ -74,11 +72,9 @@ namespace Container.Extending
 
             // Validate
             Assert.IsTrue(container.Configure<MockContainerExtension>().InitializeWasCalled);
-            Assert.IsTrue(container.Configure<OtherContainerExtension>().InitializeWasCalled);
             Assert.IsTrue(container.Configure<DerivedContainerExtension>().InitializeWasCalled);
         }
 
-        [Ignore]
         [TestMethod]
         public void ContainerAddExtension()
         {
@@ -89,7 +85,6 @@ namespace Container.Extending
 
             // Validate
             Assert.IsTrue(container.Configure<MockContainerExtension>().InitializeWasCalled);
-            Assert.IsTrue(container.Configure<OtherContainerExtension>().InitializeWasCalled);
             Assert.IsTrue(container.Configure<DerivedContainerExtension>().InitializeWasCalled);
         }
 

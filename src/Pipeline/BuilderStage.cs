@@ -8,7 +8,7 @@ namespace Unity
     /// <remarks>
     /// <para>The order of the values in the enumeration is the order in which the stages are run.</para>
     /// </remarks>
-    public enum PipelineStage
+    public enum BuilderStage
     {
         /// <summary>
         /// By default, nothing happens here.

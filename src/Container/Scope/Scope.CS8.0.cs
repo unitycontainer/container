@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Unity.Scope
+namespace Unity
 {
-    public partial class RegistrationScope : IAsyncEnumerable<ContainerRegistration>
+    public partial class UnityContainer
     {
-        public IAsyncEnumerator<ContainerRegistration> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public partial class ContainerScope : IAsyncEnumerable<ContainerRegistration>
         {
-            throw new NotImplementedException();
+            public IAsyncEnumerator<ContainerRegistration> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

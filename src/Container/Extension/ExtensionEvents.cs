@@ -1,5 +1,4 @@
-﻿using Unity.Scope;
-
+﻿
 namespace Unity.Extension
 {
     /// <summary>
@@ -12,5 +11,6 @@ namespace Unity.Extension
     /// Child container created event handler
     /// </summary>
     /// <param name="child">Context of child container</param>
-    public delegate void ChildCreatedEvent(ContainerContext child);
+    public delegate void ChildCreatedEvent(ExtensionContext child);
 }
+

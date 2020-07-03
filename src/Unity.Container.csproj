@@ -38,6 +38,8 @@
   <ItemGroup>
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
   </ItemGroup>
 
 

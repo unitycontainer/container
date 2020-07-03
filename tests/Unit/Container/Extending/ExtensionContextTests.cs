@@ -2,7 +2,6 @@
 using Unity.Extension;
 using Unity.Policy;
 using Unity;
-using Unity.Container.Tests;
 
 namespace Container.Extending
 {
@@ -18,7 +17,7 @@ namespace Container.Extending
             container = new UnityContainer();
             var mock = new MockContainerExtension();
             container.AddExtension(mock);
-            context = ((IMockConfiguration)mock).Context;
+            context = mock.ExtensionContext;
         }
 
         [TestMethod]
@@ -29,7 +28,7 @@ namespace Container.Extending
             unity.AddExtension(extension);
 
             Assert.IsTrue(extension.InitializeWasCalled);
-            Assert.IsNotNull(((IMockConfiguration)extension).Context);
+            Assert.IsNotNull(extension.ExtensionContext);
         }
 
         [TestMethod]
@@ -40,7 +39,6 @@ namespace Container.Extending
             Assert.IsInstanceOfType(context.Container, typeof(UnityContainer));
         }
 
-        [Ignore]
         [TestMethod]
         public void PoliciesTest()
         {
