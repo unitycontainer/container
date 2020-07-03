@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Policy;
 
 namespace Unity
 {
@@ -42,7 +43,8 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract class RegistrationManager : IEnumerable<InjectionMember>
+    public abstract class RegistrationManager : IEnumerable<InjectionMember>, 
+                                                IPolicySet
     {
         #region Constructors
 
@@ -98,6 +100,26 @@ namespace Unity
                                                    .ToList();
             }
         }
+
+        #endregion
+
+
+        #region IPolicySet 
+
+        object? IPolicySet.Get(Type policyInterface)
+        {
+            foreach (var member in InjectionMembers)
+            {
+                if (member.GetType() == policyInterface)
+                    return member;
+            }
+
+            return null;
+        }
+
+        void IPolicySet.Set(Type policyInterface, object policy) => throw new NotImplementedException();
+
+        void IPolicySet.Clear(Type policyInterface) => throw new NotImplementedException();
 
         #endregion
     }

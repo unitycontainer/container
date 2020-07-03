@@ -16,7 +16,7 @@ namespace Resolution.Overrides
         public static object        TestValue = new object();
         public static FieldInfo     FieldInfo = typeof(PolicySet).GetField(nameof(PolicySet.NameField));
         public static PropertyInfo  PropertyInfo = typeof(PolicySet).GetProperty(nameof(PolicySet.NameProperty));
-        public static NamedType     NamedType = new NamedType { Type = typeof(object), Name = string.Empty };
+        public static NamedType     NamedType = new NamedType(typeof(object), string.Empty);
         public static ParameterInfo ParameterInfo = typeof(PolicySet).GetConstructor(new Type[] { typeof(string) })
                                                                      .GetParameters()
                                                                      .First();
@@ -139,7 +139,7 @@ namespace Resolution.Overrides
                                         new DependencyOverride(typeof(object), typeof(object), string.Empty, TestValue),                    false };
             yield return new object[] { new DependencyOverride(typeof(object), typeof(object), string.Empty, TestValue),                          
                                         new DependencyOverride(typeof(string), typeof(object), string.Empty, TestValue),                    false };
-            yield return new object[] { new DependencyOverride<object>(TestValue),                 new NamedType { Type = typeof(object) }, true };
+            yield return new object[] { new DependencyOverride<object>(TestValue),                          new NamedType (typeof(object)), true };
             yield return new object[] { new DependencyOverride<object>(string.Empty, TestValue),                             NamedType,     true };
 
             yield return new object[] { new ParameterOverride(string.Empty, TestValue),                                      TestValue,     false };

@@ -27,8 +27,8 @@ namespace Resolution.Basics
             var typeHash = TestType.GetHashCode();
             var nameHash = TestName.GetHashCode();
 
-            NamedType structure1 = new NamedType { Type = TestType, Name = TestName };
-            NamedType structure2 = new NamedType { Type = typeof(NamedTypeTests), Name = "98a884c0-7eae-4926-8f3e-bf1f42a05be6" };
+            NamedType structure1 = new NamedType(TestType, TestName);
+            NamedType structure2 = new NamedType(typeof(NamedTypeTests), "98a884c0-7eae-4926-8f3e-bf1f42a05be6");
 
             // Validate
             Assert.AreEqual(structure1.GetHashCode(), structure2.GetHashCode());
@@ -41,23 +41,19 @@ namespace Resolution.Basics
         public void EqualsTest()
         {
             // Arrange
-            NamedType structure1 = new NamedType { Type = TestType, Name = TestName };
-            NamedType structure2 = new NamedType { Type = typeof(NamedTypeTests), Name = "98a884c0-7eae-4926-8f3e-bf1f42a05be6" };
-            NamedType structure3 = new NamedType { Type = typeof(NamedTypeTests) };
-            NamedType structure4 = new NamedType { Name = TestName };
+            NamedType structure1 = new NamedType(TestType, TestName );
+            NamedType structure2 = new NamedType(typeof(NamedTypeTests), "98a884c0-7eae-4926-8f3e-bf1f42a05be6");
+            NamedType structure3 = new NamedType(typeof(NamedTypeTests));
 
             // Validate
             Assert.IsTrue( structure1.Equals(structure2));
             Assert.IsFalse(structure1.Equals(structure3));
-            Assert.IsFalse(structure1.Equals(structure4));
 
             Assert.IsTrue(structure1 == structure2);
             Assert.IsTrue(structure2 != structure3);
-            Assert.IsTrue(structure3 != structure4);
 
             Assert.IsFalse(structure1 != structure2);
             Assert.IsFalse(structure2 == structure3);
-            Assert.IsFalse(structure3 == structure4);
         }
 
 
@@ -65,7 +61,7 @@ namespace Resolution.Basics
         public void ToStringTest()
         {
             // Arrange
-            NamedType structure = new NamedType { Type = TestType, Name = TestName };
+            NamedType structure = new NamedType(TestType, TestName);
             var data = structure.ToString();
 
             // Validate

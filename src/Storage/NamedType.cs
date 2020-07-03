@@ -2,10 +2,44 @@
 
 namespace Unity.Resolution
 {
-    public struct NamedType
+    /// <summary>
+    /// Structure holding <see cref="Type"/> and Name values
+    /// </summary>
+    public readonly struct NamedType
     {
-        public Type Type;
-        public string? Name;
+        #region Public Members
+
+        /// <summary>
+        /// HashCode calculated with held <see cref="Type"/> and Name
+        /// </summary>
+        public readonly int HashCode;
+
+        /// <summary>
+        /// <see cref="Type"/> of the structure
+        /// </summary>
+        public readonly Type Type;
+
+        /// <summary>
+        /// Name of the structure
+        /// </summary>
+        public readonly string? Name;
+
+        #endregion
+
+
+        #region Constructors
+
+        public NamedType(Type type, string? name = null)
+        {
+            Type = type;
+            Name = name;
+            HashCode = (type.GetHashCode() + 37) ^ ((name?.GetHashCode() ?? 0) + 17);
+        }
+
+        #endregion
+
+
+        #region Implementation
 
         public override int GetHashCode() => GetHashCode(Type, Name);
 
@@ -35,5 +69,7 @@ namespace Unity.Resolution
         {
             return $"Type: {Type?.Name},  Name: {Name}";
         }
+
+        #endregion
     }
 }

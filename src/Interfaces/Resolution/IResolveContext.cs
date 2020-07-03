@@ -1,12 +1,9 @@
 ﻿using System;
-using Unity.Policy;
 
 namespace Unity.Resolution
 {
-    public interface IResolveContext : IPolicyList
+    public interface IResolveContext 
     {
-        IUnityContainer Container { get; }
-
         /// <summary>
         /// Type being resolved.
         /// </summary>

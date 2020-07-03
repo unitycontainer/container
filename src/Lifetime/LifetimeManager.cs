@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Injection;
 
 namespace Unity.Lifetime
@@ -8,7 +9,7 @@ namespace Unity.Lifetime
     /// Base class for all lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract class LifetimeManager : RegistrationManager
+    public abstract partial class LifetimeManager : RegistrationManager
     {
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
@@ -37,17 +38,20 @@ namespace Unity.Lifetime
         /// The property holding a method that attempts to get value. 
         /// Synchronized lifetime managers will not set a lock by calling the method.
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<ICollection<IDisposable>, object?> TryGet { get; protected set; }
 
         /// <summary>
         /// The property holding a method that gets the value. 
         /// Synchronized lifetime managers will set a lock by calling the method.
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Func<ICollection<IDisposable>, object?> Get { get; protected set; }
 
         /// <summary>
         /// The property holding a method that sets the value. 
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Action<object?, ICollection<IDisposable>> Set { get; protected set; }
 
         #endregion
