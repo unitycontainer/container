@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity.Extension;
 
 namespace Unity.Pipeline
 {
-    public class PipelineProcessor
+    public abstract class PipelineProcessor
     {
     }
 }

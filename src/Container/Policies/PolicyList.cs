@@ -3,20 +3,19 @@ using Unity.Policy;
 
 namespace Unity.Container
 {
-    public partial class Policies<TProcessor, TStage> : IPolicySet
+    public partial class Policies : IPolicySet
     {
+        ///<inheritdoc/>
         public void Clear(Type type)
         {
-            lock (_syncRoot)
-            {
-                base.Clear(null, type);
-            }
+            lock (_syncRoot) { base.Clear(null, type); }
             DefaultPolicyChanged?.Invoke(type, null);
         }
 
+        ///<inheritdoc/>
         public object? Get(Type type) => base.Get(null, type);
 
-
+        ///<inheritdoc/>
         public void Set(Type policy, object instance)
         {
             try
@@ -59,6 +58,7 @@ namespace Unity.Container
             }
         }
 
+        ///<inheritdoc/>
         public override void Set(Type? type, Type policy, object instance)
         {
             try

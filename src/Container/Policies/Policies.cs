@@ -1,11 +1,12 @@
 ﻿using System;
+using Unity.Pipeline;
 using Unity.Storage;
 
 namespace Unity.Container
 {
     public delegate void DefaultPolicyChangedHandler(Type type, object? value);
 
-    public partial class Policies<TProcessor, TStage> : PolicyList
+    public partial class Policies : PolicyList
     {
         #region Fields
 
@@ -19,9 +20,9 @@ namespace Unity.Container
         public Policies() : base(2)
         {
             // Build Chains
-            InstancePipeline = new StagedStrategyChain<TProcessor, TStage>();
-            FactoryPipeline  = new StagedStrategyChain<TProcessor, TStage>();
-            TypePipeline     = new StagedStrategyChain<TProcessor, TStage>();
+            InstancePipeline = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            FactoryPipeline  = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            TypePipeline     = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
         }
 
         #endregion
@@ -29,9 +30,9 @@ namespace Unity.Container
 
         #region Pipelines
 
-        public StagedStrategyChain<TProcessor, TStage> InstancePipeline { get; }
-        public StagedStrategyChain<TProcessor, TStage> FactoryPipeline { get; }
-        public StagedStrategyChain<TProcessor, TStage> TypePipeline { get; }
+        public StagedStrategyChain<PipelineProcessor, BuilderStage> InstancePipeline { get; }
+        public StagedStrategyChain<PipelineProcessor, BuilderStage> FactoryPipeline { get; }
+        public StagedStrategyChain<PipelineProcessor, BuilderStage> TypePipeline { get; }
 
         #endregion
 

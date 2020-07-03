@@ -7,12 +7,13 @@ namespace Unity
     public partial class UnityContainer
     {
         #region Fields
-
-        private string? _name;
+        
+        private readonly string?  _name;
+        private readonly Policies _policies;
+        private readonly UnityContainer  _root;
+        private readonly UnityContainer? _parent;
+        
         private ContainerScope _scope;
-        private UnityContainer _root;
-        private UnityContainer? _parent;
-        private Policies<PipelineProcessor, BuilderStage> _policies;
 
         #endregion
 
@@ -26,11 +27,20 @@ namespace Unity
         {
             // Singletons
             _root = this;
-            _policies = new Policies<PipelineProcessor, BuilderStage>();
+            _policies = new Policies();
 
             // Each Container
             _name = name;
             _scope = new ContainerScopeAsync(this);
+
+            // Root Container Specific
+            _context = new PrivateExtensionContext(this);
+
+            // Setup Processors
+            ConstructorProcessor.SetupProcessor(_context);
+                  FieldProcessor.SetupProcessor(_context);
+               PropertyProcessor.SetupProcessor(_context);
+                 MethodProcessor.SetupProcessor(_context);
         }
 
         /// <summary>
@@ -50,6 +60,8 @@ namespace Unity
             // Each Container
             _name  = name;
             _scope = parent._scope.CreateChildScope(this);
+
+            // Child Container Specific
         }
 
         #endregion
