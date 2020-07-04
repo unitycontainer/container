@@ -11,19 +11,6 @@ namespace Unity
     public partial interface IUnityContainerAsync
     {
         /// <summary>
-        /// Lists all registrations available at this container.
-        /// </summary>
-        /// <remarks>
-        /// This collection contains all registrations from this container as well
-        /// as from all predecessor containers if this is a child container. Registrations
-        /// from child containers override registrations with same type and name from
-        /// parent containers.
-        /// The sort order of returned registrations is not guaranteed in any way.
-        /// </remarks>
-        IAsyncEnumerable<ContainerRegistration> RegistrationsAsync { get; }
-
-
-        /// <summary>
         /// Resolve an instance of the requested type from the container.
         /// </summary>
         /// <param name="type"><see cref="Type"/> of object to get typeFrom the container.</param>
