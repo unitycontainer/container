@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Lifetime;
 
-namespace Unity.Lifetime
+namespace Unity.Container
 {
     /// <summary>
     /// Internal container lifetime manager. 

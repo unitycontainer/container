@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Unity;
+using Unity.Container;
 
 namespace Container.Scope
 {
@@ -9,12 +10,12 @@ namespace Container.Scope
     public class ScopeTests
     {
         protected UnityContainer Container = new UnityContainer();
-        protected UnityContainer.ContainerScope Scope;
+        protected ContainerScope Scope;
 
         [TestInitialize]
         public virtual void InitializeTest()
         {
-            Scope = new UnityContainer.ContainerScope(Container);
+            Scope = new ContainerScope(Container);
         }
 
         [TestMethod]

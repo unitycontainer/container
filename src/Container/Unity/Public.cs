@@ -23,13 +23,16 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(UnityContainerExtension extension)
         {
-            if (extension is IUnityContainerExtensionConfigurator configurator)
+            lock (_policies)
             { 
-                (_extensions ??= new List<IUnityContainerExtensionConfigurator>())
-                    .Add(configurator);
-            }
+                if (extension is IUnityContainerExtensionConfigurator configurator)
+                { 
+                    (_extensions ??= new List<IUnityContainerExtensionConfigurator>())
+                        .Add(configurator);
+                }
 
-            extension?.InitializeExtension(_context ??= new PrivateExtensionContext(this));
+                extension?.InitializeExtension(_context ??= new PrivateExtensionContext(this));
+            }
 
             return this;
         }
@@ -41,7 +44,10 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(Action<ExtensionContext> method)
         {
-            method?.Invoke(_context ??= new PrivateExtensionContext(this));
+            lock (_policies)
+            {
+                method?.Invoke(_context ??= new PrivateExtensionContext(this));
+            }
 
             return this;
         }

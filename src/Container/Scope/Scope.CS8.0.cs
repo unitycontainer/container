@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Unity
+namespace Unity.Container
 {
-    public partial class UnityContainer
+    public partial class ContainerScope
     {
-        public partial class ContainerScope
-        {
-        }
     }
 }

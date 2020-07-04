@@ -1,10 +1,26 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Unity
 {
-    [DebuggerDisplay("{ DebuggerDisplay,nq }", Name = "UnityContainer")]
+    [DebuggerDisplay("UnityContainer[{Registered}]", Name = "{ Name,nq }")]
+    [DebuggerTypeProxy(typeof(UnityContainerProxy))]
     public partial class UnityContainer
     {
-        internal string DebuggerDisplay => null == Name ? "container[]" : $"{Name}[count]" ;
+        private int Registered => _scope.Count;
+
+        private class UnityContainerProxy
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            private UnityContainer _container;
+
+            public UnityContainerProxy(UnityContainer container) => _container = container;
+
+            public string? Name => _container.Name;
+
+            public IEnumerable<ContainerRegistration> Registrations => _container.Registrations;
+
+            public UnityContainer? Parent => _container._parent;
+        }
     }
 }
