@@ -59,7 +59,7 @@ namespace Unity
 
 
         /// <inheritdoc />
-        public IEnumerable<ContainerRegistration> Registrations => _scope;
+        public IEnumerable<ContainerRegistration> Registrations => _scope.Registrations;
 
         #endregion
 

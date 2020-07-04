@@ -1,6 +1,5 @@
 ﻿using Unity.Container;
 using Unity.Pipeline;
-using Unity.Scope;
 
 namespace Unity
 {
@@ -13,7 +12,7 @@ namespace Unity
         private readonly UnityContainer  _root;
         private readonly UnityContainer? _parent;
         
-        private ContainerScope _scope;
+        internal ContainerScope _scope;
 
         #endregion
 
@@ -31,7 +30,7 @@ namespace Unity
 
             // Each Container
             _name = name;
-            _scope = new ContainerScopeAsync(this);
+            _scope = new ContainerScope(this);
 
             // Root Container Specific
             _context = new PrivateExtensionContext(this);

@@ -7,30 +7,31 @@ namespace Unity.Storage
     {
         #region Constants
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
-        private const int HashMask = unchecked((int)(uint.MaxValue >> 1));
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        protected const int HashMask = unchecked((int)(uint.MaxValue >> 1));
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private const float LoadFactor = 0.72f;
+        protected const float LoadFactor = 0.72f;
 
         #endregion
 
 
         #region Fields
 
-        private int _max;
-        private int _count;
-        private int _prime = 3;
-        private Entry[]    _entries;
-        private Metadata[] _metadata;
+        protected int _max;
+        protected int _count;
+        protected int _prime;
+        protected Entry[]    _entries;
+        protected Metadata[] _metadata;
 
         #endregion
 
 
         #region Constructors
 
-        public QuickSet()
+        public QuickSet(int prime = 3)
         {
+            _prime = prime;
             var size = Prime.Numbers[_prime];
             _entries  = new Entry[size];
             _metadata = new Metadata[size];
@@ -42,7 +43,7 @@ namespace Unity.Storage
 
         #region Public Methods
 
-        public bool Add(TValue value)
+        public virtual bool Add(TValue value)
         {
             var hashCode = value?.GetHashCode() ?? 0;
             var targetBucket = (hashCode & HashMask) % _entries.Length;
@@ -74,7 +75,7 @@ namespace Unity.Storage
             return true;
         }
 
-        public bool Add(TValue value, int hashCode)
+        public virtual bool Add(TValue value, int hashCode)
         {
             var targetBucket = (hashCode & HashMask) % _entries.Length;
             for (var i = _metadata[targetBucket].Bucket; i > 0; i = _metadata[i].Next)
@@ -109,7 +110,7 @@ namespace Unity.Storage
 
         #region Implementation
 
-        private void Expand()
+        protected void Expand()
         {
             var size = Prime.Numbers[++_prime];
             _max = Math.Min(50, (int)(size * LoadFactor));
@@ -133,7 +134,7 @@ namespace Unity.Storage
         #region Entry Type
 
         [DebuggerDisplay("{ Value,nq }")]
-        public struct Entry
+        protected struct Entry
         {
             public int HashCode;
             public TValue Value;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -40,6 +41,16 @@ namespace Unity
 
             IEnumerator<IDisposable> IEnumerable<IDisposable>.GetEnumerator() 
                 => _sync.GetEnumerator();
+
+            #endregion
+
+
+            #region IEnumerable
+
+            public IEnumerator GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
 
             #endregion
 

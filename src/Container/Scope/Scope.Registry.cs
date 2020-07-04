@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -8,43 +7,24 @@ namespace Unity
     {
         public partial class ContainerScope
         {
-            #region Fields
-
-            protected int _registryCount;
-            protected int _registryPrime;
-            protected int[] _registryBuckets;
-            protected RegistryEntry[] _registry;
-
-            #endregion
-
-
-            protected void Add(Type type, RegistrationManager manager)
-            {
-                var hashCode = NamedType.GetHashCode(type, null) & HashMask;
-                var targetBucket = hashCode % _registryBuckets.Length;
-
-                // Create new entry
-                ref var entry = ref _registry[_registryCount];
-                entry.HashCode = hashCode;
-                entry.Type = type;
-                entry.Name = null;
-                entry.Manager = manager;
-                entry.Next = _registryBuckets[targetBucket];
-                _registryBuckets[targetBucket] = _registryCount++;
-            }
 
 
             #region Registration Entry
 
-            [DebuggerDisplay("{Manager}", Name = "{Type.Name}")]
-            public struct RegistryEntry
+            [DebuggerDisplay("{ (null == Type ? string.Empty : Name),nq }", 
+                      Name = "{ (Type?.Name ?? string.Empty),nq }")]
+            public struct Registry
             {
-                public int Next;
                 public int HashCode;
-
                 public Type    Type;
                 public string? Name;
                 public RegistrationManager Manager;
+
+                public override int GetHashCode() 
+                    => ((Type.GetHashCode() + 37) ^ ((Name?.GetHashCode() ?? 0) + 17)) & HashMask;
+
+                public static int GetHashCode(Type type, string? name)
+                    => ((type.GetHashCode() + 37) ^ ((name?.GetHashCode() ?? 0) + 17)) & HashMask;
             }
 
             #endregion

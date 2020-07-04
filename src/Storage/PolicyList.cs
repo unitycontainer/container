@@ -162,15 +162,6 @@ namespace Unity.Storage
             public object? Value;
         }
 
-        /// <summary>
-        /// Internal structure holding hash set buckets
-        /// </summary>
-        protected struct Metadata
-        {
-            public int Next;
-            public int Bucket;
-        }
-
         #endregion
     }
 }

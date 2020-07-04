@@ -10,7 +10,7 @@ namespace Unity.Container
     {
         #region Fields
 
-        object _syncRoot = new object();
+        readonly object _syncRoot = new object();
 
         #endregion
 
