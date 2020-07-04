@@ -24,8 +24,6 @@ namespace Unity
             #region Fields
 
             protected readonly ICollection<IDisposable> _sync;
-            protected readonly ContainerScope? _parent;
-            protected readonly UnityContainer  _container;
 
             protected int _registryPrime;
             protected int _identityPrime;
@@ -45,11 +43,11 @@ namespace Unity
             {
                 // Scope specific
                 _sync = new List<IDisposable>();
-                _container = container;
-                _parent = container._parent?._scope;
+                Container = container;
+                Parent = container._parent?._scope;
 
                 // Registrations
-                _identityPrime = null == _parent ? 3 : 1;
+                _identityPrime = null == Parent ? 3 : 1;
                 _registryPrime = _identityPrime;
                 
                 var size = Prime.Numbers[_identityPrime];
@@ -66,7 +64,7 @@ namespace Unity
                 ref var three  = ref _registryData[_registryCount];
 
                 zero.Type    = typeof(UnityContainer);
-                zero.Manager = new ContainerLifetimeManager(_container);
+                zero.Manager = new ContainerLifetimeManager(Container);
                 one.Manager  = zero.Manager;
                 one.Type     = typeof(IUnityContainer);
                 one.HashCode = one.GetHashCode();
@@ -91,8 +89,8 @@ namespace Unity
             {
                 // Ownership
                 _sync      = scope._sync;
-                _parent    = scope._parent;
-                _container = scope._container;
+                Parent    = scope.Parent;
+                Container = scope.Container;
 
                 // Copy data
                 _registryData  = scope._registryData;
@@ -104,6 +102,14 @@ namespace Unity
                 _registryCount = scope._registryCount;
                 _identityCount = scope._identityCount;
             }
+
+            #endregion
+
+
+            #region Public Members
+
+            public readonly ContainerScope? Parent;
+            public readonly UnityContainer Container;
 
             #endregion
 

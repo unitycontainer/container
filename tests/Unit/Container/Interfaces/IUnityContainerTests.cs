@@ -34,7 +34,7 @@ namespace Container.Interfaces
         {
             var registrations = Container.Registrations.ToArray();
 
-            Assert.AreNotEqual(0, registrations.Length);
+            Assert.AreEqual(3, registrations.Length);
         }
     }
 }

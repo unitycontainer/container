@@ -43,7 +43,7 @@ namespace Unity
                 public RegistrationsSet(ContainerScope scope)
                 {
                     _scope = scope;
-                    _prime = scope._container._root._scope._registryPrime + scope._container._level;
+                    _prime = scope.Container._root._scope._registryPrime + scope.Container._level;
                 }
 
                 #endregion
@@ -61,26 +61,25 @@ namespace Unity
                     var set = new QuickSet<Type>(_prime);
                     
                     // Built-in registrations
-                    yield return new ContainerRegistration(typeof(IUnityContainer),      null, lifetime);
-                    yield return new ContainerRegistration(typeof(IServiceProvider),     null, lifetime);
-                    yield return new ContainerRegistration(typeof(IUnityContainerAsync), null, lifetime);
+                    yield return new ContainerRegistration(typeof(IUnityContainer),      lifetime);
+                    yield return new ContainerRegistration(typeof(IServiceProvider),     lifetime);
+                    yield return new ContainerRegistration(typeof(IUnityContainerAsync), lifetime);
                     
                     // Explicit registrations
-                    for (ContainerScope? scope = _scope; null != scope; scope = scope._parent)
+                    for (ContainerScope? scope = _scope; null != scope; scope = scope.Parent)
                     {
                         // Skip if no user registrations
                         if (START_DATA > scope._registryCount) continue;
 
                         // Iterate registrations
-                        for (var i = START_DATA + 3; i <= scope._registryCount; i++)
+                        for (var i = START_DATA; i <= scope._registryCount; i++)
                         {
                             var entry = scope._registryData[i];
 
                             if (RegistrationType.Internal == entry.Manager.RegistrationType ||
-                                !(entry.Manager is LifetimeManager manager)                 ||
                                 !set.Add(entry.Type, entry.HashCode)) continue;
 
-                            yield return new ContainerRegistration(entry.Type, entry.Name, manager);
+                            yield return new ContainerRegistration(entry.Type, entry.Name, (LifetimeManager)entry.Manager);
                         }
                     }
                 }

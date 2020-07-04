@@ -26,9 +26,6 @@ namespace Unity
 
                 public override int GetHashCode() 
                     => ((Type.GetHashCode() + 37) ^ ((Name?.GetHashCode() ?? 0) + 17)) & HashMask;
-
-                public static int GetHashCode(Type type, string? name)
-                    => ((type.GetHashCode() + 37) ^ ((name?.GetHashCode() ?? 0) + 17)) & HashMask;
             }
 
             #endregion

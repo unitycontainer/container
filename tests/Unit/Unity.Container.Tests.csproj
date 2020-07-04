@@ -3,7 +3,10 @@
   <PropertyGroup>
     <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
     <IsPackable>false</IsPackable>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\src\package.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
