@@ -6,7 +6,8 @@ namespace Unity
     public partial class UnityContainer
     {
         #region Fields
-        
+
+        private readonly int _level;
         private readonly string?  _name;
         private readonly Defaults _policies;
         private readonly UnityContainer  _root;
@@ -55,6 +56,7 @@ namespace Unity
 
             // Ancestry
             _parent = parent;
+            _level  = parent._level + 1;
 
             // Each Container
             _name  = name;

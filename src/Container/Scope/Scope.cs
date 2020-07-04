@@ -15,6 +15,7 @@ namespace Unity
 
             private const int HashMask = unchecked((int)(uint.MaxValue >> 1));
             protected const int START_INDEX = 1;
+            protected const int START_DATA  = 4;
             protected const string ASYNC_ERROR_MESSAGE = "This feature requires 'Unity.Professional' extension";
 
             #endregion
@@ -59,19 +60,22 @@ namespace Unity
                 _registryData  = new Registry[size];
 
                 // Register Interfaces
-                ref var zero = ref _registryData[++_registryCount];
-                ref var one  = ref _registryData[++_registryCount];
-                ref var two  = ref _registryData[++_registryCount];
+                ref var zero   = ref _registryData[_registryCount++];
+                ref var one    = ref _registryData[_registryCount++];
+                ref var two    = ref _registryData[_registryCount++];
+                ref var three  = ref _registryData[_registryCount];
 
-                zero.Manager  = new ContainerLifetimeManager(_container);
-                zero.Type     = typeof(IUnityContainer);
-                zero.HashCode = zero.GetHashCode();
-                one.Manager   = zero.Manager;
-                one.Type      = typeof(IUnityContainerAsync);
-                one.HashCode  = one.GetHashCode();
+                zero.Type    = typeof(UnityContainer);
+                zero.Manager = new ContainerLifetimeManager(_container);
+                one.Manager  = zero.Manager;
+                one.Type     = typeof(IUnityContainer);
+                one.HashCode = one.GetHashCode();
                 two.Manager   = one.Manager;
-                two.Type      = typeof(IServiceProvider);
+                two.Type      = typeof(IUnityContainerAsync);
                 two.HashCode  = two.GetHashCode();
+                three.Manager   = two.Manager;
+                three.Type      = typeof(IServiceProvider);
+                three.HashCode  = three.GetHashCode();
 
                 // Rebuild Metadata
                 for (var index = START_INDEX; index <= _registryCount; index++)
@@ -104,7 +108,7 @@ namespace Unity
             #endregion
 
 
-            #region Implementation
+            #region Child Scope
 
             /// <summary>
             /// Creates new scope for child container

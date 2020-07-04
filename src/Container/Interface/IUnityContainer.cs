@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -48,22 +46,6 @@ namespace Unity
         #endregion
 
 
-
-        #region Registrations
-
-        /// <inheritdoc />
-        public bool IsRegistered(Type type, string? name)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        /// <inheritdoc />
-        public IEnumerable<ContainerRegistration> Registrations => _scope.Registrations;
-
-        #endregion
-
-
         #region Resolution
 
         /// <inheritdoc />
@@ -80,8 +62,23 @@ namespace Unity
 
         #endregion
 
+
+        #region Registrations
+
+        /// <inheritdoc />
+        public bool IsRegistered(Type type, string? name) => _scope.IsExplicitlyRegistered(type, name);
+
+        /// <inheritdoc />
+        public IEnumerable<ContainerRegistration> Registrations => _scope.Registrations;
+
+        #endregion
+
+
+        #region Child Container
+
         /// <inheritdoc />
         IUnityContainer IUnityContainer.CreateChildContainer(string? name) => CreateChildContainer(name);
-
+        
+        #endregion
     }
 }

@@ -11,6 +11,12 @@ namespace Unity
         /// <inheritdoc />
         IUnityContainerAsync? IUnityContainerAsync.Parent => _parent;
 
+        #endregion
+
+
+        #region Resolution
+
+        /// <inheritdoc />
         public ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
@@ -19,12 +25,11 @@ namespace Unity
         #endregion
 
 
-        #region Resolution
-
-        #endregion
-
+        #region Child Container
 
         /// <inheritdoc />
         IUnityContainerAsync IUnityContainerAsync.CreateChildContainer(string? name) => CreateChildContainer(name);
+
+        #endregion
     }
 }

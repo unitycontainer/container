@@ -28,5 +28,13 @@ namespace Container.Interfaces
         [TestMethod]
         public void Registrations_IServiceProvider_Present() =>
             Assert.IsTrue(Container.Registrations.Any(registration => typeof(IServiceProvider) == registration.RegisteredType));
+
+        [TestMethod]
+        public void Registrations_ToArray()
+        {
+            var registrations = Container.Registrations.ToArray();
+
+            Assert.AreNotEqual(0, registrations.Length);
+        }
     }
 }

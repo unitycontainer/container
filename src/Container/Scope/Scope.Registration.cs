@@ -7,6 +7,10 @@ namespace Unity
     {
         public partial class ContainerScope
         {
+            public bool IsExplicitlyRegistered(Type type, string? name)
+            {
+                return false;
+            }
 
 
             #region Registration Entry
