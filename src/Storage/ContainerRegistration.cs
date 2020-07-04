@@ -15,46 +15,38 @@ namespace Unity
 
         public string? Name { get; }
 
-        public Type? MappedToType { get; }
-
-        public object? Instance { get; }
-
-        public ResolveDelegate<IResolveContext>? Factory { get; }
-
         public LifetimeManager LifetimeManager { get; }
+
+        public Type? MappedToType =>
+            RegistrationType.Type == LifetimeManager?.RegistrationType
+                ? (Type?)LifetimeManager.Data
+                : null;
+
+        public object? Instance =>
+            RegistrationType.Instance == LifetimeManager?.RegistrationType
+                ? LifetimeManager.Data
+                : null;
+
+        public ResolveDelegate<IResolveContext>? Factory =>
+            RegistrationType.Factory == LifetimeManager?.RegistrationType 
+                ? (ResolveDelegate<IResolveContext>?)LifetimeManager.Data
+                : null;
 
 
         #region Constructors
+
+        public ContainerRegistration(Type type, LifetimeManager manager)
+        {
+            Name = null;
+            RegisteredType = type;
+            LifetimeManager = manager;
+        }
 
         public ContainerRegistration(Type type, string? name, LifetimeManager manager)
         {
             Name            = name;
             RegisteredType  = type;
             LifetimeManager = manager;
-
-            switch (manager.RegistrationType)
-            {
-                case RegistrationType.Type:
-                    Factory      = null;
-                    Instance     = null;
-                    MappedToType = (Type?)manager.Data;
-                    break;
-
-                case RegistrationType.Instance:
-                    Factory      = null;
-                    Instance     = manager.Data;
-                    MappedToType = null;
-                    break;
-
-                case RegistrationType.Factory:
-                    Factory      = (ResolveDelegate<IResolveContext>?)manager.Data;
-                    Instance     = null;
-                    MappedToType = null;
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Manager is not registered");
-            }
         }
 
         #endregion
