@@ -8,7 +8,7 @@ namespace Unity
     /// <summary>
     /// Information about the type registered in a container.
     /// </summary>
-    [DebuggerDisplay("{ Name }", Name = "{ RegisteredType.Name,nq }")]
+    [DebuggerDisplay("Name = { Name }", Name = "{ RegisteredType.Name,nq }")]
     public readonly struct ContainerRegistration : IContainerRegistration
     {
         public Type RegisteredType { get; }
