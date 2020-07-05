@@ -35,7 +35,7 @@ namespace Unity.Storage
             var size = Prime.Numbers[_prime];
             _entries  = new Entry[size];
             _metadata = new Metadata[size];
-            _max = Math.Min(50, (int)(size * LoadFactor));
+            _max = (int)(size * LoadFactor);
         }
 
         #endregion
@@ -113,7 +113,7 @@ namespace Unity.Storage
         protected void Expand()
         {
             var size = Prime.Numbers[++_prime];
-            _max = Math.Min(50, (int)(size * LoadFactor));
+            _max = (int)(size * LoadFactor);
 
             Array.Resize(ref _entries, size);
             _metadata = new Metadata[size];

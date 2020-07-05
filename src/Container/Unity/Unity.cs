@@ -7,7 +7,6 @@ namespace Unity
     {
         #region Fields
 
-        internal readonly int _level;
         private  readonly string?  _name;
         internal readonly Defaults _policies;
         internal readonly UnityContainer  _root;
@@ -31,7 +30,7 @@ namespace Unity
 
             // Each Container
             _name = name;
-            _scope = new ContainerScope(this);
+            _scope = new ContainerScope(this, 3, 2);
 
             // Root Container Specific
             _context = new PrivateExtensionContext(this);
@@ -56,10 +55,9 @@ namespace Unity
 
             // Ancestry
             _parent = parent;
-            _level  = parent._level + 1;
 
             // Each Container
-            _name  = name ?? GetHashCode().ToString();
+            _name  = name;
             _scope = parent._scope.CreateChildScope(this);
 
             // Child Container Specific

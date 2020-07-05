@@ -12,12 +12,12 @@ namespace Unity.Container
     /// Works like the ExternallyControlledLifetimeManager, but uses 
     /// regular instead of weak references
     /// </remarks>
-    internal class ContainerLifetimeManager : LifetimeManager
+    public class ContainerLifetimeManager : LifetimeManager
     {
-        public ContainerLifetimeManager(UnityContainer container)
+        internal ContainerLifetimeManager(object? data, RegistrationType type = RegistrationType.Instance)
         {
-            Data = container;
-            RegistrationType = RegistrationType.Instance;
+            Data = data;
+            RegistrationType = type;
         }
 
         public override object? GetValue(ICollection<IDisposable> lifetime) => Data;
@@ -25,6 +25,6 @@ namespace Unity.Container
         protected override LifetimeManager OnCreateLifetimeManager()
             => throw new NotImplementedException();
 
-        public override string ToString() => "ContainerLifetimeManager";
+        public override string ToString() => "Lifetime: Container";
     }
 }

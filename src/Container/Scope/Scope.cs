@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.Storage;
 
 namespace Unity.Container
 {
+    [DebuggerDisplay("Size = { Count }", Name = "Scope({ Container.Name })")]
     public partial class ContainerScope
     {
         #region Constants
 
-        private   const int    HashMask    = unchecked((int)(uint.MaxValue >> 1));
-        protected const int    START_DATA  = 4;
-        protected const int    START_INDEX = 1;
+        protected const float LoadFactor = 0.72f;
+        private   const int   HashMask   = unchecked((int)(uint.MaxValue >> 1));
+
+        protected const int START_DATA  = 4;
+        protected const int START_INDEX = 1;
+        protected const int IDENTITY_SIZE = 3; 
+        protected const int DEFAULT_REGISTRY_SIZE = 1;
+        protected const int DEFAULT_IDENTITY_SIZE = 0;
+
         protected const string ASYNC_ERROR_MESSAGE = "This feature requires 'Unity.Professional' extension";
 
         #endregion
@@ -20,42 +28,50 @@ namespace Unity.Container
 
         protected readonly ICollection<IDisposable> _lifetimes;
 
+        protected int _identityMax;
+        protected int _registryMax;
         protected int _registryPrime;
         protected int _identityPrime;
         protected int _identityCount;
         protected int _registryCount;
         protected Metadata[] _registryMeta;
         protected Metadata[] _identityMeta;
-        protected readonly Registry[] _registryData;
-        protected readonly Identity[] _identityData;
+        protected Registry[] _registryData;
+        protected Identity[] _identityData;
 
         #endregion
 
 
         #region Constructors
 
-        internal ContainerScope(UnityContainer container)
+        internal ContainerScope(UnityContainer container, int registry = DEFAULT_REGISTRY_SIZE, 
+                                                          int identity = DEFAULT_IDENTITY_SIZE)
         {
             // Scope specific
             _lifetimes = new List<IDisposable>();
             Container = container;
             Parent = container._parent?._scope;
 
+            // Initial size
+            _registryPrime = registry;
+            _identityPrime = identity;
+            
             // Registrations
-            _identityPrime = null == Parent ? 3 : 1;
-            _registryPrime = _identityPrime;
 
-            var size = Prime.Numbers[_identityPrime];
-
-            _identityMeta = new Metadata[size];
+            var size = Prime.Numbers[_registryPrime];
             _registryMeta = new Metadata[size];
-            _identityData = new Identity[size];
             _registryData = new Registry[size];
+            _registryMax  = (int)(size * LoadFactor);
 
-            // Register Interfaces
-            ref var zero = ref _registryData[_registryCount++];
-            ref var one = ref _registryData[_registryCount++];
-            ref var two = ref _registryData[_registryCount++];
+            size = Prime.Numbers[_identityPrime];
+            _identityMeta = new Metadata[size];
+            _identityData = new Identity[size];
+            _identityMax  = (int)(size * LoadFactor);
+
+            // Add Interface registrations
+            ref var zero  = ref _registryData[_registryCount++];
+            ref var one   = ref _registryData[_registryCount++];
+            ref var two   = ref _registryData[_registryCount++];
             ref var three = ref _registryData[_registryCount];
 
             zero.Type = typeof(UnityContainer);
@@ -88,15 +104,32 @@ namespace Unity.Container
             Container = scope.Container;
 
             // Copy data
-            _registryData = scope._registryData;
-            _identityData = scope._identityData;
-            _registryMeta = scope._registryMeta;
-            _identityMeta = scope._identityMeta;
+            _identityMax   = scope._identityMax;
+            _registryMax   = scope._registryMax;
+            _registryData  = scope._registryData;
+            _identityData  = scope._identityData;
+            _registryMeta  = scope._registryMeta;
+            _identityMeta  = scope._identityMeta;
             _registryPrime = scope._registryPrime;
             _identityPrime = scope._identityPrime;
             _registryCount = scope._registryCount;
             _identityCount = scope._identityCount;
         }
+
+        #endregion
+
+
+        #region Public Members
+
+        /// <summary>
+        /// Parent scope
+        /// </summary>
+        public readonly ContainerScope? Parent;
+
+        /// <summary>
+        /// Owner container
+        /// </summary>
+        public readonly UnityContainer Container;
 
         #endregion
 

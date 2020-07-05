@@ -39,7 +39,7 @@ namespace Unity.Storage
         {
             _prime = prime;
             var size = Prime.Numbers[_prime];
-            _max = Math.Min(100, (int)(size * LoadFactor));
+            _max = (int)(size * LoadFactor);
             _policies = new Entry[size];
             _metadata = new Metadata[size];
         }
@@ -134,7 +134,7 @@ namespace Unity.Storage
         protected virtual void Expand()
         {
             var size = Prime.Numbers[++_prime];
-            _max = Math.Min(50, (int)(size * LoadFactor));
+            _max = (int)(size * LoadFactor);
 
             Array.Resize(ref _policies, size);
             var metadata = new Metadata[size];
