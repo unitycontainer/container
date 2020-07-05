@@ -41,7 +41,7 @@ namespace Unity.Container
             public RegistrationsSet(ContainerScope scope)
             {
                 _scope = scope;
-                _prime = scope.Container._root._scope._registryPrime + 1;
+                _prime = scope.Container.Root._scope._registryPrime + 1;
             }
 
             #endregion

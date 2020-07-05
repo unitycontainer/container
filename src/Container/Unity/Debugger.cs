@@ -28,7 +28,7 @@ namespace Unity
 
             public IEnumerable<ContainerRegistration> Registrations => _container.Registrations;
 
-            public UnityContainer? Parent => _container._parent;
+            public UnityContainer? Parent => _container.Parent;
 
             #endregion
         }

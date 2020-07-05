@@ -7,12 +7,8 @@ namespace Unity
     {
         #region Fields
 
-        private  readonly string?  _name;
+        internal ContainerScope    _scope;
         internal readonly Defaults _policies;
-        internal readonly UnityContainer  _root;
-        internal readonly UnityContainer? _parent;
-        
-        internal ContainerScope _scope;
 
         #endregion
 
@@ -24,15 +20,11 @@ namespace Unity
         /// </summary>
         public UnityContainer(string? name = "root")
         {
-            // Singletons
-            _root = this;
+            Root = this;
+            Name = name;
+
             _policies = new Defaults();
-
-            // Each Container
-            _name = name;
             _scope = new ContainerScope(this, 3, 2);
-
-            // Root Container Specific
             _context = new PrivateExtensionContext(this);
 
             // Setup Processors
@@ -49,15 +41,11 @@ namespace Unity
         /// <param name="name">Name of this container</param>
         protected UnityContainer(UnityContainer parent, string? name = null)
         {
-            // Singletons
-            _root     = parent._root;
-            _policies = parent._root._policies;
+            Name   = name;
+            Root   = parent.Root;
+            Parent = parent;
 
-            // Ancestry
-            _parent = parent;
-
-            // Each Container
-            _name  = name;
+            _policies = parent.Root._policies;
             _scope = parent._scope.CreateChildScope(this);
 
             // Child Container Specific

@@ -9,7 +9,7 @@ namespace Unity
         #region Properties
 
         /// <inheritdoc />
-        IUnityContainerAsync? IUnityContainerAsync.Parent => _parent;
+        IUnityContainerAsync? IUnityContainerAsync.Parent => Parent;
 
         #endregion
 

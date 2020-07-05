@@ -9,7 +9,11 @@ namespace Unity
     {
         #region Public Members
 
-        public string? Name => _name;
+        public string? Name { get; }
+
+        public UnityContainer Root { get; }
+
+        public UnityContainer? Parent { get; }
 
         #endregion
 

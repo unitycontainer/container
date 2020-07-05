@@ -122,29 +122,29 @@ namespace Unity
             /// <inheritdoc />
             public override event RegistrationEvent TypeRegistered
             {
-                add    => Container._root.TypeRegistered += value;
-                remove => Container._root.TypeRegistered -= value;
+                add    => Container.Root.TypeRegistered += value;
+                remove => Container.Root.TypeRegistered -= value;
             }
 
             /// <inheritdoc />
             public override event RegistrationEvent InstanceRegistered
             {
-                add    => Container._root.InstanceRegistered += value;
-                remove => Container._root.InstanceRegistered -= value;
+                add    => Container.Root.InstanceRegistered += value;
+                remove => Container.Root.InstanceRegistered -= value;
             }
 
             /// <inheritdoc />
             public override event RegistrationEvent FactoryRegistered
             {
-                add    => Container._root.FactoryRegistered += value;
-                remove => Container._root.FactoryRegistered -= value;
+                add    => Container.Root.FactoryRegistered += value;
+                remove => Container.Root.FactoryRegistered -= value;
             }
 
             /// <inheritdoc />
             public override event ChildCreatedEvent ChildContainerCreated
             {
-                add    => Container._root.ChildContainerCreated += value;
-                remove => Container._root.ChildContainerCreated -= value;
+                add    => Container.Root.ChildContainerCreated += value;
+                remove => Container.Root.ChildContainerCreated -= value;
             }
 
             #endregion

@@ -38,6 +38,8 @@ namespace Unity.Container
         protected Metadata[] _identityMeta;
         protected Registry[] _registryData;
         protected Identity[] _identityData;
+        protected readonly object _registrySync;
+        protected readonly object _identitySync;
 
         #endregion
 
@@ -47,17 +49,19 @@ namespace Unity.Container
         internal ContainerScope(UnityContainer container, int registry = DEFAULT_REGISTRY_SIZE, 
                                                           int identity = DEFAULT_IDENTITY_SIZE)
         {
-            // Scope specific
-            _lifetimes = new List<IDisposable>();
+            Parent    = container.Parent?._scope;
             Container = container;
-            Parent = container._parent?._scope;
+
+            // Scope specific
+            _registrySync = new object();
+            _identitySync = new object();
+            _lifetimes = new List<IDisposable>();
 
             // Initial size
             _registryPrime = registry;
             _identityPrime = identity;
             
             // Registrations
-
             var size = Prime.Numbers[_registryPrime];
             _registryMeta = new Metadata[size];
             _registryData = new Registry[size];
@@ -98,12 +102,13 @@ namespace Unity.Container
         // Copy constructor
         protected ContainerScope(ContainerScope scope)
         {
-            // Ownership
-            _lifetimes = scope._lifetimes;
-            Parent = scope.Parent;
-            Container = scope.Container;
-
             // Copy data
+            Parent         = scope.Parent;
+            Container      = scope.Container;
+
+            _lifetimes     = scope._lifetimes;
+            _registrySync  = scope._registrySync;
+            _identitySync  = scope._identitySync;
             _identityMax   = scope._identityMax;
             _registryMax   = scope._registryMax;
             _registryData  = scope._registryData;
