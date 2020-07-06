@@ -68,7 +68,7 @@ namespace Unity
         #region Registrations
 
         /// <inheritdoc />
-        public bool IsRegistered(Type type, string? name) => _scope.IsExplicitlyRegistered(type, name);
+        public bool IsRegistered(Type type, string? name) => throw new NotImplementedException();// _scope.IsExplicitlyRegistered(type, name);
 
         /// <inheritdoc />
         public IEnumerable<ContainerRegistration> Registrations => _scope.Registrations;

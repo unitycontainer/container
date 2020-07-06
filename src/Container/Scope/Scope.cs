@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Size = { Count }", Name = "Scope({ Container.Name })")]
+    [DebuggerDisplay("Size = { _registryCount }", Name = "Scope({ Container.Name })")]
     public partial class ContainerScope
     {
         #region Constants

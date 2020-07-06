@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public partial class ContainerScope
     {
-        private int IndexOf(int hashCode, string name)
+        protected int IndexOf(int hashCode, string name)
         {
             var count  = _identityCount;
             var length = _identityMeta.Length;
@@ -53,7 +53,7 @@ namespace Unity.Container
             }
         }
 
-        private void ReplaceManager(ref Registry registry, RegistrationManager manager)
+        protected void ReplaceManager(ref Registry registry, RegistrationManager manager)
         {
             // TODO: Dispose manager
             registry.Manager = manager;
@@ -62,7 +62,7 @@ namespace Unity.Container
 
         #region Expand
 
-        private void ExpandIdentity()
+        protected void ExpandIdentity()
         {
             var size = Prime.Numbers[++_identityPrime];
             _identityMax = (int)(size * LoadFactor);
@@ -78,7 +78,7 @@ namespace Unity.Container
             }
         }
 
-        private void ExpandRegistry()
+        protected void ExpandRegistry()
         {
             var size = Prime.Numbers[++_registryPrime];
             _registryMax = (int)(size * LoadFactor);
@@ -94,7 +94,7 @@ namespace Unity.Container
             }
         }
 
-        private void ExpandRegistry(int required)
+        protected void ExpandRegistry(int required)
         {
             int size;
             
