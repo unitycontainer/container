@@ -5,73 +5,52 @@ namespace Unity.Container
 {
     public partial class ContainerScope
     {
-        #region Register
 
-        public virtual void Register(Type type, RegistrationManager manager)
+        public virtual void Register(ref RegistrationData data)
         {
-            lock (_registrySync)
-            {
-                var hashCode = type.GetHashCode() & HashMask;
-                var targetBucket = hashCode % _registryMeta.Length;
-                for (var i = _registryMeta[targetBucket].Bucket; i > 0; i = _registryMeta[i].Next)
-                {
-                    ref var candidate = ref _registryData[i];
-                    if (candidate.Type != type || null != candidate.Name) continue;
-
-                    ReplaceManager(ref candidate, manager);
-                    return;
-                }
-
-                // Expand if required
-                if (_registryCount >= _registryMax)
-                {
-                    ExpandRegistry();
-                    targetBucket = hashCode % _registryMeta.Length;
-                }
-
-                ref var entry  = ref _registryData[++_registryCount];
-                entry.Type     = type;
-                entry.Name     = null;
-                entry.HashCode = hashCode;
-                entry.Manager  = manager;
-
-                _registryMeta[_registryCount].Next = _registryMeta[targetBucket].Bucket;
-                _registryMeta[targetBucket].Bucket = _registryCount;
-            }
+            if (null == data.Name)
+                RegisterAnonymous(ref data);
+            else
+                RegisterContracts(ref data);
         }
 
-        public virtual void Register(Type[] types, RegistrationManager manager)
+
+        #region Register
+
+        protected virtual void RegisterAnonymous(ref RegistrationData data)
         {
             lock (_registrySync)
             {
                 // Expand if required
-                var required = _registryCount + types.Length;
+                var length   = data.RegisterAs.Length;
+                var required = _registryCount + length;
+
                 if (required >= _registryMax) ExpandRegistry(required);
 
-                for (var index = 0; index < types.Length; index++)
+                for (var index = 0; index < length; index++)
                 {
                     var found = false;
-                    var type = types[index];
+                    var type = data.RegisterAs[index];
                     if (null == type) continue;
                     var hashCode = type.GetHashCode() & HashMask;
                     var targetBucket = hashCode % _registryMeta.Length;
                     for (var i = _registryMeta[targetBucket].Bucket; i > 0; i = _registryMeta[i].Next)
                     {
                         ref var candidate = ref _registryData[i];
-                        if (candidate.Type != type || null != candidate.Name) continue;
+                        if (candidate._type != type || null != candidate.Name) continue;
 
                         found = true;
-                        ReplaceManager(ref candidate, manager);
+                        ReplaceManager(ref candidate, data.Manager);
                         break; 
                     }
 
                     if (!found)
                     { 
                         ref var entry = ref _registryData[++_registryCount];
-                        entry.Type = type;
-                        entry.Name = null;
-                        entry.HashCode = hashCode;
-                        entry.Manager = manager;
+                        entry._type = type;
+                        entry._name = null;
+                        entry._hash = hashCode;
+                        entry._manager = data.Manager;
 
                         _registryMeta[_registryCount].Next = _registryMeta[targetBucket].Bucket;
                         _registryMeta[targetBucket].Bucket = _registryCount;
@@ -80,61 +59,9 @@ namespace Unity.Container
             }
         }
 
-        public virtual void Register(Type type, string name, RegistrationManager manager)
+        protected virtual void RegisterContracts(ref RegistrationData data)
         {
-            var position = 0;
-            var nameHash = name.GetHashCode();
-
-            // Register contract
-            lock (_registrySync)
-            {
-                var hashCode = Registry.GetHashCode(type, nameHash);
-                var targetBucket = hashCode % _registryMeta.Length;
-                for (var i = _registryMeta[targetBucket].Bucket; i > 0; i = _registryMeta[i].Next)
-                {
-                    ref var candidate = ref _registryData[i];
-                    if (candidate.Type != type || candidate.Name != name) continue;
-
-                    ReplaceManager(ref candidate, manager);
-                    return;
-                }
-
-                // Expand if required
-                if (_registryCount >= _registryMax)
-                {
-                    ExpandRegistry();
-                    targetBucket = hashCode % _registryMeta.Length;
-                }
-
-                ref var entry  = ref _registryData[++_registryCount];
-                entry.HashCode = hashCode;
-                entry.Type     = type;
-                entry.Name     = name;
-                entry.Manager  = manager;
-
-                _registryMeta[_registryCount].Next = _registryMeta[targetBucket].Bucket;
-                _registryMeta[targetBucket].Bucket = _registryCount;
-                
-                position = _registryCount;
-            }
-
-            // Add registration for the name element
-            var index = IndexOf(nameHash & HashMask, name);
-            lock (_identityData[index].Name)
-            {
-                var references = _identityData[index].References;
-                var count = references[0];
-
-                if (count + 1 >= references.Length)
-                    Array.Resize(ref references, count + IDENTITY_SIZE);
-
-                references[++count] = position;
-                references[0] = count;
-            }
-        }
-
-        public virtual void Register(Type[] types, string name, RegistrationManager manager)
-        {
+            var name = data.Name!;
             var nameHash = name.GetHashCode();
             var offset = IndexOf(nameHash & HashMask, name);
 
@@ -144,7 +71,8 @@ namespace Unity.Container
 
                 // Expand if required
                 var count = references[0];
-                var required = count + types.Length + 1;
+                var length = data.RegisterAs.Length;
+                var required = count + length + 1;
                 if (required >= references.Length) 
                     Array.Resize(ref references, required + IDENTITY_SIZE);
 
@@ -152,33 +80,33 @@ namespace Unity.Container
                 lock (_registrySync)
                 {
                     // Expand if required
-                    required = _registryCount + types.Length;
+                    required = _registryCount + length;
                     if (required >= _registryMax) ExpandRegistry(required);
 
-                    for (var index = 0; index < types.Length; index++)
+                    for (var index = 0; index < length; index++)
                     {
                         var found = false;
-                        var type = types[index];
+                        var type = data.RegisterAs[index];
                         if (null == type) continue;
                         var hashCode = type.GetHashCode() & HashMask;
                         var targetBucket = hashCode % _registryMeta.Length;
                         for (var i = _registryMeta[targetBucket].Bucket; i > 0; i = _registryMeta[i].Next)
                         {
                             ref var candidate = ref _registryData[i];
-                            if (candidate.Type != type || name != candidate.Name) continue;
+                            if (candidate._type != type || name != candidate.Name) continue;
 
                             found = true;
-                            ReplaceManager(ref candidate, manager);
+                            ReplaceManager(ref candidate, data.Manager);
                             break;
                         }
 
                         if (!found)
                         {
                             ref var entry = ref _registryData[++_registryCount];
-                            entry.Type = type;
-                            entry.Name = name;
-                            entry.HashCode = hashCode;
-                            entry.Manager = manager;
+                            entry._type = type;
+                            entry._name = name;
+                            entry._hash = hashCode;
+                            entry._manager = data.Manager;
 
                             _registryMeta[_registryCount].Next = _registryMeta[targetBucket].Bucket;
                             _registryMeta[targetBucket].Bucket = _registryCount;

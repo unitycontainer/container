@@ -14,7 +14,7 @@ namespace Unity.Container
     /// </remarks>
     public class ContainerLifetimeManager : LifetimeManager
     {
-        internal ContainerLifetimeManager(object? data, RegistrationType type = RegistrationType.Instance)
+        internal ContainerLifetimeManager(object? data, RegistrationType type = RegistrationType.Internal)
         {
             Data = data;
             RegistrationType = type;

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Unity.Lifetime;
 using Unity.Storage;
 
@@ -12,8 +13,29 @@ namespace Unity.Container
         /// <summary>
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
-        public IEnumerable<ContainerRegistration> Registrations => new RegistrationsSet(this);
+        public IEnumerable<ContainerRegistration> Registrations
+        {
+            get
+            {
+                ScopeRegistrations[] registrations = 
+                    Hierarchy().Where(scope => START_DATA <= scope._registryCount)
+                               .Select(scope => new ScopeRegistrations(scope._registryCount, scope._registryData))
+                               .ToArray();
 
+                return new RegistrationsSet((ContainerLifetimeManager)_registryData[START_INDEX]._manager, registrations);
+            }
+        }
+
+        /// <summary>
+        /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
+        /// </summary>
+        protected IEnumerable<ContainerScope> Hierarchy()
+        {
+            for (ContainerScope? scope = this; null != scope; scope = scope.Parent)
+            {
+                yield return scope;
+            }
+        }
 
         /// <summary>
         /// Internal enumerable wrapper
@@ -24,10 +46,13 @@ namespace Unity.Container
             #region Fields
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            private ContainerScope _scope;
+            private int _prime;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            private int _prime;
+            ScopeRegistrations[] _registrations;
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            ContainerLifetimeManager _manager;
 
             #endregion
 
@@ -38,10 +63,11 @@ namespace Unity.Container
             /// Constructor for the enumerator
             /// </summary>
             /// <param name="scope"></param>
-            public RegistrationsSet(ContainerScope scope)
+            public RegistrationsSet(ContainerLifetimeManager manager, ScopeRegistrations[] registrations)
             {
-                _scope = scope;
-                _prime = scope.Container.Root._scope._registryPrime + 1;
+                _manager = manager;
+                _registrations = registrations;
+                _prime = Prime.IndexOf(_registrations.Sum(scope => scope.Data.Length));
             }
 
             #endregion
@@ -55,34 +81,76 @@ namespace Unity.Container
             /// <inheritdoc />
             public IEnumerator<ContainerRegistration> GetEnumerator()
             {
-                var lifetime = (LifetimeManager)_scope._registryData[0].Manager;
-                var set = new QuickSet<Type>(_prime);
+                throw new NotImplementedException();
+                //// Built-in registrations
+                //yield return new ContainerRegistration(typeof(IUnityContainer),      _manager);
+                //yield return new ContainerRegistration(typeof(IServiceProvider),     _manager);
+                //yield return new ContainerRegistration(typeof(IUnityContainerAsync), _manager);
 
-                // Built-in registrations
-                yield return new ContainerRegistration(typeof(IUnityContainer), lifetime);
-                yield return new ContainerRegistration(typeof(IServiceProvider), lifetime);
-                yield return new ContainerRegistration(typeof(IUnityContainerAsync), lifetime);
+                //if (0 == _registrations.Length) yield break;
 
-                // Explicit registrations
-                for (ContainerScope? scope = _scope; null != scope; scope = scope.Parent)
-                {
-                    // Skip if no user registrations
-                    if (START_DATA > scope._registryCount) continue;
+                //var count = 1;
+                //var size = Prime.Numbers[_prime];
+                //Span<SetStruct> set = stackalloc SetStruct[size];
 
-                    // Iterate registrations
-                    for (var i = START_DATA; i <= scope._registryCount; i++)
-                    {
-                        var entry = scope._registryData[i];
+                //// Explicit registrations
+                //for (var level = 0; level < _registrations.Length; level++)
+                //{
+                //    var scope = _registrations[level];
 
-                        if (RegistrationType.Internal == entry.Manager.RegistrationType ||
-                            !set.Add(entry.Type, entry.HashCode)) continue;
+                //    // Iterate registrations
+                //    for (var registration = START_DATA; registration <= scope.Count; registration++)
+                //    {
+                //        // Skip internal registrations
+                //        var manager = scope.Data[registration].Manager;
+                //        if (RegistrationType.Internal == manager.RegistrationType) continue;
 
-                        yield return new ContainerRegistration(entry.Type, entry.Name, (LifetimeManager)entry.Manager);
-                    }
-                }
+                //        var hashCode = scope.Data[registration].HashCode;
+                //        var targetBucket = hashCode % size;
+                //        for (var i = set[targetBucket].Bucket; i > 0; i = set[i].Next)
+                //        {
+                //            //var registry = _registrations[set[i].Registry];
+                //            //var value = registry[set[i].Index];
+
+                //            //var candidate = .Data scope.Data[i];
+                //            //if (candidate.Type != type || candidate.Name != name) continue;
+
+                //            //ReplaceManager(ref candidate, manager);
+                //            //return;
+                //        }
+
+                //        set[count].Registry      = level;
+                //        set[count].Index         = registration;
+                //        set[count].Next          = set[targetBucket].Bucket;
+                //        set[targetBucket].Bucket = count++;
+
+                //        yield return new ContainerRegistration(scope.Data[registration].Type, scope.Data[registration].Name, (LifetimeManager)manager);
+                //    }
+                //}
             }
 
             #endregion
+
+            private struct SetStruct
+            {
+                public int Next;
+                public int Bucket;
+
+                public int Index;
+                public int Registry;
+            }
+        }
+
+        private readonly struct ScopeRegistrations
+        {
+            public readonly int Count;
+            public readonly ContainerRegistration[] Data;
+
+            public ScopeRegistrations(int count, ContainerRegistration[] data)
+            {
+                Count = count;
+                Data = data;
+            }
         }
     }
 }

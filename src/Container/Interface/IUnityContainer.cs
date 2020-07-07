@@ -21,7 +21,16 @@ namespace Unity
 
         public IUnityContainer RegisterType(Type type, string? name, ITypeLifetimeManager manager, params Type[] registerAs)
         {
-            throw new NotImplementedException();
+            var registration = new RegistrationData(type, name, manager, registerAs);
+            
+            // Add to container 
+            var container = manager is SingletonLifetimeManager ? Root : this;
+            container._scope.Register(ref registration);
+
+            // Report registration
+            Root.TypeRegistered?.Invoke(ref registration);
+
+            return this;
         }
 
         #endregion
@@ -31,7 +40,16 @@ namespace Unity
 
         public IUnityContainer RegisterFactory(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs)
         {
-            throw new NotImplementedException();
+            var registration = new RegistrationData(factory, name, manager, registerAs);
+
+            // Add to container 
+            var container = manager is SingletonLifetimeManager ? Root : this;
+            container._scope.Register(ref registration);
+
+            // Report registration
+            Root.FactoryRegistered?.Invoke(ref registration);
+
+            return this;
         }
 
 
@@ -42,7 +60,16 @@ namespace Unity
 
         public IUnityContainer RegisterInstance(object? instance, string? name, IInstanceLifetimeManager manager, params Type[] registerAs)
         {
-            throw new NotImplementedException();
+            var registration = new RegistrationData(instance, name, manager, registerAs);
+
+            // Add to container 
+            var container = manager is SingletonLifetimeManager ? Root : this;
+            container._scope.Register(ref registration);
+
+            // Report registration
+            Root.InstanceRegistered?.Invoke(ref registration);
+
+            return this;
         }
 
         #endregion

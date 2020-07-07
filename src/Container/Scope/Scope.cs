@@ -30,14 +30,13 @@ namespace Unity.Container
 
         protected int _identityMax;
         protected int _registryMax;
-        protected int _registryPrime;
         protected int _identityPrime;
         protected int _identityCount;
         protected int _registryCount;
-        protected Metadata[] _registryMeta;
         protected Metadata[] _identityMeta;
-        protected Registry[] _registryData;
-        protected Identity[] _identityData;
+        protected Metadata[] _registryMeta;
+        protected RegistrationContract[]  _identityData;
+        protected ContainerRegistration[] _registryData;
         protected readonly object _registrySync;
         protected readonly object _identitySync;
 
@@ -58,18 +57,17 @@ namespace Unity.Container
             _lifetimes = new List<IDisposable>();
 
             // Initial size
-            _registryPrime = registry;
             _identityPrime = identity;
             
             // Registrations
-            var size = Prime.Numbers[_registryPrime];
+            var size = Prime.Numbers[registry];
             _registryMeta = new Metadata[size];
-            _registryData = new Registry[size];
+            _registryData = new ContainerRegistration[size];
             _registryMax  = (int)(size * LoadFactor);
 
             size = Prime.Numbers[_identityPrime];
             _identityMeta = new Metadata[size];
-            _identityData = new Identity[size];
+            _identityData = new RegistrationContract[size];
             _identityMax  = (int)(size * LoadFactor);
 
             // Add Interface registrations
@@ -78,22 +76,26 @@ namespace Unity.Container
             ref var two   = ref _registryData[_registryCount++];
             ref var three = ref _registryData[_registryCount];
 
-            zero.Type = typeof(UnityContainer);
-            zero.Manager = new ContainerLifetimeManager(Container);
-            one.Manager = zero.Manager;
-            one.Type = typeof(IUnityContainer);
-            one.HashCode = one.GetHashCode();
-            two.Manager = one.Manager;
-            two.Type = typeof(IUnityContainerAsync);
-            two.HashCode = two.GetHashCode();
-            three.Manager = two.Manager;
-            three.Type = typeof(IServiceProvider);
-            three.HashCode = three.GetHashCode();
+            // Setup Local registrations
+            zero._type = typeof(UnityContainer);
+            zero._manager = new ContainerLifetimeManager(Container);
+
+            one._manager = zero._manager;
+            one._type = typeof(IUnityContainer);
+            one._hash = one.GetHashCode();
+
+            two._manager = one._manager;
+            two._type = typeof(IUnityContainerAsync);
+            two._hash = two.GetHashCode();
+
+            three._manager = two._manager;
+            three._type = typeof(IServiceProvider);
+            three._hash = three.GetHashCode();
 
             // Rebuild Metadata
             for (var index = START_INDEX; index <= _registryCount; index++)
             {
-                var bucket = _registryData[index].HashCode % size;
+                var bucket = _registryData[index]._hash % size;
                 _registryMeta[index].Next = _registryMeta[bucket].Bucket;
                 _registryMeta[bucket].Bucket = index;
             }
@@ -115,7 +117,6 @@ namespace Unity.Container
             _identityData  = scope._identityData;
             _registryMeta  = scope._registryMeta;
             _identityMeta  = scope._identityMeta;
-            _registryPrime = scope._registryPrime;
             _identityPrime = scope._identityPrime;
             _registryCount = scope._registryCount;
             _identityCount = scope._identityCount;

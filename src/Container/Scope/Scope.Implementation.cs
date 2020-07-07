@@ -53,10 +53,10 @@ namespace Unity.Container
             }
         }
 
-        protected void ReplaceManager(ref Registry registry, RegistrationManager manager)
+        protected void ReplaceManager(ref ContainerRegistration registry, RegistrationManager manager)
         {
             // TODO: Dispose manager
-            registry.Manager = manager;
+            registry._manager = manager;
         
         }
 
@@ -78,41 +78,21 @@ namespace Unity.Container
             }
         }
 
-        protected void ExpandRegistry()
+        protected void ExpandRegistry(int required)
         {
-            var size = Prime.Numbers[++_registryPrime];
+            var index = Prime.IndexOf((int)(required / LoadFactor));
+            int size  = Prime.Numbers[index];
+
             _registryMax = (int)(size * LoadFactor);
 
             Array.Resize(ref _registryData, size);
             _registryMeta = new Metadata[size];
 
-            for (var index = START_INDEX; index <= _registryCount; index++)
+            for (var i = START_INDEX; i <= _registryCount; i++)
             {
-                var bucket = _registryData[index].HashCode % size;
-                _registryMeta[index].Next = _registryMeta[bucket].Bucket;
-                _registryMeta[bucket].Bucket = index;
-            }
-        }
-
-        protected void ExpandRegistry(int required)
-        {
-            int size;
-            
-            do
-            {
-                size = Prime.Numbers[++_registryPrime];
-                _registryMax = (int)(size * LoadFactor);
-            }
-            while (_registryMax <= required);
-
-            Array.Resize(ref _registryData, size);
-            _registryMeta = new Metadata[size];
-
-            for (var index = START_INDEX; index <= _registryCount; index++)
-            {
-                var bucket = _registryData[index].HashCode % size;
-                _registryMeta[index].Next = _registryMeta[bucket].Bucket;
-                _registryMeta[bucket].Bucket = index;
+                var bucket = (_registryData[i]._hash & HashMask) % size;
+                _registryMeta[i].Next = _registryMeta[bucket].Bucket;
+                _registryMeta[bucket].Bucket = i;
             }
         }
 
@@ -121,44 +101,8 @@ namespace Unity.Container
 
         #region Nested Types
 
-        [DebuggerDisplay("{ (null == Type ? string.Empty : Name),nq }", Name = "{ (Type?.Name ?? string.Empty),nq }")]
-        public struct Registry
-        {
-            public int HashCode;
-            public Type Type;
-            public string? Name;
-            public RegistrationManager Manager;
-
-            public override int GetHashCode()
-            {
-                var hashCode = null == Name
-                    ? Type.GetHashCode()
-                    : (Type.GetHashCode() ^ (Name.GetHashCode() + 17));
-
-                return hashCode & HashMask;
-            }
-
-            public static int GetHashCode(Type type, int code)
-            {
-                var hashCode = 0 == code
-                    ? type.GetHashCode()
-                    : (type.GetHashCode() ^ (code + 17));
-
-                return hashCode & HashMask;
-            }
-
-            public static int GetHashCode(Type type, string? name)
-            {
-                var hashCode = null == name
-                    ? type.GetHashCode()
-                    : (type.GetHashCode() ^ (name.GetHashCode() + 17));
-
-                return hashCode & HashMask;
-            }
-        }
-
         [DebuggerDisplay("Count = {Count}", Name = "{ Name,nq }")]
-        public struct Identity
+        public struct RegistrationContract
         {
             public string Name;
             public int HashCode;

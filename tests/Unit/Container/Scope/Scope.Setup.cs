@@ -44,9 +44,9 @@ namespace Container.Scope
             Assert.AreEqual(StartPosition - 1, Scope.RegistryCount);
 
             Assert.AreSame(Container, Scope.Container);
-            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].Type);
-            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].Type);
-            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].Type);
+            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].RegisteredType);
+            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].RegisteredType);
+            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].RegisteredType);
         }
     }
 
@@ -59,7 +59,6 @@ namespace Container.Scope
         public int RegistryMax => _registryMax;
 
         public int IdentityPrime => _identityPrime;
-        public int RegistryPrime => _registryPrime;
 
         public int IdentityCount => _identityCount;
         public int RegistryCount => _registryCount;
@@ -70,7 +69,7 @@ namespace Container.Scope
         public Metadata[] IdentityMeta => _identityMeta;
         public Metadata[] RegistryMeta => _registryMeta;
 
-        public Identity[] IdentityData => _identityData;
-        public Registry[] RegistryData => _registryData;
+        public RegistrationContract[] IdentityData => _identityData;
+        public ContainerRegistration[] RegistryData => _registryData;
     }
 }
