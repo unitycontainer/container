@@ -22,7 +22,7 @@ namespace Unity.Container
                                .Select(scope => new ScopeRegistrations(scope._registryCount, scope._registryData))
                                .ToArray();
 
-                return new RegistrationsSet((ContainerLifetimeManager)_registryData[START_INDEX]._manager, registrations);
+                return new RegistrationsSet((ContainerLifetimeManager)_registryData[START_INDEX].Manager, registrations);
             }
         }
 
@@ -144,9 +144,9 @@ namespace Unity.Container
         private readonly struct ScopeRegistrations
         {
             public readonly int Count;
-            public readonly ContainerRegistration[] Data;
+            public readonly Registry[] Data;
 
-            public ScopeRegistrations(int count, ContainerRegistration[] data)
+            public ScopeRegistrations(int count, Registry[] data)
             {
                 Count = count;
                 Data = data;

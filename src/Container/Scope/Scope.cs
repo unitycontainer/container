@@ -11,7 +11,6 @@ namespace Unity.Container
         #region Constants
 
         protected const float LoadFactor = 0.72f;
-        private   const int   HashMask   = unchecked((int)(uint.MaxValue >> 1));
 
         protected const int START_DATA  = 4;
         protected const int START_INDEX = 1;
@@ -35,8 +34,8 @@ namespace Unity.Container
         protected int _registryCount;
         protected Metadata[] _identityMeta;
         protected Metadata[] _registryMeta;
-        protected RegistrationContract[]  _identityData;
-        protected ContainerRegistration[] _registryData;
+        protected Identity[] _identityData;
+        protected Registry[] _registryData;
         protected readonly object _registrySync;
         protected readonly object _identitySync;
 
@@ -62,12 +61,12 @@ namespace Unity.Container
             // Registrations
             var size = Prime.Numbers[registry];
             _registryMeta = new Metadata[size];
-            _registryData = new ContainerRegistration[size];
+            _registryData = new Registry[size];
             _registryMax  = (int)(size * LoadFactor);
 
             size = Prime.Numbers[_identityPrime];
             _identityMeta = new Metadata[size];
-            _identityData = new RegistrationContract[size];
+            _identityData = new Identity[size];
             _identityMax  = (int)(size * LoadFactor);
 
             // Add Interface registrations
@@ -77,25 +76,25 @@ namespace Unity.Container
             ref var three = ref _registryData[_registryCount];
 
             // Setup Local registrations
-            zero._type = typeof(UnityContainer);
-            zero._manager = new ContainerLifetimeManager(Container);
+            zero.Type = typeof(UnityContainer);
+            zero.Manager = new ContainerLifetimeManager(Container);
 
-            one._manager = zero._manager;
-            one._type = typeof(IUnityContainer);
-            one._hash = one.GetHashCode();
+            one.Manager = zero.Manager;
+            one.Type = typeof(IUnityContainer);
+            one.Hash = (uint)one.GetHashCode();
 
-            two._manager = one._manager;
-            two._type = typeof(IUnityContainerAsync);
-            two._hash = two.GetHashCode();
+            two.Manager = one.Manager;
+            two.Type = typeof(IUnityContainerAsync);
+            two.Hash = (uint)two.GetHashCode();
 
-            three._manager = two._manager;
-            three._type = typeof(IServiceProvider);
-            three._hash = three.GetHashCode();
+            three.Manager = two.Manager;
+            three.Type = typeof(IServiceProvider);
+            three.Hash = (uint)three.GetHashCode();
 
             // Rebuild Metadata
             for (var index = START_INDEX; index <= _registryCount; index++)
             {
-                var bucket = _registryData[index]._hash % size;
+                var bucket = _registryData[index].Hash % size;
                 _registryMeta[index].Next = _registryMeta[bucket].Bucket;
                 _registryMeta[bucket].Bucket = index;
             }
@@ -136,6 +135,19 @@ namespace Unity.Container
         /// Owner container
         /// </summary>
         public readonly UnityContainer Container;
+
+        #endregion
+
+
+        #region Registration
+
+        public virtual void Register(ref RegistrationData data)
+        {
+            if (null == data.Name)
+                RegisterAnonymous(ref data);
+            else
+                RegisterContracts(ref data);
+        }
 
         #endregion
 

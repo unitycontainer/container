@@ -1,9 +1,12 @@
-﻿namespace Unity.Storage
+﻿using System.Diagnostics;
+
+namespace Unity.Storage
 {
 
     /// <summary>
     /// Internal metadata structure for hash sets and lists
     /// </summary>
+    [DebuggerDisplay("Bucket = {Bucket}, Next = {Next}")]
     public struct Metadata
     {
         /// <summary>

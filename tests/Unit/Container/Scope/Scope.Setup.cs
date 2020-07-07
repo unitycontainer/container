@@ -44,9 +44,9 @@ namespace Container.Scope
             Assert.AreEqual(StartPosition - 1, Scope.RegistryCount);
 
             Assert.AreSame(Container, Scope.Container);
-            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].RegisteredType);
-            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].RegisteredType);
-            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].RegisteredType);
+            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].Type);
+            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].Type);
+            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].Type);
         }
     }
 
@@ -69,7 +69,7 @@ namespace Container.Scope
         public Metadata[] IdentityMeta => _identityMeta;
         public Metadata[] RegistryMeta => _registryMeta;
 
-        public RegistrationContract[] IdentityData => _identityData;
-        public ContainerRegistration[] RegistryData => _registryData;
+        public Identity[] IdentityData => _identityData;
+        public Registry[] RegistryData => _registryData;
     }
 }
