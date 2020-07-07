@@ -8,14 +8,33 @@ namespace Unity
     /// <summary>
     /// Information about the type registered in a container.
     /// </summary>
-    [DebuggerDisplay("Name = { Name }", Name = "{ RegisteredType.Name,nq }")]
-    public readonly struct ContainerRegistration : IContainerRegistration
+    [DebuggerDisplay("Name = {  Name }", Name = "{ (RegisteredType?.Name ?? string.Empty),nq }")]
+    public struct ContainerRegistration : IContainerRegistration
     {
-        public Type RegisteredType { get; }
+        #region Fields
 
-        public string? Name { get; }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal int _hash;
 
-        public LifetimeManager LifetimeManager { get; }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal Type _type;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal string? _name;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal RegistrationManager _manager;
+
+        #endregion
+
+
+        #region IContainerRegistration
+
+        public Type RegisteredType => _type;
+
+        public string? Name => _name;
+
+        public LifetimeManager LifetimeManager => (LifetimeManager)_manager;
 
         public Type? MappedToType =>
             RegistrationType.Type == LifetimeManager?.RegistrationType
@@ -32,21 +51,25 @@ namespace Unity
                 ? (ResolveDelegate<IResolveContext>?)LifetimeManager.Data
                 : null;
 
+        #endregion
 
-        #region Constructors
 
-        public ContainerRegistration(Type type, LifetimeManager manager)
+        #region Implementation
+
+        public override int GetHashCode()
         {
-            Name = null;
-            RegisteredType = type;
-            LifetimeManager = manager;
+            return null == _name
+                ? _type.GetHashCode()
+                : _type.GetHashCode() ^ (_name.GetHashCode() * 17);
+
         }
 
-        public ContainerRegistration(Type type, string? name, LifetimeManager manager)
+        public static int GetHashCode(Type type, string? name)
         {
-            Name            = name;
-            RegisteredType  = type;
-            LifetimeManager = manager;
+            return null == name
+                ? type.GetHashCode()
+                : type.GetHashCode() ^ (name.GetHashCode() * 17);
+
         }
 
         #endregion
