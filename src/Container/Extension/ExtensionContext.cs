@@ -63,19 +63,9 @@ namespace Unity.Extension
         #region Events
 
         /// <summary>
-        /// This event is raised when new <see cref="Type"/> is registered.
+        /// This event is raised every new registration
         /// </summary>
-        public abstract event RegistrationEvent TypeRegistered;
-
-        /// <summary>
-        /// This event is raised when new instance is registered.
-        /// </summary>
-        public abstract event RegistrationEvent InstanceRegistered;
-
-        /// <summary>
-        /// This event is raised when new instance is registered.
-        /// </summary>
-        public abstract event RegistrationEvent FactoryRegistered;
+        public abstract event RegistrationEvent Registering;
 
         /// <summary>
         /// This event is raised when the <see cref="IUnityContainer.CreateChildContainer"/> 

@@ -8,16 +8,16 @@ namespace Container.Extending
     [TestClass]
     public partial class ExtensionContextTests
     {
-        ExtensionContext context;   
-        UnityContainer container;
+        ExtensionContext Context;   
+        UnityContainer Container;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            container = new UnityContainer();
+            Container = new UnityContainer();
             var mock = new MockContainerExtension();
-            container.AddExtension(mock);
-            context = mock.ExtensionContext;
+            Container.AddExtension(mock);
+            Context = mock.ExtensionContext;
         }
 
         [TestMethod]
@@ -35,17 +35,16 @@ namespace Container.Extending
         public void ContainerTest()
         {
             // Validate
-            Assert.IsNotNull(context.Container);
-            Assert.IsInstanceOfType(context.Container, typeof(UnityContainer));
+            Assert.IsNotNull(Context.Container);
+            Assert.IsInstanceOfType(Context.Container, typeof(UnityContainer));
         }
 
         [TestMethod]
         public void PoliciesTest()
         {
             // Validate
-            Assert.IsNotNull(context.Policies);
-            Assert.IsInstanceOfType(context.Policies, typeof(IPolicyList));
+            Assert.IsNotNull(Context.Policies);
+            Assert.IsInstanceOfType(Context.Policies, typeof(IPolicyList));
         }
-
     }
 }

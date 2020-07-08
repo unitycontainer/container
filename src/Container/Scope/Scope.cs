@@ -13,6 +13,7 @@ namespace Unity.Container
         protected const float LoadFactor = 0.72f;
 
         protected const int START_DATA  = 4;
+        protected const int START_COUNT = 3;
         protected const int START_INDEX = 1;
         protected const int IDENTITY_SIZE = 3; 
         protected const int DEFAULT_REGISTRY_SIZE = 1;
@@ -120,47 +121,6 @@ namespace Unity.Container
             _registryCount = scope._registryCount;
             _identityCount = scope._identityCount;
         }
-
-        #endregion
-
-
-        #region Public Members
-
-        /// <summary>
-        /// Parent scope
-        /// </summary>
-        public readonly ContainerScope? Parent;
-
-        /// <summary>
-        /// Owner container
-        /// </summary>
-        public readonly UnityContainer Container;
-
-        #endregion
-
-
-        #region Registration
-
-        public virtual void Register(ref RegistrationData data)
-        {
-            if (null == data.Name)
-                RegisterAnonymous(ref data);
-            else
-                RegisterContracts(ref data);
-        }
-
-        #endregion
-
-
-        #region Child Scope
-
-        /// <summary>
-        /// Creates new scope for child container
-        /// </summary>
-        /// <param name="container"><see cref="UnityContainer"/> that owns the scope</param>
-        /// <returns>New scope associated with the container</returns>
-        public virtual ContainerScope CreateChildScope(UnityContainer container)
-            => new ContainerScope(container);
 
         #endregion
     }

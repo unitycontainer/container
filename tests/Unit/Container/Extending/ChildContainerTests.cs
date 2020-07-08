@@ -23,6 +23,7 @@ namespace Container.Extending
             var extension = new SubscriberExtension();
             var level_two = Container.CreateChildContainer()
                                      .AddExtension(extension);
+            // Validate
             Assert.IsNull(extension.ChildContext);
 
             // Act

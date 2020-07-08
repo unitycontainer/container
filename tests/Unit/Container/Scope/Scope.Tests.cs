@@ -77,7 +77,6 @@ namespace Container.Scope
             Assert.AreSame(manager2, Scope.RegistryData[StartPosition].Manager);
         }
 
-
         [TestMethod]
         public void RegisterTypesCollisionTest()
         {

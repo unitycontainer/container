@@ -15,11 +15,42 @@ namespace Unity
         #region Fields
 
         private PrivateExtensionContext? _context;
-        private event RegistrationEvent? TypeRegistered;
-        private event RegistrationEvent? InstanceRegistered;
-        private event RegistrationEvent? FactoryRegistered;
-        private event ChildCreatedEvent? ChildContainerCreated;
+        private event RegistrationEvent? _registering;
+        private event ChildCreatedEvent? _childContainerCreated;
         private List<IUnityContainerExtensionConfigurator>? _extensions;
+
+        #endregion
+
+
+        #region Events
+
+        protected event RegistrationEvent Registering
+        {
+            add 
+            { 
+                if (null == _registering && null != Parent)
+                    Parent.Registering += OnParentRegistering;
+
+                _registering += value; 
+            }
+
+            remove 
+            { 
+                _registering -= value;
+
+                if (null == _registering && null != Parent)
+                    Parent.Registering -= OnParentRegistering;
+            }
+        }
+
+        private void OnParentRegistering(ref RegistrationData registration) 
+            => _registering?.Invoke(ref registration);
+
+        protected event ChildCreatedEvent ChildContainerCreated
+        {
+            add => _childContainerCreated += value;
+            remove => _childContainerCreated -= value;
+        }
 
         #endregion
 
@@ -120,31 +151,17 @@ namespace Unity
             #region Events
 
             /// <inheritdoc />
-            public override event RegistrationEvent TypeRegistered
+            public override event RegistrationEvent Registering
             {
-                add    => Container.Root.TypeRegistered += value;
-                remove => Container.Root.TypeRegistered -= value;
-            }
-
-            /// <inheritdoc />
-            public override event RegistrationEvent InstanceRegistered
-            {
-                add    => Container.Root.InstanceRegistered += value;
-                remove => Container.Root.InstanceRegistered -= value;
-            }
-
-            /// <inheritdoc />
-            public override event RegistrationEvent FactoryRegistered
-            {
-                add    => Container.Root.FactoryRegistered += value;
-                remove => Container.Root.FactoryRegistered -= value;
+                add    => Container.Registering += value;
+                remove => Container.Registering -= value;
             }
 
             /// <inheritdoc />
             public override event ChildCreatedEvent ChildContainerCreated
             {
-                add    => Container.Root.ChildContainerCreated += value;
-                remove => Container.Root.ChildContainerCreated -= value;
+                add    => Container.ChildContainerCreated += value;
+                remove => Container.ChildContainerCreated -= value;
             }
 
             #endregion

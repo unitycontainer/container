@@ -77,6 +77,8 @@ namespace Unity
 
         public void Dispose()
         {
+            //Parent.Registering -= OnParentRegistering;
+
             throw new NotImplementedException();
         }
 

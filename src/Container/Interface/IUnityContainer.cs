@@ -28,7 +28,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            Root.TypeRegistered?.Invoke(ref registration);
+            _registering?.Invoke(ref registration);
 
             return this;
         }
@@ -47,7 +47,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            Root.FactoryRegistered?.Invoke(ref registration);
+            _registering?.Invoke(ref registration);
 
             return this;
         }
@@ -67,7 +67,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            Root.InstanceRegistered?.Invoke(ref registration);
+            _registering?.Invoke(ref registration);
 
             return this;
         }
@@ -88,17 +88,6 @@ namespace Unity
         {
             throw new NotImplementedException();
         }
-
-        #endregion
-
-
-        #region Registrations
-
-        /// <inheritdoc />
-        public bool IsRegistered(Type type, string? name) => throw new NotImplementedException();// _scope.IsExplicitlyRegistered(type, name);
-
-        /// <inheritdoc />
-        public IEnumerable<ContainerRegistration> Registrations => _scope.Registrations;
 
         #endregion
 

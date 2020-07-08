@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Unity.Lifetime;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -17,12 +15,9 @@ namespace Unity.Container
         {
             get
             {
-                ScopeRegistrations[] registrations = 
-                    Hierarchy().Where(scope => START_DATA <= scope._registryCount)
-                               .Select(scope => new ScopeRegistrations(scope._registryCount, scope._registryData))
-                               .ToArray();
-
-                return new RegistrationsSet((ContainerLifetimeManager)_registryData[START_INDEX].Manager, registrations);
+                return (null == Parent) 
+                    ? (IEnumerable<ContainerRegistration>)new RootRegistrationsEnumerator(this)
+                    : new ChildRegistrationsEnumerator(this);
             }
         }
 
@@ -37,22 +32,91 @@ namespace Unity.Container
             }
         }
 
+
+        #region Root Scope Enumerator
+
         /// <summary>
-        /// Internal enumerable wrapper
+        /// Root container enumerable wrapper
         /// </summary>
         [DebuggerDisplay("Registrations")]
-        private class RegistrationsSet : IEnumerable<ContainerRegistration>
+        private class RootRegistrationsEnumerator : IEnumerable<ContainerRegistration>
         {
             #region Fields
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            private int _prime;
+            protected int _length;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            ScopeRegistrations[] _registrations;
+            protected Identity[] _identity;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            ContainerLifetimeManager _manager;
+            protected Registry[] _registry;
+
+            #endregion
+
+
+            #region Constructor
+
+            public RootRegistrationsEnumerator(ContainerScope root)
+            {
+                _length   = root._registryCount;
+                _identity = root._identityData;
+                _registry = root._registryData;
+            }
+
+            #endregion
+
+
+            #region IEnumerable
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public IEnumerator<ContainerRegistration> GetEnumerator()
+            {
+                ContainerRegistration registration = new ContainerRegistration();
+
+                for (var i = START_INDEX; i <= _length; i++)
+                {
+                    var manager = _registry[i].Manager;
+                    
+                    if (RegistrationType.Internal == manager.RegistrationType) 
+                        continue;
+
+                    registration._type = _registry[i].Type;
+                    registration._manager = manager;
+                    registration._name = _identity[_registry[i].Identity].Name;
+
+                    yield return registration;
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+
+        #region Child Scope Enumerator
+
+        /// <summary>
+        /// Internal enumerable wrapper
+        /// </summary>
+        [DebuggerDisplay("Registrations")]
+        private class ChildRegistrationsEnumerator : IEnumerable<ContainerRegistration>
+        {
+            #region Fields
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            private readonly int _prime;
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            readonly ScopeData[] _registrations;
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            readonly ContainerScope _scope;
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            SetsData[]? _cache;
 
             #endregion
 
@@ -63,11 +127,16 @@ namespace Unity.Container
             /// Constructor for the enumerator
             /// </summary>
             /// <param name="scope"></param>
-            public RegistrationsSet(ContainerLifetimeManager manager, ScopeRegistrations[] registrations)
+            public ChildRegistrationsEnumerator(ContainerScope scope)
             {
-                _manager = manager;
-                _registrations = registrations;
-                _prime = Prime.IndexOf(_registrations.Sum(scope => scope.Data.Length));
+                _registrations = scope
+                    .Hierarchy()
+                    .Where(scope => START_COUNT < scope._registryCount)
+                    .Select(scope => new ScopeData(scope._registryCount, scope._registryData, scope._identityData))
+                    .ToArray();
+
+                _scope = scope;
+                _prime = Prime.IndexOf(_registrations.Sum(scope => scope.Count - START_COUNT) + 1);
             }
 
             #endregion
@@ -81,76 +150,127 @@ namespace Unity.Container
             /// <inheritdoc />
             public IEnumerator<ContainerRegistration> GetEnumerator()
             {
-                throw new NotImplementedException();
-                //// Built-in registrations
-                //yield return new ContainerRegistration(typeof(IUnityContainer),      _manager);
-                //yield return new ContainerRegistration(typeof(IServiceProvider),     _manager);
-                //yield return new ContainerRegistration(typeof(IUnityContainerAsync), _manager);
+                ContainerRegistration registration = new ContainerRegistration();
 
-                //if (0 == _registrations.Length) yield break;
+                // Built-in types
+                for(var i = START_INDEX; i <= START_COUNT; i++)
+                {
+                    registration._type    = _scope._registryData[i].Type;
+                    registration._manager = _scope._registryData[i].Manager;
+                    
+                    yield return registration;
+                };
 
-                //var count = 1;
-                //var size = Prime.Numbers[_prime];
-                //Span<SetStruct> set = stackalloc SetStruct[size];
+                if (null == _cache)
+                {
+                    if (0 == _registrations.Length) yield break;
 
-                //// Explicit registrations
-                //for (var level = 0; level < _registrations.Length; level++)
-                //{
-                //    var scope = _registrations[level];
+                    //var count = 1;
+                    var size = Prime.Numbers[_prime];
 
-                //    // Iterate registrations
-                //    for (var registration = START_DATA; registration <= scope.Count; registration++)
-                //    {
-                //        // Skip internal registrations
-                //        var manager = scope.Data[registration].Manager;
-                //        if (RegistrationType.Internal == manager.RegistrationType) continue;
+                    var meta = new Metadata[size];
+                    var data = new SetsData[size];
 
-                //        var hashCode = scope.Data[registration].HashCode;
-                //        var targetBucket = hashCode % size;
-                //        for (var i = set[targetBucket].Bucket; i > 0; i = set[i].Next)
-                //        {
-                //            //var registry = _registrations[set[i].Registry];
-                //            //var value = registry[set[i].Index];
+                    // Explicit registrations
+                    for (var level = 0; level < _registrations.Length; level++)
+                    {
+                        var length = _registrations[level].Count;
+                        var registry = _registrations[level].Registry;
 
-                //            //var candidate = .Data scope.Data[i];
-                //            //if (candidate.Type != type || candidate.Name != name) continue;
+                        // Iterate registrations at this level
+                        for (var index = START_DATA; index <= length; index++)
+                        {
+                            var contract = registry[index];
 
-                //            //ReplaceManager(ref candidate, manager);
-                //            //return;
-                //        }
+                            // Skip internal registrations
+                            if (RegistrationType.Internal == contract.Manager.RegistrationType) 
+                                continue;
 
-                //        set[count].Registry      = level;
-                //        set[count].Index         = registration;
-                //        set[count].Next          = set[targetBucket].Bucket;
-                //        set[targetBucket].Bucket = count++;
+                            // Check if already served
+                            var targetBucket = contract.Hash % size;
+                            var position = meta[targetBucket].Bucket;
+                            var location = data[position].Registry;
 
-                //        yield return new ContainerRegistration(scope.Data[registration].Type, scope.Data[registration].Name, (LifetimeManager)manager);
-                //    }
-                //}
+                            while (position > 0)
+                            {
+                                var entry = _registrations[location].Registry[data[position].Index];
+
+                                if (contract.Type == entry.Type && 
+                                    contract.Identity == entry.Identity) break;
+
+                                position = meta[position].Next;
+                            }
+
+                            // Add new registration
+                            if (0 == position)
+                            {
+                                var count = data[0].Index + 1;
+                                data[0].Index = count;
+
+                                data[count].Registry = level;
+                                data[count].Index = index;
+                                data[0].Index = count;
+
+                                meta[count].Next = meta[targetBucket].Bucket;
+                                meta[targetBucket].Bucket = count;
+
+                                registration._type    = contract.Type;
+                                registration._name    = _registrations[location].Identity[contract.Identity].Name;
+                                registration._manager = contract.Manager;
+
+                                yield return registration;
+                            }
+                        }
+                    }
+
+                    _cache = data;
+                }
+                else
+                {
+                    var length = _cache[0].Index;
+                    for (var i = START_INDEX; i <= length; i++)
+                    {
+                        var index    = _cache[i].Index;
+                        var offset   = _cache[i].Registry;
+                        var registry = _registrations[offset].Registry;
+                        var metadata = _registrations[offset].Identity;
+                        var identity = registry[index].Identity;
+
+                        registration._type    = registry[index].Type;
+                        registration._manager = registry[index].Manager;
+                        registration._name    = metadata[identity].Name;
+
+                        yield return registration;
+                    }
+                }
             }
 
             #endregion
 
-            private struct SetStruct
+            [DebuggerDisplay("Registry = {Registry}, Index = {Index}")]
+            private struct SetsData
             {
-                public int Next;
-                public int Bucket;
-
                 public int Index;
                 public int Registry;
             }
-        }
 
-        private readonly struct ScopeRegistrations
-        {
-            public readonly int Count;
-            public readonly Registry[] Data;
-
-            public ScopeRegistrations(int count, Registry[] data)
+            [DebuggerDisplay("Count = {Count}")]
+            private readonly struct ScopeData
             {
-                Count = count;
-                Data = data;
+                public readonly int        Count;
+                public readonly Registry[] Registry;
+                public readonly Identity[] Identity;
+
+                public ScopeData(int count, Registry[] registry, Identity[] identity)
+                {
+                    Count    = count;
+                    Registry = registry;
+                    Identity = identity;
+                }
             }
+
         }
+
+        #endregion
     }
 }
