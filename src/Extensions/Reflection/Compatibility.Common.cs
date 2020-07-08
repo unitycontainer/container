@@ -25,7 +25,6 @@ namespace Unity
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEnum(this Type type) => type.IsEnum;
-
 #endif
         #endregion
 

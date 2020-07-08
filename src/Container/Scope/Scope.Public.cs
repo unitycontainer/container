@@ -27,9 +27,9 @@ namespace Unity.Container
 
             do
             {
-                var hash = (uint)type.GetHashCode();
-                var targetBucket = hash % scope._registryMeta.Length;
-                var position = scope._registryMeta[targetBucket].Bucket;
+                var bucket = (uint)type.GetHashCode() % scope._registryMeta.Length;
+                var position = scope._registryMeta[bucket].Position;
+
                 while (position > 0)
                 {
                     ref var candidate = ref scope._registryData[position];
@@ -50,25 +50,17 @@ namespace Unity.Container
 
             do
             {
-                var targetBucket = (uint)name.GetHashCode() % scope._identityMeta.Length;
-                var identity = scope._identityMeta[targetBucket].Bucket;
+                if (0 == scope._contractCount) continue;
 
-                while (identity > 0)
-                {
-                    if (scope._identityData[identity].Name == name) break;
-                    identity = scope._identityMeta[identity].Next;
-                }
+                var hash = type.GetHashCode(name);
+                var bucket = hash % scope._registryMeta.Length;
+                var position = scope._registryMeta[bucket].Position;
 
-                if (0 == identity) continue;
-
-                var hash = ((uint)type.GetHashCode()) ^ scope._identityData[identity].Hash;
-                targetBucket = hash % scope._registryMeta.Length;
-                var position = scope._registryMeta[targetBucket].Bucket;
                 while (position > 0)
                 {
                     ref var candidate = ref scope._registryData[position];
-                    if (candidate.Identity == identity &&
-                        candidate.Type == type) return true;
+                    if (candidate.Type == type && name == scope._contractData[candidate.Identity].Name) 
+                        return true;
 
                     position = scope._registryMeta[position].Next;
                 }

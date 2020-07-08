@@ -52,7 +52,7 @@ namespace Unity.Storage
         ///<inheritdoc/>
         public virtual void Clear(Type? type, Type policy)
         {
-            for (var i = _metadata[HashCode(type, policy) % _metadata.Length].Bucket; i > 0; i = _metadata[i].Next)
+            for (var i = _metadata[HashCode(type, policy) % _metadata.Length].Position; i > 0; i = _metadata[i].Next)
             {
                 ref var candidate = ref _policies[i];
                 if (candidate.Type != type || candidate.Policy != policy) continue;
@@ -65,7 +65,7 @@ namespace Unity.Storage
         ///<inheritdoc/>
         public virtual object? Get(Type? type, Type policy)
         {
-            for (var i = _metadata[HashCode(type, policy) % _metadata.Length].Bucket; i > 0; i = _metadata[i].Next)
+            for (var i = _metadata[HashCode(type, policy) % _metadata.Length].Position; i > 0; i = _metadata[i].Next)
             {
                 ref var candidate = ref _policies[i];
                 if (candidate.Type != type || candidate.Policy != policy) continue;
@@ -81,7 +81,7 @@ namespace Unity.Storage
         {
             var hashCode = HashCode(type, policy);
             var targetBucket = hashCode % _metadata.Length;
-            for (var i = _metadata[targetBucket].Bucket; i > 0; i = _metadata[i].Next)
+            for (var i = _metadata[targetBucket].Position; i > 0; i = _metadata[i].Next)
             {
                 ref var candidate = ref _policies[i];
                 if (candidate.Type != type || candidate.Policy != policy) continue;
@@ -103,8 +103,8 @@ namespace Unity.Storage
             entry.Value  = instance;
             entry.Policy = policy;
 
-            _metadata[_count].Next = _metadata[targetBucket].Bucket;
-            _metadata[targetBucket].Bucket = _count;
+            _metadata[_count].Next = _metadata[targetBucket].Position;
+            _metadata[targetBucket].Position = _count;
         }
 
         #endregion
@@ -142,7 +142,7 @@ namespace Unity.Storage
             for (var index = 1; index <= _count; index++)
             {
                 var offset = _policies[index].HashCode % size;
-                ref var bucket = ref metadata[offset].Bucket;
+                ref var bucket = ref metadata[offset].Position;
 
                 metadata[index].Next = bucket;
                 bucket = index;

@@ -7,6 +7,17 @@ namespace Container.Scope
     public partial class ScopeTests
     {
         [TestMethod]
+        public void HashGenerator()
+        {
+            // Act
+            var hash = (uint)typeof(ScopeTests).GetHashCode();
+            var zero = typeof(ScopeTests).GetHashCode(0);
+
+            // Validate
+            Assert.AreEqual(hash, zero);
+        }
+
+        [TestMethod]
         public void ExpandTest()
         {
             // Arrange
@@ -18,7 +29,7 @@ namespace Container.Scope
             Scope.Register(ref data2);
 
             // Validate
-            Assert.AreEqual(1, Scope.IdentityCount);
+            Assert.AreEqual(1, Scope.ContractCount);
             Assert.AreEqual(StartPosition + 1, Scope.RegistryCount);
         }
 
@@ -37,7 +48,7 @@ namespace Container.Scope
             Scope.Register(ref data2);
 
             // Validate
-            Assert.AreEqual(0,                            Scope.IdentityCount);
+            Assert.AreEqual(0,                            Scope.ContractCount);
             Assert.AreEqual(StartPosition + SizeTypes - 1, Scope.RegistryCount);
             for (var i = 1; i < SizeTypes; i++)
             {
@@ -64,7 +75,7 @@ namespace Container.Scope
             Scope.Register(ref data2);
 
             // Validate
-            Assert.AreEqual(1,                            Scope.IdentityCount);
+            Assert.AreEqual(1,                            Scope.ContractCount);
             Assert.AreEqual(StartPosition + SizeTypes - 1, Scope.RegistryCount);
             for (var i = 1; i < SizeTypes; i++)
             {
@@ -104,7 +115,7 @@ namespace Container.Scope
             }
 
             // Validate
-            Assert.AreEqual(TestNames.Length, Scope.IdentityCount);
+            Assert.AreEqual(TestNames.Length, Scope.ContractCount);
             Assert.AreEqual(TestNames.Length * TestTypes.Length + (StartPosition - 1), Scope.RegistryCount);
         }
 

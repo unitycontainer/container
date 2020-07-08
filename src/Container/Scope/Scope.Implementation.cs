@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Unity.Storage;
-
-namespace Unity.Container
+﻿namespace Unity.Container
 {
     public partial class ContainerScope
     {

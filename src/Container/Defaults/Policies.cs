@@ -24,7 +24,7 @@ namespace Unity.Container
                 {
                     var hashCode = policy.GetHashCode();
                     var targetBucket = hashCode % _metadata.Length;
-                    for (var i = _metadata[targetBucket].Bucket; i > 0; i = _metadata[i].Next)
+                    for (var i = _metadata[targetBucket].Position; i > 0; i = _metadata[i].Next)
                     {
                         ref var candidate = ref _policies[i];
                         if (candidate.Type != null || candidate.Policy != policy) continue;
@@ -47,8 +47,8 @@ namespace Unity.Container
                     entry.Value = instance;
                     entry.Policy = policy;
 
-                    _metadata[_count].Next = _metadata[targetBucket].Bucket;
-                    _metadata[targetBucket].Bucket = _count;
+                    _metadata[_count].Next = _metadata[targetBucket].Position;
+                    _metadata[targetBucket].Position = _count;
 
                 }
             }
@@ -67,7 +67,7 @@ namespace Unity.Container
                 {
                     var hashCode = HashCode(type, policy);
                     var targetBucket = hashCode % _metadata.Length;
-                    for (var i = _metadata[targetBucket].Bucket; i > 0; i = _metadata[i].Next)
+                    for (var i = _metadata[targetBucket].Position; i > 0; i = _metadata[i].Next)
                     {
                         ref var candidate = ref _policies[i];
                         if (candidate.Type != type || candidate.Policy != policy) continue;
@@ -91,8 +91,8 @@ namespace Unity.Container
                     entry.Value = instance;
                     entry.Policy = policy;
 
-                    _metadata[_count].Next = _metadata[targetBucket].Bucket;
-                    _metadata[targetBucket].Bucket = _count;
+                    _metadata[_count].Next = _metadata[targetBucket].Position;
+                    _metadata[targetBucket].Position = _count;
 
                 }
             }

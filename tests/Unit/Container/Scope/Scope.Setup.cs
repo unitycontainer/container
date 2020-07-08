@@ -38,7 +38,6 @@ namespace Container.Scope
         [TestMethod]
         public void Baseline()
         {
-
             Assert.IsInstanceOfType(Scope, typeof(TestScope));
 
             Assert.AreEqual(StartPosition - 1, Scope.RegistryCount);
@@ -55,21 +54,28 @@ namespace Container.Scope
         public TestScope(ContainerScope scope) 
             : base(scope) { }
 
-        public int IdentityMax => _identityMax;
+        public int ContractMax => _contractMax;
         public int RegistryMax => _registryMax;
 
-        public int IdentityPrime => _identityPrime;
+        public int ContractPrime => _contractPrime;
 
-        public int IdentityCount => _identityCount;
+        public int ContractCount => _contractCount;
         public int RegistryCount => _registryCount;
 
-        public object IdentitySync => _identitySync;
+        public object ContractSync => _contractSync;
         public object RegistrySync => _registrySync;
 
-        public Metadata[] IdentityMeta => _identityMeta;
+        public Metadata[] ContractMeta => _contractMeta;
         public Metadata[] RegistryMeta => _registryMeta;
 
-        public Identity[] IdentityData => _identityData;
+        public Contract[] ContractData => _contractData;
         public Registry[] RegistryData => _registryData;
+
+        public int GetIndexOf(string name)
+        {
+            // Same hash to generate collisions
+            var hash = (uint)"123".GetHashCode();
+            return IndexOf(hash, name, 3);
+        }
     }
 }

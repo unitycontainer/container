@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Threading;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -18,17 +18,15 @@ namespace Unity.Container
                 if (required >= _registryMax) ExpandRegistry(required);
 
                 // Iterate and register types
-                for (var index = 0; index < data.RegisterAs.Length; index++)
-                {
-                    var type = data.RegisterAs[index];
-                    
+                foreach (var type in data.RegisterAs)
+                { 
                     // Skip invalid types
                     if (null == type) continue;
 
                     // Check for existing
                     var hash = (uint)type.GetHashCode();
-                    var targetBucket = hash % _registryMeta.Length;
-                    var position = _registryMeta[targetBucket].Bucket;
+                    var bucket = hash % _registryMeta.Length;
+                    var position = _registryMeta[bucket].Position;
                     while (position > 0)
                     {
                         ref var candidate = ref _registryData[position];
@@ -51,8 +49,8 @@ namespace Unity.Container
                         entry.Identity = 0;
                         entry.Manager  = data.Manager;
 
-                        _registryMeta[_registryCount].Next = _registryMeta[targetBucket].Bucket;
-                        _registryMeta[targetBucket].Bucket = _registryCount;
+                        _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
+                        _registryMeta[bucket].Position = _registryCount;
                     }
                 }
             }
@@ -60,38 +58,38 @@ namespace Unity.Container
 
         protected void RegisterContracts(ref RegistrationData data)
         {
-            var identity = IndexOf(data.Name!, data.RegisterAs.Length);
-            ref var references = ref _identityData[identity].References;
+            var nameHash = (uint)data.Name!.GetHashCode();
+            var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
 
             lock (_registrySync)
             {
-                var count    = references[0];
-                var required = data.RegisterAs.Length + count;
+                ref var references = ref _contractData[nameIndex].References;
+                var referenceCount = references[0];
+                var requiredLength = data.RegisterAs.Length + referenceCount;
 
                 // Expand references if required
-                if (required >= references.Length)
-                    Array.Resize(ref references, (int)Math.Round(required / LoadFactor) + 1);
+                if (requiredLength >= references.Length)
+                    Array.Resize(ref references, (int)Math.Round(requiredLength / LoadFactor) + 1);
 
                 // Expand registry if required
-                required = _registryCount + data.RegisterAs.Length;
-                if (required >= _registryMax) ExpandRegistry(required);
+                requiredLength = _registryCount + data.RegisterAs.Length;
+                if (requiredLength >= _registryMax) ExpandRegistry(requiredLength);
 
                 // Iterate and register types
-                for (var index = 0; index < data.RegisterAs.Length; index++)
+                foreach (var type in data.RegisterAs)
                 {
-                    var type = data.RegisterAs[index];
-
                     // Skip invalid types
                     if (null == type) continue;
 
                     // Check for existing
-                    var hash = ((uint)type.GetHashCode()) ^ _identityData[identity].Hash;
-                    var targetBucket = hash % _registryMeta.Length;
-                    var position = _registryMeta[targetBucket].Bucket;
+                    var hash = type.GetHashCode(nameHash);
+                    var bucket = hash % _registryMeta.Length;
+                    var position = _registryMeta[bucket].Position;
+
                     while (position > 0)
                     {
                         ref var candidate = ref _registryData[position];
-                        if (candidate.Type == type && identity == candidate.Identity)
+                        if (candidate.Type == type && nameIndex == candidate.Identity)
                         {
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
@@ -101,24 +99,23 @@ namespace Unity.Container
                         position = _registryMeta[position].Next;
                     }
 
-
                     // Add new registration
                     if (0 == position)
                     {
                         ref var entry = ref _registryData[++_registryCount];
                         entry.Hash = hash;
                         entry.Type = type;
-                        entry.Identity = identity;
-                        entry.Manager  = data.Manager;
+                        entry.Manager = data.Manager;
+                        entry.Identity = nameIndex;
 
-                        _registryMeta[_registryCount].Next = _registryMeta[targetBucket].Bucket;
-                        _registryMeta[targetBucket].Bucket = _registryCount;
-                        references[++count] = _registryCount;
+                        _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
+                        _registryMeta[bucket].Position = _registryCount;
+                        references[++referenceCount] = _registryCount;
                     }
                 }
 
                 // Record new count after all done
-                references[0] = count;
+                references[0] = referenceCount;
             }
 
             return;
@@ -129,66 +126,73 @@ namespace Unity.Container
 
         #region Register Asynchronously
 
-        public virtual Task RegisterAsync(Type type, RegistrationManager manager)
+        public virtual void RegisterAnonymous(ref RegistrationData data, CancellationToken token)
             => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
 
-        public virtual Task RegisterAsync(Type[] types, RegistrationManager manager)
-            => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
-
-        public virtual Task RegisterAsync(Type type, string name, RegistrationManager manager) 
-            => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
-
-        public virtual Task RegisterAsync(Type[] type, string name, RegistrationManager manager) 
+        public virtual void RegisterContracts(ref RegistrationData data, CancellationToken token)
             => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
 
         #endregion
 
 
-        #region Identity
+        #region Contracts
 
-        protected int IndexOf(string name, int required = IDENTITY_SIZE)
+        protected int IndexOf(uint hash, string? name, int required)
         {
-            var count = _identityCount;
-            var length = _identityMeta.Length;
+            var length = _contractCount;
 
             // Check if already registered
-            var hashCode = (uint)name.GetHashCode();
-            var targetBucket = hashCode % length;
-            for (var index = _identityMeta[targetBucket].Bucket; index > 0; index = _identityMeta[index].Next)
+            var bucket = hash % _contractMeta.Length;
+            var position = _contractMeta[bucket].Position;
+            while (position > 0)
             {
-                if (_identityData[index].Name == name)
-                    return index;
+                if (_contractData[position].Name == name) return position;
+                position = _contractMeta[position].Next;
             }
 
-            lock (_identitySync)
+            lock (_contractSync)
             {
-                // Check again if array has changed during wait for lock
-                if (length != _identityMeta.Length || count != _identityCount)
+                // Check again if length changed during wait for lock
+                if (length != _contractCount)
                 {
-                    targetBucket = hashCode % _identityMeta.Length;
-                    for (var index = _identityMeta[targetBucket].Bucket; index > 0; index = _identityMeta[index].Next)
+                    bucket = hash % _contractMeta.Length;
+                    position = _contractMeta[bucket].Position;
+                    while (position > 0)
                     {
-                        if (_identityData[index].Name == name)
-                            return index;
+                        if (_contractData[position].Name == name) return position;
+                        position = _contractMeta[position].Next;
                     }
                 }
 
                 // Expand if required
-                if (_identityCount >= _identityMax)
+                if (_contractCount >= _contractMax)
                 {
-                    ExpandIdentity();
-                    targetBucket = hashCode % _identityMeta.Length;
+                    var size = Prime.Numbers[++_contractPrime];
+                    _contractMax = (int)(size * LoadFactor);
+
+                    Array.Resize(ref _contractData, size);
+                    _contractMeta = new Metadata[size];
+
+                    // Rebuild buckets
+                    for (var index = START_INDEX; index <= _contractCount; index++)
+                    {
+                        bucket = _contractData[index].Hash % size;
+                        _contractMeta[index].Next = _contractMeta[bucket].Position;
+                        _contractMeta[bucket].Position = index;
+                    }
+
+                    bucket = hash % _contractMeta.Length;
                 }
 
-                ref var entry = ref _identityData[++_identityCount];
+                ref var entry = ref _contractData[++_contractCount];
                 entry.Name = name;
-                entry.Hash = hashCode;
+                entry.Hash = hash;
                 entry.References = new int[required + 1];
 
-                _identityMeta[_identityCount].Next = _identityMeta[targetBucket].Bucket;
-                _identityMeta[targetBucket].Bucket = _identityCount;
+                _contractMeta[_contractCount].Next = _contractMeta[bucket].Position;
+                _contractMeta[bucket].Position = _contractCount;
 
-                return _identityCount;
+                return _contractCount;
             }
         }
 
@@ -196,22 +200,6 @@ namespace Unity.Container
 
 
         #region Expanding
-
-        protected void ExpandIdentity()
-        {
-            var size = Prime.Numbers[++_identityPrime];
-            _identityMax = (int)(size * LoadFactor);
-
-            Array.Resize(ref _identityData, size);
-            _identityMeta = new Metadata[size];
-
-            for (var index = START_INDEX; index <= _identityCount; index++)
-            {
-                var bucket = _identityData[index].Hash % size;
-                _identityMeta[index].Next = _identityMeta[bucket].Bucket;
-                _identityMeta[bucket].Bucket = index;
-            }
-        }
 
         protected void ExpandRegistry(int required)
         {
@@ -226,8 +214,8 @@ namespace Unity.Container
             for (var i = START_INDEX; i <= _registryCount; i++)
             {
                 var bucket = _registryData[i].Hash % size;
-                _registryMeta[i].Next = _registryMeta[bucket].Bucket;
-                _registryMeta[bucket].Bucket = i;
+                _registryMeta[i].Next = _registryMeta[bucket].Position;
+                _registryMeta[bucket].Position = i;
             }
         }
 
@@ -245,11 +233,11 @@ namespace Unity.Container
             public RegistrationManager Manager;
         }
 
-        [DebuggerDisplay("Count = {Count}", Name = "{ Name,nq }")]
-        public struct Identity
+        [DebuggerDisplay("{ Name }")]
+        public struct Contract
         {
             public uint Hash;
-            public string Name;
+            public string? Name;
             public int[] References;
         }
 

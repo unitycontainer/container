@@ -47,7 +47,7 @@ namespace Unity.Storage
         {
             var hashCode = value?.GetHashCode() ?? 0;
             var targetBucket = (hashCode & HashMask) % _entries.Length;
-            for (var i = _metadata[targetBucket].Bucket; i > 0; i = _metadata[i].Next)
+            for (var i = _metadata[targetBucket].Position; i > 0; i = _metadata[i].Next)
             {
                 ref var candidate = ref _entries[i];
 
@@ -67,10 +67,10 @@ namespace Unity.Storage
 
             // Add registration
             ref var entry  = ref _entries[++_count];
-            _metadata[_count].Next     = _metadata[targetBucket].Bucket;
+            _metadata[_count].Next     = _metadata[targetBucket].Position;
             entry.Value    = value;
             entry.HashCode = hashCode;
-            _metadata[targetBucket].Bucket = _count;
+            _metadata[targetBucket].Position = _count;
 
             return true;
         }
@@ -78,7 +78,7 @@ namespace Unity.Storage
         public virtual bool Add(TValue value, int hashCode)
         {
             var targetBucket = (hashCode & HashMask) % _entries.Length;
-            for (var i = _metadata[targetBucket].Bucket; i > 0; i = _metadata[i].Next)
+            for (var i = _metadata[targetBucket].Position; i > 0; i = _metadata[i].Next)
             {
                 ref var candidate = ref _entries[i];
                 if (candidate.HashCode != hashCode || !Equals(candidate.Value, value))
@@ -97,10 +97,10 @@ namespace Unity.Storage
 
             // Add registration
             ref var entry = ref _entries[++_count];
-            _metadata[_count].Next = _metadata[targetBucket].Bucket;
+            _metadata[_count].Next = _metadata[targetBucket].Position;
             entry.Value = value;
             entry.HashCode = hashCode;
-            _metadata[targetBucket].Bucket = _count;
+            _metadata[targetBucket].Position = _count;
 
             return true;
         }
@@ -121,7 +121,7 @@ namespace Unity.Storage
             for (var index = 1; index <= _count; index++)
             {
                 var offset = (_entries[index].HashCode & HashMask) % size;
-                ref var bucket = ref _metadata[offset].Bucket;
+                ref var bucket = ref _metadata[offset].Position;
 
                 _metadata[index].Next = bucket;
                 bucket = index;

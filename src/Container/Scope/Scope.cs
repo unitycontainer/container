@@ -28,17 +28,17 @@ namespace Unity.Container
 
         protected readonly ICollection<IDisposable> _lifetimes;
 
-        protected int _identityMax;
+        protected int _contractMax;
         protected int _registryMax;
-        protected int _identityPrime;
-        protected int _identityCount;
+        protected int _contractPrime;
+        protected int _contractCount;
         protected int _registryCount;
-        protected Metadata[] _identityMeta;
+        protected Metadata[] _contractMeta;
         protected Metadata[] _registryMeta;
-        protected Identity[] _identityData;
+        protected Contract[] _contractData;
         protected Registry[] _registryData;
         protected readonly object _registrySync;
-        protected readonly object _identitySync;
+        protected readonly object _contractSync;
 
         #endregion
 
@@ -53,11 +53,11 @@ namespace Unity.Container
 
             // Scope specific
             _registrySync = new object();
-            _identitySync = new object();
+            _contractSync = new object();
             _lifetimes = new List<IDisposable>();
 
             // Initial size
-            _identityPrime = identity;
+            _contractPrime = identity;
             
             // Registrations
             var size = Prime.Numbers[registry];
@@ -65,10 +65,10 @@ namespace Unity.Container
             _registryData = new Registry[size];
             _registryMax  = (int)(size * LoadFactor);
 
-            size = Prime.Numbers[_identityPrime];
-            _identityMeta = new Metadata[size];
-            _identityData = new Identity[size];
-            _identityMax  = (int)(size * LoadFactor);
+            size = Prime.Numbers[_contractPrime];
+            _contractMeta = new Metadata[size];
+            _contractData = new Contract[size];
+            _contractMax  = (int)(size * LoadFactor);
 
             // Add Interface registrations
             ref var zero  = ref _registryData[_registryCount++];
@@ -96,8 +96,8 @@ namespace Unity.Container
             for (var index = START_INDEX; index <= _registryCount; index++)
             {
                 var bucket = _registryData[index].Hash % size;
-                _registryMeta[index].Next = _registryMeta[bucket].Bucket;
-                _registryMeta[bucket].Bucket = index;
+                _registryMeta[index].Next = _registryMeta[bucket].Position;
+                _registryMeta[bucket].Position = index;
             }
         }
 
@@ -110,16 +110,16 @@ namespace Unity.Container
 
             _lifetimes     = scope._lifetimes;
             _registrySync  = scope._registrySync;
-            _identitySync  = scope._identitySync;
-            _identityMax   = scope._identityMax;
+            _contractSync  = scope._contractSync;
+            _contractMax   = scope._contractMax;
             _registryMax   = scope._registryMax;
             _registryData  = scope._registryData;
-            _identityData  = scope._identityData;
+            _contractData  = scope._contractData;
             _registryMeta  = scope._registryMeta;
-            _identityMeta  = scope._identityMeta;
-            _identityPrime = scope._identityPrime;
+            _contractMeta  = scope._contractMeta;
+            _contractPrime = scope._contractPrime;
             _registryCount = scope._registryCount;
-            _identityCount = scope._identityCount;
+            _contractCount = scope._contractCount;
         }
 
         #endregion

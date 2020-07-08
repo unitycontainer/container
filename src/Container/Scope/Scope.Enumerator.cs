@@ -47,7 +47,7 @@ namespace Unity.Container
             protected int _length;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            protected Identity[] _identity;
+            protected Contract[] _identity;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             protected Registry[] _registry;
@@ -60,7 +60,7 @@ namespace Unity.Container
             public RootRegistrationsEnumerator(ContainerScope root)
             {
                 _length   = root._registryCount;
-                _identity = root._identityData;
+                _identity = root._contractData;
                 _registry = root._registryData;
             }
 
@@ -132,7 +132,7 @@ namespace Unity.Container
                 _registrations = scope
                     .Hierarchy()
                     .Where(scope => START_COUNT < scope._registryCount)
-                    .Select(scope => new ScopeData(scope._registryCount, scope._registryData, scope._identityData))
+                    .Select(scope => new ScopeData(scope._registryCount, scope._registryData, scope._contractData))
                     .ToArray();
 
                 _scope = scope;
@@ -188,7 +188,7 @@ namespace Unity.Container
 
                             // Check if already served
                             var targetBucket = contract.Hash % size;
-                            var position = meta[targetBucket].Bucket;
+                            var position = meta[targetBucket].Position;
                             var location = data[position].Registry;
 
                             while (position > 0)
@@ -211,8 +211,8 @@ namespace Unity.Container
                                 data[count].Index = index;
                                 data[0].Index = count;
 
-                                meta[count].Next = meta[targetBucket].Bucket;
-                                meta[targetBucket].Bucket = count;
+                                meta[count].Next = meta[targetBucket].Position;
+                                meta[targetBucket].Position = count;
 
                                 registration._type    = contract.Type;
                                 registration._name    = _registrations[location].Identity[contract.Identity].Name;
@@ -259,9 +259,9 @@ namespace Unity.Container
             {
                 public readonly int        Count;
                 public readonly Registry[] Registry;
-                public readonly Identity[] Identity;
+                public readonly Contract[] Identity;
 
-                public ScopeData(int count, Registry[] registry, Identity[] identity)
+                public ScopeData(int count, Registry[] registry, Contract[] identity)
                 {
                     Count    = count;
                     Registry = registry;
