@@ -4,13 +4,15 @@ namespace Unity.Extension
     /// <summary>
     /// Registration event handler
     /// </summary>
+    /// <param name="container">Container where the registration took place</param>
     /// <param name="registration">Reference to <see cref="RegistrationData"/> structure</param>
-    public delegate void RegistrationEvent(ref RegistrationData registration);
+    public delegate void RegistrationEvent(object container, ref RegistrationData registration);
 
     /// <summary>
     /// Child container created event handler
     /// </summary>
-    /// <param name="child">Context of child container</param>
-    public delegate void ChildCreatedEvent(ExtensionContext child);
+    /// <param name="parent">Container creating the child</param>
+    /// <param name="child">Context of created child container</param>
+    public delegate void ChildCreatedEvent(object parent, ExtensionContext child);
 }
 

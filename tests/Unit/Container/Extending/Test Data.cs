@@ -1,6 +1,7 @@
 ﻿#if NET45
 using Microsoft.Practices.Unity;
 #else
+using Unity;
 using Unity.Extension;
 #endif
 
@@ -63,7 +64,11 @@ namespace Container.Extending
             Context.ChildContainerCreated += OnChildContainerCreated;
         }
 
-        private void OnChildContainerCreated(ExtensionContext child) => ChildContext = child;
+        private void OnChildContainerCreated(object container, ExtensionContext child)
+        {
+            ChildContext = child;
+            ChildContext.ChildContainerCreated += OnChildContainerCreated;
+        }
     }
 
 }

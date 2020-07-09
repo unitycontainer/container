@@ -268,7 +268,6 @@ namespace Unity.Container
                     Identity = identity;
                 }
             }
-
         }
 
         #endregion

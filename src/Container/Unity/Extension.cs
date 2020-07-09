@@ -28,7 +28,7 @@ namespace Unity
         {
             add 
             { 
-                if (null == _registering && null != Parent)
+                if (null != Parent && null == _registering)
                     Parent.Registering += OnParentRegistering;
 
                 _registering += value; 
@@ -43,8 +43,8 @@ namespace Unity
             }
         }
 
-        private void OnParentRegistering(ref RegistrationData registration) 
-            => _registering?.Invoke(ref registration);
+        private void OnParentRegistering(object container, ref RegistrationData registration) 
+            => _registering?.Invoke(container, ref registration);
 
         protected event ChildCreatedEvent ChildContainerCreated
         {

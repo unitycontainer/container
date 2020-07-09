@@ -63,7 +63,7 @@ namespace Unity.Extension
         #region Events
 
         /// <summary>
-        /// This event is raised every new registration
+        /// This event is raised on new registration
         /// </summary>
         public abstract event RegistrationEvent Registering;
 

@@ -1,9 +1,10 @@
-﻿using Unity.Container;
+﻿using System;
+using Unity.Container;
 using Unity.Pipeline;
 
 namespace Unity
 {
-    public partial class UnityContainer
+    public partial class UnityContainer : IDisposable
     {
         #region Fields
 
@@ -24,8 +25,8 @@ namespace Unity
             Name = name;
 
             _policies = new Defaults();
-            _scope = new ContainerScope(this, 3, 2);
-            _context = new PrivateExtensionContext(this);
+            _scope    = new ContainerScope(this, 3, 2);
+            _context  = new PrivateExtensionContext(this);
 
             // Setup Processors
             ConstructorProcessor.SetupProcessor(_context);
@@ -51,6 +52,43 @@ namespace Unity
             // Child Container Specific
         }
 
+        ~UnityContainer()
+        {
+            Dispose(false);
+        }
+
         #endregion
+
+
+        protected virtual void Dispose(bool _)
+        {
+            if (null == _scope) return;
+
+            // Registrations cache
+            _cache = null;
+
+            // Unsubscribe from notifications
+            Registering -= OnCacheInvalidated;
+
+            // Child container dispose
+            if (null != Parent)
+            {
+                Parent.Registering -= OnParentRegistering;
+            }
+        }
+
+
+        //public void Dispose()
+        //{
+
+        //    throw new NotImplementedException();
+        //}
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~UnityContainer()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
     }
 }

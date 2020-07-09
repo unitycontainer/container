@@ -27,7 +27,15 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(UnityContainerExtension extension)
         {
-            lock (_policies)
+            if (null == _context)
+            { 
+                lock (_scope)
+                {
+                    if (null == _context) _context = new PrivateExtensionContext(this);
+                }
+            }
+
+            lock (_context)
             { 
                 if (extension is IUnityContainerExtensionConfigurator configurator)
                 { 
@@ -35,7 +43,7 @@ namespace Unity
                         .Add(configurator);
                 }
 
-                extension?.InitializeExtension(_context ??= new PrivateExtensionContext(this));
+                extension?.InitializeExtension(_context);
             }
 
             return this;
@@ -48,8 +56,16 @@ namespace Unity
         /// <returns>The <see cref="UnityContainer"/> that is being extended</returns>
         public UnityContainer AddExtension(Action<ExtensionContext> method)
         {
-            lock (_policies)
+            if (null == _context)
             {
+                lock (_scope)
+                {
+                    if (null == _context) _context = new PrivateExtensionContext(this);
+                }
+            }
+
+            lock (_context)
+            { 
                 method?.Invoke(_context ??= new PrivateExtensionContext(this));
             }
 
@@ -77,9 +93,8 @@ namespace Unity
 
         public void Dispose()
         {
-            //Parent.Registering -= OnParentRegistering;
-
-            throw new NotImplementedException();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

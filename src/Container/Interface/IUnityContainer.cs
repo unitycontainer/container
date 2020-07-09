@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -28,7 +27,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            _registering?.Invoke(ref registration);
+            _registering?.Invoke(container, ref registration);
 
             return this;
         }
@@ -47,7 +46,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            _registering?.Invoke(ref registration);
+            _registering?.Invoke(container, ref registration);
 
             return this;
         }
@@ -67,7 +66,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            _registering?.Invoke(ref registration);
+            _registering?.Invoke(container, ref registration);
 
             return this;
         }

@@ -22,7 +22,7 @@ namespace Unity
             ((ICollection<IDisposable>)_scope).Add(container);
             
             // Raise event if required
-            Root._childContainerCreated?.Invoke(container._context = new PrivateExtensionContext(container));
+            _childContainerCreated?.Invoke(this, container._context = new PrivateExtensionContext(container));
 
             return container;
         }
