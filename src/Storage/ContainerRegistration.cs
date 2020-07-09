@@ -8,30 +8,14 @@ namespace Unity
     /// <summary>
     /// Information about the type registered in a container.
     /// </summary>
-    [DebuggerDisplay("Name = {  Name }", Name = "{ (RegisteredType?.Name ?? string.Empty),nq }")]
-    public struct ContainerRegistration : IContainerRegistration
+    [DebuggerDisplay("Name = { Name }", Name = "{ RegisteredType.Name,nq }")]
+    public readonly struct ContainerRegistration : IContainerRegistration
     {
-        #region Fields
+        public Type RegisteredType { get; }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal Type _type;
+        public string? Name { get; }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal string? _name;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal RegistrationManager _manager;
-
-        #endregion
-
-
-        #region IContainerRegistration
-
-        public Type RegisteredType => _type;
-
-        public string? Name => _name;
-
-        public LifetimeManager LifetimeManager => (LifetimeManager)_manager;
+        public LifetimeManager LifetimeManager { get; }
 
         public Type? MappedToType =>
             RegistrationType.Type == LifetimeManager?.RegistrationType
@@ -47,6 +31,23 @@ namespace Unity
             RegistrationType.Factory == LifetimeManager?.RegistrationType 
                 ? (ResolveDelegate<IResolveContext>?)LifetimeManager.Data
                 : null;
+
+
+        #region Constructors
+
+        public ContainerRegistration(Type type, LifetimeManager manager)
+        {
+            Name = null;
+            RegisteredType = type;
+            LifetimeManager = manager;
+        }
+
+        public ContainerRegistration(Type type, string? name, LifetimeManager manager)
+        {
+            Name            = name;
+            RegisteredType  = type;
+            LifetimeManager = manager;
+        }
 
         #endregion
     }
