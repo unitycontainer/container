@@ -43,8 +43,8 @@ namespace Unity
             }
         }
 
-        private void OnParentRegistering(object container, ref RegistrationData registration) 
-            => _registering?.Invoke(container, ref registration);
+        private void OnParentRegistering(object container, in RegistrationData registration) 
+            => _registering?.Invoke(container, in registration);
 
         protected event ChildCreatedEvent ChildContainerCreated
         {

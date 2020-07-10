@@ -6,14 +6,6 @@ namespace Unity
 {
     public readonly ref struct RegistrationData
     {
-        #region Fields
-
-        public readonly Type[]  RegisterAs;
-        public readonly string? Name;
-        public readonly LifetimeManager Manager;
-
-        #endregion
-
         #region Constructors
 
         internal RegistrationData(string? name, LifetimeManager manager, Type[] registerAs)
@@ -66,23 +58,59 @@ namespace Unity
 
         #region Public Members
 
-        public RegistrationType RegistrationType => Manager.RegistrationType;
+        /// <summary>
+        /// Set of <see cref="Type"/> aliases this registration is registered under
+        /// </summary>
+        /// <remarks> 
+        /// This used to be known as TypeFrom parameter. 
+        /// The list of implemented interfaces or base classes the registered entity
+        /// implements and could be assigned to.
+        /// </remarks>
+        public readonly Type[] RegisterAs;
+        
+        /// <summary>
+        /// Name of contract
+        /// </summary>
+        public readonly string? Name;
+        
+        /// <summary>
+        /// Lifetime Manager
+        /// </summary>
+        public readonly LifetimeManager Manager;
 
-        public Type? Type 
+        /// <summary>
+        /// <see cref="RegistrationType"/> of this registration. 
+        /// </summary>
+        public readonly RegistrationType RegistrationType => Manager.RegistrationType;
+
+        /// <summary>
+        /// In <see cref="Type"/> registrations this holds registered <see cref="Type"/>
+        /// </summary>
+        /// <remarks>
+        /// This parameter used to be called TypeTo. In other words, this is the <see cref="Type"/>
+        /// that implements all the <see cref="RegisterAs"/> interfaces.
+        /// </remarks>
+        public readonly Type? Type 
             => RegistrationType.Type == Manager.RegistrationType 
                 ? (Type?)Manager.Data : null;
 
-        public object? Instance 
+        /// <summary>
+        /// In instance registrations this is the instance that has been registered
+        /// </summary>
+        public readonly object? Instance 
             => RegistrationType.Instance == Manager.RegistrationType 
                 ? Manager.Data : null;
 
-        public ResolveDelegate<IResolveContext>? Factory 
+        /// <summary>
+        /// In factory registration this property holds the factory delegate
+        /// </summary>
+        public readonly ResolveDelegate<IResolveContext>? Factory 
             => RegistrationType.Factory == Manager.RegistrationType 
                 ? (ResolveDelegate<IResolveContext>?)Manager.Data : null;
 
         #endregion
 
-        public override string ToString()
+        public readonly override string ToString()
         {
             return $"Registration: {RegistrationType},  {Manager}";
         }

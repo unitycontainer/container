@@ -62,7 +62,7 @@ namespace Unity
 
         #region Implementation
 
-        private void OnCacheInvalidated(object container, ref RegistrationData registration)
+        private void OnCacheInvalidated(object container, in RegistrationData registration)
         {
             lock (_scope)
             {

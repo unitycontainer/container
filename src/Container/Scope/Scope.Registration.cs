@@ -43,14 +43,9 @@ namespace Unity.Container
                     // Add new registration
                     if (0 == position)
                     { 
-                        ref var entry = ref _registryData[++_registryCount];
-                        entry.Hash = hash;
-                        entry.Type = type;
-                        entry.Identity = 0;
-                        entry.Manager  = data.Manager;
-
+                        _registryData[++_registryCount]    = new Registry(hash, type, data.Manager);
                         _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
-                        _registryMeta[bucket].Position = _registryCount;
+                        _registryMeta[bucket].Position     = _registryCount;
                     }
                 }
             }
@@ -102,15 +97,10 @@ namespace Unity.Container
                     // Add new registration
                     if (0 == position)
                     {
-                        ref var entry = ref _registryData[++_registryCount];
-                        entry.Hash = hash;
-                        entry.Type = type;
-                        entry.Manager = data.Manager;
-                        entry.Identity = nameIndex;
-
+                        _registryData[++_registryCount]    = new Registry(hash, type, nameIndex, data.Manager);
                         _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
-                        _registryMeta[bucket].Position = _registryCount;
-                        references[++referenceCount] = _registryCount;
+                        _registryMeta[bucket].Position     = _registryCount;
+                        references[++referenceCount]       = _registryCount;
                     }
                 }
 
@@ -184,11 +174,7 @@ namespace Unity.Container
                     bucket = hash % _contractMeta.Length;
                 }
 
-                ref var entry = ref _contractData[++_contractCount];
-                entry.Name = name;
-                entry.Hash = hash;
-                entry.References = new int[required + 1];
-
+                _contractData[++_contractCount] = new Contract(hash, name, required + 1);
                 _contractMeta[_contractCount].Next = _contractMeta[bucket].Position;
                 _contractMeta[bucket].Position = _contractCount;
 
@@ -227,18 +213,41 @@ namespace Unity.Container
         [DebuggerDisplay("Identity = { Identity }, Manager = {Manager}", Name = "{ (Type?.Name ?? string.Empty),nq }")]
         public struct Registry
         {
-            public uint Hash;
-            public Type Type;
-            public int Identity;
+            public readonly uint Hash;
+            public readonly Type Type;
+            public readonly int  Identity;
             public RegistrationManager Manager;
+
+            public Registry(uint hash, Type type, RegistrationManager manager)
+            {
+                Hash = hash;
+                Type = type;
+                Manager = manager;
+                Identity = 0;
+            }
+
+            public Registry(uint hash, Type type, int identity, RegistrationManager manager)
+            {
+                Hash = hash;
+                Type = type;
+                Manager = manager;
+                Identity = identity;
+            }
         }
 
         [DebuggerDisplay("{ Name }")]
         public struct Contract
         {
-            public uint Hash;
-            public string? Name;
+            public readonly uint Hash;
+            public readonly string? Name;
             public int[] References;
+
+            public Contract(uint hash, string? name, int size)
+            {
+                Hash = hash;
+                Name = name;
+                References = new int[size];
+            }
         }
 
         #endregion

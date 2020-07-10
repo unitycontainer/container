@@ -71,26 +71,11 @@ namespace Unity.Container
             _contractMax  = (int)(size * LoadFactor);
 
             // Add Interface registrations
-            ref var zero  = ref _registryData[_registryCount++];
-            ref var one   = ref _registryData[_registryCount++];
-            ref var two   = ref _registryData[_registryCount++];
-            ref var three = ref _registryData[_registryCount];
-
-            // Setup Local registrations
-            zero.Type = typeof(UnityContainer);
-            zero.Manager = new ContainerLifetimeManager(Container);
-
-            one.Manager = zero.Manager;
-            one.Type = typeof(IUnityContainer);
-            one.Hash = (uint)one.GetHashCode();
-
-            two.Manager = one.Manager;
-            two.Type = typeof(IUnityContainerAsync);
-            two.Hash = (uint)two.GetHashCode();
-
-            three.Manager = two.Manager;
-            three.Type = typeof(IServiceProvider);
-            three.Hash = (uint)three.GetHashCode();
+            var manager = new ContainerLifetimeManager(Container);
+            _registryData[  _registryCount] = new Registry((uint)typeof(UnityContainer      ).GetHashCode(), typeof(UnityContainer      ), manager);
+            _registryData[++_registryCount] = new Registry((uint)typeof(IUnityContainer     ).GetHashCode(), typeof(IUnityContainer     ), manager);
+            _registryData[++_registryCount] = new Registry((uint)typeof(IUnityContainerAsync).GetHashCode(), typeof(IUnityContainerAsync), manager);
+            _registryData[++_registryCount] = new Registry((uint)typeof(IServiceProvider    ).GetHashCode(), typeof(IServiceProvider    ), manager);
 
             // Rebuild Metadata
             for (var index = START_INDEX; index <= _registryCount; index++)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Unity.Lifetime;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -73,20 +74,14 @@ namespace Unity.Container
 
             public IEnumerator<ContainerRegistration> GetEnumerator()
             {
-                ContainerRegistration registration = new ContainerRegistration();
-
                 for (var i = START_INDEX; i <= _length; i++)
                 {
-                    var manager = _registry[i].Manager;
+                    var manager = (LifetimeManager)_registry[i].Manager;
                     
                     if (RegistrationType.Internal == manager.RegistrationType) 
                         continue;
 
-                    registration._type = _registry[i].Type;
-                    registration._manager = manager;
-                    registration._name = _identity[_registry[i].Identity].Name;
-
-                    yield return registration;
+                    yield return new ContainerRegistration(_registry[i].Type, _identity[_registry[i].Identity].Name, manager);
                 }
             }
 
@@ -150,16 +145,11 @@ namespace Unity.Container
             /// <inheritdoc />
             public IEnumerator<ContainerRegistration> GetEnumerator()
             {
-                ContainerRegistration registration = new ContainerRegistration();
-
                 // Built-in types
                 for(var i = START_INDEX; i <= START_COUNT; i++)
                 {
-                    registration._type    = _scope._registryData[i].Type;
-                    registration._manager = _scope._registryData[i].Manager;
-                    
-                    yield return registration;
-                };
+                    yield return new ContainerRegistration(_scope._registryData[i].Type, (LifetimeManager)_scope._registryData[i].Manager);
+                }
 
                 if (null == _cache)
                 {
@@ -214,11 +204,9 @@ namespace Unity.Container
                                 meta[count].Next = meta[targetBucket].Position;
                                 meta[targetBucket].Position = count;
 
-                                registration._type    = contract.Type;
-                                registration._name    = _registrations[location].Identity[contract.Identity].Name;
-                                registration._manager = contract.Manager;
-
-                                yield return registration;
+                                yield return new ContainerRegistration(contract.Type, 
+                                    _registrations[location].Identity[contract.Identity].Name, 
+                                    (LifetimeManager)contract.Manager);
                             }
                         }
                     }
@@ -236,11 +224,9 @@ namespace Unity.Container
                         var metadata = _registrations[offset].Identity;
                         var identity = registry[index].Identity;
 
-                        registration._type    = registry[index].Type;
-                        registration._manager = registry[index].Manager;
-                        registration._name    = metadata[identity].Name;
-
-                        yield return registration;
+                        yield return new ContainerRegistration(registry[index].Type, 
+                                                               metadata[identity].Name, 
+                                              (LifetimeManager)registry[index].Manager);
                     }
                 }
             }

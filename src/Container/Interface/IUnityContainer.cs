@@ -27,7 +27,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            _registering?.Invoke(container, ref registration);
+            _registering?.Invoke(container, in registration);
 
             return this;
         }
@@ -46,7 +46,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            _registering?.Invoke(container, ref registration);
+            _registering?.Invoke(container, in registration);
 
             return this;
         }
@@ -66,7 +66,7 @@ namespace Unity
             container._scope.Register(ref registration);
 
             // Report registration
-            _registering?.Invoke(container, ref registration);
+            _registering?.Invoke(container, in registration);
 
             return this;
         }
