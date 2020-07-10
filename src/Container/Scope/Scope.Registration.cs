@@ -11,10 +11,10 @@ namespace Unity.Container
 
         protected void RegisterAnonymous(ref RegistrationData data)
         {
-            lock (_registrySync)
+            lock (_lifetimes)
             {
                 // Expand if required
-                var required = _registryCount + data.RegisterAs.Length;
+                var required = _registrations + data.RegisterAs.Length;
                 if (required >= _registryMax) ExpandRegistry(required);
 
                 // Iterate and register types
@@ -43,9 +43,9 @@ namespace Unity.Container
                     // Add new registration
                     if (0 == position)
                     { 
-                        _registryData[++_registryCount]    = new Registry(hash, type, data.Manager);
-                        _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
-                        _registryMeta[bucket].Position     = _registryCount;
+                        _registryData[++_registrations]    = new Registry(hash, type, data.Manager);
+                        _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
+                        _registryMeta[bucket].Position     = _registrations;
                     }
                 }
             }
@@ -56,7 +56,7 @@ namespace Unity.Container
             var nameHash = (uint)data.Name!.GetHashCode();
             var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
 
-            lock (_registrySync)
+            lock (_lifetimes)
             {
                 ref var references = ref _contractData[nameIndex].References;
                 var referenceCount = references[0];
@@ -67,7 +67,7 @@ namespace Unity.Container
                     Array.Resize(ref references, (int)Math.Round(requiredLength / LoadFactor) + 1);
 
                 // Expand registry if required
-                requiredLength = _registryCount + data.RegisterAs.Length;
+                requiredLength = _registrations + data.RegisterAs.Length;
                 if (requiredLength >= _registryMax) ExpandRegistry(requiredLength);
 
                 // Iterate and register types
@@ -97,10 +97,10 @@ namespace Unity.Container
                     // Add new registration
                     if (0 == position)
                     {
-                        _registryData[++_registryCount]    = new Registry(hash, type, nameIndex, data.Manager);
-                        _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
-                        _registryMeta[bucket].Position     = _registryCount;
-                        references[++referenceCount]       = _registryCount;
+                        _registryData[++_registrations]    = new Registry(hash, type, nameIndex, data.Manager);
+                        _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
+                        _registryMeta[bucket].Position     = _registrations;
+                        references[++referenceCount]       = _registrations;
                     }
                 }
 
@@ -129,7 +129,7 @@ namespace Unity.Container
 
         protected int IndexOf(uint hash, string? name, int required)
         {
-            var length = _contractCount;
+            var length = _contracts;
 
             // Check if already registered
             var bucket = hash % _contractMeta.Length;
@@ -140,10 +140,10 @@ namespace Unity.Container
                 position = _contractMeta[position].Next;
             }
 
-            lock (_contractSync)
+            lock (_manager)
             {
                 // Check again if length changed during wait for lock
-                if (length != _contractCount)
+                if (length != _contracts)
                 {
                     bucket = hash % _contractMeta.Length;
                     position = _contractMeta[bucket].Position;
@@ -155,7 +155,7 @@ namespace Unity.Container
                 }
 
                 // Expand if required
-                if (_contractCount >= _contractMax)
+                if (_contracts >= _contractMax)
                 {
                     var size = Prime.Numbers[++_contractPrime];
                     _contractMax = (int)(size * LoadFactor);
@@ -164,21 +164,21 @@ namespace Unity.Container
                     _contractMeta = new Metadata[size];
 
                     // Rebuild buckets
-                    for (var index = START_INDEX; index <= _contractCount; index++)
+                    for (var current = START_INDEX; current <= _contracts; current++)
                     {
-                        bucket = _contractData[index].Hash % size;
-                        _contractMeta[index].Next = _contractMeta[bucket].Position;
-                        _contractMeta[bucket].Position = index;
+                        bucket = _contractData[current].Hash % size;
+                        _contractMeta[current].Next = _contractMeta[bucket].Position;
+                        _contractMeta[bucket].Position = current;
                     }
 
                     bucket = hash % _contractMeta.Length;
                 }
 
-                _contractData[++_contractCount] = new Contract(hash, name, required + 1);
-                _contractMeta[_contractCount].Next = _contractMeta[bucket].Position;
-                _contractMeta[bucket].Position = _contractCount;
+                _contractData[++_contracts] = new Contract(hash, name, required + 1);
+                _contractMeta[_contracts].Next = _contractMeta[bucket].Position;
+                _contractMeta[bucket].Position = _contracts;
 
-                return _contractCount;
+                return _contracts;
             }
         }
 
@@ -197,11 +197,11 @@ namespace Unity.Container
             Array.Resize(ref _registryData, size);
             _registryMeta = new Metadata[size];
 
-            for (var i = START_INDEX; i <= _registryCount; i++)
+            for (var current = START_INDEX; current <= _registrations; current++)
             {
-                var bucket = _registryData[i].Hash % size;
-                _registryMeta[i].Next = _registryMeta[bucket].Position;
-                _registryMeta[bucket].Position = i;
+                var bucket = _registryData[current].Hash % size;
+                _registryMeta[current].Next = _registryMeta[bucket].Position;
+                _registryMeta[bucket].Position = current;
             }
         }
 

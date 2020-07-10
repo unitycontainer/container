@@ -48,7 +48,7 @@ namespace Unity.Container
             protected int _length;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            protected Contract[] _identity;
+            protected Contract[]? _identity;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             protected Registry[] _registry;
@@ -60,7 +60,7 @@ namespace Unity.Container
 
             public RootRegistrationsEnumerator(ContainerScope root)
             {
-                _length   = root._registryCount;
+                _length   = root._registrations;
                 _identity = root._contractData;
                 _registry = root._registryData;
             }
@@ -81,7 +81,7 @@ namespace Unity.Container
                     if (RegistrationType.Internal == manager.RegistrationType) 
                         continue;
 
-                    yield return new ContainerRegistration(_registry[i].Type, _identity[_registry[i].Identity].Name, manager);
+                    yield return new ContainerRegistration(_registry[i].Type, _identity?[_registry[i].Identity].Name, manager);
                 }
             }
 
@@ -126,12 +126,12 @@ namespace Unity.Container
             {
                 _registrations = scope
                     .Hierarchy()
-                    .Where(scope => START_COUNT < scope._registryCount)
-                    .Select(scope => new ScopeData(scope._registryCount, scope._registryData, scope._contractData))
+                    .Where(scope => START_DATA <= scope._registrations)
+                    .Select(scope => new ScopeData(scope._registrations, scope._registryData, scope._contractData))
                     .ToArray();
 
                 _scope = scope;
-                _prime = Prime.IndexOf(_registrations.Sum(scope => scope.Count - START_COUNT) + 1);
+                _prime = Prime.IndexOf(_registrations.Sum(scope => scope.Count - (START_DATA - START_INDEX)) + 1);
             }
 
             #endregion
@@ -146,11 +146,12 @@ namespace Unity.Container
             public IEnumerator<ContainerRegistration> GetEnumerator()
             {
                 // Built-in types
-                for(var i = START_INDEX; i <= START_COUNT; i++)
+                for(var i = START_INDEX; i < START_DATA; i++)
                 {
-                    yield return new ContainerRegistration(_scope._registryData[i].Type, (LifetimeManager)_scope._registryData[i].Manager);
+                    yield return new ContainerRegistration(_scope._registryData[i].Type, _scope._manager);
                 }
 
+                // Registered types
                 if (null == _cache)
                 {
                     if (0 == _registrations.Length) yield break;
@@ -205,7 +206,7 @@ namespace Unity.Container
                                 meta[targetBucket].Position = count;
 
                                 yield return new ContainerRegistration(contract.Type, 
-                                    _registrations[location].Identity[contract.Identity].Name, 
+                                    _registrations[location].Identity?[contract.Identity].Name, 
                                     (LifetimeManager)contract.Manager);
                             }
                         }
@@ -225,7 +226,7 @@ namespace Unity.Container
                         var identity = registry[index].Identity;
 
                         yield return new ContainerRegistration(registry[index].Type, 
-                                                               metadata[identity].Name, 
+                                                               metadata?[identity].Name, 
                                               (LifetimeManager)registry[index].Manager);
                     }
                 }
@@ -245,9 +246,9 @@ namespace Unity.Container
             {
                 public readonly int        Count;
                 public readonly Registry[] Registry;
-                public readonly Contract[] Identity;
+                public readonly Contract[]? Identity;
 
-                public ScopeData(int count, Registry[] registry, Contract[] identity)
+                public ScopeData(int count, Registry[] registry, Contract[]? identity)
                 {
                     Count    = count;
                     Registry = registry;

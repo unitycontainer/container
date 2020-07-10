@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.Lifetime;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -13,11 +14,9 @@ namespace Unity.Container
         protected const float LoadFactor = 0.72f;
 
         protected const int START_DATA  = 4;
-        protected const int START_COUNT = 3;
         protected const int START_INDEX = 1;
-        protected const int IDENTITY_SIZE = 3; 
-        protected const int DEFAULT_REGISTRY_SIZE = 1;
-        protected const int DEFAULT_IDENTITY_SIZE = 0;
+        protected const int DEFAULT_REGISTRY_PRIME = 1;
+        protected const int DEFAULT_IDENTITY_PRIME = 0;
 
         protected const string ASYNC_ERROR_MESSAGE = "This feature requires 'Unity.Professional' extension";
 
@@ -26,34 +25,32 @@ namespace Unity.Container
 
         #region Fields
 
+        protected readonly LifetimeManager _manager;
         protected readonly ICollection<IDisposable> _lifetimes;
 
         protected int _contractMax;
         protected int _registryMax;
+        protected int _contracts;
         protected int _contractPrime;
-        protected int _contractCount;
-        protected int _registryCount;
-        protected Metadata[] _contractMeta;
+        protected int _registrations;
         protected Metadata[] _registryMeta;
-        protected Contract[] _contractData;
         protected Registry[] _registryData;
-        protected readonly object _registrySync;
-        protected readonly object _contractSync;
+        protected Metadata[] _contractMeta;
+        protected Contract[] _contractData;
 
         #endregion
 
 
         #region Constructors
 
-        internal ContainerScope(UnityContainer container, int registry = DEFAULT_REGISTRY_SIZE, 
-                                                          int identity = DEFAULT_IDENTITY_SIZE)
+        internal ContainerScope(UnityContainer container, int registry = DEFAULT_REGISTRY_PRIME, 
+                                                          int identity = DEFAULT_IDENTITY_PRIME)
         {
             Parent    = container.Parent?._scope;
             Container = container;
 
             // Scope specific
-            _registrySync = new object();
-            _contractSync = new object();
+            _manager   = new ContainerLifetimeManager(Container);
             _lifetimes = new List<IDisposable>();
 
             // Initial size
@@ -70,19 +67,24 @@ namespace Unity.Container
             _contractData = new Contract[size];
             _contractMax  = (int)(size * LoadFactor);
 
-            // Add Interface registrations
-            var manager = new ContainerLifetimeManager(Container);
-            _registryData[  _registryCount] = new Registry((uint)typeof(UnityContainer      ).GetHashCode(), typeof(UnityContainer      ), manager);
-            _registryData[++_registryCount] = new Registry((uint)typeof(IUnityContainer     ).GetHashCode(), typeof(IUnityContainer     ), manager);
-            _registryData[++_registryCount] = new Registry((uint)typeof(IUnityContainerAsync).GetHashCode(), typeof(IUnityContainerAsync), manager);
-            _registryData[++_registryCount] = new Registry((uint)typeof(IServiceProvider    ).GetHashCode(), typeof(IServiceProvider    ), manager);
+            // Built-in types
+            var type_0 = typeof(UnityContainer);
+            var type_1 = typeof(IUnityContainer);
+            var type_2 = typeof(IUnityContainerAsync);
+            var type_3 = typeof(IServiceProvider);
+
+            // Add built-in registrations
+            _registryData[  _registrations] = new Registry((uint)type_0.GetHashCode(), type_0, _manager);
+            _registryData[++_registrations] = new Registry((uint)type_1.GetHashCode(), type_1, _manager);
+            _registryData[++_registrations] = new Registry((uint)type_2.GetHashCode(), type_2, _manager);
+            _registryData[++_registrations] = new Registry((uint)type_3.GetHashCode(), type_3, _manager);
 
             // Rebuild Metadata
-            for (var index = START_INDEX; index <= _registryCount; index++)
+            for (var current = START_INDEX; current <= _registrations; current++)
             {
-                var bucket = _registryData[index].Hash % size;
-                _registryMeta[index].Next = _registryMeta[bucket].Position;
-                _registryMeta[bucket].Position = index;
+                var bucket = _registryData[current].Hash % size;
+                _registryMeta[current].Next = _registryMeta[bucket].Position;
+                _registryMeta[bucket].Position = current;
             }
         }
 
@@ -93,9 +95,9 @@ namespace Unity.Container
             Parent         = scope.Parent;
             Container      = scope.Container;
 
+            _manager       = scope._manager;
             _lifetimes     = scope._lifetimes;
-            _registrySync  = scope._registrySync;
-            _contractSync  = scope._contractSync;
+            _contracts     = scope._contracts;
             _contractMax   = scope._contractMax;
             _registryMax   = scope._registryMax;
             _registryData  = scope._registryData;
@@ -103,8 +105,7 @@ namespace Unity.Container
             _registryMeta  = scope._registryMeta;
             _contractMeta  = scope._contractMeta;
             _contractPrime = scope._contractPrime;
-            _registryCount = scope._registryCount;
-            _contractCount = scope._contractCount;
+            _registrations = scope._registrations;
         }
 
         #endregion

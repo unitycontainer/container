@@ -59,11 +59,11 @@ namespace Container.Scope
 
         public int ContractPrime => _contractPrime;
 
-        public int ContractCount => _contractCount;
-        public int RegistryCount => _registryCount;
+        public int ContractCount => _contracts;
+        public int RegistryCount => _registrations;
 
-        public object ContractSync => _contractSync;
-        public object RegistrySync => _registrySync;
+        public object ContractSync => _manager;
+        public object RegistrySync => _lifetimes;
 
         public Metadata[] ContractMeta => _contractMeta;
         public Metadata[] RegistryMeta => _registryMeta;

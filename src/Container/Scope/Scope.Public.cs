@@ -50,7 +50,7 @@ namespace Unity.Container
 
             do
             {
-                if (0 == scope._contractCount) continue;
+                if (0 == scope._contracts) continue;
 
                 var hash = type.GetHashCode(name);
                 var bucket = hash % scope._registryMeta.Length;
