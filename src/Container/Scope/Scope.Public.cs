@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Unity.Container
 {
@@ -15,6 +16,13 @@ namespace Unity.Container
         /// Owner container
         /// </summary>
         public readonly UnityContainer Container;
+
+        #endregion
+
+
+        #region Lifetime Container
+
+        public ICollection<IDisposable> Disposables => _lifetimes;
 
         #endregion
 

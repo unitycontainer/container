@@ -64,12 +64,6 @@ namespace Unity
         {
             if (null == _scope) return;
 
-            // Registrations cache
-            _cache = null;
-
-            // Unsubscribe from notifications
-            Registering -= OnCacheInvalidated;
-
             // Child container dispose
             if (null != Parent)
             {

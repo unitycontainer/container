@@ -126,7 +126,7 @@ namespace Unity
             public override IPolicyList Policies => Container._policies;
 
             /// <inheritdoc />
-            public override ICollection<IDisposable> Lifetime => Container._scope;
+            public override ICollection<IDisposable> Lifetime => Container._scope.Disposables;
 
             #endregion
 

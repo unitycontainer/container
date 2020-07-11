@@ -26,7 +26,7 @@ namespace Unity
 
             public string? Name => _container.Name;
 
-            public IEnumerable<ContainerRegistration> Registrations => _container.Registrations;
+            //public IEnumerable<ContainerRegistration> Registrations => _container.Registrations;
 
             public UnityContainer? Parent => _container.Parent;
 

@@ -11,8 +11,6 @@ namespace Unity
         /// <inheritdoc />
         IUnityContainer? IUnityContainer.Parent => Parent;
 
-
-
         #endregion
 
 
@@ -89,6 +87,10 @@ namespace Unity
         }
 
         #endregion
+
+
+        IUnityContainer.Enumerable IUnityContainer.Registrations 
+            => new IUnityContainer.Enumerable(_scope.RegistrationsEnumeratorFactory);
 
 
         #region Child Container

@@ -7,7 +7,7 @@ namespace Container.Interfaces
     [TestClass]
     public class IUnityContainerTests
     {
-        protected UnityContainer Container;
+        protected IUnityContainer Container;
 
         [TestInitialize]
         public virtual void InitializeTest() => Container = new UnityContainer();
