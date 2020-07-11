@@ -81,7 +81,6 @@ namespace Container.Scope
             {
                 Assert.AreEqual(TestTypes[i], Scope.RegistryData[StartPosition + i].Type);
                 Assert.AreSame(manager1, Scope.RegistryData[StartPosition + i].Manager);
-                // TODO: Assert.AreSame(Name, Scope.RegistryData[StartPosition + i].Name);
             }
 
             Assert.AreEqual(TestTypes[0], Scope.RegistryData[StartPosition].Type);

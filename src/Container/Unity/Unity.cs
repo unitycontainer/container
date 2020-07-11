@@ -52,37 +52,19 @@ namespace Unity
             // Child Container Specific
         }
 
-        ~UnityContainer()
-        {
-            Dispose(false);
-        }
-
         #endregion
 
 
-        protected virtual void Dispose(bool _)
-        {
-            if (null == _scope) return;
+        #region IDisposable
 
+        public void Dispose()
+        {
             // Child container dispose
-            if (null != Parent)
-            {
-                Parent.Registering -= OnParentRegistering;
-            }
+            if (null != Parent) Parent.Registering -= OnParentRegistering; 
+
+            _scope.Dispose();
         }
 
-
-        //public void Dispose()
-        //{
-
-        //    throw new NotImplementedException();
-        //}
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~UnityContainer()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
+        #endregion
     }
 }

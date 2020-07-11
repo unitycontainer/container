@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Unity.Container
 {
@@ -29,6 +30,8 @@ namespace Unity.Container
         /// Registration count
         /// </summary>
         public int Count => _registrations - (START_DATA - START_INDEX);
+
+        public ICollection<IDisposable> Disposables => _lifetimes;
 
         #endregion
 

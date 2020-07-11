@@ -25,7 +25,7 @@ namespace Unity.Container
 
                     // Check for existing
                     var hash = (uint)type.GetHashCode();
-                    var bucket = hash % _registryMeta.Length;
+                    var bucket = hash % _registryData.Length;
                     var position = _registryMeta[bucket].Position;
                     while (position > 0)
                     {
@@ -80,7 +80,7 @@ namespace Unity.Container
 
                     // Check for existing
                     var hash = type.GetHashCode(nameHash);
-                    var bucket = hash % _registryMeta.Length;
+                    var bucket = hash % _registryData.Length;
                     var position = _registryMeta[bucket].Position;
 
                     while (position > 0)
@@ -164,8 +164,11 @@ namespace Unity.Container
                     var size = Prime.Numbers[++_contractPrime];
                     _contractMax = (int)(size * LoadFactor);
 
+                    _poolMeta.Return(_contractMeta);
+                    _contractMeta = _poolMeta.Rent(size);
+                   
                     Array.Resize(ref _contractData, size);
-                    _contractMeta = new Metadata[size];
+                    Array.Clear(_contractMeta, 0, size);
 
                     // Rebuild buckets
                     for (var current = START_INDEX; current <= _contracts; current++)
@@ -198,8 +201,11 @@ namespace Unity.Container
 
             _registryMax = (int)(size * LoadFactor);
 
+            _poolMeta.Return(_registryMeta);
+            _registryMeta = _poolMeta.Rent(size);
+
             Array.Resize(ref _registryData, size);
-            _registryMeta = new Metadata[size];
+            Array.Clear(_registryMeta, 0, size);
 
             for (var current = START_INDEX; current <= _registrations; current++)
             {
