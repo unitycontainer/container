@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Unity.Container
 {
-    public partial class ContainerScope
+    public partial class ContainerScope : IDisposable
     {
         #region Public Members
 
@@ -107,6 +107,16 @@ namespace Unity.Container
         /// <returns>New scope associated with the container</returns>
         public virtual ContainerScope CreateChildScope(UnityContainer container)
             => new ContainerScope(container);
+
+        #endregion
+
+
+        #region IDisposable
+
+        /// <summary>
+        /// Dispose current scope
+        /// </summary>
+        public void Dispose() => Dispose(true);
 
         #endregion
     }
