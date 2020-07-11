@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Unity.Container
 {
@@ -17,12 +16,19 @@ namespace Unity.Container
         /// </summary>
         public readonly UnityContainer Container;
 
-        #endregion
+        /// <summary>
+        /// Version of scope
+        /// </summary>
+        /// <remarks>
+        /// Scope version is increased every time registrations change
+        /// in any way
+        /// </remarks>
+        public int Version => _version;
 
-
-        #region Lifetime Container
-
-        public ICollection<IDisposable> Disposables => _lifetimes;
+        /// <summary>
+        /// Registration count
+        /// </summary>
+        public int Count => _registrations - (START_DATA - START_INDEX);
 
         #endregion
 

@@ -6,7 +6,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Size = { _registryCount }", Name = "Scope({ Container.Name })")]
+    [DebuggerDisplay("Size = { Count }, Version = { Version }", Name = "Scope({ Container.Name })")]
     public partial class ContainerScope
     {
         #region Constants
@@ -15,9 +15,9 @@ namespace Unity.Container
 
         protected const int START_DATA  = 4;
         protected const int START_INDEX = 1;
+        protected const int HASH_CODE_SEED = 52361;
         protected const int DEFAULT_REGISTRY_PRIME = 1;
         protected const int DEFAULT_IDENTITY_PRIME = 0;
-
         protected const string ASYNC_ERROR_MESSAGE = "This feature requires 'Unity.Professional' extension";
 
         #endregion
@@ -28,6 +28,8 @@ namespace Unity.Container
         protected readonly LifetimeManager _manager;
         protected readonly ICollection<IDisposable> _lifetimes;
 
+        protected int _level;
+        protected int _version;
         protected int _contractMax;
         protected int _registryMax;
         protected int _contracts;
@@ -50,6 +52,7 @@ namespace Unity.Container
             Container = container;
 
             // Scope specific
+            _level     = null == Parent ? 1 : Parent._level + 1;
             _manager   = new ContainerLifetimeManager(Container);
             _lifetimes = new List<IDisposable>();
 
@@ -95,8 +98,10 @@ namespace Unity.Container
             Parent         = scope.Parent;
             Container      = scope.Container;
 
+            _level         = scope._level;
             _manager       = scope._manager;
             _lifetimes     = scope._lifetimes;
+            _version       = scope._version + 1;
             _contracts     = scope._contracts;
             _contractMax   = scope._contractMax;
             _registryMax   = scope._registryMax;

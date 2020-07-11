@@ -19,7 +19,7 @@ namespace Unity
             var container = new UnityContainer(this, name);
 
             // Add to lifetime manager
-            _scope.Disposables.Add(container);
+            ((ICollection<IDisposable>)_scope).Add(container);
             
             // Raise event if required
             _childContainerCreated?.Invoke(this, container._context = new PrivateExtensionContext(container));

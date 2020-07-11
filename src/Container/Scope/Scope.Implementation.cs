@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace Unity.Container
+﻿namespace Unity.Container
 {
     public partial class ContainerScope
     {
@@ -13,39 +9,18 @@ namespace Unity.Container
         
         }
 
-        #region Container Hierarchy
-
-        protected HierarchyEnumerable Hierarchy() => new HierarchyEnumerable(this);
-
-        protected readonly struct HierarchyEnumerable : IEnumerable<ContainerScope>
+        public override int GetHashCode()
         {
-            private readonly ContainerScope _scope;
+            int hash = HASH_CODE_SEED;
+            var scope = this;
 
-            public HierarchyEnumerable(ContainerScope scope) 
-                => _scope = scope;
+            do {
 
-            readonly IEnumerator<ContainerScope> IEnumerable<ContainerScope>.GetEnumerator() 
-                => GetEnumerator();
+                hash = hash * scope._level + scope._version;
+            
+            } while (null != (scope = scope.Parent));
 
-            readonly IEnumerator IEnumerable.GetEnumerator() 
-                => GetEnumerator();
-
-            public readonly Enumerator<ContainerScope> GetEnumerator()
-            {
-                var scope = _scope;
-                return new Enumerator<ContainerScope>((out ContainerScope current) =>
-                {
-                    current = scope;
-
-                    if (null == scope) return false;
-
-                    scope = scope.Parent;
-
-                    return true;
-                });
-            }
+            return hash;
         }
-
-        #endregion
     }
 }

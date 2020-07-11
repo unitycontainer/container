@@ -34,6 +34,7 @@ namespace Unity.Container
                         { 
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
+                            _version += 1;
                             break;
                         }
 
@@ -46,6 +47,7 @@ namespace Unity.Container
                         _registryData[++_registrations]    = new Registry(hash, type, data.Manager);
                         _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
                         _registryMeta[bucket].Position     = _registrations;
+                        _version += 1;
                     }
                 }
             }
@@ -88,6 +90,7 @@ namespace Unity.Container
                         {
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
+                            _version += 1;
                             break;
                         }
 
@@ -101,6 +104,7 @@ namespace Unity.Container
                         _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
                         _registryMeta[bucket].Position     = _registrations;
                         references[++referenceCount]       = _registrations;
+                        _version += 1;
                     }
                 }
 
@@ -210,7 +214,7 @@ namespace Unity.Container
 
         #region Nested Types
 
-        [DebuggerDisplay("Type = {Type?.Name},  Identity = { Identity }, Manager = {Manager}", Name = "{ (Type?.Name ?? string.Empty),nq }")]
+        [DebuggerDisplay("Identity = { Identity }, Manager = {Manager}", Name = "{ (Type?.Name ?? string.Empty),nq }")]
         public struct Registry
         {
             public readonly uint Hash;

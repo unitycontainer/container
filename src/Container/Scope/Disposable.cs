@@ -5,11 +5,50 @@ using System.Text;
 
 namespace Unity.Container
 {
-    public partial class ContainerScope : IDisposable
+    public partial class ContainerScope : ICollection<IDisposable>, IDisposable
     {
         #region Fields
 
         private bool disposedValue;
+
+        #endregion
+
+
+        #region 
+
+        int ICollection<IDisposable>.Count
+            => _lifetimes.Count;
+
+        bool ICollection<IDisposable>.IsReadOnly
+            => _lifetimes.IsReadOnly;
+
+        void ICollection<IDisposable>.Add(IDisposable item)
+            => _lifetimes.Add(item);
+
+        void ICollection<IDisposable>.Clear()
+            => _lifetimes.Clear();
+
+        bool ICollection<IDisposable>.Contains(IDisposable item)
+            => _lifetimes.Contains(item);
+
+        void ICollection<IDisposable>.CopyTo(IDisposable[] array, int arrayIndex)
+            => _lifetimes.CopyTo(array, arrayIndex);
+
+        bool ICollection<IDisposable>.Remove(IDisposable item)
+            => _lifetimes.Remove(item);
+
+        IEnumerator<IDisposable> IEnumerable<IDisposable>.GetEnumerator()
+            => _lifetimes.GetEnumerator();
+
+        #endregion
+
+
+        #region IEnumerable
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
 
