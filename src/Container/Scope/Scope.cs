@@ -7,7 +7,7 @@ using Unity.Storage;
 namespace Unity.Container
 {
     [DebuggerDisplay("Size = { Count }, Version = { Version }", Name = "Scope({ Container.Name })")]
-    public partial class ContainerScope
+    public partial class ContainerScope : IContainerScope
     {
         #region Constants
 
@@ -27,6 +27,7 @@ namespace Unity.Container
 
         protected readonly LifetimeManager _manager;
         protected readonly ICollection<IDisposable> _lifetimes;
+        protected readonly IContainerScope? _parent;
 
         protected int _level;
         protected int _version;
@@ -48,11 +49,11 @@ namespace Unity.Container
         internal ContainerScope(UnityContainer container, int registry = DEFAULT_REGISTRY_PRIME, 
                                                           int identity = DEFAULT_IDENTITY_PRIME)
         {
-            Parent    = container.Parent?._scope;
+            _parent = container.Parent?._scope;
             Container = container;
 
             // Scope specific
-            _level     = null == Parent ? 1 : Parent._level + 1;
+            _level     = null == _parent ? 1 : ((ContainerScope)_parent)._level + 1;
             _manager   = new ContainerLifetimeManager(Container);
             _lifetimes = new List<IDisposable>();
 
@@ -95,7 +96,7 @@ namespace Unity.Container
         protected ContainerScope(ContainerScope scope)
         {
             // Copy data
-            Parent         = scope.Parent;
+            _parent        = scope._parent;
             Container      = scope.Container;
 
             _level         = scope._level;

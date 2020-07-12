@@ -22,7 +22,7 @@ namespace Unity.Container
 
                 hash = hash * scope._level + scope._version;
             
-            } while (null != (scope = scope.Parent));
+            } while (null != (scope = (ContainerScope?)scope._parent));
 
             return hash;
         }
@@ -70,7 +70,7 @@ namespace Unity.Container
                     if (null == _next) return false;
                     
                     _current = _next;
-                    _next = _current.Parent;
+                    _next = (ContainerScope?)_current._parent;
 
                     return true;
                 }

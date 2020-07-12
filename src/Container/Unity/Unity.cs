@@ -8,7 +8,7 @@ namespace Unity
     {
         #region Fields
 
-        internal ContainerScope    _scope;
+        internal IContainerScope   _scope;
         internal readonly Defaults _policies;
 
         #endregion

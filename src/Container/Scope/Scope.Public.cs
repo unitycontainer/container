@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace Unity.Container
 {
-    public partial class ContainerScope : IDisposable
+    public partial class ContainerScope
     {
         #region Public Members
 
         /// <summary>
         /// Parent scope
         /// </summary>
-        public readonly ContainerScope? Parent;
+        public IContainerScope? Parent => _parent;
 
         /// <summary>
         /// Owner container
@@ -59,7 +59,7 @@ namespace Unity.Container
                     position = scope._registryMeta[position].Next;
                 }
 
-            } while ((scope = scope.Parent) != null);
+            } while ((scope = (ContainerScope?)scope._parent) != null);
 
             return false;
         }
@@ -85,7 +85,7 @@ namespace Unity.Container
                     position = scope._registryMeta[position].Next;
                 }
 
-            } while ((scope = scope.Parent) != null);
+            } while ((scope = (ContainerScope?)scope._parent) != null);
 
             return false;
         }
@@ -108,7 +108,7 @@ namespace Unity.Container
         /// </summary>
         /// <param name="container"><see cref="UnityContainer"/> that owns the scope</param>
         /// <returns>New scope associated with the container</returns>
-        public virtual ContainerScope CreateChildScope(UnityContainer container)
+        public virtual IContainerScope CreateChildScope(UnityContainer container)
             => new ContainerScope(container);
 
         #endregion

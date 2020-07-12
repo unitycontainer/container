@@ -32,7 +32,7 @@ namespace Container.Scope
         public virtual void InitializeTest()
         {
             Container = GetContainer();
-            Scope = new TestScope(Container._scope);
+            Scope = new TestScope((ContainerScope)Container._scope);
         }
 
         [TestMethod]
