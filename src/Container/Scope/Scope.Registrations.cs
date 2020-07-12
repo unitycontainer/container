@@ -12,7 +12,7 @@ namespace Unity.Container
         /// <summary>
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
-        public IEnumerable<ContainerRegistration> Registrations 
+        public virtual IEnumerable<ContainerRegistration> Registrations 
             => (null == Parent)
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);

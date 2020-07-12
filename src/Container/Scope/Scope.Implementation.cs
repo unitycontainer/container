@@ -4,7 +4,7 @@ namespace Unity.Container
 {
     public partial class ContainerScope
     {
-        protected void ReplaceManager(ref Registry registry, RegistrationManager manager)
+        protected virtual void ReplaceManager(ref Registry registry, RegistrationManager manager)
         {
             // TODO: Dispose manager
             registry.Manager = manager;
@@ -25,11 +25,9 @@ namespace Unity.Container
             return hash;
         }
 
-
         protected virtual void Dispose(bool disposing)
         {
             if (disposing) GC.SuppressFinalize(this);
         }
-
     }
 }

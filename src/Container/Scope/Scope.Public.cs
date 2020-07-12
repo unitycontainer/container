@@ -41,7 +41,7 @@ namespace Unity.Container
 
         #region Registrations
 
-        public bool IsRegistered(Type type)
+        public virtual bool IsRegistered(Type type)
         {
             var scope = this;
 
@@ -64,7 +64,7 @@ namespace Unity.Container
             return false;
         }
 
-        public bool IsRegistered(Type type, string name)
+        public virtual bool IsRegistered(Type type, string name)
         {
             var scope = this;
 
