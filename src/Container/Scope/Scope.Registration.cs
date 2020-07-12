@@ -9,7 +9,7 @@ namespace Unity.Container
     {
         #region Register
 
-        protected void RegisterAnonymous(ref RegistrationData data)
+        protected virtual void RegisterAnonymous(ref RegistrationData data)
         {
             lock (_lifetimes)
             {
@@ -30,7 +30,7 @@ namespace Unity.Container
                     while (position > 0)
                     {
                         ref var candidate = ref _registryData[position];
-                        if (candidate.Type == type && 0 == candidate.Identity)
+                        if (candidate.Contract.Type == type && 0 == candidate.Identity)
                         { 
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
@@ -53,7 +53,7 @@ namespace Unity.Container
             }
         }
 
-        protected void RegisterContracts(ref RegistrationData data)
+        protected virtual void RegisterContracts(ref RegistrationData data)
         {
             var nameHash = (uint)data.Name!.GetHashCode();
             var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
@@ -86,7 +86,7 @@ namespace Unity.Container
                     while (position > 0)
                     {
                         ref var candidate = ref _registryData[position];
-                        if (candidate.Type == type && nameIndex == candidate.Identity)
+                        if (candidate.Contract.Type == type && nameIndex == candidate.Identity)
                         {
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
@@ -100,7 +100,7 @@ namespace Unity.Container
                     // Add new registration
                     if (0 == position)
                     {
-                        _registryData[++_registrations]    = new Registry(hash, type, nameIndex, data.Manager);
+                        _registryData[++_registrations]    = new Registry(hash, type, data.Name, nameIndex, data.Manager);
                         _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
                         _registryMeta[bucket].Position     = _registrations;
                         references[++referenceCount]       = _registrations;
@@ -131,7 +131,7 @@ namespace Unity.Container
 
         #region Contracts
 
-        protected int IndexOf(uint hash, string? name, int required)
+        protected virtual int IndexOf(uint hash, string? name, int required)
         {
             var length = _contracts;
 
@@ -178,7 +178,7 @@ namespace Unity.Container
                     bucket = hash % _contractMeta.Length;
                 }
 
-                _contractData[++_contracts] = new Contract(hash, name, required + 1);
+                _contractData[++_contracts] = new Identity(hash, name, required + 1);
                 _contractMeta[_contracts].Next = _contractMeta[bucket].Position;
                 _contractMeta[bucket].Position = _contracts;
 
@@ -191,7 +191,7 @@ namespace Unity.Container
 
         #region Expanding
 
-        protected void ExpandRegistry(int required)
+        protected virtual void ExpandRegistry(int required)
         {
             var index = Prime.IndexOf((int)(required / LoadFactor));
             int size = Prime.Numbers[index];
@@ -218,35 +218,35 @@ namespace Unity.Container
         public struct Registry
         {
             public readonly uint Hash;
-            public readonly Type Type;
             public readonly int  Identity;
+            public readonly Contract   Contract;
             public RegistrationManager Manager;
 
             public Registry(uint hash, Type type, RegistrationManager manager)
             {
                 Hash = hash;
-                Type = type;
-                Manager = manager;
+                Contract = new Contract(type);
+                Manager  = manager;
                 Identity = 0;
             }
 
-            public Registry(uint hash, Type type, int identity, RegistrationManager manager)
+            public Registry(uint hash, Type type, string name, int identity, RegistrationManager manager)
             {
                 Hash = hash;
-                Type = type;
+                Contract = new Contract(type, name);
                 Manager = manager;
                 Identity = identity;
             }
         }
 
         [DebuggerDisplay("{ Name }")]
-        public struct Contract
+        public struct Identity
         {
             public readonly uint Hash;
             public readonly string? Name;
             public int[] References;
 
-            public Contract(uint hash, string? name, int size)
+            public Identity(uint hash, string? name, int size)
             {
                 Hash = hash;
                 Name = name;

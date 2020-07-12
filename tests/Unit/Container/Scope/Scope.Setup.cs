@@ -43,9 +43,9 @@ namespace Container.Scope
             Assert.AreEqual(StartPosition - 1, Scope.RegistryCount);
 
             Assert.AreSame(Container, Scope.Container);
-            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].Type);
-            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].Type);
-            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].Type);
+            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].Contract.Type);
+            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].Contract.Type);
+            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].Contract.Type);
         }
     }
 
@@ -68,7 +68,7 @@ namespace Container.Scope
         public Metadata[] ContractMeta => _contractMeta;
         public Metadata[] RegistryMeta => _registryMeta;
 
-        public Contract[] ContractData => _contractData;
+        public Identity[] ContractData => _contractData;
         public Registry[] RegistryData => _registryData;
 
         public int GetIndexOf(string name)

@@ -53,7 +53,7 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref scope._registryData[position];
-                    if (candidate.Identity == 0 && candidate.Type == type)
+                    if (candidate.Identity == 0 && candidate.Contract.Type == type)
                         return true;
 
                     position = scope._registryMeta[position].Next;
@@ -79,7 +79,7 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref scope._registryData[position];
-                    if (candidate.Type == type && name == scope._contractData[candidate.Identity].Name) 
+                    if (candidate.Contract.Type == type && candidate.Contract.Name == name) 
                         return true;
 
                     position = scope._registryMeta[position].Next;

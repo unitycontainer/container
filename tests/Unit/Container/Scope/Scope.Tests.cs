@@ -52,11 +52,11 @@ namespace Container.Scope
             Assert.AreEqual(StartPosition + SizeTypes - 1, Scope.RegistryCount);
             for (var i = 1; i < SizeTypes; i++)
             {
-                Assert.AreEqual(TestTypes[i], Scope.RegistryData[StartPosition + i].Type);
+                Assert.AreEqual(TestTypes[i], Scope.RegistryData[StartPosition + i].Contract.Type);
                 Assert.AreSame(manager1,      Scope.RegistryData[StartPosition + i].Manager);
             }
 
-            Assert.AreEqual(TestTypes[0], Scope.RegistryData[StartPosition].Type);
+            Assert.AreEqual(TestTypes[0], Scope.RegistryData[StartPosition].Contract.Type);
             Assert.AreSame(manager2, Scope.RegistryData[StartPosition].Manager);
         }
 
@@ -79,11 +79,11 @@ namespace Container.Scope
             Assert.AreEqual(StartPosition + SizeTypes - 1, Scope.RegistryCount);
             for (var i = 1; i < SizeTypes; i++)
             {
-                Assert.AreEqual(TestTypes[i], Scope.RegistryData[StartPosition + i].Type);
+                Assert.AreEqual(TestTypes[i], Scope.RegistryData[StartPosition + i].Contract.Type);
                 Assert.AreSame(manager1, Scope.RegistryData[StartPosition + i].Manager);
             }
 
-            Assert.AreEqual(TestTypes[0], Scope.RegistryData[StartPosition].Type);
+            Assert.AreEqual(TestTypes[0], Scope.RegistryData[StartPosition].Contract.Type);
             Assert.AreSame(manager2, Scope.RegistryData[StartPosition].Manager);
         }
 

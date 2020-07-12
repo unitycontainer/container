@@ -46,7 +46,7 @@ namespace Unity.Container
             protected int _length;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            protected Contract[]? _identity;
+            protected Identity[]? _identity;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             protected Registry[] _registry;
@@ -80,7 +80,7 @@ namespace Unity.Container
                     if (RegistrationType.Internal == manager.RegistrationType) 
                         continue;
 
-                    yield return new ContainerRegistration(_registry[i].Type, _identity?[_registry[i].Identity].Name, manager);
+                    yield return new ContainerRegistration(in _registry[i].Contract, manager);
                 }
             }
 
@@ -139,7 +139,7 @@ namespace Unity.Container
                 _registrations = scope
                     .Hierarchy()
                     .Where(scope => START_DATA <= scope._registrations)
-                    .Select(scope => new ScopeInfo(scope._registrations, scope._registryData, scope._contractData))
+                    .Select(scope => new ScopeInfo(scope._registrations, scope._registryData))
                     .ToArray();
 
                 _scope = scope;
@@ -160,7 +160,7 @@ namespace Unity.Container
                 // Built-in types
                 for(var i = START_INDEX; i < START_DATA; i++)
                 {
-                    yield return new ContainerRegistration(_scope._registryData[i].Type, _scope._manager);
+                    yield return new ContainerRegistration(in _scope._registryData[i].Contract, _scope._manager);
                 }
 
                 // Registered types
@@ -183,14 +183,14 @@ namespace Unity.Container
                         // Iterate registrations at this level
                         for (var index = START_DATA; index <= length; index++)
                         {
-                            var contract = registry[index];
+                            var registration = registry[index];
 
                             // Skip internal registrations
-                            if (RegistrationType.Internal == contract.Manager.RegistrationType) 
+                            if (RegistrationType.Internal == registration.Manager.RegistrationType) 
                                 continue;
 
                             // Check if already served
-                            var targetBucket = contract.Hash % size;
+                            var targetBucket = registration.Hash % size;
                             var position = meta[targetBucket].Position;
                             var location = data[position].Registry;
 
@@ -198,8 +198,8 @@ namespace Unity.Container
                             {
                                 var entry = _registrations[location].Registry[data[position].Index];
 
-                                if (contract.Type == entry.Type && 
-                                    contract.Identity == entry.Identity) break;
+                                if (registration.Contract.Type == entry.Contract.Type && 
+                                    registration.Identity == entry.Identity) break;
 
                                 position = meta[position].Next;
                             }
@@ -217,9 +217,7 @@ namespace Unity.Container
                                 meta[count].Next = meta[targetBucket].Position;
                                 meta[targetBucket].Position = count;
 
-                                yield return new ContainerRegistration(contract.Type, 
-                                    _registrations[location].Identity?[contract.Identity].Name, 
-                                    (LifetimeManager)contract.Manager);
+                                yield return new ContainerRegistration(in registration.Contract, (LifetimeManager)registration.Manager);
                             }
                         }
                     }
@@ -234,12 +232,8 @@ namespace Unity.Container
                         var index    = _cache[i].Index;
                         var offset   = _cache[i].Registry;
                         var registry = _registrations[offset].Registry;
-                        var metadata = _registrations[offset].Identity;
-                        var identity = registry[index].Identity;
 
-                        yield return new ContainerRegistration(registry[index].Type, 
-                                                               metadata?[identity].Name, 
-                                              (LifetimeManager)registry[index].Manager);
+                        yield return new ContainerRegistration(in registry[index].Contract, (LifetimeManager)registry[index].Manager);
                     }
                 }
             }
@@ -268,13 +262,11 @@ namespace Unity.Container
             {
                 public readonly int        Count;
                 public readonly Registry[] Registry;
-                public readonly Contract[]? Identity;
 
-                public ScopeInfo(int count, Registry[] registry, Contract[]? identity)
+                public ScopeInfo(int count, Registry[] registry)
                 {
                     Count    = count;
                     Registry = registry;
-                    Identity = identity;
                 }
             }
 

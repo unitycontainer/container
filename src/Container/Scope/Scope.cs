@@ -38,7 +38,7 @@ namespace Unity.Container
         protected Metadata[] _registryMeta;
         protected Registry[] _registryData;
         protected Metadata[] _contractMeta;
-        protected Contract[] _contractData;
+        protected Identity[] _contractData;
 
         #endregion
 
@@ -67,7 +67,7 @@ namespace Unity.Container
 
             size = Prime.Numbers[_contractPrime];
             _contractMeta = new Metadata[size];
-            _contractData = new Contract[size];
+            _contractData = new Identity[size];
             _contractMax  = (int)(size * LoadFactor);
 
             // Built-in types
