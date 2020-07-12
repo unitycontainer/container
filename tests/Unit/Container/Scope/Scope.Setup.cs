@@ -38,10 +38,16 @@ namespace Container.Scope
         [TestMethod]
         public void Baseline()
         {
+            // Act
+            var hash = (uint)typeof(ScopeTests).GetHashCode();
+            var zero = typeof(ScopeTests).GetHashCode(0);
+
+            // Validate
+            Assert.AreEqual(hash, zero);
+            Assert.AreEqual(0, Scope.Count);
+            Assert.AreEqual(0, Scope.Version);
             Assert.IsInstanceOfType(Scope, typeof(TestScope));
-
             Assert.AreEqual(StartPosition - 1, Scope.RegistryCount);
-
             Assert.AreSame(Container, Scope.Container);
             Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].Contract.Type);
             Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].Contract.Type);

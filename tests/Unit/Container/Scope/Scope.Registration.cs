@@ -7,17 +7,6 @@ namespace Container.Scope
     public partial class ScopeTests
     {
         [TestMethod]
-        public void HashGenerator()
-        {
-            // Act
-            var hash = (uint)typeof(ScopeTests).GetHashCode();
-            var zero = typeof(ScopeTests).GetHashCode(0);
-
-            // Validate
-            Assert.AreEqual(hash, zero);
-        }
-
-        [TestMethod]
         public void ExpandTest()
         {
             // Arrange

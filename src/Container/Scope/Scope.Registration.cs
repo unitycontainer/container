@@ -214,7 +214,7 @@ namespace Unity.Container
 
         #region Nested Types
 
-        [DebuggerDisplay("Identity = { Identity }, Manager = {Manager}", Name = "{ (Type?.Name ?? string.Empty),nq }")]
+        [DebuggerDisplay("Identity = { Identity }, Manager = {Manager}", Name = "{ (Contract.Type?.Name ?? string.Empty),nq }")]
         public struct Registry
         {
             public readonly uint Hash;

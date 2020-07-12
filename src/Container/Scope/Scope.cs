@@ -85,8 +85,8 @@ namespace Unity.Container
             // Rebuild Metadata
             for (var current = START_INDEX; current <= _registrations; current++)
             {
-                var bucket = _registryData[current].Hash % size;
-                _registryMeta[current].Next = _registryMeta[bucket].Position;
+                var bucket = _registryData[current].Hash % _registryMeta.Length;
+                _registryMeta[current].Next    = _registryMeta[bucket].Position;
                 _registryMeta[bucket].Position = current;
             }
         }
@@ -101,7 +101,7 @@ namespace Unity.Container
             _level         = scope._level;
             _manager       = scope._manager;
             _lifetimes     = scope._lifetimes;
-            _version       = scope._version + 1;
+            _version       = scope._version;
             _contracts     = scope._contracts;
             _contractMax   = scope._contractMax;
             _registryMax   = scope._registryMax;

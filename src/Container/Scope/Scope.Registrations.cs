@@ -17,18 +17,6 @@ namespace Unity.Container
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);
 
-        /// <summary>
-        /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
-        /// </summary>
-        protected IEnumerable<ContainerScope> Hierarchy()
-        {
-            for (ContainerScope? scope = this; null != scope; scope = scope.Parent)
-            {
-                yield return scope;
-            }
-        }
-
-
         #region Single Scope Enumerator
 
         /// <summary>
