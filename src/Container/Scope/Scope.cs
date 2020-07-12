@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Lifetime;
@@ -41,8 +40,6 @@ namespace Unity.Container
         protected Metadata[] _contractMeta;
         protected Contract[] _contractData;
 
-        protected static ArrayPool<Metadata> _poolMeta = ArrayPool<Metadata>.Shared;
-
         #endregion
 
 
@@ -59,20 +56,19 @@ namespace Unity.Container
             _manager   = new ContainerLifetimeManager(Container);
             _lifetimes = new List<IDisposable>();
 
-            // Allocate registrations buffer
-            var size = Prime.Numbers[registry];
-            _registryMax  = (int)(size * LoadFactor);
-            _registryData = new Registry[size];
-            _registryMeta = _poolMeta.Rent(size);
-            Array.Clear(_registryMeta, 0, size);
-
-            // Allocate identity buffer
+            // Initial size
             _contractPrime = identity;
+            
+            // Registrations
+            var size = Prime.Numbers[registry];
+            _registryMeta = new Metadata[size];
+            _registryData = new Registry[size];
+            _registryMax  = (int)(size * LoadFactor);
+
             size = Prime.Numbers[_contractPrime];
-            _contractMax  = (int)(size * LoadFactor);
+            _contractMeta = new Metadata[size];
             _contractData = new Contract[size];
-            _contractMeta = _poolMeta.Rent(size);
-            Array.Clear(_contractMeta, 0, size);
+            _contractMax  = (int)(size * LoadFactor);
 
             // Built-in types
             var type_0 = typeof(UnityContainer);

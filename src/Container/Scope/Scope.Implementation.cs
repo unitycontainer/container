@@ -29,9 +29,6 @@ namespace Unity.Container
         protected virtual void Dispose(bool disposing)
         {
             if (disposing) GC.SuppressFinalize(this);
-
-            _poolMeta.Return(_registryMeta);
-            _poolMeta.Return(_contractMeta);
         }
 
     }

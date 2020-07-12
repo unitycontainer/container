@@ -31,6 +31,9 @@ namespace Unity.Container
         /// </summary>
         public int Count => _registrations - (START_DATA - START_INDEX);
 
+        /// <summary>
+        /// Collection of <see cref="IDisposable"/> objects that this scope owns
+        /// </summary>
         public ICollection<IDisposable> Disposables => _lifetimes;
 
         #endregion
