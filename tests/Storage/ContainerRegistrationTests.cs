@@ -1,9 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Unity;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -16,18 +12,14 @@ namespace Storage.Tests
         private string Name = "0123456789";
 
         [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
         public void Baseline()
         {
             // Arrange
-            ContainerRegistration registration;
+            ContainerRegistration registration = new ContainerRegistration();
 
             // Validate
-            Assert.IsNull(registration.RegisteredType);
-            Assert.IsNull(registration.Name);
-            Assert.IsNull(registration.LifetimeManager);
             Assert.IsNull(registration.MappedToType);
-            Assert.IsNull(registration.Factory);
-            Assert.IsNull(registration.Instance);
         }
 
         [TestMethod]
@@ -45,6 +37,25 @@ namespace Storage.Tests
             Assert.IsNull(registration.Factory);
             Assert.IsNull(registration.Instance);
         }
+
+
+        [TestMethod]
+        public void ContractTest()
+        {
+            // Arrange
+            var manager = new TransientLifetimeManager { Data = this };
+            var contract = new Contract(typeof(object), Name);
+
+            ContainerRegistration registration = new ContainerRegistration(in contract, manager);
+
+            Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(Name, registration.Name);
+            Assert.AreSame(manager, registration.LifetimeManager);
+            Assert.IsNull(registration.MappedToType);
+            Assert.IsNull(registration.Factory);
+            Assert.IsNull(registration.Instance);
+        }
+
 
         [TestMethod]
         public void UnInitializedNamedTest()

@@ -8,7 +8,7 @@ namespace Unity.Resolution
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
     public class DependencyOverride : ResolverOverride,
-                                      IEquatable<NamedType>
+                                      IEquatable<Contract>
     {
         #region Fields
 
@@ -89,7 +89,7 @@ namespace Unity.Resolution
                            (null == Type   || dependency.Type == Type ) &&
                            (null == Name   || dependency.Name == Name);
                 
-                case NamedType type:
+                case Contract type:
                     return Equals(type);
 
                 default:
@@ -97,7 +97,7 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(NamedType other)
+        public bool Equals(Contract other)
         {
             return (other.Type == Type) &&
                    (other.Name == Name);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Unity.Resolution;
+using Unity;
 
 namespace Resolution.Basics
 {
@@ -14,7 +14,7 @@ namespace Resolution.Basics
         public void HashCodeNotZeroTest()
         {
             // Arrange
-            NamedType structure = new NamedType();
+            Contract structure = new Contract();
 
             // Validate
             Assert.AreNotEqual(0, structure.GetHashCode());
@@ -27,13 +27,13 @@ namespace Resolution.Basics
             var typeHash = TestType.GetHashCode();
             var nameHash = TestName.GetHashCode();
 
-            NamedType structure1 = new NamedType(TestType, TestName);
-            NamedType structure2 = new NamedType(typeof(NamedTypeTests), "98a884c0-7eae-4926-8f3e-bf1f42a05be6");
+            Contract structure1 = new Contract(TestType, TestName);
+            Contract structure2 = new Contract(typeof(NamedTypeTests), "98a884c0-7eae-4926-8f3e-bf1f42a05be6");
 
             // Validate
             Assert.AreEqual(structure1.GetHashCode(), structure2.GetHashCode());
-            Assert.AreEqual(structure1.GetHashCode(), NamedType.GetHashCode(typeHash, nameHash));
-            Assert.AreEqual(NamedType.GetHashCode(typeHash, nameHash), NamedType.GetHashCode(typeHash, nameHash));
+            Assert.AreEqual(structure1.GetHashCode(), Contract.GetHashCode(typeHash, nameHash));
+            Assert.AreEqual(Contract.GetHashCode(typeHash, nameHash), Contract.GetHashCode(typeHash, nameHash));
         }
 
 
@@ -41,9 +41,9 @@ namespace Resolution.Basics
         public void EqualsTest()
         {
             // Arrange
-            NamedType structure1 = new NamedType(TestType, TestName );
-            NamedType structure2 = new NamedType(typeof(NamedTypeTests), "98a884c0-7eae-4926-8f3e-bf1f42a05be6");
-            NamedType structure3 = new NamedType(typeof(NamedTypeTests));
+            Contract structure1 = new Contract(TestType, TestName );
+            Contract structure2 = new Contract(typeof(NamedTypeTests), "98a884c0-7eae-4926-8f3e-bf1f42a05be6");
+            Contract structure3 = new Contract(typeof(NamedTypeTests));
 
             // Validate
             Assert.IsTrue( structure1.Equals(structure2));
@@ -61,7 +61,7 @@ namespace Resolution.Basics
         public void ToStringTest()
         {
             // Arrange
-            NamedType structure = new NamedType(TestType, TestName);
+            Contract structure = new Contract(TestType, TestName);
             var data = structure.ToString();
 
             // Validate
@@ -73,7 +73,7 @@ namespace Resolution.Basics
         public void ToStringCold()
         {
             // Arrange
-            NamedType structure = new NamedType();
+            Contract structure = new Contract();
             var data = structure.ToString();
 
             // Validate

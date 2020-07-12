@@ -11,43 +11,59 @@ namespace Unity
     [DebuggerDisplay("Name = { Name }", Name = "{ RegisteredType.Name,nq }")]
     public readonly struct ContainerRegistration : IContainerRegistration
     {
-        public Type RegisteredType { get; }
+        #region Fields
 
-        public string? Name { get; }
+        internal readonly Contract        _contract;
+        internal readonly LifetimeManager _manager;
 
-        public LifetimeManager LifetimeManager { get; }
-
-        public Type? MappedToType =>
-            RegistrationType.Type == LifetimeManager?.RegistrationType
-                ? (Type?)LifetimeManager.Data
-                : null;
-
-        public object? Instance =>
-            RegistrationType.Instance == LifetimeManager?.RegistrationType
-                ? LifetimeManager.Data
-                : null;
-
-        public ResolveDelegate<IResolveContext>? Factory =>
-            RegistrationType.Factory == LifetimeManager?.RegistrationType 
-                ? (ResolveDelegate<IResolveContext>?)LifetimeManager.Data
-                : null;
+        #endregion
 
 
         #region Constructors
 
+        public ContainerRegistration(in Contract contract, LifetimeManager manager)
+        {
+            _contract = contract;
+            _manager  = manager;
+        }
+
         public ContainerRegistration(Type type, LifetimeManager manager)
         {
-            Name = null;
-            RegisteredType = type;
-            LifetimeManager = manager;
+            _contract = new Contract(type);
+            _manager  = manager;
         }
 
         public ContainerRegistration(Type type, string? name, LifetimeManager manager)
         {
-            Name            = name;
-            RegisteredType  = type;
-            LifetimeManager = manager;
+            _contract = new Contract(type, name);
+            _manager  = manager;
         }
+
+        #endregion
+
+
+        #region IContainerRegistration
+
+        public Type RegisteredType => _contract.Type;
+
+        public string? Name => _contract.Name;
+
+        public LifetimeManager LifetimeManager => _manager;
+
+        public Type? MappedToType =>
+            RegistrationType.Type == _manager.RegistrationType
+                ? (Type?)_manager.Data
+                : null;
+
+        public object? Instance =>
+            RegistrationType.Instance == _manager.RegistrationType
+                ? _manager.Data
+                : null;
+
+        public ResolveDelegate<IResolveContext>? Factory =>
+            RegistrationType.Factory == _manager.RegistrationType 
+                ? (ResolveDelegate<IResolveContext>?)_manager.Data
+                : null;
 
         #endregion
     }
