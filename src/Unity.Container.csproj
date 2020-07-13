@@ -34,9 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))"    Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'"  Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'"  Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))" Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
@@ -58,10 +58,6 @@
     <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
     <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
     <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Container\Interface\IUnityContainerAsync.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'net46'" Remove="Container\Scope\Scope.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Container\Scope\Scope.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Container\Scope\Scope.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Container\Scope\Scope.CS8.0.cs" />
   </ItemGroup>
 
   <!-- Configuration Settings -->

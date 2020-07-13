@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.BuiltIn;
 using Unity.Container;
 using Unity.Pipeline;
 
@@ -8,7 +9,7 @@ namespace Unity
     {
         #region Fields
 
-        internal IContainerScope   _scope;
+        internal Scope   _scope;
         internal readonly Defaults _policies;
 
         #endregion

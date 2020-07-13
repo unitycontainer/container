@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Unity;
+using Unity.BuiltIn;
 using Unity.Container;
 using Unity.Storage;
 
@@ -69,7 +70,7 @@ namespace Container.Scope
         public int RegistryCount => _registrations;
 
         public object ContractSync => _manager;
-        public object RegistrySync => _lifetimes;
+        public object RegistrySync => _disposables;
 
         public Metadata[] ContractMeta => _contractMeta;
         public Metadata[] RegistryMeta => _registryMeta;

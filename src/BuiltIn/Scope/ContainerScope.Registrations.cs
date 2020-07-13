@@ -5,14 +5,14 @@ using System.Linq;
 using Unity.Lifetime;
 using Unity.Storage;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
         /// <summary>
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
-        public virtual IEnumerable<ContainerRegistration> Registrations 
+        public override IEnumerable<ContainerRegistration> Registrations 
             => (null == Parent)
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);

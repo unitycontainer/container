@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
@@ -25,11 +25,6 @@ namespace Unity.Container
             } while (null != (scope = (ContainerScope?)scope._parent));
 
             return hash;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing) GC.SuppressFinalize(this);
         }
 
 

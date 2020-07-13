@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Unity.Storage;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
@@ -11,7 +11,7 @@ namespace Unity.Container
 
         protected virtual void RegisterAnonymous(ref RegistrationData data)
         {
-            lock (_lifetimes)
+            lock (_disposables)
             {
                 // Expand if required
                 var required = _registrations + data.RegisterAs.Length;
@@ -58,7 +58,7 @@ namespace Unity.Container
             var nameHash = (uint)data.Name!.GetHashCode();
             var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
 
-            lock (_lifetimes)
+            lock (_disposables)
             {
                 ref var references = ref _contractData[nameIndex].References;
                 var referenceCount = references[0];
