@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
@@ -8,12 +7,12 @@ namespace Unity.BuiltIn
     {
         #region Register
 
-        protected virtual void RegisterAnonymous(in RegistrationData data)
+        protected override void RegisterAnonymous(in RegistrationData data)
         {
             lock (_registrySync)
             {
                 // Expand if required
-                var required = _registrations + data.RegisterAs.Length;
+                var required = _registryCount + data.RegisterAs.Length;
                 if (required >= _registryMax) ExpandRegistry(required);
 
                 // Iterate and register types
@@ -43,16 +42,16 @@ namespace Unity.BuiltIn
                     // Add new registration
                     if (0 == position)
                     { 
-                        _registryData[++_registrations]    = new Registry(hash, type, data.Manager);
-                        _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
-                        _registryMeta[bucket].Position     = _registrations;
+                        _registryData[++_registryCount]    = new Registry(hash, type, data.Manager);
+                        _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
+                        _registryMeta[bucket].Position     = _registryCount;
                         _version += 1;
                     }
                 }
             }
         }
 
-        protected virtual void RegisterContracts(in RegistrationData data)
+        protected override void RegisterContracts(in RegistrationData data)
         {
             var nameHash = (uint)data.Name!.GetHashCode();
             var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
@@ -68,7 +67,7 @@ namespace Unity.BuiltIn
                     Array.Resize(ref references, (int)Math.Round(requiredLength / LoadFactor) + 1);
 
                 // Expand registry if required
-                requiredLength = _registrations + data.RegisterAs.Length;
+                requiredLength = _registryCount + data.RegisterAs.Length;
                 if (requiredLength >= _registryMax) ExpandRegistry(requiredLength);
 
                 // Iterate and register types
@@ -99,10 +98,10 @@ namespace Unity.BuiltIn
                     // Add new registration
                     if (0 == position)
                     {
-                        _registryData[++_registrations]    = new Registry(hash, type, data.Name, nameIndex, data.Manager);
-                        _registryMeta[_registrations].Next = _registryMeta[bucket].Position;
-                        _registryMeta[bucket].Position     = _registrations;
-                        references[++referenceCount]       = _registrations;
+                        _registryData[++_registryCount]    = new Registry(hash, type, data.Name, nameIndex, data.Manager);
+                        _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
+                        _registryMeta[bucket].Position     = _registryCount;
+                        references[++referenceCount]       = _registryCount;
                         _version += 1;
                     }
                 }
@@ -110,8 +109,6 @@ namespace Unity.BuiltIn
                 // Record new count after all done
                 references[0] = referenceCount;
             }
-
-            return;
         }
 
         #endregion
@@ -121,7 +118,7 @@ namespace Unity.BuiltIn
 
         protected virtual int IndexOf(uint hash, string? name, int required)
         {
-            var length = _identities;
+            var length = _identityCount;
 
             // Check if already registered
             var bucket = hash % _identityMeta.Length;
@@ -135,7 +132,7 @@ namespace Unity.BuiltIn
             lock (_contractSync)
             {
                 // Check again if length changed during wait for lock
-                if (length != _identities)
+                if (length != _identityCount)
                 {
                     bucket = hash % _identityMeta.Length;
                     position = _identityMeta[bucket].Position;
@@ -147,16 +144,16 @@ namespace Unity.BuiltIn
                 }
 
                 // Expand if required
-                if (_identities >= _identityMax)
+                if (_identityCount >= _identityMax)
                 {
-                    var size = Prime.Numbers[++_contractPrime];
+                    var size = Prime.Numbers[++_identityPrime];
                     _identityMax = (int)(size * LoadFactor);
 
                     Array.Resize(ref _identityData, size);
                     _identityMeta = new Metadata[size];
 
                     // Rebuild buckets
-                    for (var current = START_INDEX; current <= _identities; current++)
+                    for (var current = START_INDEX; current <= _identityCount; current++)
                     {
                         bucket = _identityData[current].Hash % size;
                         _identityMeta[current].Next = _identityMeta[bucket].Position;
@@ -166,11 +163,11 @@ namespace Unity.BuiltIn
                     bucket = hash % _identityMeta.Length;
                 }
 
-                _identityData[++_identities] = new Identity(hash, name, required + 1);
-                _identityMeta[_identities].Next = _identityMeta[bucket].Position;
-                _identityMeta[bucket].Position = _identities;
+                _identityData[++_identityCount] = new Identity(hash, name, required + 1);
+                _identityMeta[_identityCount].Next = _identityMeta[bucket].Position;
+                _identityMeta[bucket].Position = _identityCount;
 
-                return _identities;
+                return _identityCount;
             }
         }
 
@@ -189,7 +186,7 @@ namespace Unity.BuiltIn
             Array.Resize(ref _registryData, size);
             _registryMeta = new Metadata[size];
 
-            for (var current = START_INDEX; current <= _registrations; current++)
+            for (var current = START_INDEX; current <= _registryCount; current++)
             {
                 var bucket = _registryData[current].Hash % size;
                 _registryMeta[current].Next = _registryMeta[bucket].Position;

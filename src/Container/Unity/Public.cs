@@ -7,6 +7,13 @@ namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Constants
+
+        public const int BuiltInContracts = 3;
+
+        #endregion
+
+
         #region Public Members
 
         public string? Name { get; }

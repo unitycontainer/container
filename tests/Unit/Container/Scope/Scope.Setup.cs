@@ -57,9 +57,9 @@ namespace Container.Scope
         public int ContractMax => _identityMax;
         public int RegistryMax => _registryMax;
 
-        public int ContractPrime => _contractPrime;
+        public int ContractPrime => _identityPrime;
 
-        public int ContractCount => _identities;
+        public int ContractCount => _identityCount;
 
         public object ContractSync => _contractSync;
         public object RegistrySync => _disposables;

@@ -7,9 +7,9 @@ namespace Unity.BuiltIn
     {
         #region Public Members
 
-        public override int Contracts => _registrations;
+        public override int Contracts => _registryCount;
 
-        public override int Names => _identities;
+        public override int Names => _identityCount;
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace Unity.BuiltIn
 
             do
             {
-                if (0 == scope._identities) continue;
+                if (0 == scope._identityCount) continue;
 
                 var hash = type.GetHashCode(name);
                 var bucket = hash % scope._registryMeta.Length;
@@ -63,14 +63,6 @@ namespace Unity.BuiltIn
             } while ((scope = (ContainerScope?)scope._parent) != null);
 
             return false;
-        }
-
-        public override void Register(in RegistrationData data)
-        {
-            if (null == data.Name)
-                RegisterAnonymous(in data);
-            else
-                RegisterContracts(in data);
         }
 
         #endregion

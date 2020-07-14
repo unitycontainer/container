@@ -8,6 +8,11 @@ namespace Unity.Container
     public abstract partial class Scope
     {
         /// <summary>
+        /// Parent scope
+        /// </summary>
+        public Scope? Parent => _parent;
+
+        /// <summary>
         /// Version of scope
         /// </summary>
         /// <remarks>
@@ -28,13 +33,20 @@ namespace Unity.Container
         /// <summary>
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
         /// </summary>
-        // TODO: Consider moving it out of here
         public ICollection<IDisposable> Disposables => _disposables;
+
+
 
         // TODO: Replace with structure
         public abstract IEnumerable<ContainerRegistration> Registrations { get; }
 
-        public abstract void Register(in RegistrationData data);
+        public virtual void Register(in RegistrationData data)
+        {
+            if (null == data.Name)
+                RegisterAnonymous(in data);
+            else
+                RegisterContracts(in data);
+        }
 
         public abstract bool IsRegistered(Type type);
 

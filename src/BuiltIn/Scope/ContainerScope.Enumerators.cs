@@ -47,7 +47,7 @@ namespace Unity.BuiltIn
             public SingleScopeEnumerator(int hash, ContainerScope root)
             {
                 _hashCode = hash;
-                _length   = root._registrations;
+                _length   = root._registryCount;
                 _identity = root._identityData;
                 _registry = root._registryData;
             }
@@ -126,8 +126,8 @@ namespace Unity.BuiltIn
 
                 _registrations = scope
                     .Hierarchy()
-                    .Where(scope => START_DATA <= scope._registrations)
-                    .Select(scope => new ScopeInfo(scope._registrations, scope._registryData))
+                    .Where(scope => START_DATA <= scope._registryCount)
+                    .Select(scope => new ScopeInfo(scope._registryCount, scope._registryData))
                     .ToArray();
 
                 _scope = scope;

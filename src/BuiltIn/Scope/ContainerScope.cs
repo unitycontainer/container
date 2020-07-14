@@ -7,8 +7,6 @@ namespace Unity.BuiltIn
     {
         #region Constants
 
-        protected const float LoadFactor = 0.72f;
-
         protected const int START_DATA  = 4;
         protected const int START_INDEX = 1;
         protected const int HASH_CODE_SEED = 52361;
@@ -27,9 +25,9 @@ namespace Unity.BuiltIn
 
         protected int _identityMax;
         protected int _registryMax;
-        protected int _identities;
-        protected int _contractPrime;
-        protected int _registrations;
+        protected int _identityPrime;
+        protected int _identityCount;
+        protected int _registryCount;
         protected Metadata[] _registryMeta;
         protected Registry[] _registryData;
         protected Metadata[] _identityMeta;
@@ -47,7 +45,7 @@ namespace Unity.BuiltIn
             : base()
         {
             // Initial size
-            _contractPrime = IDENTITY_ROOT_INDEX;
+            _identityPrime = IDENTITY_ROOT_INDEX;
 
             // Registrations
             var size = Prime.Numbers[REGISTRY_ROOT_INDEX];
@@ -55,7 +53,7 @@ namespace Unity.BuiltIn
             _registryData = new Registry[size];
             _registryMax  = (int)(size * LoadFactor);
 
-            size = Prime.Numbers[_contractPrime];
+            size = Prime.Numbers[_identityPrime];
             _identityMeta = new Metadata[size];
             _identityData = new Identity[size];
             _identityMax  = (int)(size * LoadFactor);
@@ -66,7 +64,7 @@ namespace Unity.BuiltIn
             : base(scope)
         {
             // Initial size
-            _contractPrime = IDENTITY_CHILD_INDEX;
+            _identityPrime = IDENTITY_CHILD_INDEX;
 
             // Registrations
             var size = Prime.Numbers[REGISTRY_CHILD_INDEX];
@@ -74,7 +72,7 @@ namespace Unity.BuiltIn
             _registryData = new Registry[size];
             _registryMax = (int)(size * LoadFactor);
 
-            size = Prime.Numbers[_contractPrime];
+            size = Prime.Numbers[_identityPrime];
             _identityMeta = new Metadata[size];
             _identityData = new Identity[size];
             _identityMax = (int)(size * LoadFactor);
