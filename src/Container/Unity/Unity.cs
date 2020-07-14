@@ -26,7 +26,6 @@ namespace Unity
             Name = name;
 
             _policies = new Defaults();
-            _scope    = new ContainerScope(this, 3, 2);
             _context  = new PrivateExtensionContext(this);
 
             // Setup Processors
@@ -34,6 +33,11 @@ namespace Unity
                   FieldProcessor.SetupProcessor(_context);
                PropertyProcessor.SetupProcessor(_context);
                  MethodProcessor.SetupProcessor(_context);
+
+            // Registration Scope
+            _scope = new ContainerScope();
+            _scope.Register(new RegistrationData(new ContainerLifetimeManager(this), 
+                typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider)));
         }
 
         /// <summary>
@@ -48,9 +52,11 @@ namespace Unity
             Parent = parent;
 
             _policies = parent.Root._policies;
-            _scope = parent._scope.CreateChildScope(this);
-
-            // Child Container Specific
+            
+            // Registration Scope
+            _scope = parent._scope.CreateChildScope();
+            _scope.Register(new RegistrationData(new ContainerLifetimeManager(this),
+                typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider)));
         }
 
         #endregion

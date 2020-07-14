@@ -25,7 +25,7 @@ namespace Container.Scope
             // Arrange
             var manager = new ContainerLifetimeManager(Name);
             var data    = new RegistrationData(null, manager, TestTypes);
-            Scope.Register(ref data);
+            Scope.Register(in data);
 
             // Validate
             Assert.IsTrue(Scope.IsRegistered(typeof(IUnityContainer)));
@@ -44,7 +44,7 @@ namespace Container.Scope
             foreach (var name in TestNames)
             { 
                 var data    = new RegistrationData(name, manager, TestTypes);
-                Scope.Register(ref data);
+                Scope.Register(in data);
             }
 
             // Validate

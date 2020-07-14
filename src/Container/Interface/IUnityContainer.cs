@@ -24,7 +24,7 @@ namespace Unity
             
             // Add to container 
             var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Register(ref registration);
+            container._scope.Register(in registration);
 
             // Report registration
             _registering?.Invoke(container, in registration);
@@ -43,7 +43,7 @@ namespace Unity
 
             // Add to container 
             var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Register(ref registration);
+            container._scope.Register(in registration);
 
             // Report registration
             _registering?.Invoke(container, in registration);
@@ -63,7 +63,7 @@ namespace Unity
 
             // Add to container 
             var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Register(ref registration);
+            container._scope.Register(in registration);
 
             // Report registration
             _registering?.Invoke(container, in registration);

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Unity;
 using Unity.BuiltIn;
-using Unity.Container;
 using Unity.Storage;
 
 namespace Container.Scope
@@ -12,7 +11,7 @@ namespace Container.Scope
     [TestClass]
     public partial class ScopeTests
     {
-        protected TestScope      Scope;
+        protected Unity.Container.Scope Scope;
         protected UnityContainer Container;
         protected string Name = "0123456789";
         protected const int StartPosition = 4;
@@ -33,7 +32,7 @@ namespace Container.Scope
         public virtual void InitializeTest()
         {
             Container = GetContainer();
-            Scope = new TestScope((ContainerScope)Container._scope);
+            Scope = Container._scope;
         }
 
         [TestMethod]
@@ -45,14 +44,8 @@ namespace Container.Scope
 
             // Validate
             Assert.AreEqual(hash, zero);
-            Assert.AreEqual(0, Scope.Count);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.IsInstanceOfType(Scope, typeof(TestScope));
-            Assert.AreEqual(StartPosition - 1, Scope.RegistryCount);
-            Assert.AreSame(Container, Scope.Container);
-            Assert.AreEqual(typeof(IUnityContainer),      Scope.RegistryData[1].Contract.Type);
-            Assert.AreEqual(typeof(IUnityContainerAsync), Scope.RegistryData[2].Contract.Type);
-            Assert.AreEqual(typeof(IServiceProvider),     Scope.RegistryData[3].Contract.Type);
+            Assert.AreEqual(3, Scope.Contracts);
+            Assert.AreEqual(3, Scope.Version);
         }
     }
 
@@ -61,21 +54,20 @@ namespace Container.Scope
         public TestScope(ContainerScope scope) 
             : base(scope) { }
 
-        public int ContractMax => _contractMax;
+        public int ContractMax => _identityMax;
         public int RegistryMax => _registryMax;
 
         public int ContractPrime => _contractPrime;
 
-        public int ContractCount => _contracts;
-        public int RegistryCount => _registrations;
+        public int ContractCount => _identities;
 
-        public object ContractSync => _manager;
+        public object ContractSync => _contractSync;
         public object RegistrySync => _disposables;
 
-        public Metadata[] ContractMeta => _contractMeta;
+        public Metadata[] ContractMeta => _identityMeta;
         public Metadata[] RegistryMeta => _registryMeta;
 
-        public Identity[] ContractData => _contractData;
+        public Identity[] ContractData => _identityData;
         public Registry[] RegistryData => _registryData;
 
         public int GetIndexOf(string name)

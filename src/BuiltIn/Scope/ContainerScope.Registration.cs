@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using Unity.Storage;
 
@@ -9,9 +8,9 @@ namespace Unity.BuiltIn
     {
         #region Register
 
-        protected virtual void RegisterAnonymous(ref RegistrationData data)
+        protected virtual void RegisterAnonymous(in RegistrationData data)
         {
-            lock (_disposables)
+            lock (_registrySync)
             {
                 // Expand if required
                 var required = _registrations + data.RegisterAs.Length;
@@ -53,14 +52,14 @@ namespace Unity.BuiltIn
             }
         }
 
-        protected virtual void RegisterContracts(ref RegistrationData data)
+        protected virtual void RegisterContracts(in RegistrationData data)
         {
             var nameHash = (uint)data.Name!.GetHashCode();
             var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
 
-            lock (_disposables)
+            lock (_registrySync)
             {
-                ref var references = ref _contractData[nameIndex].References;
+                ref var references = ref _identityData[nameIndex].References;
                 var referenceCount = references[0];
                 var requiredLength = data.RegisterAs.Length + referenceCount;
 
@@ -118,71 +117,60 @@ namespace Unity.BuiltIn
         #endregion
 
 
-        #region Register Asynchronously
-
-        public virtual void RegisterAnonymous(ref RegistrationData data, CancellationToken token)
-            => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
-
-        public virtual void RegisterContracts(ref RegistrationData data, CancellationToken token)
-            => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
-
-        #endregion
-
-
         #region Contracts
 
         protected virtual int IndexOf(uint hash, string? name, int required)
         {
-            var length = _contracts;
+            var length = _identities;
 
             // Check if already registered
-            var bucket = hash % _contractMeta.Length;
-            var position = _contractMeta[bucket].Position;
+            var bucket = hash % _identityMeta.Length;
+            var position = _identityMeta[bucket].Position;
             while (position > 0)
             {
-                if (_contractData[position].Name == name) return position;
-                position = _contractMeta[position].Next;
+                if (_identityData[position].Name == name) return position;
+                position = _identityMeta[position].Next;
             }
 
-            lock (_manager)
+            lock (_contractSync)
             {
                 // Check again if length changed during wait for lock
-                if (length != _contracts)
+                if (length != _identities)
                 {
-                    bucket = hash % _contractMeta.Length;
-                    position = _contractMeta[bucket].Position;
+                    bucket = hash % _identityMeta.Length;
+                    position = _identityMeta[bucket].Position;
                     while (position > 0)
                     {
-                        if (_contractData[position].Name == name) return position;
-                        position = _contractMeta[position].Next;
+                        if (_identityData[position].Name == name) return position;
+                        position = _identityMeta[position].Next;
                     }
                 }
 
                 // Expand if required
-                if (_contracts >= _contractMax)
+                if (_identities >= _identityMax)
                 {
                     var size = Prime.Numbers[++_contractPrime];
-                    _contractMax = (int)(size * LoadFactor);
+                    _identityMax = (int)(size * LoadFactor);
 
-                    Array.Resize(ref _contractData, size);
-                    _contractMeta = new Metadata[size];
+                    Array.Resize(ref _identityData, size);
+                    _identityMeta = new Metadata[size];
 
                     // Rebuild buckets
-                    for (var current = START_INDEX; current <= _contracts; current++)
+                    for (var current = START_INDEX; current <= _identities; current++)
                     {
-                        bucket = _contractData[current].Hash % size;
-                        _contractMeta[current].Next = _contractMeta[bucket].Position;
-                        _contractMeta[bucket].Position = current;
+                        bucket = _identityData[current].Hash % size;
+                        _identityMeta[current].Next = _identityMeta[bucket].Position;
+                        _identityMeta[bucket].Position = current;
                     }
 
-                    bucket = hash % _contractMeta.Length;
+                    bucket = hash % _identityMeta.Length;
                 }
 
-                _contractData[++_contracts] = new Identity(hash, name, required + 1);
-                _contractMeta[_contracts].Next = _contractMeta[bucket].Position;
-                _contractMeta[bucket].Position = _contracts;
+                _identityData[++_identities] = new Identity(hash, name, required + 1);
+                _identityMeta[_identities].Next = _identityMeta[bucket].Position;
+                _identityMeta[bucket].Position = _identities;
 
-                return _contracts;
+                return _identities;
             }
         }
 
@@ -206,51 +194,6 @@ namespace Unity.BuiltIn
                 var bucket = _registryData[current].Hash % size;
                 _registryMeta[current].Next = _registryMeta[bucket].Position;
                 _registryMeta[bucket].Position = current;
-            }
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        [DebuggerDisplay("Identity = { Identity }, Manager = {Manager}", Name = "{ (Contract.Type?.Name ?? string.Empty),nq }")]
-        public struct Registry
-        {
-            public readonly uint Hash;
-            public readonly int  Identity;
-            public readonly Contract   Contract;
-            public RegistrationManager Manager;
-
-            public Registry(uint hash, Type type, RegistrationManager manager)
-            {
-                Hash = hash;
-                Contract = new Contract(type);
-                Manager  = manager;
-                Identity = 0;
-            }
-
-            public Registry(uint hash, Type type, string name, int identity, RegistrationManager manager)
-            {
-                Hash = hash;
-                Contract = new Contract(type, name);
-                Manager = manager;
-                Identity = identity;
-            }
-        }
-
-        [DebuggerDisplay("{ Name }")]
-        public struct Identity
-        {
-            public readonly uint Hash;
-            public readonly string? Name;
-            public int[] References;
-
-            public Identity(uint hash, string? name, int size)
-            {
-                Hash = hash;
-                Name = name;
-                References = new int[size];
             }
         }
 

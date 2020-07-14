@@ -2,7 +2,6 @@
 
 namespace Unity.Storage
 {
-
     /// <summary>
     /// Internal metadata structure for hash sets and lists
     /// </summary>

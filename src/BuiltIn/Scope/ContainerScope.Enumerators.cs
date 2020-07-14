@@ -13,7 +13,7 @@ namespace Unity.BuiltIn
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
         public override IEnumerable<ContainerRegistration> Registrations 
-            => (null == Parent)
+            => (null == _parent)
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);
 
@@ -48,7 +48,7 @@ namespace Unity.BuiltIn
             {
                 _hashCode = hash;
                 _length   = root._registrations;
-                _identity = root._contractData;
+                _identity = root._identityData;
                 _registry = root._registryData;
             }
 
@@ -145,12 +145,6 @@ namespace Unity.BuiltIn
             /// <inheritdoc />
             public IEnumerator<ContainerRegistration> GetEnumerator()
             {
-                // Built-in types
-                for(var i = START_INDEX; i < START_DATA; i++)
-                {
-                    yield return new ContainerRegistration(in _scope._registryData[i].Contract, _scope._manager);
-                }
-
                 // Registered types
                 if (null == _cache)
                 {
@@ -169,7 +163,7 @@ namespace Unity.BuiltIn
                         var registry = _registrations[level].Registry;
 
                         // Iterate registrations at this level
-                        for (var index = START_DATA; index <= length; index++)
+                        for (var index = START_INDEX; index <= length; index++)
                         {
                             var registration = registry[index];
 

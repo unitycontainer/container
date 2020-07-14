@@ -4,47 +4,42 @@ using System.Diagnostics;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Size = { Count }, Version = { Version }", Name = "Scope({ Container.Name })")]
+    [DebuggerDisplay("Contracts = { Contracts }, Names = { Names }, Version = { Version }")]
     public abstract partial class Scope
     {
-        /// <summary>
-        /// Owner container
-        /// </summary>
-        public UnityContainer Container => _container;
-
         /// <summary>
         /// Version of scope
         /// </summary>
         /// <remarks>
-        /// Scope version is increased every time registrations change
-        /// in any way
+        /// Scope version is increased every time registrations changes
         /// </remarks>
         public int Version => _version;
 
         /// <summary>
         /// Registration count
         /// </summary>
-        public virtual int Count { get; }
+        public abstract int Contracts { get; }
+
+        /// <summary>
+        /// Contract names
+        /// </summary>
+        public abstract int Names { get; }
 
         /// <summary>
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
         /// </summary>
+        // TODO: Consider moving it out of here
         public ICollection<IDisposable> Disposables => _disposables;
 
+        // TODO: Replace with structure
         public abstract IEnumerable<ContainerRegistration> Registrations { get; }
 
-        public abstract void Register(ref RegistrationData data);
+        public abstract void Register(in RegistrationData data);
 
         public abstract bool IsRegistered(Type type);
 
         public abstract bool IsRegistered(Type type, string name);
 
-
-        /// <summary>
-        /// Creates new scope for child container
-        /// </summary>
-        /// <param name="container"><see cref="UnityContainer"/> that owns the scope</param>
-        /// <returns>New scope associated with the container</returns>
-        public abstract Scope CreateChildScope(UnityContainer container);
+        public abstract Scope CreateChildScope();
     }
 }

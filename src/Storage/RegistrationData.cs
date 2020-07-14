@@ -8,14 +8,21 @@ namespace Unity
     {
         #region Constructors
 
-        internal RegistrationData(string? name, LifetimeManager manager, Type[] registerAs)
+        internal RegistrationData(LifetimeManager manager, params Type[] registerAs)
+        {
+            RegisterAs = registerAs;
+            Manager = manager;
+            Name = null;
+        }
+
+        internal RegistrationData(string? name, LifetimeManager manager, params Type[] registerAs)
         {
             RegisterAs = registerAs;
             Manager = manager;
             Name = name;
         }
 
-        public RegistrationData(Type type, string? name, ITypeLifetimeManager manager, Type[] registerAs)
+        public RegistrationData(Type type, string? name, ITypeLifetimeManager manager, params Type[] registerAs)
         {
             Name       = name;
             Manager    = (LifetimeManager)manager;
@@ -26,7 +33,7 @@ namespace Unity
             Manager.RegistrationType = RegistrationType.Type;
         }
 
-        public RegistrationData(object? instance, string? name, IInstanceLifetimeManager manager, Type[] registerAs)
+        public RegistrationData(object? instance, string? name, IInstanceLifetimeManager manager, params Type[] registerAs)
         {
             Name = name;
             Manager = (LifetimeManager)manager;
@@ -39,7 +46,7 @@ namespace Unity
             Manager.RegistrationType = RegistrationType.Instance;
         }
 
-        public RegistrationData(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, Type[] registerAs)
+        public RegistrationData(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs)
         {
             Name = name;
             Manager = (LifetimeManager)manager;

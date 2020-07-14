@@ -11,7 +11,6 @@ namespace Unity.Container
 
         protected readonly int _level;
         protected readonly Scope? _parent;
-        protected readonly UnityContainer _container;
         protected readonly ICollection<IDisposable> _disposables;
 
         #endregion
@@ -19,28 +18,21 @@ namespace Unity.Container
 
         #region Constructors
 
-        protected internal Scope(UnityContainer container)
+        protected internal Scope()
         {
-            _container = container;
-            _parent    = container.Parent?._scope;
-
-            // Scope specific
-            _level = null == _parent ? 1 : _parent._level + 1;
+            _level  = 1;
+            _parent = null;
             _disposables = new List<IDisposable>();
         }
 
         #endregion
 
-
-        // Copy constructor
-        protected Scope(Scope scope)
+        protected Scope(Scope scope, int level = -1)
         {
             // Copy data
-            _version     = scope._version;
-            _level       = scope._level;
-            _parent      = scope._parent;
-            _container   = scope._container;
-            _disposables = scope._disposables;
+            _level = (-1 == level) ? scope._level + 1 : level;
+            _parent = scope;
+            _disposables = new List<IDisposable>();
         }
     }
 }

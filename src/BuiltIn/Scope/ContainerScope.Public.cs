@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -8,10 +7,9 @@ namespace Unity.BuiltIn
     {
         #region Public Members
 
-        /// <summary>
-        /// Parent scope
-        /// </summary>
-        public Scope? Parent => _parent;
+        public override int Contracts => _registrations;
+
+        public override int Names => _identities;
 
         #endregion
 
@@ -47,7 +45,7 @@ namespace Unity.BuiltIn
 
             do
             {
-                if (0 == scope._contracts) continue;
+                if (0 == scope._identities) continue;
 
                 var hash = type.GetHashCode(name);
                 var bucket = hash % scope._registryMeta.Length;
@@ -67,12 +65,12 @@ namespace Unity.BuiltIn
             return false;
         }
 
-        public override void Register(ref RegistrationData data)
+        public override void Register(in RegistrationData data)
         {
             if (null == data.Name)
-                RegisterAnonymous(ref data);
+                RegisterAnonymous(in data);
             else
-                RegisterContracts(ref data);
+                RegisterContracts(in data);
         }
 
         #endregion
@@ -80,13 +78,7 @@ namespace Unity.BuiltIn
 
         #region Child Scope
 
-        /// <summary>
-        /// Creates new scope for child container
-        /// </summary>
-        /// <param name="container"><see cref="UnityContainer"/> that owns the scope</param>
-        /// <returns>New scope associated with the container</returns>
-        public override Scope CreateChildScope(UnityContainer container)
-            => new ContainerScope(container);
+        public override Scope CreateChildScope() => new ContainerScope(this);
 
         #endregion
     }

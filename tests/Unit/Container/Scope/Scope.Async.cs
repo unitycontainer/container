@@ -1,48 +1,51 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Runtime.InteropServices;
 using System.Threading;
+using Unity.BuiltIn;
 
 namespace Container.Scope
 {
     public partial class ScopeTests
     {
         [TestMethod]
-        public void IndexOfTest()
+        public virtual void IndexOfTest()
         {
             int index0 =  0;
             int index1 = -1;
             int index2 = -2;
             int index3 = -3;
             var test = "test";
+            var testScope = new TestScope((ContainerScope)Scope);
 
             Thread thread1 = new Thread(delegate ()
             {
-                index1 = Scope.GetIndexOf(Name);
+                index1 = testScope.GetIndexOf(Name);
             })
             { Name = "1" };
 
             Thread thread2 = new Thread(delegate ()
             {
-                index2 = Scope.GetIndexOf(test);
+                index2 = testScope.GetIndexOf(test);
             })
             { Name = "2" };
 
             Thread thread3 = new Thread(delegate ()
             {
-                index3 = Scope.GetIndexOf("unknown");
+                index3 = testScope.GetIndexOf("unknown");
             })
             { Name = "3" };
 
-            Monitor.Enter(Scope.ContractSync);
+            Monitor.Enter(testScope.ContractSync);
             thread1.Start();
             thread2.Start();
             thread3.Start();
 
             Thread.Sleep(100);
 
-            index0 = Scope.GetIndexOf(Name);
-            index0 = Scope.GetIndexOf(test);
+            index0 = testScope.GetIndexOf(Name);
+            index0 = testScope.GetIndexOf(test);
 
-            Monitor.Exit(Scope.ContractSync);
+            Monitor.Exit(testScope.ContractSync);
 
             thread1.Join();
             thread2.Join();
@@ -51,7 +54,7 @@ namespace Container.Scope
             Assert.AreEqual(1, index1);
             Assert.AreEqual(2, index2);
             Assert.AreEqual(3, index3);
-            Assert.AreEqual(1, Scope.GetIndexOf(Name));
+            Assert.AreEqual(1, testScope.GetIndexOf(Name));
         }
     }
 }
