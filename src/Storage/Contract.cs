@@ -34,9 +34,9 @@ namespace Unity
 
         #endregion
 
-        // TODO: switch to HashCode implementation
         #region Implementation
 
+        // TODO: switch to HashCode implementation
         public override int GetHashCode() => GetHashCode(Type, Name);
 
         public static int GetHashCode(Type? type, string? name) => (type?.GetHashCode() ?? 0) + 37 ^ (name?.GetHashCode() ?? 0) + 17;
