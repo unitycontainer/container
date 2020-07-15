@@ -25,6 +25,11 @@ jobs:
     - name: Label Fixed Issues
       uses: gh-bot/fix-labeler@master        
 
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0'
+
     - name: Add GitVersion and SourceLink
       run: | 
         dotnet add src/Unity.Abstractions.csproj package GitVersionTask --no-restore --version 5.3.5
