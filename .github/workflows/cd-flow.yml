@@ -28,7 +28,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.x'
+        dotnet-version: '5.0.100-preview.8.20363.2'
 
     - name: Add GitVersion and SourceLink
       run: | 
