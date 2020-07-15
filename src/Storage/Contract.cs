@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Unity
 {
     /// <summary>
     /// Structure holding contract information
     /// </summary>
+    [DebuggerDisplay("Type = { Type?.Name }, Name = { Name }")]
     public readonly struct Contract
     {
         #region Public Members
