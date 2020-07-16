@@ -12,8 +12,9 @@ namespace Unity
         public ResolutionFailedException(SerializationInfo info, StreamingContext context) 
             : base(info, context) 
         {
-            TypeRequested = (string)info.GetValue(nameof(TypeRequested), typeof(string));
-            NameRequested = (string)info.GetValue(nameof(NameRequested), typeof(string));
+            TypeRequested = (string?)info.GetValue(nameof(TypeRequested), typeof(string)) ??
+                throw new InvalidOperationException("Can not deserialize Type");
+            NameRequested = (string?)info.GetValue(nameof(NameRequested), typeof(string));
         }
 
         [SecurityCritical]
