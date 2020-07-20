@@ -40,13 +40,7 @@ namespace Unity.Container
         // TODO: Replace with structure
         public abstract IEnumerable<ContainerRegistration> Registrations { get; }
 
-        public virtual void Register(in RegistrationData data)
-        {
-            if (null == data.Name)
-                RegisterAnonymous(in data);
-            else
-                RegisterContracts(in data);
-        }
+        public abstract void Register(in RegistrationData data);
 
         public abstract bool IsRegistered(Type type);
 

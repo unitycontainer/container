@@ -28,7 +28,7 @@ namespace Unity.BuiltIn
                 while (position > 0)
                 {
                     ref var candidate = ref scope._registryData[position];
-                    if (candidate.Identity == 0 && candidate.Contract.Type == type)
+                    if (null == candidate.Contract.Name && candidate.Contract.Type == type)
                         return true;
 
                     position = scope._registryMeta[position].Next;
@@ -64,6 +64,24 @@ namespace Unity.BuiltIn
 
             return false;
         }
+
+        public override void Register(in RegistrationData data)
+        {
+            if (null == data.Name)
+            {
+                RegisterAnonymous(in data);
+            }
+            else
+            {
+                var nameHash = (uint)data.Name!.GetHashCode();
+                // TODO: Optimize
+                var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
+                ref var identity = ref _identityData[nameIndex];
+
+                RegisterContracts(in data, ref identity);
+            }
+        }
+
 
         #endregion
 

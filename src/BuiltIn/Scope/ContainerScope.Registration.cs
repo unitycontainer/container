@@ -7,7 +7,7 @@ namespace Unity.BuiltIn
     {
         #region Register
 
-        protected override void RegisterAnonymous(in RegistrationData data)
+        protected virtual void RegisterAnonymous(in RegistrationData data)
         {
             lock (_registrySync)
             {
@@ -28,7 +28,7 @@ namespace Unity.BuiltIn
                     while (position > 0)
                     {
                         ref var candidate = ref _registryData[position];
-                        if (candidate.Contract.Type == type && 0 == candidate.Identity)
+                        if (candidate.Contract.Type == type && null == candidate.Contract.Name)
                         { 
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
@@ -51,17 +51,15 @@ namespace Unity.BuiltIn
             }
         }
 
-        protected override void RegisterContracts(in RegistrationData data)
+        protected virtual void RegisterContracts(in RegistrationData data, ref Identity identity)
         {
-            var nameHash = (uint)data.Name!.GetHashCode();
-            var nameIndex = IndexOf(nameHash, data.Name, data.RegisterAs.Length);
-
             lock (_registrySync)
             {
-                ref var references = ref _identityData[nameIndex].References;
+                ref var references = ref identity.References;
                 var referenceCount = references[0];
                 var requiredLength = data.RegisterAs.Length + referenceCount;
 
+                // TODO: lock first 
                 // Expand references if required
                 if (requiredLength >= references.Length)
                     Array.Resize(ref references, (int)Math.Round(requiredLength / LoadFactor) + 1);
@@ -77,14 +75,16 @@ namespace Unity.BuiltIn
                     if (null == type) continue;
 
                     // Check for existing
-                    var hash = type.GetHashCode(nameHash);
+                    var hash = type.GetHashCode(identity.Hash);
                     var bucket = hash % _registryMeta.Length;
                     var position = _registryMeta[bucket].Position;
 
                     while (position > 0)
                     {
                         ref var candidate = ref _registryData[position];
-                        if (candidate.Contract.Type == type && nameIndex == candidate.Identity)
+                        if (hash == candidate.Hash && 
+                            candidate.Contract.Type == type && 
+                            ReferenceEquals(identity.Name, candidate.Contract.Name))
                         {
                             // Found existing
                             ReplaceManager(ref candidate, data.Manager);
@@ -98,7 +98,7 @@ namespace Unity.BuiltIn
                     // Add new registration
                     if (0 == position)
                     {
-                        _registryData[++_registryCount]    = new Registry(hash, type, data.Name, nameIndex, data.Manager);
+                        _registryData[++_registryCount]    = new Registry(hash, type, identity.Name, data.Manager);
                         _registryMeta[_registryCount].Next = _registryMeta[bucket].Position;
                         _registryMeta[bucket].Position     = _registryCount;
                         references[++referenceCount]       = _registryCount;
@@ -108,66 +108,6 @@ namespace Unity.BuiltIn
 
                 // Record new count after all done
                 references[0] = referenceCount;
-            }
-        }
-
-        #endregion
-
-
-        #region Contracts
-
-        protected virtual int IndexOf(uint hash, string? name, int required)
-        {
-            var length = _identityCount;
-
-            // Check if already registered
-            var bucket = hash % _identityMeta.Length;
-            var position = _identityMeta[bucket].Position;
-            while (position > 0)
-            {
-                if (_identityData[position].Name == name) return position;
-                position = _identityMeta[position].Next;
-            }
-
-            lock (_contractSync)
-            {
-                // Check again if length changed during wait for lock
-                if (length != _identityCount)
-                {
-                    bucket = hash % _identityMeta.Length;
-                    position = _identityMeta[bucket].Position;
-                    while (position > 0)
-                    {
-                        if (_identityData[position].Name == name) return position;
-                        position = _identityMeta[position].Next;
-                    }
-                }
-
-                // Expand if required
-                if (_identityCount >= _identityMax)
-                {
-                    var size = Prime.Numbers[++_identityPrime];
-                    _identityMax = (int)(size * LoadFactor);
-
-                    Array.Resize(ref _identityData, size);
-                    _identityMeta = new Metadata[size];
-
-                    // Rebuild buckets
-                    for (var current = START_INDEX; current <= _identityCount; current++)
-                    {
-                        bucket = _identityData[current].Hash % size;
-                        _identityMeta[current].Next = _identityMeta[bucket].Position;
-                        _identityMeta[bucket].Position = current;
-                    }
-
-                    bucket = hash % _identityMeta.Length;
-                }
-
-                _identityData[++_identityCount] = new Identity(hash, name, required + 1);
-                _identityMeta[_identityCount].Next = _identityMeta[bucket].Position;
-                _identityMeta[bucket].Position = _identityCount;
-
-                return _identityCount;
             }
         }
 

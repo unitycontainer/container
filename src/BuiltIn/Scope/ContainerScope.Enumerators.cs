@@ -181,7 +181,7 @@ namespace Unity.BuiltIn
                                 var entry = _registrations[location].Registry[data[position].Index];
 
                                 if (registration.Contract.Type == entry.Contract.Type && 
-                                    registration.Identity == entry.Identity) break;
+                                    ReferenceEquals( registration.Contract.Name, entry.Contract.Name)) break;
 
                                 position = meta[position].Next;
                             }
