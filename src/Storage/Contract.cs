@@ -34,6 +34,7 @@ namespace Unity
 
         #endregion
 
+
         #region Implementation
 
         // TODO: switch to HashCode implementation
