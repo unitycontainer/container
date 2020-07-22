@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity;
 using Unity.Container;
@@ -9,6 +10,14 @@ namespace Container.Scope
     public partial class ScopeTests
     {
         [TestMethod]
+        public void EnumeratorTest()
+        {
+            var entries = Scope.ToArray();
+
+            Assert.AreEqual(3, entries.Length);
+        }
+
+        [TestMethod]
         public void ExpandTest()
         {
             // Arrange
@@ -16,8 +25,8 @@ namespace Container.Scope
             var data2 = new RegistrationData(Name, new ContainerLifetimeManager(Name), new[] { TestTypes[1] });
 
             // Act
-            Scope.Register(in data1);
-            Scope.Register(in data2);
+            Scope.Add(in data1);
+            Scope.Add(in data2);
 
             // Validate
             Assert.AreEqual(1, Scope.Names);
@@ -37,7 +46,7 @@ namespace Container.Scope
             });
 
             // Act
-            Scope.Register(in data);
+            Scope.Add(in data);
 
             // Validate
             //Assert.AreEqual(0, Scope.Names);
@@ -56,23 +65,14 @@ namespace Container.Scope
             var data2 = new RegistrationData(null, manager2, new[] { TestTypes[0], null });
 
             // Act
-            Scope.Register(in data1);
-            Scope.Register(in data2);
+            Scope.Add(in data1);
+            Scope.Add(in data2);
 
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(SizeTypes + 3, Scope.Contracts);
-            //for (var i = 1; i < SizeTypes; i++)
-            //{
-            //    Assert.AreEqual(TestTypes[i], ((TestScope)Scope).RegistryData[StartPosition + i].Contract.Type);
-            //    Assert.AreSame(manager1,      ((TestScope)Scope).RegistryData[StartPosition + i].Manager);
-            //}
-
-            //Assert.AreEqual(TestTypes[0], ((TestScope)Scope).RegistryData[StartPosition].Contract.Type);
-            //Assert.AreSame(manager2, ((TestScope)Scope).RegistryData[StartPosition].Manager);
         }
 
-        [Ignore]
         [TestMethod]
         public void RegisterTypesNameTest()
         {
@@ -84,37 +84,35 @@ namespace Container.Scope
             var data2 = new RegistrationData(Name, manager2, new[] { TestTypes[0], null });
 
             // Act
-            Scope.Register(in data1);
-            Scope.Register(in data2);
+            Scope.Add(in data1);
+            Scope.Add(in data2);
 
             // Validate
             Assert.AreEqual(1, Scope.Names);
             Assert.AreEqual(SizeTypes + 3, Scope.Contracts);
+
+            var registrations = Scope.ToArray();
+
             for (var i = 1; i < SizeTypes; i++)
             {
-                Assert.AreEqual(TestTypes[i], ((TestScope)Scope).RegistryData[StartPosition + i].Contract.Type);
-                Assert.AreSame(manager1, ((TestScope)Scope).RegistryData[StartPosition + i].Manager);
+                Assert.AreEqual(TestTypes[i], registrations[StartPosition - 1 + i].Contract.Type);
+                Assert.AreSame(manager1,      registrations[StartPosition - 1 + i].Manager);
             }
-
-            Assert.AreEqual(TestTypes[0], ((TestScope)Scope).RegistryData[StartPosition].Contract.Type);
-            Assert.AreSame(manager2, ((TestScope)Scope).RegistryData[StartPosition].Manager);
         }
 
-        [Ignore]
         [TestMethod]
         public void RegisterTypesCollisionTest()
         {
             var manager = new ContainerLifetimeManager(Name);
             var data = new RegistrationData(null, manager, TestTypes);
 
-            Scope.Register(in data);
-            Scope.Register(in data);
+            Scope.Add(in data);
+            Scope.Add(in data);
 
             // Validate
             Assert.AreEqual(TestTypes.Length + 3, Scope.Contracts);
         }
 
-        [Ignore]
         [TestMethod]
         public void RegisterTypesNamesCollisionTest()
         {
@@ -124,8 +122,8 @@ namespace Container.Scope
                 var manager = new ContainerLifetimeManager(name);
                 var data = new RegistrationData(name, manager, TestTypes);
             
-                Scope.Register(in data);
-                Scope.Register(in data);
+                Scope.Add(in data);
+                Scope.Add(in data);
             }
 
             // Validate
@@ -133,7 +131,6 @@ namespace Container.Scope
             Assert.AreEqual(TestNames.Length * TestTypes.Length + 3, Scope.Contracts);
         }
 
-        [Ignore]
         [TestMethod]
         public void RegisterForLoopTest()
         {
@@ -143,14 +140,13 @@ namespace Container.Scope
                 var manager = new ContainerLifetimeManager(name);
                 var data = new RegistrationData(name, manager, TestTypes);
 
-                Scope.Register(in data);
+                Scope.Add(in data);
             }
 
             // Validate
             Assert.AreEqual(TestNames.Length * TestTypes.Length + 3, Scope.Contracts);
         }
 
-        [Ignore]
         [TestMethod]
         public void RegisterParallelTest()
         {
@@ -160,7 +156,7 @@ namespace Container.Scope
                 var manager = new ContainerLifetimeManager(name);
                 var data = new RegistrationData(name, manager, TestTypes);
 
-                Scope.Register(in data);
+                Scope.Add(in data);
             });
 
             // Validate

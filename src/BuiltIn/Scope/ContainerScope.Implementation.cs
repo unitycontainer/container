@@ -6,7 +6,19 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        protected virtual void ReplaceManager(ref Registry registry, RegistrationManager manager)
+        protected override bool MoveNext(ref int index, ref Container.Scope.Registration registration)
+        {
+            index = index + 1;
+
+            if (_registryCount < index) return false;
+
+            registration = _registryData[index];
+
+            return true;
+        }
+
+
+        protected virtual void ReplaceManager(ref Registration registry, RegistrationManager manager)
         {
             // TODO: Dispose manager
             registry.Manager = manager;
@@ -22,7 +34,7 @@ namespace Unity.BuiltIn
 
                 hash = hash * scope._level + scope._version;
             
-            } while (null != (scope = (ContainerScope?)scope._parent));
+            } while (null != (scope = (ContainerScope?)scope._next));
 
             return hash;
         }
@@ -65,7 +77,7 @@ namespace Unity.BuiltIn
                     if (null == _next) return false;
                     
                     _current = _next;
-                    _next = (ContainerScope?)_current._parent;
+                    _next = (ContainerScope?)_current._next;
 
                     return true;
                 }

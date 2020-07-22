@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Unity.Benchmarks.Storage
 {
+    [BenchmarkCategory("Storage")]
     [MemoryDiagnoser]
     public class ArrayBenchmarks
     {

@@ -13,7 +13,7 @@ namespace Unity.BuiltIn
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
         public override IEnumerable<ContainerRegistration> Registrations 
-            => (null == _parent)
+            => (null == _next)
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);
 
@@ -34,10 +34,10 @@ namespace Unity.BuiltIn
             protected int _length;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            protected Identity[]? _identity;
+            protected NameInfo[]? _identity;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            protected Registry[] _registry;
+            protected Registration[] _registry;
 
             #endregion
 
@@ -48,7 +48,7 @@ namespace Unity.BuiltIn
             {
                 _hashCode = hash;
                 _length   = root._registryCount;
-                _identity = root._identityData;
+                _identity = root._namesData;
                 _registry = root._registryData;
             }
 
@@ -243,9 +243,9 @@ namespace Unity.BuiltIn
             private readonly struct ScopeInfo
             {
                 public readonly int        Count;
-                public readonly Registry[] Registry;
+                public readonly Registration[] Registry;
 
-                public ScopeInfo(int count, Registry[] registry)
+                public ScopeInfo(int count, Registration[] registry)
                 {
                     Count    = count;
                     Registry = registry;

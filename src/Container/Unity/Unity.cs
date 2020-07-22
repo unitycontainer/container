@@ -35,9 +35,15 @@ namespace Unity
                  MethodProcessor.SetupProcessor(_context);
 
             // Registration Scope
-            _scope = new ContainerScope();
-            _scope.Register(new RegistrationData(new ContainerLifetimeManager(this), 
-                typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider)));
+            _scope = new ContainerScope 
+            { 
+                { 
+                    new ContainerLifetimeManager(this), 
+                    typeof(IUnityContainer), 
+                    typeof(IUnityContainerAsync), 
+                    typeof(IServiceProvider) 
+                } 
+            };
         }
 
         /// <summary>
@@ -55,8 +61,8 @@ namespace Unity
             
             // Registration Scope
             _scope = parent._scope.CreateChildScope();
-            _scope.Register(new RegistrationData(new ContainerLifetimeManager(this),
-                typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider)));
+            _scope.Add(new ContainerLifetimeManager(this),
+                typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider));
         }
 
         #endregion

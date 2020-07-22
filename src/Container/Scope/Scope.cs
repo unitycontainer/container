@@ -16,7 +16,7 @@ namespace Unity.Container
 
         protected int _version;
         protected readonly int _level;
-        protected readonly Scope? _parent;
+        protected readonly Scope? _next;
         protected readonly ICollection<IDisposable> _disposables;
 
         #endregion
@@ -30,7 +30,7 @@ namespace Unity.Container
         protected internal Scope()
         {
             _level  = 1;
-            _parent = null;
+            _next = null;
             _disposables = new List<IDisposable>();
         }
 
@@ -42,7 +42,7 @@ namespace Unity.Container
         protected internal Scope(Scope? parent, ICollection<IDisposable> disposables)
         {
             _level  = (parent?._level ?? 0) + 1;
-            _parent = parent;
+            _next = parent;
             _disposables = disposables;
         }
 
@@ -54,7 +54,7 @@ namespace Unity.Container
         {
             // Copy data
             _level  = parent._level + 1;
-            _parent = parent;
+            _next = parent;
             _disposables = new List<IDisposable>();
         }
 

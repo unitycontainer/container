@@ -18,8 +18,8 @@ namespace Unity
         public bool IsRegistered(Type type, string? name)
         {
             return null == name
-                ? _scope.IsRegistered(type)
-                : _scope.IsRegistered(type, name);
+                ? _scope.Contains(type)
+                : _scope.Contains(type, name);
         }
 
         /// <inheritdoc />
