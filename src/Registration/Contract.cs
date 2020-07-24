@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Unity
@@ -53,8 +54,10 @@ namespace Unity
 
         #region Implementation
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => HashCode;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetHashCode(int typeHash, int nameHash) => typeHash ^ nameHash;
 
         public override bool Equals(object? obj)
