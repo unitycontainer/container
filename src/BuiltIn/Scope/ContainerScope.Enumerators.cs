@@ -12,7 +12,7 @@ namespace Unity.BuiltIn
         /// <summary>
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
-        public override IEnumerable<ContainerRegistration> Registrations 
+        public override IEnumerable<ContainerRegistration> GetRegistrations 
             => (null == _next)
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);
@@ -65,7 +65,7 @@ namespace Unity.BuiltIn
                 {
                     var manager = (LifetimeManager)_registry[i].Manager;
                     
-                    if (RegistrationType.Internal == manager.RegistrationType) 
+                    if (RegistrationCategory.Internal == manager.Category) 
                         continue;
 
                     yield return new ContainerRegistration(in _registry[i].Contract, manager);
@@ -168,7 +168,7 @@ namespace Unity.BuiltIn
                             var registration = registry[index];
 
                             // Skip internal registrations
-                            if (RegistrationType.Internal == registration.Manager.RegistrationType) 
+                            if (RegistrationCategory.Internal == registration.Manager.Category) 
                                 continue;
 
                             // Check if already served

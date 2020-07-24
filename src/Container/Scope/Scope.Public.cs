@@ -1,17 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Unity.Lifetime;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Contracts = { Contracts }, Names = { Names }, Version = { Version }")]
+    [DebuggerDisplay("{GetType().Name,nq}: Contracts = { Contracts }, Names = { Names }, Version = { Version }")]
     public abstract partial class Scope
     {
+        #region Hierarchy
+
         /// <summary>
-        /// Parent scope
+        /// Reference to parent scope
         /// </summary>
         public Scope? Next => _next;
+
+        /// <summary>
+        /// Creates child scope
+        /// </summary>
+        /// <returns>New child scope</returns>
+        public abstract Scope CreateChildScope();
+
+        #endregion
+
+
+        #region Quantitative Members
 
         /// <summary>
         /// Version of scope
@@ -21,20 +33,39 @@ namespace Unity.Container
         /// </remarks>
         public int Version => _version;
 
+        /// <summary>
+        /// Registration count
+        /// </summary>
+        public abstract int Contracts { get; }
+
+        /// <summary>
+        /// Contract names
+        /// </summary>
+        public abstract int Names { get; }
+
+        #endregion
+
+
+        #region Add
 
         /// <summary>
         /// Add <see cref="Contract"/> entries for specified types
         /// </summary>
         /// <param name="manager"><see cref="RegistrationManager"/> containing the registration</param>
         /// <param name="registerAs">Collection of <see cref="Type"/> aliases</param>
-        public abstract void Add(LifetimeManager manager, params Type[] registerAs);
+        public abstract void Add(RegistrationManager manager, params Type[] registerAs);
 
         /// <summary>
         /// Add <see cref="Contract"/> entries for registration
         /// </summary>
-        /// <param name="data"><see cref="RegistrationData"/> registration data</param>
-        public abstract void Add(in RegistrationData data);
+        /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
+        /// <see cref="RegistrationDescriptor"/> structures</param>
+        public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> data);
 
+        #endregion
+
+
+        #region Contains
 
         /// <summary>
         /// Determines whether the <see cref="Scope"/> contains a specific anonymous contract
@@ -51,6 +82,7 @@ namespace Unity.Container
         /// <returns>True if <see cref="Contract"/> is found</returns>
         public abstract bool Contains(Type type, string name);
 
+        #endregion
 
 
 
@@ -59,18 +91,6 @@ namespace Unity.Container
 
 
 
-
-
-
-        /// <summary>
-        /// Registration count
-        /// </summary>
-        public abstract int Contracts { get; }
-
-        /// <summary>
-        /// Contract names
-        /// </summary>
-        public abstract int Names { get; }
 
         /// <summary>
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
@@ -80,8 +100,7 @@ namespace Unity.Container
 
 
         // TODO: Replace with structure
-        public abstract IEnumerable<ContainerRegistration> Registrations { get; }
+        public virtual IEnumerable<ContainerRegistration> GetRegistrations { get; }
 
-        public abstract Scope CreateChildScope();
     }
 }

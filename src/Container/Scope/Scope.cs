@@ -5,13 +5,6 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        #region Constants
-
-        protected const float LoadFactor = 0.72f;
-
-        #endregion
-
-
         #region Fields
 
         protected int _version;

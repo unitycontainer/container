@@ -36,7 +36,7 @@ namespace Unity
                     {
                         if (null == _cache)
                         {
-                            enumerator = _scope.Registrations;
+                            enumerator = _scope.GetRegistrations;
 
                             _cache = new WeakReference(enumerator);
                             return enumerator;
@@ -48,7 +48,7 @@ namespace Unity
                 enumerator = (IEnumerable<ContainerRegistration>?)_cache.Target;
                 if (null == enumerator || !_cache.IsAlive)
                 {
-                    enumerator = _scope.Registrations;
+                    enumerator = _scope.GetRegistrations;
                     _cache.Target = enumerator;
                 }
                 else
@@ -57,7 +57,7 @@ namespace Unity
                     var sc = _scope.GetHashCode();
                     if (en != sc)
                     {
-                        enumerator = _scope.Registrations;
+                        enumerator = _scope.GetRegistrations;
                         _cache.Target = enumerator;
                     }
                 }

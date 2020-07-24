@@ -20,14 +20,14 @@ namespace Unity
 
         public IUnityContainer RegisterType(Type type, string? name, ITypeLifetimeManager manager, params Type[] registerAs)
         {
-            var registration = new RegistrationData(type, name, manager, registerAs);
+            ReadOnlySpan<RegistrationDescriptor> span = new[] { new RegistrationDescriptor(type, name, manager, registerAs) };
             
             // Add to container 
             var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Add(in registration);
+            container._scope.Add(in span);
 
             // Report registration
-            _registering?.Invoke(container, in registration);
+            _registering?.Invoke(container, in span);
 
             return this;
         }
@@ -39,14 +39,14 @@ namespace Unity
 
         public IUnityContainer RegisterFactory(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs)
         {
-            var registration = new RegistrationData(factory, name, manager, registerAs);
+            ReadOnlySpan<RegistrationDescriptor> span = new[] { new RegistrationDescriptor(factory, name, manager, registerAs) };
 
             // Add to container 
             var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Add(in registration);
+            container._scope.Add(in span);
 
             // Report registration
-            _registering?.Invoke(container, in registration);
+            _registering?.Invoke(container, in span);
 
             return this;
         }
@@ -59,14 +59,14 @@ namespace Unity
 
         public IUnityContainer RegisterInstance(object? instance, string? name, IInstanceLifetimeManager manager, params Type[] registerAs)
         {
-            var registration = new RegistrationData(instance, name, manager, registerAs);
+            ReadOnlySpan<RegistrationDescriptor> span = new[] { new RegistrationDescriptor(instance, name, manager, registerAs) };
 
             // Add to container 
             var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Add(in registration);
+            container._scope.Add(in span);
 
             // Report registration
-            _registering?.Invoke(container, in registration);
+            _registering?.Invoke(container, in span);
 
             return this;
         }

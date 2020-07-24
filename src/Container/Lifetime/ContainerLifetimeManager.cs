@@ -14,10 +14,10 @@ namespace Unity.Container
     /// </remarks>
     public class ContainerLifetimeManager : LifetimeManager
     {
-        internal ContainerLifetimeManager(object? data, RegistrationType type = RegistrationType.Instance)
+        internal ContainerLifetimeManager(object? data, RegistrationCategory type = RegistrationCategory.Instance)
         {
             Data = data;
-            RegistrationType = type;
+            Category = type;
         }
 
         public override object? GetValue(ICollection<IDisposable> lifetime) => Data;

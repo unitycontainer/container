@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using static Unity.Container.Scope;
 
 namespace Unity.Container
 {
-    public abstract partial class Scope : IEnumerable<Registration>
+    public abstract partial class Scope : IEnumerable<ContainerRegistration>
     {
-        protected abstract bool MoveNext(ref int index, ref Registration registration);
+        protected abstract bool MoveNext(ref int index, ref ContainerRegistration registration);
 
-        public virtual IEnumerator<Registration> GetEnumerator() 
+        public virtual IEnumerator<ContainerRegistration> GetEnumerator() 
             => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() 
@@ -20,7 +19,7 @@ namespace Unity.Container
 
         #region Enumerator
 
-        public struct Enumerator : IEnumerator<Registration>
+        public struct Enumerator : IEnumerator<ContainerRegistration>
         {
             #region Constants
             
@@ -34,7 +33,7 @@ namespace Unity.Container
             private readonly Scope _scope;
             private readonly int _version;
 
-            private Registration _current;
+            private ContainerRegistration _current;
             private int _index;
 
             #endregion
@@ -54,7 +53,7 @@ namespace Unity.Container
 
 
 
-            public Registration Current => _current;
+            public ContainerRegistration Current => _current;
 
             object IEnumerator.Current => _current;
 

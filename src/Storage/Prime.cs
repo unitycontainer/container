@@ -30,5 +30,16 @@ namespace Unity.Storage
 
             throw new ArgumentOutOfRangeException();
         }
+
+        public static int GetNext(int number)
+        {
+            for (var index = 0; index < Numbers.Length; index++)
+            {
+                var prime = Numbers[index];
+                if (prime > number) return prime;
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }
     }
 }

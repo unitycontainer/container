@@ -37,77 +37,77 @@ namespace Unity.Benchmarks.Scope
         public Container.Scope ContainerScope() => new ContainerScope();
 
 
-        [Benchmark]
-        [BenchmarkCategory("create", "data")]
-        public RegistrationData RegistrationData() => new RegistrationData(lifetime, registerAs);
+        //[Benchmark]
+        //[BenchmarkCategory("create", "data")]
+        //public RegistrationDescriptor RegistrationData() => new RegistrationDescriptor(lifetime, registerAs);
 
-        [Benchmark]
-        [BenchmarkCategory("create", "data")]
-        public RegistrationData RegistrationNamedData() => new RegistrationData(lifetime, registerAs);
+        //[Benchmark]
+        //[BenchmarkCategory("create", "data")]
+        //public RegistrationDescriptor RegistrationNamedData() => new RegistrationDescriptor(lifetime, registerAs);
 
-        [Benchmark]
-        [BenchmarkCategory("register")]
-        public Container.Scope RegisterType()
-        {
-            scope = ContainerScope();
-            RegistrationData data = new RegistrationData(lifetime, registerAs);
+        //[Benchmark]
+        //[BenchmarkCategory("register")]
+        //public Container.Scope RegisterType()
+        //{
+        //    scope = ContainerScope();
+        //    RegistrationDescriptor data = new RegistrationDescriptor(lifetime, registerAs);
 
-            scope.Add(in data);
+        //    scope.Add(in data);
             
-            return scope;
-        }
+        //    return scope;
+        //}
 
-        [Benchmark]
-        [Arguments(1)]
-        [Arguments(4)]
-        [Arguments(8)]
-        [Arguments(16)]
-        [BenchmarkCategory("register", "parallel")]
-        public int RegisterTypeParallel(int threads)
-        {
-            scope = ContainerScope();
+        //[Benchmark]
+        //[Arguments(1)]
+        //[Arguments(4)]
+        //[Arguments(8)]
+        //[Arguments(16)]
+        //[BenchmarkCategory("register", "parallel")]
+        //public int RegisterTypeParallel(int threads)
+        //{
+        //    scope = ContainerScope();
 
-            Parallel.ForEach(registerArrays, new ParallelOptions() { MaxDegreeOfParallelism = threads }, (array) =>
-            {
-                RegistrationData data = new RegistrationData(lifetime, array);
-                scope.Add(in data);
-            });
+        //    Parallel.ForEach(registerArrays, new ParallelOptions() { MaxDegreeOfParallelism = threads }, (array) =>
+        //    {
+        //        RegistrationData data = new RegistrationData(lifetime, array);
+        //        scope.Add(in data);
+        //    });
 
-            return threads;
-        }
-
-
-        [Benchmark(Baseline = true)]
-        [Arguments(1)]
-        [Arguments(4)]
-        [Arguments(8)]
-        [Arguments(16)]
-        [BenchmarkCategory("register", "parallel")]
-        public int RegisterTypeParallelBaseline(int threads)
-        {
-            scope = ContainerScope();
-            int code = 0;
-
-            Parallel.ForEach(registerArrays, new ParallelOptions() { MaxDegreeOfParallelism = threads }, (array) =>
-            {
-                RegistrationData data = new RegistrationData(lifetime, array);
-                code += null != data.Manager ? 1 : 0;
-            });
-
-            return code;
-        }
+        //    return threads;
+        //}
 
 
-        [Benchmark]
-        [BenchmarkCategory("register")]
-        public Container.Scope RegisterNamedType()
-        {
-            scope = ContainerScope();
-            RegistrationData data = new RegistrationData("name", lifetime, registerAs);
+        //[Benchmark(Baseline = true)]
+        //[Arguments(1)]
+        //[Arguments(4)]
+        //[Arguments(8)]
+        //[Arguments(16)]
+        //[BenchmarkCategory("register", "parallel")]
+        //public int RegisterTypeParallelBaseline(int threads)
+        //{
+        //    scope = ContainerScope();
+        //    int code = 0;
 
-            scope.Add(in data);
+        //    Parallel.ForEach(registerArrays, new ParallelOptions() { MaxDegreeOfParallelism = threads }, (array) =>
+        //    {
+        //        RegistrationData data = new RegistrationData(lifetime, array);
+        //        code += null != data.Manager ? 1 : 0;
+        //    });
 
-            return scope;
-        }
+        //    return code;
+        //}
+
+
+        //[Benchmark]
+        //[BenchmarkCategory("register")]
+        //public Container.Scope RegisterNamedType()
+        //{
+        //    scope = ContainerScope();
+        //    RegistrationData data = new RegistrationData("name", lifetime, registerAs);
+
+        //    scope.Add(in data);
+
+        //    return scope;
+        //}
     }
 }

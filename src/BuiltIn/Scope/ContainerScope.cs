@@ -1,22 +1,21 @@
-﻿using System.Diagnostics;
-using Unity.Container;
+﻿using Unity.Container;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    [DebuggerDisplay("Identity = { Identity }, Manager = {Manager}", Name = "{ (Contract.Type?.Name ?? string.Empty),nq }")]
     public partial class ContainerScope : Scope
     {
         #region Constants
+
+        public const float LoadFactor   = 0.75f;
+        public const float ReLoadFactor = 1.45f;
 
         protected const int START_DATA  = 4;
         protected const int START_INDEX = 1;
         protected const int HASH_CODE_SEED = 52361;
 
-        protected const int REGISTRY_ROOT_INDEX = 3;
-        protected const int IDENTITY_ROOT_INDEX = 3;
-        protected const int REGISTRY_CHILD_INDEX = 1;
-        protected const int IDENTITY_CHILD_INDEX = 0;
+        protected const int PRIME_ROOT_INDEX  = 3;
+        protected const int PRIME_CHILD_INDEX = 1;
 
         protected const string ASYNC_ERROR_MESSAGE = "This feature requires 'Unity.Professional' extension";
 
@@ -25,21 +24,19 @@ namespace Unity.BuiltIn
 
         #region Fields
 
-        protected int _registryMax;
-        protected int _registryCount;
-        protected Metadata[] _registryMeta;
-        protected Registration[] _registryData;
 
-        protected object _registrySync = new object();
-
-
-        protected int _namesMax;
+        // Names
         protected int _namesPrime;
         protected int _namesCount;
         protected Metadata[] _namesMeta;
         protected NameInfo[] _namesData;
+        //private object _syncRoot = new object();
+        private System.Threading.ReaderWriterLockSlim _registryLock = new ReaderWriterLockSlim();
 
-        protected object _namesSync = new object();
+        // Registrations
+        protected int _registryCount;
+        protected Metadata[] _registryMeta;
+        protected Registration[] _registryData;
 
         #endregion
 
@@ -49,38 +46,31 @@ namespace Unity.BuiltIn
         internal ContainerScope()
             : base()
         {
-            // Initial size
-            _namesPrime = IDENTITY_ROOT_INDEX;
+            // Names
+            _namesPrime = PRIME_ROOT_INDEX;
+            _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
+            _namesMeta.Setup(LoadFactor);
+            _namesData = new NameInfo[_namesMeta.GetCapacity()];
 
             // Registrations
-            var size = Prime.Numbers[REGISTRY_ROOT_INDEX];
-            _registryMeta = new Metadata[size];
-            _registryData = new Registration[size];
-            _registryMax  = (int)(size * LoadFactor);
-
-            size = Prime.Numbers[_namesPrime];
-            _namesMeta = new Metadata[size];
-            _namesData = new NameInfo[size];
-            _namesMax  = (int)(size * LoadFactor);
+            _registryMeta = new Metadata[Prime.Numbers[PRIME_ROOT_INDEX]];
+            _registryMeta.Setup(LoadFactor);
+            _registryData = new Registration[_registryMeta.GetCapacity()];
         }
 
         // Copy constructor
         protected ContainerScope(ContainerScope scope)
             : base(scope)
         {
-            // Initial size
-            _namesPrime = IDENTITY_CHILD_INDEX;
+            // Names
+            _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
+            _namesMeta.Setup(LoadFactor);
+            _namesData = new NameInfo[_namesMeta.GetCapacity()];
 
             // Registrations
-            var size = Prime.Numbers[REGISTRY_CHILD_INDEX];
-            _registryMeta = new Metadata[size];
-            _registryData = new Registration[size];
-            _registryMax = (int)(size * LoadFactor);
-
-            size = Prime.Numbers[_namesPrime];
-            _namesMeta = new Metadata[size];
-            _namesData = new NameInfo[size];
-            _namesMax = (int)(size * LoadFactor);
+            _registryMeta = new Metadata[Prime.Numbers[PRIME_CHILD_INDEX]];
+            _registryMeta.Setup(LoadFactor);
+            _registryData = new Registration[_registryMeta.GetCapacity()];
         }
 
         ~ContainerScope() => Dispose(false);
