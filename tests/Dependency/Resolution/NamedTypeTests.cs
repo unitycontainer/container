@@ -11,13 +11,13 @@ namespace Resolution.Basics
         private const string TestName = "98a884c0-7eae-4926-8f3e-bf1f42a05be6";
 
         [TestMethod]
-        public void HashCodeNotZeroTest()
+        public void HashCodeZeroTest()
         {
             // Arrange
             Contract structure = new Contract();
 
             // Validate
-            Assert.AreNotEqual(0, structure.GetHashCode());
+            Assert.AreEqual(0, structure.GetHashCode());
         }
 
         [TestMethod]

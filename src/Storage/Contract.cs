@@ -7,7 +7,7 @@ namespace Unity
     /// <summary>
     /// Structure holding contract information
     /// </summary>
-    [DebuggerDisplay("Type = { Type?.Name }, Name = { Name }")]
+    [DebuggerDisplay("Contract: Type = { Type?.Name }, Name = { Name }")]
     [StructLayout(LayoutKind.Sequential)]
     public readonly struct Contract
     {
@@ -16,6 +16,7 @@ namespace Unity
         /// <summary>
         /// Hash code of the contract
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public readonly int HashCode;
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace Unity
 
         public override int GetHashCode() => HashCode;
 
-        public static int GetHashCode(int typeHash, int nameHash) => typeHash + 37 ^ nameHash + 17;
+        public static int GetHashCode(int typeHash, int nameHash) => typeHash ^ nameHash;
 
         public override bool Equals(object? obj)
         {
@@ -76,7 +77,7 @@ namespace Unity
 
         public override string ToString()
         {
-            return $"Type: {Type?.Name},  Name: {Name}";
+            return $"Contract: Type = {Type?.Name ?? "null"},  Name = {Name ?? "null"}";
         }
 
         #endregion
