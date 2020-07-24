@@ -226,15 +226,15 @@ namespace Lifetime.Registrations
             // Validate
             Assert.IsNull(manager.Data);
             Assert.IsNotNull(manager.InjectionMembers);
-            Assert.AreEqual(RegistrationType.Uninitialized, manager.RegistrationType);
+            Assert.AreEqual(RegistrationCategory.Uninitialized, manager.Category);
             Assert.IsNotNull(manager.GetEnumerator());
             Assert.IsNotNull(((IEnumerable)manager).GetEnumerator());
             
             // Can assign
             manager.Data = this;
-            manager.RegistrationType = RegistrationType.Instance;
+            manager.Category = RegistrationCategory.Instance;
             Assert.AreSame(this, manager.Data);
-            Assert.AreEqual(RegistrationType.Instance, manager.RegistrationType);
+            Assert.AreEqual(RegistrationCategory.Instance, manager.Category);
         }
 
         public static IEnumerable<object[]> GetManagers()

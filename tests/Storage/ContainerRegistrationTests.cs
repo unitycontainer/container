@@ -81,7 +81,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager 
             {
                 Data = this,
-                RegistrationType = RegistrationType.Internal
+                Category = RegistrationCategory.Internal
             };
 
             // Act
@@ -103,7 +103,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = this,
-                RegistrationType = RegistrationType.Internal
+                Category = RegistrationCategory.Internal
             };
 
             // Act
@@ -127,7 +127,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = this,
-                RegistrationType = RegistrationType.Instance
+                Category = RegistrationCategory.Instance
             };
 
             // Act
@@ -149,7 +149,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = this,
-                RegistrationType = RegistrationType.Instance
+                Category = RegistrationCategory.Instance
             };
 
             // Act
@@ -172,7 +172,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = typeof(string),
-                RegistrationType = RegistrationType.Type
+                Category = RegistrationCategory.Type
             };
 
             // Act
@@ -194,7 +194,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = typeof(string),
-                RegistrationType = RegistrationType.Type
+                Category = RegistrationCategory.Type
             };
 
             // Act
@@ -218,7 +218,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = factory,
-                RegistrationType = RegistrationType.Factory
+                Category = RegistrationCategory.Factory
             };
 
             // Act
@@ -241,7 +241,7 @@ namespace Storage.Tests
             var manager = new TransientLifetimeManager
             {
                 Data = factory,
-                RegistrationType = RegistrationType.Factory
+                Category = RegistrationCategory.Factory
             };
 
             // Act

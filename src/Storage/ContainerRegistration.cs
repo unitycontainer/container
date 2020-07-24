@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -9,34 +10,38 @@ namespace Unity
     /// Information about the type registered in a container.
     /// </summary>
     [DebuggerDisplay("Name = { Name }", Name = "{ RegisteredType.Name,nq }")]
+    [StructLayout(LayoutKind.Sequential)]
     public readonly struct ContainerRegistration : IContainerRegistration
     {
         #region Fields
 
-        internal readonly Contract        _contract;
-        internal readonly LifetimeManager _manager;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal readonly Contract _contract;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal readonly RegistrationManager _manager;
 
         #endregion
 
 
         #region Constructors
 
-        public ContainerRegistration(in Contract contract, LifetimeManager manager)
-        {
-            _contract = contract;
-            _manager  = manager;
-        }
-
-        public ContainerRegistration(Type type, LifetimeManager manager)
+        public ContainerRegistration(Type type, RegistrationManager manager)
         {
             _contract = new Contract(type);
             _manager  = manager;
         }
 
-        public ContainerRegistration(Type type, string? name, LifetimeManager manager)
+        public ContainerRegistration(Type type, string? name, RegistrationManager manager)
         {
             _contract = new Contract(type, name);
             _manager  = manager;
+        }
+
+        public ContainerRegistration(in Contract contract, RegistrationManager manager)
+        {
+            _contract = contract;
+            _manager = manager;
         }
 
         #endregion
@@ -48,20 +53,20 @@ namespace Unity
 
         public string? Name => _contract.Name;
 
-        public LifetimeManager LifetimeManager => _manager;
+        public LifetimeManager LifetimeManager => (LifetimeManager)_manager;
 
         public Type? MappedToType =>
-            RegistrationType.Type == _manager.RegistrationType
+            RegistrationCategory.Type == _manager.Category
                 ? (Type?)_manager.Data
                 : null;
 
         public object? Instance =>
-            RegistrationType.Instance == _manager.RegistrationType
+            RegistrationCategory.Instance == _manager.Category
                 ? _manager.Data
                 : null;
 
         public ResolveDelegate<IResolveContext>? Factory =>
-            RegistrationType.Factory == _manager.RegistrationType 
+            RegistrationCategory.Factory == _manager.Category 
                 ? (ResolveDelegate<IResolveContext>?)_manager.Data
                 : null;
 

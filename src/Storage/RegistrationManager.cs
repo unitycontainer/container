@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Unity.Injection;
-using Unity.Lifetime;
 using Unity.Policy;
 
 namespace Unity
@@ -12,7 +10,7 @@ namespace Unity
     /// <summary>
     /// This enumeration identifies type of registration 
     /// </summary>
-    public enum RegistrationType
+    public enum RegistrationCategory
     {
         /// <summary>
         /// Initial, uninitialized state
@@ -58,7 +56,7 @@ namespace Unity
 
         public object? Data { get; internal set; }
 
-        public RegistrationType RegistrationType { get; internal set; }
+        public RegistrationCategory Category { get; internal set; }
 
         public ICollection<InjectionMember> InjectionMembers { get; protected set; }
 

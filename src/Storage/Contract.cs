@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Unity
 {
@@ -7,9 +8,15 @@ namespace Unity
     /// Structure holding contract information
     /// </summary>
     [DebuggerDisplay("Type = { Type?.Name }, Name = { Name }")]
+    [StructLayout(LayoutKind.Sequential)]
     public readonly struct Contract
     {
         #region Public Members
+
+        /// <summary>
+        /// Hash code of the contract
+        /// </summary>
+        public readonly int HashCode;
 
         /// <summary>
         /// <see cref="Type"/> of the contract
@@ -26,10 +33,18 @@ namespace Unity
 
         #region Constructors
 
+        internal Contract(int hash, Type type, string? name = null)
+        {
+            Type = type;
+            Name = name;
+            HashCode = hash;
+        }
+
         public Contract(Type type, string? name = null)
         {
             Type = type;
             Name = name;
+            HashCode = type.GetHashCode() ^ (name?.GetHashCode() ?? 0);
         }
 
         #endregion
@@ -37,10 +52,7 @@ namespace Unity
 
         #region Implementation
 
-        // TODO: switch to HashCode implementation
-        public override int GetHashCode() => GetHashCode(Type, Name);
-
-        public static int GetHashCode(Type? type, string? name) => (type?.GetHashCode() ?? 0) + 37 ^ (name?.GetHashCode() ?? 0) + 17;
+        public override int GetHashCode() => HashCode;
 
         public static int GetHashCode(int typeHash, int nameHash) => typeHash + 37 ^ nameHash + 17;
 
