@@ -26,19 +26,25 @@ namespace Unity
 
         #region Constructors
 
-        public ContainerRegistration(Type type, RegistrationManager manager)
+        internal ContainerRegistration(Type type, RegistrationManager manager)
         {
             _contract = new Contract(type);
             _manager  = manager;
         }
 
-        public ContainerRegistration(Type type, string? name, RegistrationManager manager)
+        internal ContainerRegistration(Type type, string? name, RegistrationManager manager)
         {
             _contract = new Contract(type, name);
             _manager  = manager;
         }
 
-        public ContainerRegistration(in Contract contract, RegistrationManager manager)
+        internal ContainerRegistration(int hash, Type type, string? name, RegistrationManager manager)
+        {
+            _contract = new Contract(hash, type, name);
+            _manager = manager;
+        }
+
+        internal ContainerRegistration(in Contract contract, RegistrationManager manager)
         {
             _contract = contract;
             _manager = manager;
