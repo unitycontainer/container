@@ -60,7 +60,9 @@ namespace Unity.Container
         /// </summary>
         /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
         /// <see cref="RegistrationDescriptor"/> structures</param>
-        public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> data);
+        public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> span);
+
+        public abstract void Add(in ReadOnlyMemory<RegistrationDescriptor> memory);
 
         #endregion
 

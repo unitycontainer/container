@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
             protected NameInfo[]? _identity;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-            protected Registration[] _registry;
+            protected ContainerRegistration[] _registry;
 
             #endregion
 
@@ -47,9 +47,9 @@ namespace Unity.BuiltIn
             public SingleScopeEnumerator(int hash, ContainerScope root)
             {
                 _hashCode = hash;
-                _length   = root._registryCount;
+                _length   = root._contractCount;
                 _identity = root._namesData;
-                _registry = root._registryData;
+                _registry = root._contractData;
             }
 
             #endregion
@@ -63,12 +63,12 @@ namespace Unity.BuiltIn
             {
                 for (var i = START_INDEX; i <= _length; i++)
                 {
-                    var manager = (LifetimeManager)_registry[i].Manager;
+                    var manager = (LifetimeManager)_registry[i]._manager;
                     
                     if (RegistrationCategory.Internal == manager.Category) 
                         continue;
 
-                    yield return new ContainerRegistration(in _registry[i].Contract, manager);
+                    yield return new ContainerRegistration(in _registry[i]._contract, manager);
                 }
             }
 
@@ -126,8 +126,8 @@ namespace Unity.BuiltIn
 
                 _registrations = scope
                     .Hierarchy()
-                    .Where(scope => START_DATA <= scope._registryCount)
-                    .Select(scope => new ScopeInfo(scope._registryCount, scope._registryData))
+                    .Where(scope => START_DATA <= scope._contractCount)
+                    .Select(scope => new ScopeInfo(scope._contractCount, scope._contractData))
                     .ToArray();
 
                 _scope = scope;
@@ -168,11 +168,11 @@ namespace Unity.BuiltIn
                             var registration = registry[index];
 
                             // Skip internal registrations
-                            if (RegistrationCategory.Internal == registration.Manager.Category) 
+                            if (RegistrationCategory.Internal == registration._manager.Category) 
                                 continue;
 
                             // Check if already served
-                            var targetBucket = registration.Hash % size;
+                            var targetBucket = (uint)registration._contract.HashCode % size;
                             var position = meta[targetBucket].Position;
                             var location = data[position].Registry;
 
@@ -180,8 +180,8 @@ namespace Unity.BuiltIn
                             {
                                 var entry = _registrations[location].Registry[data[position].Index];
 
-                                if (registration.Contract.Type == entry.Contract.Type && 
-                                    ReferenceEquals( registration.Contract.Name, entry.Contract.Name)) break;
+                                if (registration._contract.Type == entry._contract.Type && 
+                                    ReferenceEquals( registration._contract.Name, entry._contract.Name)) break;
 
                                 position = meta[position].Next;
                             }
@@ -199,7 +199,7 @@ namespace Unity.BuiltIn
                                 meta[count].Next = meta[targetBucket].Position;
                                 meta[targetBucket].Position = count;
 
-                                yield return new ContainerRegistration(in registration.Contract, (LifetimeManager)registration.Manager);
+                                yield return new ContainerRegistration(in registration._contract, (LifetimeManager)registration._manager);
                             }
                         }
                     }
@@ -215,7 +215,7 @@ namespace Unity.BuiltIn
                         var offset   = _cache[i].Registry;
                         var registry = _registrations[offset].Registry;
 
-                        yield return new ContainerRegistration(in registry[index].Contract, (LifetimeManager)registry[index].Manager);
+                        yield return new ContainerRegistration(in registry[index]._contract, (LifetimeManager)registry[index]._manager);
                     }
                 }
             }
@@ -243,9 +243,9 @@ namespace Unity.BuiltIn
             private readonly struct ScopeInfo
             {
                 public readonly int        Count;
-                public readonly Registration[] Registry;
+                public readonly ContainerRegistration[] Registry;
 
-                public ScopeInfo(int count, Registration[] registry)
+                public ScopeInfo(int count, ContainerRegistration[] registry)
                 {
                     Count    = count;
                     Registry = registry;

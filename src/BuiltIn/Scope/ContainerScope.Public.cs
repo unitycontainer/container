@@ -5,10 +5,10 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        #region Public Members
+        #region Properties
 
         /// <inheritdoc />
-        public override int Contracts => _registryCount;
+        public override int Contracts => _contractCount;
 
         /// <inheritdoc />
         public override int Names => _namesCount;
@@ -22,8 +22,8 @@ namespace Unity.BuiltIn
         public override void Add(RegistrationManager manager, params Type[] registerAs)
         {
             // Expand if required
-            var required = _registryCount + registerAs.Length;
-            if (required >= _registryMeta.MaxIndex()) ExpandRegistry(required);
+            var required = _contractCount + registerAs.Length;
+            if (required >= _contractMeta.MaxIndex()) ExpandRegistry(required);
 
             // Iterate and register types
             foreach (var type in registerAs)
@@ -31,65 +31,69 @@ namespace Unity.BuiltIn
                 // Skip invalid types
                 if (null == type) continue;
 
-                // Check for existing
-                var hash = (uint)type.GetHashCode();
-                ref var bucket = ref _registryMeta[hash % _registryMeta.Length];
-                var position = bucket.Position;
-                while (position > 0)
-                {
-                    ref var candidate = ref _registryData[position];
-                    if (candidate.Contract.Type == type &&
-                        candidate.Contract.Name == null)
-                    {
-                        // Found existing
-                        ReplaceManager(ref candidate, manager);
-                        break;
-                    }
-
-                    position = _registryMeta[position].Next;
-                }
-
-                // Add new registration
-                if (0 == position)
-                {
-                    _registryData[++_registryCount] = new Registration(hash, type, manager);
-                    _registryMeta[_registryCount].Next = bucket.Position;
-                    bucket.Position = _registryCount;
-                    _version += 1;
-                }
+                Add(new Contract(type), manager);
             }
         }
 
         /// <inheritdoc />
-        public override void Add(in ReadOnlySpan<RegistrationDescriptor> data)
+        public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {
-            //lock (_syncRoot)
-            _registryLock.EnterWriteLock();
+            int required = 0;
+
+            // Calculate required storage
+            for (var i = 0; span.Length > i; i++)
+                required += span[i].RegisterAs.Length;
+
+            lock (_scopeLock)
             {
-                for (var i = 0; data.Length > i; i++)
+                // Expand registry if required
+                required = _contractCount + required;
+                if (required >= _contractMeta.MaxIndex()) ExpandRegistry(required);
+
+                for (var i = 0; span.Length > i; i++)
                 {
-                    ref readonly RegistrationDescriptor descriptor = ref data[i];
+                    ref readonly RegistrationDescriptor descriptor = ref span[i];
 
                     if (null == descriptor.Name)
                     {
-                        Add(descriptor.Manager, descriptor.RegisterAs);
+                        // Anonymous contracts
+                        foreach (var type in descriptor.RegisterAs)
+                        {
+                            if (null == type) continue;
+                            Add(new Contract(type), descriptor.Manager);
+                        }
                     }
                     else
                     {
+                        // Named contracts
                         var nameInfo = GetNameInfo(descriptor.Name);
 
-                        Add(in descriptor, ref nameInfo);
-                    }
+                        // Ensure required storage
+                        nameInfo.Resize(descriptor.RegisterAs.Length);
 
+                        // Register contracts
+                        foreach (var type in descriptor.RegisterAs)
+                        {
+                            if (null == type) continue;
+
+                            var hash = Contract.GetHashCode(type.GetHashCode(), (int)nameInfo.Hash);
+                            var position = Add(new Contract(hash, type, nameInfo.Name), descriptor.Manager);
+                            if (0 != position) nameInfo.Register(position);
+                        }
+                    }
                 }
             }
-            _registryLock.ExitWriteLock();
+        }
+
+        public override void Add(in ReadOnlyMemory<RegistrationDescriptor> memory)
+        {
+            throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
         }
 
         #endregion
 
 
-        #region Registrations
+        #region Contains
 
         /// <inheritdoc />
         public override bool Contains(Type type)
@@ -98,16 +102,16 @@ namespace Unity.BuiltIn
 
             do
             {
-                var bucket = (uint)type.GetHashCode() % scope._registryMeta.Length;
-                var position = scope._registryMeta[bucket].Position;
+                var bucket = (uint)type.GetHashCode() % scope._contractMeta.Length;
+                var position = scope._contractMeta[bucket].Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref scope._registryData[position];
-                    if (null == candidate.Contract.Name && candidate.Contract.Type == type)
+                    ref var candidate = ref scope._contractData[position];
+                    if (null == candidate._contract.Name && candidate._contract.Type == type)
                         return true;
 
-                    position = scope._registryMeta[position].Next;
+                    position = scope._contractMeta[position].Next;
                 }
 
             } while ((scope = (ContainerScope?)scope._next) != null);
@@ -125,16 +129,16 @@ namespace Unity.BuiltIn
                 if (0 == scope._namesCount) continue;
 
                 var hash = type.GetHashCode(name);
-                var bucket = hash % scope._registryMeta.Length;
-                var position = scope._registryMeta[bucket].Position;
+                var bucket = hash % scope._contractMeta.Length;
+                var position = scope._contractMeta[bucket].Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref scope._registryData[position];
-                    if (candidate.Contract.Type == type && candidate.Contract.Name == name) 
+                    ref var candidate = ref scope._contractData[position];
+                    if (candidate._contract.Type == type && candidate._contract.Name == name)
                         return true;
 
-                    position = scope._registryMeta[position].Next;
+                    position = scope._contractMeta[position].Next;
                 }
 
             } while ((scope = (ContainerScope?)scope._next) != null);
@@ -142,14 +146,13 @@ namespace Unity.BuiltIn
             return false;
         }
 
-
         #endregion
 
 
         #region Child Scope
 
         /// <inheritdoc />
-        public override Scope CreateChildScope() => new ContainerScope(this);
+        public override Scope CreateChildScope() => new ContainerScope((Scope)this);
 
         #endregion
     }

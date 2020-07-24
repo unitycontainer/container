@@ -113,7 +113,7 @@ namespace Container.Scope
         public void AddArrayWithJustManagerTest()
         {
             // Arrange
-            var array = new[] { new RegistrationDescriptor(Manager) };
+            ReadOnlySpan<RegistrationDescriptor> array = new[] { new RegistrationDescriptor(Manager) };
 
             // Act
             Scope.Add(array);
@@ -126,23 +126,13 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void AddRegistrationsTest()
-        {
-            // Act
-            Scope.Add(Registrations);
-
-            // Validate
-            Assert.AreEqual(100, Scope.Names);
-            Assert.AreEqual(5995, Scope.Version);
-            Assert.AreEqual(5995, Scope.Contracts);
-            Assert.AreEqual(5995, Scope.ToArray().Length);
-        }
-
-        [TestMethod]
         public void AddAllTest()
         {
+            // Arrange
+            ReadOnlySpan<RegistrationDescriptor> span = Registrations;
+
             // Act
-            Scope.Add(Registrations);
+            Scope.Add(span);
 
             // Validate
             Assert.AreEqual(100, Scope.Names);
@@ -154,7 +144,8 @@ namespace Container.Scope
         [TestMethod]
         public void AddEdgeCasesTest()
         {
-            var registrations = new[]
+            // Arrange
+            ReadOnlySpan<RegistrationDescriptor> span = new[]
             {
                 new RegistrationDescriptor( Manager, typeof(ScopeTests) ),
                 new RegistrationDescriptor( Manager, typeof(ScopeTests), null, Manager.GetType() ),
@@ -162,7 +153,7 @@ namespace Container.Scope
             };
 
             // Act
-            Scope.Add(registrations);
+            Scope.Add(span);
 
             // Validate
             Assert.AreEqual(0, Scope.Names);
@@ -174,7 +165,7 @@ namespace Container.Scope
         [TestMethod]
         public void AddNamedEdgeCasesTest()
         {
-            var registrations = new[]
+            ReadOnlySpan<RegistrationDescriptor> span = new[]
             {
                 new RegistrationDescriptor( Name, Manager, typeof(ScopeTests) ),
                 new RegistrationDescriptor( Name, Manager, typeof(ScopeTests), null, Manager.GetType() ),
@@ -182,7 +173,7 @@ namespace Container.Scope
             };
 
             // Act
-            Scope.Add(registrations);
+            Scope.Add(span);
 
             // Validate
             Assert.AreEqual(1, Scope.Names);

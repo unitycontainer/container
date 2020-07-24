@@ -24,53 +24,77 @@ namespace Unity.BuiltIn
 
         #region Fields
 
+        // Entire scope lock
+        protected object _scopeLock;
 
         // Names
         protected int _namesPrime;
         protected int _namesCount;
         protected Metadata[] _namesMeta;
         protected NameInfo[] _namesData;
-        //private object _syncRoot = new object();
-        private System.Threading.ReaderWriterLockSlim _registryLock = new ReaderWriterLockSlim();
 
         // Registrations
-        protected int _registryCount;
-        protected Metadata[] _registryMeta;
-        protected Registration[] _registryData;
+        protected int _contractCount;
+        protected Metadata[] _contractMeta;
+        protected ContainerRegistration[] _contractData;
 
         #endregion
 
 
         #region Constructors
 
+        // Root constructor
         internal ContainerScope()
             : base()
         {
+            // Entire scope lock
+            _scopeLock = new object();
+
             // Names
             _namesPrime = PRIME_ROOT_INDEX;
             _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
             _namesMeta.Setup(LoadFactor);
-            _namesData = new NameInfo[_namesMeta.GetCapacity()];
+            _namesData = new NameInfo[_namesMeta.Capacity()];
 
             // Registrations
-            _registryMeta = new Metadata[Prime.Numbers[PRIME_ROOT_INDEX]];
-            _registryMeta.Setup(LoadFactor);
-            _registryData = new Registration[_registryMeta.GetCapacity()];
+            _contractMeta = new Metadata[Prime.Numbers[PRIME_ROOT_INDEX]];
+            _contractMeta.Setup(LoadFactor);
+            _contractData = new ContainerRegistration[_contractMeta.Capacity()];
+        }
+
+        // Child constructor
+        protected ContainerScope(Scope scope)
+            : base(scope)
+        {
+            _scopeLock = new object();
+
+            // Names
+            _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
+            _namesMeta.Setup(LoadFactor);
+            _namesData = new NameInfo[_namesMeta.Capacity()];
+
+            // Registrations
+            _contractMeta = new Metadata[Prime.Numbers[PRIME_CHILD_INDEX]];
+            _contractMeta.Setup(LoadFactor);
+            _contractData = new ContainerRegistration[_contractMeta.Capacity()];
         }
 
         // Copy constructor
         protected ContainerScope(ContainerScope scope)
             : base(scope)
         {
+            _scopeLock = scope._scopeLock;
+
             // Names
-            _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
-            _namesMeta.Setup(LoadFactor);
-            _namesData = new NameInfo[_namesMeta.GetCapacity()];
+            _namesPrime = scope._namesPrime;
+            _namesCount = scope._namesCount;
+            _namesMeta  = scope._namesMeta;
+            _namesData  = scope._namesData;
 
             // Registrations
-            _registryMeta = new Metadata[Prime.Numbers[PRIME_CHILD_INDEX]];
-            _registryMeta.Setup(LoadFactor);
-            _registryData = new Registration[_registryMeta.GetCapacity()];
+            _contractCount = scope._contractCount;
+            _contractMeta  = scope._contractMeta;
+            _contractData  = scope._contractData;
         }
 
         ~ContainerScope() => Dispose(false);

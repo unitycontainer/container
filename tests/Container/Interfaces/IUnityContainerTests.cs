@@ -12,7 +12,6 @@ namespace Container.Interfaces
         [TestInitialize]
         public virtual void InitializeTest() => Container = new UnityContainer();
 
-        [Ignore]
         [TestMethod]
         public void Registrations()
         {

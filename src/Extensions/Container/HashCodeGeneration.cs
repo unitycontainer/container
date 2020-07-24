@@ -5,6 +5,7 @@ namespace Unity
 {
     internal static class HashCodeGeneration
     {
+        // TODO: merge with contract
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint GetHashCode(this Type type, uint hash) => (uint)type.GetHashCode() ^ hash;
 

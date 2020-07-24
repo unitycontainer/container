@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Container;
 using Unity.Lifetime;
@@ -15,21 +16,14 @@ namespace Unity.BuiltIn
         {
             index = index + 1;
 
-            if (_registryCount < index) return false;
+            if (_contractCount < index) return false;
 
-            ref var entry = ref _registryData[index];
+            ref var entry = ref _contractData[index];
 
             // TODO: Requires optimization
-            registration = new ContainerRegistration(in entry.Contract, (LifetimeManager)entry.Manager);
+            registration = new ContainerRegistration(in entry._contract, (LifetimeManager)entry._manager);
 
             return true;
-        }
-
-        protected virtual void ReplaceManager(ref Registration registry, RegistrationManager manager)
-        {
-            // TODO: Dispose manager
-            registry.Manager = manager;
-            _version += 1;
         }
 
         public override int GetHashCode()
@@ -46,77 +40,54 @@ namespace Unity.BuiltIn
             return hash;
         }
 
-        #region Registrations
+        #region Contracts
 
-        protected virtual void Add(in RegistrationDescriptor data, ref NameInfo identity)
+        protected virtual int Add(in Contract contract, RegistrationManager manager)
         {
-            ref var references = ref identity.References;
-            var referenceCount = references[0];
-            var requiredLength = data.RegisterAs.Length + referenceCount;
+            var hash = (uint)contract.HashCode;
+            ref var bucket = ref _contractMeta[hash % _contractMeta.Length];
+            var position = bucket.Position;
 
-            // Expand references if required
-            if (requiredLength >= references.Length)
-                Array.Resize(ref references, (int)(requiredLength * ReLoadFactor) + 1);
-
-            // Expand registry if required
-            requiredLength = _registryCount + data.RegisterAs.Length;
-            if (requiredLength >= _registryMeta.MaxIndex()) ExpandRegistry(requiredLength);
-
-            // Iterate and register types
-            foreach (var type in data.RegisterAs)
+            while (position > 0)
             {
-                // Skip invalid types
-                if (null == type) continue;
-
-                // Check for existing
-                var hash = type.GetHashCode(identity.Hash);
-                ref var bucket = ref _registryMeta[hash % _registryMeta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
+                ref var candidate = ref _contractData[position];
+                if (candidate._contract.Type == contract.Type && ReferenceEquals(
+                    candidate._contract.Name, contract.Name))
                 {
-                    ref var candidate = ref _registryData[position];
-                    if (hash == candidate.Hash &&
-                        candidate.Contract.Type == type &&
-                        ReferenceEquals(identity.Name, candidate.Contract.Name))
-                    {
-                        // Found existing
-                        ReplaceManager(ref candidate, data.Manager);
-                        break;
-                    }
-
-                    position = _registryMeta[position].Next;
-                }
-
-                // Add new registration
-                if (0 == position)
-                {
-                    _registryData[++_registryCount] = new Registration(hash, type, identity.Name, data.Manager);
-                    _registryMeta[_registryCount].Next = bucket.Position;
-                    bucket.Position = _registryCount;
-                    references[++referenceCount] = _registryCount;
+                    // Found existing
+                    candidate = new ContainerRegistration(in contract, manager);
                     _version += 1;
+                    return 0;
                 }
+
+                position = _contractMeta[position].Next;
             }
 
-            // Record new count after all done
-            references[0] = referenceCount;
+            // Add new registration
+            _contractCount++;
+            _contractData[_contractCount] = new ContainerRegistration(in contract, manager);
+            _contractMeta[_contractCount].Next = bucket.Position;
+            bucket.Position = _contractCount;
+            _version += 1;
+
+            return _contractCount;
         }
+
 
         protected virtual void ExpandRegistry(int required)
         {
             var size = Prime.GetNext((int)(required * ReLoadFactor));
 
-            _registryMeta = new Metadata[size];
-            _registryMeta.Setup(LoadFactor);
+            _contractMeta = new Metadata[size];
+            _contractMeta.Setup(LoadFactor);
 
-            Array.Resize(ref _registryData, _registryMeta.GetCapacity());
+            Array.Resize(ref _contractData, _contractMeta.Capacity());
 
-            for (var current = START_INDEX; current <= _registryCount; current++)
+            for (var current = START_INDEX; current <= _contractCount; current++)
             {
-                var bucket = _registryData[current].Hash % size;
-                _registryMeta[current].Next = _registryMeta[bucket].Position;
-                _registryMeta[bucket].Position = current;
+                var bucket = (uint)_contractData[current]._contract.HashCode % size;
+                _contractMeta[current].Next = _contractMeta[bucket].Position;
+                _contractMeta[bucket].Position = current;
             }
         }
 
@@ -149,7 +120,7 @@ namespace Unity.BuiltIn
                 _namesMeta = new Metadata[size];
                 _namesMeta.Setup(LoadFactor);
 
-                Array.Resize(ref _namesData, _namesMeta.GetCapacity());
+                Array.Resize(ref _namesData, _namesMeta.Capacity());
 
                 // Rebuild buckets
                 for (var current = START_INDEX; current <= _namesCount; current++)
@@ -242,6 +213,19 @@ namespace Unity.BuiltIn
                 Name = name;
                 References = new int[5];
             }
+
+            public void Resize(int required)
+            {
+                var requiredLength = required + References[0] + 1;
+
+                // Expand references if required
+                if (requiredLength >= References.Length)
+                    Array.Resize(ref References, (int)(requiredLength * 1.45f));
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Register(int position) 
+                => References[++References[0]] = position;
         }
 
         #endregion

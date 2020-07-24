@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -14,8 +15,7 @@ namespace Unity.Container
             => meta[0].Position;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetCapacity(this Metadata[] meta)
+        public static int Capacity(this Metadata[] meta)
             => meta[0].Position + 1;
-       
     }
 }
