@@ -5,25 +5,14 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        #region Properties
-
-        /// <inheritdoc />
-        public override int Contracts => _contractCount;
-
-        /// <inheritdoc />
-        public override int Names => _namesCount;
-
-        #endregion
-
-
         #region Add
 
         /// <inheritdoc />
         public override void Add(RegistrationManager manager, params Type[] registerAs)
         {
             // Expand if required
-            var required = _contractCount + registerAs.Length;
-            if (required >= _contractMeta.MaxIndex()) ExpandRegistry(required);
+            var required = RunningIndex + registerAs.Length;
+            if (required >= _contractMeta.MaxIndex()) Expand(required);
 
             // Iterate and register types
             foreach (var type in registerAs)
@@ -38,17 +27,17 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {
-            int required = 0;
+            long required = 0;
 
             // Calculate required storage
             for (var i = 0; span.Length > i; i++)
                 required += span[i].RegisterAs.Length;
 
-            lock (_scopeLock)
+            lock (_syncRoot)
             {
                 // Expand registry if required
-                required = _contractCount + required;
-                if (required >= _contractMeta.MaxIndex()) ExpandRegistry(required);
+                required = RunningIndex + required;
+                if (required >= _contractMeta.MaxIndex()) Expand(required);
 
                 for (var i = 0; span.Length > i; i++)
                 {
@@ -114,7 +103,7 @@ namespace Unity.BuiltIn
                     position = scope._contractMeta[position].Next;
                 }
 
-            } while ((scope = (ContainerScope?)scope._next) != null);
+            } while ((scope = (ContainerScope?)scope.Next) != null);
 
             return false;
         }
@@ -141,7 +130,7 @@ namespace Unity.BuiltIn
                     position = scope._contractMeta[position].Next;
                 }
 
-            } while ((scope = (ContainerScope?)scope._next) != null);
+            } while ((scope = (ContainerScope?)scope.Next) != null);
 
             return false;
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Unity.BuiltIn
         /// Method that creates <see cref="IUnityContainer.Registrations"/> enumerator
         /// </summary>
         public override IEnumerable<ContainerRegistration> GetRegistrations 
-            => (null == _next)
+            => (null == Next)
             ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(GetHashCode(), this)
             : new MultiScopeEnumerator(GetHashCode(), this);
 
@@ -47,7 +48,7 @@ namespace Unity.BuiltIn
             public SingleScopeEnumerator(int hash, ContainerScope root)
             {
                 _hashCode = hash;
-                _length   = root._contractCount;
+                _length   = (int)root.RunningIndex;
                 _identity = root._namesData;
                 _registry = root._contractData;
             }
@@ -126,8 +127,8 @@ namespace Unity.BuiltIn
 
                 _registrations = scope
                     .Hierarchy()
-                    .Where(scope => START_DATA <= scope._contractCount)
-                    .Select(scope => new ScopeInfo(scope._contractCount, scope._contractData))
+                    .Where(scope => START_DATA <= scope.RunningIndex)
+                    .Select(scope => new ScopeInfo(scope.RunningIndex, scope._contractData))
                     .ToArray();
 
                 _scope = scope;
@@ -245,9 +246,9 @@ namespace Unity.BuiltIn
                 public readonly int        Count;
                 public readonly ContainerRegistration[] Registry;
 
-                public ScopeInfo(int count, ContainerRegistration[] registry)
+                public ScopeInfo(long count, ContainerRegistration[] registry)
                 {
-                    Count    = count;
+                    Count    = (int)count;
                     Registry = registry;
                 }
             }

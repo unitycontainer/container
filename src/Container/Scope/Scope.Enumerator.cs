@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace Unity.Container
@@ -15,25 +14,13 @@ namespace Unity.Container
             => GetEnumerator();
 
 
-
-
         #region Enumerator
 
         public struct Enumerator : IEnumerator<ContainerRegistration>
         {
-            #region Constants
-            
-            private const string EnumFailedVersion = "Collection was modified; enumeration operation may not execute";
-            
-            #endregion
-
-
             #region Fields
 
             private readonly Scope _scope;
-            private readonly int _version;
-
-            private ContainerRegistration _current;
             private int _index;
 
             #endregion
@@ -43,35 +30,34 @@ namespace Unity.Container
 
             public Enumerator(Scope scope)
             {
-                _index = 0;
+                Current = default;
                 _scope = scope;
-                _version = scope._version;
-                _current = default;
+                _index = 0;
             }
 
             #endregion
 
+            public ContainerRegistration Current { get; private set; }
 
-
-            public ContainerRegistration Current => _current;
-
-            object IEnumerator.Current => _current;
+            object IEnumerator.Current => Current;
 
             public void Dispose() { }
 
             public bool MoveNext()
             {
-                if (_version != _scope._version) throw new InvalidOperationException(EnumFailedVersion);
+                var span = _scope.Memory.Span;
 
-                return _scope.MoveNext(ref _index, ref _current);
+                if (++_index > _scope.RunningIndex) return false;
+
+                Current = span[_index];
+                
+                return true;
             }
 
             public void Reset()
             {
-                if (_version != _scope._version) throw new InvalidOperationException(EnumFailedVersion);
-
                 _index = 0;
-                _current = default;
+                Current = default;
             }
         }
 

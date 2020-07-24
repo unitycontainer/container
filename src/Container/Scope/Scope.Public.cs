@@ -7,23 +7,7 @@ namespace Unity.Container
     [DebuggerDisplay("{GetType().Name,nq}: Contracts = { Contracts }, Names = { Names }, Version = { Version }")]
     public abstract partial class Scope
     {
-        #region Hierarchy
-
-        /// <summary>
-        /// Reference to parent scope
-        /// </summary>
-        public Scope? Next => _next;
-
-        /// <summary>
-        /// Creates child scope
-        /// </summary>
-        /// <returns>New child scope</returns>
-        public abstract Scope CreateChildScope();
-
-        #endregion
-
-
-        #region Quantitative Members
+        #region Properties
 
         /// <summary>
         /// Version of scope
@@ -34,14 +18,20 @@ namespace Unity.Container
         public int Version => _version;
 
         /// <summary>
-        /// Registration count
-        /// </summary>
-        public abstract int Contracts { get; }
-
-        /// <summary>
         /// Contract names
         /// </summary>
-        public abstract int Names { get; }
+        public virtual int Names => _namesCount;
+
+        #endregion
+
+
+        #region Hierarchy
+
+        /// <summary>
+        /// Creates child scope
+        /// </summary>
+        /// <returns>New child scope</returns>
+        public abstract Scope CreateChildScope();
 
         #endregion
 
@@ -56,12 +46,17 @@ namespace Unity.Container
         public abstract void Add(RegistrationManager manager, params Type[] registerAs);
 
         /// <summary>
-        /// Add <see cref="Contract"/> entries for registration
+        /// Add <see cref="Contract"/> entries for registrations
         /// </summary>
         /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
         /// <see cref="RegistrationDescriptor"/> structures</param>
         public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> span);
 
+        /// <summary>
+        /// Add <see cref="Contract"/> entries for registrations
+        /// </summary>
+        /// <param name="memory"><see cref="ReadOnlyMemory{T}"/> of
+        /// <see cref="RegistrationDescriptor"/> structures</param>
         public abstract void Add(in ReadOnlyMemory<RegistrationDescriptor> memory);
 
         #endregion
@@ -87,13 +82,6 @@ namespace Unity.Container
         #endregion
 
 
-
-
-
-
-
-
-
         /// <summary>
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
         /// </summary>
@@ -102,7 +90,8 @@ namespace Unity.Container
 
 
         // TODO: Replace with structure
-        public virtual IEnumerable<ContainerRegistration> GetRegistrations { get; }
+        public virtual IEnumerable<ContainerRegistration> GetRegistrations 
+            => throw new NotImplementedException();
 
     }
 }
