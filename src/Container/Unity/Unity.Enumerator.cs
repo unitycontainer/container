@@ -7,7 +7,7 @@ namespace Unity
     {
         #region Fields
 
-        private WeakReference? _cache;
+//        private WeakReference? _cache;
 
         #endregion
 
@@ -17,9 +17,28 @@ namespace Unity
         /// <inheritdoc />
         public bool IsRegistered(Type type, string? name)
         {
-            return null == name
-                ? _scope.Contains(type)
-                : _scope.Contains(type, name);
+            var scope = _scope;
+
+            if (null == name)
+            {
+                do
+                {
+                    if (scope.Contains(type))
+                        return true;
+                }
+                while (null != (scope = scope.Parent));
+            }
+            else
+            {
+                do
+                {
+                    if (_scope.Contains(type, name)) 
+                        return true;
+                }
+                while (null != (scope = scope.Parent));
+            }
+
+            return false;
         }
 
         /// <inheritdoc />

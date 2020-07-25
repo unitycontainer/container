@@ -3,7 +3,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public static class ScopeExtensions
+    internal static class ScopeExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Setup(this Metadata[] meta, float factor) 

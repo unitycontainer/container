@@ -101,7 +101,7 @@ namespace Unity.BuiltIn
                     position = scope._contractMeta[position].Next;
                 }
 
-            } while ((scope = (ContainerScope?)scope.Next) != null);
+            } while ((scope = (ContainerScope?)scope.Parent) != null);
 
             return false;
         }
@@ -128,7 +128,7 @@ namespace Unity.BuiltIn
                     position = scope._contractMeta[position].Next;
                 }
 
-            } while ((scope = (ContainerScope?)scope.Next) != null);
+            } while ((scope = (ContainerScope?)scope.Parent) != null);
 
             return false;
         }

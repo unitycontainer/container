@@ -37,7 +37,7 @@ namespace Unity.Container
         /// <summary>
         /// Pointer to parent scope
         /// </summary>
-        public Scope? Next { get; protected set; }
+        public Scope? Parent { get; protected set; }
 
 
         #endregion

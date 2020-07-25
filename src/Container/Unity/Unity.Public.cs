@@ -7,13 +7,6 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Constants
-
-        public const int BuiltInContracts = 3;
-
-        #endregion
-
-
         #region Public Members
 
         public string? Name { get; }
@@ -94,5 +87,30 @@ namespace Unity
         }
 
         #endregion
+
+
+        #region Child Containers
+
+        /// <summary>
+        /// Creates a child container with given name
+        /// </summary>
+        /// <param name="name">Name of the child container</param>
+        /// <returns>Instance of child <see cref="UnityContainer"/> container</returns>
+        private UnityContainer CreateChildContainer(string? name = null)
+        {
+            // Create child container
+            var container = new UnityContainer(this, name);
+
+            // Add to lifetime manager
+            _scope.Disposables.Add(container);
+
+            // Raise event if required
+            _childContainerCreated?.Invoke(this, container._context = new PrivateExtensionContext(container));
+
+            return container;
+        }
+
+        #endregion
+
     }
 }
