@@ -74,10 +74,8 @@ namespace Unity.BuiltIn
             }
         }
 
-        public override void Add(in ReadOnlyMemory<RegistrationDescriptor> memory)
-        {
-            throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
-        }
+        public override void Add(in ReadOnlyMemory<RegistrationDescriptor> memory) 
+            => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
 
         #endregion
 

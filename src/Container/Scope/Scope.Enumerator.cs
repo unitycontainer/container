@@ -5,8 +5,6 @@ namespace Unity.Container
 {
     public abstract partial class Scope : IEnumerable<ContainerRegistration>
     {
-        protected abstract bool MoveNext(ref int index, ref ContainerRegistration registration);
-
         public virtual IEnumerator<ContainerRegistration> GetEnumerator() 
             => new Enumerator(this);
 
