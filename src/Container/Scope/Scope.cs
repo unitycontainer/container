@@ -5,7 +5,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public abstract partial class Scope : ReadOnlySequenceSegment<ContainerRegistration>
+    public abstract partial class Scope 
     {
         #region Constants
 
@@ -25,7 +25,7 @@ namespace Unity.Container
         #region Fields
 
         // Entire scope lock
-        protected object _syncRoot;
+        protected readonly object _syncRoot;
 
         // Names
         protected int _namesPrime;
@@ -33,12 +33,12 @@ namespace Unity.Container
         protected Metadata[] _namesMeta;
         protected NameInfo[] _namesData;
 
-        // Registrations
+        // Contracts
+        protected int _contractCount;
         protected ContainerRegistration[] _contractData;
 
         // Scope info
         protected int _version;
-        protected readonly int _level;
         protected readonly ICollection<IDisposable> _disposables;
 
         #endregion
@@ -63,13 +63,9 @@ namespace Unity.Container
             // Contracts
             _contractData = new ContainerRegistration[Prime.Numbers[PRIME_ROOT_INDEX]];
 
-            // Info
-            _level = 1;
-            _disposables = new List<IDisposable>();
-
             // Segment
+            _disposables = new List<IDisposable>();
             Next = null;
-            Memory = new ReadOnlyMemory<ContainerRegistration>(_contractData);
 
         }
 
@@ -90,13 +86,9 @@ namespace Unity.Container
             // Contracts
             _contractData = new ContainerRegistration[Prime.Numbers[PRIME_CHILD_INDEX]];
 
-            // Info
-            _level = parent._level + 1;
-            _disposables = new List<IDisposable>();
-
             // Segment
+            _disposables = new List<IDisposable>();
             Next = parent;
-            Memory = new ReadOnlyMemory<ContainerRegistration>(_contractData);
         }
 
         /// <summary>
@@ -116,28 +108,15 @@ namespace Unity.Container
             _namesData  = scope._namesData;
 
             // Contracts
+            _contractCount = scope._contractCount;
             _contractData = scope._contractData;
 
             // Info
-            _level = scope._level;
             _version = scope._version;
-            _disposables = scope._disposables;
 
             // Segment
+            _disposables = scope._disposables;
             Next = scope.Next;
-            Memory = scope.Memory;
-            RunningIndex = scope.RunningIndex;
-        }
-
-        #endregion
-
-
-        #region Implementation
-
-        protected virtual void Expand(long capacity)
-        {
-            Array.Resize(ref _contractData, (int)capacity);
-            Memory = new ReadOnlyMemory<ContainerRegistration>(_contractData);
         }
 
         #endregion

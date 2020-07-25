@@ -11,7 +11,7 @@ namespace Unity.BuiltIn
         public override void Add(RegistrationManager manager, params Type[] registerAs)
         {
             // Expand if required
-            var required = RunningIndex + registerAs.Length;
+            var required = _contractCount + registerAs.Length;
             if (required >= _contractMeta.MaxIndex()) Expand(required);
 
             // Iterate and register types
@@ -27,7 +27,7 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {
-            long required = 0;
+            int required = 0;
 
             // Calculate required storage
             for (var i = 0; span.Length > i; i++)
@@ -36,7 +36,7 @@ namespace Unity.BuiltIn
             lock (_syncRoot)
             {
                 // Expand registry if required
-                required = RunningIndex + required;
+                required = _contractCount + required;
                 if (required >= _contractMeta.MaxIndex()) Expand(required);
 
                 for (var i = 0; span.Length > i; i++)

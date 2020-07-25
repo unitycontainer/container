@@ -35,15 +35,11 @@ namespace Unity
                  MethodProcessor.SetupProcessor(_context);
 
             // Registration Scope
-            _scope = new ContainerScope 
-            { 
-                { 
-                    new ContainerLifetimeManager(this), 
-                    typeof(IUnityContainer), 
-                    typeof(IUnityContainerAsync), 
-                    typeof(IServiceProvider) 
-                } 
-            };
+            _scope = new ContainerScope();
+            _scope.Add(new ContainerLifetimeManager(this), 
+                typeof(IUnityContainer), 
+                typeof(IUnityContainerAsync), 
+                typeof(IServiceProvider));
         }
 
         /// <summary>

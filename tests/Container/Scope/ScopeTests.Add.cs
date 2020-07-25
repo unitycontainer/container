@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Linq;
 using Unity;
 using Unity.Lifetime;
 
@@ -19,7 +18,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.RunningIndex);
+            Assert.AreEqual(0, Scope.Contracts);
             Assert.AreEqual(0, Scope.ToArray().Length);
         }
 
@@ -32,7 +31,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(1, Scope.Version);
-            Assert.AreEqual(1, Scope.RunningIndex);
+            Assert.AreEqual(1, Scope.Contracts);
             Assert.AreEqual(1, Scope.ToArray().Length);
         }
 
@@ -45,7 +44,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(2, Scope.Version);
-            Assert.AreEqual(2, Scope.RunningIndex);
+            Assert.AreEqual(2, Scope.Contracts);
             Assert.AreEqual(2, Scope.ToArray().Length);
         }
 
@@ -58,7 +57,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(1, Scope.Version);
-            Assert.AreEqual(1, Scope.RunningIndex);
+            Assert.AreEqual(1, Scope.Contracts);
             Assert.AreEqual(1, Scope.ToArray().Length);
         }
 
@@ -72,7 +71,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(2, Scope.Version);
-            Assert.AreEqual(1, Scope.RunningIndex);
+            Assert.AreEqual(1, Scope.Contracts);
             Assert.AreEqual(1, Scope.ToArray().Length);
         }
 
@@ -85,7 +84,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(TestTypes.Length, Scope.Version);
-            Assert.AreEqual(TestTypes.Length, Scope.RunningIndex);
+            Assert.AreEqual(TestTypes.Length, Scope.Contracts);
             Assert.AreEqual(TestTypes.Length, Scope.ToArray().Length);
         }
 
@@ -105,7 +104,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.RunningIndex);
+            Assert.AreEqual(0, Scope.Contracts);
             Assert.AreEqual(0, Scope.ToArray().Length);
         }
 
@@ -121,7 +120,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.RunningIndex);
+            Assert.AreEqual(0, Scope.Contracts);
             Assert.AreEqual(0, Scope.ToArray().Length);
         }
 
@@ -137,7 +136,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(100, Scope.Names);
             Assert.AreEqual(5995, Scope.Version);
-            Assert.AreEqual(5995, Scope.RunningIndex);
+            Assert.AreEqual(5995, Scope.Contracts);
             Assert.AreEqual(5995, Scope.ToArray().Length);
         }
 
@@ -158,7 +157,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(5, Scope.Version);
-            Assert.AreEqual(3, Scope.RunningIndex);
+            Assert.AreEqual(3, Scope.Contracts);
             Assert.AreEqual(3, Scope.ToArray().Length);
         }
 
@@ -178,7 +177,7 @@ namespace Container.Scope
             // Validate
             Assert.AreEqual(1, Scope.Names);
             Assert.AreEqual(5, Scope.Version);
-            Assert.AreEqual(3, Scope.RunningIndex);
+            Assert.AreEqual(3, Scope.Contracts);
             Assert.AreEqual(3, Scope.ToArray().Length);
         }
 

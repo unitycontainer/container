@@ -1,4 +1,5 @@
-﻿using Unity.Container;
+﻿using System;
+using Unity.Container;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
@@ -27,25 +28,25 @@ namespace Unity.BuiltIn
             }
 
             // Add new registration
-            RunningIndex++;
-            _contractData[RunningIndex] = new ContainerRegistration(in contract, manager);
-            _contractMeta[RunningIndex].Next = bucket.Position;
-            bucket.Position = (int)RunningIndex;
+            _contractCount++;
+            _contractData[_contractCount] = new ContainerRegistration(in contract, manager);
+            _contractMeta[_contractCount].Next = bucket.Position;
+            bucket.Position = _contractCount;
             _version += 1;
 
-            return (int)RunningIndex;
+            return _contractCount;
         }
 
-        protected override void Expand(long required)
+        protected virtual void Expand(long required)
         {
             var size = Prime.GetNext((int)(required * ReLoadFactor));
 
             _contractMeta = new Metadata[size];
             _contractMeta.Setup(LoadFactor);
 
-            base.Expand(_contractMeta.Capacity());
+            Array.Resize(ref _contractData, _contractMeta.Capacity());
 
-            for (var current = START_INDEX; current <= RunningIndex; current++)
+            for (var current = START_INDEX; current <= _contractCount; current++)
             {
                 var bucket = (uint)_contractData[current]._contract.HashCode % size;
                 _contractMeta[current].Next = _contractMeta[bucket].Position;

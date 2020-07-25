@@ -10,8 +10,8 @@ namespace Unity.Container
             => meta[0].Position = (int)(meta.Length * factor);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MaxIndex(this Metadata[] meta, int max)
-            => meta[0].Position = max;
+        public static void BufferLength(this Metadata[] meta, int max)
+            => meta[0].Position = max - 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int MaxIndex(this Metadata[] meta) 

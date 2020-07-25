@@ -18,9 +18,27 @@ namespace Unity.Container
         public int Version => _version;
 
         /// <summary>
-        /// Contract names
+        /// Count of registered <see cref="Contract"/> names
         /// </summary>
         public virtual int Names => _namesCount;
+
+        /// <summary>
+        /// Count of registered <see cref="Contract"/> types
+        /// </summary>
+        public int Contracts => _contractCount;
+
+        /// <summary>
+        /// Return <see cref="ReadOnlyMemory{ContainerRegistration}"/> encapsulating
+        /// all registered contracts.
+        /// </summary>
+        public ReadOnlyMemory<ContainerRegistration> Memory 
+            => new ReadOnlyMemory<ContainerRegistration>(_contractData, 1, _contractCount);
+
+        /// <summary>
+        /// Pointer to parent scope
+        /// </summary>
+        public Scope? Next { get; protected set; }
+
 
         #endregion
 
@@ -86,12 +104,5 @@ namespace Unity.Container
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
         /// </summary>
         public ICollection<IDisposable> Disposables => _disposables;
-
-
-
-        // TODO: Replace with structure
-        public virtual IEnumerable<ContainerRegistration> GetRegistrations 
-            => throw new NotImplementedException();
-
     }
 }

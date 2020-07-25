@@ -27,42 +27,44 @@ namespace Unity
         {
             get
             {
-                IEnumerable<ContainerRegistration>? enumerator;
+                throw new NotImplementedException();
 
-                // Initialize collection cache
-                if (null == _cache)
-                {
-                    lock (_scope)
-                    {
-                        if (null == _cache)
-                        {
-                            enumerator = _scope.GetRegistrations;
+                //IEnumerable<ContainerRegistration>? enumerator;
 
-                            _cache = new WeakReference(enumerator);
-                            return enumerator;
-                        }
-                    }
-                }
+                //// Initialize collection cache
+                //if (null == _cache)
+                //{
+                //    lock (_scope)
+                //    {
+                //        if (null == _cache)
+                //        {
+                //            enumerator = _scope.GetRegistrations;
 
-                // Cache registrations
-                enumerator = (IEnumerable<ContainerRegistration>?)_cache.Target;
-                if (null == enumerator || !_cache.IsAlive)
-                {
-                    enumerator = _scope.GetRegistrations;
-                    _cache.Target = enumerator;
-                }
-                else
-                {
-                    var en = enumerator.GetHashCode();
-                    var sc = _scope.GetHashCode();
-                    if (en != sc)
-                    {
-                        enumerator = _scope.GetRegistrations;
-                        _cache.Target = enumerator;
-                    }
-                }
+                //            _cache = new WeakReference(enumerator);
+                //            return enumerator;
+                //        }
+                //    }
+                //}
 
-                return enumerator!;
+                //// Cache registrations
+                //enumerator = (IEnumerable<ContainerRegistration>?)_cache.Target;
+                //if (null == enumerator || !_cache.IsAlive)
+                //{
+                //    enumerator = _scope.GetRegistrations;
+                //    _cache.Target = enumerator;
+                //}
+                //else
+                //{
+                //    var en = enumerator.GetHashCode();
+                //    var sc = _scope.GetHashCode();
+                //    if (en != sc)
+                //    {
+                //        enumerator = _scope.GetRegistrations;
+                //        _cache.Target = enumerator;
+                //    }
+                //}
+
+                //return enumerator!;
             }
         }
 

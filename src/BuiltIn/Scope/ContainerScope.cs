@@ -28,7 +28,7 @@ namespace Unity.BuiltIn
         {
             // Registrations
             _contractMeta = new Metadata[Prime.Numbers[PRIME_ROOT_INDEX + 1]];
-            _contractMeta.MaxIndex(_contractData.Length);
+            _contractMeta.BufferLength(_contractData.Length);
         }
 
         // Child constructor
@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
         {
             // Registrations
             _contractMeta = new Metadata[Prime.Numbers[PRIME_CHILD_INDEX + 1]];
-            _contractMeta.MaxIndex(_contractData.Length);
+            _contractMeta.BufferLength(_contractData.Length);
         }
 
         // Copy constructor

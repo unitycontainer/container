@@ -55,9 +55,15 @@ namespace Container.Scope
             Assert.IsNotNull(Scope);
             Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.RunningIndex);
+            Assert.AreEqual(0, Scope.Contracts);
             Assert.AreEqual(0, Scope.ToArray().Length);
             Assert.IsTrue(ReferenceEquals(null, null));
         }
+    }
+
+    public static class ScopeTestExtensions
+    {
+        public static ContainerRegistration[] ToArray(this Unity.Container.Scope sequence) 
+            => sequence.Memory.Span.ToArray();
     }
 }
