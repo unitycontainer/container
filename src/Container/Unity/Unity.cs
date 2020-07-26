@@ -9,6 +9,9 @@ namespace Unity
     {
         #region Fields
 
+        private readonly int _level;
+        private readonly int DEFAULT_CONTRACTS;
+
         internal Scope   _scope;
         internal readonly Defaults _policies;
 
@@ -25,6 +28,7 @@ namespace Unity
             Root = this;
             Name = name;
 
+            _level    = 1;
             _policies = new Defaults();
             _context  = new PrivateExtensionContext(this);
 
@@ -40,6 +44,7 @@ namespace Unity
                 typeof(IUnityContainer), 
                 typeof(IUnityContainerAsync), 
                 typeof(IServiceProvider));
+            DEFAULT_CONTRACTS = _scope.Contracts;
         }
 
         /// <summary>
@@ -53,12 +58,14 @@ namespace Unity
             Root   = parent.Root;
             Parent = parent;
 
+            _level    = parent._level + 1;
             _policies = parent.Root._policies;
             
             // Registration Scope
             _scope = parent._scope.CreateChildScope();
             _scope.Add(new ContainerLifetimeManager(this),
                 typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider));
+            DEFAULT_CONTRACTS = _scope.Contracts;
         }
 
         #endregion

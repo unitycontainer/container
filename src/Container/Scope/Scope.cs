@@ -4,7 +4,7 @@ using Unity.Storage;
 
 namespace Unity.Container
 {
-    public abstract partial class Scope 
+    public abstract partial class Scope
     {
         #region Constants
 

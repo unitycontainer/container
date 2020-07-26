@@ -15,7 +15,8 @@ namespace Unity.Container
         /// <remarks>
         /// Scope version is increased every time registrations changes
         /// </remarks>
-        public int Version => _version;
+        public int Version => null == Parent 
+            ? _version : Parent.Version + _version;
 
         /// <summary>
         /// Count of registered <see cref="Contract"/> names
@@ -33,12 +34,13 @@ namespace Unity.Container
         /// </summary>
         public ReadOnlyMemory<ContainerRegistration> Memory 
             => new ReadOnlyMemory<ContainerRegistration>(_contractData, 1, _contractCount);
+        
+        
 
         /// <summary>
         /// Pointer to parent scope
         /// </summary>
         public Scope? Parent { get; protected set; }
-
 
         #endregion
 
@@ -61,7 +63,7 @@ namespace Unity.Container
         /// </summary>
         /// <param name="manager"><see cref="RegistrationManager"/> containing the registration</param>
         /// <param name="registerAs">Collection of <see cref="Type"/> aliases</param>
-        public abstract void Add(RegistrationManager manager, params Type[] registerAs);
+        internal abstract void Add(RegistrationManager manager, params Type[] registerAs);
 
         /// <summary>
         /// Add <see cref="Contract"/> entries for registrations

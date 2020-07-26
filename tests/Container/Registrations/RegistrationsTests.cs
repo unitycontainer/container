@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity;
@@ -13,6 +14,15 @@ namespace Container.Registrations
 
         [TestInitialize]
         public virtual void InitializeTest() => Container = new UnityContainer();
+
+        [TestMethod]
+        public void Baseline()
+        {
+            var registrations = (object)Container.Registrations;
+
+            Assert.IsNotNull(registrations);
+            Assert.IsNotNull(registrations as IEnumerable<ContainerRegistration>);
+        }
 
         [TestMethod]
         public void IUnityContainerIsFirst() 
@@ -35,24 +45,37 @@ namespace Container.Registrations
         }
 
         [TestMethod]
-        public void EnumeratorIsCached()
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ThrowsOnCollctionChange()
         {
-            // Act
-            var enum1 = Container.Registrations;
-            var enum2 = Container.Registrations;
+            var enumerator = Container.Registrations.GetEnumerator();
+            
+            Assert.IsTrue(enumerator.MoveNext());
+            Container.RegisterInstance(this);
+            enumerator.MoveNext();
+        }
 
-            // Validate
-            Assert.AreSame(enum1, enum2);
-            Assert.IsTrue(enum1.SequenceEqual(enum2));
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ThrowsOnParentCollctionChange()
+        {
+            var enumerator = ((IUnityContainer)Container)
+                .CreateChildContainer()
+                .Registrations
+                .GetEnumerator();
+
+            Assert.IsTrue(enumerator.MoveNext());
+            Container.RegisterInstance(this);
+            enumerator.MoveNext();
         }
 
         [TestMethod]
         public void CacheDiscardedOnUpdate()
         {
             // Act
-            var enum1 = Container.Registrations;
+            var enum1 = Container.Registrations.ToArray();
             Container.RegisterInstance(this);
-            var enum2 = Container.Registrations;
+            var enum2 = Container.Registrations.ToArray();
 
             // Validate
             Assert.AreNotSame(enum1, enum2);
@@ -65,15 +88,14 @@ namespace Container.Registrations
             // Arrange
             var child = ((IUnityContainer)Container).CreateChildContainer()
                                                     .CreateChildContainer();
-            var enum1 = child.Registrations;
-            var enum2 = child.Registrations;
+            var enum1 = child.Registrations.ToArray();
+            var enum2 = child.Registrations.ToArray();
 
             // Act
             Container.RegisterInstance(this);
-            var enum3 = child.Registrations;
+            var enum3 = child.Registrations.ToArray();
 
             // Validate
-            Assert.AreSame(enum1, enum2);
             Assert.AreNotSame(enum1, enum3);
             Assert.IsTrue(enum1.SequenceEqual(enum2));
             Assert.IsFalse(enum1.SequenceEqual(enum3));

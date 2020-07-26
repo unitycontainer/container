@@ -1,19 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Container;
 using Unity.Extension;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Public Members
+        #region Properties
 
         public string? Name { get; }
 
         public UnityContainer Root { get; }
 
         public UnityContainer? Parent { get; }
+
+        #endregion
+
+
+        #region Registrations Collection
+
+        /// <inheritdoc />
+        public bool IsRegistered(Type type, string? name)
+        {
+            var scope = _scope;
+
+            if (null == name)
+            {
+                do
+                {
+                    if (scope.Contains(type))
+                        return true;
+                }
+                while (null != (scope = scope.Parent));
+            }
+            else
+            {
+                do
+                {
+                    if (_scope.Contains(type, name))
+                        return true;
+                }
+                while (null != (scope = scope.Parent));
+            }
+
+            return false;
+        }
+
+
+        /// <inheritdoc />
+        public IEnumerable<ContainerRegistration> Registrations
+        {
+            get
+            {
+                var scope = _scope;
+                var levels = new List<Scope>(_level) { _scope };
+
+                while (null != (scope = scope.Parent))
+                {
+                    if (scope.Contracts > DEFAULT_CONTRACTS)
+                        levels.Add(scope);
+                }
+
+                return 1 == levels.Count
+                    ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(this)
+                    : new MultiScopeEnumerator(levels);
+            }
+        }
 
         #endregion
 

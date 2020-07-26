@@ -8,7 +8,7 @@ namespace Unity.BuiltIn
         #region Add
 
         /// <inheritdoc />
-        public override void Add(RegistrationManager manager, params Type[] registerAs)
+        internal override void Add(RegistrationManager manager, params Type[] registerAs)
         {
             // Expand if required
             var required = _contractCount + registerAs.Length;
@@ -21,6 +21,7 @@ namespace Unity.BuiltIn
                 if (null == type) continue;
 
                 Add(new Contract(type), manager);
+                _version--;
             }
         }
 

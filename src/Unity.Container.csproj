@@ -33,12 +33,23 @@
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel" Version="4.3.0" />
   </ItemGroup>
 
+  <!-- System.Memory -->
+
   <ItemGroup>
     <PackageReference Condition="$(TargetFramework.StartsWith('net4'))" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
+  <!-- System.ValueTuple -->
+
+  <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'net45'" Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net46'" Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <!-- Framework Compatibility -->
@@ -49,7 +60,6 @@
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
   </ItemGroup>
-
 
   <!-- C# 8.0 Compatibility -->
 
