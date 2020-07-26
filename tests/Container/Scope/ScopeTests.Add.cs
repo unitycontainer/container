@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity;
 using Unity.Lifetime;
 
@@ -75,18 +77,20 @@ namespace Container.Scope
             Assert.AreEqual(1, Scope.ToArray().Length);
         }
 
-        [TestMethod]
-        public void AddManagerExpandsTest()
+        [DataTestMethod]
+        [DynamicData(nameof(SetSize))]
+        public void AddManagerExpandsTest(int size)
         {
             // Act
-            Scope.Add(Manager, TestTypes);
+            Scope.Add(Manager, TestTypes.Take(size).ToArray());
 
             // Validate
             Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(TestTypes.Length, Scope.Contracts);
-            Assert.AreEqual(TestTypes.Length, Scope.ToArray().Length);
+            Assert.AreEqual(size, Scope.Contracts);
+            Assert.AreEqual(size, Scope.ToArray().Length);
         }
+
+        public static IEnumerable<object[]> SetSize => Enumerable.Range(10, 20).Select(n => new object[] { n });
 
         #endregion
 
@@ -179,6 +183,21 @@ namespace Container.Scope
             Assert.AreEqual(5, Scope.Version);
             Assert.AreEqual(3, Scope.Contracts);
             Assert.AreEqual(3, Scope.ToArray().Length);
+        }
+
+        #endregion
+
+
+        #region Add(ReadOnlyMemory)
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public virtual void AddUMemoryTest()
+        {
+            ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>();
+
+            // Act
+            Scope.Add(in memory);
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -64,7 +65,7 @@ namespace Unity.Container
 
             // Segment
             _disposables = new List<IDisposable>();
-            Parent = null;
+            Next = null;
 
         }
 
@@ -87,7 +88,7 @@ namespace Unity.Container
 
             // Segment
             _disposables = new List<IDisposable>();
-            Parent = parent;
+            Next = parent;
         }
 
         /// <summary>
@@ -115,7 +116,7 @@ namespace Unity.Container
 
             // Segment
             _disposables = scope._disposables;
-            Parent = scope.Parent;
+            Next = scope.Next;
         }
 
         #endregion

@@ -15,8 +15,8 @@ namespace Unity.Container
         /// <remarks>
         /// Scope version is increased every time registrations changes
         /// </remarks>
-        public int Version => null == Parent 
-            ? _version : Parent.Version + _version;
+        public int Version => null == Next 
+            ? _version : Next.Version + _version;
 
         /// <summary>
         /// Count of registered <see cref="Contract"/> names
@@ -38,9 +38,9 @@ namespace Unity.Container
         
 
         /// <summary>
-        /// Pointer to parent scope
+        /// Pointer to the next scope
         /// </summary>
-        public Scope? Parent { get; protected set; }
+        public Scope? Next { get; protected set; }
 
         #endregion
 
@@ -85,19 +85,12 @@ namespace Unity.Container
         #region Contains
 
         /// <summary>
-        /// Determines whether the <see cref="Scope"/> contains a specific anonymous contract
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> of the anonymous contract</param>
-        /// <returns>True if <see cref="Contract"/> is found</returns>
-        public abstract bool Contains(Type type);
-
-        /// <summary>
         /// Determines whether the <see cref="Scope"/> contains a specific <see cref="Contract"/>
         /// </summary>
         /// <param name="type"><see cref="Type"/> of the <see cref="Contract"/></param>
         /// <param name="name">Name of the <see cref="Contract"/></param>
         /// <returns>True if <see cref="Contract"/> is found</returns>
-        public abstract bool Contains(Type type, string name);
+        public abstract bool Contains(Type type, string? name);
 
         #endregion
 

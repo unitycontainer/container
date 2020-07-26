@@ -26,24 +26,12 @@ namespace Unity
         {
             var scope = _scope;
 
-            if (null == name)
+            do
             {
-                do
-                {
-                    if (scope.Contains(type))
-                        return true;
-                }
-                while (null != (scope = scope.Parent));
+                if (_scope.Contains(type, name))
+                    return true;
             }
-            else
-            {
-                do
-                {
-                    if (_scope.Contains(type, name))
-                        return true;
-                }
-                while (null != (scope = scope.Parent));
-            }
+            while (null != (scope = scope.Next));
 
             return false;
         }
@@ -57,7 +45,7 @@ namespace Unity
                 var scope = _scope;
                 var levels = new List<Scope>(_level) { _scope };
 
-                while (null != (scope = scope.Parent))
+                while (null != (scope = scope.Next))
                 {
                     if (scope.Contracts > DEFAULT_CONTRACTS)
                         levels.Add(scope);

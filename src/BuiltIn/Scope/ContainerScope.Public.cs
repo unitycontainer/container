@@ -84,52 +84,23 @@ namespace Unity.BuiltIn
         #region Contains
 
         /// <inheritdoc />
-        public override bool Contains(Type type)
+        public override bool Contains(Type type, string? name)
         {
-            var scope = this;
+            if (null != name && 0 == _namesCount) return false;
 
-            do
+            var hash = (uint)Contract.GetHashCode(type, name);
+            var bucket = hash % _contractMeta.Length;
+            var position = _contractMeta[bucket].Position;
+
+            while (position > 0)
             {
-                var bucket = (uint)type.GetHashCode() % scope._contractMeta.Length;
-                var position = scope._contractMeta[bucket].Position;
+                ref var candidate = ref _contractData[position];
+                if (candidate._contract.Type == type && 
+                    candidate._contract.Name == name)
+                    return true;
 
-                while (position > 0)
-                {
-                    ref var candidate = ref scope._contractData[position];
-                    if (null == candidate._contract.Name && candidate._contract.Type == type)
-                        return true;
-
-                    position = scope._contractMeta[position].Next;
-                }
-
-            } while ((scope = (ContainerScope?)scope.Parent) != null);
-
-            return false;
-        }
-
-        /// <inheritdoc />
-        public override bool Contains(Type type, string name)
-        {
-            var scope = this;
-
-            do
-            {
-                if (0 == scope._namesCount) continue;
-
-                var hash = type.GetHashCode(name);
-                var bucket = hash % scope._contractMeta.Length;
-                var position = scope._contractMeta[bucket].Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref scope._contractData[position];
-                    if (candidate._contract.Type == type && candidate._contract.Name == name)
-                        return true;
-
-                    position = scope._contractMeta[position].Next;
-                }
-
-            } while ((scope = (ContainerScope?)scope.Parent) != null);
+                position = _contractMeta[position].Next;
+            }
 
             return false;
         }
