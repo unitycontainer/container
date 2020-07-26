@@ -60,6 +60,10 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetHashCode(int typeHash, int nameHash) => typeHash ^ nameHash;
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetHashCode(Type type, string? name) => type.GetHashCode() ^ (name?.GetHashCode() ?? 0);
+
         public override bool Equals(object? obj)
         {
             if (obj is Contract other && Type == other.Type && Name == other.Name)
