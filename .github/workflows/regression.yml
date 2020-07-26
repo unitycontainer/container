@@ -28,6 +28,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.100-preview.8.20363.2'
+
     - name: Cache
       id: unity-abstractions
       uses: actions/cache@v1
@@ -43,7 +48,7 @@ jobs:
     needs: [ Build ]
     strategy:
       matrix:
-        framework: ['net48', 'net47', 'net46', 'net45']
+        framework: ['net50', 'net48', 'net47', 'net46', 'net45']
     runs-on:  windows-latest
 
     steps:
