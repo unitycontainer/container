@@ -3,7 +3,8 @@ name: Regression Tests
 on:
   push:
     branches:
-      - 'release/**'    
+      # - 'release/**'    
+      - 'none/**'    
 
     # paths:
     #   - 'src/*'
