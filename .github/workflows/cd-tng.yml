@@ -42,7 +42,7 @@ jobs:
     - name: Add GitVersion, SourceLink, and Abstractions packages
       run: | 
         dotnet remove ${{ env.containerProject }} reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
-        dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore --version 5.3.5
+        dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore
         dotnet add ${{ env.containerProject }} package Microsoft.SourceLink.GitHub --no-restore
         dotnet add ${{ env.containerProject }} package Unity.Abstractions --version *-beta*
 
