@@ -5,10 +5,10 @@ on:
     branches:
       - 'TNG'    
 
-    paths:
-      - 'src/*'
-      - 'test/*'
-      - '.github/*'
+    # paths:
+    #   - 'src/*'
+    #   - 'test/*'
+    #   - '.github/*'
 
 jobs:
 
