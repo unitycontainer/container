@@ -5,10 +5,10 @@ on:
     branches:
       - 'release/**'    
       
-    paths:
-      - 'src/*'
-      - 'test/*'
-      - '.github/*'
+    # paths:
+    #   - 'src/*'
+    #   - 'test/*'
+    #   - '.github/*'
 
 jobs:
 
@@ -17,6 +17,7 @@ jobs:
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
       containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
+      testProject:       '${{ github.workspace }}\Container\tests\Unity.Container.Tests.csproj'
 
     steps:
 
@@ -42,18 +43,18 @@ jobs:
     - name: Add GitVersion, SourceLink, and Abstractions packages
       run: | 
         dotnet remove ${{ env.containerProject }} reference "..\..\Abstractions\src\Unity.Abstractions.csproj"
-        dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore --version 5.3.5
+        dotnet add ${{ env.containerProject }} package GitVersionTask --no-restore
         dotnet add ${{ env.containerProject }} package Microsoft.SourceLink.GitHub --no-restore
         dotnet add ${{ env.containerProject }} package Unity.Abstractions --version *-beta*
 
     - name: Build
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Unity.Tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
 
     - name: Test
       run: | 
-        dotnet test Container\tests\Unity.Tests
+        dotnet test ${{ env.testProject }}
 
     - name: Publish Local Package
       run: |
