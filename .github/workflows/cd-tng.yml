@@ -49,11 +49,11 @@ jobs:
     - name: Build
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests\Unity.Tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests
 
     - name: Test
       run: | 
-        dotnet test Container\tests\Unity.Tests
+        dotnet test Container\tests
 
     - name: Publish Local Package
       run: |
