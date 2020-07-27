@@ -11,7 +11,7 @@ namespace Unity
     /// </summary>
     [DebuggerDisplay("Name = { Name }", Name = "{ (RegisteredType?.Name ?? string.Empty),nq }")]
     [StructLayout(LayoutKind.Sequential)]
-    public readonly struct ContainerRegistration : IContainerRegistration
+    public readonly struct ContainerRegistration 
     {
         #region Fields
 

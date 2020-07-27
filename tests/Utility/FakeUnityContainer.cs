@@ -45,7 +45,7 @@ namespace Unity.Abstractions.Tests
         public void Add(Type key, object value) => _context.Add(key, value);
 
 
-        public IEnumerable<IContainerRegistration> Registrations => throw new NotImplementedException();
+        public IEnumerable<ContainerRegistration> Registrations => throw new NotImplementedException();
 
         public IUnityContainer Parent => throw new NotImplementedException();
 

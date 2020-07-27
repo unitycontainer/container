@@ -52,7 +52,7 @@ namespace Extensions.Tests
         public ResolverOverride[] ResolverOverrides { get; private set; }
         public object Data { get; set; }
 
-        public IEnumerable<IContainerRegistration> Registrations => throw new NotImplementedException();
+        public IEnumerable<ContainerRegistration> Registrations => throw new NotImplementedException();
 
         public IUnityContainerAsync Parent => throw new NotImplementedException();
 
