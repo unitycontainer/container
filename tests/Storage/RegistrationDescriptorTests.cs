@@ -7,8 +7,6 @@ namespace Storage.Tests
     [TestClass]
     public class RegistrationDescriptorTests
     {
-        private string Name = "0123456789";
-
         [TestMethod]
         public void Uninitialized()
         {

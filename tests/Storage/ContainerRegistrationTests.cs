@@ -135,9 +135,9 @@ namespace Storage.Tests
 
             // Validate
             Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(GetType(), registration.MappedToType);
             Assert.IsNull(registration.Name);
             Assert.AreSame(manager, registration.LifetimeManager);
-            Assert.IsNull(registration.MappedToType);
             Assert.IsNull(registration.Factory);
             Assert.AreSame(this, registration.Instance);
         }
@@ -157,9 +157,9 @@ namespace Storage.Tests
 
             // Validate
             Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(GetType(), registration.MappedToType);
             Assert.AreEqual(Name, registration.Name);
             Assert.AreSame(manager, registration.LifetimeManager);
-            Assert.IsNull(registration.MappedToType);
             Assert.IsNull(registration.Factory);
             Assert.AreSame(this, registration.Instance);
         }
@@ -226,9 +226,9 @@ namespace Storage.Tests
 
             // Validate
             Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(typeof(object), registration.MappedToType);
             Assert.IsNull(registration.Name);
             Assert.AreSame(manager, registration.LifetimeManager);
-            Assert.IsNull(registration.MappedToType);
             Assert.AreSame(factory, registration.Factory);
             Assert.IsNull(registration.Instance);
         }
@@ -249,9 +249,9 @@ namespace Storage.Tests
 
             // Validate
             Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(typeof(object), registration.MappedToType);
             Assert.AreEqual(Name, registration.Name);
             Assert.AreSame(manager, registration.LifetimeManager);
-            Assert.IsNull(registration.MappedToType);
             Assert.AreSame(factory, registration.Factory);
             Assert.IsNull(registration.Instance);
         }

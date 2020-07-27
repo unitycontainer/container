@@ -61,10 +61,19 @@ namespace Unity
 
         public LifetimeManager LifetimeManager => (LifetimeManager)_manager;
 
-        public Type? MappedToType =>
-            RegistrationCategory.Type == _manager.Category
-                ? (Type?)_manager.Data
-                : null;
+        public Type? MappedToType
+        {
+            get
+            {
+                return _manager.Category switch
+                {
+                    RegistrationCategory.Type => (Type?)_manager.Data,
+                    RegistrationCategory.Factory => RegisteredType,
+                    RegistrationCategory.Instance => _manager.Data?.GetType(),
+                    _ => null
+                };
+            }
+        }
 
         public object? Instance =>
             RegistrationCategory.Instance == _manager.Category
