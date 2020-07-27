@@ -5,9 +5,9 @@ on:
     branches:
       - 'release/**'    
       
-    # paths:
-    #   - 'src/*'
-    #   - 'test/*'
+    paths:
+      - 'src/*'
+      - 'test/*'
     #   - '.github/*'
 
 jobs:
