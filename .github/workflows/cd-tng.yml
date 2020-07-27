@@ -17,6 +17,7 @@ jobs:
     env:
       PackageOutputPath: '${{ github.workspace }}\package'
       containerProject:  '${{ github.workspace }}\Container\src\Unity.Container.csproj'
+      testProject:       '${{ github.workspace }}\Container\tests\Unity.Container.Tests.csproj'
 
     steps:
 
@@ -49,11 +50,11 @@ jobs:
     - name: Build
       run: | 
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
-        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True Container\tests
+        dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
 
     - name: Test
       run: | 
-        dotnet test Container\tests
+        dotnet test ${{ env.testProject }}
 
     - name: Publish Local Package
       run: |
