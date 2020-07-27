@@ -191,13 +191,12 @@ namespace Container.Scope
         #region Add(ReadOnlyMemory)
 
         [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public virtual void AddUMemoryTest()
+        public virtual void AddMemoryTest()
         {
             ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>();
 
             // Act
-            Scope.Add(in memory);
+            Assert.ThrowsException<NotImplementedException>(() => Scope.Add(in memory));
         }
 
         #endregion

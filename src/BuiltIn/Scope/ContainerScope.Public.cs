@@ -25,6 +25,11 @@ namespace Unity.BuiltIn
             }
         }
 
+        public override void Add(in RegistrationDescriptor descriptor)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <inheritdoc />
         public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {

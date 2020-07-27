@@ -70,6 +70,13 @@ namespace Unity.Container
         /// </summary>
         /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
         /// <see cref="RegistrationDescriptor"/> structures</param>
+        public abstract void Add(in RegistrationDescriptor descriptor);
+
+        /// <summary>
+        /// Add <see cref="Contract"/> entries for registrations
+        /// </summary>
+        /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
+        /// <see cref="RegistrationDescriptor"/> structures</param>
         public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> span);
 
         /// <summary>

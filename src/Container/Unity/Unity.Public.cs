@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Extension;
+using Unity.Lifetime;
 
 namespace Unity
 {
@@ -19,7 +21,7 @@ namespace Unity
         #endregion
 
 
-        #region Registrations Collection
+        #region Registrations
 
         /// <inheritdoc />
         public bool IsRegistered(Type type, string? name)
@@ -34,6 +36,31 @@ namespace Unity
             while (null != (scope = scope.Next));
 
             return false;
+        }
+
+        public UnityContainer Register(params RegistrationDescriptor[] descriptors)
+        {
+            for (var i = 0; i < descriptors.Length; i++)
+            {
+                ref var descriptor = ref descriptors[i];
+
+                // Add to container 
+                var container = descriptor.Manager is SingletonLifetimeManager ? Root : this;
+
+                container._scope.Add(in descriptor);
+            }
+
+            // Report registration
+            _registering?.Invoke(this, descriptors);
+
+            return this;
+        }
+
+        public async ValueTask RegisterAsync(params RegistrationDescriptor[] memory)
+        {
+            await Task.Run(() => Register(memory));
+
+
         }
 
 
