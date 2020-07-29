@@ -1,11 +1,11 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Unity.Benchmarks.Container;
+using Unity.Benchmarks;
 
 namespace Unity.v5
 {
     [ShortRunJob(RuntimeMoniker.Net472)]
-    public class Container : ContainerAPI
+    public class ContainerBasics : ContainerAPI
     {
     }
 }
