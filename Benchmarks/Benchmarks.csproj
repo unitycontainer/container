@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Unity Container Regression Tests</Description>
+    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+    <TargetFrameworks>net462;net472;net48;net50</TargetFrameworks>
+  </PropertyGroup>
+
+  
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'net462'" Include="Unity" Version="4.0.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net472'" Include="Unity.Container" Version="5.11.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net48'" Include="Unity.Container" Version="6.0.*-*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net50'" Include="Unity.Container" Version="6.0.*-*" />
+  </ItemGroup>
+
+</Project>
