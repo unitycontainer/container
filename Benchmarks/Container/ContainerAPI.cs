@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
-using BenchmarkDotNet.Jobs;
 #if NET462
 using Microsoft.Practices.Unity;
 #else
@@ -11,19 +10,19 @@ using Unity;
 
 namespace Unity.Benchmarks
 {
-    public partial class ContainerAPI
+    public class ContainerAPI
     {
         protected IUnityContainer Container;
         protected Consumer Consumer = new Consumer();
 
         [GlobalSetup]
         public virtual void GlobalSetup() 
-            => Container = new UnityContainer();
+            => Container = NewUnityContainer();
 
 
         [Benchmark(Description = "new UnityContainer()")]
         [BenchmarkCategory("new")]
-        public object NewUnityContainer() 
+        public IUnityContainer NewUnityContainer() 
             => new UnityContainer();
 
 
@@ -54,6 +53,6 @@ namespace Unity.Benchmarks
         [Benchmark(Description = "Container.IsRegistered(false)")]
         [BenchmarkCategory("check", "false")]
         public virtual bool IsNotRegistered() 
-            => Container.IsRegistered(typeof(object), "name");
+            => Container.IsRegistered(typeof(object), null);
     }
 }
