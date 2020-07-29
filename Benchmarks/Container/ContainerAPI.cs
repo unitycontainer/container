@@ -46,13 +46,13 @@ namespace Unity.Benchmarks
 
 
         [Benchmark(Description = "Container.IsRegistered(true)")]
-        [BenchmarkCategory("registration", "true")]
+        [BenchmarkCategory("check", "true")]
         public virtual bool IsRegistered() 
             => Container.IsRegistered(typeof(IUnityContainer), null);
 
 
         [Benchmark(Description = "Container.IsRegistered(false)")]
-        [BenchmarkCategory("registration", "false")]
+        [BenchmarkCategory("check", "false")]
         public virtual bool IsNotRegistered() 
             => Container.IsRegistered(typeof(object), "name");
     }
