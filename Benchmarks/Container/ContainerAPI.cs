@@ -9,12 +9,12 @@ using Unity.Lifetime;
 using Unity;
 #endif
 
-namespace Unity.Benchmarks.Container
+namespace Unity.Benchmarks
 {
     public partial class ContainerAPI
     {
-        private IUnityContainer Container = new UnityContainer();
-        private Consumer Consumer = new Consumer();
+        protected IUnityContainer Container = new UnityContainer();
+        protected Consumer Consumer = new Consumer();
 
         [Benchmark(Description = "new UnityContainer()")]
         [BenchmarkCategory("new")]
