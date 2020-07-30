@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Injection;
 using Unity.Policy;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -61,6 +62,28 @@ namespace Unity
         public ICollection<InjectionMember> InjectionMembers { get; protected set; }
 
         #endregion
+
+
+        #region Registration Categories
+
+
+        public Type? Type => 
+            RegistrationCategory.Type == Category
+                ? (Type?)Data
+                : null;
+
+        public object? Instance =>
+            RegistrationCategory.Instance == Category
+                ? Data
+                : null;
+
+        public ResolveDelegate<IResolveContext>? Factory =>
+            RegistrationCategory.Factory == Category
+                ? (ResolveDelegate<IResolveContext>?)Data
+                : null;
+
+        #endregion
+
 
 
         #region Initializers Support

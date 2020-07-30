@@ -148,7 +148,7 @@ namespace Unity
         /// having transient lifetime is the same as having no lifetime manager at all.
         /// </remarks>
         /// <value>An instance of a <see cref="TransientLifetimeManager"/> object.</value>
-        public static ITypeLifetimeManager Transient => TransientLifetimeManager.Instance;
+        public static ITypeLifetimeManager Transient => new TransientLifetimeManager();
 
         /// <summary>
         /// This lifetime is similar to <see cref="TransientLifetimeManager"/> with exception 

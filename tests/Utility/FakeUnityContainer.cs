@@ -1,23 +1,31 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Injection;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.Abstractions.Tests
 {
     public class FakeUnityContainer : IUnityContainer, IEnumerable
     {
+        #region Fields
+
+        RegistrationDescriptor[] _descriptors = new[] { new RegistrationDescriptor() };
+
+        #endregion
+
         #region Public Members
 
+        public ref readonly RegistrationDescriptor Descriptor => ref _descriptors[0];
+
         public Type Type { get; private set; }
+
         public string Name { get; private set; }
-        public Type MappedTo { get; private set; }
-        public LifetimeManager LifetimeManager { get; private set; }
-        public ICollection<InjectionMember> InjectionMembers { get; private set; }
+
+        public ICollection<InjectionMember> InjectionMembers => _descriptors?[0].Manager.InjectionMembers;
+
         public ResolverOverride[] ResolverOverrides { get; private set; }
+
         public object Data { get; set; }
 
         #endregion
@@ -99,44 +107,16 @@ namespace Unity.Abstractions.Tests
 
         public IUnityContainer CreateChildContainer(string name = null) => this;
 
-        public IUnityContainer RegisterType(Type type, string name, ITypeLifetimeManager manager, params Type[] registerAs)
+        public IUnityContainer Register(params RegistrationDescriptor[] descriptors)
         {
-            Type = registerAs.FirstOrDefault();
-            MappedTo = type;
-            Name = name;
-            LifetimeManager = (LifetimeManager)manager;
-            InjectionMembers = LifetimeManager.InjectionMembers;
+            _descriptors = descriptors;
 
             return this;
         }
 
-        public IUnityContainer RegisterFactory(ResolveDelegate<IResolveContext> factory, string name, IFactoryLifetimeManager manager, params Type[] registerAs)
+        public IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
         {
-            Type = registerAs.FirstOrDefault();
-            Name = name;
-
-            if (null == factory) throw new ArgumentNullException(nameof(factory));
-            if (null == Type) throw new ArgumentNullException(nameof(Type));
-
-            var context = _context as IResolveContext;
-            Data = factory.Invoke(ref context);
-
-            LifetimeManager = (LifetimeManager)manager;
-            InjectionMembers = LifetimeManager.InjectionMembers;
-
-            return this;
-        }
-
-        public IUnityContainer RegisterInstance(object instance, string name, IInstanceLifetimeManager manager, params Type[] registerAs)
-        {
-            Type = registerAs.FirstOrDefault();
-            Name = name;
-            Data = instance;
-
-            LifetimeManager = (LifetimeManager)manager;
-            InjectionMembers = LifetimeManager.InjectionMembers;
-
-            return this;
+            throw new NotImplementedException();
         }
     }
 }

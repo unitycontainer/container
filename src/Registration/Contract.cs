@@ -58,8 +58,7 @@ namespace Unity
         public override int GetHashCode() => HashCode;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetHashCode(int typeHash, int nameHash) => typeHash ^ nameHash;
-
+        public static int GetHashCode(int first, int second) => first ^ second;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetHashCode(Type type, string? name) => type.GetHashCode() ^ (name?.GetHashCode() ?? 0);

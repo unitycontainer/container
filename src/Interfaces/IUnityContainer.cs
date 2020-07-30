@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Injection;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -31,12 +30,10 @@ namespace Unity
         IUnityContainer? Parent { get; }
 
 
-        IUnityContainer RegisterType(Type type, string? name, ITypeLifetimeManager manager, params Type[] registerAs);
+        IUnityContainer Register(params RegistrationDescriptor[] descriptors);
 
-        IUnityContainer RegisterFactory(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs);
 
-        IUnityContainer RegisterInstance(object? instance, string? name, IInstanceLifetimeManager manager, params Type[] registerAs);
-
+        IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span);
 
 
         /// <summary>

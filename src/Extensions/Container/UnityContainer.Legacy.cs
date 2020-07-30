@@ -14,6 +14,7 @@ namespace Unity
     {
         #region RegisterType overloads
 
+
         #region Generics overloads
 
         /// <summary>
@@ -27,8 +28,8 @@ namespace Unity
         public static IUnityContainer RegisterType<T>(this IUnityContainer container, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(T), null, new TransientLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), null, new TransientLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -50,8 +51,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(T), null, lifetimeManager);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), null, lifetimeManager));
         }
 
         /// <summary>
@@ -67,8 +68,8 @@ namespace Unity
         public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(T), name, new TransientLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), name, new TransientLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -91,8 +92,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(T), name, lifetimeManager);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), name, lifetimeManager));
         }
 
         /// <summary>
@@ -118,7 +119,8 @@ namespace Unity
             params InjectionMember[] injectionMembers) where TTo : TFrom
         {
             return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(TTo), null, new TransientLifetimeManager(injectionMembers), typeof(TFrom));
+                .Register(new RegistrationDescriptor(
+                    typeof(TTo), null, new TransientLifetimeManager(injectionMembers), typeof(TFrom)));
         }
 
         /// <summary>
@@ -141,8 +143,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(TTo), null, lifetimeManager, typeof(TFrom));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(TTo), null, lifetimeManager, typeof(TFrom)));
         }
 
         /// <summary>
@@ -163,8 +165,8 @@ namespace Unity
         public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, string name, 
             params InjectionMember[] injectionMembers) where TTo : TFrom
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(TTo), name, new TransientLifetimeManager(injectionMembers), typeof(TFrom));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(TTo), name, new TransientLifetimeManager(injectionMembers), typeof(TFrom)));
         }
 
         /// <summary>
@@ -188,11 +190,12 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(TTo), name, lifetimeManager, typeof(TFrom));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(TTo), name, lifetimeManager, typeof(TFrom)));
         }
 
         #endregion
+
 
         #region Non-generics overloads
 
@@ -207,8 +210,8 @@ namespace Unity
         public static IUnityContainer RegisterType(this IUnityContainer container, Type type, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(type, null, new TransientLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, null, new TransientLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -230,8 +233,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(type, null, lifetimeManager);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, null, lifetimeManager));
         }
 
         /// <summary>
@@ -247,8 +250,8 @@ namespace Unity
         public static IUnityContainer RegisterType(this IUnityContainer container, Type type, string name, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(type, name, new TransientLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, name, new TransientLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -271,8 +274,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(type, name, lifetimeManager);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, name, lifetimeManager));
         }
 
         /// <summary>
@@ -297,8 +300,8 @@ namespace Unity
         public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(to, null, new TransientLifetimeManager(injectionMembers), from);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, null, new TransientLifetimeManager(injectionMembers), from));
         }
 
         /// <summary>
@@ -321,8 +324,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(to, null, lifetimeManager, from);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, null, lifetimeManager, from));
         }
 
         /// <summary>
@@ -343,8 +346,8 @@ namespace Unity
         public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, string name, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(to, name, new TransientLifetimeManager(injectionMembers), from);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, name, new TransientLifetimeManager(injectionMembers), from));
         }
 
         /// <summary>
@@ -368,17 +371,19 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(to, name, lifetimeManager, from);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, name, lifetimeManager, from));
         }
 
 
         #endregion
 
+
         #endregion
 
 
         #region RegisterInstance overloads
+
 
         #region Generics overloads
 
@@ -402,8 +407,8 @@ namespace Unity
         public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, null, new ContainerControlledLifetimeManager(injectionMembers), typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, null, new ContainerControlledLifetimeManager(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -434,8 +439,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, null, lifetimeManager, typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, null, lifetimeManager, typeof(TInterface)));
         }
 
         /// <summary>
@@ -459,8 +464,8 @@ namespace Unity
         public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, name, new ContainerControlledLifetimeManager(injectionMembers), typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, name, new ContainerControlledLifetimeManager(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -489,11 +494,12 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, name, lifetimeManager, typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, name, lifetimeManager, typeof(TInterface)));
         }
 
         #endregion
+
 
         #region Non-generic overloads
 
@@ -517,8 +523,8 @@ namespace Unity
         public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, null, new ContainerControlledLifetimeManager(injectionMembers), type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, null, new ContainerControlledLifetimeManager(injectionMembers), type));
         }
 
         /// <summary>
@@ -549,8 +555,8 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, null, lifetimeManager, type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, null, lifetimeManager, type));
         }
 
         /// <summary>
@@ -574,8 +580,8 @@ namespace Unity
         public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, name, new ContainerControlledLifetimeManager(injectionMembers), type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, name, new ContainerControlledLifetimeManager(injectionMembers), type));
         }
 
         /// <summary>
@@ -607,16 +613,18 @@ namespace Unity
             else
                 throw new ArgumentNullException(nameof(lifetimeManager));
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterInstance(instance, name, lifetimeManager, type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, name, lifetimeManager, type));
         }
 
         #endregion
+
 
         #endregion
 
 
         #region RegisterFactory overloads
+
 
         #region Generics overloads
 
@@ -643,8 +651,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, new TransientLifetimeManager(injectionMembers), typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -676,8 +684,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, lifetimeManager, typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, lifetimeManager, typeof(TInterface)));
         }
 
         /// <summary>
@@ -704,8 +712,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, new TransientLifetimeManager(injectionMembers), typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -738,8 +746,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, lifetimeManager, typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, lifetimeManager, typeof(TInterface)));
         }
 
 
@@ -766,8 +774,8 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, new TransientLifetimeManager(injectionMembers), typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -799,8 +807,8 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, lifetimeManager, typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, lifetimeManager, typeof(TInterface)));
         }
 
         /// <summary>
@@ -827,8 +835,8 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, new TransientLifetimeManager(injectionMembers), typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -861,11 +869,12 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, lifetimeManager, typeof(TInterface));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, lifetimeManager, typeof(TInterface)));
         }
 
         #endregion
+
 
         #region Non-generic overloads
 
@@ -885,6 +894,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object> factory, 
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
@@ -894,7 +904,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, new TransientLifetimeManager(injectionMembers), type);
+                .Register(new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), type));
         }
 
         /// <summary>
@@ -913,6 +923,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, 
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
@@ -926,8 +937,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, lifetimeManager, type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, lifetimeManager, type));
         }
 
 
@@ -948,6 +959,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object?> factory,
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
@@ -956,8 +968,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, new TransientLifetimeManager(injectionMembers), type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), type));
         }
 
         /// <summary>
@@ -977,6 +989,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager,
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
@@ -990,8 +1003,8 @@ namespace Unity
                 return factory(container!);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, lifetimeManager, type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, lifetimeManager, type));
         }
 
 
@@ -1011,6 +1024,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, 
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
@@ -1019,8 +1033,8 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, new TransientLifetimeManager(injectionMembers), type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), type));
         }
 
         /// <summary>
@@ -1039,6 +1053,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, 
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
@@ -1052,8 +1067,8 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, null, lifetimeManager, type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, null, lifetimeManager, type));
         }
 
 
@@ -1074,6 +1089,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, 
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             ResolveDelegate<IResolveContext> resolver = (ref IResolveContext context) =>
@@ -1082,8 +1098,8 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, new TransientLifetimeManager(injectionMembers), type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), type));
         }
 
         /// <summary>
@@ -1103,6 +1119,7 @@ namespace Unity
         public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, 
             params InjectionMember[] injectionMembers)
         {
+            if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
             if (lifetimeManager is LifetimeManager manager)
@@ -1116,11 +1133,12 @@ namespace Unity
                 return factory(container!, context.Type, context.Name);
             };
 
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterFactory(resolver, name, lifetimeManager, type);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(resolver, name, lifetimeManager, type));
         }
 
         #endregion
+
 
         #endregion
     }

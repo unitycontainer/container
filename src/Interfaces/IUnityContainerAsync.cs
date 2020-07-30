@@ -20,6 +20,13 @@ namespace Unity
         /// <value>The parent container, or null if this container doesn't have one.</value>
         new IUnityContainerAsync? Parent { get; }
 
+
+        ValueTask RegisterAsync(params RegistrationDescriptor[] descriptors);
+
+
+        ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory);
+
+
         /// <summary>
         /// Resolve an instance of the requested type from the container.
         /// </summary>

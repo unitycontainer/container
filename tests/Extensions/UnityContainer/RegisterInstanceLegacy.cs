@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 using Unity;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -17,12 +18,11 @@ namespace Extensions.Tests
             container.RegisterInstance<IUnityContainer>(container);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.IsNull(container.Name);
-            Assert.IsInstanceOfType(container.LifetimeManager, typeof(ContainerControlledLifetimeManager));
-            Assert.AreNotSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.IsNull(container.Descriptor.Name);
+            Assert.IsInstanceOfType(container.Descriptor.Manager, typeof(ContainerControlledLifetimeManager));
+            Assert.AreNotSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance<IUnityContainer>(container));
         }
 
@@ -33,11 +33,10 @@ namespace Extensions.Tests
             container.RegisterInstance<IUnityContainer>(container, (IInstanceLifetimeManager)manager);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.IsNull(container.Name);
-            Assert.AreSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.IsNull(container.Descriptor.Name);
+            Assert.AreSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance<IUnityContainer>(container, (IInstanceLifetimeManager)manager));
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance<IUnityContainer>(container, FakeManager));
         }
@@ -49,12 +48,11 @@ namespace Extensions.Tests
             container.RegisterInstance<IUnityContainer>(name, container);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.AreSame(name, container.Name);
-            Assert.IsInstanceOfType(container.LifetimeManager, typeof(ContainerControlledLifetimeManager));
-            Assert.AreNotSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.AreSame(name, container.Descriptor.Name);
+            Assert.IsInstanceOfType(container.Descriptor.Manager, typeof(ContainerControlledLifetimeManager));
+            Assert.AreNotSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance<IUnityContainer>(name, container));
         }
 
@@ -65,11 +63,10 @@ namespace Extensions.Tests
             container.RegisterInstance<IUnityContainer>(name, container, (IInstanceLifetimeManager)manager);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.AreSame(name, container.Name);
-            Assert.AreSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.AreSame(name, container.Descriptor.Name);
+            Assert.AreSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance<IUnityContainer>(name, container, (IInstanceLifetimeManager)manager, new InjectionConstructor()));
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance<IUnityContainer>(name, container, FakeManager));
         }
@@ -86,12 +83,11 @@ namespace Extensions.Tests
             container.RegisterInstance(typeof(IUnityContainer), container);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.IsNull(container.Name);
-            Assert.IsInstanceOfType(container.LifetimeManager, typeof(ContainerControlledLifetimeManager));
-            Assert.AreNotSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.IsNull(container.Descriptor.Name);
+            Assert.IsInstanceOfType(container.Descriptor.Manager, typeof(ContainerControlledLifetimeManager));
+            Assert.AreNotSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance(typeof(IUnityContainer), container));
         }
 
@@ -102,11 +98,10 @@ namespace Extensions.Tests
             container.RegisterInstance(typeof(IUnityContainer), container, (IInstanceLifetimeManager)manager);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.IsNull(container.Name);
-            Assert.AreSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.IsNull(container.Descriptor.Name);
+            Assert.AreSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance(typeof(IUnityContainer), container, (IInstanceLifetimeManager)manager));
             Assert.ThrowsException<ArgumentNullException>(() => container.RegisterInstance(typeof(IUnityContainer), container, FakeManager));
         }
@@ -118,12 +113,11 @@ namespace Extensions.Tests
             container.RegisterInstance(typeof(IUnityContainer), name, container);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.AreSame(name, container.Name);
-            Assert.IsInstanceOfType(container.LifetimeManager, typeof(ContainerControlledLifetimeManager));
-            Assert.AreNotSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.AreSame(name, container.Descriptor.Name);
+            Assert.IsInstanceOfType(container.Descriptor.Manager, typeof(ContainerControlledLifetimeManager));
+            Assert.AreNotSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance(typeof(IUnityContainer), name, container));
         }
 
@@ -134,11 +128,10 @@ namespace Extensions.Tests
             container.RegisterInstance(typeof(IUnityContainer), name, container, (IInstanceLifetimeManager)manager);
 
             // Validate
-            Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
-            Assert.AreSame(name, container.Name);
-            Assert.AreSame(manager, container.LifetimeManager);
-            Assert.AreSame(container, container.Data);
+            Assert.AreEqual(typeof(IUnityContainer), container.Descriptor.RegisterAs.First());
+            Assert.AreSame(name, container.Descriptor.Name);
+            Assert.AreSame(manager, container.Descriptor.Manager);
+            Assert.AreSame(container, container.Descriptor.Manager.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterInstance(typeof(IUnityContainer), name, container, (IInstanceLifetimeManager)manager, new InjectionConstructor()));
             Assert.ThrowsException<ArgumentNullException>(() => container.RegisterInstance(typeof(IUnityContainer), name, container, FakeManager));
         }

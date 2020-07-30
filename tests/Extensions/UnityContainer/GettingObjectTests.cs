@@ -19,7 +19,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.Resolve<IUnityContainer>());
@@ -36,7 +35,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.AreEqual(name, container.Name);
             Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.Resolve<IUnityContainer>(name));
@@ -53,7 +51,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.IsNotNull(container.Data);   // TODO: should be null
             Assert.ThrowsException<ArgumentNullException>(() => unity.Resolve(typeof(IUnityContainer)));
@@ -75,7 +72,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(object[]), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll<IUnityContainer>());
         }
@@ -91,7 +87,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(bool[]), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(IUnityContainer)));
             Assert.ThrowsException<ArgumentNullException>(() => container.ResolveAll(null));
@@ -108,7 +103,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(int[]), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.ThrowsException<ArgumentNullException>(() => unity.ResolveAll(typeof(int)));
             Assert.ThrowsException<ArgumentNullException>(() => container.ResolveAll(null));
@@ -127,7 +121,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.BuildUp<IUnityContainer>(container));
@@ -142,7 +135,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.AreEqual(name, container.Name);
             Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.BuildUp<IUnityContainer>(container, name));
@@ -157,7 +149,6 @@ namespace Extensions.Tests
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.IsNull(container.MappedTo);
             Assert.IsNull(container.Name);
             Assert.IsNotNull(container.Data);
             Assert.ThrowsException<ArgumentNullException>(() => unity.BuildUp(typeof(IUnityContainer), container));

@@ -24,8 +24,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(T), null, new ContainerControlledLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), null, new ContainerControlledLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton<T>(this IUnityContainer container, string name, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(T), name, new ContainerControlledLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), name, new ContainerControlledLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton<TFrom, TTo>(this IUnityContainer container, 
             params InjectionMember[] injectionMembers) where TTo : TFrom
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(TTo), null, new ContainerControlledLifetimeManager(injectionMembers), typeof(TFrom));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(TTo), null, new ContainerControlledLifetimeManager(injectionMembers), typeof(TFrom)));
         }
 
         /// <summary>
@@ -88,11 +88,12 @@ namespace Unity
         public static IUnityContainer RegisterSingleton<TFrom, TTo>(this IUnityContainer container, string name, 
             params InjectionMember[] injectionMembers) where TTo : TFrom
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(typeof(TTo), name, new ContainerControlledLifetimeManager(injectionMembers), typeof(TFrom));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(TTo), name, new ContainerControlledLifetimeManager(injectionMembers), typeof(TFrom)));
         }
 
         #endregion
+
 
         #region Non-generics overloads
 
@@ -107,8 +108,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type type, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(type, null, new ContainerControlledLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, null, new ContainerControlledLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -124,8 +125,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type type, string name, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(type, name, new ContainerControlledLifetimeManager(injectionMembers));
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, name, new ContainerControlledLifetimeManager(injectionMembers)));
         }
 
         /// <summary>
@@ -150,8 +151,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type from, Type to, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(to, null, new ContainerControlledLifetimeManager(injectionMembers), from);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, null, new ContainerControlledLifetimeManager(injectionMembers), from));
         }
 
         /// <summary>
@@ -172,8 +173,8 @@ namespace Unity
         public static IUnityContainer RegisterSingleton(this IUnityContainer container, Type from, Type to, string name, 
             params InjectionMember[] injectionMembers)
         {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
-                .RegisterType(to, name, new ContainerControlledLifetimeManager(injectionMembers), from);
+            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, name, new ContainerControlledLifetimeManager(injectionMembers), from));
         }
 
         #endregion

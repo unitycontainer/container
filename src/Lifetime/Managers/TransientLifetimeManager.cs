@@ -16,20 +16,6 @@ namespace Unity.Lifetime
                                             IFactoryLifetimeManager,
                                             ITypeLifetimeManager
     {
-        #region Fields
-
-        /// <summary>
-        /// Globally unique transient lifetime manager singleton
-        /// </summary>
-        /// <remarks>
-        /// This instance is used for all transient lifetimes
-        /// </remarks>
-        /// <value>An instance of a <see cref="TransientLifetimeManager"/> object.</value>
-        public static readonly TransientLifetimeManager Instance = new TransientLifetimeManager();
-
-        #endregion
-
-
         #region Constructors
 
         /// <inheritdoc/>

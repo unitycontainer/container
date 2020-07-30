@@ -4,17 +4,19 @@ using Unity;
 using Unity.Abstractions.Tests;
 using Unity.Injection;
 using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Extensions.Tests
 {
     [TestClass]
     public partial class UnityContainerTests
     {
-        private FakeUnityContainer container;
-        private InjectionMember[] members;
-        private LifetimeManager manager;
-        private string name;
-        private IUnityContainer unity = null;
+        FakeUnityContainer container;
+        InjectionMember[] members;
+        LifetimeManager manager;
+        IResolveContext context;
+        string name;
+        IUnityContainer unity = null;
         FakeManager FakeManager = new FakeManager();
 
         [TestInitialize]
@@ -22,6 +24,8 @@ namespace Extensions.Tests
         {
             container = new FakeUnityContainer();
             container.Add(typeof(IUnityContainer), container);
+
+            context = new DictionaryContext() { { typeof(IUnityContainer), container } };
 
             members = new InjectionMember[] { };
             manager = new ContainerControlledLifetimeManager();

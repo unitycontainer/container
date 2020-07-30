@@ -12,7 +12,6 @@ namespace Storage.Tests
         private string Name = "0123456789";
 
         [TestMethod]
-        [ExpectedException(typeof(NullReferenceException))]
         public void Baseline()
         {
             // Arrange
@@ -23,7 +22,7 @@ namespace Storage.Tests
         }
 
         [TestMethod]
-        public void UnInitializedTest()
+        public void TypeManagerTest()
         {
             // Arrange
             var manager = new TransientLifetimeManager { Data = this };
@@ -38,9 +37,8 @@ namespace Storage.Tests
             Assert.IsNull(registration.Instance);
         }
 
-
         [TestMethod]
-        public void ContractTest()
+        public void ContractManagerTest()
         {
             // Arrange
             var manager = new TransientLifetimeManager { Data = this };
@@ -56,9 +54,8 @@ namespace Storage.Tests
             Assert.IsNull(registration.Instance);
         }
 
-
         [TestMethod]
-        public void UnInitializedNamedTest()
+        public void TypeNameManagerTest()
         {
             // Arrange
             var manager = new TransientLifetimeManager { Data = this };
@@ -73,6 +70,22 @@ namespace Storage.Tests
             Assert.IsNull(registration.Instance);
         }
 
+        [TestMethod]
+        public void HashTypeNameManagerTest()
+        {
+            // Arrange
+            var manager = new TransientLifetimeManager { Data = this };
+
+            ContainerRegistration registration = new ContainerRegistration(0, typeof(object), Name, manager);
+
+            Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(Name, registration.Name);
+            Assert.AreEqual(0, registration._contract.HashCode);
+            Assert.AreSame(manager, registration.LifetimeManager);
+            Assert.IsNull(registration.MappedToType);
+            Assert.IsNull(registration.Factory);
+            Assert.IsNull(registration.Instance);
+        }
 
         [TestMethod]
         public void InternalTest()
@@ -118,8 +131,6 @@ namespace Storage.Tests
             Assert.IsNull(registration.Instance);
         }
 
-
-
         [TestMethod]
         public void InstanceTest()
         {
@@ -140,6 +151,29 @@ namespace Storage.Tests
             Assert.AreSame(manager, registration.LifetimeManager);
             Assert.IsNull(registration.Factory);
             Assert.AreSame(this, registration.Instance);
+        }
+
+
+        [TestMethod]
+        public void InstanceNullTest()
+        {
+            // Arrange
+            var manager = new TransientLifetimeManager
+            {
+                Data = null,
+                Category = RegistrationCategory.Instance
+            };
+
+            // Act
+            ContainerRegistration registration = new ContainerRegistration(typeof(object), manager);
+
+            // Validate
+            Assert.AreEqual(typeof(object), registration.RegisteredType);
+            Assert.AreEqual(typeof(object), registration.MappedToType);
+            Assert.IsNull(registration.Name);
+            Assert.AreSame(manager, registration.LifetimeManager);
+            Assert.IsNull(registration.Factory);
+            Assert.IsNull(registration.Instance);
         }
 
         [TestMethod]
@@ -164,9 +198,8 @@ namespace Storage.Tests
             Assert.AreSame(this, registration.Instance);
         }
 
-
         [TestMethod]
-        public void TypelTest()
+        public void TypeTest()
         {
             // Arrange
             var manager = new TransientLifetimeManager
@@ -208,7 +241,6 @@ namespace Storage.Tests
             Assert.IsNull(registration.Factory);
             Assert.IsNull(registration.Instance);
         }
-
 
         [TestMethod]
         public void FactoryTest()

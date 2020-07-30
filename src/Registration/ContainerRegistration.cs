@@ -53,7 +53,7 @@ namespace Unity
         #endregion
 
 
-        #region IContainerRegistration
+        #region ContainerRegistration
 
         public Type RegisteredType => _contract.Type;
 
@@ -65,25 +65,22 @@ namespace Unity
         {
             get
             {
+                if (null == _manager) return null;
                 return _manager.Category switch
                 {
                     RegistrationCategory.Type => (Type?)_manager.Data,
                     RegistrationCategory.Factory => RegisteredType,
-                    RegistrationCategory.Instance => _manager.Data?.GetType(),
+                    RegistrationCategory.Instance => _manager.Data?.GetType() ?? RegisteredType,
                     _ => null
                 };
             }
         }
 
-        public object? Instance =>
-            RegistrationCategory.Instance == _manager.Category
-                ? _manager.Data
-                : null;
+        public object? Instance 
+            => _manager.Instance;
 
-        public ResolveDelegate<IResolveContext>? Factory =>
-            RegistrationCategory.Factory == _manager.Category 
-                ? (ResolveDelegate<IResolveContext>?)_manager.Data
-                : null;
+        public ResolveDelegate<IResolveContext>? Factory 
+            => _manager.Factory;
 
         #endregion
     }
