@@ -5,7 +5,7 @@ using Unity.Benchmarks;
 namespace Unity.v6
 {
     [ShortRunJob(RuntimeMoniker.Net48)]
-    public class ContainerBasics : ContainerAPI
+    public class UnityRegisterAPI : RegisterAPI
     {
     }
 }
