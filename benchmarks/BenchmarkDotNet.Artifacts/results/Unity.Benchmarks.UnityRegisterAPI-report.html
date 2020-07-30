@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>BenchmarkRun-joined-2020-07-29-17-18-56</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.959 (1909/November2018Update/19H2)
+AMD Ryzen Threadripper 2970WX, 1 CPU, 48 logical and 24 physical cores
+.NET Core SDK=5.0.100-preview.8.20363.2
+  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.36102, CoreFX 5.0.20.36102), X64 RyuJIT
+  Job-SENGTX : .NET Core 5.0.0 (CoreCLR 5.0.20.36102, CoreFX 5.0.20.36102), X64 RyuJIT
+</code></pre>
+<pre><code>Runtime=.NET Core 5.0  InvocationCount=1  IterationCount=3  
+LaunchCount=1  UnrollFactor=1  WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>      Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th>
+</tr>
+</thead><tbody><tr><td>Register()</td><td>588.9 ns</td><td>5,450.5 ns</td><td>298.76 ns</td><td>433.3 ns</td>
+</tr><tr><td>RegisterType()</td><td>977.8 ns</td><td>928.9 ns</td><td>50.92 ns</td><td>966.7 ns</td>
+</tr><tr><td>RegisterInstance()</td><td>1,088.9 ns</td><td>6,559.1 ns</td><td>359.53 ns</td><td>933.3 ns</td>
+</tr><tr><td>RegisterFactory()</td><td>1,122.2 ns</td><td>9,128.6 ns</td><td>500.37 ns</td><td>833.3 ns</td>
+</tr></tbody></table>
+</body>
+</html>

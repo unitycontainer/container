@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Extension;
-using Unity.Lifetime;
 
 namespace Unity
 {
@@ -38,20 +37,14 @@ namespace Unity
             return false;
         }
 
-        public UnityContainer Register(params RegistrationDescriptor[] descriptors)
+
+        public UnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
         {
-            for (var i = 0; i < descriptors.Length; i++)
-            {
-                ref var descriptor = ref descriptors[i];
-
-                // Add to container 
-                var container = descriptor.Manager is SingletonLifetimeManager ? Root : this;
-
-                container._scope.Add(in descriptor);
-            }
+            // Register with the scope
+            _scope.Add(in span);
 
             // Report registration
-            _registering?.Invoke(this, descriptors);
+            _registering?.Invoke(this, in span);
 
             return this;
         }
@@ -59,8 +52,6 @@ namespace Unity
         public async ValueTask RegisterAsync(params RegistrationDescriptor[] memory)
         {
             await Task.Run(() => Register(memory));
-
-
         }
 
 

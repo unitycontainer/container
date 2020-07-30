@@ -25,11 +25,6 @@ namespace Unity.BuiltIn
             }
         }
 
-        public override void Add(in RegistrationDescriptor descriptor)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <inheritdoc />
         public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {
@@ -91,8 +86,6 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override bool Contains(Type type, string? name)
         {
-            if (null != name && 0 == _namesCount) return false;
-
             var hash = (uint)Contract.GetHashCode(type, name);
             var bucket = hash % _contractMeta.Length;
             var position = _contractMeta[bucket].Position;

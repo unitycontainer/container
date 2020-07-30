@@ -3,7 +3,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using System.Reflection;
 
-namespace Unity.Benchmark
+namespace Unity.Benchmarks
 {
     class Program
     {

@@ -14,6 +14,17 @@ namespace Unity
         #endregion
 
 
+        #region Registration
+
+        async ValueTask IUnityContainerAsync.RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory)
+        {
+            await Task.Factory.StartNew( (a) => Register(memory.Span), memory, System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            await Task.Run(() => Register(memory.Span));
+        }
+
+        #endregion
+
+
         #region Resolution
 
         /// <inheritdoc />
@@ -29,7 +40,6 @@ namespace Unity
 
         /// <inheritdoc />
         IUnityContainerAsync IUnityContainerAsync.CreateChildContainer(string? name) => CreateChildContainer(name);
-
         #endregion
     }
 }

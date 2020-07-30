@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.Lifetime;
+using System.Runtime.CompilerServices;
 using Unity.Resolution;
 
 namespace Unity
@@ -11,65 +11,23 @@ namespace Unity
         /// <inheritdoc />
         IUnityContainer? IUnityContainer.Parent => Parent;
 
-
-
         #endregion
 
 
-        #region Type
+        #region Registration
 
-        public IUnityContainer RegisterType(Type type, string? name, ITypeLifetimeManager manager, params Type[] registerAs)
+        /// <inheritdoc />
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IUnityContainer IUnityContainer.Register(params RegistrationDescriptor[] descriptors)
         {
-            ReadOnlySpan<RegistrationDescriptor> span = new[] { new RegistrationDescriptor(type, name, manager, registerAs) };
-            
-            // Add to container 
-            var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Add(in span);
-
-            // Report registration
-            _registering?.Invoke(container, in span);
-
-            return this;
+            ReadOnlySpan<RegistrationDescriptor> span = descriptors;
+            return Register(in span);
         }
 
-        #endregion
-
-
-        #region Instance
-
-        public IUnityContainer RegisterFactory(ResolveDelegate<IResolveContext> factory, string? name, IFactoryLifetimeManager manager, params Type[] registerAs)
-        {
-            ReadOnlySpan<RegistrationDescriptor> span = new[] { new RegistrationDescriptor(factory, name, manager, registerAs) };
-
-            // Add to container 
-            var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Add(in span);
-
-            // Report registration
-            _registering?.Invoke(container, in span);
-
-            return this;
-        }
-
-
-        #endregion
-
-
-        #region Factory
-
-        public IUnityContainer RegisterInstance(object? instance, string? name, IInstanceLifetimeManager manager, params Type[] registerAs)
-        {
-            ReadOnlySpan<RegistrationDescriptor> span = new[] { new RegistrationDescriptor(instance, name, manager, registerAs) };
-
-            // Add to container 
-            var container = manager is SingletonLifetimeManager ? Root : this;
-            container._scope.Add(in span);
-
-            // Report registration
-            _registering?.Invoke(container, in span);
-
-            return this;
-        }
+        /// <inheritdoc />
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IUnityContainer IUnityContainer.Register(in ReadOnlySpan<RegistrationDescriptor> span) 
+            => Register(in span);
 
         #endregion
 
@@ -94,8 +52,9 @@ namespace Unity
         #region Child Container
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.CreateChildContainer(string? name) => CreateChildContainer(name);
-        
+        IUnityContainer IUnityContainer.CreateChildContainer(string? name)
+            => CreateChildContainer(name);
+
         #endregion
     }
 }

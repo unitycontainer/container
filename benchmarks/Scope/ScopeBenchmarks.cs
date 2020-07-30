@@ -11,30 +11,30 @@ namespace Unity.Benchmarks.Scope
     [BenchmarkCategory("Scope")]
     public class ScopeBenchmarks
     {
-        Container.Scope scope;
-        LifetimeManager lifetime;
-        Type[] registerAs;
-        Type[][] registerArrays;
+        //Container.Scope scope;
+        //LifetimeManager lifetime;
+        //Type[] registerAs;
+        //Type[][] registerArrays;
 
-        [GlobalSetup]
-        public void GlobalSetup()
-        {
-            lifetime = new TransientLifetimeManager();
-            registerAs = typeof(Type).Assembly
-                                   .DefinedTypes
-                                   .Take(1000)
-                                   .ToArray();
+        //[GlobalSetup]
+        //public void GlobalSetup()
+        //{
+        //    lifetime = new TransientLifetimeManager();
+        //    registerAs = typeof(Type).Assembly
+        //                           .DefinedTypes
+        //                           .Take(1000)
+        //                           .ToArray();
 
-            registerArrays = typeof(Type).Assembly
-                                   .DefinedTypes
-                                   .Take(100)
-                                   .Select(t => new[] { t })
-                                   .ToArray();
-        }
+        //    registerArrays = typeof(Type).Assembly
+        //                           .DefinedTypes
+        //                           .Take(100)
+        //                           .Select(t => new[] { t })
+        //                           .ToArray();
+        //}
 
-        [Benchmark]
-        [BenchmarkCategory("create")]
-        public Container.Scope ContainerScope() => new ContainerScope();
+        //[Benchmark]
+        //[BenchmarkCategory("create")]
+        //public Container.Scope ContainerScope() => new ContainerScope();
 
 
         //[Benchmark]
