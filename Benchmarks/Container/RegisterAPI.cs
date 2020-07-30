@@ -25,7 +25,7 @@ namespace Unity.Benchmarks
 
 
         [IterationSetup]
-        public void IterationSetup()
+        public virtual void IterationSetup()
         { 
             Container = new UnityContainer();
             Manager1 = new ContainerControlledLifetimeManager();
