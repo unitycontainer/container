@@ -24,4 +24,8 @@
     <ProjectReference Include="..\src\Unity.Container.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Container\Registrations\" />
+  </ItemGroup>
+
 </Project>

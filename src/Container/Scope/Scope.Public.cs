@@ -75,9 +75,9 @@ namespace Unity.Container
         /// <summary>
         /// Add <see cref="Contract"/> entries for registrations
         /// </summary>
-        /// <param name="memory"><see cref="ReadOnlyMemory{T}"/> of
+        /// <param name="state">Array of
         /// <see cref="RegistrationDescriptor"/> structures</param>
-        public abstract void Add(in ReadOnlyMemory<RegistrationDescriptor> memory);
+        public abstract void AddAsync(object? state);
 
         #endregion
 

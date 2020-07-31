@@ -5,18 +5,15 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity;
 
-namespace Container.Registrations
+namespace Container.Interfaces
 {
-    [TestClass]
-    public class RegistrationsTests
-    {
-        protected UnityContainer Container;
+    public partial class UnityInterfacesTests 
+    { 
+        private int GetEnumeratorId() => RuntimeHelpers.GetHashCode(Container.Registrations);
 
-        [TestInitialize]
-        public virtual void InitializeTest() => Container = new UnityContainer();
 
         [TestMethod]
-        public void Baseline()
+        public void Registrations_Baseline()
         {
             var registrations = (object)Container.Registrations;
 
@@ -25,15 +22,15 @@ namespace Container.Registrations
         }
 
         [TestMethod]
-        public void IUnityContainerIsFirst() 
+        public void Registrations_IUnityContainer() 
             => Assert.AreEqual(typeof(IUnityContainer), Container.Registrations.First().RegisteredType);
 
         [TestMethod]
-        public void IUnityContainerAsyncIsPresent() =>
+        public void Registrations_IUnityContainerAsync() =>
             Assert.IsTrue(Container.Registrations.Any(registration => typeof(IUnityContainerAsync) == registration.RegisteredType));
 
         [TestMethod]
-        public void IServiceProviderIaPresent() =>
+        public void Registrations_IServiceProvider() =>
             Assert.IsTrue(Container.Registrations.Any(registration => typeof(IServiceProvider) == registration.RegisteredType));
 
         [TestMethod]
@@ -46,7 +43,7 @@ namespace Container.Registrations
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void ThrowsOnCollctionChange()
+        public void Registrations_ThrowsOnChange()
         {
             var enumerator = Container.Registrations.GetEnumerator();
             
@@ -57,7 +54,7 @@ namespace Container.Registrations
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void ThrowsOnParentCollctionChange()
+        public void Registrations_ThrowsOnParentChange()
         {
             var enumerator = ((IUnityContainer)Container)
                 .CreateChildContainer()
@@ -70,7 +67,7 @@ namespace Container.Registrations
         }
 
         [TestMethod]
-        public void CacheDiscardedOnUpdate()
+        public void Registrations_CacheOnUpdate()
         {
             // Act
             var enum1 = Container.Registrations.ToArray();
@@ -83,7 +80,7 @@ namespace Container.Registrations
         }
 
         [TestMethod]
-        public void CacheDiscardedOnParentUpdate()
+        public void Registrations_CacheOnParentUpdate()
         {
             // Arrange
             var child = ((IUnityContainer)Container).CreateChildContainer()
@@ -102,7 +99,7 @@ namespace Container.Registrations
         }
 
         [TestMethod]
-        public void RecreatedAfterDiscarded()
+        public void Registrations_Recreated()
         {
             // Arrange
             var enum1 = GetEnumeratorId();
@@ -116,8 +113,5 @@ namespace Container.Registrations
 
             Assert.AreNotEqual(enum1, enum2);
         }
-
-
-        private int GetEnumeratorId() => RuntimeHelpers.GetHashCode(Container.Registrations);
     }
 }

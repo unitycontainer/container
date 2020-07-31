@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -29,6 +30,7 @@ namespace Unity.BuiltIn
         public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {
             int required = 0;
+            ContractUnion union = default;
 
             // Calculate required storage
             for (var i = 0; span.Length > i; i++)
@@ -46,11 +48,17 @@ namespace Unity.BuiltIn
 
                     if (null == descriptor.Name)
                     {
+                        union.AsStruct.Name = null;
+
                         // Anonymous contracts
                         foreach (var type in descriptor.RegisterAs)
                         {
                             if (null == type) continue;
-                            Add(new Contract(type), descriptor.Manager);
+
+                            union.AsStruct.Type = type;
+                            union.AsStruct.HashCode = type.GetHashCode();
+
+                            Add(in union.Contract, descriptor.Manager);
                         }
                     }
                     else
@@ -66,8 +74,11 @@ namespace Unity.BuiltIn
                         {
                             if (null == type) continue;
 
-                            var hash = Contract.GetHashCode(type.GetHashCode(), (int)nameInfo.Hash);
-                            var position = Add(new Contract(hash, type, nameInfo.Name), descriptor.Manager);
+                            union.AsStruct.Type = type;
+                            union.AsStruct.Name = nameInfo.Name;
+                            union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), (int)nameInfo.Hash);
+
+                            var position = Add(in union.Contract, descriptor.Manager);
                             if (0 != position) nameInfo.Register(position);
                         }
                     }
@@ -75,7 +86,7 @@ namespace Unity.BuiltIn
             }
         }
 
-        public override void Add(in ReadOnlyMemory<RegistrationDescriptor> memory) 
+        public override void AddAsync(object? state)
             => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
 
         #endregion
@@ -93,7 +104,7 @@ namespace Unity.BuiltIn
             while (position > 0)
             {
                 ref var candidate = ref _contractData[position];
-                if (candidate._contract.Type == type && 
+                if (candidate._contract.Type == type &&
                     candidate._contract.Name == name)
                     return true;
 
@@ -110,6 +121,26 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc />
         public override Scope CreateChildScope() => new ContainerScope((Scope)this);
+
+        #endregion
+
+
+        #region Contract Proxy
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct ContractUnion
+        {
+            [FieldOffset(0)] internal Contract Contract;
+            [FieldOffset(0)] internal AsStruct AsStruct;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct AsStruct
+        {
+            public int HashCode;
+            public Type Type;
+            public string? Name;
+        }
 
         #endregion
     }

@@ -76,7 +76,10 @@ namespace Unity
         public void Dispose()
         {
             // Child container dispose
-            if (null != Parent) Parent.Registering -= OnParentRegistering; 
+            if (null != Parent) Parent.Registering -= OnParentRegistering;
+
+            _registering = null;
+            _childContainerCreated = null;
 
             _scope.Dispose();
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Resolution;
 
@@ -16,10 +17,26 @@ namespace Unity
 
         #region Registration
 
-        async ValueTask IUnityContainerAsync.RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory)
+        /// <inheritdoc />
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask RegisterAsync(params RegistrationDescriptor[] descriptors)
         {
-            await Task.Factory.StartNew( (a) => Register(memory.Span), memory, System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
-            await Task.Run(() => Register(memory.Span));
+            ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>(descriptors);
+
+            // Register with the scope
+            await Task.Factory.StartNew(_scope.AddAsync, memory, System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+
+            // Report registration
+            _registering?.Invoke(this, memory.Span);
+        }
+
+        public async ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory)
+        {
+            // Register with the scope
+            await Task.Factory.StartNew(_scope.AddAsync, memory, System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            
+            // Report registration
+            _registering?.Invoke(this, memory.Span);
         }
 
         #endregion

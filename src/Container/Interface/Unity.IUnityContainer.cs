@@ -18,16 +18,30 @@ namespace Unity
 
         /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IUnityContainer IUnityContainer.Register(params RegistrationDescriptor[] descriptors)
+        public IUnityContainer Register(params RegistrationDescriptor[] descriptors)
         {
             ReadOnlySpan<RegistrationDescriptor> span = descriptors;
-            return Register(in span);
+
+            // Register with the scope
+            _scope.Add(in span);
+
+            // Report registration
+            _registering?.Invoke(this, in span);
+
+            return this;
         }
 
         /// <inheritdoc />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IUnityContainer IUnityContainer.Register(in ReadOnlySpan<RegistrationDescriptor> span) 
-            => Register(in span);
+        public IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
+        {
+            // Register with the scope
+            _scope.Add(in span);
+
+            // Report registration
+            _registering?.Invoke(this, in span);
+
+            return this;
+        }
 
         #endregion
 

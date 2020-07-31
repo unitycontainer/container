@@ -38,21 +38,6 @@ namespace Unity
         }
 
 
-        public UnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
-        {
-            // Register with the scope
-            _scope.Add(in span);
-
-            // Report registration
-            _registering?.Invoke(this, in span);
-
-            return this;
-        }
-
-        public async ValueTask RegisterAsync(params RegistrationDescriptor[] memory)
-        {
-            await Task.Run(() => Register(memory));
-        }
 
 
         /// <inheritdoc />
