@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Extension;
 
@@ -36,9 +35,6 @@ namespace Unity
 
             return false;
         }
-
-
-
 
         /// <inheritdoc />
         public IEnumerable<ContainerRegistration> Registrations

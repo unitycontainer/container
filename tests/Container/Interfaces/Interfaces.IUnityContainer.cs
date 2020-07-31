@@ -4,6 +4,7 @@ using System.Buffers;
 using System.Linq;
 using Unity;
 using Unity.Extension;
+using Unity.Lifetime;
 
 namespace Container.Interfaces
 {
@@ -27,7 +28,6 @@ namespace Container.Interfaces
             // Validate
             Assert.AreEqual(5998, Container.Registrations.ToArray().Length);
         }
-
 
         [TestMethod]
         public void Register_Array_Event()
