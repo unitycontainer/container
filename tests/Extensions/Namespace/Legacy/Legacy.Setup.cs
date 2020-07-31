@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Unity;
 using Unity.Abstractions.Tests;
 using Unity.Injection;
@@ -9,7 +8,7 @@ using Unity.Resolution;
 namespace Extensions.Tests
 {
     [TestClass]
-    public partial class UnityContainerTests
+    public partial class LegacyExtensionsTests
     {
         FakeUnityContainer container;
         InjectionMember[] members;
@@ -32,16 +31,4 @@ namespace Extensions.Tests
             name = "name";
         }
     }
-
-
-    #region Test Data
-
-    public class FakeManager : IFactoryLifetimeManager,
-                               ITypeLifetimeManager, 
-                               IInstanceLifetimeManager
-    {
-        public LifetimeManager Clone() => throw new NotImplementedException();
-    }
-
-    #endregion
 }

@@ -26,6 +26,19 @@ namespace Storage.Tests
         }
 
         [TestMethod]
+        public void TypeRegistration()
+        {
+            // Arrange
+            var registration = new RegistrationDescriptor(typeof(object), null, (ITypeLifetimeManager)manager, typeof(object));
+
+            // Validate
+            Assert.AreEqual(RegistrationCategory.Type, registration.Category);
+            Assert.AreEqual(typeof(object), registration.Type);
+            Assert.IsNull(registration.Instance);
+            Assert.IsNull(registration.Factory);
+        }
+
+        [TestMethod]
         public void InstanceRegistration()
         {
             // Arrange
@@ -37,6 +50,7 @@ namespace Storage.Tests
             Assert.AreSame(this, registration.Instance);
             Assert.IsNull(registration.Factory);
         }
+
         [TestMethod]
         public void InstanceInvalid()
         {

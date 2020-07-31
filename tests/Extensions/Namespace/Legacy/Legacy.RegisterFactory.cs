@@ -6,7 +6,7 @@ using Unity.Lifetime;
 
 namespace Extensions.Tests
 {
-    public partial class UnityContainerTests
+    public partial class LegacyExtensionsTests
     {
         #region Generic Func<IUnityContainer, object>
 
@@ -85,6 +85,7 @@ namespace Extensions.Tests
         }
 
         #endregion
+
 
         #region  Generic Func<IUnityContainer, Type, string, object>
 
@@ -242,11 +243,13 @@ namespace Extensions.Tests
             Assert.AreSame(manager, container.Descriptor.Manager);
             Assert.AreSame(container, container.Descriptor.Manager.Factory(ref context));;
             Assert.ThrowsException<ArgumentNullException>(() => unity.RegisterFactory(typeof(IUnityContainer), name, factory, (IFactoryLifetimeManager)manager));
+            Assert.ThrowsException<ArgumentNullException>(() => container.RegisterFactory(null, name, factory, FakeManager));
             Assert.ThrowsException<ArgumentNullException>(() => container.RegisterFactory(typeof(IUnityContainer), name, factory, FakeManager));
             Assert.ThrowsException<ArgumentNullException>(() => container.RegisterFactory(typeof(IUnityContainer), name, (Func<IUnityContainer, object>)null, (IFactoryLifetimeManager)manager));
         }
 
         #endregion
+
 
         #region Func<IUnityContainer, Type, string, object>
 

@@ -7,7 +7,7 @@ using Unity.Lifetime;
 
 namespace Extensions.Tests
 {
-    public partial class UnityContainerTests
+    public partial class LegacyExtensionsTests
     {
         #region Generic Register Instance
 

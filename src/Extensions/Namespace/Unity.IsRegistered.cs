@@ -7,7 +7,7 @@ namespace Unity
     /// Extension class that adds a set of convenience overloads to the
     /// <see cref="IUnityContainer"/> interface.
     /// </summary>
-    public static partial class UnityContainerExtensions
+    public static partial class UnityNamespaceExtensions
     {
         /// <summary>
         /// Check if a particular type has been registered with the container with

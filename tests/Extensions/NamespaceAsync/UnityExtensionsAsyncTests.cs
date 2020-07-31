@@ -11,7 +11,7 @@ using Unity.Resolution;
 namespace Extensions.Tests
 {
     [TestClass]
-    public partial class UnityContainerAsyncTests
+    public partial class UnityExtensionsAsyncTests
     {
         private FakeIUCA container;
         private InjectionMember[] members;

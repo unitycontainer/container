@@ -11,6 +11,17 @@ namespace Unity.Lifetime
     /// </summary>
     public abstract partial class LifetimeManager : RegistrationManager
     {
+        #region Fields
+
+        internal static ITypeLifetimeManager _typeManager = new TransientLifetimeManager();
+        internal static IFactoryLifetimeManager _factoryManager = new TransientLifetimeManager();
+        internal static IInstanceLifetimeManager _instanceManager = new ContainerControlledLifetimeManager();
+
+        #endregion
+
+
+        #region Invalid Value object
+
         /// <summary>
         /// This value represents Invalid Value. Lifetime manager must return this
         /// unless value is set with a valid object. Null is a value and is not equal 
@@ -18,7 +29,9 @@ namespace Unity.Lifetime
         /// </summary>
         public static readonly object NoValue = new InvalidValue();
 
-        
+        #endregion
+
+
         #region Constructors
 
         public LifetimeManager(params InjectionMember[] members)
@@ -83,6 +96,38 @@ namespace Unity.Lifetime
         /// <param name="newValue">The object being stored.</param>
         /// <param name="lifetime">The container this lifetime is associated with</param>
         public virtual void SetValue(object? newValue, ICollection<IDisposable> lifetime) { }
+
+        #endregion
+
+
+        #region Default Registration Lifetimes
+
+        public static ITypeLifetimeManager DefaultTypeLifetime 
+        {
+            get => _typeManager;
+            set
+            { 
+                _typeManager = value ?? throw new ArgumentNullException(nameof(DefaultTypeLifetime));
+            }
+        }
+
+        public static IFactoryLifetimeManager DefaultFactoryLifetime
+        {
+            get => _factoryManager;
+            set
+            {
+                _factoryManager = value ?? throw new ArgumentNullException(nameof(DefaultFactoryLifetime));
+            }
+        }
+
+        public static IInstanceLifetimeManager DefaultInstanceLifetime
+        {
+            get => _instanceManager;
+            set
+            {
+                _instanceManager = value ?? throw new ArgumentNullException(nameof(DefaultInstanceLifetime));
+            }
+        }
 
         #endregion
 

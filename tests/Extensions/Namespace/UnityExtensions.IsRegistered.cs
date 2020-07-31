@@ -4,7 +4,7 @@ using Unity;
 
 namespace Extensions.Tests
 {
-    public partial class UnityContainerTests
+    public partial class UnityExtensionsTests
     {
         #region Registration
 
@@ -22,7 +22,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void IsRegisteredGeneric()
+        public void IsRegistered_Generic()
         {
             // Act
             container.IsRegistered<IUnityContainer>();
@@ -34,15 +34,15 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void IsRegisteredWithNameGeneric()
+        public void IsRegistered_WithNameGeneric()
         {
             // Act
-            container.IsRegistered<IUnityContainer>(name);
+            container.IsRegistered<IUnityContainer>(Name);
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.AreEqual(name, container.Name);
-            Assert.ThrowsException<ArgumentNullException>(() => unity.IsRegistered<IUnityContainer>(name));
+            Assert.AreEqual(Name, container.Name);
+            Assert.ThrowsException<ArgumentNullException>(() => unity.IsRegistered<IUnityContainer>(Name));
         }
 
         #endregion

@@ -4,12 +4,12 @@ using Unity;
 
 namespace Extensions.Tests
 {
-    public partial class UnityContainerTests
+    public partial class UnityExtensionsTests
     {
         #region Resolve
 
         [TestMethod]
-        public void ResolveGeneric()
+        public void Resolve_Generic()
         {
             // Arrange
             container.Data = container;
@@ -25,19 +25,19 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void ResolveGenericWithName()
+        public void Resolve_GenericWithName()
         {
             // Arrange
             container.Data = container;
 
             // Act
-            container.Resolve<IUnityContainer>(name);
+            container.Resolve<IUnityContainer>(Name);
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.AreEqual(name, container.Name);
+            Assert.AreEqual(Name, container.Name);
             Assert.IsNotNull(container.Data);
-            Assert.ThrowsException<ArgumentNullException>(() => unity.Resolve<IUnityContainer>(name));
+            Assert.ThrowsException<ArgumentNullException>(() => unity.Resolve<IUnityContainer>(Name));
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace Extensions.Tests
         #region Resolve All
 
         [TestMethod]
-        public void ResolveAllGeneric()
+        public void Resolve_AllGeneric()
         {
             // Arrange
             container.Add(typeof(object[]), new object[] { new object() } as object);
@@ -77,7 +77,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void ResolveAll()
+        public void Resolve_All()
         {
             // Arrange
             container.Add(typeof(bool[]), new bool[] { true, true, false } as object);
@@ -93,7 +93,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void ResolveAllEnumerable()
+        public void Resolve_AllEnumerable()
         {
             // Arrange
             container.Add(typeof(int[]), new int[] { 0, 1 } as object);
@@ -114,7 +114,7 @@ namespace Extensions.Tests
         #region BuildUp
 
         [TestMethod]
-        public void BuildUpGeneric()
+        public void BuildUp_Generic()
         {
             // Act
             container.BuildUp<IUnityContainer>(container);
@@ -128,17 +128,17 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void BuildUpWithNameGeneric()
+        public void BuildUp_WithNameGeneric()
         {
             // Act
-            container.BuildUp<IUnityContainer>(container, name);
+            container.BuildUp<IUnityContainer>(container, Name);
 
             // Validate
             Assert.AreEqual(typeof(IUnityContainer), container.Type);
-            Assert.AreEqual(name, container.Name);
+            Assert.AreEqual(Name, container.Name);
             Assert.IsNotNull(container.Data);
-            Assert.ThrowsException<ArgumentNullException>(() => unity.BuildUp<IUnityContainer>(container, name));
-            Assert.ThrowsException<ArgumentNullException>(() => container.BuildUp<IUnityContainer>(null, name));
+            Assert.ThrowsException<ArgumentNullException>(() => unity.BuildUp<IUnityContainer>(container, Name));
+            Assert.ThrowsException<ArgumentNullException>(() => container.BuildUp<IUnityContainer>(null, Name));
         }
 
         [TestMethod]
