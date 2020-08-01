@@ -132,10 +132,11 @@ namespace Unity
         /// Create a child container.
         /// </summary>
         /// <param name="name">Name of the child container</param>
+        /// <param name="capacity">Preallocated capacity of child container</param>
         /// <remarks>
         /// Unity allows creating scopes with the help of child container. A child container shares the 
         /// parent's configuration but can be configured with different settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
-        IUnityContainer CreateChildContainer(string? name = null);
+        IUnityContainer CreateChildContainer(string? name, int capacity);
     }
 }

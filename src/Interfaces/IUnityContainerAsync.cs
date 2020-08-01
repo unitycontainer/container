@@ -45,6 +45,6 @@ namespace Unity
         /// Unity allows creating scopes with the help of child container. A child container shares the 
         /// parent's configuration but can be configured with different settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
-        new IUnityContainerAsync CreateChildContainer(string? name = null);
+        new IUnityContainerAsync CreateChildContainer(string? name, int capacity);
     }
 }

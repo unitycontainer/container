@@ -105,7 +105,7 @@ namespace Unity.Abstractions.Tests
             return _context.GetEnumerator();
         }
 
-        public IUnityContainer CreateChildContainer(string name = null) => this;
+        public IUnityContainer CreateChildContainer(string name = null, int capacity = 36) => this;
 
         public IUnityContainer Register(params RegistrationDescriptor[] descriptors)
         {
