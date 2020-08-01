@@ -40,7 +40,11 @@ namespace Extensions.Tests
                                ITypeLifetimeManager, 
                                IInstanceLifetimeManager
     {
-        public LifetimeManager Clone() => throw new NotImplementedException();
+        public LifetimeManager Clone() 
+            => throw new NotImplementedException();
+
+        public LifetimeManager Clone(params InjectionMember[] members) 
+            => throw new NotImplementedException();
     }
 
     public interface IFoo { }

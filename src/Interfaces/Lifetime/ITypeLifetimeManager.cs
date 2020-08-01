@@ -1,4 +1,6 @@
-﻿namespace Unity.Lifetime
+﻿using Unity.Injection;
+
+namespace Unity.Lifetime
 {
     /// <summary>
     /// This interface marks all lifetime managers compatible with 
@@ -11,5 +13,7 @@
     public interface ITypeLifetimeManager
     {
         LifetimeManager Clone();
+
+        LifetimeManager Clone(params InjectionMember[] members);
     }
 }

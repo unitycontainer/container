@@ -25,11 +25,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<T>(this IUnityContainer container, params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(T), null, new TransientLifetimeManager(injectionMembers)));
-        }
+        public static IUnityContainer RegisterType<T>(this IUnityContainer container, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers)));
 
         /// <summary>
         /// Register a <see cref="LifetimeManager"/> for the given type with the container.
@@ -42,8 +40,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<T>(this IUnityContainer container, ITypeLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType<T>(this IUnityContainer container, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager) 
                 manager.Add(injectionMembers);
@@ -64,12 +61,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(T), name, new TransientLifetimeManager(injectionMembers)));
-        }
+        public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(T), name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers)));
 
         /// <summary>
         /// Register a <see cref="LifetimeManager"/> for the given type and name with the container.
@@ -83,8 +77,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, ITypeLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType<T>(this IUnityContainer container, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -114,13 +107,10 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, 
-            params InjectionMember[] injectionMembers) where TTo : TFrom
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container)))
+        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, params InjectionMember[] injectionMembers) 
+            where TTo : TFrom => (container ?? throw new ArgumentNullException(nameof(container)))
                 .Register(new RegistrationDescriptor(
-                    typeof(TTo), null, new TransientLifetimeManager(injectionMembers), typeof(TFrom)));
-        }
+                    typeof(TTo), null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers), typeof(TFrom)));
 
         /// <summary>
         /// Register a type mapping with the container, where the created instances will use
@@ -134,8 +124,8 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, ITypeLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers) where TTo : TFrom
+        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            where TTo : TFrom
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -161,12 +151,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, string name, 
-            params InjectionMember[] injectionMembers) where TTo : TFrom
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(typeof(TTo), name, new TransientLifetimeManager(injectionMembers), typeof(TFrom)));
-        }
+        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, string name, params InjectionMember[] injectionMembers)
+            where TTo : TFrom => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(typeof(TTo), name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers), typeof(TFrom)));
 
         /// <summary>
         /// Register a type mapping with the container, where the created instances will use
@@ -181,8 +168,8 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, string name, ITypeLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers) where TTo : TFrom
+        public static IUnityContainer RegisterType<TFrom, TTo>(this IUnityContainer container, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers) 
+            where TTo : TFrom
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -206,12 +193,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(type, null, new TransientLifetimeManager(injectionMembers)));
-        }
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers)));
 
         /// <summary>
         /// Register a <see cref="LifetimeManager"/> for the given type and name with the container.
@@ -224,8 +208,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, ITypeLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -246,12 +229,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, string name, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(type, name, new TransientLifetimeManager(injectionMembers)));
-        }
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, string name, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(type, name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers)));
 
         /// <summary>
         /// Register a <see cref="LifetimeManager"/> for the given type and name with the container.
@@ -265,8 +245,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, string name, ITypeLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type type, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -296,12 +275,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(to, null, new TransientLifetimeManager(injectionMembers), from));
-        }
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers), from));
 
         /// <summary>
         /// Register a type mapping with the container, where the created instances will use
@@ -315,8 +291,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, ITypeLifetimeManager lifetimeManager,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -342,12 +317,9 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, string name, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(to, name, new TransientLifetimeManager(injectionMembers), from));
-        }
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, string name, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(to, name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers), from));
 
         /// <summary>
         /// Register a type mapping with the container, where the created instances will use
@@ -362,8 +334,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, string name, ITypeLifetimeManager lifetimeManager,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -403,12 +374,9 @@ namespace Unity
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(instance, null, new ContainerControlledLifetimeManager(injectionMembers), typeof(TInterface)));
-        }
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), typeof(TInterface)));
 
         /// <summary>
         /// Register an instance with the container.
@@ -430,8 +398,7 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, IInstanceLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, TInterface instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -460,12 +427,9 @@ namespace Unity
         /// <param name="name">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(instance, name, new ContainerControlledLifetimeManager(injectionMembers), typeof(TInterface)));
-        }
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), typeof(TInterface)));
 
         /// <summary>
         /// Register an instance with the container.
@@ -485,8 +449,7 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance, IInstanceLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterInstance<TInterface>(this IUnityContainer container, string name, TInterface instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -519,12 +482,9 @@ namespace Unity
         /// <param name="instance">Object to returned.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(instance, null, new ContainerControlledLifetimeManager(injectionMembers), type));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), type));
 
         /// <summary>
         /// Register an instance with the container.
@@ -546,8 +506,7 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, IInstanceLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -576,12 +535,9 @@ namespace Unity
         /// <param name="name">Name for registration.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, 
-            params InjectionMember[] injectionMembers)
-        {
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(instance, name, new ContainerControlledLifetimeManager(injectionMembers), type));
-        }
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, params InjectionMember[] injectionMembers) 
+            => (container ?? throw new ArgumentNullException(nameof(container))).Register(
+                new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(injectionMembers), type));
 
         /// <summary>
         /// Register an instance with the container.
@@ -604,8 +560,7 @@ namespace Unity
         /// <see cref="LifetimeManager"/> object that controls how this instance will be managed by the container.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterInstance(this IUnityContainer container, Type type, string name, object instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (lifetimeManager is LifetimeManager manager)
                 manager.Add(injectionMembers);
@@ -639,8 +594,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -651,7 +605,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
+                new RegistrationDescriptor(resolver, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -667,8 +621,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -700,8 +653,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, object?> factory,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -712,7 +664,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
+                new RegistrationDescriptor(resolver, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -729,8 +681,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -762,8 +713,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -774,7 +724,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
+                new RegistrationDescriptor(resolver, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -790,8 +740,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -823,8 +772,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string?, object?> factory, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -835,7 +783,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), typeof(TInterface)));
+                new RegistrationDescriptor(resolver, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), typeof(TInterface)));
         }
 
         /// <summary>
@@ -852,8 +800,7 @@ namespace Unity
         /// of the returned instance. If no manager is provided, container uses Transient manager.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory<TInterface>(this IUnityContainer container, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == factory) throw new ArgumentNullException(nameof(factory));
 
@@ -890,8 +837,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object> factory, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -903,7 +849,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container)))
-                .Register(new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), type));
+                .Register(new RegistrationDescriptor(resolver, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -919,8 +865,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -955,8 +900,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object?> factory,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -968,7 +912,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), type));
+                new RegistrationDescriptor(resolver, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -985,8 +929,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager,
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, object> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -1020,8 +963,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -1033,7 +975,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, null, new TransientLifetimeManager(injectionMembers), type));
+                new RegistrationDescriptor(resolver, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -1049,8 +991,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -1085,8 +1026,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
@@ -1098,7 +1038,7 @@ namespace Unity
             };
 
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(resolver, name, new TransientLifetimeManager(injectionMembers), type));
+                new RegistrationDescriptor(resolver, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(injectionMembers), type));
         }
 
         /// <summary>
@@ -1115,8 +1055,7 @@ namespace Unity
         /// of the returned instance. This manager has to derive from <see cref="IFactoryLifetimeManager"/></param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on .</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterFactory(this IUnityContainer container, Type type, string name, Func<IUnityContainer, Type, string?, object?> factory, IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
         {
             if (null == type) throw new ArgumentNullException(nameof(type));
             if (null == factory) throw new ArgumentNullException(nameof(factory));
