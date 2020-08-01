@@ -11,7 +11,7 @@ namespace Extensions.Tests
         #region Generic Func<IUnityContainer, object>
 
         [TestMethod]
-        public void RegisterFactory_Generic_Legacy()
+        public void RegisterFactory_Generic()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -29,7 +29,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Generic_Manager_Legacy()
+        public void RegisterFactory_Generic_Manager()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -48,7 +48,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Generic_Name_Legacy()
+        public void RegisterFactory_Generic_Name()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -66,7 +66,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Generic_Name_Manger_Legacy()
+        public void RegisterFactory_Generic_Name_Manger()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -90,7 +90,7 @@ namespace Extensions.Tests
         #region  Generic Func<IUnityContainer, Type, string, object>
 
         [TestMethod]
-        public void RegisterFactory_Generic_Full_Legacy()
+        public void RegisterFactory_Generic_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -108,7 +108,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Generic_Manager_Full_Legacy()
+        public void RegisterFactory_Generic_Manager_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -127,7 +127,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Generic_Name_Full_Legacy()
+        public void RegisterFactory_Generic_Name_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -145,7 +145,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Generic_Name_Manger_Full_Legacy()
+        public void RegisterFactory_Generic_Name_Manger_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -169,7 +169,7 @@ namespace Extensions.Tests
         #region Func<IUnityContainer, object>
 
         [TestMethod]
-        public void RegisterFactory_Legacy()
+        public void RegisterFactory()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -189,7 +189,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Manager_Legacy()
+        public void RegisterFactory_Manager()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -209,7 +209,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Name_Legacy()
+        public void RegisterFactory_Name()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -229,7 +229,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Name_Manger_Legacy()
+        public void RegisterFactory_Name_Manger()
         {
             // Arrange
             Func<IUnityContainer, object> factory = (container) => container;
@@ -254,7 +254,7 @@ namespace Extensions.Tests
         #region Func<IUnityContainer, Type, string, object>
 
         [TestMethod]
-        public void RegisterFactory_Full_Legacy()
+        public void RegisterFactory_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -274,7 +274,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Manager_Full_Legacy()
+        public void RegisterFactory_Manager_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -294,7 +294,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Name_Full_Legacy()
+        public void RegisterFactory_Name_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;
@@ -314,7 +314,7 @@ namespace Extensions.Tests
         }
 
         [TestMethod]
-        public void RegisterFactory_Name_Manger_Full_Legacy()
+        public void RegisterFactory_Name_Manger_Full()
         {
             // Arrange
             Func<IUnityContainer, Type, string, object> factory = (container, type, name) => container;

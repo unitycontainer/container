@@ -245,7 +245,6 @@ namespace Lifetime.Registrations
             yield return new object[] { new HierarchicalLifetimeManager() };
             yield return new object[] { new PerResolveLifetimeManager() };
             yield return new object[] { new PerThreadLifetimeManager() };
-            yield return new object[] { new SingletonLifetimeManager() };
             yield return new object[] { new TransientLifetimeManager() };
         }
     }

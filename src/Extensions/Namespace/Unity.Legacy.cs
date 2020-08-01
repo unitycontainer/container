@@ -25,8 +25,7 @@ namespace Unity
         /// <param name="injectionMembers">Injection configuration objects.</param>
         /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType<T>(this IUnityContainer container, 
-            params InjectionMember[] injectionMembers)
+        public static IUnityContainer RegisterType<T>(this IUnityContainer container, params InjectionMember[] injectionMembers)
         {
             return (container ?? throw new ArgumentNullException(nameof(container))).Register(
                 new RegistrationDescriptor(typeof(T), null, new TransientLifetimeManager(injectionMembers)));
