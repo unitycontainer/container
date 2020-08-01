@@ -66,8 +66,8 @@ namespace Unity
         #region Child Container
 
         /// <inheritdoc />
-        IUnityContainer IUnityContainer.CreateChildContainer(string? name)
-            => CreateChildContainer(name);
+        IUnityContainer IUnityContainer.CreateChildContainer(string? name, int capacity)
+            => CreateChildContainer(name, capacity);
 
         #endregion
     }

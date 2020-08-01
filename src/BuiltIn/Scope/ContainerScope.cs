@@ -5,16 +5,8 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope : Scope
     {
-        #region Constants
-
-        protected const string ASYNC_ERROR_MESSAGE = "This feature requires 'Unity.Professional' extension";
-
-        #endregion
-
-
         #region Fields
 
-        // Registrations
         protected Metadata[] _contractMeta;
 
         #endregion
@@ -23,20 +15,24 @@ namespace Unity.BuiltIn
         #region Constructors
 
         // Root constructor
-        internal ContainerScope()
-            : base()
+        internal ContainerScope(int capacity)
+            : base(capacity)
         {
+            var size = Prime.GetNext(capacity * ReLoadFactor);
+
             // Registrations
-            _contractMeta = new Metadata[Prime.Numbers[PRIME_ROOT_INDEX + 1]];
+            _contractMeta = new Metadata[size];
             _contractMeta.BufferLength(_contractData.Length);
         }
 
         // Child constructor
-        protected ContainerScope(Scope scope)
-            : base(scope)
+        protected ContainerScope(Scope scope, int capacity)
+            : base(scope, capacity)
         {
+            var size = Prime.GetNext(capacity * ReLoadFactor);
+
             // Registrations
-            _contractMeta = new Metadata[Prime.Numbers[PRIME_CHILD_INDEX + 1]];
+            _contractMeta = new Metadata[size];
             _contractMeta.BufferLength(_contractData.Length);
         }
 

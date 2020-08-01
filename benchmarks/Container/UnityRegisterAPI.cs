@@ -42,7 +42,6 @@ namespace Unity.Benchmarks
 
                 return new RegistrationDescriptor(Instance, name, Manager, types);
             }).ToArray();
-
         }
 
         public override void IterationSetup()

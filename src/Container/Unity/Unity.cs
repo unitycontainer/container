@@ -7,6 +7,14 @@ namespace Unity
 {
     public partial class UnityContainer : IDisposable
     {
+        #region Constants
+
+        private const string DEFAULT_NAME  = "root";
+        private const int DEFAULT_CAPACITY = 37;
+
+        #endregion
+
+
         #region Fields
 
         private readonly int _level;
@@ -21,9 +29,31 @@ namespace Unity
         #region Constructors
 
         /// <summary>
-        /// Default <see cref="UnityContainer"/> constructor
+        /// Creates container with name 'root' and allocates 37 slots for contracts
         /// </summary>
-        public UnityContainer(string? name = "root")
+        public UnityContainer() : this(DEFAULT_NAME, DEFAULT_CAPACITY)
+        { }
+
+        /// <summary>
+        /// Creates container and allocates 37 slots for contracts
+        /// </summary>
+        /// <param name="name">Name of the container</param>
+        public UnityContainer(string name) : this(name, DEFAULT_CAPACITY)
+        { }
+
+        /// <summary>
+        /// Creates container with name 'root'
+        /// </summary>
+        /// <param name="capacity">Preallocated capacity</param>
+        public UnityContainer(int capacity) : this(DEFAULT_NAME, capacity)
+        { }
+
+        /// <summary>
+        /// Create <see cref="UnityContainer"/> container
+        /// </summary>
+        /// <param name="name">Name of the container</param>
+        /// <param name="capacity">Preallocated capacity</param>
+        public UnityContainer(string name, int capacity)
         {
             Root = this;
             Name = name;
@@ -39,7 +69,7 @@ namespace Unity
                  MethodProcessor.SetupProcessor(_context);
 
             // Registration Scope
-            _scope = new ContainerScope();
+            _scope = new ContainerScope(capacity);
             _scope.Add(new ContainerLifetimeManager(this), 
                 typeof(IUnityContainer), 
                 typeof(IUnityContainerAsync), 
@@ -52,7 +82,7 @@ namespace Unity
         /// </summary>
         /// <param name="parent">Parent <see cref="UnityContainer"/></param>
         /// <param name="name">Name of this container</param>
-        protected UnityContainer(UnityContainer parent, string? name = null)
+        protected UnityContainer(UnityContainer parent, string? name, int capacity)
         {
             Name   = name;
             Root   = parent.Root;
@@ -62,7 +92,7 @@ namespace Unity
             _policies = parent.Root._policies;
             
             // Registration Scope
-            _scope = parent._scope.CreateChildScope();
+            _scope = parent._scope.CreateChildScope(capacity);
             _scope.Add(new ContainerLifetimeManager(this),
                 typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider));
             DEFAULT_CONTRACTS = _scope.Contracts;

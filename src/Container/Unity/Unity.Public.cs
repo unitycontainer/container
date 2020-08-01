@@ -137,10 +137,10 @@ namespace Unity
         /// </summary>
         /// <param name="name">Name of the child container</param>
         /// <returns>Instance of child <see cref="UnityContainer"/> container</returns>
-        private UnityContainer CreateChildContainer(string? name = null)
+        private UnityContainer CreateChildContainer(string? name, int capacity)
         {
             // Create child container
-            var container = new UnityContainer(this, name);
+            var container = new UnityContainer(this, name, capacity);
 
             // Add to lifetime manager
             _scope.Disposables.Add(container);

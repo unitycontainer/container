@@ -34,8 +34,11 @@ namespace Unity.Container
         /// </summary>
         public ReadOnlyMemory<ContainerRegistration> Memory 
             => new ReadOnlyMemory<ContainerRegistration>(_contractData, 1, _contractCount);
-        
-        
+
+        /// <summary>
+        /// Storage capacity of the scope
+        /// </summary>
+        public int Capacity => _contractData.Length;
 
         /// <summary>
         /// Pointer to the next scope
@@ -50,8 +53,9 @@ namespace Unity.Container
         /// <summary>
         /// Creates child scope
         /// </summary>
+        /// <param name="capacity">Preallocated capacity</param>
         /// <returns>New child scope</returns>
-        public abstract Scope CreateChildScope();
+        public abstract Scope CreateChildScope(int capacity);
 
         #endregion
 

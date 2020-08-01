@@ -87,7 +87,7 @@ namespace Unity.BuiltIn
         }
 
         public override void AddAsync(object? state)
-            => throw new NotImplementedException(ASYNC_ERROR_MESSAGE);
+            => throw new NotImplementedException("This feature requires 'Unity.Professional' extension");
 
         #endregion
 
@@ -120,7 +120,7 @@ namespace Unity.BuiltIn
         #region Child Scope
 
         /// <inheritdoc />
-        public override Scope CreateChildScope() => new ContainerScope((Scope)this);
+        public override Scope CreateChildScope(int capacity) => new ContainerScope(this, capacity);
 
         #endregion
 

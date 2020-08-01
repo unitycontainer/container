@@ -16,9 +16,6 @@ namespace Unity.Container
         protected const int START_INDEX = 1;
         protected const int HASH_CODE_SEED = 52361;
 
-        protected const int PRIME_ROOT_INDEX  = 2;
-        protected const int PRIME_CHILD_INDEX = 0;
-
         #endregion
 
 
@@ -49,19 +46,19 @@ namespace Unity.Container
         /// <summary>
         /// Root scope
         /// </summary>
-        protected internal Scope()
+        protected internal Scope(int capacity)
         {
             // Scope lock
             _syncRoot = new object();
 
             // Names
-            _namesPrime = PRIME_ROOT_INDEX;
+            _namesPrime = 2;
             _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
             _namesMeta.Setup(LoadFactor);
             _namesData = new NameInfo[_namesMeta.Capacity()];
 
             // Contracts
-            _contractData = new ContainerRegistration[Prime.Numbers[PRIME_ROOT_INDEX]];
+            _contractData = new ContainerRegistration[capacity];
 
             // Segment
             _disposables = new List<IDisposable>();
@@ -73,7 +70,7 @@ namespace Unity.Container
         /// Child scope
         /// </summary>
         /// <param name="parent">parent scope</param>
-        protected Scope(Scope parent)
+        protected Scope(Scope parent, int capacity)
         {
             // Scope lock
             _syncRoot = new object();
@@ -84,7 +81,7 @@ namespace Unity.Container
             _namesData = new NameInfo[_namesMeta.Capacity()];
 
             // Contracts
-            _contractData = new ContainerRegistration[Prime.Numbers[PRIME_CHILD_INDEX]];
+            _contractData = new ContainerRegistration[capacity];
 
             // Segment
             _disposables = new List<IDisposable>();

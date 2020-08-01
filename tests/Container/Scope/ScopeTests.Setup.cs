@@ -47,7 +47,7 @@ namespace Container.Scope
         }
 
         [TestInitialize]
-        public virtual void InitializeTest() => Scope = new ContainerScope();
+        public virtual void InitializeTest() => Scope = new ContainerScope(3);
 
         [TestMethod]
         public void Baseline()
