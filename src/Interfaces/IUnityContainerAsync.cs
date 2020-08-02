@@ -20,11 +20,21 @@ namespace Unity
         /// <value>The parent container, or null if this container doesn't have one.</value>
         new IUnityContainerAsync? Parent { get; }
 
-
+        /// <summary>
+        /// Add registrations asynchronously 
+        /// </summary>
+        /// <remarks>Registration is executed on a default thread pool</remarks>
+        /// <param name="descriptors">Collection of <see cref="RegistrationDescriptor"/> descriptors</param>
+        /// <returns>A <see cref="ValueTask"/> that could be awaited on for registrations to complete</returns>
         ValueTask RegisterAsync(params RegistrationDescriptor[] descriptors);
 
-
-        ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory);
+        /// <summary>
+        /// Add registrations asynchronously
+        /// </summary>
+        /// <param name="memory">A <see cref="ReadOnlyMemory{RegistrationDescriptor}"/> with array of descriptors</param>
+        /// <param name="scheduler">A <see cref="TaskScheduler"/> to be used to schedule asynchronous call</param>
+        /// <returns>A <see cref="ValueTask"/> that could be awaited on for registrations to complete</returns>
+        ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory, TaskScheduler? scheduler = null);
 
 
         /// <summary>
