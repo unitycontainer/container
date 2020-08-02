@@ -17,7 +17,6 @@ namespace Unity
         #region Registration
 
         /// <inheritdoc />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IUnityContainer Register(params RegistrationDescriptor[] descriptors)
         {
             ReadOnlySpan<RegistrationDescriptor> span = descriptors;
@@ -66,6 +65,7 @@ namespace Unity
         #region Child Container
 
         /// <inheritdoc />
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IUnityContainer IUnityContainer.CreateChildContainer(string? name, int capacity)
             => CreateChildContainer(name, capacity);
 

@@ -18,22 +18,25 @@ namespace Unity
         #region Registration
 
         /// <inheritdoc />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask RegisterAsync(params RegistrationDescriptor[] descriptors)
         {
             ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>(descriptors);
 
             // Register with the scope
-            await Task.Factory.StartNew(_scope.AddAsync, memory, System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            await Task.Factory.StartNew(_scope.AddAsync, memory, 
+                System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
 
             // Report registration
             _registering?.Invoke(this, memory.Span);
         }
 
-        public async ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory)
+        /// <inheritdoc />
+        public async ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory, TaskScheduler? scheduler = null)
         {
             // Register with the scope
-            await Task.Factory.StartNew(_scope.AddAsync, memory, System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            await Task.Factory.StartNew(_scope.AddAsync, memory, 
+                System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, 
+                scheduler ?? TaskScheduler.Default);
             
             // Report registration
             _registering?.Invoke(this, memory.Span);
@@ -56,6 +59,7 @@ namespace Unity
         #region Child Container
 
         /// <inheritdoc />
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IUnityContainerAsync IUnityContainerAsync.CreateChildContainer(string? name, int capacity) 
             => CreateChildContainer(name, capacity);
 

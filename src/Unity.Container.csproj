@@ -64,12 +64,12 @@
   <!-- C# 8.0 Compatibility -->
 
   <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' == 'net46'" Remove="Container\Interface\Unity.IUnityContainerAsync.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Container\Interface\Unity.IUnityContainerAsync.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Container\Interface\Unity.IUnityContainerAsync.CS8.0.cs" />
-    <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Container\Interface\Unity.IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net46'" Remove="Container\Unity\Unity.IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'net45'" Remove="Container\Unity\Unity.IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Container\Unity\Unity.IUnityContainerAsync.CS8.0.cs" />
+    <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Container\Unity\Unity.IUnityContainerAsync.CS8.0.cs" />
   </ItemGroup>
-
+  
   <!-- Configuration Settings -->
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
