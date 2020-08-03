@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using Unity.Builder;
 using Unity.Policy;
 using Unity.Resolution;
@@ -58,7 +59,11 @@ namespace Unity.ObjectBuilder.BuildPlan.DynamicMethod
                 }
                 catch (TargetInvocationException e)
                 {
+#if !NET40
+                    if (e.InnerException != null) ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+#else
                     if (e.InnerException != null) throw e.InnerException;
+#endif
                     throw;
                 }
 

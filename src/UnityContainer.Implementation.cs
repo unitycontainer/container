@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using Unity.Builder;
 using Unity.Events;
 using Unity.Extension;
@@ -416,7 +417,11 @@ namespace Unity
 
             if (null != exceptions && exceptions.Count == 1)
             {
+#if !NET40
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+#else
                 throw exceptions[0];
+#endif
             }
             else if (null != exceptions && exceptions.Count > 1)
             {
@@ -424,10 +429,10 @@ namespace Unity
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Nested Types
+#region Nested Types
 
         private class RegistrationContext : IPolicyList
         {
@@ -445,7 +450,7 @@ namespace Unity
             }
 
 
-            #region IPolicyList
+#region IPolicyList
 
             public object? Get(Type type, Type policyInterface)
             {
@@ -487,7 +492,7 @@ namespace Unity
                     _registration.Clear(policyInterface);
             }
 
-            #endregion
+#endregion
         }
 
         [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
@@ -502,6 +507,6 @@ namespace Unity
             public LifetimeManager LifetimeManager { get; internal set; }
         }
 
-        #endregion
+#endregion
     }
 }

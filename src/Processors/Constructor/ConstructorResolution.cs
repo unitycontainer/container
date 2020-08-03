@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using Unity.Builder;
 using Unity.Exceptions;
 using Unity.Injection;
@@ -42,7 +43,11 @@ namespace Unity.Processors
                     return (ref BuilderContext c) =>
                     {
                         if (null == c.Existing)
+#if !NET40
+                            ExceptionDispatchInfo.Capture(exception).Throw();
+#else
                             throw exception;
+#endif
 
                         return c.Existing;
                     };
@@ -84,10 +89,10 @@ namespace Unity.Processors
             };
         }
 
-        #endregion
+#endregion
 
 
-        #region Implementation
+#region Implementation
 
         protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? data)
         {
@@ -110,6 +115,6 @@ namespace Unity.Processors
             };
         }
 
-        #endregion
+#endregion
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 
 namespace Unity.Lifetime
 {
@@ -123,7 +124,11 @@ namespace Unity.Lifetime
 
             if (exceptions.Count == 1)
             {
-                throw exceptions.First();
+#if !NET40
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+#else
+                throw exceptions[0];
+#endif
             }
             else if (exceptions.Count > 1)
             {
