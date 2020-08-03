@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -429,10 +429,10 @@ namespace Unity
             }
         }
 
-#endregion
+        #endregion
 
 
-#region Nested Types
+        #region Nested Types
 
         private class RegistrationContext : IPolicyList
         {
@@ -450,7 +450,7 @@ namespace Unity
             }
 
 
-#region IPolicyList
+            #region IPolicyList
 
             public object? Get(Type type, Type policyInterface)
             {
@@ -492,7 +492,7 @@ namespace Unity
                     _registration.Clear(policyInterface);
             }
 
-#endregion
+            #endregion
         }
 
         [DebuggerDisplay("RegisteredType={RegisteredType?.Name},    Name={Name},    MappedTo={RegisteredType == MappedToType ? string.Empty : MappedToType?.Name ?? string.Empty},    {LifetimeManager?.GetType()?.Name}")]
@@ -507,6 +507,6 @@ namespace Unity
             public LifetimeManager LifetimeManager { get; internal set; }
         }
 
-#endregion
+        #endregion
     }
 }

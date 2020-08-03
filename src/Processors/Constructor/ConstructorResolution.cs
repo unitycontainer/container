@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Unity.Builder;
@@ -89,10 +90,10 @@ namespace Unity.Processors
             };
         }
 
-#endregion
+        #endregion
 
 
-#region Implementation
+        #region Implementation
 
         protected virtual ResolveDelegate<BuilderContext> GetPerResolveDelegate(ConstructorInfo info, object? data)
         {
@@ -115,6 +116,6 @@ namespace Unity.Processors
             };
         }
 
-#endregion
+        #endregion
     }
 }
