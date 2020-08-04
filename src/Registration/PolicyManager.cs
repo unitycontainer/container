@@ -42,12 +42,12 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract class RegistrationManager : IEnumerable<InjectionMember>, 
-                                                IPolicySet
+    public abstract class PolicyManager : IEnumerable, 
+                                          IPolicySet
     {
         #region Constructors
 
-        public RegistrationManager(params InjectionMember[] members) 
+        public PolicyManager(params InjectionMember[] members) 
             => InjectionMembers = members;
 
         #endregion
@@ -66,7 +66,6 @@ namespace Unity
 
         #region Registration Categories
 
-
         public Type? Type => 
             RegistrationCategory.Type == Category
                 ? (Type?)Data
@@ -83,7 +82,6 @@ namespace Unity
                 : null;
 
         #endregion
-
 
 
         #region Initializers Support

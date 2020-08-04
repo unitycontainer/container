@@ -9,7 +9,7 @@ namespace Storage.Tests
     [TestClass]
     public class RegistrationDescriptorTests
     {
-        RegistrationManager manager = new ContainerControlledLifetimeManager();
+        PolicyManager manager = new ContainerControlledLifetimeManager();
 
         [TestMethod]
         public void Baseline()

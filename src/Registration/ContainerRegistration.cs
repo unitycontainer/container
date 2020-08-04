@@ -19,32 +19,32 @@ namespace Unity
         internal readonly Contract _contract;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal readonly RegistrationManager _manager;
+        internal readonly PolicyManager _manager;
 
         #endregion
 
 
         #region Constructors
 
-        internal ContainerRegistration(Type type, RegistrationManager manager)
+        internal ContainerRegistration(Type type, PolicyManager manager)
         {
             _contract = new Contract(type);
             _manager  = manager;
         }
 
-        internal ContainerRegistration(Type type, string? name, RegistrationManager manager)
+        internal ContainerRegistration(Type type, string? name, PolicyManager manager)
         {
             _contract = new Contract(type, name);
             _manager  = manager;
         }
 
-        internal ContainerRegistration(int hash, Type type, string? name, RegistrationManager manager)
+        internal ContainerRegistration(int hash, Type type, string? name, PolicyManager manager)
         {
             _contract = new Contract(hash, type, name);
             _manager = manager;
         }
 
-        internal ContainerRegistration(in Contract contract, RegistrationManager manager)
+        internal ContainerRegistration(in Contract contract, PolicyManager manager)
         {
             _contract = contract;
             _manager = manager;

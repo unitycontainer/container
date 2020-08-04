@@ -9,7 +9,7 @@ namespace Unity.Lifetime
     /// Base class for all lifetime managers - classes that control how
     /// and when instances are created by the Unity container.
     /// </summary>
-    public abstract partial class LifetimeManager : RegistrationManager
+    public abstract partial class LifetimeManager : PolicyManager
     {
         #region Constructors
 

@@ -109,7 +109,7 @@ namespace Unity
         /// <summary>
         /// Lifetime Manager
         /// </summary>
-        public readonly RegistrationManager Manager;
+        public readonly PolicyManager Manager;
 
         /// <summary>
         /// <see cref="RegistrationCategory"/> of registration. 

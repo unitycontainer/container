@@ -57,7 +57,6 @@ namespace Extensions.Tests
             Assert.IsNull(descriptor.Instance);
             Assert.IsNull(descriptor.Type);
             Assert.AreEqual(2, descriptor.RegisterAs.Length);
-            Assert.AreEqual(1, descriptor.Manager.ToArray().Length);
             Assert.IsInstanceOfType(descriptor.Manager, LifetimeManager.DefaultFactoryLifetime.GetType());
         }
 
