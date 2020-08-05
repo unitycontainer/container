@@ -80,7 +80,6 @@ namespace Lifetime.Managers
             Assert.AreSame(LifetimeManager.NoValue, TestManager.GetValue(LifetimeContainer));
         }
 
-
         [TestMethod]
         public override void ValuesFromDifferentThreads()
         {
@@ -120,7 +119,6 @@ namespace Lifetime.Managers
             Assert.AreSame(LifetimeManager.NoValue, value3);
             Assert.AreSame(LifetimeManager.NoValue, value4);
         }
-
 
         [TestMethod]
         public virtual void IsDisposedTest()

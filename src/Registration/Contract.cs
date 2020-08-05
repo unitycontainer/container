@@ -52,6 +52,18 @@ namespace Unity
         #endregion
 
 
+        #region Public Members
+
+        public Contract GetGenericTypeDefinition() 
+            => new Contract(Type.GetGenericTypeDefinition(), Name);
+
+        public Contract With(Type type) => new Contract(type, Name);
+
+        public Contract With(string? name) => new Contract(Type, name);
+
+        #endregion
+
+
         #region Implementation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

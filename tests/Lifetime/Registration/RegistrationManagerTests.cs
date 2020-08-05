@@ -221,7 +221,7 @@ namespace Lifetime.Registrations
 
         [DataTestMethod]
         [DynamicData(nameof(GetManagers), DynamicDataSourceType.Method)]
-        public void AddInjectionMember(PolicyManager manager)
+        public void AddInjectionMember(RegistrationManager manager)
         {
             // Validate
             Assert.IsNull(manager.Data);

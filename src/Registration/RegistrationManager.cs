@@ -42,12 +42,12 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract class PolicyManager : IEnumerable, 
-                                          IPolicySet
+    public abstract class RegistrationManager : IEnumerable, 
+                                                IPolicySet
     {
         #region Constructors
 
-        public PolicyManager(params InjectionMember[] members) 
+        public RegistrationManager(params InjectionMember[] members) 
             => InjectionMembers = members;
 
         #endregion
