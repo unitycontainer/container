@@ -22,19 +22,8 @@ namespace Unity
         #region Registrations
 
         /// <inheritdoc />
-        public bool IsRegistered(Type type, string? name)
-        {
-            var scope = _scope;
-
-            do
-            {
-                if (_scope.Contains(type, name))
-                    return true;
-            }
-            while (null != (scope = scope.Next));
-
-            return false;
-        }
+        public bool IsRegistered(Type type, string? name) 
+            => _scope.Contains(new Contract(type, name));
 
         /// <inheritdoc />
         public IEnumerable<ContainerRegistration> Registrations

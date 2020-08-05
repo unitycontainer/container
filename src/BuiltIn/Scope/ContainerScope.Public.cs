@@ -11,10 +11,6 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         internal override void Add(RegistrationManager manager, params Type[] registerAs)
         {
-            // Expand if required
-            var required = _contractCount + registerAs.Length;
-            if (required >= _contractMeta.MaxIndex()) Expand(required);
-
             // Iterate and register types
             foreach (var type in registerAs)
             {
@@ -29,18 +25,17 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override void Add(in ReadOnlySpan<RegistrationDescriptor> span)
         {
-            int required = 0;
+            int required = START_INDEX;
             ContractUnion union = default;
 
             // Calculate required storage
-            for (var i = 0; span.Length > i; i++)
-                required += span[i].RegisterAs.Length;
+            for (var i = 0; span.Length > i; i++) required += span[i].RegisterAs.Length;
 
             lock (_syncRoot)
             {
                 // Expand registry if required
                 required = _contractCount + required;
-                if (required >= _contractMeta.MaxIndex()) Expand(required);
+                if (required >= _contractData.Length) Expand(required);
 
                 for (var i = 0; span.Length > i; i++)
                 {
@@ -95,23 +90,131 @@ namespace Unity.BuiltIn
         #region Contains
 
         /// <inheritdoc />
-        public override bool Contains(Type type, string? name)
+        public override bool Contains(in Contract contract)
         {
-            var hash = (uint)Contract.GetHashCode(type, name);
-            var bucket = hash % _contractMeta.Length;
-            var position = _contractMeta[bucket].Position;
+            var meta = _contractMeta;
+            var bucket = (uint)contract.HashCode % meta.Length;
+            var position = meta[bucket].Position;
 
             while (position > 0)
             {
                 ref var candidate = ref _contractData[position];
-                if (candidate._contract.Type == type &&
-                    candidate._contract.Name == name)
+                if (candidate._contract.Type == contract.Type &&
+                    candidate._contract.Name == contract.Name)
                     return true;
 
-                position = _contractMeta[position].Next;
+                position = meta[position].Next;
             }
 
-            return false;
+            return Next?.Contains(in contract) ?? false;
+        }
+
+        #endregion
+
+        
+        #region Get
+
+        public override RegistrationManager? Get(in Contract contract)
+        {
+            var meta = _contractMeta;
+            var target = (uint)contract.HashCode % meta.Length;
+            var position = meta[target].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref _contractData[position];
+                if (candidate._contract.Type == contract.Type &&
+                    candidate._contract.Name == contract.Name)
+                    return candidate._manager;
+
+                position = meta[position].Next;
+            }
+
+            return null;
+        }
+
+        public override RegistrationManager? Get(in Contract contract, in Contract generic)
+        {
+            var count = _contractCount;
+            var meta  = _contractMeta;
+            var position = meta[(uint)contract.HashCode % meta.Length].Position;
+
+            // Search for exact match
+
+            while (position > 0)
+            {
+                ref var candidate = ref _contractData[position];
+                if (candidate._contract.Type == contract.Type &&
+                    candidate._contract.Name == contract.Name)
+                    return candidate._manager;
+
+                position = meta[position].Next;
+            }
+
+            // Search for generic factory
+
+            position = meta[(uint)generic.HashCode % meta.Length].Position;
+            while (position > 0)
+            {
+                ref var factory = ref _contractData[position];
+                if (factory._contract.Type == generic.Type &&
+                    factory._contract.Name == generic.Name)
+                {
+                    // Found generic factory
+
+                    lock (_syncRoot)
+                    {
+                        var target = (uint)contract.HashCode % _contractMeta.Length;
+                        
+                        // Check again if count has changed
+
+                        if (count != _contractCount)
+                        { 
+                            position = _contractMeta[target].Position;
+
+                            while (position > 0)
+                            {
+                                ref var candidate = ref _contractData[position];
+                                if (candidate._contract.Type == contract.Type && 
+                                    candidate._contract.Name == contract.Name)
+                                {
+                                    // Found existing
+                                    return candidate._manager;
+                                }
+
+                                position = _contractMeta[position].Next;
+                            }
+                        }
+
+                        // Nothing is found, add new
+
+                        count = _contractCount + 1;
+
+                        // Expand if required
+
+                        if (_contractData.Length <= count)
+                        {
+                            Expand();
+                            target = (uint)contract.HashCode % _contractMeta.Length;
+                        }
+
+                        // Clone manager
+                        var manager = factory.LifetimeManager.Clone();
+
+                        ref var bucket = ref _contractMeta[target];
+                        _contractData[count] = new ContainerRegistration(contract.With(factory.Name), manager);
+                        _contractMeta[count].Next = bucket.Position;
+                        bucket.Position = count;
+                        _contractCount  = count; // changes last once everything is in place
+
+                        return manager;
+                    }
+                }
+
+                position = meta[position].Next;
+            }
+
+            return null;
         }
 
         #endregion

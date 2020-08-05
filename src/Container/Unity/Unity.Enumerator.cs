@@ -103,7 +103,7 @@ namespace Unity
             {
                 _scopes = scopes;
                 _version = scopes[0].Version;
-                _length = Prime.GetNext(
+                _length = Prime.GetPrime(
                     scopes.Select(s => s.Contracts)
                           .Sum());
             }

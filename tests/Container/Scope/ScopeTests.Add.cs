@@ -81,16 +81,16 @@ namespace Container.Scope
         [DynamicData(nameof(SetSize))]
         public void AddManagerExpandsTest(int size)
         {
+            ReadOnlySpan<RegistrationDescriptor> span = Registrations;
+
             // Act
-            Scope.Add(Manager, TestTypes.Take(size).ToArray());
+            Scope.Add(span.Slice(0, size));
 
             // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(size, Scope.Contracts);
-            Assert.AreEqual(size, Scope.ToArray().Length);
+            Assert.AreNotEqual(0, Scope.ToArray().Length);
         }
 
-        public static IEnumerable<object[]> SetSize => Enumerable.Range(10, 20).Select(n => new object[] { n });
+        public static IEnumerable<object[]> SetSize => Enumerable.Range(1, 20).Select(n => new object[] { n });
 
         #endregion
 

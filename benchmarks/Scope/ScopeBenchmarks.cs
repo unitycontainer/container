@@ -7,107 +7,25 @@ using Unity.Lifetime;
 
 namespace Unity.Benchmarks.Scope
 {
-    [CategoriesColumn]
-    [BenchmarkCategory("Scope")]
+    [LongRunJob]
     public class ScopeBenchmarks
     {
-        //Container.Scope scope;
-        //LifetimeManager lifetime;
-        //Type[] registerAs;
-        //Type[][] registerArrays;
+        static Unity.Container.Scope Scope;
 
-        //[GlobalSetup]
-        //public void GlobalSetup()
-        //{
-        //    lifetime = new TransientLifetimeManager();
-        //    registerAs = typeof(Type).Assembly
-        //                           .DefinedTypes
-        //                           .Take(1000)
-        //                           .ToArray();
-
-        //    registerArrays = typeof(Type).Assembly
-        //                           .DefinedTypes
-        //                           .Take(100)
-        //                           .Select(t => new[] { t })
-        //                           .ToArray();
-        //}
-
-        //[Benchmark]
-        //[BenchmarkCategory("create")]
-        //public Container.Scope ContainerScope() => new ContainerScope();
-
-
-        //[Benchmark]
-        //[BenchmarkCategory("create", "data")]
-        //public RegistrationDescriptor RegistrationData() => new RegistrationDescriptor(lifetime, registerAs);
-
-        //[Benchmark]
-        //[BenchmarkCategory("create", "data")]
-        //public RegistrationDescriptor RegistrationNamedData() => new RegistrationDescriptor(lifetime, registerAs);
-
-        //[Benchmark]
-        //[BenchmarkCategory("register")]
-        //public Container.Scope RegisterType()
-        //{
-        //    scope = ContainerScope();
-        //    RegistrationDescriptor data = new RegistrationDescriptor(lifetime, registerAs);
-
-        //    scope.Add(in data);
-            
-        //    return scope;
-        //}
-
-        //[Benchmark]
-        //[Arguments(1)]
-        //[Arguments(4)]
-        //[Arguments(8)]
-        //[Arguments(16)]
-        //[BenchmarkCategory("register", "parallel")]
-        //public int RegisterTypeParallel(int threads)
-        //{
-        //    scope = ContainerScope();
-
-        //    Parallel.ForEach(registerArrays, new ParallelOptions() { MaxDegreeOfParallelism = threads }, (array) =>
-        //    {
-        //        RegistrationData data = new RegistrationData(lifetime, array);
-        //        scope.Add(in data);
-        //    });
-
-        //    return threads;
-        //}
-
-
-        //[Benchmark(Baseline = true)]
-        //[Arguments(1)]
-        //[Arguments(4)]
-        //[Arguments(8)]
-        //[Arguments(16)]
-        //[BenchmarkCategory("register", "parallel")]
-        //public int RegisterTypeParallelBaseline(int threads)
-        //{
-        //    scope = ContainerScope();
-        //    int code = 0;
-
-        //    Parallel.ForEach(registerArrays, new ParallelOptions() { MaxDegreeOfParallelism = threads }, (array) =>
-        //    {
-        //        RegistrationData data = new RegistrationData(lifetime, array);
-        //        code += null != data.Manager ? 1 : 0;
-        //    });
-
-        //    return code;
-        //}
-
-
-        //[Benchmark]
-        //[BenchmarkCategory("register")]
-        //public Container.Scope RegisterNamedType()
-        //{
-        //    scope = ContainerScope();
-        //    RegistrationData data = new RegistrationData("name", lifetime, registerAs);
-
-        //    scope.Add(in data);
-
-        //    return scope;
-        //}
+        [GlobalSetup]
+        public void GlobalSetup()
+        {
+            Scope = new ContainerScope(100);
+        }
     }
 }
+//|   Method |     Mean |    Error |   StdDev |   Median |
+//|--------- |---------:|---------:|---------:|---------:|
+//|      Get | 35.41 ns | 0.042 ns | 0.208 ns | 35.38 ns |
+//| GetStack | 35.54 ns | 0.048 ns | 0.239 ns | 35.52 ns |
+
+//|   Method |     Mean |     Error |    StdDev |   Median |
+//|--------- |---------:|----------:|----------:|---------:|
+//|      Get | 3.890 ns | 0.0103 ns | 0.0510 ns | 3.904 ns |
+//| GetStack | 3.707 ns | 0.0072 ns | 0.0358 ns | 3.705 ns |
+

@@ -63,8 +63,12 @@ namespace Unity.Container
         #region Add
 
         /// <summary>
-        /// Add <see cref="Contract"/> entries for specified types
+        /// Add internal <see cref="Contract"/> entries
         /// </summary>
+        /// <remarks>
+        /// This method does not check if sufficient space is available. It assumes enough slots 
+        /// are preallocated.
+        /// </remarks>
         /// <param name="manager"><see cref="RegistrationManager"/> containing the registration</param>
         /// <param name="registerAs">Collection of <see cref="Type"/> aliases</param>
         internal abstract void Add(RegistrationManager manager, params Type[] registerAs);
@@ -91,17 +95,29 @@ namespace Unity.Container
         /// <summary>
         /// Determines whether the <see cref="Scope"/> contains a specific <see cref="Contract"/>
         /// </summary>
-        /// <param name="type"><see cref="Type"/> of the <see cref="Contract"/></param>
-        /// <param name="name">Name of the <see cref="Contract"/></param>
+        /// <param name="contract">The <see cref="Type"/> and the Name to look for</param>
         /// <returns>True if <see cref="Contract"/> is found</returns>
-        public abstract bool Contains(Type type, string? name);
+        public abstract bool Contains(in Contract contract);
+
+        /// <summary>
+        /// Get registration data for the contract
+        /// </summary>
+        /// <param name="contract"><see cref="Contract"/> to look for</param>
+        /// <returns>Returns <see cref="RegistrationManager"/> or null if nothing found</returns>
+        public abstract RegistrationManager? Get(in Contract contract);
+
+        public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
 
         #endregion
 
+
+        #region Disposable
 
         /// <summary>
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
         /// </summary>
         public ICollection<IDisposable> Disposables => _disposables;
+        
+        #endregion
     }
 }

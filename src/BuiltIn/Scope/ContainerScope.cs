@@ -18,22 +18,16 @@ namespace Unity.BuiltIn
         internal ContainerScope(int capacity)
             : base(capacity)
         {
-            var size = Prime.GetNext(capacity * ReLoadFactor);
-
             // Registrations
-            _contractMeta = new Metadata[size];
-            _contractMeta.BufferLength(_contractData.Length);
+            _contractMeta = new Metadata[Prime.Numbers[_contractPrime]];
         }
 
         // Child constructor
         protected ContainerScope(Scope scope, int capacity)
             : base(scope, capacity)
         {
-            var size = Prime.GetNext(capacity * ReLoadFactor);
-
             // Registrations
-            _contractMeta = new Metadata[size];
-            _contractMeta.BufferLength(_contractData.Length);
+            _contractMeta = new Metadata[Prime.Numbers[_contractPrime]];
         }
 
         // Copy constructor

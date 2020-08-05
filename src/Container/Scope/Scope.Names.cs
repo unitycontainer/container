@@ -9,11 +9,13 @@ namespace Unity.Container
     {
         protected ref readonly NameInfo GetNameInfo(string name)
         {
-            var hash = (uint)name!.GetHashCode();
 
-            // Check if already registered
+            var hash = (uint)name!.GetHashCode();
             var target = hash % _namesMeta.Length;
             var position = _namesMeta[target].Position;
+            
+            // Check if already registered
+            
             while (position > 0)
             {
                 ref var candidate = ref _namesData[position];
@@ -23,32 +25,33 @@ namespace Unity.Container
                 position = _namesMeta[position].Next;
             }
 
+            // Nothing found, add new
+            
+            _namesCount += 1;
+
             // Expand if required
-            if (_namesCount >= _namesMeta.MaxIndex())
+            if (_namesData.Length <= _namesCount)
             {
-                var size = Prime.Numbers[++_namesPrime];
-
-                _namesMeta = new Metadata[size];
-                _namesMeta.Setup(LoadFactor);
-
-                Array.Resize(ref _namesData, _namesMeta.Capacity());
+                Array.Resize(ref _namesData, Prime.Numbers[_namesPrime++]);
+                var meta = new Metadata[Prime.Numbers[_namesPrime]];
 
                 // Rebuild buckets
-                for (var current = START_INDEX; current <= _namesCount; current++)
+                for (var current = START_INDEX; current < _namesCount; current++)
                 {
-                    target = _namesData[current].Hash % size;
-                    _namesMeta[current].Next = _namesMeta[target].Position;
-                    _namesMeta[target].Position = current;
+                    target = _namesData[current].Hash % meta.Length;
+                    meta[current].Next = meta[target].Position;
+                    meta[target].Position = current;
                 }
 
-                target = hash % _namesMeta.Length;
+                target = hash % meta.Length;
+                _namesMeta = meta;
             }
 
-            ref var entry = ref _namesData[++_namesCount];
+            ref var entry = ref _namesData[_namesCount];
+            ref var bucket = ref _namesMeta[target];
 
             entry = new NameInfo(hash, name);
 
-            ref var bucket = ref _namesMeta[target];
             _namesMeta[_namesCount].Next = bucket.Position;
             bucket.Position = _namesCount;
 

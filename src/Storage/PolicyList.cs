@@ -7,7 +7,8 @@ namespace Unity.Storage
     /// <summary>
     /// This class implements <see cref="IPolicyList"/> and manages policies
     /// </summary>
-    public class PolicyList : IPolicyList
+    public class PolicyList<T> : IPolicyList
+        where T : class
     {
         #region Constants
 
@@ -77,7 +78,7 @@ namespace Unity.Storage
         }
 
         ///<inheritdoc/>
-        public virtual void Set(Type? type, Type policy, object instance)
+        public virtual void Set(Type? type, Type policy, T instance)
         {
             var hashCode = HashCode(type, policy);
             var targetBucket = hashCode % _metadata.Length;
@@ -151,6 +152,9 @@ namespace Unity.Storage
             _metadata = metadata;
         }
 
+        void IPolicyList.Set(Type? type, Type policy, object instance) 
+            => Set(type, policy, (T)instance);
+
         /// <summary>
         /// Internal structure holding policies
         /// </summary>
@@ -159,7 +163,7 @@ namespace Unity.Storage
             public int HashCode;
             public Type? Type;
             public Type Policy;
-            public object? Value;
+            public T? Value;
         }
 
         #endregion

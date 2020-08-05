@@ -15,7 +15,7 @@ namespace Container.Scope
         protected string Name = "name";
         protected static Type[] TestTypes;
         protected static string[] TestNames;
-        protected static LifetimeManager Manager = new ContainerLifetimeManager("Test Manager");
+        protected static LifetimeManager Manager = new ContainerControlledLifetimeManager();
         protected static RegistrationDescriptor[] Registrations;
 
         protected Unity.Container.Scope Scope;
@@ -58,6 +58,9 @@ namespace Container.Scope
             Assert.AreEqual(0, Scope.Contracts);
             Assert.AreEqual(0, Scope.ToArray().Length);
             Assert.IsTrue(ReferenceEquals(null, null));
+
+            Assert.AreEqual("public virtual void InitializeTest() =>".GetHashCode(),
+                            "public virtual void InitializeTest() =>".GetHashCode());
         }
     }
 

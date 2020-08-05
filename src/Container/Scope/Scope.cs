@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -31,6 +30,7 @@ namespace Unity.Container
         protected NameInfo[] _namesData;
 
         // Contracts
+        protected int _contractPrime;
         protected int _contractCount;
         protected ContainerRegistration[] _contractData;
 
@@ -53,12 +53,12 @@ namespace Unity.Container
 
             // Names
             _namesPrime = 2;
+            _namesData = new NameInfo[Prime.Numbers[_namesPrime++]];
             _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
-            _namesMeta.Setup(LoadFactor);
-            _namesData = new NameInfo[_namesMeta.Capacity()];
 
             // Contracts
-            _contractData = new ContainerRegistration[capacity];
+            _contractPrime = Prime.IndexOf(capacity);
+            _contractData = new ContainerRegistration[Prime.Numbers[_contractPrime++]];
 
             // Segment
             _disposables = new List<IDisposable>();
@@ -76,12 +76,12 @@ namespace Unity.Container
             _syncRoot = new object();
 
             // Names
+            _namesData = new NameInfo[Prime.Numbers[_namesPrime++]];
             _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
-            _namesMeta.Setup(LoadFactor);
-            _namesData = new NameInfo[_namesMeta.Capacity()];
 
             // Contracts
-            _contractData = new ContainerRegistration[capacity];
+            _contractPrime = Prime.IndexOf(capacity);
+            _contractData = new ContainerRegistration[Prime.Numbers[_contractPrime++]];
 
             // Segment
             _disposables = new List<IDisposable>();
@@ -105,6 +105,7 @@ namespace Unity.Container
             _namesData  = scope._namesData;
 
             // Contracts
+            _contractPrime = scope._contractPrime;
             _contractCount = scope._contractCount;
             _contractData = scope._contractData;
 

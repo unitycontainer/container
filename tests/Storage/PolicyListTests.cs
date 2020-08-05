@@ -190,7 +190,7 @@ namespace Storage.Tests
         #region Test Data
 
         [DebuggerDisplay("{Name}")]
-        public class TestPolicyList : PolicyList
+        public class TestPolicyList : PolicyList<object>
         {
             public TestPolicyList() : base(0) { }
 

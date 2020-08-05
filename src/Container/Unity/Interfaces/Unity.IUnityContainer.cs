@@ -50,13 +50,28 @@ namespace Unity
         /// <inheritdoc />
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            var contract = new Contract(type, name);
+            var registration = Get(in contract, out UnityContainer? container);
+
+            var context = new ContainerContext(this, overrides);
+
+            return context.ResolveContext.Resolve(type, name);
         }
+
+
+
+
+
+
+
+
 
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            var context = new ContainerContext(this, overrides);
+
+            return context.ResolveContext.Resolve(type, name)!;
         }
 
         #endregion
