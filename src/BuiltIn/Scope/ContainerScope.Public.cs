@@ -111,9 +111,10 @@ namespace Unity.BuiltIn
 
         #endregion
 
-        
+
         #region Get
 
+        /// <inheritdoc />
         public override RegistrationManager? Get(in Contract contract)
         {
             var meta = _contractMeta;
@@ -133,50 +134,14 @@ namespace Unity.BuiltIn
             return null;
         }
 
-        public override bool Get(in Contract contract, out RegistrationManager? manager)
-        {
-            var meta = _contractMeta;
-            var target = (uint)contract.HashCode % meta.Length;
-            var position = meta[target].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref _contractData[position];
-                if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
-                    candidate._contract.Name == contract.Name)
-                {
-                    manager = candidate._manager;
-                    return true;
-                }
-
-                position = meta[position].Next;
-            }
-
-            manager = null;
-            return false;
-        }
-
+        /// <inheritdoc />
         public override RegistrationManager? Get(in Contract contract, in Contract generic)
         {
-            var count = _contractCount;
             var meta  = _contractMeta;
-            var position = meta[(uint)contract.HashCode % meta.Length].Position;
-
-            // Search for exact match
-
-            while (position > 0)
-            {
-                ref var candidate = ref _contractData[position];
-                if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
-                    candidate._contract.Name == contract.Name)
-                    return candidate._manager;
-
-                position = meta[position].Next;
-            }
+            var position = meta[(uint)generic.HashCode % meta.Length].Position;
 
             // Search for generic factory
 
-            position = meta[(uint)generic.HashCode % meta.Length].Position;
             while (position > 0)
             {
                 ref var factory = ref _contractData[position];
@@ -187,35 +152,31 @@ namespace Unity.BuiltIn
 
                     lock (_syncRoot)
                     {
+                        // Check if contract is created already
+
                         var target = (uint)contract.HashCode % _contractMeta.Length;
-                        
-                        // Check again if count has changed
+                        position = _contractMeta[target].Position;
 
-                        if (count != _contractCount)
-                        { 
-                            position = _contractMeta[target].Position;
-
-                            while (position > 0)
+                        while (position > 0)
+                        {
+                            ref var candidate = ref _contractData[position];
+                            if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
+                                candidate._contract.Name == contract.Name)
                             {
-                                ref var candidate = ref _contractData[position];
-                                if (ReferenceEquals(candidate._contract.Type, contract.Type) && 
-                                    candidate._contract.Name == contract.Name)
-                                {
-                                    // Found existing
-                                    return candidate._manager;
-                                }
-
-                                position = _contractMeta[position].Next;
+                                // Found existing
+                                return candidate._manager;
                             }
+
+                            position = _contractMeta[position].Next;
                         }
 
                         // Nothing is found, add new
 
-                        count = _contractCount + 1;
+                        _contractCount += 1;
 
                         // Expand if required
 
-                        if (_contractData.Length <= count)
+                        if (_contractData.Length <= _contractCount)
                         {
                             Expand();
                             target = (uint)contract.HashCode % _contractMeta.Length;
@@ -225,10 +186,9 @@ namespace Unity.BuiltIn
                         var manager = factory.LifetimeManager.Clone();
 
                         ref var bucket = ref _contractMeta[target];
-                        _contractData[count] = new ContainerRegistration(contract.With(factory.Name), manager);
-                        _contractMeta[count].Next = bucket.Position;
-                        bucket.Position = count;
-                        _contractCount  = count; // changes last once everything is in place
+                        _contractData[_contractCount] = new ContainerRegistration(contract.With(factory.Name), manager);
+                        _contractMeta[_contractCount].Next = bucket.Position;
+                        bucket.Position = _contractCount;
 
                         return manager;
                     }

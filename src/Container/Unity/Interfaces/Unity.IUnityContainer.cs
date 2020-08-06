@@ -51,29 +51,45 @@ namespace Unity
         /// <inheritdoc />
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            //var context = new ContainerContext(type, name, overrides);
-            //var registration = Get(in contract, out UnityContainer? container);
-            //var registration = Get(ref context);
-            
             RegistrationManager? manager;
-            //bool? isGeneric = null;
-
             Contract contract = new Contract(type, name);
+            Contract definition = default;
+            bool? isGeneric = null;
             var container = this;
-
 
             do
             {
-                // Optimistic get
-                if (null != (manager = container._scope.Get(in contract))) break;
-                //if (!(isGeneric ??= type.IsGenericType())) continue;
-                //Contract definition = contract.With(type.GetGenericTypeDefinition());
+                // Optimistic lookup
+                if (null != (manager = container._scope.Get(in contract)))
+                {
+                    object? value;
 
-                if (null != (manager = Get(in contract))) break;
+                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
+                        return value;
+
+                    // Requires build
+
+                    break;
+                }
+                
+                // Skip to parent if not generic
+                if (!(isGeneric ??= type.IsGenericType())) continue;
+
+                // Fill the Generic Type Definition
+                if (null == definition.Type)
+                    definition = contract.With(type.GetGenericTypeDefinition());
+
+                // Get from factory
+                if (null != (manager = container._scope.Get(in contract, in definition))) 
+                {
+                    // Requires build from factory
+
+                    break;
+                }
             }
             while (null != (container = container.Parent));
 
-            //manager = _scope.Get(in contract) ?? Get(in contract);
+            // Requires build from scratch
 
             return manager;
         }

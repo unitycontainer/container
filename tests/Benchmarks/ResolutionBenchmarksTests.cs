@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Unity.Injection;
+using Unity.Lifetime;
 
 namespace Unity.Benchmarks
 {
@@ -15,6 +16,11 @@ namespace Unity.Benchmarks
             Container = new UnityContainer()
                 .RegisterType(typeof(List<>), new InjectionConstructor())
                 .CreateChildContainer();
+        }
+
+        [TestMethod]
+        public void Baseline()
+        {
         }
 
         [TestMethod]

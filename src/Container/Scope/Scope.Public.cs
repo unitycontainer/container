@@ -106,8 +106,13 @@ namespace Unity.Container
         /// <returns>Returns <see cref="RegistrationManager"/> or null if nothing found</returns>
         public abstract RegistrationManager? Get(in Contract contract);
 
-        public abstract bool Get(in Contract contract, out RegistrationManager? manager);
-
+        /// <summary>
+        /// Search for <see cref="Contract"/> holding generic definition and create constructible
+        /// registration if found.
+        /// </summary>
+        /// <param name="contract">Constructible <see cref="Contract"/></param>
+        /// <param name="factory"><see cref="Contract"/> of the generic factory</param>
+        /// <returns>New <see cref="RegistrationManager"/> created from factory manager if found or null</returns>
         public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
 
         #endregion
