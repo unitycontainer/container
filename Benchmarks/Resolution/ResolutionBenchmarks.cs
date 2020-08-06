@@ -34,10 +34,10 @@ namespace Unity.Benchmarks
         [Benchmark(Description = "Resolve<IUnityContainerAsync>()")]
         [BenchmarkCategory("resolve")]
         public object Resolve_IUnityContainerAsync()
-#if NET48
-            => Container.Resolve(typeof(IUnityContainerAsync), null);
-#else
+#if NET462 || NET472
             => throw new NotImplementedException();
+#else
+            => Container.Resolve(typeof(IUnityContainerAsync), null);
 #endif
 
         //[Benchmark(Description = "Resolve<object>()")]
