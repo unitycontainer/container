@@ -2,6 +2,7 @@
 using BenchmarkDotNet.Engines;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System;
 #if NET462
 using Microsoft.Practices.Unity;
 #else
@@ -33,7 +34,11 @@ namespace Unity.Benchmarks
         [Benchmark(Description = "Resolve<IUnityContainerAsync>()")]
         [BenchmarkCategory("resolve")]
         public object Resolve_IUnityContainerAsync()
+#if NET48
             => Container.Resolve(typeof(IUnityContainerAsync), null);
+#else
+            => throw new NotImplementedException();
+#endif
 
         //[Benchmark(Description = "Resolve<object>()")]
         //[BenchmarkCategory("resolve")]
