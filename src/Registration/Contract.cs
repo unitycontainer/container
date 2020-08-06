@@ -77,7 +77,7 @@ namespace Unity
 
         public override bool Equals(object? obj)
         {
-            if (obj is Contract other && Type == other.Type && Name == other.Name)
+            if (obj is Contract other && ReferenceEquals(Type, other.Type) && Name == other.Name)
                 return true;
 
             return false;
@@ -85,12 +85,12 @@ namespace Unity
 
         public static bool operator ==(Contract obj1, Contract obj2)
         {
-            return obj1.Type == obj2.Type && obj1.Name == obj2.Name;
+            return ReferenceEquals(obj1.Type, obj2.Type) && obj1.Name == obj2.Name;
         }
 
         public static bool operator !=(Contract obj1, Contract obj2)
         {
-            return obj1.Type != obj2.Type || obj1.Name != obj2.Name;
+            return !ReferenceEquals(obj1.Type, obj2.Type) || obj1.Name != obj2.Name;
         }
 
         public override string ToString()
