@@ -186,7 +186,7 @@ namespace Unity.BuiltIn
                         var manager = factory.LifetimeManager.Clone();
 
                         ref var bucket = ref _contractMeta[target];
-                        _contractData[_contractCount] = new ContainerRegistration(contract.With(factory.Name), manager);
+                        _contractData[_contractCount] = new ContainerRegistration(contract.HashCode, contract.Type, factory.Name, manager);
                         _contractMeta[_contractCount].Next = bucket.Position;
                         bucket.Position = _contractCount;
 
