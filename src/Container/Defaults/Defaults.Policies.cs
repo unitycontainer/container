@@ -32,8 +32,8 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var candidate = ref _data[position];
-                    if (candidate.Target == target &&
-                        candidate.Type == ResolverType)
+                    if (ReferenceEquals(candidate.Target, target) &&
+                        ReferenceEquals(candidate.Type, ResolverType))
                     {
                         // Found existing
                         return (ResolveDelegate<ResolveContext>?)candidate.Value;
@@ -57,8 +57,8 @@ namespace Unity.Container
                     while (position > 0)
                     {
                         ref var candidate = ref _data[position];
-                        if (candidate.Target == target &&
-                            candidate.Type == ResolverType)
+                        if (ReferenceEquals(candidate.Target, target) &&
+                            ReferenceEquals(candidate.Type, ResolverType))
                         {
                             // Found existing
                             candidate.Value = value;

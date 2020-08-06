@@ -17,7 +17,7 @@ namespace Unity.Container
             while (position > 0)
             {
                 ref var candidate = ref _data[position];
-                if (null == candidate.Target && candidate.Type == type)
+                if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
                     return candidate.Value;
@@ -44,7 +44,7 @@ namespace Unity.Container
                     while (position > 0)
                     {
                         ref var candidate = ref _data[position];
-                        if (null == candidate.Target && candidate.Type == type)
+                        if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                         {
                             // Found existing
                             candidate.Value = value;

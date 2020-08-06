@@ -26,8 +26,8 @@ namespace Unity.BuiltIn
             while (position > 0)
             {
                 ref var candidate = ref _contractData[position];
-                if (candidate._contract.Type == contract.Type && ReferenceEquals(
-                    candidate._contract.Name, contract.Name))
+                if (ReferenceEquals(candidate._contract.Type, contract.Type) && 
+                    ReferenceEquals(candidate._contract.Name, contract.Name))
                 {
                     // Found existing
                     candidate = new ContainerRegistration(in contract, manager);

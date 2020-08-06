@@ -106,6 +106,8 @@ namespace Unity.Container
         /// <returns>Returns <see cref="RegistrationManager"/> or null if nothing found</returns>
         public abstract RegistrationManager? Get(in Contract contract);
 
+        public abstract bool Get(in Contract contract, out RegistrationManager? manager);
+
         public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
 
         #endregion

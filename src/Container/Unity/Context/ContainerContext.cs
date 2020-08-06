@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Resolution;
 
@@ -10,7 +11,10 @@ namespace Unity
         {
             #region Fields
 
-            IUnityContainer _container;
+            public readonly Contract Contract;
+            public IUnityContainer? Container;
+            public RegistrationManager? Manager;
+
             ResolverOverride[] _overrides;
 
             //Span<ResolveContext> Parent;
@@ -22,11 +26,13 @@ namespace Unity
 
             #region Constructors
 
-            public ContainerContext(IUnityContainer container, ResolverOverride[] overrides)
+            public ContainerContext(Type type, string? name, ResolverOverride[] overrides)
             {
-               // Parent = default;
+                // Parent = default;
+                Contract = new Contract(type, name);
+                Container = null;
+                Manager = null;
 
-                _container = container;
                 _overrides = overrides;
 
                 ResolveContext = default;

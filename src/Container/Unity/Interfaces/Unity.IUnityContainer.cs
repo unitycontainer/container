@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -50,16 +51,38 @@ namespace Unity
         /// <inheritdoc />
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            var contract = new Contract(type, name);
-            var registration = Get(in contract, out UnityContainer? container);
+            //var context = new ContainerContext(type, name, overrides);
+            //var registration = Get(in contract, out UnityContainer? container);
+            //var registration = Get(ref context);
+            
+            RegistrationManager? manager;
+            //bool? isGeneric = null;
 
-            var context = new ContainerContext(this, overrides);
+            Contract contract = new Contract(type, name);
+            var container = this;
 
-            return context.ResolveContext.Resolve(type, name);
+
+            do
+            {
+                // Optimistic get
+                if (null != (manager = container._scope.Get(in contract))) break;
+                //if (!(isGeneric ??= type.IsGenericType())) continue;
+                //Contract definition = contract.With(type.GetGenericTypeDefinition());
+
+                if (null != (manager = Get(in contract))) break;
+            }
+            while (null != (container = container.Parent));
+
+            //manager = _scope.Get(in contract) ?? Get(in contract);
+
+            return manager;
         }
 
 
-
+        private RegistrationManager? Get(in Contract contract)
+        {
+            return new ContainerLifetimeManager(this);
+        }
 
 
 
@@ -69,9 +92,7 @@ namespace Unity
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
         {
-            var context = new ContainerContext(this, overrides);
-
-            return context.ResolveContext.Resolve(type, name)!;
+            throw new NotImplementedException();
         }
 
         #endregion
