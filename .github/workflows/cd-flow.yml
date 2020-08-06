@@ -51,9 +51,9 @@ jobs:
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.containerProject }}
         dotnet msbuild -property:Configuration=Release -verbosity:m -restore:True ${{ env.testProject }}
 
-    - name: Test
-      run: | 
-        dotnet test ${{ env.testProject }}
+    # - name: Test
+    #   run: | 
+    #     dotnet test ${{ env.testProject }}
 
     - name: Publish Local Package
       run: |
