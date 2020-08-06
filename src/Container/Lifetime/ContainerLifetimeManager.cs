@@ -20,7 +20,11 @@ namespace Unity.Container
             Category = type;
         }
 
-        public override object? GetValue(ICollection<IDisposable> lifetime) => Data;
+        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+            => Data;
+
+        public override object? GetValue(ICollection<IDisposable> lifetime) 
+            => Data;
 
         protected override LifetimeManager OnCreateLifetimeManager()
             => throw new NotImplementedException();

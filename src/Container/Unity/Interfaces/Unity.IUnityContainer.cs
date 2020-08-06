@@ -51,9 +51,9 @@ namespace Unity
         /// <inheritdoc />
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            RegistrationManager? manager;
+            Contract generics = default;
             Contract contract = new Contract(type, name);
-            Contract definition = default;
+            RegistrationManager? manager;
             bool? isGeneric = null;
             var container = this;
 
@@ -76,11 +76,11 @@ namespace Unity
                 if (!(isGeneric ??= type.IsGenericType())) continue;
 
                 // Fill the Generic Type Definition
-                if (null == definition.Type)
-                    definition = contract.With(type.GetGenericTypeDefinition());
+                if (null == generics.Type)
+                    generics = contract.With(type.GetGenericTypeDefinition());
 
                 // Get from factory
-                if (null != (manager = container._scope.Get(in contract, in definition))) 
+                if (null != (manager = container._scope.Get(in contract, in generics))) 
                 {
                     // Requires build from factory
 
@@ -93,14 +93,6 @@ namespace Unity
 
             return manager;
         }
-
-
-        private RegistrationManager? Get(in Contract contract)
-        {
-            return new ContainerLifetimeManager(this);
-        }
-
-
 
 
 
