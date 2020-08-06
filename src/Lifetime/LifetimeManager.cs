@@ -51,16 +51,8 @@ namespace Unity.Lifetime
 
         #region   LifetimeManager Members
 
-        /// <summary>
-        /// Retrieves a value from the backing store associated with this Lifetime policy.
-        /// </summary>
-        /// <remarks>
-        /// This method does not block and does not acquire a lock on synchronization 
-        /// primitives.
-        /// </remarks>
-        /// <param name="lifetime">The container this lifetime is associated with</param>
-        /// <returns>the object desired, or null if no such object is currently stored.</returns>
-        public virtual object? TryGetValue(ICollection<IDisposable> lifetime) => GetValue(lifetime);
+        /// <inheritdoc />
+        public override object? TryGetValue(ICollection<IDisposable> lifetime) => GetValue(lifetime);
 
         /// <summary>
         /// Retrieves a value from the backing store associated with this Lifetime policy.

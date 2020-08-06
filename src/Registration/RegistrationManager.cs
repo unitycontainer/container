@@ -45,6 +45,18 @@ namespace Unity
     public abstract class RegistrationManager : IEnumerable, 
                                                 IPolicySet
     {
+        #region Invalid Value object
+
+        /// <summary>
+        /// This value represents Invalid Value. Lifetime manager must return this
+        /// unless value is set with a valid object. Null is a value and is not equal 
+        /// to NoValue 
+        /// </summary>
+        public static readonly object NoValue = new InvalidValue();
+
+        #endregion
+
+
         #region Constructors
 
         public RegistrationManager(params InjectionMember[] members) 
@@ -60,6 +72,21 @@ namespace Unity
         public RegistrationCategory Category { get; internal set; }
 
         public ICollection<InjectionMember> InjectionMembers { get; protected set; }
+
+        #endregion
+
+
+        #region Value
+        /// <summary>
+        /// Attempts to retrieve a value from the backing store
+        /// </summary>
+        /// <remarks>
+        /// This method does not block and does not acquire a lock on synchronization 
+        /// primitives.
+        /// </remarks>
+        /// <param name="lifetime">The lifetime container this manager is associated with</param>
+        /// <returns>The object stored with the manager or <see cref="NoValue"/></returns>
+        public abstract object? TryGetValue(ICollection<IDisposable> lifetime);
 
         #endregion
 
@@ -139,6 +166,28 @@ namespace Unity
         void IPolicySet.Set(Type policyInterface, object policy) => throw new NotImplementedException();
 
         void IPolicySet.Clear(Type policyInterface) => throw new NotImplementedException();
+
+        #endregion
+
+
+        #region Nested Types
+
+        public sealed class InvalidValue
+        {
+            internal InvalidValue()
+            {
+            }
+
+            public override bool Equals(object? obj)
+            {
+                return ReferenceEquals(this, obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+        }
 
         #endregion
     }

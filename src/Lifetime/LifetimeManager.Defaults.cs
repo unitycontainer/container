@@ -13,18 +13,6 @@ namespace Unity.Lifetime
         #endregion
 
 
-        #region Invalid Value object
-
-        /// <summary>
-        /// This value represents Invalid Value. Lifetime manager must return this
-        /// unless value is set with a valid object. Null is a value and is not equal 
-        /// to NoValue 
-        /// </summary>
-        public static readonly object NoValue = new InvalidValue();
-
-        #endregion
-
-
         #region Default Registration Lifetimes
 
         public static ITypeLifetimeManager DefaultTypeLifetime 
@@ -51,28 +39,6 @@ namespace Unity.Lifetime
             set
             {
                 _instanceManager = value ?? throw new ArgumentNullException(nameof(DefaultInstanceLifetime));
-            }
-        }
-
-        #endregion
-
-
-        #region Nested Types
-
-        public sealed class InvalidValue
-        {
-            internal InvalidValue()
-            {
-            }
-
-            public override bool Equals(object? obj)
-            {
-                return ReferenceEquals(this, obj);
-            }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
             }
         }
 
