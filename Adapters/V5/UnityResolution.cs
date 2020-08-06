@@ -4,7 +4,7 @@ using Unity.Benchmarks;
 
 namespace Unity.v5
 {
-    [ShortRunJob(RuntimeMoniker.Net472)]
+    [SimpleJob(RuntimeMoniker.Net472)]
     public class UnityResolution : ResolutionBenchmarks
     {
     }

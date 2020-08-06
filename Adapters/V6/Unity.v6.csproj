@@ -4,7 +4,7 @@
     <Description>Unity Container Regression Tests</Description>
     <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>net48;net50</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

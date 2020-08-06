@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks Condition="!Exists('$(UnityContainer)')">net462;net472;net48</TargetFrameworks>
+    <TargetFrameworks Condition="!Exists('$(UnityContainer)')">net462;net472;net48;net50</TargetFrameworks>
     <TargetFramework Condition="Exists('$(UnityContainer)')">net50</TargetFramework>
   </PropertyGroup>
 
@@ -25,8 +25,9 @@
     <PackageReference Condition="'$(TargetFramework)' == 'net48'" Include="Unity.Container" Version="6.0.*-*" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Condition="'$(TargetFramework)' == 'net50'" Include="$(UnityContainer)" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net50'">
+    <ProjectReference  Condition="Exists('$(UnityContainer)')" Include="$(UnityContainer)" />
+    <PackageReference Condition="!Exists('$(UnityContainer)')" Include="Unity.Container" Version="6.0.*-*" />
   </ItemGroup>
 
 </Project>
