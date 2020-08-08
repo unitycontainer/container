@@ -77,12 +77,23 @@ namespace Unity.Lifetime
         /// Creates a new lifetime manager of the same type as this Lifetime Manager
         /// </summary>
         /// <returns>A new instance of the appropriate lifetime manager</returns>
-        public LifetimeManager Clone() => OnCreateLifetimeManager();
+        public LifetimeManager Clone()
+        {
+            var manager = OnCreateLifetimeManager();
+            
+            manager.Fields      = Fields;
+            manager.Methods     = Methods;
+            manager.Properties  = Properties;
+            manager.Constructor = Constructor;
+            manager.Category    = RegistrationCategory.Type;
+            
+            return manager;
+        }
 
         public LifetimeManager Clone(params InjectionMember[] members)
         {
             var manager = OnCreateLifetimeManager();
-            manager.InjectionMembers = members;
+            manager.Add(members);
             return manager;
         }
 

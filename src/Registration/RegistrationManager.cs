@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -42,7 +41,7 @@ namespace Unity
     /// <summary>
     /// This structure holds data passed to container registration
     /// </summary>
-    public abstract class RegistrationManager : IEnumerable, 
+    public abstract class RegistrationManager : IEnumerable,
                                                 IPolicySet
     {
         #region Invalid Value object
@@ -59,8 +58,8 @@ namespace Unity
 
         #region Constructors
 
-        public RegistrationManager(params InjectionMember[] members) 
-            => InjectionMembers = members;
+        public RegistrationManager(params InjectionMember[] members)
+            => Add(members);
 
         #endregion
 
@@ -71,8 +70,21 @@ namespace Unity
 
         public RegistrationCategory Category { get; internal set; }
 
-        public ICollection<InjectionMember> InjectionMembers { get; protected set; }
+        public InjectionConstructor? Constructor { get; internal set; }
 
+        public InjectionField? Fields { get; internal set; }
+
+        public InjectionProperty? Properties { get; internal set; }
+
+        public InjectionMethod? Methods { get; internal set; }
+
+        #endregion
+
+
+        #region Resolver
+        
+        public Delegate? ResolveDelegate { get; internal set; }
+        
         #endregion
 
 
@@ -93,7 +105,7 @@ namespace Unity
 
         #region Registration Categories
 
-        public Type? Type => 
+        public Type? Type =>
             RegistrationCategory.Type == Category
                 ? (Type?)Data
                 : null;
@@ -113,38 +125,41 @@ namespace Unity
 
         #region Initializers Support
 
-        public IEnumerator<InjectionMember> GetEnumerator() 
-            => InjectionMembers.GetEnumerator();
+        public IEnumerator<InjectionMember> GetEnumerator()
+            => throw new NotImplementedException();
 
-        IEnumerator IEnumerable.GetEnumerator() 
-            => ((IEnumerable)InjectionMembers).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => throw new NotImplementedException();
 
         public void Add(InjectionMember member)
         {
-            if (!(InjectionMembers is List<InjectionMember> list))
+            switch (member)
             {
-                list = new List<InjectionMember>(InjectionMembers);
-                InjectionMembers = list;
-            }
+                case InjectionConstructor ctor:
+                    ctor.Next = Constructor;
+                    Constructor = ctor;
+                    break;
 
-            list.Add(member);
+                case InjectionField field:
+                    field.Next = Fields;
+                    Fields = field;
+                    break;
+
+                case InjectionProperty property:
+                    property.Next = Properties;
+                    Properties = property;
+                    break;
+
+                case InjectionMethod method:
+                    method.Next = Methods;
+                    Methods = method;
+                    break;
+            }
         }
 
-        public void Add(ICollection<InjectionMember> members)
+        public void Add(IEnumerable<InjectionMember> members)
         {
-            if (0 == InjectionMembers.Count)
-            {
-                InjectionMembers = members;
-            }
-            else if (InjectionMembers is List<InjectionMember> list)
-            {
-                foreach (var member in members) list.Add(member);
-            }
-            else
-            {
-                InjectionMembers = InjectionMembers.Concat(members)
-                                                   .ToList();
-            }
+            foreach (var member in members) Add(member);
         }
 
         #endregion
@@ -154,11 +169,11 @@ namespace Unity
 
         object? IPolicySet.Get(Type policyInterface)
         {
-            foreach (var member in InjectionMembers)
-            {
-                if (member.GetType() == policyInterface)
-                    return member;
-            }
+            //foreach (var member in InjectionMembers)
+            //{
+            //    if (member.GetType() == policyInterface)
+            //        return member;
+            //}
 
             return null;
         }

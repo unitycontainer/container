@@ -98,8 +98,9 @@ namespace Unity
         /// </para>
         /// </remarks>
         /// <seealso cref="Unity.Override"/>
+        /// <exception cref="ArgumentNullException">Throws if <paramref name="type"/> is null</exception>
         /// <exception cref="ResolutionFailedException">Throws if any errors occur during resolution</exception>
-        /// <returns>The retrieved object.</returns>
+        /// <returns>The resolved object.</returns>
         object? Resolve(Type type, string? name, params ResolverOverride[] overrides);
 
 
@@ -122,6 +123,7 @@ namespace Unity
         /// </para>
         /// </remarks>
         /// <seealso cref="Unity.Override"/>
+        /// <exception cref="ArgumentNullException">Throws if <paramref name="type"/> is null</exception>
         /// <exception cref="ResolutionFailedException">Throws if any errors occur during initialization</exception>
         /// <returns>The resulting object. By default, this will be <paramref name="existing"/>, but
         /// container extensions may add things like automatic proxy creation which would

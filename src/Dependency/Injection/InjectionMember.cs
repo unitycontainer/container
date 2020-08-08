@@ -48,6 +48,13 @@ namespace Unity.Injection
         #endregion
 
 
+        #region Segmentation
+
+        public InjectionMember<TMemberInfo, TData>? Next { get; internal set; }
+
+        #endregion
+
+
         #region Overrides
 
         public override bool BuildRequired => true;

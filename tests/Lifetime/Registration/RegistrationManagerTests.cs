@@ -19,8 +19,10 @@ namespace Lifetime.Registrations
             var manager = new TransientLifetimeManager();
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.AreEqual(0, manager.InjectionMembers.Count);
+            Assert.IsNull(manager.Constructor);
+            Assert.IsNull(manager.Fields);
+            Assert.IsNull(manager.Properties);
+            Assert.IsNull(manager.Methods);
 
             Assert.IsTrue(ReferenceEquals(LifetimeManager.NoValue,
                                           RegistrationManager.NoValue));
@@ -40,8 +42,10 @@ namespace Lifetime.Registrations
             var manager = new TransientLifetimeManager(sequence[0], sequence[1]);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNull(manager.Fields);
+            Assert.IsNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
         [TestMethod]
@@ -58,8 +62,10 @@ namespace Lifetime.Registrations
             var manager = new TransientLifetimeManager { sequence[0], sequence[1] };
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNull(manager.Fields);
+            Assert.IsNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
         [TestMethod]
@@ -81,8 +87,10 @@ namespace Lifetime.Registrations
             };
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNotNull(manager.Fields);
+            Assert.IsNotNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
         [TestMethod]
@@ -96,8 +104,10 @@ namespace Lifetime.Registrations
             manager.Add(sequence[0]);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNull(manager.Fields);
+            Assert.IsNull(manager.Properties);
+            Assert.IsNull(manager.Methods);
         }
 
 
@@ -119,8 +129,10 @@ namespace Lifetime.Registrations
             manager.Add(sequence[3]);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNotNull(manager.Fields);
+            Assert.IsNotNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
 
@@ -145,8 +157,10 @@ namespace Lifetime.Registrations
             manager.Add(sequence[3]);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNotNull(manager.Fields);
+            Assert.IsNotNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
         [TestMethod]
@@ -166,8 +180,10 @@ namespace Lifetime.Registrations
             manager.Add(sequence);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNotNull(manager.Fields);
+            Assert.IsNotNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
 
@@ -189,8 +205,10 @@ namespace Lifetime.Registrations
             manager.Add(range);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNotNull(manager.Fields);
+            Assert.IsNotNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
 
@@ -215,8 +233,10 @@ namespace Lifetime.Registrations
             manager.Add(range);
 
             // Validate
-            Assert.IsNotNull(manager.InjectionMembers);
-            Assert.IsTrue(sequence.SequenceEqual(manager.InjectionMembers));
+            Assert.IsNotNull(manager.Constructor);
+            Assert.IsNotNull(manager.Fields);
+            Assert.IsNotNull(manager.Properties);
+            Assert.IsNotNull(manager.Methods);
         }
 
 
@@ -226,10 +246,7 @@ namespace Lifetime.Registrations
         {
             // Validate
             Assert.IsNull(manager.Data);
-            Assert.IsNotNull(manager.InjectionMembers);
             Assert.AreEqual(RegistrationCategory.Uninitialized, manager.Category);
-            Assert.IsNotNull(manager.GetEnumerator());
-            Assert.IsNotNull(((IEnumerable)manager).GetEnumerator());
             
             // Can assign
             manager.Data = this;

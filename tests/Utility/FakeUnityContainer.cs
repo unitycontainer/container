@@ -22,8 +22,6 @@ namespace Unity.Abstractions.Tests
 
         public string Name { get; private set; }
 
-        public ICollection<InjectionMember> InjectionMembers => _descriptors?[0].Manager.InjectionMembers;
-
         public ResolverOverride[] ResolverOverrides { get; private set; }
 
         public object Data { get; set; }
