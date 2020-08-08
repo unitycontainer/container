@@ -107,7 +107,7 @@ namespace Unity.Container
         public abstract RegistrationManager? Get(in Contract contract);
 
         /// <summary>
-        /// Search for <see cref="Contract"/> holding generic definition and create constructible
+        /// Search for <see cref="Contract"/> holding generic type definition and create constructible
         /// registration if found.
         /// </summary>
         /// <param name="contract">Constructible <see cref="Contract"/></param>

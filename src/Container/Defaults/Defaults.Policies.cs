@@ -10,8 +10,7 @@ namespace Unity.Container
     {
         #region Constants
 
-        public  static Type ResolverType = typeof(ResolveDelegate<ResolveContext>);
-        private static uint ResolverHash = (uint)ResolverType.GetHashCode();
+        private static uint ResolverHash = (uint)typeof(ResolveDelegate<ResolveContext>).GetHashCode();
         
         #endregion
 
@@ -33,7 +32,7 @@ namespace Unity.Container
                 {
                     ref var candidate = ref _data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, ResolverType))
+                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
                     {
                         // Found existing
                         return (ResolveDelegate<ResolveContext>?)candidate.Value;
@@ -58,7 +57,7 @@ namespace Unity.Container
                     {
                         ref var candidate = ref _data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
-                            ReferenceEquals(candidate.Type, ResolverType))
+                            ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
                         {
                             // Found existing
                             candidate.Value = value;
@@ -75,7 +74,7 @@ namespace Unity.Container
                     }
 
                     // Add new registration
-                    _data[_count] = new Policy(hash, target, ResolverType, value);
+                    _data[_count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
                     _meta[_count].Next = bucket.Position;
                     bucket.Position = _count;
                 }

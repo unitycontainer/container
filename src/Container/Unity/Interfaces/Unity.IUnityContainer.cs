@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Unity.Container;
+using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity
@@ -53,23 +54,35 @@ namespace Unity
         {
             Contract generics = default;
             Contract contract = new Contract(type, name);
-            RegistrationManager? manager;
             bool? isGeneric = null;
             var container = this;
 
             do
             {
+                RegistrationManager? manager;
+
                 // Optimistic lookup
                 if (null != (manager = container._scope.Get(in contract)))
                 {
                     object? value;
-
+                    
+                    // Registration found, check for value
                     if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
                         return value;
 
                     // Requires build
+                    var context = new ContainerContext(container, in contract, overrides);
 
-                    break;
+                    if (null != manager.ResolveDelegate) 
+                        return ((ResolveDelegate<ResolveContext>)manager.ResolveDelegate)(ref context.ResolveContext);
+
+                    return manager.Category switch
+                    {
+                        RegistrationCategory.Type => _policies.TypeResolver(ref context.ResolveContext),
+                        RegistrationCategory.Factory => _policies.FactoryResolver(ref context.ResolveContext),
+                        RegistrationCategory.Instance => _policies.InstanceResolver(ref context.ResolveContext),
+                        _ => throw new InvalidOperationException($"Unknown Registration: { manager }")
+                    };
                 }
                 
                 // Skip to parent if not generic
@@ -80,21 +93,34 @@ namespace Unity
                     generics = contract.With(type.GetGenericTypeDefinition());
 
                 // Get from factory
-                if (null != (manager = container._scope.Get(in contract, in generics))) 
+                if (null != (manager = container._scope.Get(in contract, in generics)))
                 {
-                    // Requires build from factory
+                    // Build from factory
+                    var context = new ContainerContext(container, in contract, overrides);
 
-                    break;
+                    return _policies.TypeResolver(ref context.ResolveContext);
                 }
             }
             while (null != (container = container.Parent));
 
+
+            ResolveDelegate<ResolveContext>? resolver;
+
+            // Check if type factory exists
+            if ((isGeneric ?? false) && (null != (resolver = _policies[generics.Type])))
+            {
+            }
+
+            // Check if array
+            if (type.IsArray)
+            {
+                resolver = _policies[typeof(Array)];
+            }
+
             // Requires build from scratch
 
-            return manager;
+            return null;
         }
-
-
 
 
         /// <inheritdoc />

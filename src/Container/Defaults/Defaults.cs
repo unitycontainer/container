@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Pipeline;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -32,7 +33,23 @@ namespace Unity.Container
             // Storage
             _data = new Policy[Prime.Numbers[_prime]];
             _meta = new Metadata[Prime.Numbers[++_prime]];
+
+            // Resolvers
+            TypeResolver = DummyResolver;
+            FactoryResolver = DummyResolver;
+            InstanceResolver = DummyResolver;
         }
+
+        #endregion
+
+
+        #region Resolvers
+
+        public ResolveDelegate<ResolveContext> TypeResolver { get; private set; }
+        
+        public ResolveDelegate<ResolveContext> FactoryResolver { get; private set; }
+
+        public ResolveDelegate<ResolveContext> InstanceResolver { get; private set; }
 
         #endregion
 
@@ -54,6 +71,13 @@ namespace Unity.Container
         /// Event fired when one of the default policies has changed
         /// </summary>
         public DefaultPolicyChangedHandler? DefaultPolicyChanged;
+
+        #endregion
+
+
+        #region Implementation
+        private object? DummyResolver(ref ResolveContext context) 
+            => null;
 
         #endregion
     }
