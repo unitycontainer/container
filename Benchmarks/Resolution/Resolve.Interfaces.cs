@@ -17,22 +17,22 @@ namespace Unity.Benchmarks
     public partial class ResolutionBenchmarks
     {
 
-        [Benchmark(Description = "Resolve<IUnityContainer>()")]
+        [Benchmark(Description = "Container.Resolve<IUnityContainer>(.)", Baseline = true)]
         [BenchmarkCategory("resolve", "interface")]
         public object Resolve_IUnityContainer()
             => Container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark(Description = "Resolve<IServiceProvider>()")]
+        [Benchmark(Description = "Container.Resolve<IServiceProvider>()")]
         [BenchmarkCategory("resolve", "interface")]
 #if NET462 || NET472
         public object Resolve_IUnityContainerAsync()
             => throw new NotImplementedException();
 #else
         public object Resolve_IServiceProvider()
-            => ContainerAsync.Resolve(typeof(IServiceProvider), null);
+            => Container.Resolve(typeof(IServiceProvider), null);
 #endif
-
-        [Benchmark(Description = "ResolveAsync<IUnityContainerAsync>()")]
+                                                    
+        [Benchmark(Description = "Container.R*Async<IUnityCo...Async>()")]
         [BenchmarkCategory("resolve", "async", "interface")]
 #if NET462 || NET472
         public object Resolve_IUnityContainerAsync()

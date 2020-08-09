@@ -31,8 +31,8 @@ namespace Unity.Benchmarks
         public object Resolve_Object_IServiceProvider()
             => ContainerAsync.Resolve(typeof(object), null);
 #endif
-
-        [Benchmark(Description = "IUnityContainerAsync.ResolveAsync<object>()")]
+                                                       
+        [Benchmark(Description = "IUnityContainerAsync.ReAsync<object>()")]
         [BenchmarkCategory("resolve", "async", "object")]
 #if NET462 || NET472
         public object Resolve_Object_IUnityContainerAsync()
