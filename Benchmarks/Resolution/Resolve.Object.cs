@@ -1,9 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Engines;
-using System.ComponentModel;
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
 #if NET462
 using Microsoft.Practices.Unity;
 #else

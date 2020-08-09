@@ -1,9 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Engines;
-using System.ComponentModel;
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
 #if NET462
 using Microsoft.Practices.Unity;
 #else
@@ -17,7 +13,7 @@ namespace Unity.Benchmarks
     public partial class ResolutionBenchmarks
     {
 
-        [Benchmark(Description = "Container.Resolve<IUnityContainer>(.)", Baseline = true)]
+        [Benchmark(Description = "Container.Resolve<IUnityContainer>(_)", Baseline = true)]
         [BenchmarkCategory("resolve", "interface")]
         public object Resolve_IUnityContainer()
             => Container.Resolve(typeof(IUnityContainer), null);
@@ -25,7 +21,7 @@ namespace Unity.Benchmarks
         [Benchmark(Description = "Container.Resolve<IServiceProvider>()")]
         [BenchmarkCategory("resolve", "interface")]
 #if NET462 || NET472
-        public object Resolve_IUnityContainerAsync()
+        public object Resolve_IServiceProvider()
             => throw new NotImplementedException();
 #else
         public object Resolve_IServiceProvider()
