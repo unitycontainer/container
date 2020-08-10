@@ -10,8 +10,8 @@ namespace Unity
         {
             #region Fields
 
+            public UnityContainer?   Container;
             public readonly Contract Contract;
-            public IUnityContainer? Container;
             public RegistrationManager? Manager;
 
             ResolverOverride[] _overrides;

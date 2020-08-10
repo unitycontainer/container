@@ -1,11 +1,11 @@
 ﻿using System;
 using Unity.Pipeline;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
 {
     public delegate void DefaultPolicyChangedHandler(Type type, object? value);
+
 
     public partial class Defaults
     {
@@ -26,9 +26,10 @@ namespace Unity.Container
         internal Defaults() 
         {
             // Build Chains
-            InstancePipeline = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
-            FactoryPipeline  = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
-            TypePipeline     = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            TypePipeline         = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            FactoryPipeline      = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            InstancePipeline     = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            UnregisteredPipeline = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
 
             // Storage
             _data = new Policy[Prime.Numbers[_prime]];
@@ -38,29 +39,8 @@ namespace Unity.Container
             TypeResolver = DummyResolver;
             FactoryResolver = DummyResolver;
             InstanceResolver = DummyResolver;
+            UnregisteredFactory = DummyResolver;
         }
-
-        #endregion
-
-
-        #region Resolvers
-
-        public ResolveDelegate<ResolveContext> TypeResolver { get; private set; }
-        
-        public ResolveDelegate<ResolveContext> FactoryResolver { get; private set; }
-
-        public ResolveDelegate<ResolveContext> InstanceResolver { get; private set; }
-
-        #endregion
-
-
-        #region Pipelines
-
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> InstancePipeline { get; }
-
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> FactoryPipeline { get; }
-
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> TypePipeline { get; }
 
         #endregion
 
@@ -71,13 +51,6 @@ namespace Unity.Container
         /// Event fired when one of the default policies has changed
         /// </summary>
         public DefaultPolicyChangedHandler? DefaultPolicyChanged;
-
-        #endregion
-
-
-        #region Implementation
-        private object? DummyResolver(ref ResolveContext context) 
-            => null;
 
         #endregion
     }

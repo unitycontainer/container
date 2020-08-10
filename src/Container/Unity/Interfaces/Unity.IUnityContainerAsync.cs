@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity
@@ -23,7 +24,7 @@ namespace Unity
             ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>(descriptors);
 
             // Register with the scope
-            await Task.Factory.StartNew(_scope.AddAsync, memory, 
+            await Task.Factory.StartNew(_scope.AddAsync, memory,
                 System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
 
             // Report registration
@@ -34,10 +35,10 @@ namespace Unity
         public async ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory, TaskScheduler? scheduler = null)
         {
             // Register with the scope
-            await Task.Factory.StartNew(_scope.AddAsync, memory, 
-                System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, 
+            await Task.Factory.StartNew(_scope.AddAsync, memory,
+                System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach,
                 scheduler ?? TaskScheduler.Default);
-            
+
             // Report registration
             _registering?.Invoke(this, memory.Span);
         }
@@ -50,7 +51,33 @@ namespace Unity
         /// <inheritdoc />
         public ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            var contract = new Contract(type, name);
+            var container = this;
+
+            do
+            {
+                RegistrationManager? manager;
+
+                // Optimistic lookup
+                if (null != (manager = container!._scope.Get(in contract)))
+                {
+                    object? value;
+
+                    // Registration found, check for value
+                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
+                        return new ValueTask<object?>(value);
+
+                    // No value, do everything else asynchronously
+                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new ResolveContractAsyncState(in contract, manager, overrides),
+                        System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
+                }
+            }
+            while (null != (container = container.Parent));
+
+            // No registration found, do everything else asynchronously
+            return new ValueTask<object?>(
+                Task.Factory.StartNew(ResolveAsync, new ResolveAsyncState(in contract, overrides),
+                    System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
         }
 
         #endregion
@@ -60,7 +87,7 @@ namespace Unity
 
         /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer(string? name, int capacity) 
+        IUnityContainerAsync IUnityContainerAsync.CreateChildContainer(string? name, int capacity)
             => CreateChildContainer(name, capacity);
 
         #endregion

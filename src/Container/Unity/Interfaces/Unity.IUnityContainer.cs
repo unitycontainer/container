@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.Container;
-using Unity.Pipeline;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity
@@ -52,10 +51,10 @@ namespace Unity
         /// <inheritdoc />
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
-            Contract generics = default;
-            Contract contract = new Contract(type, name);
-            bool? isGeneric = null;
+            var contract = new Contract(type, name);
             var container = this;
+            bool?  isGeneric = null;
+            Contract generic = default;
 
             do
             {
@@ -70,58 +69,32 @@ namespace Unity
                     if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
                         return value;
 
-                    // Requires build
-                    var context = new ContainerContext(container, in contract, overrides);
-
-                    if (null != manager.ResolveDelegate) 
-                        return ((ResolveDelegate<ResolveContext>)manager.ResolveDelegate)(ref context.ResolveContext);
-
-                    return manager.Category switch
-                    {
-                        RegistrationCategory.Type => _policies.TypeResolver(ref context.ResolveContext),
-                        RegistrationCategory.Factory => _policies.FactoryResolver(ref context.ResolveContext),
-                        RegistrationCategory.Instance => _policies.InstanceResolver(ref context.ResolveContext),
-                        _ => throw new InvalidOperationException($"Unknown Registration: { manager }")
-                    };
+                    // Build is required
+                    return container.ResolveContract(in contract, manager, overrides);
                 }
                 
-                // Skip to parent if not generic
+                // Skip to parent if non generic
                 if (!(isGeneric ??= type.IsGenericType())) continue;
 
                 // Fill the Generic Type Definition
-                if (null == generics.Type)
-                    generics = contract.With(type.GetGenericTypeDefinition());
+                if (null == generic.Type) generic = contract.With(type.GetGenericTypeDefinition());
 
-                // Get from factory
-                if (null != (manager = container._scope.Get(in contract, in generics)))
+                // Attempt to get from user factory, if such factory exists
+                if (null != (manager = container._scope.Get(in contract, in generic)))
                 {
-                    // Build from factory
-                    var context = new ContainerContext(container, in contract, overrides);
-
-                    return _policies.TypeResolver(ref context.ResolveContext);
+                    // Build from user factory
+                    return container.ResolveFromGeneric(in contract, manager, overrides);
                 }
             }
             while (null != (container = container.Parent));
 
-
-            ResolveDelegate<ResolveContext>? resolver;
-
-            // Check if type factory exists
-            if ((isGeneric ?? false) && (null != (resolver = _policies[generics.Type])))
-            {
-            }
-
-            // Check if array
-            if (type.IsArray)
-            {
-                resolver = _policies[typeof(Array)];
-            }
-
-            // Requires build from scratch
-
-            return null;
+            // No registration found, resolve unregistered
+            return (isGeneric ?? false) 
+                ? ResolveUnregisteredGeneric(in contract, in generic, overrides) 
+                : type.IsArray 
+                    ? ResolveArray(in contract, overrides)
+                    : ResolveUnregistered(in contract, overrides);
         }
-
 
         /// <inheritdoc />
         public object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides)
