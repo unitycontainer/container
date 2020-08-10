@@ -165,6 +165,23 @@ namespace Unity
         #endregion
 
 
+        #region Clone
+
+        protected virtual void CloneData(RegistrationManager manager, InjectionMember[]? members = null)
+        {
+            Data        = manager.Data;
+            Fields      = manager.Fields;
+            Methods     = manager.Methods;
+            Category    = manager.Category;
+            Properties  = manager.Properties;
+            Constructor = manager.Constructor;
+
+            if (null != members) Add(members);
+        }
+
+        #endregion
+
+
         #region IPolicySet 
 
         object? IPolicySet.Get(Type policyInterface)

@@ -80,20 +80,14 @@ namespace Unity.Lifetime
         public LifetimeManager Clone()
         {
             var manager = OnCreateLifetimeManager();
-            
-            manager.Fields      = Fields;
-            manager.Methods     = Methods;
-            manager.Properties  = Properties;
-            manager.Constructor = Constructor;
-            manager.Category    = RegistrationCategory.Type;
-            
+            manager.CloneData(this);
             return manager;
         }
 
         public LifetimeManager Clone(params InjectionMember[] members)
         {
             var manager = OnCreateLifetimeManager();
-            manager.Add(members);
+            manager.CloneData(this, members);
             return manager;
         }
 
