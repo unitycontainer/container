@@ -13,12 +13,13 @@ namespace Unity.Benchmarks
     public partial class ResolutionBenchmarks
     {
 
-        [Benchmark(Description = "Container.Resolve<IUnityContainer>(_)", Baseline = true)]
+        [Benchmark(Description = "Container.Resolve<IUnityContainer>(      )", Baseline = true)]
         [BenchmarkCategory("resolve", "interface")]
         public object Resolve_IUnityContainer()
             => Container.Resolve(typeof(IUnityContainer), null);
 
-        [Benchmark(Description = "Container.Resolve<IServiceProvider>()")]
+             
+        [Benchmark(Description = "Container.Resolve<IServiceProvider>(     )")]
         [BenchmarkCategory("resolve", "interface")]
 #if NET462 || NET472
         public object Resolve_IServiceProvider()
@@ -28,7 +29,7 @@ namespace Unity.Benchmarks
             => Container.Resolve(typeof(IServiceProvider), null);
 #endif
                                                     
-        [Benchmark(Description = "Container.R*Async<IUnityCo...Async>()")]
+        [Benchmark(Description = "Container.R*Async<IUnityContainerAsync>( )")]
         [BenchmarkCategory("resolve", "async", "interface")]
 #if NET462 || NET472
         public object Resolve_IUnityContainerAsync()
