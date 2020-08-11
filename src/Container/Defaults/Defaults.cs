@@ -26,10 +26,10 @@ namespace Unity.Container
         internal Defaults() 
         {
             // Build Chains
-            TypePipeline         = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
-            FactoryPipeline      = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
-            InstancePipeline     = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
-            UnregisteredPipeline = new StagedStrategyChain<PipelineProcessor, BuilderStage>();
+            TypePipeline         = new StagedChain<BuilderStage, PipelineProcessor>();
+            FactoryPipeline      = new StagedChain<BuilderStage, PipelineProcessor>();
+            InstancePipeline     = new StagedChain<BuilderStage, PipelineProcessor>();
+            UnregisteredPipeline = new StagedChain<BuilderStage, PipelineProcessor>();
 
             // Storage
             _data = new Policy[Prime.Numbers[_prime]];

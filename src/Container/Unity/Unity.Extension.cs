@@ -134,15 +134,15 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<PipelineProcessor, BuilderStage> FactoryPipeline 
+            public override IDictionary<BuilderStage, PipelineProcessor> FactoryPipeline 
                 => Container._policies.FactoryPipeline;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<PipelineProcessor, BuilderStage> InstancePipeline 
+            public override IDictionary<BuilderStage, PipelineProcessor> InstancePipeline 
                 => Container._policies.InstancePipeline;
 
             /// <inheritdoc />
-            public override IStagedStrategyChain<PipelineProcessor, BuilderStage> TypePipeline 
+            public override IDictionary<BuilderStage, PipelineProcessor> TypePipeline 
                 => Container._policies.TypePipeline;
 
             #endregion

@@ -13,7 +13,7 @@ namespace Unity.Pipeline
             var processor = new MethodProcessor();
 
             // Add to pipeline chain
-            context.TypePipeline.Add(processor, BuilderStage.Methods);
+            context.TypePipeline.Add(BuilderStage.Methods, processor);
 
             // Subscribe to updates
             var defaults = (Defaults)context.Policies;

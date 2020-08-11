@@ -33,13 +33,13 @@ namespace Unity.Container
 
         #region Pipelines
 
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> TypePipeline { get; }
-
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> FactoryPipeline { get; }
-
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> InstancePipeline { get; }
-
-        public StagedStrategyChain<PipelineProcessor, BuilderStage> UnregisteredPipeline { get; }
+        public StagedChain<BuilderStage, PipelineProcessor> TypePipeline { get; }
+                                        
+        public StagedChain<BuilderStage, PipelineProcessor> FactoryPipeline { get; }
+                                        
+        public StagedChain<BuilderStage, PipelineProcessor> InstancePipeline { get; }
+                                        
+        public StagedChain<BuilderStage, PipelineProcessor> UnregisteredPipeline { get; }
 
         #endregion
 
