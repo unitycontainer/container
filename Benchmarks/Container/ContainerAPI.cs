@@ -17,12 +17,12 @@ namespace Unity.Benchmarks
 
         [GlobalSetup]
         public virtual void GlobalSetup() 
-            => Container = NewUnityContainer();
+            => Container = new UnityContainer();
 
 
         [Benchmark(Description = "new UnityContainer()")]
         [BenchmarkCategory("new")]
-        public IUnityContainer NewUnityContainer() 
+        public object NewUnityContainer() 
             => new UnityContainer();
 
 
