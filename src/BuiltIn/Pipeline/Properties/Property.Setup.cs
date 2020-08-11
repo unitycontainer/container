@@ -13,7 +13,7 @@ namespace Unity.Pipeline
             var processor = new PropertyProcessor();
 
             // Add to pipeline chain
-            context.TypePipeline.Add(BuilderStage.Fields, processor);
+            context.TypePipeline.Add(BuilderStage.Properties, processor);
 
             // Subscribe to updates
             var defaults = (Defaults)context.Policies;
