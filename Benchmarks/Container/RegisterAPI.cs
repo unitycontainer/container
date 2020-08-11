@@ -3,7 +3,9 @@ using System;
 #if NET462
 using Microsoft.Practices.Unity;
 #else
+using Unity.Injection;
 using Unity.Lifetime;
+using Unity;
 #endif
 
 namespace Unity.Benchmarks

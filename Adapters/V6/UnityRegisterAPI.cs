@@ -7,6 +7,7 @@ using Unity.Resolution;
 namespace Unity.v6
 {
     [ShortRunJob(RuntimeMoniker.Net48)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp50)]
     public class UnityRegisterAPI : RegisterAPI
     {
         protected static ResolveDelegate<IResolveContext> ResolveDelegate = (ref IResolveContext c) => c.Type;
