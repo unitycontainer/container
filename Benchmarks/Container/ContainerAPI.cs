@@ -27,8 +27,8 @@ namespace Unity.Benchmarks
 
 
         [Benchmark(Description = "CreateChildContainer()")]
-        [BenchmarkCategory("child")]
-        public object CreateChildContainer() 
+        [BenchmarkCategory("new", "child")]
+        public object NewChildContainer() 
             => Container.CreateChildContainer();
 
 
