@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -25,5 +24,11 @@ namespace Unity
         public static bool IsEnum(this Type type) => type.GetTypeInfo().IsEnum;
 
         #endregion
+    }
+
+    internal static class Delegate
+    {
+        public static object CreateDelegate(Type type, object target, MethodInfo info) 
+            => info.CreateDelegate(type, target);
     }
 }

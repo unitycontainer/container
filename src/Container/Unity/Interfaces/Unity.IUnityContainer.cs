@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity
@@ -53,7 +52,7 @@ namespace Unity
         {
             var contract = new Contract(type, name);
             var container = this;
-            bool?  isGeneric = null;
+            bool? isGeneric = null;
             Contract generic = default;
 
             do
@@ -64,7 +63,7 @@ namespace Unity
                 if (null != (manager = container._scope.Get(in contract)))
                 {
                     object? value;
-                    
+
                     // Registration found, check for value
                     if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
                         return value;
@@ -72,7 +71,7 @@ namespace Unity
                     // Build is required
                     return container.ResolveContract(in contract, manager, overrides);
                 }
-                
+
                 // Skip to parent if non generic
                 if (!(isGeneric ??= type.IsGenericType())) continue;
 
@@ -83,17 +82,23 @@ namespace Unity
                 if (null != (manager = container._scope.Get(in contract, in generic)))
                 {
                     // Build from user factory
-                    return container.ResolveFromGeneric(in contract, manager, overrides);
+                    return container.ResolveContractGeneric(in contract, manager, overrides);
                 }
             }
             while (null != (container = container.Parent));
 
+            // Check if resolver already exist
+            var resolver = _policies[contract.Type];
+            if (null != resolver)
+            {
+                var context = new Pipeline.ResolveContext(this, in contract, overrides);
+                return resolver(ref context);
+            }
+
             // No registration found, resolve unregistered
-            return (isGeneric ?? false) 
-                ? ResolveUnregisteredGeneric(in contract, in generic, overrides) 
-                : type.IsArray 
-                    ? ResolveArray(in contract, overrides)
-                    : ResolveUnregistered(in contract, overrides);
+            return (isGeneric ?? false)
+                ? ResolveUnregisteredGeneric(in contract, in generic, overrides)
+                : ResolveUnregistered(in contract, overrides);
         }
 
         /// <inheritdoc />

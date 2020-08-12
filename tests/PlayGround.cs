@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Unity.Tests
 {
@@ -11,7 +9,6 @@ namespace Unity.Tests
         [TestMethod]
         public void Baseline() 
         {
-
             Assert.Inconclusive();
         }
 

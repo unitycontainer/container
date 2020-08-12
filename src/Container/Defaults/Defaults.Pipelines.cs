@@ -33,13 +33,23 @@ namespace Unity.Container
 
         #region Pipelines
 
-        public StagedChain<BuilderStage, PipelineProcessor> TypePipeline { get; }
+        public ResolveDelegate<ResolveContext> TypeActivationPipeline { get; set; }
+        public ResolveDelegate<ResolveContext> FactoryActivationPipeline { get; set; }
+        public ResolveDelegate<ResolveContext> InstanceActivationPipeline { get; set; }
+        public ResolveDelegate<ResolveContext> UnregisteredActivationPipeline { get; set; }
+
+        #endregion
+
+
+        #region Chains
+
+        public StagedChain<BuilderStage, PipelineProcessor> TypeChain { get; }
                                         
-        public StagedChain<BuilderStage, PipelineProcessor> FactoryPipeline { get; }
+        public StagedChain<BuilderStage, PipelineProcessor> FactoryChain { get; }
                                         
-        public StagedChain<BuilderStage, PipelineProcessor> InstancePipeline { get; }
+        public StagedChain<BuilderStage, PipelineProcessor> InstanceChain { get; }
                                         
-        public StagedChain<BuilderStage, PipelineProcessor> UnregisteredPipeline { get; }
+        public StagedChain<BuilderStage, PipelineProcessor> UnregisteredChain { get; }
 
         #endregion
 
@@ -49,6 +59,11 @@ namespace Unity.Container
         private ResolveDelegate<ResolveContext> DummyResolver(in ContainerContext contest)
         {
             return (ref ResolveContext c) => c.Type;
+        }
+
+        private object? DummyPipeline(ref ResolveContext context)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

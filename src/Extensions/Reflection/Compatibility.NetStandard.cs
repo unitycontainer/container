@@ -1,9 +1,14 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace Unity
 {
-    internal static class Compatibility_NetStandard
+#if NETSTANDARD1_6 || NETSTANDARD1_0
+    internal static class Delegate
     {
+        public static object CreateDelegate(Type type, object target, MethodInfo info)
+            => info.CreateDelegate(type, target);
     }
+#endif
+
 }

@@ -1,28 +1,36 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Resolve Contract
+        #region Delegates
+
+        public delegate object? ResolveContractDelegate(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides);
+
+        #endregion
+
+
+        #region Implementation
 
         private object? ResolveContract(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            object strategy = manager.Category switch
-            {
-                RegistrationCategory.Internal => throw new NotImplementedException(),
-                RegistrationCategory.Type => throw new NotImplementedException(),
-                RegistrationCategory.Instance => throw new NotImplementedException(),
-                RegistrationCategory.Factory => throw new NotImplementedException(),
-                _ => throw new NotImplementedException(),
-            };
+            //object strategy = manager.Category switch
+            //{
+            //    RegistrationCategory.Internal => throw new NotImplementedException(),
+            //    RegistrationCategory.Type => throw new NotImplementedException(),
+            //    RegistrationCategory.Instance => throw new NotImplementedException(),
+            //    RegistrationCategory.Factory => throw new NotImplementedException(),
+            //    _ => throw new NotImplementedException(),
+            //};
 
             return null;
         }
 
-        private object? ResolveFromGeneric(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        private object? ResolveContractGeneric(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
             return null;
         }
@@ -41,22 +49,33 @@ namespace Unity
         /// <returns>Requested object</returns>
         private object? ResolveUnregistered(in Contract contract, ResolverOverride[] overrides)
         {
-            var context = new ContainerContext(this, in contract, overrides);
-
             // Check if resolver already exist
-            var resolver = _policies[contract.Type];
+            //var resolver = _policies[contract.Type] 
+            //            ?? _policies.UnregisteredActivationPipeline;
 
-            if (null == resolver)
-            {
-                resolver = _policies.UnregisteredFactory(in context);
-                _policies[contract.Type] = resolver;
-            }
+            var context = new ResolveContext(this, in contract, overrides);
 
-            return resolver(ref context.ResolveContext);
+            return context.Existing;
+            //return resolver(ref context);
         }
 
         private object? ResolveUnregisteredGeneric(in Contract contract, in Contract generic, ResolverOverride[] overrides)
         {
+            // Check if resolver already exist
+            var resolver = _policies[contract.Type];
+            if (null != resolver)
+            {
+                var context = new ResolveContext(this, in contract, overrides);
+                return resolver(ref context);
+            }
+
+            // Check if type factory exists
+            var factory = _policies[generic.Type];
+
+            if (null == factory) ResolveUnregistered(in contract, overrides);
+
+            //var resolver = factory(in contract);
+
             return null;
         }
 

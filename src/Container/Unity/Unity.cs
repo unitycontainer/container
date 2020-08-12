@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Unity.BuiltIn;
 using Unity.Container;
 using Unity.Pipeline;
@@ -62,12 +63,6 @@ namespace Unity
             _policies = new Defaults();
             _context  = new PrivateExtensionContext(this);
 
-            // Setup Processors
-            ConstructorProcessor.SetupProcessor(_context);
-                  FieldProcessor.SetupProcessor(_context);
-               PropertyProcessor.SetupProcessor(_context);
-                 MethodProcessor.SetupProcessor(_context);
-
             // Registration Scope
             _scope = new ContainerScope(capacity);
             _scope.Add(new ContainerLifetimeManager(this), 
@@ -75,6 +70,9 @@ namespace Unity
                 typeof(IUnityContainerAsync), 
                 typeof(IServiceProvider));
             DEFAULT_CONTRACTS = _scope.Contracts;
+
+            // Setup Processors
+            BuiltInProcessors.Setup(_context);
         }
 
         /// <summary>
@@ -94,7 +92,9 @@ namespace Unity
             // Registration Scope
             _scope = parent._scope.CreateChildScope(capacity);
             _scope.Add(new ContainerLifetimeManager(this),
-                typeof(IUnityContainer), typeof(IUnityContainerAsync), typeof(IServiceProvider));
+                typeof(IUnityContainer), 
+                typeof(IUnityContainerAsync), 
+                typeof(IServiceProvider));
             DEFAULT_CONTRACTS = _scope.Contracts;
         }
 

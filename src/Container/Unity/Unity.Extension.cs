@@ -43,6 +43,7 @@ namespace Unity
             }
         }
 
+        // TODO: Find better place 
         private void OnParentRegistering(object container, in ReadOnlySpan<RegistrationDescriptor> registrations) 
             => _registering?.Invoke(container, in registrations);
 
@@ -134,16 +135,19 @@ namespace Unity
             #region Pipelines
 
             /// <inheritdoc />
-            public override IDictionary<BuilderStage, PipelineProcessor> FactoryPipeline 
-                => Container._policies.FactoryPipeline;
+            public override IDictionary<BuilderStage, PipelineProcessor> FactoryPipelineChain 
+                => Container._policies.FactoryChain;
 
             /// <inheritdoc />
-            public override IDictionary<BuilderStage, PipelineProcessor> InstancePipeline 
-                => Container._policies.InstancePipeline;
+            public override IDictionary<BuilderStage, PipelineProcessor> InstancePipelineChain 
+                => Container._policies.InstanceChain;
 
             /// <inheritdoc />
-            public override IDictionary<BuilderStage, PipelineProcessor> TypePipeline 
-                => Container._policies.TypePipeline;
+            public override IDictionary<BuilderStage, PipelineProcessor> TypePipelineChain 
+                => Container._policies.TypeChain;
+
+            public override IDictionary<BuilderStage, PipelineProcessor> UnregisteredPipelineChain
+                => Container._policies.UnregisteredChain;
 
             #endregion
 

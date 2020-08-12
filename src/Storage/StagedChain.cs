@@ -15,6 +15,19 @@ namespace Unity.Storage
         where TStageEnum    : Enum 
         where TStrategyType : class
     {
+        #region Delegates
+
+        /// <summary>
+        /// Represents the method that will handle a changed event
+        /// </summary>
+        /// <remarks>In normal circumstances the monitoring subscriber does not care what has 
+        /// changed. Details of the change are not important, just the fact that change has happened</remarks>
+        /// <param name="sender">Chain that has been changed</param>
+        public delegate void ChagedHandler(TStrategyType[] chain);
+
+        #endregion
+
+
         #region Fields
 
         private const string ERROR_MESSAGE = "An element with the same key already exists";
@@ -43,6 +56,8 @@ namespace Unity.Storage
             if (null != position) throw new ArgumentException(ERROR_MESSAGE);
 
             position = value;
+
+            ChainChanged?.Invoke(ToArray());
         }
 
         public void Add(KeyValuePair<TStageEnum, TStrategyType> item)
@@ -52,6 +67,23 @@ namespace Unity.Storage
             if (null != position) throw new ArgumentException(ERROR_MESSAGE);
 
             position = item.Value;
+
+            ChainChanged?.Invoke(ToArray());
+        }
+
+        public void Add(params ValueTuple<TStageEnum, TStrategyType>[] items)
+        {
+            for (var i = 0; i < items.Length; i++)
+            {
+                ref var pair = ref items[i];
+                ref var position = ref _stages[Convert.ToInt32(pair.Item1)];
+
+                if (null != position) throw new ArgumentException(ERROR_MESSAGE);
+
+                position = pair.Item2;
+            }
+
+            ChainChanged?.Invoke(ToArray());
         }
 
         public void Add(params KeyValuePair<TStageEnum, TStrategyType>[] items)
@@ -65,6 +97,8 @@ namespace Unity.Storage
 
                 position = pair.Value;
             }
+            
+            ChainChanged?.Invoke(ToArray());
         }
 
         #endregion
@@ -79,10 +113,14 @@ namespace Unity.Storage
             return null != value;
         }
 
-        public TStrategyType this[TStageEnum key] 
-        { 
-            get => _stages[Convert.ToInt32(key)] ?? throw new KeyNotFoundException(); 
-            set => _stages[Convert.ToInt32(key)] = value; 
+        public TStrategyType this[TStageEnum key]
+        {
+            get => _stages[Convert.ToInt32(key)] ?? throw new KeyNotFoundException();
+            set
+            {
+                _stages[Convert.ToInt32(key)] = value;
+                ChainChanged?.Invoke(ToArray());
+            }
         }
 
         #endregion
@@ -94,10 +132,14 @@ namespace Unity.Storage
         {
             ref var position = ref _stages[Convert.ToInt32(key)];
 
-            var value = position;
-            position = null;
+            if (null != position)
+            {
+                position = null;
+                ChainChanged?.Invoke(ToArray());
+                return true;
+            }
 
-            return null != value;
+            return false;
         }
 
         public bool Remove(KeyValuePair<TStageEnum, TStrategyType> item)
@@ -107,14 +149,12 @@ namespace Unity.Storage
             if (item.Value == position)
             {
                 position = null;
+                ChainChanged?.Invoke(ToArray());
                 return true;
             }
 
             return false;
         }
-
-        public void Clear()
-            => Array.Clear(_stages, 0, _size);
 
         #endregion
 
@@ -214,7 +254,16 @@ namespace Unity.Storage
         #endregion
 
 
+        #region Change Event
+
+        public ChagedHandler? ChainChanged;
+
+        #endregion
+
+
         #region Not Supported
+        public void Clear()
+            => throw new NotSupportedException();
 
         IEnumerator<KeyValuePair<TStageEnum, TStrategyType>> IEnumerable<KeyValuePair<TStageEnum, TStrategyType>>.GetEnumerator() 
             => throw new NotSupportedException();

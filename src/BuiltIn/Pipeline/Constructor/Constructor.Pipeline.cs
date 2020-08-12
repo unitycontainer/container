@@ -1,11 +1,8 @@
-﻿using System;
-using System.Reflection;
-using Unity.Container;
-using Unity.Extension;
+﻿using System.Reflection;
 
-namespace Unity.Pipeline
+namespace Unity.BuiltIn
 {
-    public partial class ConstructorProcessor : MethodBaseProcessor<ConstructorInfo>
+    public partial class ConstructorProcessor 
     {
     }
 }

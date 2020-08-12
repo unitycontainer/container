@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using Unity.Pipeline;
 
-namespace Unity.Pipeline
+namespace Unity.BuiltIn
 {
     public abstract class MemberProcessor : PipelineProcessor
     {

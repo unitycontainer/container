@@ -9,28 +9,37 @@ namespace Unity.Pipeline
         public RegistrationManager? Manager;
 
         public readonly Contract Contract;
-        private readonly ResolverOverride[] _overrides;
+        private readonly ResolverOverride[] Overrides;
+
+        #region Constructors
+
 
         public ResolveContext(UnityContainer container, Type type, string? name, ResolverOverride[] overrides)
         {
             Contract = new Contract(type, name);
             Container = container;
-            Manager = null;
-
-            _overrides = overrides;
+            Manager = default;
+            Existing = default;
+            Overrides = overrides;
         }
 
-        public ResolveContext(Type type, string? name, ResolverOverride[] overrides)
+        public ResolveContext(UnityContainer container, in Contract contract, ResolverOverride[] overrides)
         {
-            Contract = new Contract(type, name);
-            Container = default;
+            Contract  = contract;
+            Container = container;
             Manager = null;
+            Existing = null;
 
-            _overrides = overrides;
+            Overrides = overrides;
         }
 
+        #endregion
 
 
+        public object? Existing;
+
+
+        #region IResolveContext
 
         public Type Type => Contract.Type;
 
@@ -41,5 +50,7 @@ namespace Unity.Pipeline
         {
             return null;
         }
+        
+        #endregion
     }
 }

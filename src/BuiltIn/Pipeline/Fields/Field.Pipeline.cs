@@ -1,11 +1,8 @@
-﻿using System;
-using System.Reflection;
-using Unity.Container;
-using Unity.Extension;
+﻿using System.Reflection;
 
-namespace Unity.Pipeline
+namespace Unity.BuiltIn
 {
-    public partial class FieldProcessor : MemberProcessor<FieldInfo, object>
+    public partial class FieldProcessor 
     {
     }
 }

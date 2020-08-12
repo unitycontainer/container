@@ -31,7 +31,9 @@ namespace Unity.Benchmarks
 
         [TestMethod]
         public void Resolve_Object()
-            => Container.Resolve(typeof(object), null);
+        {
+            Assert.IsNotNull(Container.Resolve(typeof(object), null));
+        }
 
         [TestMethod]
         public void Resolve_Object_Twice()

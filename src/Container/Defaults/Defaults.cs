@@ -26,20 +26,28 @@ namespace Unity.Container
         internal Defaults() 
         {
             // Build Chains
-            TypePipeline         = new StagedChain<BuilderStage, PipelineProcessor>();
-            FactoryPipeline      = new StagedChain<BuilderStage, PipelineProcessor>();
-            InstancePipeline     = new StagedChain<BuilderStage, PipelineProcessor>();
-            UnregisteredPipeline = new StagedChain<BuilderStage, PipelineProcessor>();
+            TypeChain         = new StagedChain<BuilderStage, PipelineProcessor>();
+            FactoryChain      = new StagedChain<BuilderStage, PipelineProcessor>();
+            InstanceChain     = new StagedChain<BuilderStage, PipelineProcessor>();
+            UnregisteredChain = new StagedChain<BuilderStage, PipelineProcessor>();
 
             // Storage
             _data = new Policy[Prime.Numbers[_prime]];
             _meta = new Metadata[Prime.Numbers[++_prime]];
+
+            // TODO: remove dummy stuff
 
             // Resolvers
             TypeResolver = DummyResolver;
             FactoryResolver = DummyResolver;
             InstanceResolver = DummyResolver;
             UnregisteredFactory = DummyResolver;
+
+            // Pipelines 
+            TypeActivationPipeline = DummyPipeline;
+            FactoryActivationPipeline = DummyPipeline;
+            InstanceActivationPipeline = DummyPipeline;
+            UnregisteredActivationPipeline = DummyPipeline;
         }
 
         #endregion

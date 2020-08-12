@@ -32,19 +32,24 @@ namespace Unity.Extension
         #region Strategies
 
         /// <summary>
-        /// Pipeline chain required to process factory registrations
+        /// Pipeline chain required to process type registrations
         /// </summary>
-        public abstract IDictionary<BuilderStage, PipelineProcessor> FactoryPipeline { get; }
+        public abstract IDictionary<BuilderStage, PipelineProcessor> TypePipelineChain { get; }
 
         /// <summary>
         /// Pipeline chain required to process instance registrations
         /// </summary>
-        public abstract IDictionary<BuilderStage, PipelineProcessor> InstancePipeline { get; }
+        public abstract IDictionary<BuilderStage, PipelineProcessor> InstancePipelineChain { get; }
 
         /// <summary>
-        /// Pipeline chain required to process type registrations
+        /// Pipeline chain required to process factory registrations
         /// </summary>
-        public abstract IDictionary<BuilderStage, PipelineProcessor> TypePipeline { get; }
+        public abstract IDictionary<BuilderStage, PipelineProcessor> FactoryPipelineChain { get; }
+
+        /// <summary>
+        /// Pipeline chain required to create unregistered types
+        /// </summary>
+        public abstract IDictionary<BuilderStage, PipelineProcessor> UnregisteredPipelineChain { get; }
 
         #endregion
 
