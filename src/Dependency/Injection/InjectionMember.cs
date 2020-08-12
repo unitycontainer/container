@@ -13,6 +13,11 @@ namespace Unity.Injection
         /// This property triggers mandatory build if true
         /// </summary>
         public abstract bool BuildRequired { get; }
+        
+        /// <summary>
+        /// Reference to the next member
+        /// </summary>
+        public InjectionMember? Next { get; internal set; }
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember
@@ -44,13 +49,6 @@ namespace Unity.Injection
         public virtual TData Data { get; }
 
         public abstract TMemberInfo? MemberInfo(Type type);
-
-        #endregion
-
-
-        #region Segmentation
-
-        public InjectionMember<TMemberInfo, TData>? Next { get; internal set; }
 
         #endregion
 

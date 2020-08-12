@@ -35,7 +35,17 @@ namespace Unity
         /// <summary>
         /// This is RegisterFactory registration
         /// </summary>
-        Factory
+        Factory,
+
+        /// <summary>
+        /// This registration is a clone
+        /// </summary>
+        /// <remarks>
+        /// In most cases this category implies that
+        /// the Data field holds reference to a parent
+        /// manager
+        /// </remarks>
+        Clone
     }
 
     /// <summary>
@@ -70,19 +80,21 @@ namespace Unity
 
         public RegistrationCategory Category { get; internal set; }
 
-        public InjectionConstructor? Constructor { get; internal set; }
+        public InjectionConstructor? Constructor { get; private set; }
 
-        public InjectionField? Fields { get; internal set; }
+        public InjectionField? Fields { get; private set; }
 
-        public InjectionProperty? Properties { get; internal set; }
+        public InjectionProperty? Properties { get; private set; }
 
-        public InjectionMethod? Methods { get; internal set; }
+        public InjectionMethod? Methods { get; private set; }
+
+        public InjectionMember? Other { get; private set; }
 
         #endregion
 
 
         #region Resolver
-        
+
         public Delegate? ResolveDelegate { get; internal set; }
         
         #endregion
@@ -103,7 +115,7 @@ namespace Unity
         #endregion
 
 
-        #region Registration Categories
+        #region Registration Types
 
         public Type? Type =>
             RegistrationCategory.Type == Category
@@ -154,6 +166,11 @@ namespace Unity
                     method.Next = Methods;
                     Methods = method;
                     break;
+
+                default:
+                    member.Next = Other;
+                    Other = member;
+                    break;
             }
         }
 
@@ -169,14 +186,16 @@ namespace Unity
 
         protected virtual void CloneData(RegistrationManager manager, InjectionMember[]? members = null)
         {
-            Data        = manager.Data;
+            Data        = manager;
+            Category    = RegistrationCategory.Clone;
+
+            Other       = manager.Other;
             Fields      = manager.Fields;
             Methods     = manager.Methods;
-            Category    = manager.Category;
             Properties  = manager.Properties;
             Constructor = manager.Constructor;
 
-            if (null != members) Add(members);
+            if (null != members && 0 != members.Length) Add(members);
         }
 
         #endregion
