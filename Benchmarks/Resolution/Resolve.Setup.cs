@@ -27,12 +27,12 @@ namespace Unity.Benchmarks
         {
 #if NET462 || NET472
             Container = new UnityContainer()
-                .RegisterType(typeof(List<>), new InjectionConstructor())
+                .RegisterType(typeof(TestGeneric<>))
                 .RegisterType(typeof(Service))
                 .CreateChildContainer();
 #else
             Container = new UnityContainer()
-                .RegisterType(typeof(List<>), new InjectionConstructor())
+                .RegisterType(typeof(TestGeneric<>))
                 .RegisterType(typeof(Service))
                 .CreateChildContainer();
             ContainerAsync = (IUnityContainerAsync)Container;
@@ -42,8 +42,10 @@ namespace Unity.Benchmarks
 
 
         public interface IService { }
+        public interface IService<T> { }
 
         public class Service : IService { }
+        public class Service<T> : IService<T> { }
 
         public class TestGeneric<T> { }
     }
