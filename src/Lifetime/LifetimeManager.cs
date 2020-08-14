@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Unity.Injection;
 
 namespace Unity.Lifetime
@@ -16,35 +15,7 @@ namespace Unity.Lifetime
         public LifetimeManager(params InjectionMember[] members)
             : base(members)
         {
-            Set    = SetValue;
-            Get    = GetValue;
-            TryGet = TryGetValue;
         }
-
-        #endregion
-
-
-        #region  Optimizers
-
-        /// <summary>
-        /// The property holding a method that attempts to get value. 
-        /// Synchronized lifetime managers will not set a lock by calling the method.
-        /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public Func<ICollection<IDisposable>, object?> TryGet { get; protected set; }
-
-        /// <summary>
-        /// The property holding a method that gets the value. 
-        /// Synchronized lifetime managers will set a lock by calling the method.
-        /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public Func<ICollection<IDisposable>, object?> Get { get; protected set; }
-
-        /// <summary>
-        /// The property holding a method that sets the value. 
-        /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public Action<object?, ICollection<IDisposable>> Set { get; protected set; }
 
         #endregion
 

@@ -14,42 +14,33 @@ namespace Unity.Lifetime
                                              IFactoryLifetimeManager,
                                              ITypeLifetimeManager
     {
-        #region Fields
-
-        protected object? value = NoValue;
-
-        #endregion
-
-
         #region Constructors
 
         public PerResolveLifetimeManager(params InjectionMember[] members)
             : base(members)
         {
         }
-        
+
         #endregion
 
 
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> lefetime)
-        {
-            return value;
-        }
+        public override object? GetValue(ICollection<IDisposable> lefetime) 
+            => NoValue;
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new PerResolveLifetimeManager();
-        }
+        public override ResolutionStyle Style 
+            => ResolutionStyle.EveryTime;
 
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:PerResolve";
+        /// <inheritdoc/>
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new PerResolveLifetimeManager();
+
+        /// <inheritdoc/>
+        public override string ToString() 
+            => "Lifetime:PerResolve";
 
         #endregion
     }

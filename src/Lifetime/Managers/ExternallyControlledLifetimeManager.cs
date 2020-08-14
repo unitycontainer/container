@@ -25,13 +25,12 @@ namespace Unity.Lifetime
         public ExternallyControlledLifetimeManager(params InjectionMember[] members)
             : base(members)
         {
-
         }
 
         #endregion
 
 
-        #region SynchronizedLifetimeManager
+        #region Overrides
 
         /// <inheritdoc/>
         protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime)
@@ -47,22 +46,20 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime)
-        {
-            _value = new WeakReference(newValue);
-        }
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime) 
+            => _value = new WeakReference(newValue);
 
-        #endregion
+        /// <inheritdoc/>
+        public override ResolutionStyle Style 
+            => ResolutionStyle.OnceInAWhile;
 
+        /// <inheritdoc/>
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new ExternallyControlledLifetimeManager();
 
-        #region Overrides
-
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new ExternallyControlledLifetimeManager();
-        }
-
-        public override string ToString() => "Lifetime:External";
+        /// <inheritdoc/>
+        public override string ToString() 
+            => "Lifetime:External";
 
         #endregion
     }

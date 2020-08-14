@@ -23,6 +23,16 @@ namespace Unity
         Internal,
 
         /// <summary>
+        /// This registration is a clone
+        /// </summary>
+        /// <remarks>
+        /// In most cases this category implies that
+        /// the Data field holds reference to a parent
+        /// manager
+        /// </remarks>
+        Clone,
+
+        /// <summary>
         /// This is RegisterType registration
         /// </summary>
         Type,
@@ -35,17 +45,7 @@ namespace Unity
         /// <summary>
         /// This is RegisterFactory registration
         /// </summary>
-        Factory,
-
-        /// <summary>
-        /// This registration is a clone
-        /// </summary>
-        /// <remarks>
-        /// In most cases this category implies that
-        /// the Data field holds reference to a parent
-        /// manager
-        /// </remarks>
-        Clone
+        Factory
     }
 
     /// <summary>
@@ -76,6 +76,8 @@ namespace Unity
 
         #region Registration Data
 
+        public bool RequireBuild { get; private set; }
+
         public object? Data { get; internal set; }
 
         public RegistrationCategory Category { get; internal set; }
@@ -100,7 +102,7 @@ namespace Unity
         #endregion
 
 
-        #region Value
+        #region Try Get Value
         /// <summary>
         /// Attempts to retrieve a value from the backing store
         /// </summary>
@@ -137,12 +139,6 @@ namespace Unity
 
         #region Initializers Support
 
-        public IEnumerator<InjectionMember> GetEnumerator()
-            => throw new NotImplementedException();
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => throw new NotImplementedException();
-
         public void Add(InjectionMember member)
         {
             switch (member)
@@ -178,6 +174,36 @@ namespace Unity
         {
             foreach (var member in members) Add(member);
         }
+
+        #endregion
+
+
+        #region IEnumerable
+
+        public IEnumerator<InjectionMember> GetEnumerator()
+        {
+            // Start with constructor (Only one constructor)
+            if (null != Constructor) yield return Constructor;
+
+            // Fields
+            for (InjectionMember? member = Fields; null != member; member = member.Next)
+                yield return member;
+
+            // Properties
+            for (InjectionMember? member = Properties; null != member; member = member.Next)
+                yield return member;
+
+            // Methods
+            for (InjectionMember? member = Methods; null != member; member = member.Next)
+                yield return member;
+
+            // Other
+            for (InjectionMember? member = Other; null != member; member = member.Next)
+                yield return member;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
 
         #endregion
 

@@ -23,20 +23,23 @@ namespace Unity.Lifetime
             : base(members)
         {
         }
-        
+
         #endregion
 
 
         #region Overrides
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager() => new TransientLifetimeManager();
+        public override ResolutionStyle Style 
+            => ResolutionStyle.EveryTime;
 
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:Transient";
+        /// <inheritdoc/>
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new TransientLifetimeManager();
+
+        /// <inheritdoc/>
+        public override string ToString() 
+            => "Lifetime:Transient";
 
         #endregion
     }

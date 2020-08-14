@@ -172,7 +172,7 @@ namespace Lifetime.Managers
             new Thread(delegate ()
             {
                 // Enter the lock
-                _ = TestManager.TryGet(LifetimeContainer);
+                _ = TestManager.TryGetValue(LifetimeContainer);
                 semaphor.Set();
 
                 Thread.Sleep(100);
@@ -196,7 +196,7 @@ namespace Lifetime.Managers
             new Thread(delegate ()
             {
                 // Enter the lock
-                _ = TestManager.Get(LifetimeContainer);
+                _ = TestManager.GetValue(LifetimeContainer);
                 semaphor.Set();
 
                 Thread.Sleep(100);
@@ -207,7 +207,7 @@ namespace Lifetime.Managers
 
             semaphor.WaitOne();
             SynchronizedLifetimeManager.ResolveTimeout = Timeout.Infinite;
-            var value = TestManager.Get(LifetimeContainer);
+            var value = TestManager.GetValue(LifetimeContainer);
 
             Assert.AreSame(TestObject, value);
         }
@@ -226,7 +226,7 @@ namespace Lifetime.Managers
                 Thread.Sleep(100);
 
                 // Act
-                TestManager.Set(TestObject, LifetimeContainer);
+                TestManager.SetValue(TestObject, LifetimeContainer);
             }).Start();
 
             semaphor.WaitOne();

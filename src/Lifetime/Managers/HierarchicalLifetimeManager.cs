@@ -43,17 +43,15 @@ namespace Unity.Lifetime
             : base(members)
         {
         }
-        
+
         #endregion
 
 
         #region Overrides
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime)
-        {
-            return _values.TryGetValue(lefetime, out object? value) ? value : NoValue;
-        }
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime) 
+            => _values.TryGetValue(lefetime, out object? value) ? value : NoValue;
 
         /// <inheritdoc/>
         protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime)
@@ -61,7 +59,6 @@ namespace Unity.Lifetime
             _values[lefetime] = newValue;
             lefetime.Add(new DisposableAction(() => RemoveValue(lefetime)));
         }
-
 
         /// <inheritdoc/>
         private void RemoveValue(ICollection<IDisposable> lefetime)
@@ -76,15 +73,14 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new HierarchicalLifetimeManager();
-        }
+        public override ResolutionStyle Style 
+            => ResolutionStyle.OnceInAWhile;
 
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
+        /// <inheritdoc/>
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new HierarchicalLifetimeManager();
+
+        /// <inheritdoc/>
         public override string ToString() => "Lifetime:Hierarchical";
 
         #endregion

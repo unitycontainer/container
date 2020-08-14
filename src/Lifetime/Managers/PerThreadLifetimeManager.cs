@@ -38,39 +38,32 @@ namespace Unity.Lifetime
         public PerThreadLifetimeManager(params InjectionMember[] members)
             : base(members)
         {
-
         }
-        
+
         #endregion
 
 
         #region Overrides
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> lefetime)
-        {
-            return _value.Value;
-        }
+        public override object? GetValue(ICollection<IDisposable> lefetime) 
+            => _value.Value;
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
-        {
-            _value.Value = newValue;
-        }
+        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime) 
+            => _value.Value = newValue;
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager()
-        {
-            return new PerThreadLifetimeManager();
-        }
+        public override ResolutionStyle Style 
+            => ResolutionStyle.OnceInAWhile;
 
+        /// <inheritdoc/>
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new PerThreadLifetimeManager();
 
-
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:PerThread";
+        /// <inheritdoc/>
+        public override string ToString() 
+            => "Lifetime:PerThread";
 
         #endregion
     }

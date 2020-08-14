@@ -13,11 +13,17 @@ namespace Unity.Lifetime
                                                        IFactoryLifetimeManager,
                                                        ITypeLifetimeManager
     {
+        #region Constructors
+
         public ContainerControlledTransientManager(params InjectionMember[] members)
             : base(members)
         {
         }
 
+        #endregion
+
+
+        #region Overrides
 
         /// <inheritdoc/>
         public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
@@ -27,12 +33,17 @@ namespace Unity.Lifetime
         }
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager() => this;
+        public override ResolutionStyle Style 
+            => ResolutionStyle.EveryTime;
 
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:PerContainerTransient";
+        /// <inheritdoc/>
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new ContainerControlledTransientManager();
+
+        /// <inheritdoc/>
+        public override string ToString() 
+            => "Lifetime:PerContainerTransient";
+
+        #endregion
     }
 }

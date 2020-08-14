@@ -43,44 +43,32 @@ namespace Unity.Lifetime
         public ContainerControlledLifetimeManager(params InjectionMember[] members)
             : base(members)
         {
-            Set    = base.SetValue;
-            Get    = base.GetValue;
-            TryGet = base.TryGetValue;
         }
 
         #endregion
 
 
-        #region SynchronizedLifetimeManager
+        #region Overrides
 
         /// <inheritdoc/>
-        public override object? GetValue(ICollection<IDisposable> lefetime)
-        {
-            return Get(lefetime);
-        }
+        protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime) 
+            => Value;
 
         /// <inheritdoc/>
-        public override void SetValue(object? newValue, ICollection<IDisposable> lefetime)
-        {
-            Set(newValue, lefetime);
-            Set = (o, c) => throw new InvalidOperationException("ContainerControlledLifetimeManager can only be set once");
-            Get    = SynchronizedGetValue;
-            TryGet = SynchronizedGetValue;
-        }
+        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime) 
+            => Value = newValue;
 
         /// <inheritdoc/>
-        protected override object? SynchronizedGetValue(ICollection<IDisposable> lefetime) => Value;
+        public override ResolutionStyle Style 
+            => ResolutionStyle.OnceInLifetime;
 
         /// <inheritdoc/>
-        protected override void SynchronizedSetValue(object? newValue, ICollection<IDisposable> lefetime) => Value = newValue;
-
-        #endregion
-
-
-        #region IFactoryLifetimeManager
+        protected override LifetimeManager OnCreateLifetimeManager() 
+            => new ContainerControlledLifetimeManager();
 
         /// <inheritdoc/>
-        protected override LifetimeManager OnCreateLifetimeManager() => new ContainerControlledLifetimeManager();
+        public override string ToString() 
+            => "Lifetime:PerContainer"; 
 
         #endregion
 
@@ -104,17 +92,6 @@ namespace Unity.Lifetime
                 base.Dispose(disposing);
             }
         }
-
-        #endregion
-
-
-        #region Overrides
-
-        /// <summary>
-        /// This method provides human readable representation of the lifetime
-        /// </summary>
-        /// <returns>Name of the lifetime</returns>
-        public override string ToString() => "Lifetime:PerContainer"; 
 
         #endregion
     }
