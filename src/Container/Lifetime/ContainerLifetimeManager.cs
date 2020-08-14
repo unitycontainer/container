@@ -20,15 +20,22 @@ namespace Unity.Container
             Category = type;
         }
 
+        /// <inheritdoc/>
         public override object? TryGetValue(ICollection<IDisposable> lifetime) 
             => Data;
 
+        /// <inheritdoc/>
         public override object? GetValue(ICollection<IDisposable> lifetime) 
             => Data;
 
+        /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager()
             => throw new NotImplementedException();
 
+        /// <inheritdoc/>
+        public override ResolutionStyle Style => ResolutionStyle.OnceInLifetime;
+
+        /// <inheritdoc/>
         public override string ToString() => "Lifetime: Container";
     }
 }

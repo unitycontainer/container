@@ -23,6 +23,9 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEnum(this Type type) => type.GetTypeInfo().IsEnum;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Type[] GetGenericArguments(this Type type) => type.GetTypeInfo().GetGenericArguments();
+
         #endregion
     }
 

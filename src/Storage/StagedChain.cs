@@ -181,9 +181,7 @@ namespace Unity.Storage
                     foreach (TStageEnum stage in Enum.GetValues(typeof(TStageEnum)))
                     {
                         if (null != _stages[Convert.ToInt32(stage)])
-                        {
-                            yield return stage;
-                        }
+                            yield return stage!;
                     }
                 }
 
@@ -262,6 +260,7 @@ namespace Unity.Storage
 
 
         #region Not Supported
+
         public void Clear()
             => throw new NotSupportedException();
 

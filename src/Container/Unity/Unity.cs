@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Reflection;
 using Unity.BuiltIn;
 using Unity.Container;
-using Unity.Pipeline;
 
 namespace Unity
 {
     public partial class UnityContainer : IDisposable
     {
-        #region Constants
-
-        private const string DEFAULT_NAME  = "root";
-        private const int DEFAULT_CAPACITY = 37;
-
-        #endregion
-
-
         #region Fields
 
         private readonly int _level;
@@ -32,21 +22,21 @@ namespace Unity
         /// <summary>
         /// Creates container with name 'root' and allocates 37 slots for contracts
         /// </summary>
-        public UnityContainer() : this(DEFAULT_NAME, DEFAULT_CAPACITY)
+        public UnityContainer() : this(Defaults.DEFAULT_ROOT_NAME, Defaults.DEFAULT_ROOT_CAPACITY)
         { }
 
         /// <summary>
         /// Creates container and allocates 37 slots for contracts
         /// </summary>
         /// <param name="name">Name of the container</param>
-        public UnityContainer(string name) : this(name, DEFAULT_CAPACITY)
+        public UnityContainer(string name) : this(name, Defaults.DEFAULT_ROOT_CAPACITY)
         { }
 
         /// <summary>
         /// Creates container with name 'root'
         /// </summary>
         /// <param name="capacity">Preallocated capacity</param>
-        public UnityContainer(int capacity) : this(DEFAULT_NAME, capacity)
+        public UnityContainer(int capacity) : this(Defaults.DEFAULT_ROOT_NAME, capacity)
         { }
 
         /// <summary>
@@ -72,7 +62,7 @@ namespace Unity
             DEFAULT_CONTRACTS = _scope.Contracts;
 
             // Setup Processors
-            BuiltInProcessors.Setup(_context);
+            BuiltInComponents.Setup(_context);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Unity.Pipeline;
+using Unity.Container;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -9,30 +10,47 @@ namespace Unity
     {
         #region Delegates
 
-        public delegate object? ResolveContractDelegate(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides);
+        public delegate object? ResolveContractDelegate(UnityContainer container, in Contract contract, RegistrationManager manager, ResolverOverride[] overrides);
 
         #endregion
 
 
         #region Implementation
 
-        private object? ResolveContract(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        private object? ResolveContract(in ResolveContext context)
         {
-            //object strategy = manager.Category switch
-            //{
-            //    RegistrationCategory.Internal => throw new NotImplementedException(),
-            //    RegistrationCategory.Type => throw new NotImplementedException(),
-            //    RegistrationCategory.Instance => throw new NotImplementedException(),
-            //    RegistrationCategory.Factory => throw new NotImplementedException(),
-            //    _ => throw new NotImplementedException(),
-            //};
+            object? value = null;
 
-            return null;
+
+            return value;
         }
 
-        private object? ResolveContractGeneric(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        private object? ResolveContract(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            return null;
+            object? value;
+
+            // Registration found, check for value
+            if (RegistrationManager.NoValue != (value = ((LifetimeManager)manager).GetValue(_scope.Disposables)))
+                return value;
+            
+            ResolveContext context = new ResolveContext(this, in contract, manager, overrides);
+
+            if (null == manager.ResolveDelegate)
+            {
+                manager.ResolveDelegate = ((LifetimeManager)manager).Style switch
+                {
+                    ResolutionStyle.OnceInLifetime => _policies.NonOptimizedPipelineFactory(ref context),
+                    ResolutionStyle.OnceInAWhile   => _policies.PipeCreationOptimizedFactory(ref context),
+                    ResolutionStyle.EveryTime      => _policies.PerformanceOptimizedFactory(ref context),
+
+                    _ => throw new NotImplementedException(),
+                };
+            }
+
+            value = ((ResolveDelegate<ResolveContext>)manager.ResolveDelegate)(ref context);
+            ((LifetimeManager)manager).SetValue(value, _scope.Disposables);
+
+            return value;
         }
 
         #endregion

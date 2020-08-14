@@ -99,6 +99,11 @@ namespace Unity.Container
         /// <returns>True if <see cref="Contract"/> is found</returns>
         public abstract bool Contains(in Contract contract);
 
+        #endregion
+
+
+        #region Get
+
         /// <summary>
         /// Get registration data for the contract
         /// </summary>

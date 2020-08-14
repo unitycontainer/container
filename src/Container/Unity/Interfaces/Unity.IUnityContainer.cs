@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -57,18 +59,15 @@ namespace Unity
 
             do
             {
-                RegistrationManager? manager;
-
-                // Optimistic lookup
-                if (null != (manager = container._scope.Get(in contract)))
+                // Look for registration
+                var manager = container._scope.Get(in contract);
+                if (null != manager)
                 {
-                    object? value;
+                    //Registration found, check value
 
-                    // Registration found, check for value
-                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
-                        return value;
-
-                    // Build is required
+                    var value = manager.TryGetValue(_scope.Disposables);
+                    if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
+                        
                     return container.ResolveContract(in contract, manager, overrides);
                 }
 
@@ -76,29 +75,20 @@ namespace Unity
                 if (!(isGeneric ??= type.IsGenericType())) continue;
 
                 // Fill the Generic Type Definition
-                if (null == generic.Type) generic = contract.With(type.GetGenericTypeDefinition());
+                if (0 == generic.HashCode) generic = contract.With(type.GetGenericTypeDefinition());
 
-                // Attempt to get from user factory, if such factory exists
+                // Check if generic factory is registered
                 if (null != (manager = container._scope.Get(in contract, in generic)))
                 {
-                    // Build from user factory
-                    return container.ResolveContractGeneric(in contract, manager, overrides);
+                    // Build from generic factory
+                    return container.ResolveContract(in contract, manager, overrides);
                 }
             }
             while (null != (container = container.Parent));
 
-            // Check if resolver already exist
-            var resolver = _policies[contract.Type];
-            if (null != resolver)
-            {
-                var context = new Pipeline.ResolveContext(this, in contract, overrides);
-                return resolver(ref context);
-            }
-
             // No registration found, resolve unregistered
-            return (isGeneric ?? false)
-                ? ResolveUnregisteredGeneric(in contract, in generic, overrides)
-                : ResolveUnregistered(in contract, overrides);
+            return (bool)isGeneric ? ResolveUnregisteredGeneric(in contract, in generic, overrides)
+                                   : ResolveUnregistered(in contract, overrides);
         }
 
         /// <inheritdoc />

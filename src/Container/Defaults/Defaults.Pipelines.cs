@@ -1,42 +1,20 @@
-﻿using System;
+﻿using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Resolution;
 using Unity.Storage;
-using static Unity.UnityContainer;
 
 namespace Unity.Container
 {
+    public delegate ResolveDelegate<ResolveContext> ResolveDelegateFactory(ref ResolveContext context);
 
-    public delegate ResolveDelegate<ResolveContext> ResolveDelegateFactory(in ContainerContext contest);
 
     public partial class Defaults
     {
-        #region Fields
+        #region Constants
 
-
-        #endregion
-
-
-        #region Resolver Factory
-
-
-        public ResolveDelegateFactory TypeResolver { get; private set; }
-        
-        public ResolveDelegateFactory FactoryResolver { get; private set; }
-
-        public ResolveDelegateFactory InstanceResolver { get; private set; }
-
-        public ResolveDelegateFactory UnregisteredFactory { get; private set; }
-
-        #endregion
-
-
-        #region Pipelines
-
-        public ResolveDelegate<ResolveContext> TypeActivationPipeline { get; set; }
-        public ResolveDelegate<ResolveContext> FactoryActivationPipeline { get; set; }
-        public ResolveDelegate<ResolveContext> InstanceActivationPipeline { get; set; }
-        public ResolveDelegate<ResolveContext> UnregisteredActivationPipeline { get; set; }
+        private readonly int NONOPTIMIZEDPIPELINE_FACTORY;
+        private readonly int PIPECREATIONOPTIMIZED_FACTORY;
+        private readonly int PERFORMANCEOPTIMIZED_FACTORY;
 
         #endregion
 
@@ -44,27 +22,36 @@ namespace Unity.Container
         #region Chains
 
         public StagedChain<BuilderStage, PipelineProcessor> TypeChain { get; }
-                                        
+
         public StagedChain<BuilderStage, PipelineProcessor> FactoryChain { get; }
-                                        
+
         public StagedChain<BuilderStage, PipelineProcessor> InstanceChain { get; }
-                                        
+
         public StagedChain<BuilderStage, PipelineProcessor> UnregisteredChain { get; }
 
         #endregion
 
 
-        #region Implementation
+        #region Resolution
 
-        private ResolveDelegate<ResolveContext> DummyResolver(in ContainerContext contest)
+        public object? ResolveContract(in ResolveContext context)
         {
-            return (ref ResolveContext c) => c.Type;
+            return null;
         }
 
-        private object? DummyPipeline(ref ResolveContext context)
+        public object? ResolveContract(UnityContainer container, in Contract contract, LifetimeManager manager, ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
+            return null;
         }
+
+        public ResolveDelegateFactory NonOptimizedPipelineFactory 
+            => (ResolveDelegateFactory)_data[NONOPTIMIZEDPIPELINE_FACTORY].Value!; 
+
+        public ResolveDelegateFactory PipeCreationOptimizedFactory 
+            => (ResolveDelegateFactory)_data[PIPECREATIONOPTIMIZED_FACTORY].Value!;
+
+        public ResolveDelegateFactory PerformanceOptimizedFactory 
+            => (ResolveDelegateFactory)_data[PERFORMANCEOPTIMIZED_FACTORY].Value!;
 
         #endregion
     }

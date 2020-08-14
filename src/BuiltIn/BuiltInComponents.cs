@@ -1,14 +1,12 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Pipeline;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
-    public static class BuiltInProcessors
+    public static class BuiltInComponents
     {
         #region Fields
 
@@ -26,23 +24,22 @@ namespace Unity.BuiltIn
             // Default policies
             var defaults = (Defaults)context.Policies;
 
-
             // Subscribe to notifications
-            defaults.TypeChain.ChainChanged += (chain) => 
-                defaults.TypeActivationPipeline = (ResolveDelegate<ResolveContext>)
-                    Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
+            //defaults.TypeChain.ChainChanged += (chain) => 
+            //    defaults.TypeActivationPipeline = (ResolveDelegate<ResolveContext>)
+            //        Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
 
-            defaults.FactoryChain.ChainChanged += (chain) =>
-                defaults.FactoryActivationPipeline = (ResolveDelegate<ResolveContext>)
-                    Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
+            //defaults.FactoryChain.ChainChanged += (chain) =>
+            //    defaults.FactoryActivationPipeline = (ResolveDelegate<ResolveContext>)
+            //        Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
 
-            defaults.InstanceChain.ChainChanged += (chain) =>
-                defaults.InstanceActivationPipeline = (ResolveDelegate<ResolveContext>)
-                    Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
+            //defaults.InstanceChain.ChainChanged += (chain) =>
+            //    defaults.InstanceActivationPipeline = (ResolveDelegate<ResolveContext>)
+            //        Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
 
-            defaults.UnregisteredChain.ChainChanged += (chain) =>
-                defaults.UnregisteredActivationPipeline = (ResolveDelegate<ResolveContext>)
-                    Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
+            //defaults.UnregisteredChain.ChainChanged += (chain) =>
+            //    defaults.UnregisteredActivationPipeline = (ResolveDelegate<ResolveContext>)
+            //        Delegate.CreateDelegate(typeof(ResolveDelegate<ResolveContext>), chain, Activator);
 
 
             // Create processors

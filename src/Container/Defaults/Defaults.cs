@@ -35,19 +35,18 @@ namespace Unity.Container
             _data = new Policy[Prime.Numbers[_prime]];
             _meta = new Metadata[Prime.Numbers[++_prime]];
 
-            // TODO: remove dummy stuff
+            // Add factories
+            NONOPTIMIZEDPIPELINE_FACTORY = Add(typeof(NonOptimizedPipelineFactory), 
+                                              typeof(ResolveDelegateFactory), 
+                (ResolveDelegateFactory)Container.NonOptimizedPipelineFactory.Factory);
 
-            // Resolvers
-            TypeResolver = DummyResolver;
-            FactoryResolver = DummyResolver;
-            InstanceResolver = DummyResolver;
-            UnregisteredFactory = DummyResolver;
+            PIPECREATIONOPTIMIZED_FACTORY = Add(typeof(PipeCreationOptimizedFactory), 
+                                               typeof(ResolveDelegateFactory), 
+                (ResolveDelegateFactory)Container.PipeCreationOptimizedFactory.Factory);
 
-            // Pipelines 
-            TypeActivationPipeline = DummyPipeline;
-            FactoryActivationPipeline = DummyPipeline;
-            InstanceActivationPipeline = DummyPipeline;
-            UnregisteredActivationPipeline = DummyPipeline;
+            PERFORMANCEOPTIMIZED_FACTORY = Add(typeof(PerformanceOptimizedFactory), 
+                                               typeof(ResolveDelegateFactory),  
+                (ResolveDelegateFactory)Container.PerformanceOptimizedFactory.Factory);
         }
 
         #endregion

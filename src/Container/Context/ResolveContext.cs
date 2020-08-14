@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity.Container
 {
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct ResolveContext : IResolveContext
     {
-        public UnityContainer? Container;
-        public RegistrationManager? Manager;
-
         public readonly Contract Contract;
-        private readonly ResolverOverride[] Overrides;
+        public readonly UnityContainer? Container;
+        public readonly RegistrationManager? Manager;
+        public readonly ResolverOverride[] Overrides;
+        public object? Existing;
+
 
         #region Constructors
-
 
         public ResolveContext(UnityContainer container, Type type, string? name, ResolverOverride[] overrides)
         {
@@ -33,20 +35,26 @@ namespace Unity.Pipeline
             Overrides = overrides;
         }
 
+        public ResolveContext(UnityContainer container, in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        {
+            Contract = contract;
+            Container = container;
+            Manager = manager;
+            Existing = null;
+
+            Overrides = overrides;
+        }
+
         #endregion
-
-
-        public object? Existing;
 
 
         #region IResolveContext
 
-        public Type Type => Contract.Type;
+        public readonly Type Type => Contract.Type;
 
-        public string? Name => Contract.Name;
+        public readonly string? Name => Contract.Name;
 
-
-        public object? Resolve(Type type, string? name)
+        public readonly object? Resolve(Type type, string? name)
         {
             return null;
         }
