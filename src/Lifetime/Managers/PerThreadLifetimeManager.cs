@@ -46,6 +46,10 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
+        public override object? TryGetValue(ICollection<IDisposable> lifetime)
+            => _value.Value;
+
+        /// <inheritdoc/>
         public override object? GetValue(ICollection<IDisposable> lefetime) 
             => _value.Value;
 

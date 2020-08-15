@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Unity.Lifetime;
 
 namespace Lifetime.Managers
@@ -17,20 +16,6 @@ namespace Lifetime.Managers
             // Validate
             Assert.AreSame(TestObject, TestManager.TryGetValue(OtherContainer));
             Assert.AreSame(TestObject, TestManager.GetValue(OtherContainer));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public override void SetValueTwiceTest()
-        {
-            base.SetValueTwiceTest();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public override void SetDifferentValuesTwiceTest()
-        {
-            base.SetDifferentValuesTwiceTest();
         }
     }
 }

@@ -104,11 +104,11 @@ namespace Unity
 
         #region Try Get Value
         /// <summary>
-        /// Attempts to retrieve a value from the backing store
+        /// Attempts to retrieve a value from the backing lifetime manager
         /// </summary>
         /// <remarks>
-        /// This method does not block and does not acquire a lock on synchronization 
-        /// primitives.
+        /// This method does not block and does not acquire a lock on lifetime 
+        /// synchronization objects primitives.
         /// </remarks>
         /// <param name="lifetime">The lifetime container this manager is associated with</param>
         /// <returns>The object stored with the manager or <see cref="NoValue"/></returns>

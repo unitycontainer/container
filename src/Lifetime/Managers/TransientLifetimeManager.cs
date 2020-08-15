@@ -1,4 +1,6 @@
-﻿using Unity.Injection;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Injection;
 
 namespace Unity.Lifetime
 {
@@ -28,6 +30,10 @@ namespace Unity.Lifetime
 
 
         #region Overrides
+
+        /// <inheritdoc/>
+        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+            => NoValue;
 
         /// <inheritdoc/>
         public override ResolutionStyle Style 

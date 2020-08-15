@@ -7,14 +7,14 @@ namespace Unity.Lifetime
 {
     /// <summary>
     /// Base class for Lifetime managers which need to synchronize calls to
-    /// <see cref="SynchronizedLifetimeManager.GetValue"/>.
+    /// <see cref="GetValue"/>.
     /// </summary>
     /// <remarks>
     /// <para>
     /// The purpose of this class is to provide a basic implementation of the lifetime manager synchronization pattern.
     /// </para>
     /// <para>
-    /// Calls to the <see cref="SynchronizedLifetimeManager.GetValue"/> method of a <see cref="SynchronizedLifetimeManager"/> 
+    /// Calls to the <see cref="GetValue"/> method of a <see cref="SynchronizedLifetimeManager"/> 
     /// instance acquire a lock, and if the instance has not been initialized with a value yet the lock will only be released 
     /// when such an initialization takes place by calling the <see cref="SynchronizedLifetimeManager.SetValue"/> method or if 
     /// the build request which resulted in the call to the GetValue method fails.
@@ -50,18 +50,8 @@ namespace Unity.Lifetime
 
 
         /// <inheritdoc/>
-        public override object? TryGetValue(ICollection<IDisposable> lifetime)
-        {
-            if (Monitor.TryEnter(_lock))
-            {
-                var result = SynchronizedGetValue(lifetime);
-                Monitor.Exit(_lock);
-                return result;
-            }
-            else
-                return NoValue;
-        }
-
+        public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+            => SynchronizedGetValue(lifetime);
 
         /// <inheritdoc/>
         public override object? GetValue(ICollection<IDisposable> lefetime)

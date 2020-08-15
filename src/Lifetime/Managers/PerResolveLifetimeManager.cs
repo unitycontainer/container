@@ -27,12 +27,16 @@ namespace Unity.Lifetime
         #region Overrides
 
         /// <inheritdoc/>
+        public override object? TryGetValue(ICollection<IDisposable> lifetime)
+            => NoValue;
+
+        /// <inheritdoc/>
         public override object? GetValue(ICollection<IDisposable> lefetime) 
             => NoValue;
 
         /// <inheritdoc/>
         public override ResolutionStyle Style 
-            => ResolutionStyle.EveryTime;
+            => ResolutionStyle.OnceInAWhile;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 
