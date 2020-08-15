@@ -21,7 +21,7 @@ namespace Unity.Benchmarks
         [Benchmark(Description = "IUnityContainerAsync.ReAsync<Service>()")]
         [BenchmarkCategory("resolve", "registered", "IUnityContainerAsync")]
 #if NET462 || NET472
-        public object Resolve_Object_IUnityContainerAsync()
+        public object Resolve_Registered_Type_Async()
             => throw new NotImplementedException();
 #else
         public object Resolve_Registered_Type_Async()
