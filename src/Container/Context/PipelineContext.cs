@@ -12,7 +12,5 @@ namespace Unity.Container
         public RegistrationManager? Manager;
         public ResolverOverride[] Overrides;
         public object? Existing;
-
-        readonly Span<ResolveContext> Parent;
     }
 }
