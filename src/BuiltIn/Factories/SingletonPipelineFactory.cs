@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Unity.Pipeline;
+﻿using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
-    public static class PerformanceOptimizedFactory
+    public static class SingletonPipelineFactory
+
     {
         public static ResolveDelegate<ResolveContext> Factory(ref ResolveContext context)
         {

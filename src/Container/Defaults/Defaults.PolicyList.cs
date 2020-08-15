@@ -73,8 +73,7 @@ namespace Unity.Container
             }
         }
 
-
-        private int Add(Type? target, Type type, object value)
+        private int Allocate(Type? target, Type type, object value)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
@@ -107,9 +106,8 @@ namespace Unity.Container
                 _data[_count] = new Policy(hash, target, type, value);
                 _meta[_count].Next = bucket.Position;
                 bucket.Position = _count;
+                return _count;
             }
-
-            return 0;
         }
     }
 }

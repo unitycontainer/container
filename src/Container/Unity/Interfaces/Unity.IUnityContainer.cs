@@ -64,7 +64,6 @@ namespace Unity
                 if (null != manager)
                 {
                     //Registration found, check value
-
                     var value = manager.TryGetValue(_scope.Disposables);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
                         
@@ -87,7 +86,8 @@ namespace Unity
             while (null != (container = container.Parent));
 
             // No registration found, resolve unregistered
-            return (bool)isGeneric ? ResolveUnregisteredGeneric(in contract, in generic, overrides)
+            return (bool)isGeneric ? ResolveUnregisteredGeneric(in contract, in generic, overrides) 
+                  : type.IsArray   ? ResolveArray(in contract, overrides) 
                                    : ResolveUnregistered(in contract, overrides);
         }
 

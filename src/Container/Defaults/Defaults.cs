@@ -18,6 +18,11 @@ namespace Unity.Container
         protected Policy[] _data;
         protected Metadata[] _meta;
 
+        private readonly int FACTORY_BALANCED;
+        private readonly int FACTORY_SINGLETON;
+        private readonly int FACTORY_OPTIMIZED;
+        private readonly int FACTORY_UNREGISTERED;
+
         #endregion
 
 
@@ -35,18 +40,11 @@ namespace Unity.Container
             _data = new Policy[Prime.Numbers[_prime]];
             _meta = new Metadata[Prime.Numbers[++_prime]];
 
-            // Add factories
-            NONOPTIMIZEDPIPELINE_FACTORY = Add(typeof(NonOptimizedPipelineFactory), 
-                                              typeof(ResolveDelegateFactory), 
-                (ResolveDelegateFactory)Container.NonOptimizedPipelineFactory.Factory);
-
-            PIPECREATIONOPTIMIZED_FACTORY = Add(typeof(PipeCreationOptimizedFactory), 
-                                               typeof(ResolveDelegateFactory), 
-                (ResolveDelegateFactory)Container.PipeCreationOptimizedFactory.Factory);
-
-            PERFORMANCEOPTIMIZED_FACTORY = Add(typeof(PerformanceOptimizedFactory), 
-                                               typeof(ResolveDelegateFactory),  
-                (ResolveDelegateFactory)Container.PerformanceOptimizedFactory.Factory);
+            // Add factory placeholders
+            FACTORY_BALANCED     = Allocate(typeof(BalancedPipelineFactory));
+            FACTORY_SINGLETON    = Allocate(typeof(SingletonPipelineFactory));
+            FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedPipelineFactory));
+            FACTORY_UNREGISTERED = Allocate(typeof(UnregisteredPipelineFactory));
         }
 
         #endregion

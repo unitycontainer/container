@@ -76,6 +76,12 @@ namespace Unity.BuiltIn
                      (BuilderStage.Fields,     field),
                      (BuilderStage.Properties, property),
                      (BuilderStage.Methods,    method));
+
+            // Install Pipeline Factories
+            defaults.Set(typeof(Defaults.BalancedPipelineFactory),     (Defaults.BalancedPipelineFactory)BalancedPipelineFactory.Factory);
+            defaults.Set(typeof(Defaults.SingletonPipelineFactory),    (Defaults.SingletonPipelineFactory)SingletonPipelineFactory.Factory);
+            defaults.Set(typeof(Defaults.OptimizedPipelineFactory),    (Defaults.OptimizedPipelineFactory)PerformanceOptimizedFactory.Factory);
+            defaults.Set(typeof(Defaults.UnregisteredPipelineFactory), (Defaults.UnregisteredPipelineFactory)UnregisteredPipelineFactory.Factory);
         }
     }
 }

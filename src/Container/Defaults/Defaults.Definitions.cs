@@ -1,9 +1,11 @@
-﻿
+﻿using Unity.Resolution;
 
 namespace Unity.Container
 {
     public partial class Defaults
     {
+        #region Constants
+
         /// <summary>
         /// Size of <see cref="PipelineContext"/> and <see cref="ResolveContext"/> 
         /// structures. This size is for x64 process, when running in 32 bit mode
@@ -20,5 +22,21 @@ namespace Unity.Container
         /// Default capacity of root container
         /// </summary>
         public const int DEFAULT_ROOT_CAPACITY = 37;
+
+        #endregion
+
+
+        #region Delegates
+
+        public delegate ResolveDelegate<ResolveContext> OptimizedPipelineFactory(ref ResolveContext context);
+        
+        public delegate ResolveDelegate<ResolveContext> BalancedPipelineFactory(ref ResolveContext context);
+        
+        public delegate ResolveDelegate<ResolveContext> SingletonPipelineFactory(ref ResolveContext context);
+        
+        public delegate ResolveDelegate<ResolveContext> UnregisteredPipelineFactory(ref ResolveContext context);
+
+        #endregion
+
     }
 }

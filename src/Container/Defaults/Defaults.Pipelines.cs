@@ -1,24 +1,11 @@
-﻿using Unity.Lifetime;
-using Unity.Pipeline;
-using Unity.Resolution;
+﻿using Unity.Pipeline;
 using Unity.Storage;
+using Unity.Lifetime;
 
 namespace Unity.Container
 {
-    public delegate ResolveDelegate<ResolveContext> ResolveDelegateFactory(ref ResolveContext context);
-
-
     public partial class Defaults
     {
-        #region Constants
-
-        private readonly int NONOPTIMIZEDPIPELINE_FACTORY;
-        private readonly int PIPECREATIONOPTIMIZED_FACTORY;
-        private readonly int PERFORMANCEOPTIMIZED_FACTORY;
-
-        #endregion
-
-
         #region Chains
 
         public StagedChain<BuilderStage, PipelineProcessor> TypeChain { get; }
@@ -32,26 +19,31 @@ namespace Unity.Container
         #endregion
 
 
-        #region Resolution
+        #region Factories
 
-        public object? ResolveContract(in ResolveContext context)
-        {
-            return null;
-        }
+        /// <summary>
+        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInLifetime"/> lifetime
+        /// </summary>
+        public SingletonPipelineFactory SingletonPipeline
+            => (SingletonPipelineFactory)_data[FACTORY_SINGLETON].Value!;
+        
+        /// <summary>
+        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInAWhile"/> lifetime
+        /// </summary>
+        public BalancedPipelineFactory BalancedPipeline
+            => (BalancedPipelineFactory)_data[FACTORY_BALANCED].Value!;
 
-        public object? ResolveContract(UnityContainer container, in Contract contract, LifetimeManager manager, ResolverOverride[] overrides)
-        {
-            return null;
-        }
+        /// <summary>
+        /// Create resolution pipeline for <see cref="ResolutionStyle.EveryTime"/> lifetime
+        /// </summary>
+        public OptimizedPipelineFactory OptimizedPipeline
+            => (OptimizedPipelineFactory)_data[FACTORY_OPTIMIZED].Value!;
 
-        public ResolveDelegateFactory NonOptimizedPipelineFactory 
-            => (ResolveDelegateFactory)_data[NONOPTIMIZEDPIPELINE_FACTORY].Value!; 
-
-        public ResolveDelegateFactory PipeCreationOptimizedFactory 
-            => (ResolveDelegateFactory)_data[PIPECREATIONOPTIMIZED_FACTORY].Value!;
-
-        public ResolveDelegateFactory PerformanceOptimizedFactory 
-            => (ResolveDelegateFactory)_data[PERFORMANCEOPTIMIZED_FACTORY].Value!;
+        /// <summary>
+        /// Crate resolution pipeline for unregistered <see cref="Type"/>
+        /// </summary>
+        public UnregisteredPipelineFactory UnregisteredPipeline
+            => (UnregisteredPipelineFactory)_data[FACTORY_UNREGISTERED].Value!;
 
         #endregion
     }

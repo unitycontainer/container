@@ -17,6 +17,8 @@ namespace Unity.Benchmarks
         {
             Container = new UnityContainer()
                 .RegisterType(typeof(List<>), new InjectionConstructor())
+                .RegisterType(typeof(List<object>))
+                .CreateChildContainer()
                 .CreateChildContainer();
         }
 
@@ -48,6 +50,12 @@ namespace Unity.Benchmarks
 
         #endregion
 
+
+        [TestMethod]
+        public void Resolve_Registered()
+        {
+            Assert.IsNotNull(Container.Resolve(typeof(List<object>), null));
+        }
 
         [TestMethod]
         public void Resolve_Object()

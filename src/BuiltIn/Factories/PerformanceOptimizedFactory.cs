@@ -1,9 +1,9 @@
-﻿using Unity.Pipeline;
+﻿using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
-    public static class PipeCreationOptimizedFactory
+    public static class PerformanceOptimizedFactory
     {
         public static ResolveDelegate<ResolveContext> Factory(ref ResolveContext context)
         {

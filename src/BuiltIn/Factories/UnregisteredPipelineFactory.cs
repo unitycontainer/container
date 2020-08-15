@@ -1,10 +1,9 @@
-﻿using System;
-using Unity.Pipeline;
+﻿using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.Container
+namespace Unity.BuiltIn
 {
-    public static class NonOptimizedPipelineFactory
+    public static class UnregisteredPipelineFactory
     {
         public static ResolveDelegate<ResolveContext> Factory(ref ResolveContext context)
         {

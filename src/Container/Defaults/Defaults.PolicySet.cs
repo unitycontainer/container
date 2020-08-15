@@ -71,5 +71,41 @@ namespace Unity.Container
                 DefaultPolicyChanged?.Invoke(type, value);
             }
         }
+
+        private int Allocate(Type type)
+        {
+            var hash = (uint)(37 ^ type.GetHashCode());
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref _meta[hash % _meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref _data[position];
+                    if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
+                    {
+                        // Found existing
+                        candidate.Value = null;
+                        return position;
+                    }
+
+                    position = _meta[position].Next;
+                }
+
+                if (++_count >= _data.Length)
+                {
+                    Expand();
+                    bucket = ref _meta[hash % _meta.Length];
+                }
+
+                // Add new
+                _data[_count] = new Policy(hash, type, null);
+                _meta[_count].Next = bucket.Position;
+                bucket.Position = _count;
+                return _count;
+            }
+        }
     }
 }
