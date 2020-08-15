@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System.Collections.Generic;
 using System;
 #if NET462
 using Microsoft.Practices.Unity;
@@ -28,13 +27,11 @@ namespace Unity.Benchmarks
 #if NET462 || NET472
             Container = new UnityContainer()
                 .RegisterType(typeof(TestGeneric<>))
-                .RegisterType(typeof(Service))
-                .CreateChildContainer();
+                .RegisterType(typeof(Service));
 #else
             Container = new UnityContainer()
                 .RegisterType(typeof(TestGeneric<>))
-                .RegisterType(typeof(Service))
-                .CreateChildContainer();
+                .RegisterType(typeof(Service));
             ContainerAsync = (IUnityContainerAsync)Container;
             ServiceProvider = (IServiceProvider)Container;
 #endif

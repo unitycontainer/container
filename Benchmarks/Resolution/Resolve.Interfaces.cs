@@ -14,13 +14,13 @@ namespace Unity.Benchmarks
     {
 
         [Benchmark(Description = "Container.Resolve<IUnityContainer >( )")]
-        [BenchmarkCategory("resolve", "interface", "IUnityContainer")]
+        [BenchmarkCategory("resolve", "registered", "interface", "IUnityContainer")]
         public object Resolve_IUnityContainer()
             => Container.Resolve(typeof(IUnityContainer), null);
 
              
         [Benchmark(Description = "Container.Resolve<IServiceProvider>( )")]
-        [BenchmarkCategory("resolve", "interface", "IServiceProvider")]
+        [BenchmarkCategory("resolve", "registered", "interface", "IServiceProvider")]
 #if NET462 || NET472
         public object Resolve_IServiceProvider()
             => throw new NotImplementedException();
@@ -30,7 +30,7 @@ namespace Unity.Benchmarks
 #endif
                                                     
         [Benchmark(Description = "Container.R*Async<IUnityCont*Async>( )")]
-        [BenchmarkCategory("resolve", "interface", "IUnityContainerAsync")]
+        [BenchmarkCategory("resolve", "registered", "interface", "IUnityContainerAsync")]
 #if NET462 || NET472
         public object Resolve_IUnityContainerAsync()
             => throw new NotImplementedException();
