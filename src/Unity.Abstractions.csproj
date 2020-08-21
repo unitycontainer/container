@@ -18,33 +18,39 @@
     <RootNamespace>Unity</RootNamespace>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;netstandard1.6;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net50;net48;net47;net46;net45</TargetFrameworks>
+    <TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
   </PropertyGroup>
 
   <!-- References -->
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net50'">
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net50'">
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="5.0.0-preview.7.20364.11" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0-preview.7.20364.11" />
   </ItemGroup>
 
   <!-- Framework Compatibility -->
 
   <ItemGroup>
-    <Compile Condition="'$(TargetFramework)' != 'netstandard1.6' " Remove="Extensions\Reflection\Compatibility.NetStandard.1.x.cs" />
-    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netstandard1.6'" Remove="Extensions\Reflection\Compatibility.NetStandard.1.x.cs" />
+    <Compile Condition="'$(TargetFramework)' != 'netcoreapp1.0' " Remove="Extensions\Reflection\Compatibility.NetCoreApp.1.0.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp')) " Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))" Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))" Remove="Extensions\Reflection\Compatibility.Common.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Remove="Extensions\Reflection\Compatibility.Common.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard1'))" Remove="Extensions\Reflection\Compatibility.Common.cs" />
   </ItemGroup>
 
   <!-- System.Memory -->
 
   <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))" Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'" Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))   " Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0' " Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0' " Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.Memory" Version="4.5.4" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
@@ -61,8 +67,15 @@
     <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
     <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference  Condition="'$(TargetFramework)' == 'net5.0'" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
+    <ProjectReference  Condition="$(TargetFramework.StartsWith('netcoreapp2'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
+    <ProjectReference  Condition="$(TargetFramework.StartsWith('netcoreapp3'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
+  </ItemGroup>
 
- <!-- Configuration Settings --> 
+
+  <!-- Configuration Settings --> 
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

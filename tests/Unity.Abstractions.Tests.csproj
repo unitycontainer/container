@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' ">netcoreapp5.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\src\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
@@ -15,7 +15,6 @@
   <ItemGroup>
     <Compile Remove="Assets\**" />
     <Compile Remove="UnitTestApp.xaml.cs" />
-    <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,5 +38,11 @@
   <ItemGroup>
     <ProjectReference Include="..\src\Unity.Abstractions.csproj" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <ProjectReference  Condition="'$(TargetFramework)' == 'net5.0'" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
+    <ProjectReference  Condition="$(TargetFramework.StartsWith('netcoreapp2'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
+    <ProjectReference  Condition="$(TargetFramework.StartsWith('netcoreapp3'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
+  </ItemGroup>
+
 </Project>
