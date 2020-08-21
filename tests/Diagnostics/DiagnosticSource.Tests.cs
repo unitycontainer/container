@@ -61,15 +61,23 @@ namespace Unity.Diagnostics
         [TestMethod]
         public void References()
         {
-            var value = 0;
-            var refVal = new Ref<int>(ref value);
+            {
+                using var book = new ToBeDisposed();
+            
+            }
 
-            refVal.Value = 42;
-
-            Assert.AreEqual(42, refVal.Value);
-
-            Assert.AreEqual(42, value);
         }
 
+
+
+        public ref struct ToBeDisposed
+        {
+            public bool IsDisposed;
+
+            public void Dispose()
+            {
+                IsDisposed = true;
+            }
+        }
     }
 }
