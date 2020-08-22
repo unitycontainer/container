@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Diagnostics;
 using Unity.Resolution;
 
 namespace Unity
@@ -11,7 +10,7 @@ namespace Unity
 
         private object? ResolveContractDiagnostic(in Contract contract, ResolverOverride[] overrides)
         {
-            var enabled = UnityDiagnosticSource.DiagnosticListener.IsEnabled("Resolve", null);
+            //var enabled = Diagnostics.DiagnosticSource.DiagnosticListener.IsEnabled("Resolve", null);
             Activity activity = new Activity("Resolve").AddTag("type", contract.Type.FullName)
                                                              .AddTag("name", contract.Name);
             try
@@ -61,11 +60,11 @@ namespace Unity
                     contract.Type.IsArray ? ResolveArray(in contract, overrides)
                                           : ResolveUnregistered(in contract, overrides);
             }
-            catch (Exception ex)
-            {
-                if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Exception", ex);
-                throw;
-            }
+            //catch (Exception ex)
+            //{
+            //    //if (enabled) Diagnostics.DiagnosticSource.DiagnosticListener.Write("Resolve.Exception", ex);
+            //    throw;
+            //}
             finally
             {
                 activity.Stop();
