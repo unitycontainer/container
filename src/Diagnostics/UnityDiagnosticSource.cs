@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Diagnostics
 {
-    internal static class UnityDiagnosticSource
+    internal static class DiagnosticSource
     {
         #region Constants
 
@@ -130,7 +130,7 @@ namespace Unity.Diagnostics
         {
             if (null == activity) return;
 
-            UnityDiagnosticSource.StopActivity(activity, payload);
+            DiagnosticSource.StopActivity(activity, payload);
         }
 
     }

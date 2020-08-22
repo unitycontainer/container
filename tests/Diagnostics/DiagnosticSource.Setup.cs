@@ -13,7 +13,7 @@ namespace Unity.Diagnostics
         public void TestMethod()
         {
 
-            using Activity activity = UnityDiagnosticSource.StartActivity(nameof(TestMethod));
+            using Activity activity = DiagnosticSource.StartActivity(nameof(TestMethod));
 
             //try
             //{
