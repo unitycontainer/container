@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 namespace Unity.Diagnostics
 {
     internal static class DiagnosticSource
+
     {
         #region Constants
 

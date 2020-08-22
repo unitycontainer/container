@@ -16,7 +16,7 @@ namespace Unity.Diagnostics
 
             using (var listener = CreateEventListener(entityName, eventQueue))
             using (var subscription = DiagnosticListener.AllListeners.Subscribe(listener))
-            using (var activity = UnityDiagnosticSource.StartActivity(nameof(Baseline)))
+            using (var activity = DiagnosticSource.StartActivity(nameof(Baseline)))
             {
                 TestMethod();
 
@@ -29,32 +29,32 @@ namespace Unity.Diagnostics
 
         public void Resolve(Type type)
         {
-            var enabled = UnityDiagnosticSource.DiagnosticListener.IsEnabled("Resolve", null);
+            var enabled = DiagnosticSource.DiagnosticListener.IsEnabled("Resolve", null);
             using Activity activity = new Activity("Resolve").AddTag("type", type.FullName)
                                                              .AddTag("name", "contract.Name");
             try
             {
                 activity.Start();
 
-                if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Start", null);
+                if (enabled) DiagnosticSource.DiagnosticListener.Write("Resolve.Start", null);
 
                 var container = this;
 
                     
-                if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Value", "value");
+                if (enabled) DiagnosticSource.DiagnosticListener.Write("Resolve.Value", "value");
 
                 // No registration found, resolve unregistered
                 return;
             }
             catch (Exception ex)
             {
-                if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Exception", ex);
+                if (enabled) DiagnosticSource.DiagnosticListener.Write("Resolve.Exception", ex);
                 throw;
             }
             finally
             {
                 activity.Stop();
-                if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Stop", activity);
+                if (enabled) DiagnosticSource.DiagnosticListener.Write("Resolve.Stop", activity);
             }
         }
 
