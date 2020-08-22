@@ -24,6 +24,12 @@ namespace Unity.Container
         /// <summary>
         /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInLifetime"/> lifetime
         /// </summary>
+        public ResolveDelegateFactory DelegateFactory
+            => (ResolveDelegateFactory)_data[FACTORY_DELEGATE].Value!;
+
+        /// <summary>
+        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInLifetime"/> lifetime
+        /// </summary>
         public SingletonPipelineFactory SingletonPipeline
             => (SingletonPipelineFactory)_data[FACTORY_SINGLETON].Value!;
         

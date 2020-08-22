@@ -78,6 +78,8 @@ namespace Unity.BuiltIn
                      (BuilderStage.Methods,    method));
 
             // Install Pipeline Factories
+            defaults.Set(typeof(ResolveDelegateFactory), (ResolveDelegateFactory)DelegateFactory.Factory);
+            
             defaults.Set(typeof(Defaults.BalancedPipelineFactory),     (Defaults.BalancedPipelineFactory)BalancedPipelineFactory.Factory);
             defaults.Set(typeof(Defaults.SingletonPipelineFactory),    (Defaults.SingletonPipelineFactory)SingletonPipelineFactory.Factory);
             defaults.Set(typeof(Defaults.OptimizedPipelineFactory),    (Defaults.OptimizedPipelineFactory)PerformanceOptimizedFactory.Factory);

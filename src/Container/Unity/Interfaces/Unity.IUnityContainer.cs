@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Unity.Container;
-using Unity.Lifetime;
+using Unity.Diagnostics;
 using Unity.Resolution;
 
 namespace Unity

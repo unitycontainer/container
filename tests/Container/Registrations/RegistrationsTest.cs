@@ -15,7 +15,7 @@ namespace Container.Registrations
         private static IEnumerable<TypeInfo> DefinedTypes = Assembly.GetAssembly(typeof(int)).DefinedTypes;
         protected static string[] TestNames = Enumerable.Repeat<string>(null, 4)
                                                         .Concat(DefinedTypes.Take(5).Select(t => t.Name))
-                                                        .Concat(DefinedTypes.Take(1000).Select(t => t.Name))
+                                                        .Concat(DefinedTypes.Select(t => t.Name).Distinct().Take(100))
                                                         .ToArray();
         protected static Type[] TestTypes = DefinedTypes.Where(t => t != typeof(IServiceProvider))
                                                         .ToArray();
@@ -39,17 +39,17 @@ namespace Container.Registrations
             container.Register(Registrations);
 
             var array = container.Registrations.ToArray();
-            Assert.AreEqual(63338, array.Length);
+            Assert.AreEqual(5998, array.Length);
         }
 
         [TestMethod]
         public void RegisterPreallocated()
         {
-            var container = new UnityContainer(64000);
+            var container = new UnityContainer(10000);
             container.Register(Registrations);
 
             var array = container.Registrations.ToArray();
-            Assert.AreEqual(63338, array.Length);
+            Assert.AreEqual(5998, array.Length);
         }
 
     }

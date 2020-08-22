@@ -30,7 +30,7 @@ namespace Container.Defaults
         [TestMethod]
         public void Baseline()
         {
-            Assert.AreEqual(4, Defaults.Span.Length);
+            Assert.AreEqual(5, Defaults.Span.Length);
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Container.Defaults
             Defaults.Set(null, typeof(object), Instance);
 
             // Validate
-            var entry = Defaults.Span[4];
+            var entry = Defaults.Span[5];
 
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
@@ -57,9 +57,9 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), typeof(object), other);
 
             // Validate
-            var entry = Defaults.Span[4];
+            var entry = Defaults.Span[5];
 
-            Assert.AreEqual(5, Defaults.Span.Length);
+            Assert.AreEqual(6, Defaults.Span.Length);
             Assert.AreEqual(typeof(object), entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
             Assert.AreSame(other, entry.Value);
@@ -75,9 +75,9 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), other);
 
             // Validate
-            var entry = Defaults.Span[4];
+            var entry = Defaults.Span[5];
 
-            Assert.AreEqual(5, Defaults.Span.Length);
+            Assert.AreEqual(6, Defaults.Span.Length);
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
             Assert.AreSame(other, entry.Value);
@@ -93,9 +93,9 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), other);
 
             // Validate
-            var entry = Defaults.Span[4];
+            var entry = Defaults.Span[5];
 
-            Assert.AreEqual(5, Defaults.Span.Length);
+            Assert.AreEqual(6, Defaults.Span.Length);
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
             Assert.AreSame(other, entry.Value);
@@ -154,7 +154,7 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), Instance);
 
             // Validate
-            var entry = Defaults.Span[4];
+            var entry = Defaults.Span[5];
 
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
@@ -171,7 +171,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(6, span.Length);
+            Assert.AreEqual(7, span.Length);
         }
 
         [TestMethod]
@@ -184,7 +184,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(6, span.Length);
+            Assert.AreEqual(7, span.Length);
         }
 
         [TestMethod]
@@ -197,7 +197,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(6, span.Length);
+            Assert.AreEqual(7, span.Length);
         }
 
         [TestMethod]
@@ -212,7 +212,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(1504, span.Length);
+            Assert.AreEqual(1505, span.Length);
         }
 
         [TestMethod]
@@ -232,7 +232,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(3004, span.Length);
+            Assert.AreEqual(3005, span.Length);
         }
 
         [TestMethod]
@@ -247,7 +247,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(1504, span.Length);
+            Assert.AreEqual(1505, span.Length);
         }
 
 

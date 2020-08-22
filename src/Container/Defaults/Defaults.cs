@@ -18,6 +18,7 @@ namespace Unity.Container
         protected Policy[] _data;
         protected Metadata[] _meta;
 
+        private readonly int FACTORY_DELEGATE;
         private readonly int FACTORY_BALANCED;
         private readonly int FACTORY_SINGLETON;
         private readonly int FACTORY_OPTIMIZED;
@@ -41,6 +42,7 @@ namespace Unity.Container
             _meta = new Metadata[Prime.Numbers[++_prime]];
 
             // Add factory placeholders
+            FACTORY_DELEGATE     = Allocate(typeof(ResolveDelegateFactory));
             FACTORY_BALANCED     = Allocate(typeof(BalancedPipelineFactory));
             FACTORY_SINGLETON    = Allocate(typeof(SingletonPipelineFactory));
             FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedPipelineFactory));

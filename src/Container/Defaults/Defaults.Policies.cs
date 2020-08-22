@@ -81,6 +81,44 @@ namespace Unity.Container
             }
         }
 
+        public ResolveDelegate<ResolveContext> GetOrAdd(Type? target, ResolveDelegate<ResolveContext> value)
+        {
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
+
+            lock (_syncRoot)
+            {
+                ref var bucket = ref _meta[hash % _meta.Length];
+                var position = bucket.Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref _data[position];
+                    if (ReferenceEquals(candidate.Target, target) &&
+                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
+                    {
+                        // Found existing
+                        if (null == candidate.Value) candidate.Value = value;
+                        return (ResolveDelegate<ResolveContext>)candidate.Value;
+                    }
+
+                    position = _meta[position].Next;
+                }
+
+                if (++_count >= _data.Length)
+                {
+                    Expand();
+                    bucket = ref _meta[hash % _meta.Length];
+                }
+
+                // Add new registration
+                _data[_count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
+                _meta[_count].Next = bucket.Position;
+                bucket.Position = _count;
+                
+                return value;
+            }
+        }
+
         protected virtual void Expand()
         {
             Array.Resize(ref _data, Prime.Numbers[_prime++]);
