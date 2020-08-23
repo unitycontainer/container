@@ -31,6 +31,10 @@ namespace Unity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type[] GetGenericArguments(this Type type) => type.GenericTypeArguments;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MethodInfo? GetMethod(this Type type, string name, System.Reflection.BindingFlags bindingAttr)
+            => type.GetTypeInfo().GetMethod(name, bindingAttr);
+
         #endregion
 
 
@@ -129,7 +133,7 @@ namespace Unity
 
 
     #region Missing Types
-
+#if NETSTANDARD1_0
     [Flags]
     internal enum BindingFlags
     {
@@ -155,6 +159,6 @@ namespace Unity
         IgnoreReturn = 16777216,
         DoNotWrapExceptions = 33554432
     }
-
+#endif
     #endregion
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace Unity.Telemetry
 {
@@ -8,31 +7,84 @@ namespace Unity.Telemetry
         [TestMethod]
         public void Baseline()
         {
-            var frame = Telemetry.StartInfoFrame("test");
-
             Assert.IsFalse(Telemetry.IsEnabled);
-            Assert.IsNull(frame.WriteCritical);
-            Assert.IsNull(frame.WriteError);
-            Assert.IsNull(frame.WriteInfo);
-            Assert.IsNull(frame.WriteVerbose);
+            Assert.IsNull(Telemetry.WriteCritical);
+            Assert.IsNull(Telemetry.WriteError);
+            Assert.IsNull(Telemetry.WriteInfo);
+            Assert.IsNull(Telemetry.WriteVerbose);
         }
 
         [TestMethod]
-        public void Subscriber()
+        public void Subscription()
         {
+            Assert.IsFalse(Telemetry.IsEnabled);
+
+            // Subscribe Critical
             Telemetry.CriticalChannel += TestHandler;
-
-            using var frame = Telemetry.StartInfoFrame("test");
-
             Assert.IsTrue(Telemetry.IsEnabled);
-            Assert.IsNotNull(frame.WriteCritical);
-            Assert.IsNull(frame.WriteError);
-            Assert.IsNull(frame.WriteInfo);
-            Assert.IsNull(frame.WriteVerbose);
+            Assert.IsNotNull(Telemetry.WriteCritical);
+            Assert.IsNull(Telemetry.WriteError);
+            Assert.IsNull(Telemetry.WriteInfo);
+            Assert.IsNull(Telemetry.WriteVerbose);
+
+            // Subscribe Error
+            Telemetry.ErrorChannel += TestHandler;
+            Assert.IsTrue(Telemetry.IsEnabled);
+            Assert.IsNotNull(Telemetry.WriteCritical);
+            Assert.IsNotNull(Telemetry.WriteError);
+            Assert.IsNull(Telemetry.WriteInfo);
+            Assert.IsNull(Telemetry.WriteVerbose);
+
+            // Subscribe Info
+            Telemetry.InfoChannel += TestHandler;
+            Assert.IsTrue(Telemetry.IsEnabled);
+            Assert.IsNotNull(Telemetry.WriteCritical);
+            Assert.IsNotNull(Telemetry.WriteError);
+            Assert.IsNotNull(Telemetry.WriteInfo);
+            Assert.IsNull(Telemetry.WriteVerbose);
+
+            // Subscribe Verbose
+            Telemetry.VerboseChannel += TestHandler;
+            Assert.IsTrue(Telemetry.IsEnabled);
+            Assert.IsNotNull(Telemetry.WriteCritical);
+            Assert.IsNotNull(Telemetry.WriteError);
+            Assert.IsNotNull(Telemetry.WriteInfo);
+            Assert.IsNotNull(Telemetry.WriteVerbose);
+
+            // Unsubscribe Critical
+            Telemetry.CriticalChannel -= TestHandler;
+            Assert.IsTrue(Telemetry.IsEnabled);
+            Assert.IsNull(Telemetry.WriteCritical);
+            Assert.IsNotNull(Telemetry.WriteError);
+            Assert.IsNotNull(Telemetry.WriteInfo);
+            Assert.IsNotNull(Telemetry.WriteVerbose);
+
+            // Unsubscribe Error
+            Telemetry.ErrorChannel -= TestHandler;
+            Assert.IsTrue(Telemetry.IsEnabled);
+            Assert.IsNull(Telemetry.WriteCritical);
+            Assert.IsNull(Telemetry.WriteError);
+            Assert.IsNotNull(Telemetry.WriteInfo);
+            Assert.IsNotNull(Telemetry.WriteVerbose);
+
+            // Unsubscribe Info
+            Telemetry.InfoChannel -= TestHandler;
+            Assert.IsTrue(Telemetry.IsEnabled);
+            Assert.IsNull(Telemetry.WriteCritical);
+            Assert.IsNull(Telemetry.WriteError);
+            Assert.IsNull(Telemetry.WriteInfo);
+            Assert.IsNotNull(Telemetry.WriteVerbose);
+
+            // Unsubscribe Info
+            Telemetry.VerboseChannel -= TestHandler;
+            Assert.IsFalse(Telemetry.IsEnabled);
+            Assert.IsNull(Telemetry.WriteCritical);
+            Assert.IsNull(Telemetry.WriteError);
+            Assert.IsNull(Telemetry.WriteInfo);
+            Assert.IsNull(Telemetry.WriteVerbose);
+
+            static void TestHandler(string name, object payload) { }
         }
 
-        private void TestHandler(string frame, string name, object payload)
-        {
-        }
     }
 }

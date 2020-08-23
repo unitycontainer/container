@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Unity.Telemetry
 {
-    public delegate void WriteEventDelegate(string name);
+    public delegate void WriteEventDelegate(string name, object? payload);
 
-    public delegate void TelemetryEventHandler(string frame, string name, object? payload);
+    public delegate void TelemetryEventHandler(string name, object? payload);
 
     public abstract class EventSource
     {
         #region Fields
 
         private bool _isEnabled;
+        private object _sync = new object();
 
         private TelemetryEventHandler? _critical;
         private TelemetryEventHandler? _error;
@@ -19,22 +21,36 @@ namespace Unity.Telemetry
         private TelemetryEventHandler? _info;
         private TelemetryEventHandler? _verbose;
 
+        protected static MethodInfo WriteHandlerInfo = 
+            typeof(EventSource).GetMethod(nameof(WriteHandler), BindingFlags.NonPublic | 
+                                                                BindingFlags.Static)   !;
+
         #endregion
 
 
-        #region Events
+        #region Channels
 
         public event TelemetryEventHandler CriticalChannel
         {
             add
             {
-                _critical += value;
-                if (!_isEnabled) _isEnabled = true;
+                lock (_sync)
+                {
+                    _critical += value;
+                    _isEnabled = true;
+                    WriteCritical = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _critical);
+                }
             }
             remove
             {
-                _critical -= value;
-                _isEnabled = IsTelementryEnabled();
+                lock (_sync)
+                {
+                    _critical -= value;
+                    _isEnabled = IsTelementryEnabled();
+                    WriteCritical = null == _critical 
+                                  ? null 
+                                  : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _critical);
+                }
             }
         }
 
@@ -42,139 +58,128 @@ namespace Unity.Telemetry
         {
             add 
             {
-                _error += value;
-                if (!_isEnabled) _isEnabled = true;
+                lock (_sync)
+                { 
+                    _error += value;
+                    _isEnabled = true;
+                    WriteError = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _error);
+                }
             }
             remove 
             {
-                _error -= value;
-                _isEnabled = IsTelementryEnabled();
+                lock (_sync)
+                { 
+                    _error -= value;
+                    _isEnabled = IsTelementryEnabled();
+                    WriteError = null == _critical
+                               ? null
+                               : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _error);
+                }
             }
         }
 
         public event TelemetryEventHandler WarningChannel
         {
             add 
-            { 
-                _warning += value;
-                if (!_isEnabled) _isEnabled = true;
+            {
+                lock (_sync)
+                { 
+                    _warning += value;
+                    _isEnabled = true;
+                    WriteWarning = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _warning);
+                }
             }
             remove 
             {
-                _warning -= value;
-                _isEnabled = IsTelementryEnabled();
+                lock (_sync)
+                {
+                    _warning -= value;
+                    _isEnabled = IsTelementryEnabled();
+                    WriteWarning = null == _critical
+                               ? null
+                               : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _warning);
+                }
             }
         }
 
         public event TelemetryEventHandler InfoChannel
         {
             add 
-            { 
-                _info += value;
-                if (!_isEnabled) _isEnabled = true;
+            {
+                lock (_sync)
+                {
+                    _info += value;
+                    _isEnabled = true;
+                    WriteInfo = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _info);
+                }
             }
             remove
             {
-                _info -= value;
-                _isEnabled = IsTelementryEnabled();
+                lock (_sync)
+                {
+                    _info -= value;
+                    _isEnabled = IsTelementryEnabled();
+                    WriteInfo = null == _critical
+                              ? null
+                              : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _info);
+                }
             }
         }
 
         public event TelemetryEventHandler VerboseChannel
         {
             add
-            { 
-                _verbose += value;
-                if (!_isEnabled) _isEnabled = true;
+            {
+                lock (_sync)
+                {
+                    _verbose += value;
+                    _isEnabled = true;
+                    WriteVerbose = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _verbose);
+                }
             }
             remove
-            { 
-                _verbose -= value;
-                _isEnabled = IsTelementryEnabled();
+            {
+                lock (_sync)
+                {
+                    _verbose -= value;
+                    _isEnabled = IsTelementryEnabled();
+                    WriteVerbose = null == _critical
+                                 ? null
+                                 : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _verbose);
+                }
             }
         }
 
         #endregion
+
+
+        #region Writers
+
+        public WriteEventDelegate? WriteCritical { get; private set; }
+
+        public WriteEventDelegate? WriteError { get; private set; }
+
+        public WriteEventDelegate? WriteWarning { get; private set; }
+
+        public WriteEventDelegate? WriteInfo { get; private set; }
+
+        public WriteEventDelegate? WriteVerbose { get; private set; }
+
+        #endregion
+
 
 
         #region Public
 
         public bool IsEnabled => _isEnabled;
 
-        public EventFrame StartInfoFrame(string name) => new EventFrame(this, name);
-
-        public EventFrame StartVerboseFrame(string name) => new EventFrame(this, name, true);
-
-        #endregion
-
-
-        #region Frame
-
-        public readonly ref struct EventFrame
-        {
-            #region Fields
-
-            private readonly string _name;
-
-            #endregion
-
-
-            #region Constructors
-
-            public EventFrame(EventSource source, string name, bool verbose = false)
-            {
-                _name = name;
-                
-                // Capture delegates
-                var critical = source._critical;
-                var error    = source._error;
-                var warning  = source._warning;
-                var info     = source._info;
-                //var verbose  = source._verbose;
-
-                WriteCritical = null == critical ? null : (WriteEventDelegate)((n) => critical(name, n, null));
-                WriteError    = null;
-                WriteWarning  = null;
-                WriteInfo     = null;
-                WriteVerbose  = (n) => { };
-
-
-                //if (null != _critical) WriteCritical = WriteCriticalMethod;
-            }
-
-
-            #endregion
-
-
-            #region Public
-
-            public WriteEventDelegate? WriteCritical { get; }
-
-            public WriteEventDelegate? WriteError { get; }
-
-            public WriteEventDelegate? WriteWarning { get; }
-
-            public WriteEventDelegate? WriteInfo { get; }
-
-            public WriteEventDelegate? WriteVerbose { get; }
-
-            #endregion
-
-
-            #region Disposable
-
-            public void Dispose()
-            {
-
-            }
-
-            #endregion
-        }
-
         #endregion
 
 
         #region Implementation
+
+        private static void WriteHandler(TelemetryEventHandler hadler, string name, object payload) 
+            => hadler(name, payload);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsTelementryEnabled() 
