@@ -1,4 +1,6 @@
-﻿using Unity.Resolution;
+﻿using System;
+using System.Reflection;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -28,15 +30,36 @@ namespace Unity.Container
 
         #region Delegates
 
-        public delegate ResolveDelegate<ResolveContext> OptimizedPipelineFactory(ref ResolveContext context);
-        
-        public delegate ResolveDelegate<ResolveContext> BalancedPipelineFactory(ref ResolveContext context);
-        
-        public delegate ResolveDelegate<ResolveContext> SingletonPipelineFactory(ref ResolveContext context);
-        
-        public delegate ResolveDelegate<ResolveContext> UnregisteredPipelineFactory(ref ResolveContext context);
+        public delegate ResolveDelegate<ResolveContext> BalancedFactoryDelegate(in Contract contract, RegistrationManager? manager = null);
+
+        public delegate ResolveDelegate<ResolveContext> OptimizedFactoryDelegate(in Contract contract, RegistrationManager? manager = null);
+
+        public delegate ResolveDelegate<ResolveContext> UnregisteredFactoryDelegate(ref ResolveContext context);
+
+        public delegate bool ValidMemberInfoPredicate<T>(T member) where T : MemberInfo;
+
+        public delegate void PolicyChangeNotificationHandler(object policy);
 
         #endregion
 
+
+        #region Marker Types
+
+        /// <summary>
+        /// Type identifying <see cref="RegistrationCategory.Type"/> policies
+        /// </summary>
+        public class TypeCategory      {}
+
+        /// <summary>
+        /// Type identifying <see cref="RegistrationCategory.Instance"/> policies
+        /// </summary>
+        public class InstanceCategory  {}
+
+        /// <summary>
+        /// Type identifying <see cref="RegistrationCategory.Factory"/> policies
+        /// </summary>
+        public class FactoryCategory   {}
+
+        #endregion
     }
 }

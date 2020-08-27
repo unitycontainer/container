@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Unity.Container;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -30,7 +31,25 @@ namespace Unity
                 {
                     // Make sure it is still not created while waited for the lock
                     if (null == manager.ResolveDelegate)
-                        manager.ResolveDelegate = _policies.DelegateFactory(in contract, manager);
+                    {
+                        var lifetime = (LifetimeManager)manager;
+
+                        manager.ResolveDelegate = manager.Category switch
+                        {
+                            RegistrationCategory.Instance => _policies.InstancePipeline,
+                            RegistrationCategory.Factory =>  _policies.FactoryPipeline,
+                            
+                            RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
+                            RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => _policies.BalancedPipelineFactory(in contract, manager),
+                            RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => _policies.OptimizedPipelineFactory(in contract, manager),
+
+                            RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
+                            RegistrationCategory.Type when ResolutionStyle.OnceInWhile    == lifetime.Style => _policies.BalancedPipelineFactory(in contract, manager),
+                            RegistrationCategory.Type when ResolutionStyle.EveryTime      == lifetime.Style => _policies.OptimizedPipelineFactory(in contract, manager),
+
+                            _ => throw new InvalidOperationException($"Registration {contract.Type}/{contract.Name} has unsupported category {manager.Category}")
+                        };
+                    }
                 }
             }
 
@@ -64,7 +83,7 @@ namespace Unity
             if (null == resolver)
             {
                 // Build new and try to save it
-                resolver = _policies.DelegateFactory(in contract);
+                resolver = _policies.UnregisteredPipelineFactory(in contract);
                 resolver = _policies.GetOrAdd(contract.Type, resolver);
             }
 
@@ -102,7 +121,7 @@ namespace Unity
             }
 
             // Build new and try to save it
-            resolver = _policies.DelegateFactory(in contract);
+            resolver = _policies.UnregisteredPipelineFactory(in contract);
             resolver = _policies.GetOrAdd(contract.Type, resolver);
 
             // Resolve

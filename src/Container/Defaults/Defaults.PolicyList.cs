@@ -73,7 +73,13 @@ namespace Unity.Container
             }
         }
 
-        private int Allocate(Type? target, Type type, object value)
+        /// <summary>
+        /// Allocates placeholder
+        /// </summary>
+        /// <param name="target"><see cref="Type"/> of target</param>
+        /// <param name="type"><see cref="Type"/> of policy</param>
+        /// <returns></returns>
+        private int Allocate(Type? target, Type type)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
 
@@ -87,11 +93,7 @@ namespace Unity.Container
                     ref var candidate = ref _data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
                         ReferenceEquals(candidate.Type, type))
-                    {
-                        // Found existing
-                        candidate.Value = value;
-                        return position;
-                    }
+                        throw new InvalidOperationException($"Combination {target?.Name} - {type.Name} already allocated");
 
                     position = _meta[position].Next;
                 }
@@ -103,7 +105,7 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                _data[_count] = new Policy(hash, target, type, value);
+                _data[_count] = new Policy(hash, target, type, null);
                 _meta[_count].Next = bucket.Position;
                 bucket.Position = _count;
                 return _count;

@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Pipeline;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -18,9 +19,11 @@ namespace Unity.Container
         protected Policy[] _data;
         protected Metadata[] _meta;
 
-        private readonly int FACTORY_DELEGATE;
+        private readonly int PIPELINE_TYPE;
+        private readonly int PIPELINE_FACTORY;
+        private readonly int PIPELINE_INSTANCE;
+
         private readonly int FACTORY_BALANCED;
-        private readonly int FACTORY_SINGLETON;
         private readonly int FACTORY_OPTIMIZED;
         private readonly int FACTORY_UNREGISTERED;
 
@@ -41,12 +44,15 @@ namespace Unity.Container
             _data = new Policy[Prime.Numbers[_prime]];
             _meta = new Metadata[Prime.Numbers[++_prime]];
 
+            // Activation pipeline
+            PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<ResolveContext>));
+            PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<ResolveContext>));
+            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<ResolveContext>));
+
             // Add factory placeholders
-            FACTORY_DELEGATE     = Allocate(typeof(ResolveDelegateFactory));
-            FACTORY_BALANCED     = Allocate(typeof(BalancedPipelineFactory));
-            FACTORY_SINGLETON    = Allocate(typeof(SingletonPipelineFactory));
-            FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedPipelineFactory));
-            FACTORY_UNREGISTERED = Allocate(typeof(UnregisteredPipelineFactory));
+            FACTORY_UNREGISTERED = Allocate(typeof(ResolveDelegateFactory));
+            FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedFactoryDelegate));
+            FACTORY_BALANCED     = Allocate(typeof(BalancedFactoryDelegate));
         }
 
         #endregion

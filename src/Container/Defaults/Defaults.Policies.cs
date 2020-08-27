@@ -11,7 +11,7 @@ namespace Unity.Container
         #region Constants
 
         private static uint ResolverHash = (uint)typeof(ResolveDelegate<ResolveContext>).GetHashCode();
-        
+
         #endregion
 
 
@@ -114,7 +114,7 @@ namespace Unity.Container
                 _data[_count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
                 _meta[_count].Next = bucket.Position;
                 bucket.Position = _count;
-                
+
                 return value;
             }
         }
@@ -138,11 +138,11 @@ namespace Unity.Container
         [DebuggerDisplay("Target = { Target?.Name }, Policy = { Type.Name }", Name = "{ Hash }")]
         public struct Policy
         {
-            public readonly uint  Hash;
+            public readonly uint Hash;
             public readonly Type? Target;
-            public readonly Type  Type;
-            
-            public object?  Value;
+            public readonly Type Type;
+
+            public object? Value;
 
             public Policy(uint hash, Type type, object? value)
             {
@@ -150,15 +150,26 @@ namespace Unity.Container
                 Target = null;
                 Type = type;
                 Value = value;
+                PolicyChanged = default;
             }
 
             public Policy(uint hash, Type? target, Type type, object? value)
             {
-                Hash   = hash;
+                Hash = hash;
                 Target = target;
-                Type   = type;
-                Value  = value;
+                Type = type;
+                Value = value;
+                PolicyChanged = default;
             }
+
+
+            #region Notification
+
+            public event PolicyChangeNotificationHandler? PolicyChanged;
+
+            #endregion
+
+            internal PolicyChangeNotificationHandler? Handler => PolicyChanged; 
         }
 
         #endregion

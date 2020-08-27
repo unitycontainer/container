@@ -16,7 +16,6 @@
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <RootNamespace>Unity</RootNamespace>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
@@ -29,9 +28,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel" Version="4.3.0" />
   </ItemGroup>
+
+  <!-- Structure Parent/Child References -->
+  
+  <PropertyGroup>
+    <AllowUnsafeBlocks Condition="$(TargetFramework.StartsWith('net4'))">true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Condition="'$(TargetFramework)' == 'net5.0'                " Include="..\core\Unity.CoreLib.csproj" Private="false" />
+    <ProjectReference Condition="$(TargetFramework.StartsWith('netcoreapp2'))    " Include="..\core\Unity.CoreLib.csproj" Private="false" />
+    <ProjectReference Condition="$(TargetFramework.StartsWith('netcoreapp3'))    " Include="..\core\Unity.CoreLib.csproj" Private="false" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))           " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <Compile          Condition="$(TargetFramework.StartsWith('net4')) == 'False'" Remove="Extensions\Reflection\Compatibility.ByReference.cs" />
+  </ItemGroup>
+
 
   <!-- System.Memory -->
 
