@@ -72,11 +72,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
   <!-- ByReference -->
