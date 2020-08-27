@@ -26,6 +26,9 @@ namespace Unity.Injection
 
         #endregion
 
+        public virtual InjectionInfo<TMemberInfo, object[]> InjectionInfo(TMemberInfo[] members)
+            => new InjectionInfo<TMemberInfo, object[]>(new NotImplementedException());
+
 
         #region Overrides
 

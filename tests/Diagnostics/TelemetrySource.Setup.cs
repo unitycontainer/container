@@ -1,26 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Unity.Telemetry
+namespace Unity.Disgnostics
 {
     [TestClass]
     public partial class DiagnosticSourceTests
     {
-        EventSource Telemetry = new FakeTelemetrySource();
-
-        //protected ConcurrentQueue<(string eventName, object payload, Activity activity)> CreateEventQueue() =>
-        //    new ConcurrentQueue<(string eventName, object payload, Activity activity)>();
-
-        //protected FakeDiagnosticListener CreateEventListener(string entityName, ConcurrentQueue<(string eventName, object payload, Activity activity)> eventQueue) =>
-        //    new FakeDiagnosticListener(kvp =>
-        //    {
-        //        eventQueue?.Enqueue((kvp.Key, kvp.Value, Activity.Current));
-        //    });
     }
 
-    public sealed class FakeTelemetrySource : EventSource
-    { 
-    
-    }
 
     //public sealed class FakeDiagnosticListener : IObserver<DiagnosticListener>, IDisposable
     //{

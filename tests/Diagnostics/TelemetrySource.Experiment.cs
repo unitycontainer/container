@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Unity.Telemetry
+namespace Unity.Disgnostics
 {
     public partial class DiagnosticSourceTests
     {

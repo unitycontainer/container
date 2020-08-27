@@ -51,7 +51,7 @@ namespace Unity.Lifetime
 
         /// <inheritdoc/>
         public override ResolutionStyle Style 
-            => ResolutionStyle.OnceInAWhile;
+            => ResolutionStyle.OnceInWhile;
 
         /// <inheritdoc/>
         protected override LifetimeManager OnCreateLifetimeManager() 

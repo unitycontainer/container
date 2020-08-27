@@ -39,10 +39,4 @@
     <ProjectReference Include="..\src\Unity.Abstractions.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference  Condition="'$(TargetFramework)' == 'net5.0'" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
-    <ProjectReference  Condition="$(TargetFramework.StartsWith('netcoreapp2'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
-    <ProjectReference  Condition="$(TargetFramework.StartsWith('netcoreapp3'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
-  </ItemGroup>
-
 </Project>

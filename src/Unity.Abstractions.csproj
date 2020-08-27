@@ -30,7 +30,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net50'">
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="5.0.0-preview.7.20364.11" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0-preview.7.20364.11" />
   </ItemGroup>
 
   <!-- Framework Compatibility -->
@@ -67,13 +66,6 @@
     <Compile Condition="'$(TargetFramework)' == 'netstandard1.6'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
     <Compile Condition="'$(TargetFramework)' == 'netcoreapp1.0'" Remove="Interfaces\IUnityContainerAsync.CS8.0.cs" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Condition="'$(TargetFramework)' == 'net5.0'" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
-    <ProjectReference Condition="$(TargetFramework.StartsWith('netcoreapp2'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
-    <ProjectReference Condition="$(TargetFramework.StartsWith('netcoreapp3'))" Include="..\core\Private.Support.CoreLib.csproj" Private="false" />
-  </ItemGroup>
-
 
   <!-- Configuration Settings --> 
   

@@ -7,6 +7,7 @@ namespace Injection.Members
     [TestClass]
     public abstract class InjectionMemberTests<TMemberInfo, TData>
         where TMemberInfo : MemberInfo
+        where TData : class
     {
 
         public abstract InjectionMember<TMemberInfo, TData> GetInjectionMember();

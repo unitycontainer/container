@@ -32,7 +32,11 @@ namespace Unity
         public static Type[] GetGenericArguments(this Type type) => type.GenericTypeArguments;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MethodInfo? GetMethod(this Type type, string name, System.Reflection.BindingFlags bindingAttr)
+        public static MethodInfo? GetMethod(this Type type, string name)
+            => type.GetTypeInfo().GetMethod(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MethodInfo? GetMethod(this Type type, string name, BindingFlags bindingAttr)
             => type.GetTypeInfo().GetMethod(name, bindingAttr);
 
         #endregion
@@ -79,11 +83,12 @@ namespace Unity
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<ConstructorInfo> GetConstructors(this Type type, BindingFlags _)
+        public static ConstructorInfo[] GetConstructors(this Type type, BindingFlags _)
         {
             return type.GetTypeInfo()
                        .DeclaredConstructors
-                       .Where(ctor => !ctor.IsStatic);
+                       .Where(ctor => !ctor.IsStatic)
+                       .ToArray();
         }
 
         public static FieldInfo[] GetFields(this Type type, BindingFlags _)

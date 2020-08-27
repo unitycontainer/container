@@ -27,7 +27,7 @@ namespace Unity.Lifetime
         /// vary sensitive to minor overhead during resolution. Instead speed 
         /// of pipeline creation takes priority.
         /// </remarks>
-        OnceInAWhile,
+        OnceInWhile,
 
         /// <summary>
         /// The value is resolved almost every single time or is not stored

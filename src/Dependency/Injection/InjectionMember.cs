@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Resolution;
 using System.Reflection;
 
 namespace Unity.Injection
@@ -22,6 +23,7 @@ namespace Unity.Injection
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember
                                             where TMemberInfo : MemberInfo
+                                            where TData       : class
     {
         #region Constructors
 
@@ -34,7 +36,7 @@ namespace Unity.Injection
         #endregion
 
 
-        #region Public Members
+        #region Public API
 
         /// <summary>
         /// Name of the injected member
@@ -46,9 +48,22 @@ namespace Unity.Injection
         /// </remarks>
         public string Name { get; }
 
+        /// <summary>
+        /// Data associated with injection member.
+        /// </summary>
+        /// <remarks>
+        /// The data provided for injection could be either:
+        /// 1. A value. Any value will do except <see cref="RegistrationManager.NoValue"/> instance
+        /// 2. A <see cref="ResolveDelegate{IRedolveContext}"/> that resolves the value
+        /// 3. A <see cref="ResolverFactory{IResolveContext}"/> factory that creates the resolver
+        /// </remarks>
         public virtual TData Data { get; }
 
         public abstract TMemberInfo? MemberInfo(Type type);
+
+
+        public virtual InjectionInfo<TMemberInfo, TData> InjectionInfo(Type type)
+            => new InjectionInfo<TMemberInfo, TData>(MemberInfo(type), Data);
 
         #endregion
 
