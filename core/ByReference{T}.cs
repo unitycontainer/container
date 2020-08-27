@@ -1,6 +1,6 @@
 ﻿namespace System
 {
-    internal readonly struct ByReference<T>
+    internal readonly ref struct ByReference<T>
     {
 #pragma warning disable IDE0051, 169 // Unused local field
         private readonly IntPtr value;

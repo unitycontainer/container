@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -9,7 +10,17 @@ namespace Unity
     {
         #region Type
 
-#if !NETCOREAPP1_0 && !NETSTANDARD1_6 && !NETSTANDARD1_0
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsGenericType(this Type type) => type.IsGenericType;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsValueType(this Type type) => type.IsValueType;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsGenericTypeDefinition(this Type type) => type.IsGenericTypeDefinition;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsGenericParameters(this Type type) => type.ContainsGenericParameters;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsInterface(this Type type) => type.IsInterface;
@@ -25,35 +36,15 @@ namespace Unity
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEnum(this Type type) => type.IsEnum;
-#endif
+
         #endregion
 
 
-        #region Array
+        #region Member Info
 
-#if NET45 || NET46 || NET47 || NET48
-        public static void Fill(this int[] array, int value)
-        {
-            unsafe
-            {
-                fixed (int* bucketsPtr = array)
-                {
-                    int* ptr = bucketsPtr;
-                    var end = bucketsPtr + array.Length;
-                    while (ptr < end) *ptr++ = value;
-                }
-            }
-        }
-#elif NETCOREAPP1_0 || NETSTANDARD1_6 || NETSTANDARD2_0
-        public static void Fill(this int[] array, int value)
-        {
-            for (int i = 0; i < array.Length; i++)
-                array[i] = value;
-        }
-#else
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Fill(this int[] array, int value) => Array.Fill(array, value);
-#endif
+        public static TInfo? GetMemberFromInfo<TInfo>(this TInfo info, Type type)
+            where TInfo : MethodBase => (TInfo?)MethodBase.GetMethodFromHandle(info.MethodHandle, type.TypeHandle);
 
         #endregion
     }

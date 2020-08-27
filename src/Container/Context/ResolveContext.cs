@@ -31,7 +31,7 @@ namespace Unity.Container
 
             Existing = default;
             Activity = default;
-            _parent  = default;
+//            _parent  = default;
         }
 
         public ResolveContext(UnityContainer container, in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
@@ -43,7 +43,7 @@ namespace Unity.Container
             
             Existing = default;
             Activity = default;
-            _parent  = default;
+//            _parent  = default;
         }
 
         #endregion

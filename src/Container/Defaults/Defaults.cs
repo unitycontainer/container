@@ -7,7 +7,6 @@ namespace Unity.Container
 {
     public delegate void DefaultPolicyChangedHandler(Type type, object? value);
 
-
     public partial class Defaults
     {
         #region Fields

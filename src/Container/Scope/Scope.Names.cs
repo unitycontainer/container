@@ -58,7 +58,6 @@ namespace Unity.Container
             return ref entry;
         }
 
-
         [DebuggerDisplay("{ Name }")]
         public struct NameInfo
         {

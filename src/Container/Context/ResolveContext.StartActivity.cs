@@ -38,7 +38,7 @@ namespace Unity.Container
             Existing = default;
             Activity = activity;
 
-            _parent = new ByReference<ResolveContext>(ref context);
+            //_parent = new ByReference<ResolveContext>(ref context);
         }
 
 

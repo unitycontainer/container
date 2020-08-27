@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity

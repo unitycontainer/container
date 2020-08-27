@@ -136,6 +136,7 @@ namespace Unity.Container
         #region Policy structure
 
         [DebuggerDisplay("Target = { Target?.Name }, Policy = { Type.Name }", Name = "{ Hash }")]
+        [CLSCompliant(false)]
         public struct Policy
         {
             public readonly uint Hash;

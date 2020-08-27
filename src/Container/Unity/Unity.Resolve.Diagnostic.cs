@@ -11,11 +11,11 @@ namespace Unity
         private object? ResolveContractDiagnostic(in Contract contract, ResolverOverride[] overrides)
         {
             //var enabled = Diagnostics.DiagnosticSource.DiagnosticListener.IsEnabled("Resolve", null);
-            Activity activity = new Activity("Resolve").AddTag("type", contract.Type.FullName)
-                                                             .AddTag("name", contract.Name);
+            //Activity activity = new Activity("Resolve").AddTag("type", contract.Type.FullName)
+            //                                                 .AddTag("name", contract.Name);
             try
             {
-                activity.Start();
+                //activity.Start();
 
                 //if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Start", activity);
 
@@ -67,7 +67,7 @@ namespace Unity
             //}
             finally
             {
-                activity.Stop();
+                //activity.Stop();
                 //if (enabled) UnityDiagnosticSource.DiagnosticListener.Write("Resolve.Stop", activity);
             }
         }

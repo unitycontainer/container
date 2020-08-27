@@ -15,9 +15,9 @@ namespace Unity.Container
 #else
     public partial struct ResolveContext
     {
-        ByReference<ResolveContext> _parent;
+        //ByReference<ResolveContext> _parent;
 
-        public readonly ref ResolveContext Parent => ref _parent.Value;
+        //public readonly ref ResolveContext Parent => ref _parent.Value;
     }
 #endif
 }
