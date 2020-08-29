@@ -1,13 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
-    <SignAssembly>true</SignAssembly>
+    <LangVersion>9.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
     <DelaySign>false</DelaySign>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
-    <AllowUnsafeBlocks Condition="$(TargetFramework.StartsWith('net4'))">true</AllowUnsafeBlocks>
-    <TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
+    
+    <TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.1;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
+  
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,67 +31,73 @@
   <!-- References -->
   
   <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel" Version="4.3.0" />
-    <PackageReference Condition="'$(TargetFramework)' != 'net50'         " Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))   " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ComponentModel" Version="4.3.0" />
   </ItemGroup>
 
+  <!-- Unsafe -->
+  
+  <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.1' " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.1'" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.*" />
+  </ItemGroup>
+  
   <!-- System.Memory -->
 
   <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))   " Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0' " Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0' " Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.Memory" Version="4.5.4" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.Memory" Version="4.5.4" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))        " Include="System.Memory" Version="4.5.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Memory" Version="4.5.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'     " Include="System.Memory" Version="4.5.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'      " Include="System.Memory" Version="4.5.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.1'      " Include="System.Memory" Version="4.5.*" />
   </ItemGroup>
 
-  <!-- System.ValueTuple -->
+  <!-- System.ValueTuple (Do not update, will create binding conflict) -->
 
   <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' == 'net45'         " Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Condition="'$(TargetFramework)' == 'net46'         " Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0' " Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net45'))       " Include="System.ValueTuple" Version="4.4.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net46'))       " Include="System.ValueTuple" Version="4.4.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Include="System.ValueTuple" Version="4.4.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ValueTuple" Version="4.4.*" />
   </ItemGroup>
 
+  <!-- System.ValueTask -->
+  
+  <ItemGroup>
+    <PackageReference Condition="$(TargetFramework.StartsWith('net45'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('net46'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+  </ItemGroup>
+  
   <!-- C# 8.0 Compatibility -->
 
   <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' == 'net48'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-    <PackageReference Condition="'$(TargetFramework)' == 'net47'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0' " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net48'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net47'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.1' " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
   </ItemGroup>
   
   
   <!-- Framework Compatibility -->
 
   <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))            " Remove="Extensions\Reflection\Compatibility.Common.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard1'))           " Remove="Extensions\Reflection\Compatibility.Common.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
+    <Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
     <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
   </ItemGroup>
 
-  <!-- ByReference -->
-
   <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('net4')) == 'True'       " Remove="Properties\SupportCoreLib.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('net4')) == 'False'      " Remove="Extensions\Reflection\Compatibility.ByReference.cs" />
-    <ProjectReference Condition="'$(TargetFramework)' == 'net5.0'             " Include="..\core\Unity.CoreLib.csproj" Private="false" />
-    <ProjectReference Condition="$(TargetFramework.StartsWith('netcoreapp2')) " Include="..\core\Unity.CoreLib.csproj" Private="false" />
-    <ProjectReference Condition="$(TargetFramework.StartsWith('netcoreapp3')) " Include="..\core\Unity.CoreLib.csproj" Private="false" />
+    <Folder Include="Container\Context\Build\" />
   </ItemGroup>
-
 
 
   <!-- Configuration Settings -->
