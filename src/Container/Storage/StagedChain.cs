@@ -71,21 +71,6 @@ namespace Unity.Storage
             ChainChanged?.Invoke(ToArray());
         }
 
-        public void Add(params ValueTuple<TStageEnum, TStrategyType>[] items)
-        {
-            for (var i = 0; i < items.Length; i++)
-            {
-                ref var pair = ref items[i];
-                ref var position = ref _stages[Convert.ToInt32(pair.Item1)];
-
-                if (null != position) throw new ArgumentException(ERROR_MESSAGE);
-
-                position = pair.Item2;
-            }
-
-            ChainChanged?.Invoke(ToArray());
-        }
-
         public void Add(params KeyValuePair<TStageEnum, TStrategyType>[] items)
         {
             for (var i = 0; i < items.Length; i++)

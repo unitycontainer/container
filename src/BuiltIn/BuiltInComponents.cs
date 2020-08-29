@@ -1,4 +1,5 @@
-﻿using Unity.Container;
+﻿using System.Collections.Generic;
+using Unity.Container;
 using Unity.Disgnostics;
 using Unity.Extension;
 using Unity.Pipeline;
@@ -32,28 +33,28 @@ namespace Unity.BuiltIn
 
             // Initialize Type Chain
             ((StagedChain<BuilderStage, PipelineProcessor>)context.TypePipelineChain)
-                .Add((BuilderStage.Creation,   constructor),
-                     (BuilderStage.Fields,     field),
-                     (BuilderStage.Properties, property),
-                     (BuilderStage.Methods,    method), 
-                     (BuilderStage.Lifetime,   lifetime));
+                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Creation,   constructor),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Fields,     field),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Properties, property),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Methods,    method), 
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Lifetime,   lifetime));
 
             // Initialize Factory Chain
             ((StagedChain<BuilderStage, PipelineProcessor>)context.FactoryPipelineChain)
-                .Add((BuilderStage.Factory,    factory), 
-                     (BuilderStage.Lifetime,   lifetime));
+                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Factory,    factory),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Lifetime,   lifetime));
 
             // Initialize Instance Chain
             ((StagedChain<BuilderStage, PipelineProcessor>)context.InstancePipelineChain)
-                .Add((BuilderStage.Factory,    instance),
-                     (BuilderStage.Lifetime,   lifetime));
+                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Factory,    instance),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Lifetime,   lifetime));
 
             // Initialize Unregistered Chain
             ((StagedChain<BuilderStage, PipelineProcessor>)context.UnregisteredPipelineChain)
-                .Add((BuilderStage.Creation,   constructor),
-                     (BuilderStage.Fields,     field),
-                     (BuilderStage.Properties, property),
-                     (BuilderStage.Methods,    method));
+                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Creation,   constructor),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Fields,     field),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Properties, property),
+                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Methods,    method));
 
             #endregion
 

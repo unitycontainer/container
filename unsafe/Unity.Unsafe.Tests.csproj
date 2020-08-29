@@ -23,19 +23,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Condition="'$(TargetFramework)' == 'net5.0'" Include="..\src\bin\Debug\net5.0\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'net50' " Include="..\src\bin\Debug\net5.0\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'net45' " Include="..\src\bin\Debug\net45\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'net46' " Include="..\src\bin\Debug\net46\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'net47' " Include="..\src\bin\Debug\net47\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'net48' " Include="..\src\bin\Debug\net48\Unity.Container.dll" />
-    
-    <Reference Condition="'$(TargetFramework)' == 'netcoreapp1.1'" Include="..\src\bin\Debug\netcoreapp1.0\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'netcoreapp2.1'" Include="..\src\bin\Debug\netcoreapp2.1\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'netcoreapp3.0'" Include="..\src\bin\Debug\netcoreapp3.0\Unity.Container.dll" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'net5.0'       " Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'net50'        " Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'net45'        " Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'net46'        " Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'net47'        " Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'net48'        " Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'netcoreapp1.1'" Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'netcoreapp2.1'" Include="..\src\Unity.Container.csproj" />
+	  <ProjectReference Condition="'$(TargetFramework)' == 'netcoreapp3.0'" Include="..\src\Unity.Container.csproj" />
+  </ItemGroup>
 
-    <Reference Condition="'$(TargetFramework)' == 'net461'     " Include="..\src\bin\Debug\netstandard1.6\Unity.Container.dll" />
-    <Reference Condition="'$(TargetFramework)' == 'net471'     " Include="..\src\bin\Debug\netstandard2.0\Unity.Container.dll" />
+  <ItemGroup>
+    <Reference Condition="'$(TargetFramework)' == 'net461'       " Include="..\src\bin\Debug\netstandard1.6\Unity.Container.dll" />
+    <Reference Condition="'$(TargetFramework)' == 'net471'       " Include="..\src\bin\Debug\netstandard2.0\Unity.Container.dll" />
     <Reference Condition="'$(TargetFramework)' == 'netcoreapp3.1'" Include="..\src\bin\Debug\netstandard2.1\Unity.Container.dll" />
   </ItemGroup>
 

@@ -1,134 +1,123 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <LangVersion>9.0</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<LangVersion>9.0</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <DelaySign>false</DelaySign>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
-    
-    <TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.1;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
-  
-  </PropertyGroup>
+		<DelaySign>false</DelaySign>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
 
-  <PropertyGroup>
-    <PackageId>Unity.Container</PackageId>
-    <Description>Unity Container Engine</Description>
-    <Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
-    <PackageProjectUrl>https://github.com/unitycontainer/container</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/unitycontainer/container</RepositoryUrl>
-    <License>https://github.com/unitycontainer/container/blob/master/LICENSE</License>
-    <IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
-    <PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC DI Dependency Injection</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <Authors>Unity Open Source Project</Authors>
-    <Company>Unity Open Source Project</Company>
-    <RootNamespace>Unity</RootNamespace>
-  </PropertyGroup>
+		<TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
 
-  <!-- References -->
-  
-  <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
+	</PropertyGroup>
 
-  <!-- Unsafe -->
-  
-  <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.1' " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.1'" Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.*" />
-  </ItemGroup>
-  
-  <!-- System.Memory -->
+	<PropertyGroup>
+		<PackageId>Unity.Container</PackageId>
+		<Description>Unity Container Engine</Description>
+		<Copyright>Copyright © .NET Foundation and Contributors. All Rights Reserved</Copyright>
+		<PackageProjectUrl>https://github.com/unitycontainer/container</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/unitycontainer/container</RepositoryUrl>
+		<License>https://github.com/unitycontainer/container/blob/master/LICENSE</License>
+		<IconUrl>https://avatars1.githubusercontent.com/u/12849707</IconUrl>
+		<PackageTags>Unity Container unitycontainer Microsoft.Practices.Unity IoC DI Dependency Injection</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<Authors>Unity Open Source Project</Authors>
+		<Company>Unity Open Source Project</Company>
+		<RootNamespace>Unity</RootNamespace>
+	</PropertyGroup>
+	
+	<!-- System.ValueTask --> 
 
-  <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('net4'))        " Include="System.Memory" Version="4.5.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Memory" Version="4.5.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'     " Include="System.Memory" Version="4.5.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'      " Include="System.Memory" Version="4.5.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.1'      " Include="System.Memory" Version="4.5.*" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Condition="$(TargetFramework.StartsWith('net45'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+		<PackageReference Condition="$(TargetFramework.StartsWith('net46'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+		<PackageReference Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
+	</ItemGroup>
 
-  <!-- System.ValueTuple (Do not update, will create binding conflict) -->
+	<!-- Unsafe -->
 
-  <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('net45'))       " Include="System.ValueTuple" Version="4.4.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('net46'))       " Include="System.ValueTuple" Version="4.4.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Include="System.ValueTuple" Version="4.4.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ValueTuple" Version="4.4.*" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'      " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'netstandard2.1'     " Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.*" />
+	</ItemGroup>
 
-  <!-- System.ValueTask -->
-  
-  <ItemGroup>
-    <PackageReference Condition="$(TargetFramework.StartsWith('net45'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('net46'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
-    <PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
-  </ItemGroup>
-  
-  <!-- C# 8.0 Compatibility -->
+	<!-- System.Memory -->
 
-  <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)' == 'net48'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'net47'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
-    <PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.1' " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
-  </ItemGroup>
-  
-  
-  <!-- Framework Compatibility -->
+	<ItemGroup>
+		<PackageReference Condition="$(TargetFramework.StartsWith('net4'))        " Include="System.Memory" Version="4.5.*" />
+		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Memory" Version="4.5.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'     " Include="System.Memory" Version="4.5.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'      " Include="System.Memory" Version="4.5.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'      " Include="System.Memory" Version="4.5.*" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))            " Remove="Extensions\Reflection\Compatibility.Common.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard1'))           " Remove="Extensions\Reflection\Compatibility.Common.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
-  </ItemGroup>
+	<!-- C# 8.0 Compatibility -->
 
-  <ItemGroup>
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
-    <Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Container\Context\Build\" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Condition="'$(TargetFramework)' == 'net48'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'net47'         " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+		<PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0' " Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.*" />
+	</ItemGroup>
 
 
-  <!-- Configuration Settings -->
+	<!-- Framework Compatibility -->
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <DebugType>Portable</DebugType>
-  </PropertyGroup>
+	<ItemGroup>
+		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))            " Remove="Extensions\Reflection\Compatibility.Common.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard1'))           " Remove="Extensions\Reflection\Compatibility.Common.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
+	</ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <DebugType>Full</DebugType>
-  </PropertyGroup>
+	<ItemGroup>
+		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
+	</ItemGroup>
 
-  <!-- Sourcelink -->
+	<ItemGroup>
+		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ComponentModel" Version="4.3.0" />
+	</ItemGroup>
 
-  <PropertyGroup>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-  </PropertyGroup>
+	<ItemGroup>
+		<Folder Include="Container\Context\Build\" />
+	</ItemGroup>
 
-  <!-- Release Notes -->
 
-  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
-    <ReadLinesFromFile File="../RELEASE-NOTES.txt">
-      <Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
-    </ReadLinesFromFile>
-    <PropertyGroup>
-      <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
-    </PropertyGroup>
-  </Target>
+	<!-- Configuration Settings -->
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<DebugType>Portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<DebugType>Full</DebugType>
+	</PropertyGroup>
+
+	<!-- Sourcelink -->
+
+	<PropertyGroup>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	</PropertyGroup>
+
+	<!-- Release Notes -->
+
+	<Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+		<ReadLinesFromFile File="../RELEASE-NOTES.txt">
+			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
+		</ReadLinesFromFile>
+		<PropertyGroup>
+			<PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
+		</PropertyGroup>
+	</Target>
 
 </Project>
