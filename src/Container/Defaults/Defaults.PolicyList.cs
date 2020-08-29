@@ -12,11 +12,11 @@ namespace Unity.Container
         public object? Get(Type? target, Type type)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
-            var position = _meta[hash % _meta.Length].Position;
+            var position = Meta[hash % Meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref _data[position];
+                ref var candidate = ref Data[position];
                 if (ReferenceEquals(candidate.Target, target) && 
                     ReferenceEquals(candidate.Type, type))
                 {
@@ -24,7 +24,7 @@ namespace Unity.Container
                     return candidate.Value;
                 }
 
-                position = _meta[position].Next;
+                position = Meta[position].Next;
             }
 
             return null;
@@ -43,12 +43,12 @@ namespace Unity.Container
 
             lock (_syncRoot)
             {
-                ref var bucket = ref _meta[hash % _meta.Length];
+                ref var bucket = ref Meta[hash % Meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref _data[position];
+                    ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) && 
                         ReferenceEquals(candidate.Type, type))
                     {
@@ -57,19 +57,19 @@ namespace Unity.Container
                         return;
                     }
 
-                    position = _meta[position].Next;
+                    position = Meta[position].Next;
                 }
 
-                if (++_count >= _data.Length)
+                if (++Count >= Data.Length)
                 {
                     Expand();
-                    bucket = ref _meta[hash % _meta.Length];
+                    bucket = ref Meta[hash % Meta.Length];
                 }
 
                 // Add new registration
-                _data[_count] = new Policy(hash, target, type, value);
-                _meta[_count].Next = bucket.Position;
-                bucket.Position = _count;
+                Data[Count] = new Policy(hash, target, type, value);
+                Meta[Count].Next = bucket.Position;
+                bucket.Position = Count;
             }
         }
 
@@ -85,30 +85,30 @@ namespace Unity.Container
 
             lock (_syncRoot)
             {
-                ref var bucket = ref _meta[hash % _meta.Length];
+                ref var bucket = ref Meta[hash % Meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref _data[position];
+                    ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
                         ReferenceEquals(candidate.Type, type))
                         throw new InvalidOperationException($"Combination {target?.Name} - {type.Name} already allocated");
 
-                    position = _meta[position].Next;
+                    position = Meta[position].Next;
                 }
 
-                if (++_count >= _data.Length)
+                if (++Count >= Data.Length)
                 {
                     Expand();
-                    bucket = ref _meta[hash % _meta.Length];
+                    bucket = ref Meta[hash % Meta.Length];
                 }
 
                 // Add new registration
-                _data[_count] = new Policy(hash, target, type, null);
-                _meta[_count].Next = bucket.Position;
-                bucket.Position = _count;
-                return _count;
+                Data[Count] = new Policy(hash, target, type, null);
+                Meta[Count].Next = bucket.Position;
+                bucket.Position = Count;
+                return Count;
             }
         }
     }

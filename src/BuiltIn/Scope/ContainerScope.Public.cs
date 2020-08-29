@@ -31,11 +31,11 @@ namespace Unity.BuiltIn
             // Calculate required storage
             for (var i = 0; span.Length > i; i++) required += span[i].RegisterAs.Length;
 
-            lock (_syncRoot)
+            lock (Sync)
             {
                 // Expand registry if required
-                required = _contractCount + required;
-                if (required >= _contractData.Length) Expand(required);
+                required = ContractsCount + required;
+                if (required >= ContractsData.Length) Expand(required);
 
                 for (var i = 0; span.Length > i; i++)
                 {
@@ -92,13 +92,13 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override bool Contains(in Contract contract)
         {
-            var meta = _contractMeta;
+            var meta = ContractsMeta;
             var bucket = (uint)contract.HashCode % meta.Length;
             var position = meta[bucket].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref _contractData[position];
+                ref var candidate = ref ContractsData[position];
                 if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
                     candidate._contract.Name == contract.Name)
                     return true;
@@ -117,13 +117,13 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override RegistrationManager? Get(in Contract contract)
         {
-            var meta = _contractMeta;
+            var meta = ContractsMeta;
             var target = (uint)contract.HashCode % meta.Length;
             var position = meta[target].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref _contractData[position];
+                ref var candidate = ref ContractsData[position];
                 if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
                     candidate._contract.Name == contract.Name)
                     return candidate._manager;
@@ -137,29 +137,29 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override RegistrationManager? Get(in Contract contract, in Contract generic)
         {
-            var meta  = _contractMeta;
+            var meta  = ContractsMeta;
             var position = meta[(uint)generic.HashCode % meta.Length].Position;
 
             // Search for generic factory
 
             while (position > 0)
             {
-                ref var factory = ref _contractData[position];
+                ref var factory = ref ContractsData[position];
                 if (ReferenceEquals(factory._contract.Type, generic.Type) &&
                     factory._contract.Name == generic.Name)
                 {
                     // Found generic factory
 
-                    lock (_syncRoot)
+                    lock (Sync)
                     {
                         // Check if contract is created already
 
-                        var target = (uint)contract.HashCode % _contractMeta.Length;
-                        position = _contractMeta[target].Position;
+                        var target = (uint)contract.HashCode % ContractsMeta.Length;
+                        position = ContractsMeta[target].Position;
 
                         while (position > 0)
                         {
-                            ref var candidate = ref _contractData[position];
+                            ref var candidate = ref ContractsData[position];
                             if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
                                 candidate._contract.Name == contract.Name)
                             {
@@ -167,28 +167,28 @@ namespace Unity.BuiltIn
                                 return candidate._manager;
                             }
 
-                            position = _contractMeta[position].Next;
+                            position = ContractsMeta[position].Next;
                         }
 
                         // Nothing is found, add new
 
-                        _contractCount += 1;
+                        ContractsCount += 1;
 
                         // Expand if required
 
-                        if (_contractData.Length <= _contractCount)
+                        if (ContractsData.Length <= ContractsCount)
                         {
                             Expand();
-                            target = (uint)contract.HashCode % _contractMeta.Length;
+                            target = (uint)contract.HashCode % ContractsMeta.Length;
                         }
 
                         // Clone manager
                         var manager = factory.LifetimeManager.Clone();
 
-                        ref var bucket = ref _contractMeta[target];
-                        _contractData[_contractCount] = new ContainerRegistration(contract.HashCode, contract.Type, factory.Name, manager);
-                        _contractMeta[_contractCount].Next = bucket.Position;
-                        bucket.Position = _contractCount;
+                        ref var bucket = ref ContractsMeta[target];
+                        ContractsData[ContractsCount] = new ContainerRegistration(contract.HashCode, contract.Type, factory.Name, manager);
+                        ContractsMeta[ContractsCount].Next = bucket.Position;
+                        bucket.Position = ContractsCount;
 
                         return manager;
                     }

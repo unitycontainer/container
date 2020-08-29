@@ -7,58 +7,60 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
+        [CLSCompliant(false)]
         protected ref readonly NameInfo GetNameInfo(string name)
         {
 
             var hash = (uint)name!.GetHashCode();
-            var target = hash % _namesMeta.Length;
-            var position = _namesMeta[target].Position;
+            var target = hash % NamesMeta.Length;
+            var position = NamesMeta[target].Position;
             
             // Check if already registered
             
             while (position > 0)
             {
-                ref var candidate = ref _namesData[position];
+                ref var candidate = ref NamesData[position];
                 if (hash == candidate.Hash && candidate.Name == name)
                     return ref candidate;
 
-                position = _namesMeta[position].Next;
+                position = NamesMeta[position].Next;
             }
 
             // Nothing found, add new
             
-            _namesCount += 1;
+            NamesCount += 1;
 
             // Expand if required
-            if (_namesData.Length <= _namesCount)
+            if (NamesData.Length <= NamesCount)
             {
-                Array.Resize(ref _namesData, Prime.Numbers[_namesPrime++]);
-                var meta = new Metadata[Prime.Numbers[_namesPrime]];
+                Array.Resize(ref NamesData, Prime.Numbers[NamesPrime++]);
+                var meta = new Metadata[Prime.Numbers[NamesPrime]];
 
                 // Rebuild buckets
-                for (var current = START_INDEX; current < _namesCount; current++)
+                for (var current = START_INDEX; current < NamesCount; current++)
                 {
-                    target = _namesData[current].Hash % meta.Length;
+                    target = NamesData[current].Hash % meta.Length;
                     meta[current].Next = meta[target].Position;
                     meta[target].Position = current;
                 }
 
                 target = hash % meta.Length;
-                _namesMeta = meta;
+                NamesMeta = meta;
             }
 
-            ref var entry = ref _namesData[_namesCount];
-            ref var bucket = ref _namesMeta[target];
+            ref var entry = ref NamesData[NamesCount];
+            ref var bucket = ref NamesMeta[target];
 
             entry = new NameInfo(hash, name);
 
-            _namesMeta[_namesCount].Next = bucket.Position;
-            bucket.Position = _namesCount;
+            NamesMeta[NamesCount].Next = bucket.Position;
+            bucket.Position = NamesCount;
 
             return ref entry;
         }
 
         [DebuggerDisplay("{ Name }")]
+        [CLSCompliant(false)]
         public struct NameInfo
         {
             public readonly uint Hash;

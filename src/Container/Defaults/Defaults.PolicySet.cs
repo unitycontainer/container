@@ -12,18 +12,18 @@ namespace Unity.Container
         public object? Get(Type type)
         {
             var hash = (uint)(37 ^ type.GetHashCode());
-            var position = _meta[hash % _meta.Length].Position;
+            var position = Meta[hash % Meta.Length].Position;
 
             while (position > 0)
             {
-                ref var candidate = ref _data[position];
+                ref var candidate = ref Data[position];
                 if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                 {
                     // Found existing
                     return candidate.Value;
                 }
 
-                position = _meta[position].Next;
+                position = Meta[position].Next;
             }
 
             return null;
@@ -40,12 +40,12 @@ namespace Unity.Container
 
                 lock (_syncRoot)
                 {
-                    ref var bucket = ref _meta[hash % _meta.Length];
+                    ref var bucket = ref Meta[hash % Meta.Length];
                     var position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref _data[position];
+                        ref var candidate = ref Data[position];
                         if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                         {
                             // Found existing
@@ -54,19 +54,19 @@ namespace Unity.Container
                             return;
                         }
 
-                        position = _meta[position].Next;
+                        position = Meta[position].Next;
                     }
 
-                    if (++_count >= _data.Length)
+                    if (++Count >= Data.Length)
                     {
                         Expand();
-                        bucket = ref _meta[hash % _meta.Length];
+                        bucket = ref Meta[hash % Meta.Length];
                     }
 
                     // Add new
-                    _data[_count] = new Policy(hash, type, value);
-                    _meta[_count].Next = bucket.Position;
-                    bucket.Position = _count;
+                    Data[Count] = new Policy(hash, type, value);
+                    Meta[Count].Next = bucket.Position;
+                    bucket.Position = Count;
                 }
             }
             finally
@@ -86,12 +86,12 @@ namespace Unity.Container
 
                 lock (_syncRoot)
                 {
-                    ref var bucket = ref _meta[hash % _meta.Length];
+                    ref var bucket = ref Meta[hash % Meta.Length];
                     var position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref _data[position];
+                        ref var candidate = ref Data[position];
                         if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                         {
                             // Found existing
@@ -101,23 +101,23 @@ namespace Unity.Container
                             return;
                         }
 
-                        position = _meta[position].Next;
+                        position = Meta[position].Next;
                     }
 
-                    if (++_count >= _data.Length)
+                    if (++Count >= Data.Length)
                     {
                         Expand();
-                        bucket = ref _meta[hash % _meta.Length];
+                        bucket = ref Meta[hash % Meta.Length];
                     }
 
                     // Add new entry and subscribe
-                    ref var entry = ref _data[_count];
+                    ref var entry = ref Data[Count];
                     entry = new Policy(hash, type, value);
                     entry.PolicyChanged += subscriber;
                     handler = entry.Handler;
 
-                    _meta[_count].Next = bucket.Position;
-                    bucket.Position = _count;
+                    Meta[Count].Next = bucket.Position;
+                    bucket.Position = Count;
                 }
             }
             finally
@@ -138,29 +138,29 @@ namespace Unity.Container
 
             lock (_syncRoot)
             {
-                ref var bucket = ref _meta[hash % _meta.Length];
+                ref var bucket = ref Meta[hash % Meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref _data[position];
+                    ref var candidate = ref Data[position];
                     if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                         throw new InvalidOperationException($"{type.Name} already allocated");
 
-                    position = _meta[position].Next;
+                    position = Meta[position].Next;
                 }
 
-                if (++_count >= _data.Length)
+                if (++Count >= Data.Length)
                 {
                     Expand();
-                    bucket = ref _meta[hash % _meta.Length];
+                    bucket = ref Meta[hash % Meta.Length];
                 }
 
                 // Add new
-                _data[_count] = new Policy(hash, type, null);
-                _meta[_count].Next = bucket.Position;
-                bucket.Position = _count;
-                return _count;
+                Data[Count] = new Policy(hash, type, null);
+                Meta[Count].Next = bucket.Position;
+                bucket.Position = Count;
+                return Count;
             }
         }
     }

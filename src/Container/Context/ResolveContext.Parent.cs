@@ -8,9 +8,9 @@ namespace Unity.Container
 #if NETSTANDARD1_6 || NETCOREAPP1_0 || NETSTANDARD2_0 || NETSTANDARD2_1
     public partial class ResolveContext
     {
-        ResolveContext _parent;
+        //ResolveContext _parent;
 
-        public ResolveContext Parent => _parent;
+        //public ResolveContext Parent => _parent;
     }
 #else
     public partial struct ResolveContext

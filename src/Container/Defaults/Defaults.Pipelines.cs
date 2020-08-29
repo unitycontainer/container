@@ -27,21 +27,21 @@ namespace Unity.Container
         /// <see cref="RegistrationCategory.Type"/> registration
         /// </summary>
         public ResolveDelegate<ResolveContext> TypePipeline
-            => (ResolveDelegate<ResolveContext>)_data[PIPELINE_TYPE].Value!;
+            => (ResolveDelegate<ResolveContext>)Data[PIPELINE_TYPE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Instance"/> registration
         /// </summary>
         public ResolveDelegate<ResolveContext> InstancePipeline
-            => (ResolveDelegate<ResolveContext>)_data[PIPELINE_INSTANCE].Value!;
+            => (ResolveDelegate<ResolveContext>)Data[PIPELINE_INSTANCE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Factory"/> registration
         /// </summary>
         public ResolveDelegate<ResolveContext> FactoryPipeline
-            => (ResolveDelegate<ResolveContext>)_data[PIPELINE_FACTORY].Value!;
+            => (ResolveDelegate<ResolveContext>)Data[PIPELINE_FACTORY].Value!;
 
         #endregion
 
@@ -52,19 +52,19 @@ namespace Unity.Container
         /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInLifetime"/> lifetime
         /// </summary>
         public ResolveDelegateFactory UnregisteredPipelineFactory
-            => (ResolveDelegateFactory)_data[FACTORY_UNREGISTERED].Value!;
+            => (ResolveDelegateFactory)Data[FACTORY_UNREGISTERED].Value!;
         
         /// <summary>
         /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInWhile"/> lifetime
         /// </summary>
         public BalancedFactoryDelegate BalancedPipelineFactory
-            => (BalancedFactoryDelegate)_data[FACTORY_BALANCED].Value!;
+            => (BalancedFactoryDelegate)Data[FACTORY_BALANCED].Value!;
 
         /// <summary>
         /// Create resolution pipeline for <see cref="ResolutionStyle.EveryTime"/> lifetime
         /// </summary>
         public OptimizedFactoryDelegate OptimizedPipelineFactory
-            => (OptimizedFactoryDelegate)_data[FACTORY_OPTIMIZED].Value!;
+            => (OptimizedFactoryDelegate)Data[FACTORY_OPTIMIZED].Value!;
 
         #endregion
     }

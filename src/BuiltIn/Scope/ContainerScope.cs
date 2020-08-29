@@ -8,7 +8,7 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
-        protected Metadata[] _contractMeta;
+        protected Metadata[] ContractsMeta;
 
         #endregion
 
@@ -20,7 +20,7 @@ namespace Unity.BuiltIn
             : base(capacity)
         {
             // Registrations
-            _contractMeta = new Metadata[Prime.Numbers[_contractPrime]];
+            ContractsMeta = new Metadata[Prime.Numbers[ContractsPrime]];
         }
 
         // Child constructor
@@ -28,15 +28,15 @@ namespace Unity.BuiltIn
             : base(scope, capacity)
         {
             // Registrations
-            _contractMeta = new Metadata[Prime.Numbers[_contractPrime]];
+            ContractsMeta = new Metadata[Prime.Numbers[ContractsPrime]];
         }
 
         // Copy constructor
         protected ContainerScope(ContainerScope scope)
-            : base(scope, scope._syncRoot)
+            : base(scope, scope.Sync)
         {
             // Registrations
-            _contractMeta = scope._contractMeta;
+            ContractsMeta = scope.ContractsMeta;
         }
 
         #endregion

@@ -20,12 +20,12 @@ namespace Unity.BuiltIn
         protected virtual int Add(in Contract contract, RegistrationManager manager)
         {
             var hash = (uint)contract.HashCode;
-            ref var bucket = ref _contractMeta[hash % _contractMeta.Length];
+            ref var bucket = ref ContractsMeta[hash % ContractsMeta.Length];
             var position = bucket.Position;
 
             while (position > 0)
             {
-                ref var candidate = ref _contractData[position];
+                ref var candidate = ref ContractsData[position];
                 if (ReferenceEquals(candidate._contract.Type, contract.Type) && 
                     ReferenceEquals(candidate._contract.Name, contract.Name))
                 {
@@ -35,17 +35,17 @@ namespace Unity.BuiltIn
                     return 0;
                 }
 
-                position = _contractMeta[position].Next;
+                position = ContractsMeta[position].Next;
             }
 
             // Add new registration
-            _contractCount++;
-            _contractData[_contractCount] = new ContainerRegistration(in contract, manager);
-            _contractMeta[_contractCount].Next = bucket.Position;
-            bucket.Position = _contractCount;
+            ContractsCount++;
+            ContractsData[ContractsCount] = new ContainerRegistration(in contract, manager);
+            ContractsMeta[ContractsCount].Next = bucket.Position;
+            bucket.Position = ContractsCount;
             _version += 1;
 
-            return _contractCount;
+            return ContractsCount;
         }
 
         
@@ -56,17 +56,17 @@ namespace Unity.BuiltIn
         /// </summary>
         protected virtual void Expand()
         {
-            Array.Resize(ref _contractData, Prime.Numbers[_contractPrime++]);
+            Array.Resize(ref ContractsData, Prime.Numbers[ContractsPrime++]);
 
-            var meta = new Metadata[Prime.Numbers[_contractPrime]];
-            for (var current = START_INDEX; current <= _contractCount; current++)
+            var meta = new Metadata[Prime.Numbers[ContractsPrime]];
+            for (var current = START_INDEX; current <= ContractsCount; current++)
             {
-                var bucket = (uint)_contractData[current]._contract.HashCode % meta.Length;
+                var bucket = (uint)ContractsData[current]._contract.HashCode % meta.Length;
                 meta[current].Next = meta[bucket].Position;
                 meta[bucket].Position = current;
             }
 
-            _contractMeta = meta;
+            ContractsMeta = meta;
         }
 
         /// <summary>
@@ -80,18 +80,18 @@ namespace Unity.BuiltIn
         /// <param name="required">Total required size</param>
         protected virtual void Expand(int required)
         {
-            _contractPrime = Prime.IndexOf(required);
-            Array.Resize(ref _contractData, Prime.Numbers[_contractPrime++]);
+            ContractsPrime = Prime.IndexOf(required);
+            Array.Resize(ref ContractsData, Prime.Numbers[ContractsPrime++]);
 
-            var meta = new Metadata[Prime.Numbers[_contractPrime]];
-            for (var current = START_INDEX; current <= _contractCount; current++)
+            var meta = new Metadata[Prime.Numbers[ContractsPrime]];
+            for (var current = START_INDEX; current <= ContractsCount; current++)
             {
-                var bucket = (uint)_contractData[current]._contract.HashCode % meta.Length;
+                var bucket = (uint)ContractsData[current]._contract.HashCode % meta.Length;
                 meta[current].Next = meta[bucket].Position;
                 meta[bucket].Position = current;
             }
 
-            _contractMeta = meta;
+            ContractsMeta = meta;
         }
 
         #endregion

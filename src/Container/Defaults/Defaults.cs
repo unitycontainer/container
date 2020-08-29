@@ -13,10 +13,11 @@ namespace Unity.Container
 
         readonly object _syncRoot = new object();
 
-        protected int _count;
-        protected int _prime = 2;
-        protected Policy[] _data;
-        protected Metadata[] _meta;
+        protected int Count;
+        protected int Prime = 2;
+
+        [CLSCompliant(false)] protected Policy[] Data;
+        [CLSCompliant(false)] protected Metadata[] Meta;
 
         private readonly int PIPELINE_TYPE;
         private readonly int PIPELINE_FACTORY;
@@ -40,8 +41,8 @@ namespace Unity.Container
             UnregisteredChain = new StagedChain<BuilderStage, PipelineProcessor>();
 
             // Storage
-            _data = new Policy[Prime.Numbers[_prime]];
-            _meta = new Metadata[Prime.Numbers[++_prime]];
+            Data = new Policy[Storage.Prime.Numbers[Prime]];
+            Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Activation pipeline
             PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<ResolveContext>));

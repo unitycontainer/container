@@ -18,7 +18,7 @@ namespace Unity.Container
             Existing = default;
             Activity = activity;
 
-            _parent = context;
+//            _parent = context;
         }
 
 

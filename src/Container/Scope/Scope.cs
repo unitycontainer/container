@@ -21,22 +21,21 @@ namespace Unity.Container
         #region Fields
 
         // Entire scope lock
-        protected readonly object _syncRoot;
+        protected readonly object Sync;
 
         // Names
-        protected int _namesPrime;
-        protected int _namesCount;
-        protected Metadata[] _namesMeta;
-        protected NameInfo[] _namesData;
+        protected int NamesPrime;
+        protected int NamesCount;
+        [CLSCompliant(false)] protected Metadata[] NamesMeta;
+        [CLSCompliant(false)] protected NameInfo[] NamesData;
 
         // Contracts
-        protected int _contractPrime;
-        protected int _contractCount;
-        protected ContainerRegistration[] _contractData;
+        protected int ContractsPrime;
+        protected int ContractsCount;
+        protected ContainerRegistration[] ContractsData;
 
         // Scope info
-        protected int _version;
-        protected readonly ICollection<IDisposable> _disposables;
+        [CLSCompliant(false)] protected int _version;
 
         #endregion
 
@@ -49,19 +48,19 @@ namespace Unity.Container
         protected internal Scope(int capacity)
         {
             // Scope lock
-            _syncRoot = new object();
+            Sync = new object();
 
             // Names
-            _namesPrime = 2;
-            _namesData = new NameInfo[Prime.Numbers[_namesPrime++]];
-            _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
+            NamesPrime = 2;
+            NamesData = new NameInfo[Prime.Numbers[NamesPrime++]];
+            NamesMeta = new Metadata[Prime.Numbers[NamesPrime]];
 
             // Contracts
-            _contractPrime = Prime.IndexOf(capacity);
-            _contractData = new ContainerRegistration[Prime.Numbers[_contractPrime++]];
+            ContractsPrime = Prime.IndexOf(capacity);
+            ContractsData = new ContainerRegistration[Prime.Numbers[ContractsPrime++]];
 
             // Segment
-            _disposables = new List<IDisposable>();
+            Disposables = new List<IDisposable>();
             Next = null;
 
         }
@@ -73,18 +72,18 @@ namespace Unity.Container
         protected Scope(Scope parent, int capacity)
         {
             // Scope lock
-            _syncRoot = new object();
+            Sync = new object();
 
             // Names
-            _namesData = new NameInfo[Prime.Numbers[_namesPrime++]];
-            _namesMeta = new Metadata[Prime.Numbers[_namesPrime]];
+            NamesData = new NameInfo[Prime.Numbers[NamesPrime++]];
+            NamesMeta = new Metadata[Prime.Numbers[NamesPrime]];
 
             // Contracts
-            _contractPrime = Prime.IndexOf(capacity);
-            _contractData = new ContainerRegistration[Prime.Numbers[_contractPrime++]];
+            ContractsPrime = Prime.IndexOf(capacity);
+            ContractsData = new ContainerRegistration[Prime.Numbers[ContractsPrime++]];
 
             // Segment
-            _disposables = new List<IDisposable>();
+            Disposables = new List<IDisposable>();
             Next = parent;
         }
 
@@ -96,24 +95,24 @@ namespace Unity.Container
         protected internal Scope(Scope scope, object sync)
         {
             // Scope lock
-            _syncRoot = sync;
+            Sync = sync;
 
             // Names
-            _namesPrime = scope._namesPrime;
-            _namesCount = scope._namesCount;
-            _namesMeta  = scope._namesMeta;
-            _namesData  = scope._namesData;
+            NamesPrime = scope.NamesPrime;
+            NamesCount = scope.NamesCount;
+            NamesMeta  = scope.NamesMeta;
+            NamesData  = scope.NamesData;
 
             // Contracts
-            _contractPrime = scope._contractPrime;
-            _contractCount = scope._contractCount;
-            _contractData = scope._contractData;
+            ContractsPrime = scope.ContractsPrime;
+            ContractsCount = scope.ContractsCount;
+            ContractsData = scope.ContractsData;
 
             // Info
             _version = scope._version;
 
             // Segment
-            _disposables = scope._disposables;
+            Disposables = scope.Disposables;
             Next = scope.Next;
         }
 

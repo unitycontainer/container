@@ -21,24 +21,24 @@ namespace Unity.Container
         /// <summary>
         /// Count of registered <see cref="Contract"/> names
         /// </summary>
-        public virtual int Names => _namesCount;
+        public virtual int Names => NamesCount;
 
         /// <summary>
         /// Count of registered <see cref="Contract"/> types
         /// </summary>
-        public int Contracts => _contractCount;
+        public int Contracts => ContractsCount;
 
         /// <summary>
         /// Return <see cref="ReadOnlyMemory{ContainerRegistration}"/> encapsulating
         /// all registered contracts.
         /// </summary>
         public ReadOnlyMemory<ContainerRegistration> Memory 
-            => new ReadOnlyMemory<ContainerRegistration>(_contractData, 1, _contractCount);
+            => new ReadOnlyMemory<ContainerRegistration>(ContractsData, 1, ContractsCount);
 
         /// <summary>
         /// Storage capacity of the scope
         /// </summary>
-        public int Capacity => _contractData.Length;
+        public int Capacity => ContractsData.Length;
 
         /// <summary>
         /// Pointer to the next scope
@@ -128,7 +128,7 @@ namespace Unity.Container
         /// <summary>
         /// Collection of <see cref="IDisposable"/> objects that this scope owns
         /// </summary>
-        public ICollection<IDisposable> Disposables => _disposables;
+        public ICollection<IDisposable> Disposables { get; }
         
         #endregion
     }

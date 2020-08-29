@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.Pipeline;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -17,7 +16,8 @@ namespace Unity.Container
 
         #region Span
 
-        public ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(_data, 1, _count);
+
+        internal ReadOnlySpan<Policy> Span => new ReadOnlySpan<Policy>(Data, 1, Count);
 
         #endregion
 
@@ -26,11 +26,11 @@ namespace Unity.Container
             get
             {
                 var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
-                var position = _meta[hash % _meta.Length].Position;
+                var position = Meta[hash % Meta.Length].Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref _data[position];
+                    ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
                         ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
                     {
@@ -38,7 +38,7 @@ namespace Unity.Container
                         return (ResolveDelegate<ResolveContext>?)candidate.Value;
                     }
 
-                    position = _meta[position].Next;
+                    position = Meta[position].Next;
                 }
 
                 return null;
@@ -50,12 +50,12 @@ namespace Unity.Container
 
                 lock (_syncRoot)
                 {
-                    ref var bucket = ref _meta[hash % _meta.Length];
+                    ref var bucket = ref Meta[hash % Meta.Length];
                     var position = bucket.Position;
 
                     while (position > 0)
                     {
-                        ref var candidate = ref _data[position];
+                        ref var candidate = ref Data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
                             ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
                         {
@@ -64,19 +64,19 @@ namespace Unity.Container
                             return;
                         }
 
-                        position = _meta[position].Next;
+                        position = Meta[position].Next;
                     }
 
-                    if (++_count >= _data.Length)
+                    if (++Count >= Data.Length)
                     {
                         Expand();
-                        bucket = ref _meta[hash % _meta.Length];
+                        bucket = ref Meta[hash % Meta.Length];
                     }
 
                     // Add new registration
-                    _data[_count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
-                    _meta[_count].Next = bucket.Position;
-                    bucket.Position = _count;
+                    Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
+                    Meta[Count].Next = bucket.Position;
+                    bucket.Position = Count;
                 }
             }
         }
@@ -87,12 +87,12 @@ namespace Unity.Container
 
             lock (_syncRoot)
             {
-                ref var bucket = ref _meta[hash % _meta.Length];
+                ref var bucket = ref Meta[hash % Meta.Length];
                 var position = bucket.Position;
 
                 while (position > 0)
                 {
-                    ref var candidate = ref _data[position];
+                    ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
                         ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
                     {
@@ -101,19 +101,19 @@ namespace Unity.Container
                         return (ResolveDelegate<ResolveContext>)candidate.Value;
                     }
 
-                    position = _meta[position].Next;
+                    position = Meta[position].Next;
                 }
 
-                if (++_count >= _data.Length)
+                if (++Count >= Data.Length)
                 {
                     Expand();
-                    bucket = ref _meta[hash % _meta.Length];
+                    bucket = ref Meta[hash % Meta.Length];
                 }
 
                 // Add new registration
-                _data[_count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
-                _meta[_count].Next = bucket.Position;
-                bucket.Position = _count;
+                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
+                Meta[Count].Next = bucket.Position;
+                bucket.Position = Count;
 
                 return value;
             }
@@ -121,14 +121,14 @@ namespace Unity.Container
 
         protected virtual void Expand()
         {
-            Array.Resize(ref _data, Prime.Numbers[_prime++]);
-            _meta = new Metadata[Prime.Numbers[_prime]];
+            Array.Resize(ref Data, Storage.Prime.Numbers[Prime++]);
+            Meta = new Metadata[Storage.Prime.Numbers[Prime]];
 
-            for (var current = 1; current < _count; current++)
+            for (var current = 1; current < Count; current++)
             {
-                var bucket = _data[current].Hash % _meta.Length;
-                _meta[current].Next = _meta[bucket].Position;
-                _meta[bucket].Position = current;
+                var bucket = Data[current].Hash % Meta.Length;
+                Meta[current].Next = Meta[bucket].Position;
+                Meta[bucket].Position = current;
             }
         }
 
