@@ -10,52 +10,43 @@ namespace Unity
     {
         #region Registered Contract
 
-        /// <summary>
-        /// Resolve registered contract
-        /// </summary>
-        /// <remarks>
-        /// The registration could be for a <see cref="Contract"/> itself or for generic factory.
-        /// </remarks>
-        /// <param name="contract"><see cref="Contract"/> to resolve</param>
-        /// <param name="manager"><see cref="RegistrationManager"/> holding information about the registration</param>
-        /// <param name="overrides">An array of <see cref="ResolverOverride"/> objects to use during resolution</param>
-        /// <exception cref="ResolutionFailedException">Thrown if for some reason object could not be resolved</exception>
-        /// <returns>Returns resolved object</returns>
-        private object? ResolveContract(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+
+        private object? ResolveContract(in ResolutionContext context)
         {
-            // Check if pipeline has been created already
-            if (null == manager.ResolveDelegate)
-            {
-                // Prevent creating pipeline multiple times
-                lock (manager)
-                {
-                    // Make sure it is still not created while waited for the lock
-                    if (null == manager.ResolveDelegate)
-                    {
-                        var lifetime = (LifetimeManager)manager;
+            return new object();
 
-                        manager.ResolveDelegate = manager.Category switch
-                        {
-                            RegistrationCategory.Instance => _policies.InstancePipeline,
-                            RegistrationCategory.Factory =>  _policies.FactoryPipeline,
-                            
-                            RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
-                            RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => _policies.BalancedPipelineFactory(in contract, manager),
-                            RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => _policies.OptimizedPipelineFactory(in contract, manager),
+            //// Check if pipeline has been created already
+            //if (null == context.Manager.ResolveDelegate)
+            //{
+            //    // Prevent creating pipeline multiple times
+            //    lock (context.Manager)
+            //    {
+            //        // Make sure it is still not created while waited for the lock
+            //        if (null == context.Manager.ResolveDelegate)
+            //        {
+            //            var lifetime = (LifetimeManager)context.Manager;
 
-                            RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
-                            RegistrationCategory.Type when ResolutionStyle.OnceInWhile    == lifetime.Style => _policies.BalancedPipelineFactory(in contract, manager),
-                            RegistrationCategory.Type when ResolutionStyle.EveryTime      == lifetime.Style => _policies.OptimizedPipelineFactory(in contract, manager),
+            //            context.Manager.ResolveDelegate = context.Manager.Category switch
+            //            {
+            //                RegistrationCategory.Instance => _policies.InstancePipeline,
+            //                RegistrationCategory.Factory => _policies.FactoryPipeline,
 
-                            _ => throw new InvalidOperationException($"Registration {contract.Type}/{contract.Name} has unsupported category {manager.Category}")
-                        };
-                    }
-                }
-            }
+            //                RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
+            //                //RegistrationCategory.Clone when ResolutionStyle.OnceInWhile == lifetime.Style => _policies.BalancedPipelineFactory(in contract, context.Manager),
+            //                //RegistrationCategory.Clone when ResolutionStyle.EveryTime == lifetime.Style  => _policies.OptimizedPipelineFactory(in contract, context.Manager),
 
-            // Resolve in current context
-            ResolveContext context = new ResolveContext(this, in contract, manager, overrides);
-            return ((ResolveDelegate<ResolveContext>)manager.ResolveDelegate)(ref context);
+            //                //RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
+            //                //RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style => _policies.BalancedPipelineFactory(in contract, context.Manager),
+            //                //RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style  => _policies.OptimizedPipelineFactory(in contract, context.Manager),
+
+            //                _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
+            //            };
+            //        }
+            //    }
+            //}
+
+            //// Resolve in current context
+            //return ((ResolveDelegate<ResolutionContext>)context.Manager.ResolveDelegate)(ref context);
         }
 
         #endregion

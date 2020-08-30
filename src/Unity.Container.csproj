@@ -84,10 +84,6 @@
 		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ComponentModel" Version="4.3.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Container\Context\Build\" />
-	</ItemGroup>
-
 
 	<!-- Configuration Settings -->
 

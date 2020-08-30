@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -64,8 +65,8 @@ namespace Unity
                     //Registration found, check value
                     var value = manager.TryGetValue(_scope.Disposables);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
-                        
-                    return container.ResolveContract(in contract, manager, overrides);
+
+                    return container.ResolveContract(new ResolutionContext(container, ref contract, manager, overrides));
                 }
 
                 // Skip to parent if non generic
@@ -78,7 +79,7 @@ namespace Unity
                 if (null != (manager = container._scope.Get(in contract, in generic)))
                 {
                     // Build from generic factory
-                    return container.ResolveContract(in contract, manager, overrides);
+                    return container.ResolveContract(new ResolutionContext(container, ref contract, manager, overrides));
                 }
             }
             while (null != (container = container.Parent));
