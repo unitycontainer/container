@@ -24,14 +24,10 @@ namespace Unity.Benchmarks
         [GlobalSetup]
         public virtual void GlobalSetup()
         {
-#if NET462 || NET472
             Container = new UnityContainer()
                 .RegisterType(typeof(TestGeneric<>))
-                .RegisterType(typeof(Service));
-#else
-            Container = new UnityContainer()
-                .RegisterType(typeof(TestGeneric<>))
-                .RegisterType(typeof(Service));
+                .RegisterType(typeof(Service), new ContainerControlledLifetimeManager());
+#if !NET462 && !NET472
             ContainerAsync = (IUnityContainerAsync)Container;
             ServiceProvider = (IServiceProvider)Container;
 #endif
