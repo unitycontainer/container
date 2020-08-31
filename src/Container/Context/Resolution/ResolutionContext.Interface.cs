@@ -4,7 +4,7 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public readonly partial struct ResolutionContext : IResolveContext
+    public partial struct ResolutionContext : IResolveContext
     {
         #region IResolveContext
 

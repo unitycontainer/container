@@ -12,7 +12,7 @@ namespace Unity.Container
     /// Works like the ExternallyControlledLifetimeManager, but uses 
     /// regular instead of weak references
     /// </remarks>
-    public class ContainerLifetimeManager : LifetimeManager
+    internal class ContainerLifetimeManager : LifetimeManager
     {
         internal ContainerLifetimeManager(object? data, RegistrationCategory type = RegistrationCategory.Instance)
         {

@@ -63,30 +63,30 @@ namespace Unity.BuiltIn
 
             // Default activating pipelines
             defaults.Set(typeof(Defaults.TypeCategory),     
-                         typeof(ResolveDelegate<ResolveContext>), 
+                         typeof(ResolveDelegate<ResolutionContext>), 
                          (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-                                                 .CreateDelegate(typeof(ResolveDelegate<ResolveContext>), 
+                                                 .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
                                                     ((StagedChain<BuilderStage, PipelineProcessor>)context.TypePipelineChain)
                                                     .ToArray()));
             
             defaults.Set(typeof(Defaults.FactoryCategory),  
-                         typeof(ResolveDelegate<ResolveContext>),
+                         typeof(ResolveDelegate<ResolutionContext>),
                          (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-                                                 .CreateDelegate(typeof(ResolveDelegate<ResolveContext>), 
+                                                 .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
                                                     ((StagedChain<BuilderStage, PipelineProcessor>)context.FactoryPipelineChain)
                                                     .ToArray()));
             
             defaults.Set(typeof(Defaults.InstanceCategory), 
-                         typeof(ResolveDelegate<ResolveContext>),
+                         typeof(ResolveDelegate<ResolutionContext>),
                          (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-                                                 .CreateDelegate(typeof(ResolveDelegate<ResolveContext>), 
+                                                 .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
                                                     ((StagedChain<BuilderStage, PipelineProcessor>)context.UnregisteredPipelineChain)
                                                     .ToArray()));
             // Install Pipeline Factories
-            defaults.Set(typeof(ResolveDelegateFactory),               (ResolveDelegateFactory)DelegateFactory.Factory);
-            defaults.Set(typeof(Defaults.BalancedFactoryDelegate),     (Defaults.BalancedFactoryDelegate)BalancedPipelineFactory.Factory);
-            defaults.Set(typeof(Defaults.OptimizedFactoryDelegate),    (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);
-            defaults.Set(typeof(Defaults.UnregisteredFactoryDelegate), (Defaults.UnregisteredFactoryDelegate)UnregisteredPipelineFactory.Factory);
+            //defaults.Set(typeof(ResolveDelegateFactory),               (ResolveDelegateFactory)DelegateFactory.Factory);
+            //defaults.Set(typeof(Defaults.BalancedFactoryDelegate),     (Defaults.BalancedFactoryDelegate)BalancedPipelineFactory.Factory);
+            //defaults.Set(typeof(Defaults.OptimizedFactoryDelegate),    (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);
+            //defaults.Set(typeof(Defaults.UnregisteredFactoryDelegate), (Defaults.UnregisteredFactoryDelegate)UnregisteredPipelineFactory.Factory);
 
             #endregion
         }

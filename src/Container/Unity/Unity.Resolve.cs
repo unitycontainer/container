@@ -10,49 +10,69 @@ namespace Unity
     {
         #region Registered Contract
 
-
-        private object? ResolveContract(in ResolutionContext context)
+        private static object? ResolveRegistration(ref ResolutionContext context)
         {
-            return new object();
+            // Check if pipeline has been created already
+            if (null == context.Manager.ResolveDelegate)
+            {
+                // Prevent creating pipeline multiple times
+                lock (context.Manager)
+                {
+                    // Make sure it is still not created while waited for the lock
+                    if (null == context.Manager.ResolveDelegate)
+                    {
+                        var lifetime = (LifetimeManager)context.Manager;
 
-            //// Check if pipeline has been created already
-            //if (null == context.Manager.ResolveDelegate)
-            //{
-            //    // Prevent creating pipeline multiple times
-            //    lock (context.Manager)
-            //    {
-            //        // Make sure it is still not created while waited for the lock
-            //        if (null == context.Manager.ResolveDelegate)
-            //        {
-            //            var lifetime = (LifetimeManager)context.Manager;
+                        context.Manager.ResolveDelegate = context.Manager.Category switch
+                        {
+                            RegistrationCategory.Instance => context.Container._policies.InstancePipeline,
+                            RegistrationCategory.Factory  => context.Container._policies.FactoryPipeline,
 
-            //            context.Manager.ResolveDelegate = context.Manager.Category switch
-            //            {
-            //                RegistrationCategory.Instance => _policies.InstancePipeline,
-            //                RegistrationCategory.Factory => _policies.FactoryPipeline,
+                            //RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
+                            //RegistrationCategory.Clone when ResolutionStyle.OnceInWhile == lifetime.Style => _policies.BalancedPipelineFactory(in contract, context.Manager),
+                            //RegistrationCategory.Clone when ResolutionStyle.EveryTime == lifetime.Style => _policies.OptimizedPipelineFactory(in contract, context.Manager),
 
-            //                RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
-            //                //RegistrationCategory.Clone when ResolutionStyle.OnceInWhile == lifetime.Style => _policies.BalancedPipelineFactory(in contract, context.Manager),
-            //                //RegistrationCategory.Clone when ResolutionStyle.EveryTime == lifetime.Style  => _policies.OptimizedPipelineFactory(in contract, context.Manager),
+                            RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style 
+                                => context.Container._policies.TypePipeline,
 
-            //                //RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style => _policies.TypePipeline,
-            //                //RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style => _policies.BalancedPipelineFactory(in contract, context.Manager),
-            //                //RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style  => _policies.OptimizedPipelineFactory(in contract, context.Manager),
+                            RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style 
+                                => context.Container._policies.BalancedPipelineFactory(ref context),
 
-            //                _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
-            //            };
-            //        }
-            //    }
-            //}
+                            RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style 
+                                => context.Container._policies.OptimizedPipelineFactory(ref context),
 
-            //// Resolve in current context
-            //return ((ResolveDelegate<ResolutionContext>)context.Manager.ResolveDelegate)(ref context);
+                            _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
+                        };
+                    }
+                }
+            }
+
+            // Resolve in current context
+            return ((ResolveDelegate<ResolutionContext>)context.Manager.ResolveDelegate)(ref context);
         }
 
         #endregion
 
 
         #region Unregistered
+
+        private static object? ResolveUnregistered(ref ResolutionContext context)
+        {
+            throw new NotImplementedException();
+            //// Check if resolver already exist
+            //var resolver = _policies[contract.Type];
+
+            //// Nothing found, requires build
+            //if (null == resolver)
+            //{
+            //    // Build new and try to save it
+            //    resolver = _policies.UnregisteredPipelineFactory(in contract);
+            //    resolver = _policies.GetOrAdd(contract.Type, resolver);
+            //}
+
+            //var context = new ResolveContext(this, in contract, overrides);
+            //return resolver(ref context);
+        }
 
         /// <summary>
         /// Resolve unregistered <see cref="Contract"/>
@@ -67,19 +87,20 @@ namespace Unity
         /// <returns>Requested object</returns>
         private object? ResolveUnregistered(in Contract contract, ResolverOverride[] overrides)
         {
-            // Check if resolver already exist
-            var resolver = _policies[contract.Type];
+            throw new NotImplementedException();
+            //// Check if resolver already exist
+            //var resolver = _policies[contract.Type];
 
-            // Nothing found, requires build
-            if (null == resolver)
-            {
-                // Build new and try to save it
-                resolver = _policies.UnregisteredPipelineFactory(in contract);
-                resolver = _policies.GetOrAdd(contract.Type, resolver);
-            }
+            //// Nothing found, requires build
+            //if (null == resolver)
+            //{
+            //    // Build new and try to save it
+            //    resolver = _policies.UnregisteredPipelineFactory(in contract);
+            //    resolver = _policies.GetOrAdd(contract.Type, resolver);
+            //}
 
-            var context = new ResolveContext(this, in contract, overrides);
-            return resolver(ref context);
+            //var context = new ResolveContext(this, in contract, overrides);
+            //return resolver(ref context);
         }
 
         /// <summary>
@@ -96,33 +117,50 @@ namespace Unity
         /// <returns>Requested object</returns>
         private object? ResolveUnregisteredGeneric(in Contract contract, in Contract generic, ResolverOverride[] overrides)
         {
-            var context = new ResolveContext(this, in contract, overrides);
+            throw new NotImplementedException();
+            //var context = new ResolveContext(this, in contract, overrides);
 
-            // Check if resolver already exist
-            var resolver = _policies[contract.Type];
-            if (null != resolver) return resolver(ref context);
+            //// Check if resolver already exist
+            //var resolver = _policies[contract.Type];
+            //if (null != resolver) return resolver(ref context);
 
-            var factory = _policies.Get<ResolveDelegateFactory>(generic.Type);
-            if (null != factory)
-            {
-                // Build from factory and try to store it
-                resolver = factory(in contract);
-                resolver = _policies.GetOrAdd(contract.Type, resolver);
-                return resolver(ref context);
-            }
+            //var factory = _policies.Get<ResolveDelegateFactory>(generic.Type);
+            //if (null != factory)
+            //{
+            //    // Build from factory and try to store it
+            //    resolver = factory(in contract);
+            //    resolver = _policies.GetOrAdd(contract.Type, resolver);
+            //    return resolver(ref context);
+            //}
 
-            // Build new and try to save it
-            resolver = _policies.UnregisteredPipelineFactory(in contract);
-            resolver = _policies.GetOrAdd(contract.Type, resolver);
+            //// Build new and try to save it
+            //resolver = _policies.UnregisteredPipelineFactory(in contract);
+            //resolver = _policies.GetOrAdd(contract.Type, resolver);
 
-            // Resolve
-            return resolver(ref context);
+            //// Resolve
+            //return resolver(ref context);
         }
 
         #endregion
 
 
         #region Array
+
+        private static object? ResolveArray(ref ResolutionContext context)
+        {
+            throw new NotImplementedException();
+            //var context = new ResolveContext(this, in contract, overrides);
+            //var resolver = _policies[contract.Type];
+
+            //// Nothing found, requires build
+            //if (null == resolver)
+            //{
+            //    resolver = (ref ResolveContext c) => c.Existing;
+            //    _policies[contract.Type] = resolver;
+            //}
+
+            //return resolver(ref context);
+        }
 
         /// <summary>
         /// Resolve array

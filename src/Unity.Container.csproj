@@ -67,10 +67,10 @@
 	<!-- Framework Compatibility -->
 
 	<ItemGroup>
-		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))            " Remove="Extensions\Reflection\Compatibility.Common.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard1'))           " Remove="Extensions\Reflection\Compatibility.Common.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Extensions\Reflection\Compatibility.NetCoreApp.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Extensions\Reflection\Compatibility.NetStandard.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))            " Remove="Container\Extensions\Reflection\Compatibility.Common.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard1'))           " Remove="Container\Extensions\Reflection\Compatibility.Common.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Container\Extensions\Reflection\Compatibility.NetCoreApp.cs" />
+		<Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Container\Extensions\Reflection\Compatibility.NetStandard.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

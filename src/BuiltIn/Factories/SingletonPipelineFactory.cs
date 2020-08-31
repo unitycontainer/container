@@ -19,22 +19,23 @@ namespace Unity.BuiltIn
 
         #region Pipelines
 
-        public static object? Pipeline(PipelineProcessor[] chain, ref ResolveContext context)
+        public static object? Pipeline(PipelineProcessor[] chain, ref ResolutionContext context)
         {
             Debug.Assert(null != context.Manager);
-            
+
             try
             {
                 var i = -1;
+                var buildContext = new BuildContext(ref context);
 
                 while (++i < chain.Length)
                 {
-                    chain[i].PreBuildUp(ref context);
+                    chain[i].PreBuildUp(ref buildContext);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref context);
+                    chain[i].PostBuildUp(ref buildContext);
                 }
 
                 return context.Existing;
@@ -49,22 +50,23 @@ namespace Unity.BuiltIn
             }
         }
 
-        public static object? DiagnosticPipeline(PipelineProcessor[] chain, ref ResolveContext context)
+        public static object? DiagnosticPipeline(PipelineProcessor[] chain, ref ResolutionContext context)
         {
             Debug.Assert(null != context.Manager);
 
             try
             {
                 var i = -1;
+                var buildContext = new BuildContext(ref context);
 
                 while (++i < chain.Length)
                 {
-                    chain[i].PreBuildUp(ref context);
+                    chain[i].PreBuildUp(ref buildContext);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref context);
+                    chain[i].PostBuildUp(ref buildContext);
                 }
 
                 return context.Existing;

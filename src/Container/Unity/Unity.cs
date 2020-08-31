@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.BuiltIn;
 using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -55,11 +56,15 @@ namespace Unity
 
             // Registration Scope
             _scope = new ContainerScope(capacity);
-            _scope.Add(new ContainerLifetimeManager(this), 
-                typeof(IUnityContainer), 
-                typeof(IUnityContainerAsync), 
-                typeof(IServiceProvider));
+            _scope.Add(new ContainerLifetimeManager(this), typeof(IUnityContainer), 
+                                                           typeof(IUnityContainerAsync), 
+                                                           typeof(IServiceProvider));
             DEFAULT_CONTRACTS = _scope.Contracts;
+
+            // Setup Default algorithms
+            _policies.Set(typeof(Defaults.ResolveUnregisteredDelegate), (Defaults.ResolveUnregisteredDelegate)ResolveUnregistered);
+            _policies.Set(typeof(Defaults.ResolveRegistrationDelegate), (Defaults.ResolveRegistrationDelegate)ResolveRegistration);
+            _policies.Set(typeof(Defaults.ResolveArrayDelegate),               (Defaults.ResolveArrayDelegate)ResolveArray);
 
             // Setup Processors
             BuiltInComponents.Setup(_context);

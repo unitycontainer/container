@@ -55,6 +55,7 @@ namespace Unity
             var container = this;
             bool? isGeneric = null;
             Contract generic = default;
+            ResolutionContext context;
 
             do
             {
@@ -66,7 +67,8 @@ namespace Unity
                     var value = manager.TryGetValue(_scope.Disposables);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
-                    return container.ResolveContract(new ResolutionContext(container, ref contract, manager, overrides));
+                    context = new ResolutionContext(container, ref contract, manager, overrides);
+                    return _policies.ResolveContract(ref context);
                 }
 
                 // Skip to parent if non generic
@@ -79,15 +81,17 @@ namespace Unity
                 if (null != (manager = container._scope.Get(in contract, in generic)))
                 {
                     // Build from generic factory
-                    return container.ResolveContract(new ResolutionContext(container, ref contract, manager, overrides));
+                    context = new ResolutionContext(container, ref contract, manager, overrides);
+                    return _policies.ResolveContract(ref context);
                 }
             }
             while (null != (container = container.Parent));
 
             // No registration found, resolve unregistered
+            context = new ResolutionContext(this, ref contract, overrides);
             return (bool)isGeneric ? ResolveUnregisteredGeneric(in contract, in generic, overrides) 
-                  : type.IsArray   ? ResolveArray(in contract, overrides) 
-                                   : ResolveUnregistered(in contract, overrides);
+                  : type.IsArray   ? _policies.ResolveArray(ref context) 
+                                   : _policies.ResolveUnregistered(ref context);
         }
 
         /// <inheritdoc />

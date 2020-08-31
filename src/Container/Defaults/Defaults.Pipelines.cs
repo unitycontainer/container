@@ -20,28 +20,42 @@ namespace Unity.Container
         #endregion
 
 
+        #region Resolution
+
+        public ResolveRegistrationDelegate ResolveContract
+            => (ResolveRegistrationDelegate)Data[RESOLVE_CONTRACT].Value!;
+
+        public ResolveUnregisteredDelegate ResolveUnregistered
+            => (ResolveUnregisteredDelegate)Data[RESOLVE_UNKNOWN].Value!;
+
+        public ResolveArrayDelegate ResolveArray
+            => (ResolveArrayDelegate)Data[RESOLVE_ARRAY].Value!;
+
+        #endregion
+
+
         #region Activators
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Type"/> registration
         /// </summary>
-        public ResolveDelegate<ResolveContext> TypePipeline
-            => (ResolveDelegate<ResolveContext>)Data[PIPELINE_TYPE].Value!;
+        public ResolveDelegate<ResolutionContext> TypePipeline
+            => (ResolveDelegate<ResolutionContext>)Data[PIPELINE_TYPE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Instance"/> registration
         /// </summary>
-        public ResolveDelegate<ResolveContext> InstancePipeline
-            => (ResolveDelegate<ResolveContext>)Data[PIPELINE_INSTANCE].Value!;
+        public ResolveDelegate<ResolutionContext> InstancePipeline
+            => (ResolveDelegate<ResolutionContext>)Data[PIPELINE_INSTANCE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Factory"/> registration
         /// </summary>
-        public ResolveDelegate<ResolveContext> FactoryPipeline
-            => (ResolveDelegate<ResolveContext>)Data[PIPELINE_FACTORY].Value!;
+        public ResolveDelegate<ResolutionContext> FactoryPipeline
+            => (ResolveDelegate<ResolutionContext>)Data[PIPELINE_FACTORY].Value!;
 
         #endregion
 
@@ -49,11 +63,11 @@ namespace Unity.Container
         #region Factories
 
         /// <summary>
-        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInLifetime"/> lifetime
+        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInWhile"/> lifetime
         /// </summary>
-        public ResolveDelegateFactory UnregisteredPipelineFactory
-            => (ResolveDelegateFactory)Data[FACTORY_UNREGISTERED].Value!;
-        
+        public SingletonFactoryDelegate SingletonPipelineFactory
+            => (SingletonFactoryDelegate)Data[FACTORY_SINGLETON].Value!;
+
         /// <summary>
         /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInWhile"/> lifetime
         /// </summary>

@@ -27,14 +27,30 @@ namespace Unity.Container
 
         #endregion
 
+        #region Resolution Delegates
+        
+        public delegate object? ResolveRegistrationDelegate(ref ResolutionContext context);
 
-        #region Delegates
+        public delegate object? ResolveUnregisteredDelegate(ref ResolutionContext context);
 
-        public delegate ResolveDelegate<ResolveContext> BalancedFactoryDelegate(in Contract contract, RegistrationManager? manager = null);
+        public delegate object? ResolveArrayDelegate(ref ResolutionContext context);
 
-        public delegate ResolveDelegate<ResolveContext> OptimizedFactoryDelegate(in Contract contract, RegistrationManager? manager = null);
+        #endregion
 
-        public delegate ResolveDelegate<ResolveContext> UnregisteredFactoryDelegate(ref ResolveContext context);
+
+        #region Factory Delegates
+
+        public delegate ResolveDelegate<ResolutionContext> SingletonFactoryDelegate(ref ResolutionContext context);
+
+        public delegate ResolveDelegate<ResolutionContext> BalancedFactoryDelegate(ref ResolutionContext context);
+
+        public delegate ResolveDelegate<ResolutionContext> OptimizedFactoryDelegate(ref ResolutionContext context);
+
+        public delegate ResolveDelegate<ResolutionContext> UnregisteredFactoryDelegate(ref ResolveContext context);
+
+        #endregion
+
+        #region
 
         public delegate bool ValidMemberInfoPredicate<T>(T member) where T : MemberInfo;
 

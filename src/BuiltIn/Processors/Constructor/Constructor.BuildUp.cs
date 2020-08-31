@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using Unity.Container;
 
@@ -11,88 +10,104 @@ namespace Unity.BuiltIn
         /// Selects appropriate constructor and calls <see cref="BuildUp"/> method 
         /// to activate an instance
         /// </summary>
-        /// <param name="context">A <see cref="ResolveContext"/> structure holding 
+        /// <param name="context">A <see cref="BuildContext"/> structure holding 
         /// resolution context</param>
-        public override void PreBuildUp(ref ResolveContext context)
+        public override void PreBuildUp(ref BuildContext context)
         {
             // If instance already exists skip activation
             if (null != context.Existing) return;
 
-            // Indicate that we are selecting constructor
-            context.Activity = typeof(ConstructorInfo);
 
             // Type to build
-            Type type = context.Manager?.Type ?? context.Type;
-            var ctors = type.GetConstructors(SupportedBindingFlags)
-                            .Where(SupportedMembersPredicate)
-                            .ToArray();
+            Type type = (Type?)context.Data ?? context.Contract.Type;
+            var ctors = type.GetConstructors(SupportedBindingFlags);
+                            //.Where(SupportedMembersPredicate)
+                            //.ToList();
+
+            //context.Existing = new object(); return;
+
 
             // Invoke injected constructor if available
             if (null != context.Manager?.Constructor)
             {
-                var info = context.Manager.Constructor.InjectionInfo(ctors);
+                var ctor = context.Manager.Constructor;
+
+                context.MemberInfo = ctor.MemberInfo(ctors);
 
                 // BuildUp if found
-                if (null != info.MemberInfo)
+                if (null != context.MemberInfo)
                 {
-                    if (null == info.Data)
-                        BuildUp(ref context, info.MemberInfo);
+                    // Resolve otherwise
+                    if (null == ctor.Data || 0 == ctor.Data.Length)
+                        BuildUp(ref context);
                     else
-                        BuildUp(ref context, info.MemberInfo, info.Data);
+                    { 
+                        BuildUp(ref context, ctor.Data);
+                    }
 
                     return;
                 }
+            }
 
-                // Throw if error
-                if (null != info.Exception) throw info.Exception;
+            // Check if selection is required
+            switch (ctors.Length)
+            {
+                case 0:
+                    throw new InvalidOperationException(NoConstructor);
+                
+                case 1:
+                    context.MemberInfo = ctors[0];
+                    BuildUp(ref context);
+                    return;
             }
 
             // Search for and invoke constructor annotated with attribute
             foreach (var ctor in ctors)
             {
-                if (!IsAnnotated(ctor)) continue;
-
-                BuildUp(ref context, ctor);
-
-                return;
+                if (IsAnnotated(ctor))
+                {
+                    context.MemberInfo = ctor;
+                    BuildUp(ref context);
+                    return;
+                }
             }
 
             // Use algorithm to select constructor
-            var selection = SelectConstructor(ctors, ref context);
+            //context.MemberInfo = SelectConstructor(ctors, ref context);
 
             // Activate or throw if not found
-            if (null == selection) throw new InvalidOperationException("No constructor");
-            
-            BuildUp(ref context, selection);
+            if (null == context.MemberInfo) throw new InvalidOperationException(NoConstructor);
+
+            BuildUp(ref context);
         }
 
-        protected override void BuildUp(ref ResolveContext context, ConstructorInfo info)
+        protected override void BuildUp(ref BuildContext context)
         {
-            // Indicate that we are building constructor
-            context.Activity = info;
-
+            var info = (ConstructorInfo)context.MemberInfo!;
             var parameters = info.GetParameters();
             var values = new object?[parameters.Length];
 
             // Resolve dependencies
             for (var i = 0; i < parameters.Length; i++)
-                values[i] = context.Resolve(parameters[i]);
+            { 
+                //values[i] = context.Resolve(parameters[i]);
+            }
 
             // Activate instance
             context.Existing = info.Invoke(values);
         }
 
-        protected override void BuildUp(ref ResolveContext context, ConstructorInfo info, object[] data)
+        protected override void BuildUp(ref BuildContext context, object[] data)
         {
-            // Indicate that we are building constructor
-            context.Activity = info;
-
+            var info = (ConstructorInfo)context.MemberInfo!;
             var parameters = info.GetParameters();
             var values = new object?[parameters.Length];
 
             // Resolve dependencies
             for (var i = 0; i < parameters.Length; i++)
-                values[i] = context.Resolve(parameters[i], data[i]);
+            { 
+                //values[i] = context.Resolve(parameters[i], data[i]);
+            }
 
             // Activate instance
             context.Existing = info.Invoke(values);

@@ -131,7 +131,7 @@ namespace Unity.Container
         /// Allocates placeholder
         /// </summary>
         /// <param name="type"><see cref="Type"/> of policy</param>
-        /// <returns></returns>
+        /// <returns>Position of the element</returns>
         private int Allocate(Type type)
         {
             var hash = (uint)(37 ^ type.GetHashCode());

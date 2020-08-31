@@ -55,6 +55,27 @@ namespace Unity.Injection
             return candidate;
         }
 
+        public virtual TMemberInfo? MemberInfo(TMemberInfo[] members)
+        {
+            int bestSoFar = -1;
+            TMemberInfo? candidate = null;
+
+            foreach (TMemberInfo member in members)
+            {
+                var compatibility = CompareTo(member);
+
+                if (0 == compatibility) return member;
+
+                if (bestSoFar < compatibility)
+                {
+                    candidate = member;
+                    bestSoFar = compatibility;
+                }
+            }
+
+            return candidate;
+        }
+
         #endregion
 
 

@@ -5,9 +5,9 @@ namespace Unity.BuiltIn
 {
     public static class BalancedPipelineFactory
     {
-        public static ResolveDelegate<ResolveContext> Factory(in Contract contract, RegistrationManager? manager = null)
+        public static ResolveDelegate<ResolveContext> Factory(ref ResolveContext context)
         {
-            return (ref ResolveContext context) => null;
+            return (ref ResolveContext c) => null;
         }
     }
 }

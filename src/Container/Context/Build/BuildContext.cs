@@ -3,15 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
-    public struct BuildContext 
+    public partial struct BuildContext 
     {
-        #region Fields
-        
-        private readonly IntPtr _resolutionContext;
-
-        #endregion
-
-
         #region Constructors
 
         public BuildContext(ref ResolutionContext context)
@@ -20,6 +13,12 @@ namespace Unity.Container
             {
                 _resolutionContext = new IntPtr(Unsafe.AsPointer(ref context));
             }
+
+            Data = context.Manager?.Data;
+            Parameter = default;
+            MemberInfo = default;
+            ParameterName = default;
+            ParameterValue = default;
         }
 
         #endregion
@@ -42,6 +41,8 @@ namespace Unity.Container
 
 
         #region Parent
+
+
         #endregion
     }
 }

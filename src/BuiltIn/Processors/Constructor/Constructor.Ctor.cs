@@ -9,8 +9,15 @@ namespace Unity.BuiltIn
     {
         #region Delegates
 
-        public delegate ConstructorInfo ConstructorSelectorDelegate(ConstructorInfo[] members, ref ResolveContext context);
+        public delegate ConstructorInfo ConstructorSelectorDelegate(ConstructorInfo[] members, ref BuildContext context);
 
+        #endregion
+
+
+        #region Constants
+
+        const string NoConstructor = "Unable to select constructor";
+        
         #endregion
 
 

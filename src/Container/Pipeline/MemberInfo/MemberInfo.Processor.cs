@@ -76,8 +76,8 @@ namespace Unity.Pipeline
 
         #region Activation
 
-        protected virtual void BuildUp(ref ResolveContext context, TMemberInfo info) => throw new NotImplementedException();
-        protected virtual void BuildUp(ref ResolveContext context, TMemberInfo info, TData data) => throw new NotImplementedException();
+        protected virtual void BuildUp(ref BuildContext context) => throw new NotImplementedException();
+        protected virtual void BuildUp(ref BuildContext context, TData data) => throw new NotImplementedException();
 
         #endregion
     }
