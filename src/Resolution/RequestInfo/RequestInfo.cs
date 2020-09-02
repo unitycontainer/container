@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Resolution
 {
-    public struct RequestRoot
+    public struct RequestInfo
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace Unity.Resolution
 
         #region Constructors
 
-        public RequestRoot(ResolverOverride[] overrides)
+        public RequestInfo(ResolverOverride[] overrides)
         {
             Overrides = overrides;
         }

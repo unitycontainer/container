@@ -61,7 +61,7 @@ namespace Unity.Resolution
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<RequestRoot>(_request.ToPointer()).Overrides;
+                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).Overrides;
                 }
             }
         }

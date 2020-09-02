@@ -30,8 +30,7 @@ namespace Unity.Pipeline
 
         #region BuildUp
 
-        protected virtual object? BuildUp(ref ResolutionContext context) => throw new NotImplementedException();
-        protected virtual object? BuildUp(ref ResolutionContext context, TData data) => throw new NotImplementedException();
+        protected virtual object? BuildUp(ref ResolutionContext context, TData? data = null) => throw new NotImplementedException();
 
         #endregion
     }

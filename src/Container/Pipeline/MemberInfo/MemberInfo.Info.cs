@@ -24,6 +24,7 @@ namespace Unity.Pipeline
             public readonly Type?   Type;
             public readonly string? Name;
             public readonly object? Data;
+            // TODO: Lifetime
 
             public DependencyInfo(Type type, string? name, object? data)
             {

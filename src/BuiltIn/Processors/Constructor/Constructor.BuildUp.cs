@@ -72,23 +72,15 @@ namespace Unity.BuiltIn
             BuildUp(ref context);
         }
 
-        protected override object? BuildUp(ref ResolutionContext context)
+        protected override object? BuildUp(ref ResolutionContext context, object?[]? data = null)
         {
             var info = (ConstructorInfo)context.Data!;
             var parameters = info.GetParameters();
             var values = 0 == parameters.Length 
-                       ? EmptyParametersArray
-                       : BuildUpParameters(ref context, parameters);
-
-            // Activate instance
-            return info.Invoke(values);
-        }
-
-        protected override object? BuildUp(ref ResolutionContext context, object?[] data)
-        {
-            var info = (ConstructorInfo)context.Data!;
-            var parameters = info.GetParameters();
-            var values = BuildUpParameters(ref context, parameters, data);
+                ? EmptyParametersArray
+                : null == data
+                    ? BuildUp(ref context, parameters)
+                    : BuildUp(ref context, parameters, data);
 
             // Activate instance
             return info.Invoke(values);

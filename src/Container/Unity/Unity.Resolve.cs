@@ -11,7 +11,7 @@ namespace Unity
 
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var info = new RequestRoot(overrides);
+            var info = new RequestInfo(overrides);
             var context = new ResolutionContext(ref info, ref contract, manager, this);
             
             return _policies.ResolveContract(ref context);
@@ -19,7 +19,7 @@ namespace Unity
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var info = new RequestRoot(overrides);
+            var info = new RequestInfo(overrides);
             var context = new ResolutionContext(ref info, ref contract, manager, this);
             var factory = (RegistrationManager)manager.Data!;
 
@@ -113,7 +113,7 @@ namespace Unity
         /// <returns>Requested object</returns>
         private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
         {
-            var info = new RequestRoot(overrides);
+            var info = new RequestInfo(overrides);
             var context = new ResolutionContext(ref info, ref contract, this);
 
             return _policies.ResolveUnregistered(ref context);

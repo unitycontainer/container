@@ -24,7 +24,7 @@ namespace Unity.Resolution
 
         #region Constructors
 
-        public ResolutionContext(ref RequestRoot request, ref Contract contract, RegistrationManager manager, UnityContainer container)
+        public ResolutionContext(ref RequestInfo request, ref Contract contract, RegistrationManager manager, UnityContainer container)
         {
             unsafe
             {
@@ -39,7 +39,7 @@ namespace Unity.Resolution
             Existing = default;
         }
 
-        public ResolutionContext(ref RequestRoot request, ref Contract contract, UnityContainer container)
+        public ResolutionContext(ref RequestInfo request, ref Contract contract, UnityContainer container)
         {
             unsafe
             {
