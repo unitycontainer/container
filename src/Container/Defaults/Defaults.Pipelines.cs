@@ -28,6 +28,9 @@ namespace Unity.Container
         public ResolveUnregisteredDelegate ResolveUnregistered
             => (ResolveUnregisteredDelegate)Data[RESOLVE_UNKNOWN].Value!;
 
+        public ResolveMappedDelegate ResolveMapped
+            => (ResolveMappedDelegate) Data[RESOLVE_MAPPED].Value!;
+
         public ResolveArrayDelegate ResolveArray
             => (ResolveArrayDelegate)Data[RESOLVE_ARRAY].Value!;
 

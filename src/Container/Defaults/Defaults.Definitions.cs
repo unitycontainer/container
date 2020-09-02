@@ -35,6 +35,8 @@ namespace Unity.Container
 
         public delegate object? ResolveArrayDelegate(ref ResolutionContext context);
 
+        public delegate object? ResolveMappedDelegate(ref ResolutionContext context);
+
         #endregion
 
 
@@ -46,7 +48,7 @@ namespace Unity.Container
 
         public delegate ResolveDelegate<ResolutionContext> OptimizedFactoryDelegate(ref ResolutionContext context);
 
-        public delegate ResolveDelegate<ResolutionContext> UnregisteredFactoryDelegate(ref ResolveContext context);
+        public delegate ResolveDelegate<ResolutionContext> UnregisteredFactoryDelegate(ref ResolutionContext context);
 
         #endregion
 

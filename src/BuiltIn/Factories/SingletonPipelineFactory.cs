@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Container;
 using Unity.Lifetime;
 using Unity.Pipeline;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -26,16 +26,15 @@ namespace Unity.BuiltIn
             try
             {
                 var i = -1;
-                var buildContext = new BuildContext(ref context);
 
                 while (++i < chain.Length)
                 {
-                    chain[i].PreBuildUp(ref buildContext);
+                    chain[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref buildContext);
+                    chain[i].PostBuildUp(ref context);
                 }
 
                 return context.Existing;
@@ -57,16 +56,15 @@ namespace Unity.BuiltIn
             try
             {
                 var i = -1;
-                var buildContext = new BuildContext(ref context);
 
                 while (++i < chain.Length)
                 {
-                    chain[i].PreBuildUp(ref buildContext);
+                    chain[i].PreBuildUp(ref context);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref buildContext);
+                    chain[i].PostBuildUp(ref context);
                 }
 
                 return context.Existing;

@@ -1,13 +1,12 @@
-﻿using Unity.Container;
-using Unity.Resolution;
+﻿using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
     public static class UnregisteredPipelineFactory
     {
-        public static ResolveDelegate<ResolveContext> Factory(ref ResolveContext context)
+        public static ResolveDelegate<ResolutionContext> Factory(ref ResolutionContext context)
         {
-            return (ref ResolveContext context) => null;
+            return (ref ResolutionContext context) => null;
         }
     }
 }

@@ -12,15 +12,6 @@ namespace Unity.BuiltIn
         public PropertyProcessor(Defaults defaults)
             : base(defaults)
         {
-            defaults.DefaultPolicyChanged += OnDefaultsChanged;
-        }
-
-        #endregion
-
-        #region Policy Changes
-
-        private void OnDefaultsChanged(Type type, object? value)
-        {
         }
 
         #endregion
@@ -28,7 +19,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(SupportedBindingFlags);
+        protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(BindingFlags);
 
         #endregion
     }

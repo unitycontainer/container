@@ -12,6 +12,7 @@ namespace Container.Defaults
         Unity.Container.Defaults Defaults;
         object Instance = new object();
         private static Type[] TestTypes;
+        private int DefaultPolicies = 10;
 
         [ClassInitialize]
         public static void InitializeClass(TestContext _)
@@ -30,7 +31,7 @@ namespace Container.Defaults
         [TestMethod]
         public void Baseline()
         {
-            Assert.AreEqual(5, Defaults.Span.Length);
+            Assert.AreEqual(DefaultPolicies, Defaults.Span.Length);
         }
 
         [TestMethod]
@@ -40,7 +41,7 @@ namespace Container.Defaults
             Defaults.Set(null, typeof(object), Instance);
 
             // Validate
-            var entry = Defaults.Span[5];
+            var entry = Defaults.Span[DefaultPolicies];
 
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
@@ -57,9 +58,9 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), typeof(object), other);
 
             // Validate
-            var entry = Defaults.Span[5];
+            var entry = Defaults.Span[DefaultPolicies];
 
-            Assert.AreEqual(6, Defaults.Span.Length);
+            Assert.AreEqual(1 + DefaultPolicies, Defaults.Span.Length);
             Assert.AreEqual(typeof(object), entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
             Assert.AreSame(other, entry.Value);
@@ -75,9 +76,9 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), other);
 
             // Validate
-            var entry = Defaults.Span[5];
+            var entry = Defaults.Span[DefaultPolicies];
 
-            Assert.AreEqual(6, Defaults.Span.Length);
+            Assert.AreEqual(1 + DefaultPolicies, Defaults.Span.Length);
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
             Assert.AreSame(other, entry.Value);
@@ -93,58 +94,29 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), other);
 
             // Validate
-            var entry = Defaults.Span[5];
+            var entry = Defaults.Span[DefaultPolicies];
 
-            Assert.AreEqual(6, Defaults.Span.Length);
+            Assert.AreEqual(1 + DefaultPolicies, Defaults.Span.Length);
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
             Assert.AreSame(other, entry.Value);
         }
 
         [TestMethod]
-        public void List_Event()
-        {
-            // Arrange
-            Type _type   = null;
-            object _value = null;
-
-
-            // Act
-            Defaults.DefaultPolicyChanged += OnChange;
-            Defaults.Set(null, typeof(object), Instance);
-
-            // Validate
-            Assert.AreSame(Instance, _value);
-            Assert.AreEqual(typeof(object), _type);
-
-            void OnChange(Type type, object value)
-            {
-                _type = type;
-                _value = value;
-            }
-        }
-
-        [TestMethod]
         public void Set_Event()
         {
             // Arrange
-            Type _type = null;
             object _value = null;
-
+            var other = new object();
 
             // Act
-            Defaults.DefaultPolicyChanged += OnChange;
-            Defaults.Set(typeof(object), Instance);
+            Defaults.Set(null, typeof(object), Instance, OnChange);
+            Defaults.Set(null, typeof(object), other);
 
             // Validate
-            Assert.AreSame(Instance, _value);
-            Assert.AreEqual(typeof(object), _type);
+            Assert.AreSame(other, _value);
 
-            void OnChange(Type type, object value)
-            {
-                _type = type;
-                _value = value;
-            }
+            void OnChange(object value) => _value = value;
         }
 
         [TestMethod]
@@ -154,7 +126,7 @@ namespace Container.Defaults
             Defaults.Set(typeof(object), Instance);
 
             // Validate
-            var entry = Defaults.Span[5];
+            var entry = Defaults.Span[DefaultPolicies];
 
             Assert.IsNull(entry.Target);
             Assert.AreEqual(typeof(object), entry.Type);
@@ -171,7 +143,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(7, span.Length);
+            Assert.AreEqual(2 + DefaultPolicies, span.Length);
         }
 
         [TestMethod]
@@ -184,7 +156,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(7, span.Length);
+            Assert.AreEqual(2 + DefaultPolicies, span.Length);
         }
 
         [TestMethod]
@@ -197,7 +169,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(7, span.Length);
+            Assert.AreEqual(2 + DefaultPolicies, span.Length);
         }
 
         [TestMethod]
@@ -212,7 +184,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(1505, span.Length);
+            Assert.AreEqual(1500 + DefaultPolicies, span.Length);
         }
 
         [TestMethod]
@@ -232,7 +204,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(3005, span.Length);
+            Assert.AreEqual(3000 + DefaultPolicies, span.Length);
         }
 
         [TestMethod]
@@ -247,7 +219,7 @@ namespace Container.Defaults
             // Validate
             var span = Defaults.Span;
 
-            Assert.AreEqual(1505, span.Length);
+            Assert.AreEqual(1500 + DefaultPolicies, span.Length);
         }
 
 

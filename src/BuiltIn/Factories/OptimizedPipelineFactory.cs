@@ -5,9 +5,9 @@ namespace Unity.BuiltIn
 {
     public static class OptimizedPipelineFactory
     {
-        public static ResolveDelegate<ResolveContext> Factory(ref ResolveContext context)
+        public static ResolveDelegate<ResolutionContext> Factory(ref ResolutionContext context)
         {
-            return (ref ResolveContext c) => null;
+            return (ref ResolutionContext c) => null;
         }
     }
 }

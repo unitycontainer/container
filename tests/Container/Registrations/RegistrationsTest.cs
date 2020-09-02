@@ -27,7 +27,7 @@ namespace Container.Registrations
             var types = new Type[(++size & 0x7F)];
 
             Array.Copy(TestTypes, position, types, 0, types.Length);
-            position = (position + types.Length) & 0x7FF;
+            position = (position + types.Length) & 0x4FF;
 
             return new RegistrationDescriptor(Instance, name, Manager, types);
         }).ToArray();

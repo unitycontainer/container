@@ -27,24 +27,9 @@ namespace Unity
         Lifetime,
 
         /// <summary>
-        /// At this point pipeline intercepts Instances.
+        /// Generic <see cref="Type"/> mapping and <see cref="Type"/> conversion occurs here.
         /// </summary>
-        Instance,
-
-        /// <summary>
-        /// Type mapping and type conversion occurs here.
-        /// </summary>
-        TypeMapping,
-
-        /// <summary>
-        /// Stage where Resolver is located if present.
-        /// </summary>
-        Resolver,
-
-        /// <summary>
-        /// Stage where Resolver Factory is located if present.
-        /// </summary>
-        Factory,
+        Mapping,
 
         /// <summary>
         /// Strategies in this stage run before creation. Typical work done in this stage might
@@ -52,6 +37,16 @@ namespace Unity
         /// strategies would later use.
         /// </summary>
         PreCreation,
+
+        /// <summary>
+        /// At this point pipeline intercepts Instances.
+        /// </summary>
+        Instance,
+
+        /// <summary>
+        /// Stage where Resolver Factory is located if present.
+        /// </summary>
+        Factory,
 
         /// <summary>
         /// Objects are created at this stage.

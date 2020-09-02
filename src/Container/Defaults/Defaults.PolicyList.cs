@@ -33,45 +33,101 @@ namespace Unity.Container
         ///<inheritdoc/>
         public void Set(Type? target, Type type, object value)
         {
-            if (null == target)
+            PolicyChangeNotificationHandler? handler = null;
+
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+
+            try
             {
-                Set(type, value);
-                return;
-            }
-
-            var hash = (uint)((target.GetHashCode() + 37) ^ type.GetHashCode());
-
-            lock (_syncRoot)
-            {
-                ref var bucket = ref Meta[hash % Meta.Length];
-                var position = bucket.Position;
-
-                while (position > 0)
+                lock (_syncRoot)
                 {
-                    ref var candidate = ref Data[position];
-                    if (ReferenceEquals(candidate.Target, target) && 
-                        ReferenceEquals(candidate.Type, type))
+                    ref var bucket = ref Meta[hash % Meta.Length];
+                    var position = bucket.Position;
+
+                    while (position > 0)
                     {
-                        // Found existing
-                        candidate.Value = value;
-                        return;
+                        ref var candidate = ref Data[position];
+                        if (ReferenceEquals(candidate.Target, target) &&
+                            ReferenceEquals(candidate.Type, type))
+                        {
+                            // Found existing
+                            candidate.Value = value;
+                            handler = candidate.Handler;
+                            return;
+                        }
+
+                        position = Meta[position].Next;
                     }
 
-                    position = Meta[position].Next;
-                }
+                    if (++Count >= Data.Length)
+                    {
+                        Expand();
+                        bucket = ref Meta[hash % Meta.Length];
+                    }
 
-                if (++Count >= Data.Length)
-                {
-                    Expand();
-                    bucket = ref Meta[hash % Meta.Length];
+                    // Add new registration
+                    ref var entry = ref Data[Count];
+                    entry = new Policy(hash, target, type, value);
+                    handler = entry.Handler;
+                    Meta[Count].Next = bucket.Position;
+                    bucket.Position = Count;
                 }
-
-                // Add new registration
-                Data[Count] = new Policy(hash, target, type, value);
-                Meta[Count].Next = bucket.Position;
-                bucket.Position = Count;
+            }
+            finally
+            {
+                handler?.Invoke(value);
             }
         }
+
+        public void Set(Type? target, Type type, object value, PolicyChangeNotificationHandler subscriber)
+        {
+            PolicyChangeNotificationHandler? handler = null;
+
+            var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ type.GetHashCode());
+
+            try
+            {
+                lock (_syncRoot)
+                {
+                    ref var bucket = ref Meta[hash % Meta.Length];
+                    var position = bucket.Position;
+
+                    while (position > 0)
+                    {
+                        ref var candidate = ref Data[position];
+                        if (ReferenceEquals(candidate.Target, target) &&
+                            ReferenceEquals(candidate.Type, type))
+                        {
+                            // Found existing
+                            candidate.Value = value;
+                            candidate.PolicyChanged += subscriber;
+                            handler = candidate.Handler;
+                            return;
+                        }
+
+                        position = Meta[position].Next;
+                    }
+
+                    if (++Count >= Data.Length)
+                    {
+                        Expand();
+                        bucket = ref Meta[hash % Meta.Length];
+                    }
+
+                    // Add new registration
+                    ref var entry = ref Data[Count];
+                    entry = new Policy(hash, target, type, value);
+                    entry.PolicyChanged += subscriber;
+                    Meta[Count].Next = bucket.Position;
+                    bucket.Position = Count;
+                }
+            }
+            finally
+            {
+                handler?.Invoke(value);
+            }
+        }
+
 
         /// <summary>
         /// Allocates placeholder

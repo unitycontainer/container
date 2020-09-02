@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
-using Unity.Container;
+using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -12,41 +14,27 @@ namespace Unity.BuiltIn
         /// </summary>
         /// <param name="context">A <see cref="BuildContext"/> structure holding 
         /// resolution context</param>
-        public override void PreBuildUp(ref BuildContext context)
+        public override void PreBuildUp(ref ResolutionContext context)
         {
             // If instance already exists skip activation
             if (null != context.Existing) return;
 
-
             // Type to build
-            Type type = (Type?)context.Data ?? context.Contract.Type;
-            var ctors = type.GetConstructors(SupportedBindingFlags);
-                            //.Where(SupportedMembersPredicate)
-                            //.ToList();
-
-            //context.Existing = new object(); return;
-
+            Type type = context.Manager?.Type ?? context.Type;
+            var ctors = type.GetConstructors(BindingFlags);
 
             // Invoke injected constructor if available
             if (null != context.Manager?.Constructor)
             {
+                // Constructor to activate
                 var ctor = context.Manager.Constructor;
 
-                context.MemberInfo = ctor.MemberInfo(ctors);
-
-                // BuildUp if found
-                if (null != context.MemberInfo)
-                {
-                    // Resolve otherwise
-                    if (null == ctor.Data || 0 == ctor.Data.Length)
-                        BuildUp(ref context);
-                    else
-                    { 
-                        BuildUp(ref context, ctor.Data);
-                    }
-
-                    return;
-                }
+                context.Data     = ctor.MemberInfo(ctors);
+                context.Existing = null == ctor.Data || 0 == ctor.Data.Length
+                    ? BuildUp(ref context)
+                    : BuildUp(ref context, ctor.Data);
+               
+                return;
             }
 
             // Check if selection is required
@@ -54,64 +42,56 @@ namespace Unity.BuiltIn
             {
                 case 0:
                     throw new InvalidOperationException(NoConstructor);
-                
+
                 case 1:
-                    context.MemberInfo = ctors[0];
-                    BuildUp(ref context);
+                    context.Data = ctors[0];
+                    context.Existing = BuildUp(ref context);
                     return;
             }
 
             // Search for and invoke constructor annotated with attribute
             foreach (var ctor in ctors)
             {
-                if (IsAnnotated(ctor))
+                var info = GetDependencyInfo(ctor);
+                if (info.IsValid)
                 {
-                    context.MemberInfo = ctor;
-                    BuildUp(ref context);
+                    // TODO: Deal with Type/Name change
+
+                    context.Data = ctor;
+                    context.Existing = BuildUp(ref context);
                     return;
                 }
             }
 
             // Use algorithm to select constructor
-            //context.MemberInfo = SelectConstructor(ctors, ref context);
+            context.Data = SelectConstructor(ref context, ctors);
 
             // Activate or throw if not found
-            if (null == context.MemberInfo) throw new InvalidOperationException(NoConstructor);
+            if (null == context.Data) throw new InvalidOperationException(NoConstructor);
 
             BuildUp(ref context);
         }
 
-        protected override void BuildUp(ref BuildContext context)
+        protected override object? BuildUp(ref ResolutionContext context)
         {
-            var info = (ConstructorInfo)context.MemberInfo!;
+            var info = (ConstructorInfo)context.Data!;
             var parameters = info.GetParameters();
-            var values = new object?[parameters.Length];
-
-            // Resolve dependencies
-            for (var i = 0; i < parameters.Length; i++)
-            { 
-                //values[i] = context.Resolve(parameters[i]);
-            }
+            var values = 0 == parameters.Length 
+                       ? EmptyParametersArray
+                       : BuildUpParameters(ref context, parameters);
 
             // Activate instance
-            context.Existing = info.Invoke(values);
+            return info.Invoke(values);
         }
 
-        protected override void BuildUp(ref BuildContext context, object[] data)
+        protected override object? BuildUp(ref ResolutionContext context, object?[] data)
         {
-            var info = (ConstructorInfo)context.MemberInfo!;
+            var info = (ConstructorInfo)context.Data!;
             var parameters = info.GetParameters();
-            var values = new object?[parameters.Length];
-
-            // Resolve dependencies
-            for (var i = 0; i < parameters.Length; i++)
-            { 
-                //values[i] = context.Resolve(parameters[i], data[i]);
-            }
+            var values = BuildUpParameters(ref context, parameters, data);
 
             // Activate instance
-            context.Existing = info.Invoke(values);
+            return info.Invoke(values);
         }
-
     }
 }

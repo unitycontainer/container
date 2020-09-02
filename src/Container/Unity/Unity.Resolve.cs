@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Unity.Container;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -10,10 +9,36 @@ namespace Unity
     {
         #region Registered Contract
 
+        private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        {
+            var info = new RequestRoot(overrides);
+            var context = new ResolutionContext(ref info, ref contract, manager, this);
+            
+            return _policies.ResolveContract(ref context);
+        }
+
+        private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        {
+            var info = new RequestRoot(overrides);
+            var context = new ResolutionContext(ref info, ref contract, manager, this);
+            var factory = (RegistrationManager)manager.Data!;
+
+            // Calculate new Type
+            manager.Category = RegistrationCategory.Type;
+            manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
+
+            // If any injection members are present, build is required
+            if (manager.RequireBuild) return _policies.ResolveContract(ref context);
+
+            // No injectors, redirect
+            return _policies.ResolveMapped(ref context);
+        }
+
+
         private static object? ResolveRegistration(ref ResolutionContext context)
         {
             // Check if pipeline has been created already
-            if (null == context.Manager.ResolveDelegate)
+            if (null == context.Manager!.ResolveDelegate)
             {
                 // Prevent creating pipeline multiple times
                 lock (context.Manager)
@@ -28,9 +53,9 @@ namespace Unity
                             RegistrationCategory.Instance => context.Container._policies.InstancePipeline,
                             RegistrationCategory.Factory  => context.Container._policies.FactoryPipeline,
 
-                            //RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
-                            //RegistrationCategory.Clone when ResolutionStyle.OnceInWhile == lifetime.Style => _policies.BalancedPipelineFactory(in contract, context.Manager),
-                            //RegistrationCategory.Clone when ResolutionStyle.EveryTime == lifetime.Style => _policies.OptimizedPipelineFactory(in contract, context.Manager),
+                            RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
+                            RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => context.Container._policies.TypePipeline,
+                            RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => context.Container._policies.TypePipeline,
 
                             RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style 
                                 => context.Container._policies.TypePipeline,
@@ -48,7 +73,7 @@ namespace Unity
             }
 
             // Resolve in current context
-            return ((ResolveDelegate<ResolutionContext>)context.Manager.ResolveDelegate)(ref context);
+            return ((ResolveDelegate<ResolutionContext>)context.Manager!.ResolveDelegate)(ref context);
         }
 
         #endregion
@@ -58,7 +83,8 @@ namespace Unity
 
         private static object? ResolveUnregistered(ref ResolutionContext context)
         {
-            throw new NotImplementedException();
+            return null;
+            //throw new NotImplementedException();
             //// Check if resolver already exist
             //var resolver = _policies[contract.Type];
 
@@ -85,22 +111,12 @@ namespace Unity
         /// <param name="overrides">Overrides to use during resolution</param>
         /// <exception cref="ResolutionFailedException">if anything goes wrong</exception>
         /// <returns>Requested object</returns>
-        private object? ResolveUnregistered(in Contract contract, ResolverOverride[] overrides)
+        private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
-            //// Check if resolver already exist
-            //var resolver = _policies[contract.Type];
+            var info = new RequestRoot(overrides);
+            var context = new ResolutionContext(ref info, ref contract, this);
 
-            //// Nothing found, requires build
-            //if (null == resolver)
-            //{
-            //    // Build new and try to save it
-            //    resolver = _policies.UnregisteredPipelineFactory(in contract);
-            //    resolver = _policies.GetOrAdd(contract.Type, resolver);
-            //}
-
-            //var context = new ResolveContext(this, in contract, overrides);
-            //return resolver(ref context);
+            return _policies.ResolveUnregistered(ref context);
         }
 
         /// <summary>
@@ -115,7 +131,7 @@ namespace Unity
         /// <param name="overrides">Overrides to use during resolution</param>
         /// <exception cref="ResolutionFailedException">if anything goes wrong</exception>
         /// <returns>Requested object</returns>
-        private object? ResolveUnregisteredGeneric(in Contract contract, in Contract generic, ResolverOverride[] overrides)
+        private object? ResolveUnregisteredGeneric(ref Contract contract, ref Contract generic, ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
             //var context = new ResolveContext(this, in contract, overrides);
@@ -169,19 +185,20 @@ namespace Unity
         /// <param name="overrides">Overrides to use during resolution</param>
         /// <exception cref="ResolutionFailedException">if anything goes wrong</exception>
         /// <returns>Requested array</returns>
-        private object? ResolveArray(in Contract contract, ResolverOverride[] overrides)
+        private object? ResolveArray(ref Contract contract, ResolverOverride[] overrides)
         {
-            var context = new ResolveContext(this, in contract, overrides);
-            var resolver = _policies[contract.Type];
+            throw new NotImplementedException();
+            //var context = new ResolutionContext(this, in contract, overrides);
+            //var resolver = _policies[contract.Type];
 
-            // Nothing found, requires build
-            if (null == resolver)
-            {
-                resolver = (ref ResolveContext c) => c.Existing;
-                _policies[contract.Type] = resolver;
-            }
+            //// Nothing found, requires build
+            //if (null == resolver)
+            //{
+            //    resolver = (ref ResolutionContext c) => c.Existing;
+            //    _policies[contract.Type] = resolver;
+            //}
 
-            return resolver(ref context);
+            //return resolver(ref context);
         }
 
         #endregion

@@ -71,7 +71,6 @@ namespace Unity.Container
             }
             finally
             {
-                DefaultPolicyChanged?.Invoke(type, value);
                 handler?.Invoke(value);
             }
         }
@@ -114,15 +113,12 @@ namespace Unity.Container
                     ref var entry = ref Data[Count];
                     entry = new Policy(hash, type, value);
                     entry.PolicyChanged += subscriber;
-                    handler = entry.Handler;
-
                     Meta[Count].Next = bucket.Position;
                     bucket.Position = Count;
                 }
             }
             finally
             {
-                DefaultPolicyChanged?.Invoke(type, value);
                 handler?.Invoke(value);
             }
         }

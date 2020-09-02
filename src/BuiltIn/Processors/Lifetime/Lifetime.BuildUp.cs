@@ -1,11 +1,10 @@
-﻿using Unity.Container;
-using Unity.Lifetime;
+﻿using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
     public partial class LifetimeProcessor
     {
-        public override void PreBuildUp(ref BuildContext context)
+        public override void PreBuildUp(ref ResolutionContext context)
         {
             //LifetimeManager lifetime = (LifetimeManager)context.Manager!;
 
@@ -23,7 +22,7 @@ namespace Unity.BuiltIn
         }
 
 
-        public override void PostBuildUp(ref BuildContext context)
+        public override void PostBuildUp(ref ResolutionContext context)
         {
             //LifetimeManager lifetime = (LifetimeManager)context.Manager!;
 

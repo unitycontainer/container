@@ -9,7 +9,7 @@ namespace Unity.Container
     {
         #region Constants
 
-        private static uint ResolverHash = (uint)typeof(ResolveDelegate<ResolveContext>).GetHashCode();
+        private static uint ResolverHash = (uint)typeof(ResolveDelegate<ResolutionContext>).GetHashCode();
 
         #endregion
 
@@ -21,7 +21,7 @@ namespace Unity.Container
 
         #endregion
 
-        public ResolveDelegate<ResolveContext>? this[Type? target]
+        public ResolveDelegate<ResolutionContext>? this[Type? target]
         {
             get
             {
@@ -32,10 +32,10 @@ namespace Unity.Container
                 {
                     ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
+                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolutionContext>)))
                     {
                         // Found existing
-                        return (ResolveDelegate<ResolveContext>?)candidate.Value;
+                        return (ResolveDelegate<ResolutionContext>?)candidate.Value;
                     }
 
                     position = Meta[position].Next;
@@ -57,7 +57,7 @@ namespace Unity.Container
                     {
                         ref var candidate = ref Data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
-                            ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
+                            ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolutionContext>)))
                         {
                             // Found existing
                             candidate.Value = value;
@@ -74,14 +74,14 @@ namespace Unity.Container
                     }
 
                     // Add new registration
-                    Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
+                    Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolutionContext>), value);
                     Meta[Count].Next = bucket.Position;
                     bucket.Position = Count;
                 }
             }
         }
 
-        public ResolveDelegate<ResolveContext> GetOrAdd(Type? target, ResolveDelegate<ResolveContext> value)
+        public ResolveDelegate<ResolutionContext> GetOrAdd(Type? target, ResolveDelegate<ResolutionContext> value)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
 
@@ -94,11 +94,11 @@ namespace Unity.Container
                 {
                     ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolveContext>)))
+                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolutionContext>)))
                     {
                         // Found existing
                         if (null == candidate.Value) candidate.Value = value;
-                        return (ResolveDelegate<ResolveContext>)candidate.Value;
+                        return (ResolveDelegate<ResolutionContext>)candidate.Value;
                     }
 
                     position = Meta[position].Next;
@@ -111,7 +111,7 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolveContext>), value);
+                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolutionContext>), value);
                 Meta[Count].Next = bucket.Position;
                 bucket.Position = Count;
 
@@ -135,7 +135,7 @@ namespace Unity.Container
 
         #region Policy structure
 
-        [DebuggerDisplay("Target = { Target?.Name }, Policy = { Type.Name }", Name = "{ Hash }")]
+        [DebuggerDisplay("Policy = { Type?.Name }", Name = "{ Target?.Name }")]
         [CLSCompliant(false)]
         public struct Policy
         {

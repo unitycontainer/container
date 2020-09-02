@@ -55,7 +55,6 @@ namespace Unity
             var container = this;
             bool? isGeneric = null;
             Contract generic = default;
-            ResolutionContext context;
 
             do
             {
@@ -67,8 +66,8 @@ namespace Unity
                     var value = manager.TryGetValue(_scope.Disposables);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
-                    context = new ResolutionContext(container, ref contract, manager, overrides);
-                    return _policies.ResolveContract(ref context);
+                    // Resolve from registration
+                    return container.ResolveRegistration(ref contract, manager, overrides);
                 }
 
                 // Skip to parent if non generic
@@ -81,17 +80,15 @@ namespace Unity
                 if (null != (manager = container._scope.Get(in contract, in generic)))
                 {
                     // Build from generic factory
-                    context = new ResolutionContext(container, ref contract, manager, overrides);
-                    return _policies.ResolveContract(ref context);
+                    return container.GenericRegistration(ref contract, manager, overrides);
                 }
             }
             while (null != (container = container.Parent));
 
             // No registration found, resolve unregistered
-            context = new ResolutionContext(this, ref contract, overrides);
-            return (bool)isGeneric ? ResolveUnregisteredGeneric(in contract, in generic, overrides) 
-                  : type.IsArray   ? _policies.ResolveArray(ref context) 
-                                   : _policies.ResolveUnregistered(ref context);
+            return (bool)isGeneric ? ResolveUnregisteredGeneric(ref contract, ref generic, overrides) 
+                  : type.IsArray   ? ResolveArray(ref contract, overrides) 
+                                   : ResolveUnregistered(ref contract, overrides);
         }
 
         /// <inheritdoc />

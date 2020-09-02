@@ -1,14 +1,28 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
     public partial class ConstructorProcessor
     {
-        private static ConstructorInfo DefaultConstructorSelector(ConstructorInfo[] members, ref BuildContext context)
+        #region Delegates
+
+        public delegate ConstructorInfo ConstructorSelectorDelegate(ref ResolutionContext context, ConstructorInfo[] members);
+
+        #endregion
+
+
+        #region Fields
+
+        protected ConstructorSelectorDelegate SelectConstructor;
+
+        #endregion
+
+
+        private static ConstructorInfo DefaultConstructorSelector(ref ResolutionContext context, ConstructorInfo[] members)
         {
-            if (1 == members.Length) return members[0];
+            if (0 < members.Length) return members[0];
 
             throw new NotImplementedException();
         }

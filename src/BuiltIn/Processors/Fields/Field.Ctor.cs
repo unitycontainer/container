@@ -12,16 +12,6 @@ namespace Unity.BuiltIn
         public FieldProcessor(Defaults defaults)
             : base(defaults)
         {
-            defaults.DefaultPolicyChanged += OnDefaultsChanged;
-        }
-
-        #endregion
-
-
-        #region Policy Changes
-
-        private void OnDefaultsChanged(Type type, object? value)
-        {
         }
 
         #endregion
@@ -29,7 +19,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        protected override FieldInfo[] GetMembers(Type type) => type.GetFields(SupportedBindingFlags);
+        protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
         
 
         #endregion

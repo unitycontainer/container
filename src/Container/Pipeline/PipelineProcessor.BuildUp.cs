@@ -1,6 +1,5 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Unity.Container;
+﻿using System.Runtime.CompilerServices;
+using Unity.Resolution;
 
 namespace Unity.Pipeline
 {
@@ -15,7 +14,7 @@ namespace Unity.Pipeline
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
         /// <returns>Returns intermediate value or policy</returns>
-        public virtual void PreBuildUp(ref BuildContext context)
+        public virtual void PreBuildUp(ref ResolutionContext context)
         {
         }
 
@@ -25,7 +24,7 @@ namespace Unity.Pipeline
         /// phase and executes in reverse order from the PreBuildUp calls.
         /// </summary>
         /// <param name="context">Context of the build operation.</param>
-        public virtual void PostBuildUp(ref BuildContext context)
+        public virtual void PostBuildUp(ref ResolutionContext context)
         {
         }
 
@@ -45,7 +44,7 @@ namespace Unity.Pipeline
         /// <param name="context">Context of the build operation.</param>
         /// <returns>Returns intermediate value or policy</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void PreDiagnosticBuildUp(ref BuildContext context)
+        public virtual void PreDiagnosticBuildUp(ref ResolutionContext context)
             => PreBuildUp(ref context);
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace Unity.Pipeline
         /// </remarks>
         /// <param name="context">Context of the build operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void PostDiagnosticBuildUp(ref BuildContext context)
+        public virtual void PostDiagnosticBuildUp(ref ResolutionContext context)
             => PostBuildUp(ref context);
 
         #endregion
