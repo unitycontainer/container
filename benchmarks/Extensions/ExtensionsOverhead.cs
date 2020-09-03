@@ -31,8 +31,9 @@ namespace Benchmarks.Extensions
         {
             var array = new RegistrationDescriptor[]
             {
-                typeof(Foo).RegisterType((ITypeLifetimeManager)Manager, typeof(IFoo)),
-                Instance.RegisterInstance((IInstanceLifetimeManager)Manager, typeof(IFoo)),
+                new RegistrationDescriptor( typeof(Foo), null, (ITypeLifetimeManager)Manager, typeof(IFoo)),
+                new RegistrationDescriptor(Instance, null, (IInstanceLifetimeManager)Manager, typeof(IFoo)),
+                
                 Factory.RegisterFactory((IFactoryLifetimeManager)Manager, typeof(IFoo)),
             };
 

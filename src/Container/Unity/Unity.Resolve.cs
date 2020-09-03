@@ -48,26 +48,29 @@ namespace Unity
                     {
                         var lifetime = (LifetimeManager)context.Manager;
 
-                        context.Manager.ResolveDelegate = context.Manager.Category switch
-                        {
-                            RegistrationCategory.Instance => context.Container._policies.InstancePipeline,
-                            RegistrationCategory.Factory  => context.Container._policies.FactoryPipeline,
+                        context.Manager.ResolveDelegate = context.Container._policies.TypePipeline;
+                        
+                        // TODO: implement
+                        //context.Manager.ResolveDelegate = context.Manager.Category switch
+                        //{
+                        //    RegistrationCategory.Instance => context.Container._policies.InstancePipeline,
+                        //    RegistrationCategory.Factory  => context.Container._policies.FactoryPipeline,
 
-                            RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
-                            RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => context.Container._policies.TypePipeline,
-                            RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => context.Container._policies.TypePipeline,
+                        //    RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
+                        //    RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => context.Container._policies.TypePipeline,
+                        //    RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => context.Container._policies.TypePipeline,
 
-                            RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style 
-                                => context.Container._policies.TypePipeline,
+                        //    RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style 
+                        //        => context.Container._policies.TypePipeline,
 
-                            RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style 
-                                => context.Container._policies.BalancedPipelineFactory(ref context),
+                        //    RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style 
+                        //        => context.Container._policies.BalancedPipelineFactory(ref context),
 
-                            RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style 
-                                => context.Container._policies.OptimizedPipelineFactory(ref context),
+                        //    RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style 
+                        //        => context.Container._policies.OptimizedPipelineFactory(ref context),
 
-                            _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
-                        };
+                        //    _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
+                        //};
                     }
                 }
             }

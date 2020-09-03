@@ -66,52 +66,55 @@ namespace Unity
 
         #endregion
 
+        
+        // TODO: conflict
 
         #region RegisterInstance overloads
 
-        /// <summary>
-        /// Create an instance registration with default lifetime manager
-        /// </summary>
-        /// <param name="instance">An instance to register</param>
-        /// <param name="registerAs">Interfaces/types the instance should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, params Type[] registerAs) 
-            => new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(), registerAs);
+        ///// <summary>
+        ///// Create an instance registration with default lifetime manager
+        ///// </summary>
+        ///// <param name="instance">An instance to register</param>
+        ///// <param name="registerAs">Interfaces/types the instance should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, params Type[] registerAs) 
+        //    => new RegistrationDescriptor(instance, null, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(), registerAs);
 
-        /// <summary>
-        /// Create an instance registration with specific lifetime manager
-        /// </summary>
-        /// <param name="instance">An instance to register</param>
-        /// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the instance</param>
-        /// <param name="registerAs">Interfaces/types the instance should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, IInstanceLifetimeManager lifetime, params Type[] registerAs)
-            => new RegistrationDescriptor(instance, null, lifetime, registerAs);
+        ///// <summary>
+        ///// Create an instance registration with specific lifetime manager
+        ///// </summary>
+        ///// <param name="instance">An instance to register</param>
+        ///// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the instance</param>
+        ///// <param name="registerAs">Interfaces/types the instance should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, IInstanceLifetimeManager lifetime, params Type[] registerAs)
+        //    => new RegistrationDescriptor(instance, null, lifetime, registerAs);
 
-        /// <summary>
-        /// Create an instance registration with named contract and default lifetime manager
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to create when resolved</param>
-        /// <param name="name">Name of the contract</param>
-        /// <param name="registerAs">Interfaces/aliases the instance should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, string name, params Type[] registerAs)
-            => new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(), registerAs);
 
-        /// <summary>
-        /// Create an instance registration with named contract and specific lifetime manager
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to create when resolved</param>
-        /// <param name="name">Name of the contract</param>
-        /// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the instance</param>
-        /// <param name="registerAs">Interfaces/aliases the instance should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, string name, IInstanceLifetimeManager lifetime, params Type[] registerAs)
-            => new RegistrationDescriptor(instance, name, lifetime, registerAs);
+        ///// <summary>
+        ///// Create an instance registration with named contract and default lifetime manager
+        ///// </summary>
+        ///// <param name="type"><see cref="Type"/> to create when resolved</param>
+        ///// <param name="name">Name of the contract</param>
+        ///// <param name="registerAs">Interfaces/aliases the instance should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, string name, params Type[] registerAs)
+        //    => new RegistrationDescriptor(instance, name, (IInstanceLifetimeManager)LifetimeManager._instanceManager.Clone(), registerAs);
+
+        ///// <summary>
+        ///// Create an instance registration with named contract and specific lifetime manager
+        ///// </summary>
+        ///// <param name="type"><see cref="Type"/> to create when resolved</param>
+        ///// <param name="name">Name of the contract</param>
+        ///// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the instance</param>
+        ///// <param name="registerAs">Interfaces/aliases the instance should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterInstance<TInstance>(this TInstance instance, string name, IInstanceLifetimeManager lifetime, params Type[] registerAs)
+        //    => new RegistrationDescriptor(instance, name, lifetime, registerAs);
 
         #endregion
 

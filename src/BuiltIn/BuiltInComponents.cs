@@ -29,7 +29,7 @@ namespace Unity.BuiltIn
             #endregion
 
 
-            #region Pipeline Chains
+            #region Chains
 
             // Initialize Type Chain
             ((StagedChain<BuilderStage, PipelineProcessor>)context.TypePipelineChain)
@@ -95,7 +95,10 @@ namespace Unity.BuiltIn
                 .CreateDelegate(typeof(Defaults.ResolveMappedDelegate), new PipelineProcessor[] { lifetime, new GenericProcessor(defaults) });
             defaults.Set(typeof(Defaults.ResolveMappedDelegate), (Defaults.ResolveMappedDelegate)mappingPipeline);
 
-            //defaults.Set(typeof(ResolveDelegateFactory),               (ResolveDelegateFactory)DelegateFactory.Factory);
+            //defaults.Set(typeof(Defaults.SingletonFactoryDelegate), (Defaults.SingletonFactoryDelegate));
+            //defaults.Set(typeof(Defaults.OptimizedFactoryDelegate), (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);
+            //defaults.Set(typeof(Defaults.BalancedFactoryDelegate),   (Defaults.BalancedFactoryDelegate)BalancedPipelineFactory.Factory);
+
             //defaults.Set(typeof(Defaults.BalancedFactoryDelegate),     (Defaults.BalancedFactoryDelegate)BalancedPipelineFactory.Factory);
             //defaults.Set(typeof(Defaults.OptimizedFactoryDelegate),    (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);
             //defaults.Set(typeof(Defaults.UnregisteredFactoryDelegate), (Defaults.UnregisteredFactoryDelegate)UnregisteredPipelineFactory.Factory);
