@@ -20,49 +20,49 @@ namespace Unity
 
         #region RegisterType overloads
 
-        /// <summary>
-        /// Create a type registration with default lifetime manager
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to create when resolved</param>
-        /// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterType(this Type type, params Type[] registerAs)
-            => new RegistrationDescriptor(type, null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(), registerAs);
+        ///// <summary>
+        ///// Create a type registration with default lifetime manager
+        ///// </summary>
+        ///// <param name="type"><see cref="Type"/> to create when resolved</param>
+        ///// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterType(this Type type, params Type[] registerAs)
+        //    => new RegistrationDescriptor(type, null, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(), registerAs);
 
-        /// <summary>
-        /// Create a type registration with specific lifetime manager
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to create when resolved</param>
-        /// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
-        /// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterType(this Type type, ITypeLifetimeManager lifetime, params Type[] registerAs)
-            => new RegistrationDescriptor(type, null, lifetime, registerAs);
+        ///// <summary>
+        ///// Create a type registration with specific lifetime manager
+        ///// </summary>
+        ///// <param name="type"><see cref="Type"/> to create when resolved</param>
+        ///// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
+        ///// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterType(this Type type, ITypeLifetimeManager lifetime, params Type[] registerAs)
+        //    => new RegistrationDescriptor(type, null, lifetime, registerAs);
 
-        /// <summary>
-        /// Create a type registration with named contract and default lifetime manager
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to create when resolved</param>
-        /// <param name="name">Name of the contract</param>
-        /// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterType(this Type type, string name, params Type[] registerAs)
-            => new RegistrationDescriptor(type, name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(), registerAs);
+        ///// <summary>
+        ///// Create a type registration with named contract and default lifetime manager
+        ///// </summary>
+        ///// <param name="type"><see cref="Type"/> to create when resolved</param>
+        ///// <param name="name">Name of the contract</param>
+        ///// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterType(this Type type, string name, params Type[] registerAs)
+        //    => new RegistrationDescriptor(type, name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(), registerAs);
 
-        /// <summary>
-        /// Create a type registration with named contract and specific lifetime manager
-        /// </summary>
-        /// <param name="type"><see cref="Type"/> to create when resolved</param>
-        /// <param name="name">Name of the contract</param>
-        /// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
-        /// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterType(this Type type, string name, ITypeLifetimeManager lifetime, params Type[] registerAs)
-            => new RegistrationDescriptor(type, name, lifetime, registerAs);
+        ///// <summary>
+        ///// Create a type registration with named contract and specific lifetime manager
+        ///// </summary>
+        ///// <param name="type"><see cref="Type"/> to create when resolved</param>
+        ///// <param name="name">Name of the contract</param>
+        ///// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
+        ///// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterType(this Type type, string name, ITypeLifetimeManager lifetime, params Type[] registerAs)
+        //    => new RegistrationDescriptor(type, name, lifetime, registerAs);
 
         #endregion
 
@@ -121,48 +121,48 @@ namespace Unity
 
         #region RegisterFactory overloads
 
-        /// <summary>
-        /// Create a factory registration with specific lifetime manager
-        /// </summary>
-        /// <param name="factory">Factory to register</param>
-        /// <param name="registerAs">Interfaces/aliases the factory should be registered under</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, params Type[] registerAs)
-            => new RegistrationDescriptor(factory, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(), registerAs);
+        ///// <summary>
+        ///// Create a factory registration with specific lifetime manager
+        ///// </summary>
+        ///// <param name="factory">Factory to register</param>
+        ///// <param name="registerAs">Interfaces/aliases the factory should be registered under</param>
+        ///// <returns></returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, params Type[] registerAs)
+        //    => new RegistrationDescriptor(factory, null, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(), registerAs);
 
-        /// <summary>
-        /// Create a factory registration with default lifetime manager
-        /// </summary>
-        /// <param name="factory">Factory to register</param>
-        /// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
-        /// <param name="registerAs">Interfaces/aliases the factory should be registered under</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, IFactoryLifetimeManager lifetime, params Type[] registerAs)
-            => new RegistrationDescriptor(factory, null, lifetime, registerAs);
+        ///// <summary>
+        ///// Create a factory registration with default lifetime manager
+        ///// </summary>
+        ///// <param name="factory">Factory to register</param>
+        ///// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
+        ///// <param name="registerAs">Interfaces/aliases the factory should be registered under</param>
+        ///// <returns></returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, IFactoryLifetimeManager lifetime, params Type[] registerAs)
+        //    => new RegistrationDescriptor(factory, null, lifetime, registerAs);
 
-        /// <summary>
-        /// Create a factory registration with named contract and default lifetime manager
-        /// </summary>
-        /// <param name="factory">Factory to register</param>
-        /// <param name="name">Name of the contract</param>
-        /// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, string name, params Type[] registerAs)
-            => new RegistrationDescriptor(factory, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(), registerAs);
+        ///// <summary>
+        ///// Create a factory registration with named contract and default lifetime manager
+        ///// </summary>
+        ///// <param name="factory">Factory to register</param>
+        ///// <param name="name">Name of the contract</param>
+        ///// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, string name, params Type[] registerAs)
+        //    => new RegistrationDescriptor(factory, name, (IFactoryLifetimeManager)LifetimeManager._factoryManager.Clone(), registerAs);
 
-        /// <summary>
-        /// Create a factory registration with named contract and default lifetime manager
-        /// </summary>
-        /// <param name="factory">Factory to register</param>
-        /// <param name="name">Name of the contract</param>
-        /// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
-        /// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
-        /// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
-        public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, string name, IFactoryLifetimeManager lifetime, params Type[] registerAs)
-            => new RegistrationDescriptor(factory, name, lifetime, registerAs);
+        ///// <summary>
+        ///// Create a factory registration with named contract and default lifetime manager
+        ///// </summary>
+        ///// <param name="factory">Factory to register</param>
+        ///// <param name="name">Name of the contract</param>
+        ///// <param name="lifetime">The <see cref="LifetimeManager"/> that controls the lifetime of the resolved instance</param>
+        ///// <param name="registerAs">Interfaces/aliases the component should be registered under</param>
+        ///// <returns>The <see cref="RegistrationDescriptor"/> with registration data</returns>
+        //public static RegistrationDescriptor RegisterFactory(this ResolveDelegate<IResolveContext> factory, string name, IFactoryLifetimeManager lifetime, params Type[] registerAs)
+        //    => new RegistrationDescriptor(factory, name, lifetime, registerAs);
 
         #endregion
     }
