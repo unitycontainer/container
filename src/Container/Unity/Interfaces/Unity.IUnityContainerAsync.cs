@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -67,7 +68,7 @@ namespace Unity
                         return new ValueTask<object?>(value);
 
                     // No value, do everything else asynchronously
-                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new ResolveContractAsyncState(in contract, manager, overrides),
+                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new RequestInfoAsync(in contract, manager, overrides),
                         System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
                 }
             }
@@ -75,7 +76,7 @@ namespace Unity
 
             // No registration found, do everything else asynchronously
             return new ValueTask<object?>(
-                Task.Factory.StartNew(ResolveAsync, new ResolveAsyncState(in contract, overrides),
+                Task.Factory.StartNew(ResolveAsync, new RequestInfoAsync(in contract, overrides),
                     System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
         }
 

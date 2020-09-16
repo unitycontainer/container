@@ -1,18 +1,22 @@
-﻿using Unity.Resolution;
+﻿using Unity.Lifetime;
+using Unity.Pipeline;
 
 namespace Unity.BuiltIn
 {
     public partial class LifetimeProcessor
     {
-        public override void PreBuildUp(ref ResolutionContext context)
+        public override void PreBuildUp(ref PipelineContext pipeline)
         {
-            //LifetimeManager lifetime = (LifetimeManager)context.Manager!;
+            //var lifetime = pipeline.Manager;
 
-            //if (null == lifetime || lifetime is PerResolveLifetimeManager)
-            //    lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
+            //// Resolution context
+            //ref var context = ref pipeline.Context;
 
-            //if (lifetime is SynchronizedLifetimeManager recoveryPolicy)
-            //    context.RequiresRecovery = recoveryPolicy;
+            ////if (null == lifetime || lifetime is PerResolveLifetimeManager)
+            ////    lifetime = (LifetimeManager?)context.Get(typeof(LifetimeManager));
+
+            ////if (lifetime is SynchronizedLifetimeManager recoveryPolicy)
+            ////    context.RequiresRecovery = recoveryPolicy;
 
             //var existing = lifetime.GetValue(context.Disposables);
             //if (!ReferenceEquals(RegistrationManager.NoValue, existing))
@@ -22,7 +26,7 @@ namespace Unity.BuiltIn
         }
 
 
-        public override void PostBuildUp(ref ResolutionContext context)
+        public override void PostBuildUp(ref PipelineContext pipeline)
         {
             //LifetimeManager lifetime = (LifetimeManager)context.Manager!;
 

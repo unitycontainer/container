@@ -9,21 +9,30 @@ namespace Unity.Container
     {
         #region Chains
 
-        public StagedChain<BuilderStage, PipelineProcessor> TypeChain { get; }
+        public StagedChain<BuildStage, PipelineProcessor> TypeChain { get; }
 
-        public StagedChain<BuilderStage, PipelineProcessor> FactoryChain { get; }
+        public StagedChain<BuildStage, PipelineProcessor> FactoryChain { get; }
 
-        public StagedChain<BuilderStage, PipelineProcessor> InstanceChain { get; }
+        public StagedChain<BuildStage, PipelineProcessor> InstanceChain { get; }
 
-        public StagedChain<BuilderStage, PipelineProcessor> UnregisteredChain { get; }
+        public StagedChain<BuildStage, PipelineProcessor> UnregisteredChain { get; }
+
+        #endregion
+
+
+        #region Pipeline Builder
+        
+        public ProducerFactory BuildPipeline
+            => (ProducerFactory)Data[BUILD_PIPELINE].Value!;
+
 
         #endregion
 
 
         #region Resolution
 
-        public ResolveRegistrationDelegate ResolveContract
-            => (ResolveRegistrationDelegate)Data[RESOLVE_CONTRACT].Value!;
+        public RegistrationProducerDelegate ResolveContract
+            => (RegistrationProducerDelegate)Data[RESOLVE_CONTRACT].Value!;
 
         public ResolveUnregisteredDelegate ResolveUnregistered
             => (ResolveUnregisteredDelegate)Data[RESOLVE_UNKNOWN].Value!;
@@ -43,8 +52,8 @@ namespace Unity.Container
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Type"/> registration
         /// </summary>
-        public ResolveDelegate<ResolutionContext> TypePipeline
-            => (ResolveDelegate<ResolutionContext>)Data[PIPELINE_TYPE].Value!;
+        public ServiceProducer TypePipeline
+            => (ServiceProducer)Data[PIPELINE_TYPE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and

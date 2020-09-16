@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -27,15 +28,29 @@ namespace Unity.Container
 
         #endregion
 
+
         #region Resolution Delegates
         
-        public delegate object? ResolveRegistrationDelegate(ref ResolutionContext context);
+        //public delegate object? ResolveRegistrationDelegate(ref ResolutionContext context);
 
         public delegate object? ResolveUnregisteredDelegate(ref ResolutionContext context);
 
         public delegate object? ResolveArrayDelegate(ref ResolutionContext context);
 
         public delegate object? ResolveMappedDelegate(ref ResolutionContext context);
+
+        #endregion
+
+
+        #region Producer Delegates
+
+        public delegate ValueTask<object?> RegistrationProducerDelegate(ref ResolutionContext context);
+
+        public delegate ValueTask<object?> UnregisteredProducerDelegate(ref ResolutionContext context);
+
+        public delegate ValueTask<object?> ArrayProducerDelegate(ref ResolutionContext context);
+
+        public delegate ValueTask<object?> MappedTypeProducerDelegate(ref ResolutionContext context);
 
         #endregion
 
@@ -51,6 +66,7 @@ namespace Unity.Container
         public delegate ResolveDelegate<ResolutionContext> UnregisteredFactoryDelegate(ref ResolutionContext context);
 
         #endregion
+
 
         #region
 

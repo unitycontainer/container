@@ -18,8 +18,9 @@ namespace Unity.Benchmarks
             Container = new UnityContainer()
                 .RegisterType(typeof(List<>), new InjectionConstructor())
                 .RegisterType(typeof(List<object>))
-                .CreateChildContainer()
-                .CreateChildContainer();
+                .RegisterType<Service>();
+                //.CreateChildContainer()
+                //.CreateChildContainer();
         }
 
         #endregion
@@ -50,14 +51,13 @@ namespace Unity.Benchmarks
 
         #endregion
 
-        [Ignore]
+
         [TestMethod]
         public void Resolve_Registered()
         {
-            Assert.IsNotNull(Container.Resolve(typeof(List<object>), null));
+            Assert.IsNotNull(Container.Resolve(typeof(Service), null));
         }
 
-        [Ignore]
         [TestMethod]
         public void Resolve_Object()
         {
@@ -80,6 +80,11 @@ namespace Unity.Benchmarks
         public void Resolve_Generic()
         {
             Assert.IsNotNull(Container.Resolve(typeof(List<int>), null));
+        }
+
+
+        public class Service
+        { 
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -97,7 +98,7 @@ namespace Unity
 
         #region Resolver
 
-        public Delegate? ResolveDelegate { get; internal set; }
+        public ServiceProducer? ProduceService { get; internal set; }
         
         #endregion
 

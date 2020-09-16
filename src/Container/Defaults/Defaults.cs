@@ -19,6 +19,8 @@ namespace Unity.Container
         [CLSCompliant(false)] protected Policy[] Data;
         [CLSCompliant(false)] protected Metadata[] Meta;
 
+        private readonly int BUILD_PIPELINE;
+
         private readonly int RESOLVE_CONTRACT;
         private readonly int RESOLVE_UNKNOWN;
         private readonly int RESOLVE_MAPPED;
@@ -40,27 +42,29 @@ namespace Unity.Container
         internal Defaults()
         {
             // Build Chains
-            TypeChain = new StagedChain<BuilderStage, PipelineProcessor>();
-            FactoryChain = new StagedChain<BuilderStage, PipelineProcessor>();
-            InstanceChain = new StagedChain<BuilderStage, PipelineProcessor>();
-            UnregisteredChain = new StagedChain<BuilderStage, PipelineProcessor>();
+            TypeChain = new StagedChain<BuildStage, PipelineProcessor>();
+            FactoryChain = new StagedChain<BuildStage, PipelineProcessor>();
+            InstanceChain = new StagedChain<BuildStage, PipelineProcessor>();
+            UnregisteredChain = new StagedChain<BuildStage, PipelineProcessor>();
 
             // Storage
             Data = new Policy[Storage.Prime.Numbers[Prime]];
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
+            BUILD_PIPELINE    = Allocate(typeof(ProducerFactory));
+
             FACTORY_SINGLETON = Allocate(typeof(SingletonFactoryDelegate));
             FACTORY_OPTIMIZED = Allocate(typeof(OptimizedFactoryDelegate));
-            FACTORY_BALANCED = Allocate(typeof(BalancedFactoryDelegate));
+            FACTORY_BALANCED  = Allocate(typeof(BalancedFactoryDelegate));
 
             // Pipelines
-            PIPELINE_TYPE = Allocate(typeof(TypeCategory), typeof(ResolveDelegate<ResolutionContext>));
+            PIPELINE_TYPE = Allocate(typeof(TypeCategory), typeof(ServiceProducer));
             PIPELINE_FACTORY = Allocate(typeof(FactoryCategory), typeof(ResolveDelegate<ResolutionContext>));
             PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<ResolutionContext>));
 
             // Resolvers
-            RESOLVE_CONTRACT = Allocate(typeof(ResolveRegistrationDelegate));
+            RESOLVE_CONTRACT = Allocate(typeof(RegistrationProducerDelegate));
             RESOLVE_UNKNOWN = Allocate(typeof(ResolveUnregisteredDelegate));
             RESOLVE_MAPPED = Allocate(typeof(ResolveMappedDelegate));
             RESOLVE_ARRAY = Allocate(typeof(ResolveArrayDelegate));

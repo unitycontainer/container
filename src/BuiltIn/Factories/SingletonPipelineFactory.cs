@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using Unity.Lifetime;
 using Unity.Pipeline;
 using Unity.Resolution;
@@ -19,9 +20,11 @@ namespace Unity.BuiltIn
 
         #region Pipelines
 
-        public static object? Pipeline(PipelineProcessor[] chain, ref ResolutionContext context)
+        public static ValueTask<object?> Pipeline(PipelineProcessor[] chain, ref ResolutionContext context)
         {
             Debug.Assert(null != context.Manager);
+
+            PipelineContext pipeline = new PipelineContext(ref context);
 
             try
             {
@@ -29,23 +32,27 @@ namespace Unity.BuiltIn
 
                 while (++i < chain.Length)
                 {
-                    chain[i].PreBuildUp(ref context);
+                    chain[i].PreBuildUp(ref pipeline);
+
+                    if (pipeline.IsFaulted) return new ValueTask<object?>(pipeline.Exception);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref context);
+                    chain[i].PostBuildUp(ref pipeline);
+
+                    if (pipeline.IsFaulted) return new ValueTask<object?>(pipeline.Exception);
                 }
 
-                return context.Existing;
+                return new ValueTask<object?>(context.Existing);
             }
             catch (Exception ex)
             {
-                if (context.Manager is SynchronizedLifetimeManager synchronized) 
+                if (context.Manager is SynchronizedLifetimeManager synchronized)
                     synchronized.Recover();
-                
+
                 // TODO: replay exception
-                throw new ResolutionFailedException(context.Type, context.Name, "Error", ex);
+                return new ValueTask<object?>(new ResolutionFailedException(context.Type, context.Name, "Error", ex));
             }
         }
 
@@ -53,18 +60,20 @@ namespace Unity.BuiltIn
         {
             Debug.Assert(null != context.Manager);
 
+            PipelineContext pipeline = new PipelineContext(ref context);
+
             try
             {
                 var i = -1;
 
                 while (++i < chain.Length)
                 {
-                    chain[i].PreBuildUp(ref context);
+                    chain[i].PreBuildUp(ref pipeline);
                 }
 
                 while (--i >= 0)
                 {
-                    chain[i].PostBuildUp(ref context);
+                    chain[i].PostBuildUp(ref pipeline);
                 }
 
                 return context.Existing;

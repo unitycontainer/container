@@ -62,11 +62,13 @@ namespace Unity
             DEFAULT_CONTRACTS = _scope.Contracts;
 
             // Setup Default algorithms
-            _policies.Set(typeof(Defaults.ResolveUnregisteredDelegate), (Defaults.ResolveUnregisteredDelegate)ResolveUnregistered);
-            _policies.Set(typeof(Defaults.ResolveRegistrationDelegate), (Defaults.ResolveRegistrationDelegate)ResolveRegistration);
-            _policies.Set(typeof(Defaults.ResolveArrayDelegate),               (Defaults.ResolveArrayDelegate)ResolveArray);
+            _policies.Set(typeof(ProducerFactory), (ProducerFactory)DefaultProducerFactory);
 
-            // Setup Processors
+            _policies.Set(typeof(Defaults.ResolveUnregisteredDelegate),   (Defaults.ResolveUnregisteredDelegate)ResolveUnregistered);
+            _policies.Set(typeof(Defaults.RegistrationProducerDelegate), (Defaults.RegistrationProducerDelegate)ResolveRegistration);
+            _policies.Set(typeof(Defaults.ResolveArrayDelegate),                 (Defaults.ResolveArrayDelegate)ResolveArray);
+
+            // Setup Built-In Components
             BuiltInComponents.Setup(_context);
         }
 

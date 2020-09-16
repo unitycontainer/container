@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Unity.Lifetime;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity
@@ -12,15 +12,36 @@ namespace Unity
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
             var info = new RequestInfo(overrides);
-            var context = new ResolutionContext(ref info, ref contract, manager, this);
-            
-            return _policies.ResolveContract(ref context);
+            var context = new ResolutionContext(this, ref contract, manager, ref info);
+
+
+            // Check if pipeline has been created already
+            if (null == context.Manager!.ProduceService)
+            {
+                // Lock the Manager to prevent creating pipeline multiple times2
+                lock (context.Manager)
+                {
+                    // Make sure it is still null and not created while waited for the lock
+                    if (null == context.Manager.ProduceService)
+                    {
+                        context.Manager!.ProduceService = _policies.BuildPipeline(ref context);
+                    }
+                }
+            }
+
+            // Resolve
+            var task = context.Manager!.ProduceService(ref context);
+
+            return task.IsFaulted
+                ? throw task.AsTask().Exception! // TODO: Proper error reporting
+                : task.Result;
         }
+
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
             var info = new RequestInfo(overrides);
-            var context = new ResolutionContext(ref info, ref contract, manager, this);
+            var context = new ResolutionContext(this, ref contract, manager, ref info);
             var factory = (RegistrationManager)manager.Data!;
 
             // Calculate new Type
@@ -35,48 +56,52 @@ namespace Unity
         }
 
 
-        private static object? ResolveRegistration(ref ResolutionContext context)
+        private static ValueTask<object?> ResolveRegistration(ref ResolutionContext context)
         {
-            // Check if pipeline has been created already
-            if (null == context.Manager!.ResolveDelegate)
-            {
-                // Prevent creating pipeline multiple times
-                lock (context.Manager)
-                {
-                    // Make sure it is still not created while waited for the lock
-                    if (null == context.Manager.ResolveDelegate)
-                    {
-                        var lifetime = (LifetimeManager)context.Manager;
+            throw new NotImplementedException();
 
-                        context.Manager.ResolveDelegate = context.Container._policies.TypePipeline;
+            //// Check if pipeline has been created already
+            //if (null == context.Manager!.ResolveDelegate)
+            //{
+            //    // Prevent creating pipeline multiple times
+            //    lock (context.Manager)
+            //    {
+            //        // Make sure it is still not created while waited for the lock
+            //        if (null == context.Manager.ResolveDelegate)
+            //        {
+            //            var lifetime = (LifetimeManager)context.Manager;
+
+            //            //context.Manager.ResolveDelegate = context.Container._policies.TypePipeline;
                         
-                        // TODO: implement
-                        //context.Manager.ResolveDelegate = context.Manager.Category switch
-                        //{
-                        //    RegistrationCategory.Instance => context.Container._policies.InstancePipeline,
-                        //    RegistrationCategory.Factory  => context.Container._policies.FactoryPipeline,
+            //            // TODO: implement
+            //            //context.Manager.ResolveDelegate = context.Manager.Category switch
+            //            //{
+            //            //    RegistrationCategory.Instance => context.Container._policies.InstancePipeline,
+            //            //    RegistrationCategory.Factory  => context.Container._policies.FactoryPipeline,
 
-                        //    RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
-                        //    RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => context.Container._policies.TypePipeline,
-                        //    RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => context.Container._policies.TypePipeline,
+            //            //    RegistrationCategory.Clone when ResolutionStyle.OnceInLifetime == lifetime.Style => context.Container._policies.TypePipeline,
+            //            //    RegistrationCategory.Clone when ResolutionStyle.OnceInWhile    == lifetime.Style => context.Container._policies.TypePipeline,
+            //            //    RegistrationCategory.Clone when ResolutionStyle.EveryTime      == lifetime.Style => context.Container._policies.TypePipeline,
 
-                        //    RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style 
-                        //        => context.Container._policies.TypePipeline,
+            //            //    RegistrationCategory.Type when ResolutionStyle.OnceInLifetime == lifetime.Style 
+            //            //        => context.Container._policies.TypePipeline,
 
-                        //    RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style 
-                        //        => context.Container._policies.BalancedPipelineFactory(ref context),
+            //            //    RegistrationCategory.Type when ResolutionStyle.OnceInWhile == lifetime.Style 
+            //            //        => context.Container._policies.BalancedPipelineFactory(ref context),
 
-                        //    RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style 
-                        //        => context.Container._policies.OptimizedPipelineFactory(ref context),
+            //            //    RegistrationCategory.Type when ResolutionStyle.EveryTime == lifetime.Style 
+            //            //        => context.Container._policies.OptimizedPipelineFactory(ref context),
 
-                        //    _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
-                        //};
-                    }
-                }
-            }
+            //            //    _ => throw new InvalidOperationException($"Registration {context.Type}/{context.Name} has unsupported category {context.Manager.Category}")
+            //            //};
+            //        }
+            //    }
+            //}
 
-            // Resolve in current context
-            return ((ResolveDelegate<ResolutionContext>)context.Manager!.ResolveDelegate)(ref context);
+            //var value = ((ResolveDelegate<ResolutionContext>)context.Manager!.ResolveDelegate)(ref context);
+
+            //// Resolve in current context
+            //return new ValueTask<object?>(value);
         }
 
         #endregion
@@ -217,7 +242,7 @@ namespace Unity
         /// <returns>Resolved object or <see cref="Task.FromException(System.Exception)"/> if failed</returns>
         private Task<object?> ResolveContractAsync(object? state)
         {
-            ResolveContractAsyncState context = (ResolveContractAsyncState)state!;
+            RequestInfoAsync context = (RequestInfoAsync)state!;
 
 
 
@@ -227,53 +252,16 @@ namespace Unity
         /// <summary>
         /// Builds and resolves unregistered <see cref="Type"/>
         /// </summary>
-        /// <param name="state"><see cref="ResolveAsyncState"/> objects holding resolution request data</param>
+        /// <param name="state"><see cref="RequestInfoAsync"/> objects holding resolution request data</param>
         /// <returns>Resolved object or <see cref="Task.FromException(System.Exception)"/> if failed</returns>
         private Task<object?> ResolveAsync(object? state)
         {
-            ResolveAsyncState context = (ResolveAsyncState)state!;
+            RequestInfoAsync context = (RequestInfoAsync)state!;
 
 
 
             return Task.FromResult<object?>(context.Contract.Type);
         }
-
-        #region State Objects
-
-        /// <summary>
-        /// Internal state passed to <see cref="ResolveContractAsync"/>
-        /// </summary>
-        private class ResolveContractAsyncState
-        {
-            public readonly Contract Contract;
-            public readonly RegistrationManager Manager;
-            public readonly ResolverOverride[] Overrides;
-
-            public ResolveContractAsyncState(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
-            {
-                Contract = contract;
-                Manager = manager;
-                Overrides = overrides;
-            }
-        }
-
-        /// <summary>
-        /// Internal state passed to <see cref="ResolveAsync"/>
-        /// </summary>
-        private class ResolveAsyncState
-        {
-            public readonly Contract Contract;
-            public readonly ResolverOverride[] Overrides;
-
-            public ResolveAsyncState(in Contract contract, ResolverOverride[] overrides)
-            {
-                Contract = contract;
-                Overrides = overrides;
-            }
-        }
-
-
-        #endregion
 
         #endregion
     }

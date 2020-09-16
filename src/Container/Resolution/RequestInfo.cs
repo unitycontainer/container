@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using Unity.Resolution;
 
-namespace Unity.Resolution
+namespace Unity.Container
 {
     public struct RequestInfo
     {
         #region Fields
 
-        public readonly ResolverOverride[] Overrides; // TODO: nullable?
+        public readonly ResolverOverride[] Overrides;
 
         #endregion
 

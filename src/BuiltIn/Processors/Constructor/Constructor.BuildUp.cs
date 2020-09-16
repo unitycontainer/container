@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
-using Unity.Injection;
+using Unity.Exceptions;
+using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
@@ -12,12 +12,16 @@ namespace Unity.BuiltIn
         /// Selects appropriate constructor and calls <see cref="BuildUp"/> method 
         /// to activate an instance
         /// </summary>
-        /// <param name="context">A <see cref="BuildContext"/> structure holding 
+        /// <param name="pipeline">A <see cref="PipelineContext"/> structure holding 
         /// resolution context</param>
-        public override void PreBuildUp(ref ResolutionContext context)
+        public override void PreBuildUp(ref PipelineContext pipeline)
         {
+            // Resolution context
+            ref var context = ref pipeline.Context;
+
             // If instance already exists skip activation
             if (null != context.Existing) return;
+            
 
             // Type to build
             Type type = context.Manager?.Type ?? context.Type;
@@ -29,25 +33,27 @@ namespace Unity.BuiltIn
                 // Constructor to activate
                 var ctor = context.Manager.Constructor;
 
-                context.Data     = ctor.MemberInfo(ctors);
+                context.Data = ctor.MemberInfo(ctors);
                 context.Existing = null == ctor.Data || 0 == ctor.Data.Length
                     ? BuildUp(ref context)
                     : BuildUp(ref context, ctor.Data);
-               
+
                 return;
             }
-
+            
             // Check if selection is required
             switch (ctors.Length)
             {
                 case 0:
-                    throw new InvalidOperationException(NoConstructor);
+                    pipeline.Throw( new InvalidRegistrationException(NoConstructor));
+                    return;
 
                 case 1:
                     context.Data = ctors[0];
                     context.Existing = BuildUp(ref context);
                     return;
             }
+
 
             // Search for and invoke constructor annotated with attribute
             foreach (var ctor in ctors)
@@ -67,7 +73,11 @@ namespace Unity.BuiltIn
             context.Data = SelectConstructor(ref context, ctors);
 
             // Activate or throw if not found
-            if (null == context.Data) throw new InvalidOperationException(NoConstructor);
+            if (null == context.Data)
+            { 
+                pipeline.Throw( new InvalidRegistrationException(NoConstructor));
+                return;
+            }
 
             BuildUp(ref context);
         }
@@ -76,7 +86,7 @@ namespace Unity.BuiltIn
         {
             var info = (ConstructorInfo)context.Data!;
             var parameters = info.GetParameters();
-            var values = 0 == parameters.Length 
+            var values = 0 == parameters.Length
                 ? EmptyParametersArray
                 : null == data
                     ? BuildUp(ref context, parameters)

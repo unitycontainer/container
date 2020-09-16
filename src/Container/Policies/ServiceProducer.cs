@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Unity.Resolution;
 
-namespace Unity
+namespace Unity.Container
 { 
-    public delegate ValueTask<object?> ServiceProducer<TContext>(ref TContext context);
+    public delegate ValueTask<object?> ServiceProducer(ref ResolutionContext context);
 
 
-    public interface IProduceService
+    public interface IServiceProducer
     {
-        ValueTask<object?> ProduceService<TContext>(ref TContext context)
-            where TContext : struct;
+        ValueTask<object?> ProduceService(ref ResolutionContext context);
     }
 }
 

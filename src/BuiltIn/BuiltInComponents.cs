@@ -32,35 +32,35 @@ namespace Unity.BuiltIn
             #region Chains
 
             // Initialize Type Chain
-            ((StagedChain<BuilderStage, PipelineProcessor>)context.TypePipelineChain)
-                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Lifetime,   lifetime),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Creation,   constructor),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Fields,     field),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Properties, property),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Methods,    method));
+            ((StagedChain<BuildStage, PipelineProcessor>)context.TypePipelineChain)
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Lifetime,   lifetime),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Creation,   constructor),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
 
             // Initialize Factory Chain
-            ((StagedChain<BuilderStage, PipelineProcessor>)context.FactoryPipelineChain)
-                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Lifetime,   lifetime),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Factory,    factory),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Fields,     field),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Properties, property),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Methods,    method));
+            ((StagedChain<BuildStage, PipelineProcessor>)context.FactoryPipelineChain)
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Lifetime,   lifetime),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    factory),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
 
             // Initialize Instance Chain
-            ((StagedChain<BuilderStage, PipelineProcessor>)context.InstancePipelineChain)
-                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Lifetime,   lifetime), 
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Factory,    instance),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Fields,     field),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Properties, property),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Methods,    method));
+            ((StagedChain<BuildStage, PipelineProcessor>)context.InstancePipelineChain)
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Lifetime,   lifetime), 
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    instance),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
 
             // Initialize Unregistered Chain
-            ((StagedChain<BuilderStage, PipelineProcessor>)context.UnregisteredPipelineChain)
-                .Add(new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Creation,   constructor),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Fields,     field),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Properties, property),
-                     new KeyValuePair<BuilderStage, PipelineProcessor>(BuilderStage.Methods,    method));
+            ((StagedChain<BuildStage, PipelineProcessor>)context.UnregisteredPipelineChain)
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Creation,   constructor),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
+                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
 
             #endregion
 
@@ -68,32 +68,30 @@ namespace Unity.BuiltIn
             #region Pipelines
 
             // Default activating pipelines
-            defaults.Set(typeof(Defaults.TypeCategory),     
-                         typeof(ResolveDelegate<ResolutionContext>), 
-                         (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-                                                 .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
-                                                    ((StagedChain<BuilderStage, PipelineProcessor>)context.TypePipelineChain)
-                                                    .ToArray()));
+            defaults.Set(typeof(Defaults.TypeCategory), typeof(ServiceProducer), 
+                         SingletonPipelineFactory.PipelineInfo
+                                                 .CreateDelegate(typeof(ServiceProducer), 
+                                                    ((StagedChain<BuildStage, PipelineProcessor>)context.TypePipelineChain).ToArray()));
             
-            defaults.Set(typeof(Defaults.FactoryCategory),  
-                         typeof(ResolveDelegate<ResolutionContext>),
-                         (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-                                                 .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
-                                                    ((StagedChain<BuilderStage, PipelineProcessor>)context.FactoryPipelineChain)
-                                                    .ToArray()));
+            //defaults.Set(typeof(Defaults.FactoryCategory),  
+            //             typeof(ResolveDelegate<ResolutionContext>),
+            //             (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
+            //                                     .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
+            //                                        ((StagedChain<BuildStage, PipelineProcessor>)context.FactoryPipelineChain)
+            //                                        .ToArray()));
             
-            defaults.Set(typeof(Defaults.InstanceCategory), 
-                         typeof(ResolveDelegate<ResolutionContext>),
-                         (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-                                                 .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
-                                                    ((StagedChain<BuilderStage, PipelineProcessor>)context.UnregisteredPipelineChain)
-                                                    .ToArray()));
+            //defaults.Set(typeof(Defaults.InstanceCategory), 
+            //             typeof(ResolveDelegate<ResolutionContext>),
+            //             (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
+            //                                     .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
+            //                                        ((StagedChain<BuildStage, PipelineProcessor>)context.UnregisteredPipelineChain)
+            //                                        .ToArray()));
 
 
             // Install mapping pipeline (always has only lifetime and mapping)
-            var mappingPipeline = SingletonPipelineFactory.PipelineInfo
-                .CreateDelegate(typeof(Defaults.ResolveMappedDelegate), new PipelineProcessor[] { lifetime, new GenericProcessor(defaults) });
-            defaults.Set(typeof(Defaults.ResolveMappedDelegate), (Defaults.ResolveMappedDelegate)mappingPipeline);
+            //var mappingPipeline = SingletonPipelineFactory.PipelineInfo
+            //    .CreateDelegate(typeof(Defaults.ResolveMappedDelegate), new PipelineProcessor[] { lifetime, new GenericProcessor(defaults) });
+            //defaults.Set(typeof(Defaults.ResolveMappedDelegate), (Defaults.ResolveMappedDelegate)mappingPipeline);
 
             //defaults.Set(typeof(Defaults.SingletonFactoryDelegate), (Defaults.SingletonFactoryDelegate));
             //defaults.Set(typeof(Defaults.OptimizedFactoryDelegate), (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);

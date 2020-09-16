@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 
 namespace Unity.Resolution
 {
@@ -24,7 +25,7 @@ namespace Unity.Resolution
 
         #region Constructors
 
-        public ResolutionContext(ref RequestInfo request, ref Contract contract, RegistrationManager manager, UnityContainer container)
+        public ResolutionContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
         {
             unsafe
             {
