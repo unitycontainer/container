@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.Lifetime;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity.Container
 {
     public partial struct PipelineContext
     {

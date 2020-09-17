@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Unity.Pipeline
+namespace Unity.Container
 {
     public abstract partial class MemberInfoProcessor<TMemberInfo, TData>
     {

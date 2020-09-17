@@ -31,7 +31,6 @@ namespace Unity.Container
 
         #region Resolution Delegates
         
-        //public delegate object? ResolveRegistrationDelegate(ref ResolutionContext context);
 
         public delegate object? ResolveUnregisteredDelegate(ref ResolutionContext context);
 
@@ -57,13 +56,13 @@ namespace Unity.Container
 
         #region Factory Delegates
 
-        public delegate ResolveDelegate<ResolutionContext> SingletonFactoryDelegate(ref ResolutionContext context);
+        public delegate Pipeline SingletonPipelineFactory(ref ResolutionContext context);
 
-        public delegate ResolveDelegate<ResolutionContext> BalancedFactoryDelegate(ref ResolutionContext context);
+        public delegate Pipeline BalancedPipelineFactory(ref ResolutionContext context);
 
-        public delegate ResolveDelegate<ResolutionContext> OptimizedFactoryDelegate(ref ResolutionContext context);
+        public delegate Pipeline OptimizedPipelineFactory(ref ResolutionContext context);
 
-        public delegate ResolveDelegate<ResolutionContext> UnregisteredFactoryDelegate(ref ResolutionContext context);
+        public delegate Pipeline UnregisteredPipelineFactory(ref ResolutionContext context);
 
         #endregion
 

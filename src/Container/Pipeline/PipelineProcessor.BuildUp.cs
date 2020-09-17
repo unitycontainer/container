@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Unity.Resolution;
-
-namespace Unity.Pipeline
+﻿namespace Unity.Container
 {
     public abstract partial class PipelineProcessor
     {

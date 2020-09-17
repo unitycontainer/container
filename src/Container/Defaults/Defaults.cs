@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Pipeline;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -33,6 +32,7 @@ namespace Unity.Container
         private readonly int FACTORY_SINGLETON;
         private readonly int FACTORY_BALANCED;
         private readonly int FACTORY_OPTIMIZED;
+        private readonly int FACTORY_UNREGISTERED;
 
         #endregion
 
@@ -52,16 +52,17 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            BUILD_PIPELINE    = Allocate(typeof(ProducerFactory));
+            BUILD_PIPELINE    = Allocate(typeof(PipelineFactory));
 
-            FACTORY_SINGLETON = Allocate(typeof(SingletonFactoryDelegate));
-            FACTORY_OPTIMIZED = Allocate(typeof(OptimizedFactoryDelegate));
-            FACTORY_BALANCED  = Allocate(typeof(BalancedFactoryDelegate));
+            FACTORY_SINGLETON    = Allocate(typeof(SingletonPipelineFactory));
+            FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedPipelineFactory));
+            FACTORY_BALANCED     = Allocate(typeof(BalancedPipelineFactory));
+            FACTORY_UNREGISTERED = Allocate(typeof(UnregisteredPipelineFactory));
 
             // Pipelines
-            PIPELINE_TYPE = Allocate(typeof(TypeCategory), typeof(ServiceProducer));
-            PIPELINE_FACTORY = Allocate(typeof(FactoryCategory), typeof(ResolveDelegate<ResolutionContext>));
-            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<ResolutionContext>));
+            PIPELINE_TYPE = Allocate(typeof(TypeCategory), typeof(Pipeline));
+            PIPELINE_FACTORY = Allocate(typeof(FactoryCategory), typeof(Pipeline));
+            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(Pipeline));
 
             // Resolvers
             RESOLVE_CONTRACT = Allocate(typeof(RegistrationProducerDelegate));

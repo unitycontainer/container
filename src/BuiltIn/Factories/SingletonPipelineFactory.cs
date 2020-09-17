@@ -2,25 +2,37 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
+using Unity.Container;
+using Unity.Extension;
 using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Resolution;
+using Unity.Storage;
 
 namespace Unity.BuiltIn
 {
     public static class SingletonPipelineFactory
+
     {
         #region Fields
 
-        public static MethodInfo PipelineInfo   = typeof(SingletonPipelineFactory).GetMethod(nameof(Pipeline))!;
+        public static MethodInfo PipelineInfo   = typeof(SingletonPipelineFactory).GetMethod(nameof(BuildUpPipeline))!;
         public static MethodInfo DiagnosticInfo = typeof(SingletonPipelineFactory).GetMethod(nameof(DiagnosticPipeline))!;
 
         #endregion
 
+        public static void Setup(ExtensionContext context)
+        {
+            var policies = (Defaults)context.Policies;
+            var processors = ((StagedChain<BuildStage, PipelineProcessor>)context.TypePipelineChain).ToArray();
+
+            // Default activating pipelines
+            policies.Set(typeof(Defaults.TypeCategory), typeof(Pipeline), PipelineInfo.CreateDelegate(typeof(Pipeline), processors));
+        }
+
 
         #region Pipelines
 
-        public static ValueTask<object?> Pipeline(PipelineProcessor[] chain, ref ResolutionContext context)
+        public static object? BuildUpPipeline(PipelineProcessor[] chain, ref ResolutionContext context)
         {
             Debug.Assert(null != context.Manager);
 
@@ -34,17 +46,17 @@ namespace Unity.BuiltIn
                 {
                     chain[i].PreBuildUp(ref pipeline);
 
-                    if (pipeline.IsFaulted) return new ValueTask<object?>(pipeline.Exception);
+                    //if (pipeline.IsFaulted) return new ValueTask<object?>(pipeline.Exception);
                 }
 
                 while (--i >= 0)
                 {
                     chain[i].PostBuildUp(ref pipeline);
 
-                    if (pipeline.IsFaulted) return new ValueTask<object?>(pipeline.Exception);
+                    //if (pipeline.IsFaulted) return new ValueTask<object?>(pipeline.Exception);
                 }
 
-                return new ValueTask<object?>(context.Existing);
+                return context.Existing;
             }
             catch (Exception ex)
             {
@@ -52,7 +64,7 @@ namespace Unity.BuiltIn
                     synchronized.Recover();
 
                 // TODO: replay exception
-                return new ValueTask<object?>(new ResolutionFailedException(context.Type, context.Name, "Error", ex));
+                throw new ResolutionFailedException(context.Type, context.Name, "Error", ex);
             }
         }
 

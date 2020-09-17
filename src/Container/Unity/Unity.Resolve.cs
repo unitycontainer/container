@@ -16,25 +16,25 @@ namespace Unity
 
 
             // Check if pipeline has been created already
-            if (null == context.Manager!.ProduceService)
+            if (null == context.Manager!.Pipeline)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (context.Manager)
                 {
                     // Make sure it is still null and not created while waited for the lock
-                    if (null == context.Manager.ProduceService)
+                    if (null == context.Manager.Pipeline)
                     {
-                        context.Manager!.ProduceService = _policies.BuildPipeline(ref context);
+                        context.Manager!.Pipeline = _policies.BuildPipeline(ref context);
                     }
                 }
             }
 
             // Resolve
-            var task = context.Manager!.ProduceService(ref context);
+            return context.Manager!.Pipeline(ref context);
 
-            return task.IsFaulted
-                ? throw task.AsTask().Exception! // TODO: Proper error reporting
-                : task.Result;
+            //return context.IsFaulted
+            //    ? throw task.AsTask().Exception! // TODO: Proper error reporting
+            //    : task.Result;
         }
 
 

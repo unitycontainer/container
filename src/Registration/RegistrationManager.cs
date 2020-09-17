@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
 using Unity.Resolution;
@@ -98,7 +97,7 @@ namespace Unity
 
         #region Resolver
 
-        public ServiceProducer? ProduceService { get; internal set; }
+        public Container.Pipeline? Pipeline { get; internal set; }
         
         #endregion
 

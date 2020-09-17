@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Unity.Container;
-using Unity.Pipeline;
 
 namespace Unity.BuiltIn
 {

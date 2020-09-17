@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Container;
 using Unity.Resolution;
 
-namespace Unity.Pipeline
+namespace Unity.Container
 {
     public abstract partial class MethodBaseProcessor<TMemberInfo> : MemberInfoProcessor<TMemberInfo, object?[]>
                                                  where TMemberInfo : MethodBase

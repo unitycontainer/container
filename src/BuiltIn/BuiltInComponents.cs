@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Container;
-using Unity.Disgnostics;
 using Unity.Extension;
-using Unity.Pipeline;
-using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
@@ -67,11 +64,12 @@ namespace Unity.BuiltIn
 
             #region Pipelines
 
-            // Default activating pipelines
-            defaults.Set(typeof(Defaults.TypeCategory), typeof(ServiceProducer), 
-                         SingletonPipelineFactory.PipelineInfo
-                                                 .CreateDelegate(typeof(ServiceProducer), 
-                                                    ((StagedChain<BuildStage, PipelineProcessor>)context.TypePipelineChain).ToArray()));
+            DefaultPipelineFactory.Setup(context);
+            BalancedPipelineFactory.Setup(context);
+            OptimizedPipelineFactory.Setup(context);
+            SingletonPipelineFactory.Setup(context);
+            UnregisteredPipelineFactory.Setup(context);
+
             
             //defaults.Set(typeof(Defaults.FactoryCategory),  
             //             typeof(ResolveDelegate<ResolutionContext>),

@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using Unity.Pipeline;
-
-namespace Unity.BuiltIn
+﻿namespace Unity.BuiltIn
 {
     public partial class InstanceProcessor
     {

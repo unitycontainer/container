@@ -62,8 +62,6 @@ namespace Unity
             DEFAULT_CONTRACTS = _scope.Contracts;
 
             // Setup Default algorithms
-            _policies.Set(typeof(ProducerFactory), (ProducerFactory)DefaultProducerFactory);
-
             _policies.Set(typeof(Defaults.ResolveUnregisteredDelegate),   (Defaults.ResolveUnregisteredDelegate)ResolveUnregistered);
             _policies.Set(typeof(Defaults.RegistrationProducerDelegate), (Defaults.RegistrationProducerDelegate)ResolveRegistration);
             _policies.Set(typeof(Defaults.ResolveArrayDelegate),                 (Defaults.ResolveArrayDelegate)ResolveArray);

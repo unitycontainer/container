@@ -1,5 +1,4 @@
 ﻿using Unity.Container;
-using Unity.Pipeline;
 
 namespace Unity.BuiltIn
 {

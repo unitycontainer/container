@@ -12,7 +12,7 @@ namespace Container.Defaults
         Unity.Container.Defaults Defaults;
         object Instance = new object();
         private static Type[] TestTypes;
-        private int DefaultPolicies = 10;
+        private int DefaultPolicies = 12;
 
         [ClassInitialize]
         public static void InitializeClass(TestContext _)

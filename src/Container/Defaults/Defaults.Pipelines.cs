@@ -1,5 +1,4 @@
 ﻿using Unity.Lifetime;
-using Unity.Pipeline;
 using Unity.Resolution;
 using Unity.Storage;
 
@@ -22,8 +21,8 @@ namespace Unity.Container
 
         #region Pipeline Builder
         
-        public ProducerFactory BuildPipeline
-            => (ProducerFactory)Data[BUILD_PIPELINE].Value!;
+        public PipelineFactory BuildPipeline
+            => (PipelineFactory)Data[BUILD_PIPELINE].Value!;
 
 
         #endregion
@@ -52,22 +51,19 @@ namespace Unity.Container
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Type"/> registration
         /// </summary>
-        public ServiceProducer TypePipeline
-            => (ServiceProducer)Data[PIPELINE_TYPE].Value!;
+        public Pipeline TypePipeline => (Pipeline)Data[PIPELINE_TYPE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Instance"/> registration
         /// </summary>
-        public ResolveDelegate<ResolutionContext> InstancePipeline
-            => (ResolveDelegate<ResolutionContext>)Data[PIPELINE_INSTANCE].Value!;
+        public Pipeline InstancePipeline => (Pipeline)Data[PIPELINE_INSTANCE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Factory"/> registration
         /// </summary>
-        public ResolveDelegate<ResolutionContext> FactoryPipeline
-            => (ResolveDelegate<ResolutionContext>)Data[PIPELINE_FACTORY].Value!;
+        public Pipeline FactoryPipeline => (Pipeline)Data[PIPELINE_FACTORY].Value!;
 
         #endregion
 
@@ -77,20 +73,21 @@ namespace Unity.Container
         /// <summary>
         /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInWhile"/> lifetime
         /// </summary>
-        public SingletonFactoryDelegate SingletonPipelineFactory
-            => (SingletonFactoryDelegate)Data[FACTORY_SINGLETON].Value!;
-
-        /// <summary>
-        /// Create resolution pipeline for <see cref="ResolutionStyle.OnceInWhile"/> lifetime
-        /// </summary>
-        public BalancedFactoryDelegate BalancedPipelineFactory
-            => (BalancedFactoryDelegate)Data[FACTORY_BALANCED].Value!;
+        public BalancedPipelineFactory BalancedFactory
+            => (BalancedPipelineFactory)Data[FACTORY_BALANCED].Value!;
 
         /// <summary>
         /// Create resolution pipeline for <see cref="ResolutionStyle.EveryTime"/> lifetime
         /// </summary>
-        public OptimizedFactoryDelegate OptimizedPipelineFactory
-            => (OptimizedFactoryDelegate)Data[FACTORY_OPTIMIZED].Value!;
+        public OptimizedPipelineFactory OptimizedFactory
+            => (OptimizedPipelineFactory)Data[FACTORY_OPTIMIZED].Value!;
+
+
+        /// <summary>
+        /// Create resolution pipeline for unregistered type
+        /// </summary>
+        public UnregisteredPipelineFactory UnregisteredFactory
+            => (UnregisteredPipelineFactory)Data[FACTORY_UNREGISTERED].Value!;
 
         #endregion
     }

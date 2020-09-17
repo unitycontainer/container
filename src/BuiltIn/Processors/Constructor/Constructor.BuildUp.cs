@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
 using Unity.Exceptions;
-using Unity.Pipeline;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn

@@ -52,12 +52,14 @@ namespace Unity.Benchmarks
         #endregion
 
 
+        [Ignore]
         [TestMethod]
         public void Resolve_Registered()
         {
             Assert.IsNotNull(Container.Resolve(typeof(Service), null));
         }
 
+        [Ignore]
         [TestMethod]
         public void Resolve_Object()
         {
