@@ -7,6 +7,7 @@
     <AssemblyOriginatorKeyFile>..\src\package.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
