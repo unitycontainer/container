@@ -70,35 +70,6 @@ namespace Unity.BuiltIn
             SingletonPipelineFactory.Setup(context);
             UnregisteredPipelineFactory.Setup(context);
 
-            
-            //defaults.Set(typeof(Defaults.FactoryCategory),  
-            //             typeof(ResolveDelegate<ResolutionContext>),
-            //             (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-            //                                     .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
-            //                                        ((StagedChain<BuildStage, PipelineProcessor>)context.FactoryPipelineChain)
-            //                                        .ToArray()));
-            
-            //defaults.Set(typeof(Defaults.InstanceCategory), 
-            //             typeof(ResolveDelegate<ResolutionContext>),
-            //             (Telemetry.IsEnabled ? SingletonPipelineFactory.DiagnosticInfo : SingletonPipelineFactory.PipelineInfo)
-            //                                     .CreateDelegate(typeof(ResolveDelegate<ResolutionContext>), 
-            //                                        ((StagedChain<BuildStage, PipelineProcessor>)context.UnregisteredPipelineChain)
-            //                                        .ToArray()));
-
-
-            // Install mapping pipeline (always has only lifetime and mapping)
-            //var mappingPipeline = SingletonPipelineFactory.PipelineInfo
-            //    .CreateDelegate(typeof(Defaults.ResolveMappedDelegate), new PipelineProcessor[] { lifetime, new GenericProcessor(defaults) });
-            //defaults.Set(typeof(Defaults.ResolveMappedDelegate), (Defaults.ResolveMappedDelegate)mappingPipeline);
-
-            //defaults.Set(typeof(Defaults.SingletonFactoryDelegate), (Defaults.SingletonFactoryDelegate));
-            //defaults.Set(typeof(Defaults.OptimizedFactoryDelegate), (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);
-            //defaults.Set(typeof(Defaults.BalancedFactoryDelegate),   (Defaults.BalancedFactoryDelegate)BalancedPipelineFactory.Factory);
-
-            //defaults.Set(typeof(Defaults.BalancedFactoryDelegate),     (Defaults.BalancedFactoryDelegate)BalancedPipelineFactory.Factory);
-            //defaults.Set(typeof(Defaults.OptimizedFactoryDelegate),    (Defaults.OptimizedFactoryDelegate)OptimizedPipelineFactory.Factory);
-            //defaults.Set(typeof(Defaults.UnregisteredFactoryDelegate), (Defaults.UnregisteredFactoryDelegate)UnregisteredPipelineFactory.Factory);
-
             #endregion
         }
     }

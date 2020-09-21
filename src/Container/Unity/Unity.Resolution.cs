@@ -14,7 +14,6 @@ namespace Unity
             var info = new RequestInfo(overrides);
             var context = new ResolutionContext(this, ref contract, manager, ref info);
 
-
             // Check if pipeline has been created already
             if (null == context.Manager!.Pipeline)
             {
@@ -30,11 +29,12 @@ namespace Unity
             }
 
             // Resolve
-            return context.Manager!.Pipeline(ref context);
+            context.Manager!.Pipeline!(ref context);
 
-            //return context.IsFaulted
-            //    ? throw task.AsTask().Exception! // TODO: Proper error reporting
-            //    : task.Result;
+            // Return or throw if error
+            return context.IsFaulted
+                ? throw context.Exception ?? new ResolutionFailedException(contract.Type, contract.Name, "error")
+                : context.Target;
         }
 
 

@@ -8,8 +8,8 @@ namespace Unity.BuiltIn
     {
         #region Constants
 
-        const string NoConstructor = "Unable to select constructor";
-        
+        protected const string NoConstructorError = "Unable to select constructor";
+
         #endregion
 
 
@@ -20,16 +20,16 @@ namespace Unity.BuiltIn
         {
             // Add constructor selector to default policies and subscribe to notifications
 
-            var selector = (ConstructorSelectorDelegate?)defaults.Get(typeof(ConstructorSelectorDelegate));
+            var selector = (ConstructorSelector?)defaults.Get(typeof(ConstructorSelector));
             if (null == selector)
             {
-                SelectConstructor = DefaultConstructorSelector;
-                defaults.Set(typeof(ConstructorSelectorDelegate),
-                                   (ConstructorSelectorDelegate)DefaultConstructorSelector,
-                                   (policy) => SelectConstructor = (ConstructorSelectorDelegate)policy);
+                Select = DefaultConstructorSelector;
+                defaults.Set(typeof(ConstructorSelector),
+                                   (ConstructorSelector)DefaultConstructorSelector,
+                                   (policy) => Select = (ConstructorSelector)policy);
             }
             else
-                SelectConstructor = selector;
+                Select = selector;
         }
 
         #endregion

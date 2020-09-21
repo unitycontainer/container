@@ -67,6 +67,5 @@ namespace Unity.Container
         }
 
         #endregion
-
     }
 }

@@ -190,6 +190,7 @@ namespace Unity.Storage
         public Enumerator GetEnumerator() 
             => new Enumerator(_stages);
 
+        // TODO: Add caching
         public TStrategyType[] ToArray() 
             => (from stage in _stages where null != stage select stage).ToArray();
 

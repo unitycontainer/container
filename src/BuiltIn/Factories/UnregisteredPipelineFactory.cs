@@ -15,7 +15,7 @@ namespace Unity.BuiltIn
 
         public static Pipeline Factory(ref ResolutionContext context)
         {
-            return (ref ResolutionContext c) => null;
+            return (ref ResolutionContext c) => { };
         }
     }
 }

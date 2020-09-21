@@ -6,94 +6,105 @@ using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
-    public partial class ConstructorProcessor 
+    public partial class ConstructorProcessor
     {
-        /// <summary>
-        /// Selects appropriate constructor and calls <see cref="BuildUp"/> method 
-        /// to activate an instance
-        /// </summary>
-        /// <param name="pipeline">A <see cref="PipelineContext"/> structure holding 
-        /// resolution context</param>
-        public override void PreBuildUp(ref PipelineContext pipeline)
-        {
-            // Resolution context
-            ref var context = ref pipeline.Context;
 
-            // If instance already exists skip activation
-            if (null != context.Existing) return;
-            
+        //public void PreBuildUp(ref PipelineContext<object?> pipeline)
+        //{
+        //    // Resolution context
+        //    ref var context = ref pipeline.Context;
 
-            // Type to build
-            Type type = context.Manager?.Type ?? context.Type;
-            var ctors = type.GetConstructors(BindingFlags);
+        //    // If instance already exists skip activation
+        //    if (null != context.Existing) return;
 
-            // Invoke injected constructor if available
-            if (null != context.Manager?.Constructor)
-            {
-                // Constructor to activate
-                var ctor = context.Manager.Constructor;
+        //    // Invoke injected constructor if available
+        //    if (null != context.Manager?.Constructor)
+        //    {
+        //        pipeline.IsFaulted = FromInjectedConstructor(ref context);
+        //        return;
+        //    }
 
-                context.Data = ctor.MemberInfo(ctors);
-                context.Existing = null == ctor.Data || 0 == ctor.Data.Length
-                    ? BuildUp(ref context)
-                    : BuildUp(ref context, ctor.Data);
+        //    // TODO: Type to build
+        //    Type type = context.Manager?.Type ?? context.Type;
+        //    var ctors = type.GetConstructors(BindingFlags);
 
-                return;
-            }
-            
-            // Check if selection is required
-            switch (ctors.Length)
-            {
-                case 0:
-                    pipeline.Throw( new InvalidRegistrationException(NoConstructor));
-                    return;
+        //    // Invoke injected constructor if available
+        //    if (null != context.Manager?.Constructor)
+        //    {
+        //        // Constructor to activate
+        //        var ctor = context.Manager.Constructor;
 
-                case 1:
-                    context.Data = ctors[0];
-                    context.Existing = BuildUp(ref context);
-                    return;
-            }
+        //        context.Data = ctor.MemberInfo(ctors);
+        //        context.Existing = null == ctor.Data || 0 == ctor.Data.Length
+        //            ? BuildUp(ref context)
+        //            : BuildUp(ref context, ctor.Data);
+
+        //        return;
+        //    }
+
+        //    // Check if selection is required
+        //    switch (ctors.Length)
+        //    {
+        //        case 0:
+        //            pipeline.Throw(new InvalidRegistrationException(NoConstructor));
+        //            return;
+
+        //        case 1:
+        //            context.Data = ctors[0];
+        //            context.Existing = BuildUp(ref context);
+        //            return;
+        //    }
 
 
-            // Search for and invoke constructor annotated with attribute
-            foreach (var ctor in ctors)
-            {
-                var info = GetDependencyInfo(ctor);
-                if (info.IsValid)
-                {
-                    // TODO: Deal with Type/Name change
+        //    // Search for and invoke constructor annotated with attribute
+        //    foreach (var ctor in ctors)
+        //    {
+        //        var info = GetDependencyInfo(ctor);
+        //        if (info.IsValid)
+        //        {
+        //            // TODO: Deal with Type/Name change
 
-                    context.Data = ctor;
-                    context.Existing = BuildUp(ref context);
-                    return;
-                }
-            }
+        //            context.Data = ctor;
+        //            context.Existing = BuildUp(ref context);
+        //            return;
+        //        }
+        //    }
 
-            // Use algorithm to select constructor
-            context.Data = SelectConstructor(ref context, ctors);
+        //    // Use algorithm to select constructor
+        //    context.Data = Select(ref context, ctors);
 
-            // Activate or throw if not found
-            if (null == context.Data)
-            { 
-                pipeline.Throw( new InvalidRegistrationException(NoConstructor));
-                return;
-            }
+        //    // Activate or throw if not found
+        //    if (null == context.Data)
+        //    {
+        //        pipeline.Throw(new InvalidRegistrationException(NoConstructor));
+        //        return;
+        //    }
 
-            BuildUp(ref context);
-        }
+        //    BuildUp(ref context);
+        //}
 
-        protected override object? BuildUp(ref ResolutionContext context, object?[]? data = null)
-        {
-            var info = (ConstructorInfo)context.Data!;
-            var parameters = info.GetParameters();
-            var values = 0 == parameters.Length
-                ? EmptyParametersArray
-                : null == data
-                    ? BuildUp(ref context, parameters)
-                    : BuildUp(ref context, parameters, data);
 
-            // Activate instance
-            return info.Invoke(values);
-        }
+        //#region Implementation
+
+        //protected virtual bool FromInjectedConstructor(ref ResolutionContext pipeline)
+        //{
+        //    return false;
+        //}
+
+        //#endregion
+
+        //protected override object? BuildUp(ref ResolutionContext context, object?[]? data = null)
+        //{
+        //    var info = (ConstructorInfo)context.Data!;
+        //    var parameters = info.GetParameters();
+        //    var values = 0 == parameters.Length
+        //        ? EmptyParametersArray
+        //        : null == data
+        //            ? BuildUp(ref context, parameters)
+        //            : BuildUp(ref context, parameters, data);
+
+        //    // Activate instance
+        //    return info.Invoke(values);
+        //}
     }
 }

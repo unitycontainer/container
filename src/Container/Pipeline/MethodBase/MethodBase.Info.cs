@@ -3,8 +3,7 @@ using System.Reflection;
 
 namespace Unity.Container
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo> : MemberInfoProcessor<TMemberInfo, object?[]>
-                                                 where TMemberInfo : MethodBase
+    public abstract partial class MethodBaseProcessor<TMemberInfo>
     {
         #region Parameter Dependency Info
 

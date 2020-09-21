@@ -4,7 +4,7 @@ using Unity.Container;
 
 namespace Unity.Resolution
 {
-    public partial struct ResolutionContext : IResolveContext
+    public partial struct ResolutionContext
     {
         #region IResolveContext
 
@@ -38,18 +38,25 @@ namespace Unity.Resolution
         #endregion
 
 
+        #region Public 
+
+        //public readonly Defaults Defaults => Container._policies;
+
+        #endregion
+
+
         #region Contract
 
-        public readonly ref Contract Contract
-        {
-            get
-            {
-                unsafe
-                {
-                    return ref Unsafe.AsRef<Contract>(_contract.ToPointer());
-                }
-            }
-        }
+        //public readonly ref Contract Contract
+        //{
+        //    get
+        //    {
+        //        unsafe
+        //        {
+        //            return ref Unsafe.AsRef<Contract>(_contract.ToPointer());
+        //        }
+        //    }
+        //}
 
         #endregion
 
@@ -66,6 +73,50 @@ namespace Unity.Resolution
                 }
             }
         }
+
+        #endregion
+
+
+        #region Set Result
+
+        public void FromValue(object? value)
+        {
+            Target = value;
+        }
+
+        public void FromError(string error)
+        {
+            IsFaulted = true;
+            _storage = error;
+        }
+
+        public void FromException(Exception exception)
+        {
+            IsFaulted = true;
+            _storage = exception;
+        }
+
+        #endregion
+
+
+        #region Errors
+
+
+        public Exception? Exception => _storage as Exception;
+
+
+        #endregion
+
+
+
+        #region Builder Factories
+
+        public PipelineBuilder<Pipeline?> CreateBuilder(PipelineVisitor<Pipeline?>[] visitors) 
+            => new PipelineBuilder<Pipeline?>(ref this, visitors);
+
+
+        public PipelineBuilder<object?> CreateBuilder(PipelineVisitor<object?>[] visitors) 
+            => new PipelineBuilder<object?>(ref this, _target, visitors);
 
         #endregion
     }
