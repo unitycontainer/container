@@ -35,6 +35,7 @@ namespace Unity.Benchmarks
 
 
         public interface IService { }
+
         public interface IService<T> { }
 
         public class Service : IService { }
