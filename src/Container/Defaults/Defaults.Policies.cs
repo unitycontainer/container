@@ -9,7 +9,7 @@ namespace Unity.Container
     {
         #region Constants
 
-        private static uint ResolverHash = (uint)typeof(ResolveDelegate<ResolutionContext>).GetHashCode();
+        private static uint ResolverHash = (uint)typeof(ResolveDelegate<PipelineContext>).GetHashCode();
 
         #endregion
 
@@ -21,7 +21,7 @@ namespace Unity.Container
 
         #endregion
 
-        public ResolveDelegate<ResolutionContext>? this[Type? target]
+        public ResolveDelegate<PipelineContext>? this[Type? target]
         {
             get
             {
@@ -32,10 +32,10 @@ namespace Unity.Container
                 {
                     ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolutionContext>)))
+                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
                     {
                         // Found existing
-                        return (ResolveDelegate<ResolutionContext>?)candidate.Value;
+                        return (ResolveDelegate<PipelineContext>?)candidate.Value;
                     }
 
                     position = Meta[position].Next;
@@ -57,7 +57,7 @@ namespace Unity.Container
                     {
                         ref var candidate = ref Data[position];
                         if (ReferenceEquals(candidate.Target, target) &&
-                            ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolutionContext>)))
+                            ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
                         {
                             // Found existing
                             candidate.Value = value;
@@ -74,14 +74,14 @@ namespace Unity.Container
                     }
 
                     // Add new registration
-                    Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolutionContext>), value);
+                    Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), value);
                     Meta[Count].Next = bucket.Position;
                     bucket.Position = Count;
                 }
             }
         }
 
-        public ResolveDelegate<ResolutionContext> GetOrAdd(Type? target, ResolveDelegate<ResolutionContext> value)
+        public ResolveDelegate<PipelineContext> GetOrAdd(Type? target, ResolveDelegate<PipelineContext> value)
         {
             var hash = (uint)(((target?.GetHashCode() ?? 0) + 37) ^ ResolverHash);
 
@@ -94,11 +94,11 @@ namespace Unity.Container
                 {
                     ref var candidate = ref Data[position];
                     if (ReferenceEquals(candidate.Target, target) &&
-                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<ResolutionContext>)))
+                        ReferenceEquals(candidate.Type, typeof(ResolveDelegate<PipelineContext>)))
                     {
                         // Found existing
                         if (null == candidate.Value) candidate.Value = value;
-                        return (ResolveDelegate<ResolutionContext>)candidate.Value;
+                        return (ResolveDelegate<PipelineContext>)candidate.Value;
                     }
 
                     position = Meta[position].Next;
@@ -111,7 +111,7 @@ namespace Unity.Container
                 }
 
                 // Add new registration
-                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<ResolutionContext>), value);
+                Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), value);
                 Meta[Count].Next = bucket.Position;
                 bucket.Position = Count;
 

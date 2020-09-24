@@ -1,7 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Unity.Container;
 using Unity.Injection;
+using Unity.Lifetime;
+using Unity.Resolution;
 
 namespace Unity.Benchmarks
 {
@@ -84,9 +88,141 @@ namespace Unity.Benchmarks
             Assert.IsNotNull(Container.Resolve(typeof(List<int>), null));
         }
 
+        [TestMethod]
+        public void ResolvingFromRegistered()
+        {
+            var TheOtherService = new OtherService();
+            var TheEveryTimeNoBuildManager = new EveryTimeNoBuildManager(TheOtherService);
+            var TheOnceInLifetimeNoBuildManager = new OnceInLifetimeNoBuildManager(TheOtherService);
+            var TheOnceInAWhileNoBuildManager = new OnceInAWhileNoBuildManager(TheOtherService);
+
+            Container
+                .RegisterType(typeof(Service), new EveryTimeManager())
+                .RegisterType(typeof(Service), "OnceInLifetime", new OnceInLifetimeManager())
+                .RegisterType(typeof(Service), "OnceInAWhile", new OnceInAWhileManager())
+                .RegisterType(typeof(OtherService), TheEveryTimeNoBuildManager)
+                .RegisterType(typeof(OtherService), "OnceInLifetime", TheOnceInLifetimeNoBuildManager)
+                .RegisterType(typeof(OtherService), "OnceInAWhile", TheOnceInAWhileNoBuildManager);
+
+            var instance = Container.Resolve(typeof(Service), "OnceInLifetime");
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service));
+            Assert.AreNotSame(instance, Container.Resolve(typeof(Service), "OnceInLifetime"));
+        }
+
+        [TestMethod]
+        public void PipelineFromRegistered()
+        {
+            var TheOtherService = new OtherService();
+            var TheEveryTimeNoBuildManager = new EveryTimeNoBuildManager(TheOtherService);
+            var TheOnceInLifetimeNoBuildManager = new OnceInLifetimeNoBuildManager(TheOtherService);
+            var TheOnceInAWhileNoBuildManager = new OnceInAWhileNoBuildManager(TheOtherService);
+
+            Container
+                .RegisterType(typeof(Service), new EveryTimeManager())
+                .RegisterType(typeof(Service), "OnceInLifetime", new OnceInLifetimeManager())
+                .RegisterType(typeof(Service), "OnceInAWhile", new OnceInAWhileManager())
+                .RegisterType(typeof(OtherService), TheEveryTimeNoBuildManager)
+                .RegisterType(typeof(OtherService), "OnceInLifetime", TheOnceInLifetimeNoBuildManager)
+                .RegisterType(typeof(OtherService), "OnceInAWhile", TheOnceInAWhileNoBuildManager);
+
+            var instance = Container.Resolve(typeof(OtherService), null);
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(OtherService));
+            Assert.AreSame(instance, Container.Resolve(typeof(OtherService), null));
+        }
+
+
+        public class EveryTimeManager : LifetimeManager, ITypeLifetimeManager
+        {
+            public override ResolutionStyle Style => ResolutionStyle.EveryTime;
+
+            protected override LifetimeManager OnCreateLifetimeManager() => throw new NotSupportedException();
+
+            public override void SetValue(object newValue, ICollection<IDisposable> lifetime)
+            { }
+        }
+
+        public class OnceInLifetimeManager : LifetimeManager, ITypeLifetimeManager
+        {
+            public override ResolutionStyle Style => ResolutionStyle.OnceInLifetime;
+
+            protected override LifetimeManager OnCreateLifetimeManager() => throw new NotSupportedException();
+
+            public override void SetValue(object newValue, ICollection<IDisposable> lifetime)
+            { }
+        }
+
+        public class OnceInAWhileManager : LifetimeManager, ITypeLifetimeManager
+        {
+            public override ResolutionStyle Style => ResolutionStyle.OnceInWhile;
+
+            protected override LifetimeManager OnCreateLifetimeManager() => throw new NotSupportedException();
+
+            public override void SetValue(object newValue, ICollection<IDisposable> lifetime)
+            { }
+        }
+
+
+        public class EveryTimeNoBuildManager : EveryTimeManager
+        {
+            private object _value;
+
+            public EveryTimeNoBuildManager(object value)
+            {
+                _value = value;
+            }
+
+            public override object GetValue(ICollection<IDisposable> lifetime) => _value;
+            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
+        }
+
+        public class OnceInLifetimeNoBuildManager : OnceInLifetimeManager
+        {
+            private object _value;
+
+            public OnceInLifetimeNoBuildManager(object value)
+            {
+                _value = value;
+            }
+
+            public override object GetValue(ICollection<IDisposable> lifetime) => _value;
+            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
+        }
+
+        public class OnceInAWhileNoBuildManager : OnceInAWhileManager
+        {
+            private object _value;
+
+            public OnceInAWhileNoBuildManager(object value)
+            {
+                _value = value;
+            }
+
+            public override object GetValue(ICollection<IDisposable> lifetime) => _value;
+            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
+        }
+
 
         public class Service
-        { 
+        {
+        }
+        public class OtherService
+        {
         }
     }
 }

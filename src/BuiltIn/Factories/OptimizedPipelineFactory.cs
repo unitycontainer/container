@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
 using Unity.Resolution;
@@ -21,38 +22,40 @@ namespace Unity.BuiltIn
             var policies = (Defaults)context.Policies;
 
             // Default activating pipelines
-            policies.Set(typeof(Defaults.OptimizedPipelineFactory), FactoryMethodInfo.CreateDelegate(typeof(Defaults.OptimizedPipelineFactory), policies));
+            //policies.Set(typeof(Defaults.OptimizedPipelineFactory), FactoryMethodInfo.CreateDelegate(typeof(Defaults.OptimizedPipelineFactory), policies));
         }
 
         #endregion
 
 
-        public static Pipeline Factory(Defaults defaults, ref ResolutionContext context)
+        public static PipelineProcessor Factory(Defaults defaults, ref PipelineContext context)
         {
-//            var builder = new PipelineBuilder(ref context);
+            throw new NotImplementedException();
+            //
+            //            var builder = new PipelineBuilder(ref context);
 
-//            var expressions = new List<Expression>();
+            //            var expressions = new List<Expression>();
 
 
 
-//#if NET45 || NET46 || NET47 || NET48
-//            var generator = DebugInfoGenerator.CreatePdbGenerator();
-//            var document = Expression.SymbolDocument("debug.txt");
-//            var addDebugInfo = Expression.DebugInfo(document, 6, 9, 6, 22);
+            //#if NET45 || NET46 || NET47 || NET48
+            //            var generator = DebugInfoGenerator.CreatePdbGenerator();
+            //            var document = Expression.SymbolDocument("debug.txt");
+            //            var addDebugInfo = Expression.DebugInfo(document, 6, 9, 6, 22);
 
-//            expressions.Add(addDebugInfo);
-//            expressions.Add(Expression.Label(ResolutionContext.ReturnTarget, ResolutionContext.ExistingExpression));
+            //            expressions.Add(addDebugInfo);
+            //            expressions.Add(Expression.Label(PipelineContext.ReturnTarget, PipelineContext.ExistingExpression));
 
-//            var lambda = Expression.Lambda<Pipeline>(Expression.Block(expressions), ResolutionContext.ContextExpression);
+            //            var lambda = Expression.Lambda<Pipeline>(Expression.Block(expressions), PipelineContext.ContextExpression);
 
-//            return lambda.Compile(generator);
-//#else
-//            expressions.Add(Expression.Label(ResolutionContext.ReturnTarget, ResolutionContext.ExistingExpression));
-//            var lambda = Expression.Lambda<Pipeline>(Expression.Block(expressions), ResolutionContext.ContextExpression);
-//            return lambda.Compile();
-//#endif
+            //            return lambda.Compile(generator);
+            //#else
+            //            expressions.Add(Expression.Label(PipelineContext.ReturnTarget, PipelineContext.ExistingExpression));
+            //            var lambda = Expression.Lambda<Pipeline>(Expression.Block(expressions), PipelineContext.ContextExpression);
+            //            return lambda.Compile();
+            //#endif
 
-            return (ref ResolutionContext c) => { };
+            //            return (ref PipelineContext c) => { };
         }
     }
 }

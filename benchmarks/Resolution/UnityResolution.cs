@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Unity.Benchmarks
 {
-    //[ShortRunJob]
     public class UnityResolution : ResolutionBenchmarks
     {
     }

@@ -23,6 +23,18 @@ namespace Unity
         public static bool ContainsGenericParameters(this Type type) => type.GetTypeInfo().ContainsGenericParameters;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInterface(this Type type) => type.GetTypeInfo().IsInterface;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsClass(this Type type) => type.GetTypeInfo().IsClass;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAbstract(this Type type) => type.GetTypeInfo().IsAbstract;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPrimitive(this Type type) => type.GetTypeInfo().IsPrimitive;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAssignableFrom(this Type match, Type type) => match.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,11 +95,28 @@ namespace Unity
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ConstructorInfo[] GetConstructors(this Type type)
+        {
+            return type.GetTypeInfo()
+                       .DeclaredConstructors
+                       .Where(ctor => !ctor.IsStatic)
+                       .ToArray();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ConstructorInfo[] GetConstructors(this Type type, BindingFlags _)
         {
             return type.GetTypeInfo()
                        .DeclaredConstructors
                        .Where(ctor => !ctor.IsStatic)
+                       .ToArray();
+        }
+
+        public static FieldInfo[] GetFields(this Type type)
+        {
+            return type.GetTypeInfo()
+                       .DeclaredFields
+                       .Where(field => !field.IsStatic)
                        .ToArray();
         }
 
@@ -99,10 +128,25 @@ namespace Unity
                        .ToArray();
         }
 
+        public static PropertyInfo[] GetProperties(this Type type)
+        {
+            return type.GetTypeInfo()
+                       .DeclaredProperties
+                       .ToArray();
+        }
+
         public static PropertyInfo[] GetProperties(this Type type, BindingFlags _)
         {
             return type.GetTypeInfo()
                        .DeclaredProperties
+                       .ToArray();
+        }
+
+        public static MethodInfo[] GetMethods(this Type type)
+        {
+            return type.GetTypeInfo()
+                       .DeclaredMethods
+                       .Where(method => !method.IsStatic)
                        .ToArray();
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Unity.Container;
 
@@ -18,18 +19,27 @@ namespace Unity.BuiltIn
         public ConstructorProcessor(Defaults defaults)
             : base(defaults)
         {
+            // TODO:             SelectMethod = SmartSelector;
+
+            //SelectMethod = container.ExecutionMode.IsLegacy()
+            //             ? (CtorSelectorDelegate)LegacySelector
+            //             : SmartSelector;
+
+
             // Add constructor selector to default policies and subscribe to notifications
 
-            var selector = (ConstructorSelector?)defaults.Get(typeof(ConstructorSelector));
-            if (null == selector)
-            {
-                Select = DefaultConstructorSelector;
-                defaults.Set(typeof(ConstructorSelector),
-                                   (ConstructorSelector)DefaultConstructorSelector,
-                                   (policy) => Select = (ConstructorSelector)policy);
-            }
-            else
-                Select = selector;
+            // TODO: implement properly
+
+            //var selector = (ConstructorSelector?)defaults.Get(typeof(ConstructorSelector));
+            //if (null == selector)
+            //{
+            //    Select = DefaultConstructorSelector;
+            //    defaults.Set(typeof(ConstructorSelector),
+            //                       (ConstructorSelector)DefaultConstructorSelector,
+            //                       (policy) => Select = (ConstructorSelector)policy);
+            //}
+            //else
+            //    Select = selector;
         }
 
         #endregion
@@ -39,8 +49,23 @@ namespace Unity.BuiltIn
 
         protected override ConstructorInfo[] GetMembers(Type type) => type.GetConstructors(BindingFlags);
 
-        protected override DependencyInfo OnGetDependencyInfo(ConstructorInfo info) 
-            => new DependencyInfo(info.GetCustomAttribute(typeof(InjectionConstructorAttribute)));
+        #endregion
+
+
+
+        #region Public Properties
+
+        public CtorSelectorDelegate SelectMethod { get; set; }
+
+        #endregion
+
+
+        #region Overrides
+
+        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
+        {
+            return type.SupportedConstructors();
+        }
 
         #endregion
     }

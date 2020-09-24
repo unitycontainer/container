@@ -55,6 +55,21 @@ namespace Container.Resolution
         }
 
 
+        [TestMethod]
+        public void Resolve_Registered_Singleton_Twice()
+        {
+            var instance1 = Container.Resolve(typeof(Service), Singleton);
+            var instance2 = Container.Resolve(typeof(Service), Singleton);
+
+            Assert.IsNotNull(instance1);
+            Assert.IsInstanceOfType(instance1, typeof(Service));
+            
+            Assert.IsNotNull(instance2);
+            Assert.IsInstanceOfType(instance2, typeof(Service));
+
+            Assert.AreSame(instance1, instance2);
+        }
+
         #region Test Data
 
         public class Service

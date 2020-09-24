@@ -20,7 +20,7 @@ namespace Unity.Lifetime
         #endregion
 
 
-        #region   LifetimeManager Members
+        #region LifetimeManager Members
 
         /// <inheritdoc />
         public override object? TryGetValue(ICollection<IDisposable> lifetime) => GetValue(lifetime);

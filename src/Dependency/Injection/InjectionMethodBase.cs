@@ -26,10 +26,6 @@ namespace Unity.Injection
 
         #endregion
 
-        public virtual InjectionInfo<TMemberInfo, object[]> InjectionInfo(TMemberInfo[] members)
-            => new InjectionInfo<TMemberInfo, object[]>(new NotImplementedException());
-
-
         #region Overrides
 
         public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
@@ -55,7 +51,7 @@ namespace Unity.Injection
             return candidate;
         }
 
-        public virtual TMemberInfo? MemberInfo(TMemberInfo[] members)
+        public override SelectionInfo<TMemberInfo, object[]> SelectMember(TMemberInfo[] members)
         {
             int bestSoFar = -1;
             TMemberInfo? candidate = null;
@@ -64,7 +60,7 @@ namespace Unity.Injection
             {
                 var compatibility = CompareTo(member);
 
-                if (0 == compatibility) return member;
+                if (0 == compatibility) return new SelectionInfo<TMemberInfo, object[]>(member, Data);
 
                 if (bestSoFar < compatibility)
                 {
@@ -73,7 +69,7 @@ namespace Unity.Injection
                 }
             }
 
-            return candidate;
+            return new SelectionInfo<TMemberInfo, object[]>(candidate, Data);
         }
 
         #endregion

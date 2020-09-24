@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Resolution;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -59,9 +60,9 @@ namespace Unity.Container
             FACTORY_UNREGISTERED = Allocate(typeof(UnregisteredPipelineFactory));
 
             // Pipelines
-            PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(Pipeline));
-            PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(Pipeline));
-            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(Pipeline));
+            PIPELINE_TYPE     = Allocate(typeof(TypeCategory),     typeof(ResolveDelegate<PipelineContext>));
+            PIPELINE_FACTORY  = Allocate(typeof(FactoryCategory),  typeof(ResolveDelegate<PipelineContext>));
+            PIPELINE_INSTANCE = Allocate(typeof(InstanceCategory), typeof(ResolveDelegate<PipelineContext>));
 
             // Resolvers
             RESOLVE_CONTRACT = Allocate(typeof(RegistrationProducerDelegate));

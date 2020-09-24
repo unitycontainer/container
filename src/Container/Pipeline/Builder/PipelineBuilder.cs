@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Unity.Injection;
 using Unity.Lifetime;
@@ -7,104 +8,55 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    public partial struct PipelineBuilder<T>
+    public ref partial struct PipelineBuilder<T>
     {
         #region Fields
 
-        private T _storage;
-        private readonly IntPtr _target;
-
         private readonly PipelineVisitor<T>[] _visitors;
         private readonly IntPtr _context;
-
         private int _index;
+
 
         #endregion
 
 
         #region Constructors
 
-        internal PipelineBuilder(ref ResolutionContext context, PipelineVisitor<T>[] visitors)
+        internal PipelineBuilder(ref PipelineContext context, PipelineVisitor<T>[] visitors)
         {
             _index = 0;
-            _storage = default!;
             _visitors = visitors;
-            _target = IntPtr.Zero;
             _context = IntPtr.Zero;
+
+            Target = default!;
 
             unsafe
             {
-                _target = new IntPtr(Unsafe.AsPointer(ref _storage));
-                _context  = new IntPtr(Unsafe.AsPointer(ref context));
-            }
-        }
-
-        internal PipelineBuilder(ref ResolutionContext context, IntPtr storage, PipelineVisitor<T>[] visitors)
-        {
-            // check for type missmatch
-            Debug.Assert(typeof(T) == typeof(object));
-
-            _index = 0;
-            _storage = default!;
-            _visitors = visitors;
-            _target = IntPtr.Zero;
-            _context = IntPtr.Zero;
-
-            unsafe
-            {
-                _target = storage;
                 _context = new IntPtr(Unsafe.AsPointer(ref context));
             }
         }
 
+
         #endregion
 
 
-        #region Public Properties
+        #region Public
 
-        public ref T Target
+        public T Target  { get; private set; }
+
+
+        #endregion
+
+
+        #region Public Members
+
+        public readonly ref PipelineContext Context
         {
             get
             {
                 unsafe
                 {
-                    return ref Unsafe.AsRef<T>(_target.ToPointer());
-                }
-            }
-        }
-
-
-        public Type Type 
-        {
-            get
-            {
-                unsafe
-                {
-                    return Unsafe.AsRef<ResolutionContext>(_context.ToPointer()).Type;
-                }
-            }
-        }
-
-
-        public InjectionConstructor? Constructor
-        {
-            get
-            {
-                unsafe
-                {
-                    return Unsafe.AsRef<ResolutionContext>(_context.ToPointer()).Manager?.Constructor;
-                }
-            }
-        }
-
-
-        public LifetimeManager? LifetimeManager
-        {
-            get
-            {
-                unsafe
-                {
-                    return Unsafe.AsRef<ResolutionContext>(_context.ToPointer()).Manager as LifetimeManager;
+                    return ref Unsafe.AsRef<PipelineContext>(_context.ToPointer());
                 }
             }
         }
@@ -112,19 +64,83 @@ namespace Unity.Container
         #endregion
 
 
+        #region Public Methods
 
-        #region Resolution Context
 
-        public readonly ref ResolutionContext Context
+        public T FromError(string error)
         {
-            get
-            {
-                unsafe
-                {
-                    return ref Unsafe.AsRef<ResolutionContext>(_context.ToPointer());
-                }
-            }
+            
+            throw new NotImplementedException(error);
         }
+
+
+
+        public IEnumerable<Expression> Express()
+        {
+            throw new NotImplementedException();
+            //ref var context = ref this;
+            //return _enumerator.MoveNext()
+            //     ? _enumerator.Current.Express(ref context)
+            //     : SeedExpression ?? Enumerable.Empty<Expression>();
+        }
+
+
+        public IEnumerable<Expression> Express(Expression[] expressions)
+        {
+            throw new NotImplementedException();
+            //SeedExpression = expressions;
+
+            //ref var context = ref this;
+            //return _enumerator.MoveNext()
+            //     ? _enumerator.Current.Express(ref context)
+            //     : SeedExpression ?? Enumerable.Empty<Expression>();
+        }
+
+        public IEnumerable<Expression> Express(ResolveDelegate<PipelineContext> resolver)
+        {
+            throw new NotImplementedException();
+            //var expression = Expression.Assign(
+            //        PipelineContext.ExistingExpression,
+            //        Expression.Invoke(Expression.Constant(resolver), PipelineContext.ContextExpression));
+
+            //SeedExpression = new[] { expression };
+
+            //ref var context = ref this;
+            //return _enumerator.MoveNext()
+            //     ? _enumerator.Current.Express(ref context)
+            //     : SeedExpression ?? Enumerable.Empty<Expression>();
+        }
+
+        public ResolveDelegate<PipelineContext>? Pipeline()
+        {
+            throw new NotImplementedException();
+            //ref var context = ref this;
+            //return _enumerator.MoveNext()
+            //     ? _enumerator.Current?.Build(ref context) ?? SeedMethod
+            //     : SeedMethod;
+        }
+
+        public T Build()
+        {
+            if (_visitors.Length <= _index) return Target;
+
+            Target = _visitors[_index++].Invoke(ref this);
+
+            return Target;
+        }
+
+
+        public T Build(T seed)
+        {
+            Target = seed;
+
+            if (_visitors.Length <= _index) return seed;
+
+            Target = _visitors[_index++].Invoke(ref this);
+
+            return Target;
+        }
+
 
         #endregion
     }

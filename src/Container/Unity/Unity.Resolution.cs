@@ -12,36 +12,39 @@ namespace Unity
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
             var info = new RequestInfo(overrides);
-            var context = new ResolutionContext(this, ref contract, manager, ref info);
+            var context = new PipelineContext(this, ref contract, manager, ref info);
+
 
             // Check if pipeline has been created already
-            if (null == context.Manager!.Pipeline)
+            if (null == context.Registration!.Pipeline)
             {
                 // Lock the Manager to prevent creating pipeline multiple times2
-                lock (context.Manager)
+                lock (context.Registration)
                 {
                     // Make sure it is still null and not created while waited for the lock
-                    if (null == context.Manager.Pipeline)
+                    if (null == context.Registration.Pipeline)
                     {
-                        context.Manager!.Pipeline = _policies.BuildPipeline(ref context);
+                        context.Registration!.Pipeline = _policies.BuildPipeline(ref context);
                     }
                 }
             }
 
-            // Resolve
-            context.Manager!.Pipeline!(ref context);
+            //return context.Manager!.Pipeline;
 
-            // Return or throw if error
-            return context.IsFaulted
-                ? throw context.Exception ?? new ResolutionFailedException(contract.Type, contract.Name, "error")
-                : context.Target;
+            // Resolve
+            return context.Registration!.Pipeline!(ref context);
+
+            // TODO: Return or throw if error
+            //return context.IsFaulted
+            //    ? throw context.Exception ?? new ResolutionFailedException(contract.Type, contract.Name, "error")
+            //    : context.Target;
         }
 
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
             var info = new RequestInfo(overrides);
-            var context = new ResolutionContext(this, ref contract, manager, ref info);
+            var context = new PipelineContext(this, ref contract, manager, ref info);
             var factory = (RegistrationManager)manager.Data!;
 
             // Calculate new Type
@@ -56,7 +59,7 @@ namespace Unity
         }
 
 
-        private static ValueTask<object?> ResolveRegistration(ref ResolutionContext context)
+        private static ValueTask<object?> ResolveRegistration(ref PipelineContext context)
         {
             throw new NotImplementedException();
 
@@ -98,7 +101,7 @@ namespace Unity
             //    }
             //}
 
-            //var value = ((ResolveDelegate<ResolutionContext>)context.Manager!.ResolveDelegate)(ref context);
+            //var value = ((ResolveDelegate<PipelineContext>)context.Manager!.ResolveDelegate)(ref context);
 
             //// Resolve in current context
             //return new ValueTask<object?>(value);
@@ -109,7 +112,7 @@ namespace Unity
 
         #region Unregistered
 
-        private static object? ResolveUnregistered(ref ResolutionContext context)
+        private static object? ResolveUnregistered(ref PipelineContext context)
         {
             return null;
             //throw new NotImplementedException();
@@ -141,10 +144,12 @@ namespace Unity
         /// <returns>Requested object</returns>
         private object? ResolveUnregistered(ref Contract contract, ResolverOverride[] overrides)
         {
-            var info = new RequestInfo(overrides);
-            var context = new ResolutionContext(ref info, ref contract, this);
+            throw new NotImplementedException();
 
-            return _policies.ResolveUnregistered(ref context);
+            //var info = new RequestInfo(overrides);
+            //var context = new PipelineContext(ref info, ref contract, this);
+
+            //return _policies.ResolveUnregistered(ref context);
         }
 
         /// <summary>
@@ -190,7 +195,7 @@ namespace Unity
 
         #region Array
 
-        private static object? ResolveArray(ref ResolutionContext context)
+        private static object? ResolveArray(ref PipelineContext context)
         {
             throw new NotImplementedException();
             //var context = new ResolveContext(this, in contract, overrides);
@@ -216,13 +221,13 @@ namespace Unity
         private object? ResolveArray(ref Contract contract, ResolverOverride[] overrides)
         {
             throw new NotImplementedException();
-            //var context = new ResolutionContext(this, in contract, overrides);
+            //var context = new PipelineContext(this, in contract, overrides);
             //var resolver = _policies[contract.Type];
 
             //// Nothing found, requires build
             //if (null == resolver)
             //{
-            //    resolver = (ref ResolutionContext c) => c.Existing;
+            //    resolver = (ref PipelineContext c) => c.Existing;
             //    _policies[contract.Type] = resolver;
             //}
 

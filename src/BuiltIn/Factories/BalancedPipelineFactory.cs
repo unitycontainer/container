@@ -23,17 +23,20 @@ namespace Unity.BuiltIn
         {
             var policies = (Defaults)context.Policies;
             var chain = (IEnumerable<PipelineProcessor>)context.TypePipelineChain;
-            var processors = chain.Select(processor => (PipelineVisitor<Pipeline?>)processor.ResolutionVisitor).ToArray();
+            var processors = chain.Select(processor => (PipelineVisitor<ResolveDelegate<PipelineContext>?>)processor.Build).ToArray();
 
             if (0 == processors.Length) throw new InvalidOperationException("List of visitors is empty");
 
             policies.Set(typeof(Defaults.BalancedPipelineFactory), FactoryMethodInfo.CreateDelegate(typeof(Defaults.BalancedPipelineFactory), processors));
-
         }
 
         #endregion
 
-        public static Pipeline Factory(PipelineVisitor<Pipeline?>[] visitors, ref ResolutionContext context) 
-            => context.CreateBuilder(visitors).Build() ?? PipelineProcessor.DefaultPipeline;
+        public static ResolveDelegate<PipelineContext> Factory(PipelineVisitor<ResolveDelegate<PipelineContext>?>[] visitors, ref PipelineContext context)
+        {
+            var builder = new PipelineBuilder<ResolveDelegate<PipelineContext>?>(ref context, visitors);
+
+            return builder.Build() ?? throw new InvalidOperationException("Invalid build chain");
+        }
     }
 }

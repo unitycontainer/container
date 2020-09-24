@@ -1,5 +1,7 @@
 ﻿namespace Unity.Resolution
 {
+    // TODO: Requires better placement
+
     public delegate object? ResolveDelegate<TContext>(ref TContext context)
         where TContext : IResolveContext;
 

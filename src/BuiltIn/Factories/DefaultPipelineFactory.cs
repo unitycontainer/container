@@ -16,30 +16,31 @@ namespace Unity.BuiltIn
             _policies.Set(typeof(PipelineFactory), (PipelineFactory)Factory);
         }
 
-        public static Pipeline Factory(ref ResolutionContext context)
+        public static ResolveDelegate<PipelineContext> Factory(ref PipelineContext context)
         {
-            return context.Manager switch
+            return context.Registration?.Category switch
             {
-                // Transient lifetime
-                LifetimeManager { Style: ResolutionStyle.EveryTime }  => _policies!.OptimizedFactory(ref context),
-                
-                // Once in a while
-                LifetimeManager { Style: ResolutionStyle.OnceInWhile } => _policies!.BalancedFactory(ref context),
-                
-                // Once in a lifetime
-                LifetimeManager { Style: ResolutionStyle.OnceInLifetime } => context.Manager.Category switch
+                RegistrationCategory.Type => context.Registration switch
                 {
-                    RegistrationCategory.Type     => _policies!.TypePipeline,
-                    RegistrationCategory.Instance => _policies!.InstancePipeline,
-                    RegistrationCategory.Factory  => _policies!.FactoryPipeline,
+                    // Every single time
+                    LifetimeManager { Style: ResolutionStyle.EveryTime } => _policies!.OptimizedFactory(ref context),
 
+                    // Once in a while
+                    LifetimeManager { Style: ResolutionStyle.OnceInWhile } => _policies!.BalancedFactory(ref context),
+
+                    // Once in a lifetime
+                    LifetimeManager { Style: ResolutionStyle.OnceInLifetime } => _policies!.TypePipeline,
                     _ => throw new NotImplementedException(),
                 },
+                
+                RegistrationCategory.Factory  => _policies!.FactoryPipeline,
+                RegistrationCategory.Instance => _policies!.InstancePipeline,
 
-                // Unregistered type
-                null => _policies!.UnregisteredFactory(ref context),
+                RegistrationCategory.Uninitialized => throw new NotImplementedException(),
+                RegistrationCategory.Internal => throw new NotImplementedException(),
+                RegistrationCategory.Clone => throw new NotImplementedException(),
 
-                // Not implemented
+                null => throw new NotImplementedException(),
                 _ => throw new NotImplementedException(),
             };
         }

@@ -22,19 +22,23 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             var policies = (Defaults)context.Policies;
-            var chain = (IEnumerable<PipelineProcessor>)context.TypePipelineChain;
-            var processors = chain.Select(processor => (PipelineVisitor<object?>)processor.BuildUpVisitor).ToArray();
+            var chain = (IEnumerable<Container.PipelineProcessor>)context.TypePipelineChain;
+            var processors = chain.Select(processor => (PipelineVisitor<object?>)processor.Build).ToArray();
 
             if (0 == processors.Length) throw new InvalidOperationException("List of visitors is empty");
 
-            policies.Set(typeof(Defaults.TypeCategory), typeof(Pipeline), PipelineMethodInfo.CreateDelegate(typeof(Pipeline), processors));
+            policies.Set(typeof(Defaults.TypeCategory), typeof(ResolveDelegate<PipelineContext>), PipelineMethodInfo.CreateDelegate(typeof(ResolveDelegate<PipelineContext>), processors));
         }
 
 
         #endregion
 
 
-        public static void Pipeline(PipelineVisitor<object?>[] visitors, ref ResolutionContext context) 
-            => context.CreateBuilder(visitors).Build();
+        public static object? Pipeline(PipelineVisitor<object?>[] visitors, ref PipelineContext context)
+        {
+            var builder = new PipelineBuilder<object?>(ref context, visitors);
+
+            return builder.Build() ?? throw new InvalidOperationException("Invalid build chain");
+        }
     }
 }

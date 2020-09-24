@@ -1,4 +1,5 @@
-﻿using Unity.Container;
+﻿using System;
+using Unity.Container;
 using Unity.Extension;
 using Unity.Resolution;
 
@@ -10,12 +11,13 @@ namespace Unity.BuiltIn
         {
             var policies = (Defaults)context.Policies;
 
-            policies.Set(typeof(Defaults.UnregisteredPipelineFactory), (Defaults.UnregisteredPipelineFactory)Factory);
+            //policies.Set(typeof(Defaults.UnregisteredPipelineFactory), (Defaults.UnregisteredPipelineFactory)Factory);
         }
 
-        public static Pipeline Factory(ref ResolutionContext context)
+        public static PipelineProcessor Factory(ref PipelineContext context)
         {
-            return (ref ResolutionContext c) => { };
+            throw new NotImplementedException();
+            //return (ref PipelineContext c) => { };
         }
     }
 }

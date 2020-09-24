@@ -62,8 +62,8 @@ namespace Unity.Injection
         public abstract TMemberInfo? MemberInfo(Type type);
 
 
-        public virtual InjectionInfo<TMemberInfo, TData> InjectionInfo(Type type)
-            => new InjectionInfo<TMemberInfo, TData>(MemberInfo(type), Data);
+        public virtual SelectionInfo<TMemberInfo, TData> SelectMember(TMemberInfo[] members)
+            => throw new NotImplementedException();
 
         #endregion
 

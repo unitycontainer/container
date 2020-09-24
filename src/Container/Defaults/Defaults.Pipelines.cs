@@ -21,7 +21,7 @@ namespace Unity.Container
 
         #region Pipeline Builder
         
-        public PipelineFactory BuildPipeline
+        public PipelineFactory BuildPipeline 
             => (PipelineFactory)Data[BUILD_PIPELINE].Value!;
 
 
@@ -51,19 +51,22 @@ namespace Unity.Container
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Type"/> registration
         /// </summary>
-        public Pipeline TypePipeline => (Pipeline)Data[PIPELINE_TYPE].Value!;
+        public ResolveDelegate<PipelineContext> TypePipeline 
+            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_TYPE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Instance"/> registration
         /// </summary>
-        public Pipeline InstancePipeline => (Pipeline)Data[PIPELINE_INSTANCE].Value!;
+        public ResolveDelegate<PipelineContext> InstancePipeline 
+            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_INSTANCE].Value!;
 
         /// <summary>
         /// Resolve object with <see cref="ResolutionStyle.OnceInLifetime"/> lifetime and
         /// <see cref="RegistrationCategory.Factory"/> registration
         /// </summary>
-        public Pipeline FactoryPipeline => (Pipeline)Data[PIPELINE_FACTORY].Value!;
+        public ResolveDelegate<PipelineContext> FactoryPipeline 
+            => (ResolveDelegate<PipelineContext>)Data[PIPELINE_FACTORY].Value!;
 
         #endregion
 

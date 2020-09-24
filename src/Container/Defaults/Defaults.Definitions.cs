@@ -32,37 +32,37 @@ namespace Unity.Container
         #region Resolution Delegates
         
 
-        public delegate object? ResolveUnregisteredDelegate(ref ResolutionContext context);
+        public delegate object? ResolveUnregisteredDelegate(ref PipelineContext context);
 
-        public delegate object? ResolveArrayDelegate(ref ResolutionContext context);
+        public delegate object? ResolveArrayDelegate(ref PipelineContext context);
 
-        public delegate object? ResolveMappedDelegate(ref ResolutionContext context);
+        public delegate object? ResolveMappedDelegate(ref PipelineContext context);
 
         #endregion
 
 
         #region Producer Delegates
 
-        public delegate ValueTask<object?> RegistrationProducerDelegate(ref ResolutionContext context);
+        public delegate ValueTask<object?> RegistrationProducerDelegate(ref PipelineContext context);
 
-        public delegate ValueTask<object?> UnregisteredProducerDelegate(ref ResolutionContext context);
+        public delegate ValueTask<object?> UnregisteredProducerDelegate(ref PipelineContext context);
 
-        public delegate ValueTask<object?> ArrayProducerDelegate(ref ResolutionContext context);
+        public delegate ValueTask<object?> ArrayProducerDelegate(ref PipelineContext context);
 
-        public delegate ValueTask<object?> MappedTypeProducerDelegate(ref ResolutionContext context);
+        public delegate ValueTask<object?> MappedTypeProducerDelegate(ref PipelineContext context);
 
         #endregion
 
 
         #region Factory Delegates
 
-        public delegate Pipeline SingletonPipelineFactory(ref ResolutionContext context);
+        public delegate ResolveDelegate<PipelineContext> SingletonPipelineFactory(ref PipelineContext context);
 
-        public delegate Pipeline BalancedPipelineFactory(ref ResolutionContext context);
+        public delegate ResolveDelegate<PipelineContext> BalancedPipelineFactory(ref PipelineContext context);
 
-        public delegate Pipeline OptimizedPipelineFactory(ref ResolutionContext context);
+        public delegate ResolveDelegate<PipelineContext> OptimizedPipelineFactory(ref PipelineContext context);
 
-        public delegate Pipeline UnregisteredPipelineFactory(ref ResolutionContext context);
+        public delegate ResolveDelegate<PipelineContext> UnregisteredPipelineFactory(ref PipelineContext context);
 
         #endregion
 

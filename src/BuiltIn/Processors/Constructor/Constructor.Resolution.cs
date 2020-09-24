@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
 using Unity.Exceptions;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -12,42 +12,74 @@ namespace Unity.BuiltIn
     {
         #region PipelineBuilder
 
-        public  Pipeline? Resolution_Visitor(ref PipelineBuilder<Pipeline?> builder)
+        public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
-            throw new NotImplementedException();
-            //var pipeline = builder.Build();
+            // Do nothing if seed method exists
+            if (null != builder.Target) return builder.Build();
 
-            //ConstructorInfo? info;
-            //Type type = builder.Type;
-            //var ctors = type.GetConstructors(BindingFlags);
-            //var perResolve = builder.LifetimeManager is PerResolveLifetimeManager;
+            // Type to build
+            Type type = (Type)builder.Context.Action;
+            var ctors = type.GetConstructors(BindingFlags);
 
-            //if (0 == ctors.Length) return NoCtorPipeline(pipeline, "No accessible constructors");
+            ///////////////////////////////////////////////////////////////////
+            // Check if any constructors are available
+            if (0 == ctors.Length)
+            {
+                // Create pipeline
 
-            //// Injected constructor
-            //if (null != builder.Constructor)
-            //{
-            //    if (null == (info = builder.Constructor.MemberInfo(ctors)))
-            //        return NoCtorPipeline(pipeline, "Invalid injected constructor");
+                var pipeline = builder.Build();
+                return (ref PipelineContext c) =>
+                {
+                    if (null != c.Data) return pipeline?.Invoke(ref c);
+                    throw new InvalidRegistrationException($"No accessible constructors on type {c.Type}");
+                };
+            }
+
+
+            ///////////////////////////////////////////////////////////////////
+            // Build from Injected Constructor if present
+            if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
+            {
+                var selection = iCtor.SelectMember(ctors);
+                if (null == selection.MemberInfo)
+                {
+                    // Create BuildUp only pipeline
+
+                    var id = iCtor.ToString();
+                    var pipeline = builder.Build();
+
+                    return (ref PipelineContext c) =>
+                    {
+                        if (null != c.Data) return pipeline?.Invoke(ref c);
+                        throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
+                    };
+                }
+
+                return CreatePipeline(ref selection, ref builder);
+            }
+
+            ///////////////////////////////////////////////////////////////////
+            // Only one constructor, nothing to select
+            if (1 == ctors.Length) return CreatePipeline(ctors[0], ref builder);
+
+
+            ///////////////////////////////////////////////////////////////////
+            // Check for annotated constructor
+            foreach (var ctor in ctors)
+            {
+                var selection = FromAnnotation(ctor);
                 
-            //    return GetResolverDelegate(info, builder.Constructor.Data, pipeline, perResolve);
-            //}
+                if (null == selection.MemberInfo) continue;
 
-            //// Only one constructor
-            //if (1 == ctors.Length)
-            //{
-            //    info = ctors[0];
-            //    return GetResolverDelegate(info, ParameterResolvers(info), pipeline, perResolve);
-            //}
+                return CreatePipeline(ref selection, ref builder);
+            }
 
+            
+            //ConstructorInfo? info;
 
-            throw new NotImplementedException();
-
-//            object[]? resolvers = null;
-            // Select ConstructorInfo
             //var selection = Select(ref builder);
 
-            // Select constructor for the Type
+            throw new NotImplementedException();
 
             //switch (selection)
             //{
@@ -64,7 +96,7 @@ namespace Unity.BuiltIn
             //        break;
 
             //    case Exception exception:
-            //        return (ref ResolutionContext c) =>
+            //        return (ref PipelineContext c) =>
             //        {
             //            if (null == c.Existing)
             //                throw exception;
@@ -73,7 +105,7 @@ namespace Unity.BuiltIn
             //        };
 
             //    default:
-            //        return (ref ResolutionContext c) =>
+            //        return (ref PipelineContext c) =>
             //        {
             //            if (null == c.Existing)
             //                throw new InvalidRegistrationException($"No public constructor is available for type {c.Type}.");
@@ -82,6 +114,7 @@ namespace Unity.BuiltIn
             //        };
             //}
 
+            //return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
         }
 
         #endregion
@@ -89,116 +122,209 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        /// <summary>
-        /// Pipeline without valid constructor
-        /// </summary>
-        /// <param name="pipeline">Downstream pipeline</param>
-        /// <param name="error">Error message to display if seed value is not provided</param>
-        /// <returns>Value returned from pipeline or <see cref="RegistrationManager.NoValue"/> if no seed provided</returns>
-        protected virtual Pipeline NoCtorPipeline(Pipeline? pipeline, string error)
+        protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ref SelectionInfo<ConstructorInfo, object[]> selection,
+                                                                          ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
+            var parameters = ParameterPipelines(ref selection);
+
             throw new NotImplementedException();
-            //// Activate type
-            //return (ref ResolutionContext context) =>
-            //{
-            //    // Valid for BuildUp calls only
-            //    if (null == context.Existing)
-            //    {
-            //        context.FromError(error);
-            //        return; 
-            //    }
-
-            //    // Invoke other initializers
-            //    pipeline?.Invoke(ref context);
-            //};
         }
 
-        protected virtual Pipeline GetResolverDelegate(ConstructorInfo info, object? data, Pipeline? pipeline, bool perResolve)
+        protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
-            Debug.Assert(null != data && data is Pipeline[]);
-            var resolvers = (Pipeline[])data!;
+            ResolveDelegate<PipelineContext>? pipeline = builder.Build();
 
-            try
+            return builder.Context.Registration switch
             {
-                // Select Lifetime type ( Per Resolve )
-                if (perResolve)
-                {
-                    // Activate type
-                    return (ref ResolutionContext context) =>
+                // Default constructor with no pipeline and Per Resolve lifetime
+                PerResolveLifetimeManager _ when null == pipeline =>
+                    (ref PipelineContext context) =>
                     {
-                        if (null == context.Target)
+                        if (null == context.Data)
                         {
-                            var dependencies = new object?[resolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                            { 
-                                //dependencies[i] = resolvers[i](ref context);
-                            }
+                            context.Data = info.Invoke(EmptyParametersArray);
+                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                        }
 
-                            var value = info.Invoke(dependencies);
+                        return context.Data;
+                    }
+                ,
 
-                            context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(value));
-                            context.FromValue(value);
+                // Default constructor with pipeline and Per Resolve lifetime
+                PerResolveLifetimeManager _ when null != pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            context.Data = info.Invoke(EmptyParametersArray);
+                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
                         // Invoke other initializers
-                        pipeline?.Invoke(ref context);
-                    };
-                }
-                else
-                {
-                    // Activate type
-                    return (ref ResolutionContext context) =>
+                        return pipeline.Invoke(ref context);
+                    }
+                ,
+
+                // Default constructor with no pipeline
+                _ when null == pipeline =>
+                    (ref PipelineContext context) =>
                     {
-                        if (null == context.Target)
-                        {
-                            var dependencies = new object?[resolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                            { 
-                                //dependencies[i] = resolvers[i](ref context);
-                            }
+                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
+                        return context.Data;
+                    }
+                ,
 
-                            var value = info.Invoke(dependencies);
-
-                            context.FromValue(value);
-                        }
+                // Default constructor with pipeline
+                _ when null != pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
 
                         // Invoke other initializers
-                        pipeline?.Invoke(ref context);
-                    };
-                }
-            }
-            catch (InvalidRegistrationException ex)
-            {
-                // Throw if try to create
-                return (ref ResolutionContext context) =>
-                {
-                    if (null == context.Target)
-                    {
-                        // TODO: Requires revisiting
-                        context.FromException(ex);
-                        return;
+                        return pipeline.Invoke(ref context);
                     }
-                        
-                    pipeline?.Invoke(ref context);
-                };
-            }
-            catch (Exception ex)
-            {
-                // Throw if try to create
-                return (ref ResolutionContext context) =>
-                {
-                    if (null == context.Existing)
-                    {
-                        // TODO: Requires revisiting
-                        context.FromException(new InvalidRegistrationException("Error", ex));
-                        return;
-                    }
+                ,
 
-                    pipeline?.Invoke(ref context);
-                };
-            }
+                // Unknown case
+                _ => throw new NotImplementedException()
+            };
         }
 
-        #endregion   
+        protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>[]? resolvers,
+                                                                               ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        {
+            ResolveDelegate<PipelineContext>? pipeline = builder.Build();
+
+            return builder.Context.Registration switch
+            {
+                // Default constructor with no pipeline and Per Resolve lifetime
+                PerResolveLifetimeManager _ when null == resolvers && null == pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            context.Data = info.Invoke(EmptyParametersArray);
+                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                        }
+
+                        return context.Data;
+                    }
+                ,
+
+                // Default constructor with pipeline and Per Resolve lifetime
+                PerResolveLifetimeManager _ when null == resolvers && null != pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            context.Data = info.Invoke(EmptyParametersArray);
+                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                        }
+
+                        // Invoke other initializers
+                        return pipeline.Invoke(ref context);
+                    }
+                ,
+
+                // Constructor with no pipeline and Per Resolve lifetime
+                PerResolveLifetimeManager _ when null != resolvers && null == pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            var dependencies = new object?[resolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = resolvers[i](ref context);
+
+                            context.Data = info.Invoke(dependencies);
+                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                        }
+
+                        return context.Data;
+                    }
+                ,
+
+                // Constructor with pipeline and Per Resolve lifetime
+                PerResolveLifetimeManager _ when null != resolvers && null != pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            var dependencies = new object?[resolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = resolvers[i](ref context);
+
+                            context.Data = info.Invoke(dependencies);
+                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
+                        }
+
+                        // Invoke other initializers
+                        return pipeline.Invoke(ref context);
+                    }
+                ,
+
+
+                // Default constructor with no pipeline
+                _ when null == resolvers && null == pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
+                        return context.Data;
+                    }
+                ,
+
+                // Default constructor with pipeline
+                _ when null == resolvers && null != pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
+
+                        // Invoke other initializers
+                        return pipeline.Invoke(ref context);
+                    }
+                ,
+
+                // Constructor with no pipeline
+                _ when null != resolvers && null == pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            var dependencies = new object?[resolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = resolvers[i](ref context);
+
+                            context.Data = info.Invoke(dependencies);
+                        }
+
+                        return context.Data;
+                    }
+                ,
+
+                // Constructor with pipeline
+                _ when null != resolvers && null != pipeline =>
+                    (ref PipelineContext context) =>
+                    {
+                        if (null == context.Data)
+                        {
+                            var dependencies = new object?[resolvers.Length];
+                            for (var i = 0; i < dependencies.Length; i++)
+                                dependencies[i] = resolvers[i](ref context);
+
+                            context.Data = info.Invoke(dependencies);
+                        }
+
+                        // Invoke other initializers
+                        return pipeline.Invoke(ref context);
+                    }
+                ,
+
+
+                // Unknown case
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        #endregion
     }
 }

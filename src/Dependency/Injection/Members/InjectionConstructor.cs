@@ -30,11 +30,12 @@ namespace Unity.Injection
 
         #region Overrides
 
+        // TODO: Remove
         public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => 
             type.GetConstructors(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
                 .Where(SupportedMembersFilter);
 
-        public override InjectionInfo<ConstructorInfo, object[]> InjectionInfo(ConstructorInfo[] members)
+        public override SelectionInfo<ConstructorInfo, object[]> SelectMember(ConstructorInfo[] members)
         {
             int bestSoFar = -1;
             ConstructorInfo? candidate = null;
@@ -43,7 +44,7 @@ namespace Unity.Injection
             {
                 var compatibility = CompareTo(member);
 
-                if (0 == compatibility) return new InjectionInfo<ConstructorInfo, object[]>(member, Data);
+                if (0 == compatibility) return new SelectionInfo<ConstructorInfo, object[]>(member, Data);
 
                 if (bestSoFar < compatibility)
                 {
@@ -52,7 +53,7 @@ namespace Unity.Injection
                 }
             }
 
-            return new InjectionInfo<ConstructorInfo, object[]>(candidate, Data); 
+            return new SelectionInfo<ConstructorInfo, object[]>(candidate, Data);
         }
 
         #endregion

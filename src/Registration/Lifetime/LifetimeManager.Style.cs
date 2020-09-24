@@ -6,7 +6,7 @@ namespace Unity.Lifetime
     /// <summary>
     /// Resolution styles of lifetime managers
     /// </summary>
-    public enum ResolutionStyle
+    public enum ResolutionStyle 
     { 
         /// <summary>
         /// The value is resolved once and stored with the manager 
