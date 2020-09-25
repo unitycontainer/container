@@ -35,7 +35,7 @@ namespace Unity.Benchmarks
         public object Resolve_IUnityContainerAsync()
             => throw new NotImplementedException();
 #else
-        public object Resolve_IUnityContainerAsync()
+        public object Resolve_AsyncIUnityContainer()
             => ContainerAsync.ResolveAsync(typeof(IUnityContainerAsync), (string)null)
                              .GetAwaiter()
                              .GetResult();

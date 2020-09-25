@@ -31,28 +31,10 @@ namespace Unity.Benchmarks
         [GlobalSetup]
         public virtual void GlobalSetup()
         {
-            var TheOtherService = new OtherService();
-
-            var TheEveryTimeNoBuildManager      = new EveryTimeNoBuildManager(TheOtherService);
-            var TheOnceInLifetimeNoBuildManager = new OnceInLifetimeNoBuildManager(TheOtherService);
-            var TheOnceInAWhileNoBuildManager   = new OnceInAWhileNoBuildManager(TheOtherService);
-
-            var TheEveryTimeBuildManager      = new EveryTimeNoBuildManager(RegistrationManager.NoValue);
-            var TheOnceInLifetimeBuildManager = new OnceInLifetimeNoBuildManager(RegistrationManager.NoValue);
-            var TheOnceInAWhileBuildManager   = new OnceInAWhileNoBuildManager(RegistrationManager.NoValue);
-
             Container = new UnityContainer()
-                .RegisterType(typeof(Service),         EveryTime,      new EveryTimeManager())
-                .RegisterType(typeof(Service),         OnceInLifetime, new OnceInLifetimeManager())
-                .RegisterType(typeof(Service),         OnceInAWhile,   new OnceInAWhileManager())
-
-                .RegisterType(typeof(CompleteService), EveryTime,      TheEveryTimeBuildManager)
-                .RegisterType(typeof(CompleteService), OnceInLifetime, TheOnceInLifetimeBuildManager)
-                .RegisterType(typeof(CompleteService), OnceInAWhile,   TheOnceInAWhileBuildManager)
-
-                .RegisterType(typeof(OtherService),    EveryTime,      TheEveryTimeNoBuildManager)
-                .RegisterType(typeof(OtherService),    OnceInLifetime, TheOnceInLifetimeNoBuildManager)
-                .RegisterType(typeof(OtherService),    OnceInAWhile,   TheOnceInAWhileNoBuildManager);
+                .RegisterType(typeof(Service), EveryTime,      new EveryTimeManager())
+                .RegisterType(typeof(Service), OnceInLifetime, new OnceInLifetimeManager())
+                .RegisterType(typeof(Service), OnceInAWhile,   new OnceInAWhileManager());
 #if !NET462 && !NET472
             ContainerAsync = (IUnityContainerAsync)Container;
             ServiceProvider = (IServiceProvider)Container;
@@ -75,8 +57,17 @@ namespace Unity.Benchmarks
 
             protected override LifetimeManager OnCreateLifetimeManager() => throw new NotSupportedException();
 
-            public override void SetValue(object newValue, ICollection<IDisposable> lifetime)
-            { }
+            public override void SetValue(object newValue, ICollection<IDisposable> lifetime) { }
+            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
+            public override object GetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
         }
 
         public class OnceInLifetimeManager : LifetimeManager, ITypeLifetimeManager
@@ -87,6 +78,16 @@ namespace Unity.Benchmarks
 
             public override void SetValue(object newValue, ICollection<IDisposable> lifetime)
             { }
+            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
+            public override object GetValue(ICollection<IDisposable> lifetime)
+            {
+                Pipeline = null;
+                return NoValue;
+            }
         }
 
         public class OnceInAWhileManager : LifetimeManager, ITypeLifetimeManager
@@ -97,59 +98,16 @@ namespace Unity.Benchmarks
 
             public override void SetValue(object newValue, ICollection<IDisposable> lifetime)
             { }
-        }
-
-
-        public class EveryTimeNoBuildManager : EveryTimeManager
-        {
-            private object _value;
-
-            public EveryTimeNoBuildManager(object value)
-            {
-                _value = value;
-            }
-
-            public override object GetValue(ICollection<IDisposable> lifetime) => _value;
             public override object TryGetValue(ICollection<IDisposable> lifetime)
             {
                 Pipeline = null;
                 return NoValue;
             }
-        }
-
-        public class OnceInLifetimeNoBuildManager : OnceInLifetimeManager
-        {
-            private object _value;
-
-            public OnceInLifetimeNoBuildManager(object value)
-            {
-                _value = value;
-            }
-
-            public override object GetValue(ICollection<IDisposable> lifetime) => _value;
-            public override object TryGetValue(ICollection<IDisposable> lifetime)
+            public override object GetValue(ICollection<IDisposable> lifetime)
             {
                 Pipeline = null;
                 return NoValue;
             }
         }
-
-        public class OnceInAWhileNoBuildManager : OnceInAWhileManager
-        {
-            private object _value;
-
-            public OnceInAWhileNoBuildManager(object value)
-            {
-                _value = value;
-            }
-
-            public override object GetValue(ICollection<IDisposable> lifetime) => _value;
-            public override object TryGetValue(ICollection<IDisposable> lifetime)
-            {
-                Pipeline = null;
-                return NoValue;
-            }
-        }
-
     }
 }
