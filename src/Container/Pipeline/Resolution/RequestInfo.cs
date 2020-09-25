@@ -6,6 +6,8 @@ namespace Unity.Container
     {
         #region Fields
 
+        public bool    IsFaulted;
+        public string? Error;
         public ResolverOverride[] Overrides;
 
         #endregion
@@ -15,6 +17,8 @@ namespace Unity.Container
 
         public RequestInfo(ResolverOverride[] overrides)
         {
+            Error = null;
+            IsFaulted = false;
             Overrides = overrides;
         }
 

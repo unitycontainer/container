@@ -5,7 +5,7 @@ using Unity.Exceptions;
 
 namespace Unity.BuiltIn
 {
-    public partial class MethodProcessor : MethodBaseProcessor<MethodInfo>
+    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {
         protected override Expression GetResolverExpression(MethodInfo info)
         {

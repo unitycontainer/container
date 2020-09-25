@@ -5,7 +5,7 @@ using Unity.Container;
 
 namespace Unity.BuiltIn
 {
-    public partial class ConstructorProcessor : MethodBaseProcessor<ConstructorInfo>
+    public partial class ConstructorProcessor : ParameterProcessor<ConstructorInfo>
     {
         #region Constants
 

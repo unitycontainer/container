@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Unity.Container;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -11,8 +12,8 @@ namespace Unity
 
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var info = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, manager, ref info);
+            var request = new RequestInfo(overrides);
+            var context = new PipelineContext(this, ref contract, manager, ref request);
 
 
             // Check if pipeline has been created already
@@ -29,15 +30,23 @@ namespace Unity
                 }
             }
 
-            //return context.Manager!.Pipeline;
-
             // Resolve
-            return context.Registration!.Pipeline!(ref context);
+            try
+            {
+                context.Registration!.Pipeline!(ref context);
+            }
+            catch when (manager is SynchronizedLifetimeManager synchronized)
+            {
+                synchronized.Recover();
+                throw; // TODO: replay exception
+            }
+            
+            // Handle result
+            if (request.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, request.Error!);
+            if (manager is LifetimeManager lifetime) lifetime.SetValue(context.Data, _scope.Disposables);
 
-            // TODO: Return or throw if error
-            //return context.IsFaulted
-            //    ? throw context.Exception ?? new ResolutionFailedException(contract.Type, contract.Name, "error")
-            //    : context.Target;
+            // Return resolved
+            return context.Data;
         }
 
 

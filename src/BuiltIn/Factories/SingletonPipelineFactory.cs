@@ -1,44 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Unity.Container;
 using Unity.Extension;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
     public static class SingletonPipelineFactory
     {
-        #region Fields
-
-        public static MethodInfo PipelineMethodInfo   = typeof(SingletonPipelineFactory).GetMethod(nameof(Pipeline))!;
-
-        #endregion
-
-
-        #region Scaffolding
-
         public static void Setup(ExtensionContext context)
         {
             var policies = (Defaults)context.Policies;
-            var chain = (IEnumerable<Container.PipelineProcessor>)context.TypePipelineChain;
-            var processors = chain.Select(processor => (PipelineVisitor<object?>)processor.Build).ToArray();
+            var chain = (IEnumerable<PipelineProcessor>)context.TypePipelineChain;
+            var processors = chain.ToArray();
 
-            if (0 == processors.Length) throw new InvalidOperationException("List of visitors is empty");
+            if (null == processors || 0 == processors.Length) throw new InvalidOperationException("List of visitors is empty");
 
-            policies.Set(typeof(Defaults.TypeCategory), typeof(ResolveDelegate<PipelineContext>), PipelineMethodInfo.CreateDelegate(typeof(ResolveDelegate<PipelineContext>), processors));
-        }
-
-
-        #endregion
+            policies.Set(typeof(Defaults.TypeCategory), typeof(ResolveDelegate<PipelineContext>), (ResolveDelegate<PipelineContext>)Pipeline);
 
 
-        public static object? Pipeline(PipelineVisitor<object?>[] visitors, ref PipelineContext context)
-        {
-            var builder = new PipelineBuilder<object?>(ref context, visitors);
+            object? Pipeline(ref PipelineContext context)
+            {
+                var i = -1;
 
-            return builder.Build() ?? throw new InvalidOperationException("Invalid build chain");
+                while (!context.IsFaulted && ++i < processors.Length)
+                    processors[i].PreBuild(ref context);
+
+                while (!context.IsFaulted && --i >= 0)
+                    processors[i].PostBuild(ref context);
+
+                return context.Data;
+            }
         }
     }
 }

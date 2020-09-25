@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo>
+    public abstract partial class ParameterProcessor<TMemberInfo>
     {
         #region Fields
 

@@ -6,7 +6,7 @@ using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
-    public partial class MethodProcessor : MethodBaseProcessor<MethodInfo>
+    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {
         #region Constructors
 

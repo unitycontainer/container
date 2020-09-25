@@ -7,14 +7,10 @@ namespace Unity.BuiltIn
 {
     public partial class ConstructorProcessor
     {
-        #region PipelineBuilder
-
-        public override object? Build(ref PipelineBuilder<object?> builder)
+        public override void PreBuild(ref PipelineContext context)
         {
-            ref var context = ref builder.Context;
-
             // Do nothing if building up
-            if (null != context.Data) return builder.Build();
+            if (null != context.Data) return;
 
             // Type to build
             Type type = (Type)context.Action;
@@ -22,7 +18,11 @@ namespace Unity.BuiltIn
 
             ///////////////////////////////////////////////////////////////////
             // Error if no constructors
-            if (0 == ctors.Length) return builder.FromError($"No accessible constructors on type {type}");
+            if (0 == ctors.Length)
+            {
+                context.Error($"No accessible constructors on type {type}");
+                return;
+            }
 
             ///////////////////////////////////////////////////////////////////
             // Inject Constructor if available
@@ -30,15 +30,23 @@ namespace Unity.BuiltIn
             {
                 var selection = iCtor.SelectMember(ctors);
 
-                if (null == selection.MemberInfo) 
-                    return builder.FromError($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}");
+                if (null == selection.MemberInfo)
+                {
+                    context.Error($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}");
+                    return; 
+                }
 
-                return Build(new PipelineContext(ref context, selection.MemberInfo, selection.Data));
+                context.Data = Build(new PipelineContext(ref context, selection.MemberInfo, selection.Data));
+                return; 
             }
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select
-            if (1 == ctors.Length) return Build(new PipelineContext(ref context, ctors[0]));
+            if (1 == ctors.Length)
+            {
+                context.Data = Build(new PipelineContext(ref context, ctors[0]));
+                return; 
+            }
 
             ///////////////////////////////////////////////////////////////////
             // Check for annotated constructor
@@ -48,7 +56,8 @@ namespace Unity.BuiltIn
 
                 if (null == selection.MemberInfo) continue;
 
-                return Build(new PipelineContext(ref context, selection.MemberInfo, selection.Data));
+                context.Data = Build(new PipelineContext(ref context, selection.MemberInfo, selection.Data));
+                return; 
             }
 
 
@@ -94,7 +103,6 @@ namespace Unity.BuiltIn
             //return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
         }
 
-        #endregion
 
 
         #region Implementation
@@ -105,12 +113,28 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
 
             if (0 == parameters.Length) return info.Invoke(EmptyParametersArray);
-            //if (0 == parameters.Length) return Method();
 
+            var values = new object?[parameters.Length];
+            var data = context.Data as object?[];
 
-            throw new NotImplementedException();
+            if (null == data || 0 == data.Length)
+            {
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameter = parameters[i];
+                    values[i] = BuildParameter(ref context, parameter);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameter = parameters[i];
+                    values[i] = BuildParameter(ref context, parameter, data[i]);
+                }
+            }
 
-            //object Method() => info.Invoke(EmptyParametersArray);
+            return info.Invoke(values);
         }
 
         #endregion

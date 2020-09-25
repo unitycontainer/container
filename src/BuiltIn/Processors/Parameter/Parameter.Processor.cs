@@ -5,7 +5,7 @@ using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
+    public abstract partial class ParameterProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
                                                  where TMemberInfo : MethodBase
     {
         #region Fields
@@ -17,7 +17,7 @@ namespace Unity.BuiltIn
 
         #region Constructors
 
-        public MethodBaseProcessor(Defaults defaults)
+        public ParameterProcessor(Defaults defaults)
             : base(defaults)
         {
         }

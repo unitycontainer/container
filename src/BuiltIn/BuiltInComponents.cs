@@ -18,7 +18,6 @@ namespace Unity.BuiltIn
             var field       = new FieldProcessor(defaults);
             var method      = new MethodProcessor(defaults);
             var factory     = new FactoryProcessor(defaults);
-            var lifetime    = new LifetimeProcessor(defaults);
             var property    = new PropertyProcessor(defaults);
             var instance    = new InstanceProcessor(defaults);
             var constructor = new ConstructorProcessor(defaults);
@@ -30,24 +29,21 @@ namespace Unity.BuiltIn
 
             // Initialize Type Chain
             ((StagedChain<BuildStage, PipelineProcessor>)context.TypePipelineChain)
-                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Lifetime,   lifetime),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Creation,   constructor),
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Creation,   constructor),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
 
             // Initialize Factory Chain
             ((StagedChain<BuildStage, PipelineProcessor>)context.FactoryPipelineChain)
-                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Lifetime,   lifetime),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    factory),
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    factory),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
 
             // Initialize Instance Chain
             ((StagedChain<BuildStage, PipelineProcessor>)context.InstancePipelineChain)
-                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Lifetime,   lifetime), 
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    instance),
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    instance),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
                      new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));

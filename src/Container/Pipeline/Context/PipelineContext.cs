@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Unity.Container;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -56,7 +54,7 @@ namespace Unity.Container
 
             Data = default;
             Action = manager.Data!;
-
+            
             Registration = manager;
             Container = container;
         }
@@ -72,7 +70,7 @@ namespace Unity.Container
 
             Data = data;
             Action = action;
-
+            
             Registration = parent.Registration;
             Container = parent.Container;
         }
@@ -92,18 +90,36 @@ namespace Unity.Container
 
         #region Inderection
 
+        public bool IsFaulted
+        {
+            get
+            {
+                unsafe
+                {
+                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).IsFaulted;
+                }
+            }
+        }
+
         public LifetimeManager? LifetimeManager => Registration as LifetimeManager;
         
-        public ICollection<IDisposable> LifetimeContainer => Container._scope.Disposables;
-        
+        public ICollection<IDisposable> Scope => Container._scope.Disposables;
+
         #endregion
 
 
         #region Public Methods
 
-        public PipelineContext CreateChildContext(object action, object? data = null)
+
+        public void Error(string error)
         {
-            return new PipelineContext(ref this, action, data);
+            unsafe
+            {
+                ref var info = ref Unsafe.AsRef<RequestInfo>(_request.ToPointer());
+
+                info.Error     = error;
+                info.IsFaulted = true;
+            }
         }
 
         public object? Resolve(Type type)

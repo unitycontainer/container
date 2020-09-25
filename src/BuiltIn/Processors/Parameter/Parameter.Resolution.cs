@@ -6,7 +6,7 @@ using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class MethodBaseProcessor<TMemberInfo>
+    public abstract partial class ParameterProcessor<TMemberInfo>
     {
         protected virtual ResolveDelegate<PipelineContext>[]? ParameterPipelines(ref SelectionInfo<TMemberInfo, object[]> selection)
         {
