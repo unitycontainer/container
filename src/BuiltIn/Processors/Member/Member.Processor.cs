@@ -12,7 +12,24 @@ namespace Unity.BuiltIn
     {
         #region Delegates
 
-        public delegate SelectionInfo<TMemberInfo, TData> SelectionInfoFromMemberInfo(TMemberInfo member);
+        /// <summary>
+        /// Dependency analysis handler for <see cref="TMemberInfo"/>
+        /// </summary>
+        /// <typeparam name="TMemeber">Type of the member, <see cref="ConstructorInfo"/>, <see cref="FieldInfo"/>, and etc.</typeparam>
+        /// <param name="memberInfo">The member to analyse</param>
+        /// <param name="data">Associated data</param>
+        /// <returns>Returns <see cref="DependencyInfo"/> struct containing dependency information</returns>
+        public delegate DependencyInfo DependencyAnalyzer<TMemeber>(TMemeber memberInfo, object? data = null);
+
+        #endregion
+
+
+        #region Constants
+
+        /// <summary>
+        /// Binding flags used to obtain declared members by default
+        /// </summary>
+        public const BindingFlags DefaultBindingFlags = BindingFlags.Public | BindingFlags.Instance;
 
         #endregion
 
@@ -25,9 +42,9 @@ namespace Unity.BuiltIn
         protected BindingFlags BindingFlags { get; private set; }
 
         /// <summary>
-        /// Function that selects <see cref="MemberInfo"/> and associated data from annotation
+        /// Delegate holding dependency analizer
         /// </summary>
-        protected SelectionInfoFromMemberInfo FromAnnotation { get; set; }
+        protected DependencyAnalyzer<TMemberInfo> GetDependencyInfo { get; private set; }
 
         #endregion
 
@@ -36,29 +53,16 @@ namespace Unity.BuiltIn
 
         public MemberProcessor(Defaults defaults)
         {
-            // Add BindingFlags to default policies and subscribe to notifications
-            var flags = defaults.Get(typeof(TMemberInfo), typeof(BindingFlags));
-            if (null == flags)
-            {
-                BindingFlags = BindingFlags.Public | BindingFlags.Instance;
-                defaults.Set(typeof(TMemberInfo), typeof(BindingFlags), BindingFlags, OnBindingFlagsChanged);
-            }
-            else
-            {
-                BindingFlags = (BindingFlags)flags;
-            }
+            BindingFlags = defaults
+                .GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, (object flags) => BindingFlags = (BindingFlags)flags);
 
-            // TODO: FromAnnotation
-            FromAnnotation = FromAnnotationSelector;
+            GetDependencyInfo = defaults
+                .GetOrAdd<DependencyAnalyzer<TMemberInfo>>(OnGetDependencyInfo, 
+                    (object handler) => GetDependencyInfo = (DependencyAnalyzer<TMemberInfo>)handler);
         }
 
         #endregion
 
-
-
-
-        // TODO: Optimization is required
-        protected virtual SelectionInfo<TMemberInfo, TData> FromAnnotationSelector(TMemberInfo member) => default;
 
         /// <summary>
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
@@ -75,10 +79,12 @@ namespace Unity.BuiltIn
 
 
 
-        #region Implementation
+        #region Dependency Management
 
-        private void OnBindingFlagsChanged(object policy) => BindingFlags = (BindingFlags)policy;
-
+        public virtual DependencyInfo OnGetDependencyInfo(TMemberInfo memberInfo, object? data)
+        {
+            return default;
+        }
 
         #endregion
 
@@ -117,8 +123,6 @@ namespace Unity.BuiltIn
         #region Implementation
 
         protected virtual Type MemberType(TMemberInfo info) => throw new NotImplementedException();
-
-        protected abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
 
         protected virtual ResolveDelegate<PipelineContext>? PreProcessResolver(TMemberInfo info, DependencyResolutionAttribute attribute, object? data) => data switch
         {

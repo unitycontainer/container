@@ -10,7 +10,16 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
+        /// <summary>
+        /// Global singleton containing empty parameter array
+        /// </summary>
         protected static object?[] EmptyParametersArray = new object?[0];
+
+        /// <summary>
+        /// Delegate holding parameter dependency analizer
+        /// </summary>
+        protected DependencyAnalyzer<ParameterInfo> GetParameterInfo { get; private set; }
+
 
         #endregion
 
@@ -20,12 +29,24 @@ namespace Unity.BuiltIn
         public ParameterProcessor(Defaults defaults)
             : base(defaults)
         {
+            GetParameterInfo = defaults
+                .GetOrAdd<DependencyAnalyzer<ParameterInfo>>(OnGetParameterInfo, (object handler) => GetParameterInfo = (DependencyAnalyzer<ParameterInfo>)handler);
         }
 
         #endregion
 
 
-        #region Implementation
+        #region Dependency Management
+
+        public virtual DependencyInfo OnGetParameterInfo(ParameterInfo memberInfo, object? data)
+        {
+            return default;
+        }
+        
+        #endregion
+
+
+        #region Pre Processor
 
         protected virtual ResolveDelegate<PipelineContext>? PreProcessResolver(ParameterInfo info, DependencyResolutionAttribute attribute, object? data)
             => data switch

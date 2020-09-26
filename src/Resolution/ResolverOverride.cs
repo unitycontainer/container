@@ -79,8 +79,28 @@ namespace Unity.Resolution
 
         #region IResolve
 
-        public virtual object? Resolve<TContext>(ref TContext context) where TContext : IResolveContext 
-            => Value;
+        public virtual object? Resolve<TContext>(ref TContext context)
+            where TContext : IResolveContext
+        {
+            return Value switch
+            {
+                IResolve resolve => resolve.Resolve(ref context),
+                IResolverFactory<Type> factory => factory.GetResolver<TContext>(context.Type)
+                                                         .Invoke(ref context),
+                _ => Value,
+            };
+        }
+
+        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
+            where TContext : IResolveContext
+        {
+            return Value switch
+            {
+                IResolve resolve => resolve.Resolve,
+                IResolverFactory<Type> factory => factory.GetResolver<TContext>(type),
+                _ => (ref TContext context) => Value,
+            };
+        }
 
         #endregion
 

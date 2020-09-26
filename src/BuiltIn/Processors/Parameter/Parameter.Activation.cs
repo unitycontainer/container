@@ -9,6 +9,9 @@ namespace Unity.BuiltIn
     {
         protected object? BuildParameter(ref PipelineContext context, ParameterInfo parameter)
         {
+
+
+
             ResolverOverride[] overrides;
 
             if (null != (overrides = context.Overrides))
@@ -21,8 +24,8 @@ namespace Unity.BuiltIn
                     if (@override is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
                         var local = new PipelineContext(ref context, parameter, @override);
-
-                        return @override.Resolve(ref local);
+                        
+                        return ReinterpretValue(ref local, @override.Resolve(ref local));
                     }
                 }
             
@@ -31,19 +34,6 @@ namespace Unity.BuiltIn
 
             // From annotation
             return null;
-        }
-
-
-        private object? ReinterpretValue<TContext>(ref TContext context, object? value)
-            where TContext : IResolveContext
-        {
-            return value switch
-            {
-                IResolve resolve => ReinterpretValue(ref context, resolve.Resolve(ref context)),
-                IResolverFactory<Type> factory => ReinterpretValue(ref context, factory.GetResolver<TContext>(context.Type)
-                                                                                       .Invoke(ref context)),
-                _ => value,
-            };
         }
 
         protected object? BuildParameter(ref PipelineContext context, ParameterInfo parameter, object? value)
@@ -59,9 +49,9 @@ namespace Unity.BuiltIn
                     // Check if this parameter is overridden
                     if (@override is IEquatable<ParameterInfo> comparer && comparer.Equals(parameter))
                     {
-                        // 
+                        var local = new PipelineContext(ref context, parameter, @override);
 
-                        return @override;
+                        return ReinterpretValue(ref local, @override.Resolve(ref local));
                     }
                 }
 
@@ -74,9 +64,17 @@ namespace Unity.BuiltIn
             //return null;
         }
 
-        protected object? ProcessValue(ref PipelineContext context, object? value)
+
+        private object? ReinterpretValue<TContext>(ref TContext context, object? value)
+            where TContext : IResolveContext
         {
-            return null;
+            return value switch
+            {
+                IResolve resolve => ReinterpretValue(ref context, resolve.Resolve(ref context)),
+                IResolverFactory<Type> factory => ReinterpretValue(ref context, factory.GetResolver<TContext>(context.Type)
+                                                                                       .Invoke(ref context)),
+                _ => value,
+            };
         }
     }
 }

@@ -67,11 +67,11 @@ namespace Unity.BuiltIn
             // Check for annotated constructor
             foreach (var ctor in ctors)
             {
-                var selection = FromAnnotation(ctor);
+                //var selection = FromAnnotation(ctor);
                 
-                if (null == selection.MemberInfo) continue;
+                //if (null == selection.MemberInfo) continue;
 
-                return CreatePipeline(ref selection, ref builder);
+                //return CreatePipeline(ref selection, ref builder);
             }
 
             

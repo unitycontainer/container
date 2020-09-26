@@ -52,11 +52,10 @@ namespace Unity.BuiltIn
             // Check for annotated constructor
             foreach (var ctor in ctors)
             {
-                var selection = FromAnnotation(ctor);
+                var info = GetDependencyInfo(ctor, context.Name);
+                if (null == info.Data) continue;
 
-                if (null == selection.MemberInfo) continue;
-
-                context.Data = Build(new PipelineContext(ref context, selection.MemberInfo, selection.Data));
+                context.Data = Build(new PipelineContext(ref context, ctor));
                 return; 
             }
 

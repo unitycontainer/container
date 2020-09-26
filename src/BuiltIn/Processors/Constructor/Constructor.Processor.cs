@@ -62,9 +62,11 @@ namespace Unity.BuiltIn
 
         #region Overrides
 
-        protected override IEnumerable<ConstructorInfo> DeclaredMembers(Type type)
+        public override DependencyInfo OnGetDependencyInfo(ConstructorInfo memberInfo, object? data)
         {
-            return type.SupportedConstructors();
+            var attribute = memberInfo.GetCustomAttribute(typeof(InjectionConstructorAttribute));
+
+            return new DependencyInfo(memberInfo.DeclaringType!, (string?)data, attribute);
         }
 
         #endregion

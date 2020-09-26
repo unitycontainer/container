@@ -30,11 +30,6 @@ namespace Unity.BuiltIn
 
         protected override Type MemberType(FieldInfo info) => info.FieldType;
 
-        protected override IEnumerable<FieldInfo> DeclaredMembers(Type type)
-        {
-            return type.SupportedFields();
-        }
-
         #endregion
 
 
