@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
 {
-    public partial class FieldProcessor : MemberProcessor<FieldInfo, object>
+    public partial class FieldProcessor : MemberProcessor<FieldInfo, FieldInfo, object>
     {
         #region Constructors
 
@@ -16,19 +16,17 @@ namespace Unity.BuiltIn
 
         #endregion
 
+        protected override Type MemberType(FieldInfo info) => info.FieldType;
+
 
         #region Implementation
 
         protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
 
+        protected override ImportAttribute? GetImportAttribute(FieldInfo info) 
+            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute));
 
-        #endregion
-
-
-
-        #region Overrides
-
-        protected override Type MemberType(FieldInfo info) => info.FieldType;
+        protected override Type DependencyType(FieldInfo info) => info.FieldType;
 
         #endregion
 

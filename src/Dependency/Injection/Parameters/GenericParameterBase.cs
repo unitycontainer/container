@@ -74,13 +74,13 @@ namespace Unity.Injection
 
         public override MatchRank MatchTo(ParameterInfo parameter)
         {
-            if (!parameter.Member.DeclaringType!.IsGenericType())
+            if (!parameter.Member.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
 
             var definition = parameter.Member.DeclaringType!.GetGenericTypeDefinition();
-            var type = ((MethodBase)parameter.Member).GetMemberFromInfo(definition)!
-                                                     .GetParameters()[parameter.Position]
-                                                     .ParameterType;
+            var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
+                                 .GetParameters()[parameter.Position]
+                                 .ParameterType;
             return MatchTo(type);
         }
 

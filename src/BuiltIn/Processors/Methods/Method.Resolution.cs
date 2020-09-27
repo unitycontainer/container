@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 using Unity.Resolution;
 
@@ -8,41 +9,43 @@ namespace Unity.BuiltIn
     {
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info)
         {
-            var resolvers = ParameterResolvers(info);
+            throw new NotImplementedException();
+            //var resolvers = ParameterResolvers(info);
 
-            return (ref PipelineContext c) =>
-            {
-                if (null == c.Data) return c.Data;
+            //return (ref PipelineContext c) =>
+            //{
+            //    if (null == c.Data) return c.Data;
 
-                var dependencies = new object?[resolvers.Length];
-                for (var i = 0; i < dependencies.Length; i++)
-                    dependencies[i] = resolvers[i](ref c);
+            //    var dependencies = new object?[resolvers.Length];
+            //    for (var i = 0; i < dependencies.Length; i++)
+            //        dependencies[i] = resolvers[i](ref c);
 
-                info.Invoke(c.Data, dependencies);
+            //    info.Invoke(c.Data, dependencies);
 
-                return c.Data;
-            };
+            //    return c.Data;
+            //};
         }
 
         protected override ResolveDelegate<PipelineContext> GetResolverDelegate(MethodInfo info, object? data)
         {
-            object[]? injectors = null != data && data is object[] array && 0 != array.Length ? array : null;
+            throw new NotImplementedException();
+            //object[]? injectors = null != data && data is object[] array && 0 != array.Length ? array : null;
             
-            if (null == injectors) return GetResolverDelegate(info);
+            //if (null == injectors) return GetResolverDelegate(info);
 
-            var resolvers = ParameterResolvers(info, injectors);
+            //var resolvers = ParameterResolvers(info, injectors);
 
-            return (ref PipelineContext c) =>
-            {
-                if (null == c.Data) return c.Data;
+            //return (ref PipelineContext c) =>
+            //{
+            //    if (null == c.Data) return c.Data;
 
-                var dependencies = new object?[resolvers.Length];
-                for (var i = 0; i < dependencies.Length; i++) dependencies[i] = resolvers[i](ref c);
+            //    var dependencies = new object?[resolvers.Length];
+            //    for (var i = 0; i < dependencies.Length; i++) dependencies[i] = resolvers[i](ref c);
 
-                info.Invoke(c.Data, dependencies);
+            //    info.Invoke(c.Data, dependencies);
 
-                return c.Data;
-            };
+            //    return c.Data;
+            //};
         }
     }
 }

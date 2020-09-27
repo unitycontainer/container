@@ -90,7 +90,7 @@ namespace Unity.Injection
         {
             var value = info.HasDefaultValue 
                 ? info.DefaultValue 
-                : info.ParameterType.IsValueType()
+                : info.ParameterType.IsValueType
                     ? Activator.CreateInstance(info.ParameterType)
                     : null;
 

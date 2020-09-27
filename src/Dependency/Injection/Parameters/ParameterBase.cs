@@ -64,8 +64,8 @@ namespace Unity.Injection
             get
             {
                 return null == ParameterType ||
-                    ParameterType.IsGenericType() && ParameterType.ContainsGenericParameters() ||
-                    ParameterType.IsArray         && ParameterType.GetElementType()!.IsGenericParameter ||
+                    ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
+                    ParameterType.IsArray       && ParameterType.GetElementType()!.IsGenericParameter ||
                     ParameterType.IsGenericParameter;
             }
         }

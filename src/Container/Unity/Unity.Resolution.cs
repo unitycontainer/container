@@ -15,7 +15,6 @@ namespace Unity
             var request = new RequestInfo(overrides);
             var context = new PipelineContext(this, ref contract, manager, ref request);
 
-
             // Check if pipeline has been created already
             if (null == context.Registration!.Pipeline)
             {
@@ -25,28 +24,40 @@ namespace Unity
                     // Make sure it is still null and not created while waited for the lock
                     if (null == context.Registration.Pipeline)
                     {
+                        using var action = context.Start(manager);
+
                         context.Registration!.Pipeline = _policies.BuildPipeline(ref context);
                     }
                 }
             }
 
             // Resolve
-            try
-            {
-                context.Registration!.Pipeline!(ref context);
-            }
-            catch when (manager is SynchronizedLifetimeManager synchronized)
-            {
-                synchronized.Recover();
-                throw; // TODO: replay exception
+            using (var action = context.Start(manager.Data!))
+            { 
+                try
+                {
+                    context.Registration!.Pipeline!(ref context);
+                }
+                catch (Exception ex) 
+                {
+                    // Unlock the monitor
+                    if (manager is SynchronizedLifetimeManager synchronized) 
+                        synchronized.Recover();
+
+                    // Report telemetry
+                    action.Exception(ex);
+
+                    // Rethrow
+                    throw; // TODO: replay exception
+                }
             }
             
             // Handle result
             if (request.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, request.Error!);
-            if (manager is LifetimeManager lifetime) lifetime.SetValue(context.Data, _scope.Disposables);
+            if (manager is LifetimeManager lifetime) lifetime.SetValue(context.Target, _scope.Disposables);
 
             // Return resolved
-            return context.Data;
+            return context.Target;
         }
 
 

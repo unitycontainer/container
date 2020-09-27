@@ -8,18 +8,18 @@ using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TData>
+    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
         #region Fields
 
-        protected static readonly MethodCallExpression NewGuidExpression =
-            Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
+        //protected static readonly MethodCallExpression NewGuidExpression =
+        //    Expression.Call(typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid)))!;
 
-        protected static readonly PropertyInfo DataPropertyExpression =
-            typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
+        //protected static readonly PropertyInfo DataPropertyExpression =
+        //    typeof(Exception).GetTypeInfo().GetDeclaredProperty(nameof(Exception.Data))!;
 
-        protected static readonly ParameterExpression ExceptionVariableExpression =
-            Expression.Variable(typeof(Exception));
+        //protected static readonly ParameterExpression ExceptionVariableExpression =
+        //    Expression.Variable(typeof(Exception));
 
         #endregion
 

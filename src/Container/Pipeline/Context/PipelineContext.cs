@@ -36,7 +36,7 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Data   = existing;
+            Target   = existing;
             Action = manager.Data!;
             
             Registration = manager;
@@ -52,8 +52,8 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Data = default;
-            Action = manager.Data!;
+            Target = default;
+            Action = default;
             
             Registration = manager;
             Container = container;
@@ -68,7 +68,7 @@ namespace Unity.Container
                 _contract = parent._contract;
             }
 
-            Data = data;
+            Target = data;
             Action = action;
             
             Registration = parent.Registration;
@@ -81,9 +81,9 @@ namespace Unity.Container
         #region Public Properties
 
 
-        public object Action { get; set; }
+        public object? Action { get; set; }
 
-        public object? Data { get; set; }
+        public object? Target { get; set; }
 
         #endregion
 

@@ -2,14 +2,14 @@
 
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
+		<LangVersion>9.0</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<DelaySign>false</DelaySign>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>package.snk</AssemblyOriginatorKeyFile>
 
-		<TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.0;netcoreapp1.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0;netstandard1.6</TargetFrameworks>
+		<TargetFrameworks>net5.0;netcoreapp3.0;netcoreapp2.0;net48;net47;net46;net45;netstandard2.1;netstandard2.0</TargetFrameworks>
 
 	</PropertyGroup>
 
@@ -33,8 +33,6 @@
 	<ItemGroup>
 		<PackageReference Condition="$(TargetFramework.StartsWith('net45'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
 		<PackageReference Condition="$(TargetFramework.StartsWith('net46'))       " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
-		<PackageReference Condition="$(TargetFramework.StartsWith('netcoreapp1')) " Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
-		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Threading.Tasks.Extensions" Version="4.5.*" />
 	</ItemGroup>
 
 	<!-- Unsafe -->
@@ -48,9 +46,7 @@
 
 	<ItemGroup>
 		<PackageReference Condition="$(TargetFramework.StartsWith('net4'))        " Include="System.Memory" Version="4.5.*" />
-		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.Memory" Version="4.5.*" />
 		<PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'     " Include="System.Memory" Version="4.5.*" />
-		<PackageReference Condition="'$(TargetFramework)' == 'netcoreapp1.0'      " Include="System.Memory" Version="4.5.*" />
 		<PackageReference Condition="'$(TargetFramework)' == 'netcoreapp2.0'      " Include="System.Memory" Version="4.5.*" />
 	</ItemGroup>
 
@@ -67,13 +63,6 @@
 	<!-- Framework Compatibility -->
 
 	<ItemGroup>
-		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))            " Remove="Container\Extensions\Reflection\Compatibility.Common.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard1'))           " Remove="Container\Extensions\Reflection\Compatibility.Common.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp1'))  == 'False'" Remove="Container\Extensions\Reflection\Compatibility.NetCoreApp.cs" />
-		<Compile Condition="$(TargetFramework.StartsWith('netstandard1')) == 'False'" Remove="Container\Extensions\Reflection\Compatibility.NetStandard.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
 		<Compile Condition="$(TargetFramework.StartsWith('netstandard'))           " Remove="Container\Exceptions\IllegalInjectionMethodException.Desktop.cs" />
 		<Compile Condition="$(TargetFramework.StartsWith('netcoreapp'))            " Remove="Container\Exceptions\ResolutionFailedException.Desktop.cs" />
@@ -81,7 +70,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Condition="$(TargetFramework.StartsWith('netstandard1'))" Include="System.ComponentModel" Version="4.3.0" />
+		<PackageReference Include="System.ComponentModel.Composition" Version="4.7.0" />
 	</ItemGroup>
 
 

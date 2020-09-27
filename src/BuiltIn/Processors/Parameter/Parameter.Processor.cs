@@ -1,11 +1,12 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class ParameterProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, object[]>
+    public abstract partial class ParameterProcessor<TMemberInfo> : MemberProcessor<TMemberInfo, ParameterInfo, object[]>
                                                  where TMemberInfo : MethodBase
     {
         #region Fields
@@ -60,5 +61,14 @@ namespace Unity.BuiltIn
 
         #endregion
 
+
+        #region Implementation
+
+        protected override ImportAttribute? GetImportAttribute(ParameterInfo info) 
+            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute));
+
+        protected override Type DependencyType(ParameterInfo info) => info.ParameterType;
+
+        #endregion
     }
 }

@@ -20,6 +20,7 @@ namespace Unity.BuiltIn
             : base(defaults)
         {
             // TODO:             SelectMethod = SmartSelector;
+            SelectMethod = tempSelect;
 
             //SelectMethod = container.ExecutionMode.IsLegacy()
             //             ? (CtorSelectorDelegate)LegacySelector
@@ -40,6 +41,11 @@ namespace Unity.BuiltIn
             //}
             //else
             //    Select = selector;
+        }
+
+        private object? tempSelect(ConstructorInfo[] members)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

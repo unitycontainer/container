@@ -7,8 +7,7 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> class that lets you
     /// override a named parameter passed to a constructor.
     /// </summary>
-    public class ParameterOverride : ResolverOverride,
-                                     IEquatable<ParameterInfo>
+    public class ParameterOverride : ResolverOverride
     {
         #region Fields
 
@@ -63,29 +62,7 @@ namespace Unity.Resolution
 
         #region IEquatable
 
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override bool Equals(object? other)
-        {
-            switch (other)
-            {
-                case ParameterInfo info:
-                    return Equals(info);
-
-                case ParameterOverride parameter:
-                    return (null == Target || parameter.Target == Target) &&
-                           (null == Type   || parameter.Type == Type) &&
-                           (null == Name   || parameter.Name == Name);
-                default:
-                    return base.Equals(other);
-            }
-        }
-
-        public bool Equals(ParameterInfo? other)
+        public override bool Equals(ParameterInfo? other)
         {
             return null != other &&
                   (null == Target || other.Member.DeclaringType == Target) &&

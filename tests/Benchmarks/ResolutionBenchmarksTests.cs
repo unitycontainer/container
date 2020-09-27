@@ -56,11 +56,15 @@ namespace Unity.Benchmarks
         #endregion
 
 
-        [Ignore]
         [TestMethod]
         public void Resolve_Registered()
         {
-            Assert.IsNotNull(Container.Resolve(typeof(Service), null));
+            Container.RegisterType(typeof(Service), new OnceInLifetimeManager());
+
+            var instance = Container.Resolve(typeof(Service), null);
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(Service));
         }
 
         [Ignore]

@@ -69,7 +69,8 @@ namespace Unity.Injection
                 }
             }
 
-            return new SelectionInfo<TMemberInfo, object[]>(candidate, Data);
+            throw new NotImplementedException();
+            //return new SelectionInfo<TMemberInfo, object[]>(candidate, Data);
         }
 
         #endregion

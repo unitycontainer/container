@@ -3,6 +3,7 @@ using System.Reflection;
 using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Resolution;
+using System.ComponentModel.Composition;
 
 namespace Unity
 {
@@ -11,18 +12,35 @@ namespace Unity
     /// or properties to specify how to resolve the value for
     /// that parameter or property.
     /// </summary>
-    public abstract class DependencyResolutionAttribute : Attribute,
-                                                          IMatchTo<Type>,
-                                                          IResolverFactory<Type>,
-                                                          IResolverFactory<ParameterInfo>,
-                                                          IResolverFactory<PropertyInfo>,
-                                                          IResolverFactory<FieldInfo>
+    public abstract class DependencyResolutionAttribute : ImportAttribute
+                                                          // TODO: Remove ?
+                                                          //IMatchTo<Type>
+                                                          //IResolverFactory<Type>,
+                                                          //IResolverFactory<ParameterInfo>,
+                                                          //IResolverFactory<PropertyInfo>,
+                                                          //IResolverFactory<FieldInfo>
     {
         #region Constructors
 
-        protected DependencyResolutionAttribute(string? name)
+
+        protected DependencyResolutionAttribute(Type type, string name)
+            : base(name, type)
         {
-            Name = name;
+        }
+
+        protected DependencyResolutionAttribute(Type type)
+            : base(type)
+        {
+        }
+
+        protected DependencyResolutionAttribute(string name)
+            :base(name)
+        {
+        }
+
+        protected DependencyResolutionAttribute()
+            : base()
+        {
         }
 
         #endregion
@@ -33,7 +51,7 @@ namespace Unity
         /// <summary>
         /// The name specified in the constructor.
         /// </summary>
-        public string? Name { get; }
+        public string? Name => ContractName;
 
         #endregion
 

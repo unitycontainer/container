@@ -1,5 +1,5 @@
 ﻿
-namespace Unity.Injection
+namespace Unity
 {
     /// <summary>
     /// Value used for calculating match rank
@@ -25,15 +25,5 @@ namespace Unity.Injection
         /// Value matches exactly
         /// </summary>
         ExactMatch = 3,
-    }
-
-
-    /// <summary>
-    /// Calculates how much member matches
-    /// </summary>
-    /// <typeparam name="T">What kind of match</typeparam>
-    public interface IMatchTo<T>
-    {
-        public MatchRank MatchTo(T other);
     }
 }

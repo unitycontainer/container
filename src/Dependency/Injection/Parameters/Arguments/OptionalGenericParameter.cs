@@ -51,7 +51,7 @@ namespace Unity.Injection
         {
             _defaultValue = info.HasDefaultValue
                 ? info.DefaultValue
-                : info.ParameterType.IsValueType()
+                : info.ParameterType.IsValueType
                     ? Activator.CreateInstance(info.ParameterType)
                     : null; 
 

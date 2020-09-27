@@ -7,8 +7,7 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> that lets you override
     /// the value for a specified field.
     /// </summary>
-    public class FieldOverride : ResolverOverride,
-                                 IEquatable<FieldInfo>
+    public class FieldOverride : ResolverOverride
     {
         #region Constructors
 
@@ -48,9 +47,9 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(FieldInfo? other)
+        public override bool Equals(FieldInfo? other)
         {
-            return null != other && other.Name == Name && 
+            return null != other  && other.Name == Name && 
                   (null == Target || other.DeclaringType == Target);
         }
 

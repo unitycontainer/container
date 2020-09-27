@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Unity.Resolution
 {
@@ -42,6 +43,20 @@ namespace Unity.Resolution
             Name = name;
             Value = value;
         }
+
+        #endregion
+
+
+        #region Equitability
+
+
+        public virtual bool Equals(ParameterInfo? other) => false;
+
+        public virtual bool Equals(FieldInfo? other) => false;
+
+        public virtual bool Equals(PropertyInfo? other) => false;
+
+        public virtual MatchRank MatchTo(in Contract other) => MatchRank.NoMatch;
 
         #endregion
 

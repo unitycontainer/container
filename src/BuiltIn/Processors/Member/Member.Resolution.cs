@@ -9,7 +9,7 @@ using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TData>
+    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
         #region PipelineBuilder
 

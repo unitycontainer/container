@@ -10,7 +10,7 @@ namespace Unity.Injection
             switch (value)
             {
                 case null:
-                    return !parameter.ParameterType.IsValueType() || (null != Nullable.GetUnderlyingType(parameter.ParameterType))
+                    return !parameter.ParameterType.IsValueType || (null != Nullable.GetUnderlyingType(parameter.ParameterType))
                          ? MatchRank.ExactMatch : MatchRank.NoMatch;
 
                 case Array array:
@@ -59,7 +59,7 @@ namespace Unity.Injection
             if (typeof(Array) == type && match.IsArray)
                 return MatchRank.HigherProspect;
 
-            if (type.IsGenericType() && type.IsGenericTypeDefinition() && match.IsGenericType() &&
+            if (type.IsGenericType && type.IsGenericTypeDefinition && match.IsGenericType &&
                 type.GetGenericTypeDefinition() == match.GetGenericTypeDefinition())
                 return MatchRank.ExactMatch;
 

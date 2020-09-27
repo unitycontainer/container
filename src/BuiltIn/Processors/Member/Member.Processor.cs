@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
-using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
-    public abstract partial class MemberProcessor<TMemberInfo, TData> : PipelineProcessor
-                                                    where TMemberInfo : MemberInfo
+    public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData> : PipelineProcessor
+                                                                 where TMemberInfo : MemberInfo
+                                                                 where TDependency : class
     {
         #region Delegates
 
@@ -86,6 +86,7 @@ namespace Unity.BuiltIn
             return default;
         }
 
+
         #endregion
 
 
@@ -121,6 +122,22 @@ namespace Unity.BuiltIn
 
 
         #region Implementation
+
+        /// <summary>
+        /// Returns attribute associated with dependency info
+        /// </summary>
+        /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
+        /// <returns>Attached attribute or null if nothing found</returns>
+        protected abstract ImportAttribute? GetImportAttribute(TDependency info);
+
+        /// <summary>
+        /// Returns <see cref="Type"/> of the dependency from <see cref="ParameterInfo"/>, 
+        /// <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/>
+        /// </summary>
+        /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> instance</param>
+        /// <returns>Dependency type</returns>
+        protected abstract Type DependencyType(TDependency info);
+
 
         protected virtual Type MemberType(TMemberInfo info) => throw new NotImplementedException();
 

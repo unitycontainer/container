@@ -27,28 +27,7 @@ namespace Unity.Resolution
 
         #region IEquatable
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override bool Equals(object? other)
-        {
-            switch (other)
-            {
-                case PropertyInfo info:
-                    return Equals(info);
-
-                case PropertyOverride property:
-                    return property.Name == Name && 
-                        (null == Target || property.Target == Target);
-
-                default:
-                    return base.Equals(other);
-            }
-        }
-
-        public bool Equals(PropertyInfo? other)
+        public override bool Equals(PropertyInfo? other)
         {
             return null != other && other.Name == Name &&
                   (null == Target || other.DeclaringType == Target);

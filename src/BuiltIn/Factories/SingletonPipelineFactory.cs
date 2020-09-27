@@ -31,7 +31,7 @@ namespace Unity.BuiltIn
                 while (!context.IsFaulted && --i >= 0)
                     processors[i].PostBuild(ref context);
 
-                return context.Data;
+                return context.Target;
             }
         }
     }

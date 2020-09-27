@@ -12,7 +12,7 @@ namespace Unity.Container
         /// <summary>
         /// Default, empty pipeline implementation
         /// </summary>
-        public static readonly ResolveDelegate<PipelineContext> DefaultPipeline = (ref PipelineContext context) => context.Data;
+        public static readonly ResolveDelegate<PipelineContext> DefaultPipeline = (ref PipelineContext context) => context.Target;
 
 
         #endregion

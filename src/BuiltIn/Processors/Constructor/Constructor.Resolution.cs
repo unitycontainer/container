@@ -18,7 +18,7 @@ namespace Unity.BuiltIn
             if (null != builder.Target) return builder.Build();
 
             // Type to build
-            Type type = (Type)builder.Context.Action;
+            Type type = builder.Context.Type;
             var ctors = type.GetConstructors(BindingFlags);
 
             ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ namespace Unity.BuiltIn
                 var pipeline = builder.Build();
                 return (ref PipelineContext c) =>
                 {
-                    if (null != c.Data) return pipeline?.Invoke(ref c);
+                    if (null != c.Target) return pipeline?.Invoke(ref c);
                     throw new InvalidRegistrationException($"No accessible constructors on type {c.Type}");
                 };
             }
@@ -50,7 +50,7 @@ namespace Unity.BuiltIn
 
                     return (ref PipelineContext c) =>
                     {
-                        if (null != c.Data) return pipeline?.Invoke(ref c);
+                        if (null != c.Target) return pipeline?.Invoke(ref c);
                         throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
                     };
                 }
@@ -140,13 +140,13 @@ namespace Unity.BuiltIn
                 PerResolveLifetimeManager _ when null == pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
-                            context.Data = info.Invoke(EmptyParametersArray);
+                            context.Target = info.Invoke(EmptyParametersArray);
                             // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
-                        return context.Data;
+                        return context.Target;
                     }
                 ,
 
@@ -154,9 +154,9 @@ namespace Unity.BuiltIn
                 PerResolveLifetimeManager _ when null != pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
-                            context.Data = info.Invoke(EmptyParametersArray);
+                            context.Target = info.Invoke(EmptyParametersArray);
                             // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
@@ -169,8 +169,8 @@ namespace Unity.BuiltIn
                 _ when null == pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
-                        return context.Data;
+                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
+                        return context.Target;
                     }
                 ,
 
@@ -178,7 +178,7 @@ namespace Unity.BuiltIn
                 _ when null != pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
+                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
 
                         // Invoke other initializers
                         return pipeline.Invoke(ref context);
@@ -201,13 +201,13 @@ namespace Unity.BuiltIn
                 PerResolveLifetimeManager _ when null == resolvers && null == pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
-                            context.Data = info.Invoke(EmptyParametersArray);
+                            context.Target = info.Invoke(EmptyParametersArray);
                             // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
-                        return context.Data;
+                        return context.Target;
                     }
                 ,
 
@@ -215,9 +215,9 @@ namespace Unity.BuiltIn
                 PerResolveLifetimeManager _ when null == resolvers && null != pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
-                            context.Data = info.Invoke(EmptyParametersArray);
+                            context.Target = info.Invoke(EmptyParametersArray);
                             // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
@@ -230,17 +230,17 @@ namespace Unity.BuiltIn
                 PerResolveLifetimeManager _ when null != resolvers && null == pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
                             var dependencies = new object?[resolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
                                 dependencies[i] = resolvers[i](ref context);
 
-                            context.Data = info.Invoke(dependencies);
+                            context.Target = info.Invoke(dependencies);
                             // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
-                        return context.Data;
+                        return context.Target;
                     }
                 ,
 
@@ -248,13 +248,13 @@ namespace Unity.BuiltIn
                 PerResolveLifetimeManager _ when null != resolvers && null != pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
                             var dependencies = new object?[resolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
                                 dependencies[i] = resolvers[i](ref context);
 
-                            context.Data = info.Invoke(dependencies);
+                            context.Target = info.Invoke(dependencies);
                             // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
                         }
 
@@ -268,8 +268,8 @@ namespace Unity.BuiltIn
                 _ when null == resolvers && null == pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
-                        return context.Data;
+                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
+                        return context.Target;
                     }
                 ,
 
@@ -277,7 +277,7 @@ namespace Unity.BuiltIn
                 _ when null == resolvers && null != pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data) context.Data = info.Invoke(EmptyParametersArray);
+                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
 
                         // Invoke other initializers
                         return pipeline.Invoke(ref context);
@@ -288,16 +288,16 @@ namespace Unity.BuiltIn
                 _ when null != resolvers && null == pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
                             var dependencies = new object?[resolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
                                 dependencies[i] = resolvers[i](ref context);
 
-                            context.Data = info.Invoke(dependencies);
+                            context.Target = info.Invoke(dependencies);
                         }
 
-                        return context.Data;
+                        return context.Target;
                     }
                 ,
 
@@ -305,13 +305,13 @@ namespace Unity.BuiltIn
                 _ when null != resolvers && null != pipeline =>
                     (ref PipelineContext context) =>
                     {
-                        if (null == context.Data)
+                        if (null == context.Target)
                         {
                             var dependencies = new object?[resolvers.Length];
                             for (var i = 0; i < dependencies.Length; i++)
                                 dependencies[i] = resolvers[i](ref context);
 
-                            context.Data = info.Invoke(dependencies);
+                            context.Target = info.Invoke(dependencies);
                         }
 
                         // Invoke other initializers

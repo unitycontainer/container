@@ -29,7 +29,7 @@ namespace Unity
         /// Create an instance of <see cref="DependencyAttribute"/> with no name.
         /// </summary>
         public DependencyAttribute()
-            : base(null) { }
+            : base() { }
 
         /// <summary>
         /// Create an instance of <see cref="DependencyAttribute"/> with the given name.
@@ -37,6 +37,12 @@ namespace Unity
         /// <param name="name">Name to use when resolving this dependency.</param>
         public DependencyAttribute(string name)
             : base(name) { }
+
+        public DependencyAttribute(Type type)
+            : base(type) { }
+
+        public DependencyAttribute(Type type, string name)
+            : base(type, name) { }
 
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
@@ -10,10 +11,10 @@ namespace Unity.BuiltIn
         public override void PreBuild(ref PipelineContext context)
         {
             // Do nothing if building up
-            if (null != context.Data) return;
+            if (null != context.Target) return;
 
             // Type to build
-            Type type = (Type)context.Action;
+            Type type = context.Type;
             var ctors = type.GetConstructors(BindingFlags);
 
             ///////////////////////////////////////////////////////////////////
@@ -28,15 +29,21 @@ namespace Unity.BuiltIn
             // Inject Constructor if available
             if (context.Registration?.Constructor is InjectionConstructor iCtor)
             {
+                using var action = context.Start(iCtor);
+
                 var selection = iCtor.SelectMember(ctors);
 
                 if (null == selection.MemberInfo)
                 {
-                    context.Error($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}");
+                    action.Error($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}");
                     return; 
                 }
 
-                context.Data = Build(new PipelineContext(ref context, selection.MemberInfo, selection.Data));
+                if (null == iCtor.Data || 0 == iCtor.Data.Length)
+                    context.Target = Build(ref context, selection.MemberInfo);
+                else
+                    context.Target = Build(ref context, selection.MemberInfo, selection.Data);
+
                 return; 
             }
 
@@ -44,7 +51,8 @@ namespace Unity.BuiltIn
             // Only one constructor, nothing to select
             if (1 == ctors.Length)
             {
-                context.Data = Build(new PipelineContext(ref context, ctors[0]));
+
+                context.Target = Build(ref context, ctors[0]);
                 return; 
             }
 
@@ -52,10 +60,9 @@ namespace Unity.BuiltIn
             // Check for annotated constructor
             foreach (var ctor in ctors)
             {
-                var info = GetDependencyInfo(ctor, context.Name);
-                if (null == info.Data) continue;
+                if (!ctor.IsDefined(typeof(ImportingConstructorAttribute))) continue;
 
-                context.Data = Build(new PipelineContext(ref context, ctor));
+                context.Target = Build(ref context, ctor);
                 return; 
             }
 
@@ -65,7 +72,7 @@ namespace Unity.BuiltIn
             //var selection = Select(ref builder);
 
             throw new NotImplementedException();
-
+            #region
             //switch (selection)
             //{
             //    case ConstructorInfo memberInfo:
@@ -100,37 +107,42 @@ namespace Unity.BuiltIn
             //}
 
             //return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
+            #endregion
         }
 
 
 
         #region Implementation
 
-        protected object? Build(PipelineContext context)
+        protected object? Build(ref PipelineContext context, ConstructorInfo info, object?[] data)
         {
-            ConstructorInfo info = (ConstructorInfo)context.Action;
-            var parameters = info.GetParameters();
+            using var action = context.Start(info);
 
+            var parameters = info.GetParameters();
             if (0 == parameters.Length) return info.Invoke(EmptyParametersArray);
 
             var values = new object?[parameters.Length];
-            var data = context.Data as object?[];
-
-            if (null == data || 0 == data.Length)
+            for (var i = 0; i < parameters.Length; i++)
             {
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    var parameter = parameters[i];
-                    values[i] = BuildParameter(ref context, parameter);
-                }
+                var parameter = parameters[i];
+                values[i] = Build(ref context, parameter, data[i]);
             }
-            else
+            
+            return info.Invoke(values);
+        }
+
+        protected object? Build(ref PipelineContext context, ConstructorInfo info)
+        {
+            using var action = context.Start(info);
+
+            var parameters = info.GetParameters();
+            if (0 == parameters.Length) return info.Invoke(EmptyParametersArray);
+
+            var values = new object?[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
             {
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    var parameter = parameters[i];
-                    values[i] = BuildParameter(ref context, parameter, data[i]);
-                }
+                var parameter = parameters[i];
+                values[i] = Build(ref context, parameter);
             }
 
             return info.Invoke(values);

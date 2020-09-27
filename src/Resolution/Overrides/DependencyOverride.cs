@@ -7,8 +7,7 @@ namespace Unity.Resolution
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride,
-                                      IEquatable<Contract>
+    public class DependencyOverride : ResolverOverride
     {
         #region Fields
 
@@ -97,10 +96,21 @@ namespace Unity.Resolution
             }
         }
 
-        public bool Equals(Contract other)
+        public override MatchRank MatchTo(in Contract other)
         {
-            return (other.Type == Type) &&
-                   (other.Name == Name);
+            // If names are different - no match
+            if (other.Name != Name) return MatchRank.NoMatch;
+
+            // If Type is 'null', all types are compatible
+            if (null == Type || null == other.Type) return MatchRank.Compatible;
+
+            // Matches exactly
+            if (other.Type == Type) return MatchRank.ExactMatch;
+
+            // Can be assigned to
+            if (other.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+
+            return MatchRank.NoMatch;
         }
 
         #endregion

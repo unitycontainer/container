@@ -71,7 +71,7 @@ namespace Unity
                 }
 
                 // Skip to parent if non generic
-                if (!(isGeneric ??= type.IsGenericType())) continue;
+                if (!(isGeneric ??= type.IsGenericType)) continue;
 
                 // Fill the Generic Type Definition
                 if (0 == generic.HashCode) generic = contract.With(type.GetGenericTypeDefinition());

@@ -14,8 +14,8 @@ namespace Unity.BuiltIn
 
             return (ref PipelineContext context) =>
             {
-                info.SetValue(context.Data, context.Resolve(info, attribute.Name, resolver));
-                return context.Data;
+                info.SetValue(context.Target, context.Resolve(info, attribute.Name, resolver));
+                return context.Target;
             };
         }
 
@@ -29,16 +29,16 @@ namespace Unity.BuiltIn
             {
                 return (ref PipelineContext context) =>
                 {
-                    info.SetValue(context.Data, context.Override(info, attribute.Name, data));
-                    return context.Data;
+                    info.SetValue(context.Target, context.Override(info, attribute.Name, data));
+                    return context.Target;
                 };
             }
             else
             {
                 return (ref PipelineContext context) =>
                 {
-                    info.SetValue(context.Data, context.Resolve(info, attribute.Name, resolver));
-                    return context.Data;
+                    info.SetValue(context.Target, context.Resolve(info, attribute.Name, resolver));
+                    return context.Target;
                 };
             }
         }

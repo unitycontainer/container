@@ -27,7 +27,7 @@ namespace Unity
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object.
         /// </summary>
         public OptionalDependencyAttribute()
-            : base(null) { }
+            : base() { }
 
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object that
@@ -35,7 +35,23 @@ namespace Unity
         /// </summary>
         /// <param name="name">Name of the dependency.</param>
         public OptionalDependencyAttribute(string name)
-            : base(name) { }
+            : base(name) 
+        {
+            AllowDefault = true;
+        }
+
+
+        public OptionalDependencyAttribute(Type type)
+            : base(type)
+        {
+            AllowDefault = true;
+        }
+
+        public OptionalDependencyAttribute(Type type, string name)
+            : base(type, name)
+        {
+            AllowDefault = true;
+        }
 
         #endregion
 
