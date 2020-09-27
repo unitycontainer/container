@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
-    public ref struct PipelineAction<TTarget> 
-        where TTarget : class
+    public ref struct PipelineAction<TAction> 
+        where TAction : class
     {
         #region Fileds
 
@@ -40,10 +40,15 @@ namespace Unity.Container
             }
         }
 
-
-        public TTarget? Target
+        public object? Target
         {
-            get => (TTarget?)Context.Action;
+            get => Context.Target;
+            set => Context.Target = value;
+        }
+
+        public TAction? Action
+        {
+            get => (TAction?)Context.Action;
             set => Context.Action = value;
         }
 
@@ -57,6 +62,15 @@ namespace Unity.Container
         {
             // Report exception
             throw new NotImplementedException();
+        }
+
+        public bool Success(object? data)
+        {
+            // Report stop
+            Context.Target = data;
+            Context.Action = _backup;
+
+            return true;
         }
 
         public void Dispose()

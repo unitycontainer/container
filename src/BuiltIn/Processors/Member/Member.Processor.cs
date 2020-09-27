@@ -141,6 +141,12 @@ namespace Unity.BuiltIn
 
         protected virtual Type MemberType(TMemberInfo info) => throw new NotImplementedException();
 
+
+
+
+
+
+
         protected virtual ResolveDelegate<PipelineContext>? PreProcessResolver(TMemberInfo info, DependencyResolutionAttribute attribute, object? data) => data switch
         {
             IResolve policy                                 => policy.Resolve,

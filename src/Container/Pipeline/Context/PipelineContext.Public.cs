@@ -6,8 +6,18 @@ namespace Unity.Container
     {
         
         public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class 
-            => new PipelineAction<TAction>(ref this) { Target = action };
+            => new PipelineAction<TAction>(ref this) { Action = action };
 
+        public readonly ref Contract Contract
+        {
+            get
+            {
+                unsafe
+                {
+                    return ref Unsafe.AsRef<Contract>(_contract.ToPointer());
+                }
+            }
+        }
 
         public readonly ref PipelineContext Parent
         {
@@ -20,5 +30,8 @@ namespace Unity.Container
             }
         }
 
+
+        public PipelineContext Create(ref Contract contract, object? action)
+            => new PipelineContext(ref this, ref contract, action);
     }
 }

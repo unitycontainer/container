@@ -70,6 +70,23 @@ namespace Unity.Container
 
             Target = data;
             Action = action;
+
+            Registration = parent.Registration;
+            Container = parent.Container;
+        }
+
+
+        private PipelineContext(ref PipelineContext parent, ref Contract contract, object? action)
+        {
+            unsafe
+            {
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _request = parent._request;
+                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            Target = default;
+            Action = action;
             
             Registration = parent.Registration;
             Container = parent.Container;

@@ -16,8 +16,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">The Field name.</param>
         /// <param name="value">InjectionParameterValue to use for the Field.</param>
-        public FieldOverride(string name, object? value)
-            : base(name ?? throw new ArgumentNullException(nameof(name)), value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        public FieldOverride(string name, object? value, bool exact = true)
+            : base(name ?? throw new ArgumentNullException(nameof(name)), value, exact)
         {
         }
 

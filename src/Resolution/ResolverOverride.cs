@@ -7,13 +7,16 @@ namespace Unity.Resolution
     /// Base class for all override objects passed in the
     /// <see cref="IUnityContainer.Resolve"/> method.
     /// </summary>
-    public abstract class ResolverOverride : IResolve
+    public abstract class ResolverOverride : IEquatable<FieldInfo>,
+                                             IEquatable<PropertyInfo>,
+                                             IEquatable<ParameterInfo> 
     {
         #region Fields
 
         protected Type?            Target;
         protected readonly string? Name;
-        protected readonly object? Value;
+        public    readonly object? Value;
+        public    readonly bool    RequireExactMatch;
 
         #endregion
 
@@ -25,10 +28,12 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        protected ResolverOverride(string? name, object? value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        protected ResolverOverride(string? name, object? value, bool exact)
         {
             Name = name;
             Value = value;
+            RequireExactMatch = exact;
         }
 
         /// <summary>
@@ -37,24 +42,25 @@ namespace Unity.Resolution
         /// <param name="target"><see cref="Type"/> of the target</param>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        protected ResolverOverride(Type? target, string? name, object? value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        protected ResolverOverride(Type? target, string? name, object? value, bool exact)
         {
             Target = target;
             Name = name;
             Value = value;
+            RequireExactMatch = exact;
         }
 
         #endregion
 
 
-        #region Equitability
-
-
-        public virtual bool Equals(ParameterInfo? other) => false;
+        #region Equitable
 
         public virtual bool Equals(FieldInfo? other) => false;
 
         public virtual bool Equals(PropertyInfo? other) => false;
+
+        public virtual bool Equals(ParameterInfo? other) => false;
 
         public virtual MatchRank MatchTo(in Contract other) => MatchRank.NoMatch;
 
@@ -90,60 +96,6 @@ namespace Unity.Resolution
         }
 
         #endregion
-
-
-        #region IResolve
-
-        public virtual object? Resolve<TContext>(ref TContext context)
-            where TContext : IResolveContext
-        {
-            return Value switch
-            {
-                IResolve resolve => resolve.Resolve(ref context),
-                IResolverFactory<Type> factory => factory.GetResolver<TContext>(context.Type)
-                                                         .Invoke(ref context),
-                _ => Value,
-            };
-        }
-
-        public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            return Value switch
-            {
-                IResolve resolve => resolve.Resolve,
-                IResolverFactory<Type> factory => factory.GetResolver<TContext>(type),
-                _ => (ref TContext context) => Value,
-            };
-        }
-
-        #endregion
-
-
-        #region Object
-
-        public override int GetHashCode()
-        {
-            return ((Target?.GetHashCode() ?? 0 * 37) + (Name?.GetHashCode() ?? 0 * 17)) ^ GetType().GetHashCode();
-
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return this == obj as ResolverOverride;
-        }
-
-        public static bool operator ==(ResolverOverride? left, ResolverOverride? right)
-        {
-            return left?.GetHashCode() == right?.GetHashCode();
-        }
-
-        public static bool operator !=(ResolverOverride? left, ResolverOverride? right)
-        {
-            return !(left == right);
-        }
-
-
-        #endregion
     }
 }
+

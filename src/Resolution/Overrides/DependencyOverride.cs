@@ -24,8 +24,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type type, object? value)
-            : base(null, value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        public DependencyOverride(Type type, object? value, bool exact = true)
+            : base(null, value, exact)
         {
             Type = type;
         }
@@ -36,8 +37,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(string name, object? value)
-            : base(name, value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        public DependencyOverride(string name, object? value, bool exact = true)
+            : base(name, value, exact)
         {
         }
 
@@ -49,8 +51,9 @@ namespace Unity.Resolution
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type type, string? name, object? value)
-            : base(name, value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        public DependencyOverride(Type type, string? name, object? value, bool exact = true)
+            : base(name, value, exact)
         {
             Type = type;
         }
@@ -63,8 +66,9 @@ namespace Unity.Resolution
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        public DependencyOverride(Type? target, Type type, string? name, object? value)
-            : base(target, name, value)
+        /// <param name="exact">Indicates if override has to match exactly</param>
+        public DependencyOverride(Type? target, Type type, string? name, object? value, bool exact = true)
+            : base(target, name, value, exact)
         {
             Type = type;
         }
