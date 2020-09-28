@@ -10,7 +10,7 @@ namespace Unity
         #region Fields
 
         private readonly int _level;
-        private readonly int DEFAULT_CONTRACTS;
+        private readonly int BUILT_IN_CONTRACT_COUNT;
 
         internal Scope   _scope;
         internal readonly Defaults _policies;
@@ -59,12 +59,7 @@ namespace Unity
             _scope.Add(new ContainerLifetimeManager(this), typeof(IUnityContainer), 
                                                            typeof(IUnityContainerAsync), 
                                                            typeof(IServiceProvider));
-            DEFAULT_CONTRACTS = _scope.Contracts;
-
-            // Setup Default algorithms
-            _policies.Set(typeof(Defaults.ResolveUnregisteredDelegate),   (Defaults.ResolveUnregisteredDelegate)ResolveUnregistered);
-            _policies.Set(typeof(Defaults.RegistrationProducerDelegate), (Defaults.RegistrationProducerDelegate)ResolveRegistration);
-            _policies.Set(typeof(Defaults.ResolveArrayDelegate),                 (Defaults.ResolveArrayDelegate)ResolveArray);
+            BUILT_IN_CONTRACT_COUNT = _scope.Contracts;
 
             // Setup Built-In Components
             BuiltInComponents.Setup(_context);
@@ -90,7 +85,7 @@ namespace Unity
                 typeof(IUnityContainer), 
                 typeof(IUnityContainerAsync), 
                 typeof(IServiceProvider));
-            DEFAULT_CONTRACTS = _scope.Contracts;
+            BUILT_IN_CONTRACT_COUNT = _scope.Contracts;
         }
 
         #endregion

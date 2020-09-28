@@ -125,8 +125,6 @@ namespace Unity.BuiltIn
         protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ref SelectionInfo<ConstructorInfo, object[]> selection,
                                                                           ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
-            var parameters = ParameterPipelines(ref selection);
-
             throw new NotImplementedException();
         }
 

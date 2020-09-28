@@ -35,7 +35,7 @@ namespace Unity
 
                 while (null != (scope = scope.Next))
                 {
-                    if (scope.Contracts > DEFAULT_CONTRACTS)
+                    if (scope.Contracts > BUILT_IN_CONTRACT_COUNT)
                         levels.Add(scope);
                 }
 
