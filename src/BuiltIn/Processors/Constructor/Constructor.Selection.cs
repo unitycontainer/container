@@ -15,44 +15,44 @@ namespace Unity.BuiltIn
 
         #region Selection
 
-        public override object Select(ref PipelineContext context)
-        {
-            throw new NotImplementedException();
+        //public override object Select(ref PipelineContext context)
+        //{
+        //    throw new NotImplementedException();
 
-            //// Select Injected Members
-            //if (null != builder.InjectionMembers)
-            //{
-            //    foreach (var injectionMember in builder.InjectionMembers)
-            //    {
-            //        if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
-            //        {
-            //            return injectionMember;
-            //        }
-            //    }
-            //}
+        //    //// Select Injected Members
+        //    //if (null != builder.InjectionMembers)
+        //    //{
+        //    //    foreach (var injectionMember in builder.InjectionMembers)
+        //    //    {
+        //    //        if (injectionMember is InjectionMember<ConstructorInfo, object[]>)
+        //    //        {
+        //    //            return injectionMember;
+        //    //        }
+        //    //    }
+        //    //}
 
-            //// Enumerate to array
-            //var constructors = DeclaredMembers(builder.Type).ToArray();
+        //    //// Enumerate to array
+        //    //var constructors = DeclaredMembers(builder.Type).ToArray();
 
-            //// No constructors
-            //if (0 == constructors.Length)
-            //    return new InvalidRegistrationException($"Type {builder.Type.FullName} has no accessible constructors");
+        //    //// No constructors
+        //    //if (0 == constructors.Length)
+        //    //    return new InvalidRegistrationException($"Type {builder.Type.FullName} has no accessible constructors");
 
-            //// One constructor
-            //if (1 == constructors.Length)
-            //    return constructors[0];
+        //    //// One constructor
+        //    //if (1 == constructors.Length)
+        //    //    return constructors[0];
 
-            //// Check for constructors decorated with attribute
-            //foreach (var constructor in constructors)
-            //{
-            //    if (!constructor.IsDefined(typeof(InjectionConstructorAttribute), true))
-            //        continue;
+        //    //// Check for constructors decorated with attribute
+        //    //foreach (var constructor in constructors)
+        //    //{
+        //    //    if (!constructor.IsDefined(typeof(InjectionConstructorAttribute), true))
+        //    //        continue;
 
-            //    return constructor;
-            //}
+        //    //    return constructor;
+        //    //}
 
-            //return SelectMethod(ref builder, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {builder.Type.FullName}.");
-        }
+        //    //return SelectMethod(ref builder, constructors) ?? throw new InvalidOperationException($"Unable to select constructor for type {builder.Type.FullName}.");
+        //}
 
         ///// <summary>
         ///// Selects default constructor

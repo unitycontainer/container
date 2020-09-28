@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -9,6 +10,7 @@ namespace Unity.BuiltIn
     {
         #region Constructors
 
+        /// <inheritdoc/>
         public PropertyProcessor(Defaults defaults)
             : base(defaults)
         {
@@ -19,12 +21,22 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(BindingFlags);
 
-        protected override ImportAttribute? GetImportAttribute(PropertyInfo info) 
-            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute));
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override Type MemberType(PropertyInfo info) => info.PropertyType;
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override Type DependencyType(PropertyInfo info) => info.PropertyType;
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override ImportAttribute? GetImportAttribute(PropertyInfo info) 
+            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
         #endregion
     }

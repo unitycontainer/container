@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Resolution;
 
@@ -10,20 +11,6 @@ namespace Unity.BuiltIn
                                                                  where TMemberInfo : MemberInfo
                                                                  where TDependency : class
     {
-        #region Delegates
-
-        /// <summary>
-        /// Dependency analysis handler for <see cref="TMemberInfo"/>
-        /// </summary>
-        /// <typeparam name="TMemeber">Type of the member, <see cref="ConstructorInfo"/>, <see cref="FieldInfo"/>, and etc.</typeparam>
-        /// <param name="memberInfo">The member to analyse</param>
-        /// <param name="data">Associated data</param>
-        /// <returns>Returns <see cref="DependencyInfo"/> struct containing dependency information</returns>
-        public delegate DependencyInfo DependencyAnalyzer<TMemeber>(TMemeber memberInfo, object? data = null);
-
-        #endregion
-
-
         #region Constants
 
         /// <summary>
@@ -41,11 +28,6 @@ namespace Unity.BuiltIn
         /// </summary>
         protected BindingFlags BindingFlags { get; private set; }
 
-        /// <summary>
-        /// Delegate holding dependency analizer
-        /// </summary>
-        protected DependencyAnalyzer<TMemberInfo> GetDependencyInfo { get; private set; }
-
         #endregion
 
 
@@ -54,15 +36,14 @@ namespace Unity.BuiltIn
         public MemberProcessor(Defaults defaults)
         {
             BindingFlags = defaults
-                .GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, (object flags) => BindingFlags = (BindingFlags)flags);
-
-            GetDependencyInfo = defaults
-                .GetOrAdd<DependencyAnalyzer<TMemberInfo>>(OnGetDependencyInfo, 
-                    (object handler) => GetDependencyInfo = (DependencyAnalyzer<TMemberInfo>)handler);
+                .GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, 
+                    (object flags) => BindingFlags = (BindingFlags)flags);
         }
 
         #endregion
 
+
+        #region Implementation
 
         /// <summary>
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
@@ -75,75 +56,35 @@ namespace Unity.BuiltIn
         /// </remarks>
         /// <param name="type"><see cref="Type"/> implementing members</param>
         /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract TMemberInfo[] GetMembers(Type type);
 
+        /// <summary>
+        /// Returns type of the member
+        /// </summary>
+        /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> instance</param>
+        /// <returns>Type of the member</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract Type MemberType(TMemberInfo info);
 
-
-        #region Dependency Management
-
-        public virtual DependencyInfo OnGetDependencyInfo(TMemberInfo memberInfo, object? data)
-        {
-            return default;
-        }
-
-
-        #endregion
-
-
-        #region Selection
-
-        public virtual object Select(ref PipelineContext context)
-        {
-            throw new NotImplementedException();
-            //
-            //HashSet<object> memberSet = new HashSet<object>();
-
-            //// Select Injected Members
-            //if (null != builder.InjectionMembers)
-            //{
-            //    foreach (var injectionMember in builder.InjectionMembers)
-            //    {
-            //        if (injectionMember is InjectionMember<TMemberInfo, TData>)
-            //            memberSet.Add(injectionMember);
-            //    }
-            //}
-
-            //// Select Attributed members
-            //foreach (var member in DeclaredMembers(builder.Type))
-            //{
-            //    if (member.IsDefined(typeof(DependencyResolutionAttribute), true))
-            //        memberSet.Add(member);
-            //}
-
-            //return memberSet;
-        }
-
-        #endregion
-
-
-        #region Implementation
+        /// <summary>
+        /// Returns <see cref="Type"/> of the dependency from <see cref="ParameterInfo"/>, 
+        /// <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/>
+        /// </summary>
+        /// <param name="info">A <see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> instance</param>
+        /// <returns>Dependency type</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract Type DependencyType(TDependency info);
 
         /// <summary>
         /// Returns attribute associated with dependency info
         /// </summary>
         /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
         /// <returns>Attached attribute or null if nothing found</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract ImportAttribute? GetImportAttribute(TDependency info);
 
-        /// <summary>
-        /// Returns <see cref="Type"/> of the dependency from <see cref="ParameterInfo"/>, 
-        /// <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/>
-        /// </summary>
-        /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> instance</param>
-        /// <returns>Dependency type</returns>
-        protected abstract Type DependencyType(TDependency info);
-
-
-        protected virtual Type MemberType(TMemberInfo info) => throw new NotImplementedException();
-
-
-
-
+        #endregion
 
 
 
@@ -175,6 +116,5 @@ namespace Unity.BuiltIn
             return resolver;
         }
 
-        #endregion
     }
 }

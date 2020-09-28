@@ -26,6 +26,17 @@ namespace Unity.Container
             _backup = parent.Action;
         }
 
+        internal PipelineAction(ref PipelineContext parent, TAction action)
+        {
+            unsafe
+            {
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+            }
+
+            _backup = parent.Action;
+            parent.Action = action;
+        }
+
 
         #endregion
 
@@ -44,12 +55,6 @@ namespace Unity.Container
         {
             get => Context.Target;
             set => Context.Target = value;
-        }
-
-        public TAction? Action
-        {
-            get => (TAction?)Context.Action;
-            set => Context.Action = value;
         }
 
         public void Error(string error)

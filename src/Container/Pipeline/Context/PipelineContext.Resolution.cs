@@ -7,6 +7,13 @@ namespace Unity.Container
 {
     public partial struct PipelineContext
     {
+        public object? Resolve(ref Contract contract, object? data)
+        { 
+            throw new NotImplementedException();
+        }
+
+
+
         #region Parameter
 
         public object? Override(ParameterInfo parameter, string? name, object? value)

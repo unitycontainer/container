@@ -60,7 +60,7 @@ namespace Unity.BuiltIn
             // Check for annotated constructor
             foreach (var ctor in ctors)
             {
-                if (!ctor.IsDefined(typeof(ImportingConstructorAttribute))) continue;
+                if (!ctor.IsDefined(typeof(ImportingConstructorAttribute), true)) continue;
 
                 context.Target = Build(ref context, ctor);
                 return; 

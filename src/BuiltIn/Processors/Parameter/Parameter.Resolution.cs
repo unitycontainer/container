@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
@@ -77,5 +78,22 @@ namespace Unity.BuiltIn
             else
                 return (ref PipelineContext context) => context.Resolve(info, attribute.Name, resolver);
         }
+
+
+
+        #region Pre Processor
+
+        protected virtual ResolveDelegate<PipelineContext>? PreProcessResolver(ParameterInfo info, DependencyResolutionAttribute attribute, object? data)
+            => data switch
+            {
+                IResolve policy => policy.Resolve,
+                IResolverFactory<ParameterInfo> fieldFactory => fieldFactory.GetResolver<PipelineContext>(info),
+                IResolverFactory<Type> typeFactory => typeFactory.GetResolver<PipelineContext>(info.ParameterType),
+                Type type when typeof(Type) != info.ParameterType => attribute.GetResolver<PipelineContext>(type),
+                _ => null
+            };
+
+        #endregion
+
     }
 }

@@ -64,17 +64,5 @@ namespace Unity.BuiltIn
         public CtorSelectorDelegate SelectMethod { get; set; }
 
         #endregion
-
-
-        #region Overrides
-
-        public override DependencyInfo OnGetDependencyInfo(ConstructorInfo memberInfo, object? data)
-        {
-            var attribute = memberInfo.GetCustomAttribute(typeof(InjectionConstructorAttribute));
-
-            return new DependencyInfo(memberInfo.DeclaringType!, (string?)data, attribute);
-        }
-
-        #endregion
     }
 }

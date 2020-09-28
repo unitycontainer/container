@@ -1,4 +1,6 @@
+using System;
 using System.Runtime.CompilerServices;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -6,7 +8,7 @@ namespace Unity.Container
     {
         
         public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class 
-            => new PipelineAction<TAction>(ref this) { Action = action };
+            => new PipelineAction<TAction>(ref this, action);
 
         public readonly ref Contract Contract
         {
@@ -30,8 +32,7 @@ namespace Unity.Container
             }
         }
 
-
-        public PipelineContext Create(ref Contract contract, object? action)
+        public PipelineContext DependencyContext(ref Contract contract, object? action)
             => new PipelineContext(ref this, ref contract, action);
     }
 }

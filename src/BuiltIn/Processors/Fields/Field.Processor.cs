@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -9,6 +10,7 @@ namespace Unity.BuiltIn
     {
         #region Constructors
 
+        /// <inheritdoc/>
         public FieldProcessor(Defaults defaults)
             : base(defaults)
         {
@@ -16,20 +18,26 @@ namespace Unity.BuiltIn
 
         #endregion
 
-        protected override Type MemberType(FieldInfo info) => info.FieldType;
-
 
         #region Implementation
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
 
-        protected override ImportAttribute? GetImportAttribute(FieldInfo info) 
-            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute));
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override Type MemberType(FieldInfo info) => info.FieldType;
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override Type DependencyType(FieldInfo info) => info.FieldType;
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override ImportAttribute? GetImportAttribute(FieldInfo info) 
+            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
+
         #endregion
-
-
     }
 }
