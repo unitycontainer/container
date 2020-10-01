@@ -54,15 +54,15 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region Equitable
+        #region Match Contract
+
+        public virtual MatchRank MatchTo(in DependencyInfo info) => MatchRank.NoMatch;
 
         public virtual bool Equals(FieldInfo? other) => false;
 
         public virtual bool Equals(PropertyInfo? other) => false;
 
         public virtual bool Equals(ParameterInfo? other) => false;
-
-        public virtual MatchRank MatchTo(in Contract other) => MatchRank.NoMatch;
 
         #endregion
 

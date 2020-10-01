@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Unity.Resolution
 {
@@ -76,43 +77,21 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region IEquatable
+        #region  Match Target
 
-        public override int GetHashCode()
+        public override MatchRank MatchTo(in DependencyInfo info)
         {
-            return base.GetHashCode();
-        }
-
-        public override bool Equals(object? other)
-        {
-            switch (other)
-            {
-                case DependencyOverride dependency:
-                    return (null == Target || dependency.Target == Target) &&
-                           (null == Type   || dependency.Type == Type ) &&
-                           (null == Name   || dependency.Name == Name);
-                
-                case Contract type:
-                    return Equals(type);
-
-                default:
-                    return false;
-            }
-        }
-
-        public override MatchRank MatchTo(in Contract other)
-        {
-            // If names are different - no match
-            if (other.Name != Name) return MatchRank.NoMatch;
+            if ((null != Target && info.DeclaringType != Target) || (info.Contract.Name != Name))
+                return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
-            if (null == Type || null == other.Type) return MatchRank.Compatible;
+            if (null == Type) return MatchRank.Compatible;
 
             // Matches exactly
-            if (other.Type == Type) return MatchRank.ExactMatch;
+            if (info.Contract.Type == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (other.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (info.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }

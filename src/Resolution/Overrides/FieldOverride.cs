@@ -25,32 +25,11 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region IEquatable
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public override bool Equals(object? other)
-        {
-            switch (other)
-            {
-                case FieldInfo info:
-                    return Equals(info);
-
-                case FieldOverride field:
-                    return field.Name == Name &&
-                        (null == Target || field.Target == Target);
-
-                default:
-                    return base.Equals(other);
-            }
-        }
+        #region  Match Target
 
         public override bool Equals(FieldInfo? other)
         {
-            return null != other  && other.Name == Name && 
+            return null != other  && other.Name == Name &&
                   (null == Target || other.DeclaringType == Target);
         }
 

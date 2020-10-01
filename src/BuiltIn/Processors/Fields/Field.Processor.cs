@@ -25,18 +25,11 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
 
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Type MemberType(FieldInfo info) => info.FieldType;
 
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Type DependencyType(FieldInfo info) => info.FieldType;
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override ImportAttribute? GetImportAttribute(FieldInfo info) 
-            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
+        public override object? GetValue(ref DependencyInfo dependency, object? data)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

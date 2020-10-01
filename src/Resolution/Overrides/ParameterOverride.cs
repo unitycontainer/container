@@ -63,14 +63,14 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region IEquatable
+        #region Match Target
 
         public override bool Equals(ParameterInfo? other)
         {
             return null != other &&
                   (null == Target || other.Member.DeclaringType == Target) &&
-                  (null == Type || other.ParameterType == Type) &&
-                  (null == Name || other.Name == Name);
+                  (null == Type   || other.ParameterType == Type) &&
+                  (null == Name   || other.Name == Name);
         }
 
         #endregion

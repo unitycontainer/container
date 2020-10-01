@@ -7,23 +7,6 @@ namespace Unity.Container
     {
         #region New Request
 
-        public PipelineContext(UnityContainer container, ref Contract contract, object existing, RegistrationManager manager, ref RequestInfo request)
-        {
-            unsafe
-            {
-                _parent = IntPtr.Zero;
-                _request = new IntPtr(Unsafe.AsPointer(ref request));
-                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
-            }
-
-            Target = existing;
-            Action = manager.Data!;
-
-            Registration = manager;
-            Container = container;
-        }
-
-
         public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
         {
             unsafe
@@ -33,6 +16,7 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            Type = manager.Type ?? contract.Type;
             Target = default;
             Action = default;
 
@@ -54,6 +38,8 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+
+            Type = manager.Type ?? contract.Type;
             Target = default;
             Action = default;
 
@@ -61,24 +47,7 @@ namespace Unity.Container
             Container = container;
         }
 
-        public PipelineContext(ref PipelineContext parent, object action, object? data = null)
-        {
-            unsafe
-            {
-                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
-                _request = parent._request;
-                _contract = parent._contract;
-            }
-
-            Target = data;
-            Action = action;
-
-            Registration = parent.Registration;
-            Container = parent.Container;
-        }
-
-
-        private PipelineContext(ref PipelineContext parent, ref Contract contract, object? action)
+        public PipelineContext(ref PipelineContext parent, ref Contract contract, object? action)
         {
             unsafe
             {
@@ -87,6 +56,7 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
+            Type = contract.Type;
             Target = default;
             Action = action;
 

@@ -40,9 +40,9 @@ namespace Unity.BuiltIn
                 }
 
                 if (null == iCtor.Data || 0 == iCtor.Data.Length)
-                    context.Target = Build(ref context, selection.MemberInfo);
+                    context.Target = Activate(ref context, selection.MemberInfo);
                 else
-                    context.Target = Build(ref context, selection.MemberInfo, selection.Data);
+                    context.Target = Activate(ref context, selection.MemberInfo, selection.Data);
 
                 return; 
             }
@@ -52,7 +52,7 @@ namespace Unity.BuiltIn
             if (1 == ctors.Length)
             {
 
-                context.Target = Build(ref context, ctors[0]);
+                context.Target = Activate(ref context, ctors[0]);
                 return; 
             }
 
@@ -62,7 +62,7 @@ namespace Unity.BuiltIn
             {
                 if (!ctor.IsDefined(typeof(ImportingConstructorAttribute), true)) continue;
 
-                context.Target = Build(ref context, ctor);
+                context.Target = Activate(ref context, ctor);
                 return; 
             }
 
@@ -114,35 +114,43 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        protected object? Build(ref PipelineContext context, ConstructorInfo info, object?[] data)
+        protected object? Activate(ref PipelineContext context, ConstructorInfo info, object?[] data)
         {
             using var action = context.Start(info);
 
             var parameters = info.GetParameters();
             if (0 == parameters.Length) return info.Invoke(EmptyParametersArray);
 
+            DependencyInfo dependencyInfo = new DependencyInfo(ref context);
             var values = new object?[parameters.Length];
+
             for (var i = 0; i < parameters.Length; i++)
             {
-                var parameter = parameters[i];
-                values[i] = Build(ref context, parameter, data[i]);
+                dependencyInfo.Info = parameters[i];
+                values[i] = GetValue(ref dependencyInfo, data[i]);
+
+                if (context.IsFaulted) return values[i];
             }
             
             return info.Invoke(values);
         }
 
-        protected object? Build(ref PipelineContext context, ConstructorInfo info)
+        protected object? Activate(ref PipelineContext context, ConstructorInfo info)
         {
             using var action = context.Start(info);
-
+             
             var parameters = info.GetParameters();
             if (0 == parameters.Length) return info.Invoke(EmptyParametersArray);
 
+            DependencyInfo dependencyInfo = new DependencyInfo(ref context);
             var values = new object?[parameters.Length];
+
             for (var i = 0; i < parameters.Length; i++)
             {
-                var parameter = parameters[i];
-                values[i] = Build(ref context, parameter);
+                dependencyInfo.Info = parameters[i];
+                values[i] = Resolve(ref dependencyInfo);
+                
+                if (context.IsFaulted) return values[i];
             }
 
             return info.Invoke(values);

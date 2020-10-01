@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -7,7 +9,7 @@ namespace Unity.Container
     /// Represents the context in which a build-up or tear-down operation runs.
     /// </summary>
     [DebuggerDisplay("Resolving: {Type},  Name: {Name}")]
-    public partial struct PipelineContext
+    public partial struct PipelineContext : IResolveContext
     {
         #region Fields
 
@@ -23,9 +25,22 @@ namespace Unity.Container
 
         #region Public Properties
 
-        public object? Action { get; set; }
+        public Type Type { get; private set; }
 
+        public string? Name
+        {
+            get
+            {
+                unsafe
+                {
+                    return Unsafe.AsRef<Contract>(_contract.ToPointer()).Name;
+                }
+            }
+        }
+        
         public object? Target { get; set; }
+
+        public object? Action { get; set; }
 
         #endregion
     }

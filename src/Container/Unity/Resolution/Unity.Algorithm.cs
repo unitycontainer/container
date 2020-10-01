@@ -54,7 +54,6 @@ namespace Unity
                                    : ResolveUnregistered(ref contract, overrides);
         }
 
-
         /// <inheritdoc />
         public ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
         {
@@ -92,7 +91,7 @@ namespace Unity
 
         #region Dependency
 
-        internal object? ResolveDependency(ref Contract contract, ref PipelineContext parent)
+        internal object? Resolve(ref Contract contract, ref PipelineContext parent)
         {
             var container = this;
             bool? isGeneric = null;
@@ -137,7 +136,7 @@ namespace Unity
         #endregion
 
 
-        #region Resolve Async
+        #region Async
 
         /// <summary>
         /// Builds and resolves registered contract
@@ -148,8 +147,6 @@ namespace Unity
         private Task<object?> ResolveContractAsync(object? state)
         {
             RequestInfoAsync context = (RequestInfoAsync)state!;
-
-
 
             return Task.FromResult<object?>(context.Manager);
         }
@@ -162,8 +159,6 @@ namespace Unity
         private Task<object?> ResolveAsync(object? state)
         {
             RequestInfoAsync context = (RequestInfoAsync)state!;
-
-
 
             return Task.FromResult<object?>(context.Contract.Type);
         }

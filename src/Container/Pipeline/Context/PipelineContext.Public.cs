@@ -8,6 +8,16 @@ namespace Unity.Container
 {
     public partial struct PipelineContext 
     {
+        #region Resolution
+
+        public object? Resolve(Type type, string? name)
+        {
+            var contract = new Contract(type, name);
+            return Container.Resolve(ref contract, ref this);
+        }
+
+        #endregion
+
 
         #region Inderection
 
@@ -82,14 +92,6 @@ namespace Unity.Container
 
         public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class 
             => new PipelineAction<TAction>(ref this, action);
-
-        #endregion
-
-
-        #region Child Context
-
-        public PipelineContext DependencyContext(ref Contract contract, object? action)
-            => new PipelineContext(ref this, ref contract, action);
 
         #endregion
     }

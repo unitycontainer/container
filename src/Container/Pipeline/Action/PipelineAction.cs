@@ -51,6 +51,18 @@ namespace Unity.Container
             }
         }
 
+        public TAction? Action
+        {
+            get
+            {
+                unsafe
+                {
+                    return (TAction?)Unsafe.AsRef<PipelineContext>(_parent.ToPointer()).Action;
+                }
+            }
+            set => Context.Action = value;
+        }
+
         public object? Target
         {
             get => Context.Target;

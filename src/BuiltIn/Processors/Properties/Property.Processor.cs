@@ -25,18 +25,10 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(BindingFlags);
 
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Type MemberType(PropertyInfo info) => info.PropertyType;
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override Type DependencyType(PropertyInfo info) => info.PropertyType;
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override ImportAttribute? GetImportAttribute(PropertyInfo info) 
-            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
+        public override object? GetValue(ref DependencyInfo dependency, object? data)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }
