@@ -25,9 +25,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public DependencyOverride(Type type, object? value, bool exact = true)
-            : base(null, value, exact)
+        /// <param name="rank">Minimal required rank to override</param>
+        public DependencyOverride(Type type, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(null, value, rank)
         {
             Type = type;
         }
@@ -38,9 +38,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public DependencyOverride(string name, object? value, bool exact = true)
-            : base(name, value, exact)
+        /// <param name="rank">Minimal required rank to override</param>
+        public DependencyOverride(string name, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(name, value, rank)
         {
         }
 
@@ -52,9 +52,9 @@ namespace Unity.Resolution
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public DependencyOverride(Type type, string? name, object? value, bool exact = true)
-            : base(name, value, exact)
+        /// <param name="rank">Minimal required rank to override</param>
+        public DependencyOverride(Type type, string? name, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(name, value, rank)
         {
             Type = type;
         }
@@ -67,9 +67,9 @@ namespace Unity.Resolution
         /// <param name="name">Name of the dependency</param>
         /// <param name="type">Type of the dependency.</param>
         /// <param name="value">Value to override with</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public DependencyOverride(Type? target, Type type, string? name, object? value, bool exact = true)
-            : base(target, name, value, exact)
+        /// <param name="rank">Minimal required rank to override</param>
+        public DependencyOverride(Type? target, Type type, string? name, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(target, name, value, rank)
         {
             Type = type;
         }
@@ -77,21 +77,55 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region  Match Target
+        #region  Match
 
-        public override MatchRank MatchTo(in DependencyInfo info)
+        public override MatchRank Match(FieldInfo other, in Contract contract)
         {
-            if ((null != Target && info.DeclaringType != Target) || (info.Contract.Name != Name))
+            if ((null != Target && other.DeclaringType != Target) || (contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (null == Type) return MatchRank.Compatible;
 
             // Matches exactly
-            if (info.Contract.Type == Type) return MatchRank.ExactMatch;
+            if (contract.Type == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (info.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+
+            return MatchRank.NoMatch;
+        }
+
+        public override MatchRank Match(PropertyInfo other, in Contract contract)
+        {
+            if ((null != Target && other.DeclaringType != Target) || (contract.Name != Name))
+                return MatchRank.NoMatch;
+
+            // If Type is 'null', all types are compatible
+            if (null == Type) return MatchRank.Compatible;
+
+            // Matches exactly
+            if (contract.Type == Type) return MatchRank.ExactMatch;
+
+            // Can be assigned to
+            if (contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+
+            return MatchRank.NoMatch;
+        }
+
+        public override MatchRank Match(ParameterInfo other, in Contract contract)
+        {
+            if ((null != Target && other.Member.DeclaringType != Target) || (contract.Name != Name))
+                return MatchRank.NoMatch;
+
+            // If Type is 'null', all types are compatible
+            if (null == Type) return MatchRank.Compatible;
+
+            // Matches exactly
+            if (contract.Type == Type) return MatchRank.ExactMatch;
+
+            // Can be assigned to
+            if (contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }

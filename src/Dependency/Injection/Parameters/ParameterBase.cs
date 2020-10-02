@@ -44,15 +44,15 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override MatchRank MatchTo(Type type)
+        public override MatchRank Match(Type type)
         {
             return null == _type 
                 ? MatchRank.ExactMatch
                 : _type.MatchTo(type);
         }
 
-        public override MatchRank MatchTo(ParameterInfo parameter) => 
-            MatchTo(parameter.ParameterType);
+        public override MatchRank Match(ParameterInfo parameter) => 
+            Match(parameter.ParameterType);
 
         #endregion
 

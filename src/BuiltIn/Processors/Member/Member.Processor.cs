@@ -1,13 +1,16 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
+using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData> : PipelineProcessor
                                                                  where TMemberInfo : MemberInfo
                                                                  where TDependency : class
+                                                                 where TData       : class
     {
         #region Constants
 
@@ -57,9 +60,16 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract TMemberInfo[] GetMembers(Type type);
 
+        /// <summary>
+        /// Returns attribute the info is annotated with
+        /// </summary>
+        /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
+        /// <returns>Attribute or null if nothing found</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual ImportAttribute? GetImportAttribute(TMemberInfo info) => null;
 
-        public abstract object? GetValue(ref DependencyInfo dependency, object? data);
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual InjectionMember<TMemberInfo, TData>? GetInjected(RegistrationManager? registration) => null;
 
         #endregion
     }

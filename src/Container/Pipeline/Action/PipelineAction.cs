@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Container
 {
-    public ref struct PipelineAction<TAction> 
-        where TAction : class
+    public ref struct PipelineAction<T> 
+        where T : class
     {
         #region Fileds
 
@@ -26,7 +26,7 @@ namespace Unity.Container
             _backup = parent.Action;
         }
 
-        internal PipelineAction(ref PipelineContext parent, TAction action)
+        internal PipelineAction(ref PipelineContext parent, T action)
         {
             unsafe
             {
@@ -51,13 +51,13 @@ namespace Unity.Container
             }
         }
 
-        public TAction? Action
+        public T? Current
         {
             get
             {
                 unsafe
                 {
-                    return (TAction?)Unsafe.AsRef<PipelineContext>(_parent.ToPointer()).Action;
+                    return (T?)Unsafe.AsRef<PipelineContext>(_parent.ToPointer()).Action;
                 }
             }
             set => Context.Action = value;

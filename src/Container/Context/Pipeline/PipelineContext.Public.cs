@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -19,7 +20,7 @@ namespace Unity.Container
         #endregion
 
 
-        #region Inderection
+        #region Indirection
 
         public bool IsFaulted
         {
@@ -84,6 +85,15 @@ namespace Unity.Container
                 info.IsFaulted = true;
             }
         }
+
+        #endregion
+
+
+        #region Injection
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public InjectionMember? GetInjected<TMemberInfo>() => Registration?.GetInjected<TMemberInfo>();
+
 
         #endregion
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -15,14 +13,6 @@ namespace Unity
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Field)]
     public sealed class DependencyAttribute : DependencyResolutionAttribute
     {
-        #region Singleton
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal static DependencyAttribute Instance = new DependencyAttribute();
-
-        #endregion
-
-
         #region Constructors
 
         /// <summary>
@@ -43,15 +33,6 @@ namespace Unity
 
         public DependencyAttribute(Type type, string name)
             : base(type, name) { }
-
-        #endregion
-
-
-        #region Overrides
-
-        /// <inheritdoc />
-        public override ResolveDelegate<TContext> GetResolver<TContext>(Type type) => 
-            (ref TContext context) => context.Resolve(type, Name);
 
         #endregion
     }

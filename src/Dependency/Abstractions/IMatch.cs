@@ -5,8 +5,8 @@ namespace Unity
     /// Calculates how much member matches
     /// </summary>
     /// <typeparam name="T">What kind of match</typeparam>
-    public interface IMatchTo<T>
+    public interface IMatch<T>
     {
-        public MatchRank MatchTo(T other);
+        public MatchRank Match(T other);
     }
 }

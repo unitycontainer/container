@@ -16,8 +16,8 @@ namespace Unity.Injection
                 case Array array:
                     return MatchTo(array, parameter);
 
-                case IMatchTo<ParameterInfo> iMatchParam:
-                    return iMatchParam.MatchTo(parameter);
+                case IMatch<ParameterInfo> iMatchParam:
+                    return iMatchParam.Match(parameter);
 
                 case Type type:
                     return MatchTo(type, parameter.ParameterType);

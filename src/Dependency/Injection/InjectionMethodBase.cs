@@ -51,6 +51,27 @@ namespace Unity.Injection
             return candidate;
         }
 
+        public override int SelectFrom(TMemberInfo[] members)
+        {
+            int position = -1;
+            int bestSoFar = -1;
+
+            for (var index = 0; index < members.Length; index++)
+            {
+                var compatibility = CompareTo(members[index]);
+
+                if (0 == compatibility) return index;
+
+                if (bestSoFar < compatibility)
+                {
+                    position = index;
+                    bestSoFar = compatibility;
+                }
+            }
+
+            return position;
+        }
+
         public override SelectionInfo<TMemberInfo, object[]> SelectMember(TMemberInfo[] members)
         {
             int bestSoFar = -1;

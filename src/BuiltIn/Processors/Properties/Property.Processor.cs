@@ -3,6 +3,7 @@ using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
+using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
@@ -25,10 +26,14 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(BindingFlags);
 
-        public override object? GetValue(ref DependencyInfo dependency, object? data)
-        {
-            throw new NotImplementedException();
-        }
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override InjectionMember<PropertyInfo, object>? GetInjected(RegistrationManager? registration) => registration?.Properties;
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override ImportAttribute? GetImportAttribute(PropertyInfo info)
+            => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
         #endregion
     }

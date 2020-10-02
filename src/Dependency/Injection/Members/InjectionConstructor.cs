@@ -35,28 +35,6 @@ namespace Unity.Injection
             type.GetConstructors(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
                 .Where(SupportedMembersFilter);
 
-        public override SelectionInfo<ConstructorInfo, object[]> SelectMember(ConstructorInfo[] members)
-        {
-            int bestSoFar = -1;
-            ConstructorInfo? candidate = null;
-
-            foreach (ConstructorInfo member in members)
-            {
-                var compatibility = CompareTo(member);
-
-                if (0 == compatibility) return new SelectionInfo<ConstructorInfo, object[]>(member, Data);
-
-                if (bestSoFar < compatibility)
-                {
-                    candidate = member;
-                    bestSoFar = compatibility;
-                }
-            }
-
-            // TODO: fix
-            return new SelectionInfo<ConstructorInfo, object[]>(candidate, Data);
-        }
-
         #endregion
 
     }

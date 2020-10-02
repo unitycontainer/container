@@ -13,8 +13,7 @@ namespace Unity.Injection
         /// <param name="name">Name of field to inject.</param>
         /// <param name="optional">Tells Unity if this field is optional.</param>
         public InjectionField(string name, bool optional = false)
-            : base(name, optional ? OptionalDependencyAttribute.Instance 
-                                  : (object)DependencyAttribute.Instance)
+            : base(name, optional ? Optional : Required)
         {
         }
 

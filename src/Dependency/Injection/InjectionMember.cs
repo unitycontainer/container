@@ -1,6 +1,7 @@
 ﻿using System;
-using Unity.Resolution;
 using System.Reflection;
+using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -19,6 +20,15 @@ namespace Unity.Injection
         /// Reference to the next member
         /// </summary>
         public InjectionMember? Next { get; internal set; }
+
+
+        // TODO: Requires implementation
+        protected static ResolveDelegate<PipelineContext> Required 
+            = (ref PipelineContext context) => context.Resolve(context.Type, context.Name);
+
+        protected static ResolveDelegate<PipelineContext> Optional 
+            = (ref PipelineContext context) => context.Resolve(context.Type, context.Name);
+
     }
 
     public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember
@@ -61,7 +71,17 @@ namespace Unity.Injection
 
         public abstract TMemberInfo? MemberInfo(Type type);
 
+        public virtual int SelectFrom(TMemberInfo[] members)
+        {
+            for (var index = 0; index < members.Length; index++)
+            {
+                if (members[index].Name == Name) return index;
+            }
 
+            return -1;
+        }
+
+        // TODO: Redundant
         public virtual SelectionInfo<TMemberInfo, TData> SelectMember(TMemberInfo[] members)
             => throw new NotImplementedException();
 

@@ -25,9 +25,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">InjectionParameterValue to pass for the constructor.</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public ParameterOverride(string name, object? value, bool exact = true)
-            : base(name, value, exact)
+        /// <param name="rank">Indicates if override has to match exactly</param>
+        public ParameterOverride(string name, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(name, value, rank)
         {
         }
 
@@ -38,9 +38,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public ParameterOverride(Type type, object? value, bool exact = true)
-            : base(null, value, exact)
+        /// <param name="rank">Indicates if override has to match exactly</param>
+        public ParameterOverride(Type type, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(null, value, rank)
         {
             Type = type;
         }
@@ -53,9 +53,9 @@ namespace Unity.Resolution
         /// <param name="type">Type of the parameter.</param>
         /// <param name="name">Name of the constructor parameter.</param>
         /// <param name="value">Value to pass for the MethodBase.</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public ParameterOverride(Type type, string? name, object? value, bool exact = true)
-            : base(name, value, exact)
+        /// <param name="rank">Indicates if override has to match exactly</param>
+        public ParameterOverride(Type type, string? name, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(name, value, rank)
         {
             Type = type;
         }
@@ -63,14 +63,15 @@ namespace Unity.Resolution
         #endregion
 
 
-        #region Match Target
+        #region Match
 
-        public override bool Equals(ParameterInfo? other)
+        public override MatchRank Match(ParameterInfo other, in Contract _)
         {
-            return null != other &&
-                  (null == Target || other.Member.DeclaringType == Target) &&
-                  (null == Type   || other.ParameterType == Type) &&
-                  (null == Name   || other.Name == Name);
+            return (null == Target || other.Member.DeclaringType == Target) &&
+                   (null == Type   || other.ParameterType == Type) &&
+                   (null == Name   || other.Name == Name)
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch;
         }
 
         #endregion

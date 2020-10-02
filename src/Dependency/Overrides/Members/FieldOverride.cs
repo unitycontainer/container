@@ -16,9 +16,9 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">The Field name.</param>
         /// <param name="value">InjectionParameterValue to use for the Field.</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        public FieldOverride(string name, object? value, bool exact = true)
-            : base(name ?? throw new ArgumentNullException(nameof(name)), value, exact)
+        /// <param name="rank">Indicates if override has to match exactly</param>
+        public FieldOverride(string name, object? value, MatchRank rank = MatchRank.ExactMatch)
+            : base(name ?? throw new ArgumentNullException(nameof(name)), value, rank)
         {
         }
 
@@ -27,10 +27,11 @@ namespace Unity.Resolution
 
         #region  Match Target
 
-        public override bool Equals(FieldInfo? other)
+        public override MatchRank Match(FieldInfo other, in Contract _)
         {
-            return null != other  && other.Name == Name &&
-                  (null == Target || other.DeclaringType == Target);
+            return other.Name == Name && (null == Target || other.DeclaringType == Target)
+                ? MatchRank.ExactMatch
+                : MatchRank.NoMatch;
         }
 
         #endregion

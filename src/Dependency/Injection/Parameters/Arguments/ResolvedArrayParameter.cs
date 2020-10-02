@@ -67,7 +67,7 @@ namespace Unity.Injection
             // Verify array elements
             foreach (var pv in elementValues)
             {
-                if ((pv is IMatchTo<Type> other && MatchRank.NoMatch != other.MatchTo(elementType)) ||
+                if ((pv is IMatch<Type> other && MatchRank.NoMatch != other.Match(elementType)) ||
                     (pv is Type type && type == _elementType) || _elementType.IsAssignableFrom(pv?.GetType()!))
                     continue;
 

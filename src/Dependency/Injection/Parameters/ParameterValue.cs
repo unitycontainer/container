@@ -8,22 +8,22 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IMatchTo<ParameterInfo>, 
-                                           IMatchTo<Type>
+    public abstract class ParameterValue : IMatch<ParameterInfo>, 
+                                           IMatch<Type>
     {
         /// <summary>
         /// Checks if this parameter is compatible with the <see cref="ParameterInfo"/>
         /// </summary>
         /// <param name="other"><see cref="ParameterInfo"/> to compare to</param>
         /// <returns>True if <see cref="ParameterInfo"/> is compatible</returns>
-        public abstract MatchRank MatchTo(ParameterInfo parameter);
+        public abstract MatchRank Match(ParameterInfo parameter);
 
         /// <summary>
         /// Checks if this parameter is compatible with the type
         /// </summary>
         /// <param name="type"><see cref="Type"/> to compare to</param>
         /// <returns>True if <see cref="Type"/> is equal</returns>
-        public abstract MatchRank MatchTo(Type type);
+        public abstract MatchRank Match(Type type);
 
     }
 }

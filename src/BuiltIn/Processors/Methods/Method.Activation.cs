@@ -4,16 +4,16 @@ using Unity.Container;
 
 namespace Unity.BuiltIn
 {
-    public partial class ConstructorProcessor
+    public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {
         protected override void Activate(ref PipelineContext context, object?[] data)
         {
-            ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
+            MethodInfo info = Unsafe.As<MethodInfo>(context.Action!);
 
             var parameters = info.GetParameters();
             if (0 == parameters.Length)
             {
-                context.Target = info.Invoke(EmptyParametersArray);
+                context.Target = info.Invoke(context.Target, EmptyParametersArray);
                 return;
             }
 
@@ -28,17 +28,17 @@ namespace Unity.BuiltIn
                 if (context.IsFaulted) return;
             }
 
-            context.Target = info.Invoke(arguments);
+            context.Target = info.Invoke(context.Target, arguments);
         }
 
         protected void Activate(ref PipelineContext context)
         {
-            ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
+            MethodInfo info = Unsafe.As<MethodInfo>(context.Action!);
 
             var parameters = info.GetParameters();
             if (0 == parameters.Length)
             {
-                context.Target = info.Invoke(EmptyParametersArray);
+                context.Target = info.Invoke(context.Target, EmptyParametersArray);
                 return;
             }
 
@@ -49,11 +49,11 @@ namespace Unity.BuiltIn
             {
                 parameter.Info = parameters[i];
                 arguments[i] = Activate(ref parameter);
-                
+
                 if (context.IsFaulted) return;
             }
 
-            context.Target = info.Invoke(arguments);
+            context.Target = info.Invoke(context.Target, arguments);
         }
     }
 }

@@ -72,7 +72,7 @@ namespace Unity.Injection
 
         #region  IMatch
 
-        public override MatchRank MatchTo(ParameterInfo parameter)
+        public override MatchRank Match(ParameterInfo parameter)
         {
             if (!parameter.Member.DeclaringType!.IsGenericType)
                 return MatchRank.NoMatch;
@@ -81,10 +81,10 @@ namespace Unity.Injection
             var type = MethodBase.GetMethodFromHandle(((MethodBase)parameter.Member).MethodHandle, definition.TypeHandle)!
                                  .GetParameters()[parameter.Position]
                                  .ParameterType;
-            return MatchTo(type);
+            return Match(type);
         }
 
-        public override MatchRank MatchTo(Type type)
+        public override MatchRank Match(Type type)
         {
             if (false == _isArray)
                 return type.IsGenericParameter && type.Name == _genericParameterName

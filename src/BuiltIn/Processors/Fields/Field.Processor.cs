@@ -1,8 +1,8 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
+using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
@@ -25,11 +25,9 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
 
-
-        public override object? GetValue(ref DependencyInfo dependency, object? data)
-        {
-            throw new NotImplementedException();
-        }
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override InjectionMember<FieldInfo, object>? GetInjected(RegistrationManager? registration) => registration?.Fields;
 
         #endregion
     }

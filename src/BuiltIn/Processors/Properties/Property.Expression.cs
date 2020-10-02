@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {

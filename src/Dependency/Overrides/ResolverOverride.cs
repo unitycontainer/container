@@ -7,16 +7,16 @@ namespace Unity.Resolution
     /// Base class for all override objects passed in the
     /// <see cref="IUnityContainer.Resolve"/> method.
     /// </summary>
-    public abstract class ResolverOverride : IEquatable<FieldInfo>,
-                                             IEquatable<PropertyInfo>,
-                                             IEquatable<ParameterInfo> 
+    public abstract class ResolverOverride : IMatchContract<FieldInfo>,
+                                             IMatchContract<PropertyInfo>,
+                                             IMatchContract<ParameterInfo> 
     {
         #region Fields
 
-        protected Type?            Target;
-        protected readonly string? Name;
-        public    readonly object? Value;
-        public    readonly bool    RequireExactMatch;
+        protected Type?              Target;
+        protected readonly string?   Name;
+        public    readonly object?   Value;
+        public    readonly MatchRank RequireRank;
 
         #endregion
 
@@ -28,12 +28,12 @@ namespace Unity.Resolution
         /// </summary>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        protected ResolverOverride(string? name, object? value, bool exact)
+        /// <param name="rank">Minimal required rank to override</param>
+        protected ResolverOverride(string? name, object? value, MatchRank rank)
         {
             Name = name;
             Value = value;
-            RequireExactMatch = exact;
+            RequireRank = rank;
         }
 
         /// <summary>
@@ -42,13 +42,13 @@ namespace Unity.Resolution
         /// <param name="target"><see cref="Type"/> of the target</param>
         /// <param name="name">Name of the dependency</param>
         /// <param name="value">Value to pass to resolver</param>
-        /// <param name="exact">Indicates if override has to match exactly</param>
-        protected ResolverOverride(Type? target, string? name, object? value, bool exact)
+        /// <param name="rank">Minimal required rank to override</param>
+        protected ResolverOverride(Type? target, string? name, object? value, MatchRank rank)
         {
             Target = target;
             Name = name;
             Value = value;
-            RequireExactMatch = exact;
+            RequireRank = rank;
         }
 
         #endregion
@@ -56,13 +56,11 @@ namespace Unity.Resolution
 
         #region Match Contract
 
-        public virtual MatchRank MatchTo(in DependencyInfo info) => MatchRank.NoMatch;
+        public virtual MatchRank Match(FieldInfo other, in Contract contract) => MatchRank.NoMatch;
 
-        public virtual bool Equals(FieldInfo? other) => false;
+        public virtual MatchRank Match(PropertyInfo other, in Contract contract) => MatchRank.NoMatch;
 
-        public virtual bool Equals(PropertyInfo? other) => false;
-
-        public virtual bool Equals(ParameterInfo? other) => false;
+        public virtual MatchRank Match(ParameterInfo other, in Contract contract) => MatchRank.NoMatch;
 
         #endregion
 

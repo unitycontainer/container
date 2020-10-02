@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
 using Unity.Policy;
@@ -92,6 +93,19 @@ namespace Unity
         public InjectionMethod? Methods { get; private set; }
 
         public InjectionMember? Other { get; private set; }
+
+        public InjectionMember? GetInjected<TMember>()
+        {
+            return (typeof(TMember)) switch
+            {
+                Type t when t == typeof(ConstructorInfo) => Constructor,
+                Type t when t == typeof(FieldInfo)       => Fields,
+                Type t when t == typeof(PropertyInfo)    => Properties,
+                Type t when t == typeof(MethodInfo)      => Methods,
+                _ => Other,
+            };
+        }
+
 
         #endregion
 
