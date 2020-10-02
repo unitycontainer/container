@@ -1,5 +1,5 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -17,7 +17,8 @@ namespace Unity.Injection
         /// <param name="name">Name of property to inject.</param>
         /// <param name="optional">Tells Unity if this field is optional.</param>
         public InjectionProperty(string name, bool optional = false)
-            : base(name, optional ? Optional : Required)
+            : base(name, optional ? Defaults.DefaulOptionalResolver
+                                  : Defaults.DefaulRequiredResolver)
         {
         }
 
@@ -30,13 +31,6 @@ namespace Unity.Injection
             : base(name, value)
         {
         }
-
-        #endregion
-
-
-        #region Overrides
-
-        public override PropertyInfo? MemberInfo(Type type) => type.GetProperty(Name);
 
         #endregion
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Unity.Injection
 {
@@ -26,16 +23,5 @@ namespace Unity.Injection
         }
 
         #endregion
-
-
-        #region Overrides
-
-        // TODO: Remove
-        public override IEnumerable<ConstructorInfo> DeclaredMembers(Type type) => 
-            type.GetConstructors(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
-                .Where(SupportedMembersFilter);
-
-        #endregion
-
     }
 }

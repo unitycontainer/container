@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 
@@ -9,14 +8,6 @@ namespace Unity.Injection
                                                              IComparable<TMemberInfo>
                                          where TMemberInfo : MethodBase
     {
-        #region Fields
-
-        internal static Func<TMemberInfo, bool> SupportedMembersFilter = 
-            (TMemberInfo member) => !member.IsFamily && !member.IsPrivate;
-
-        #endregion
-
-
         #region Constructors
 
         protected InjectionMethodBase(string name, params object[] arguments)
@@ -26,30 +17,8 @@ namespace Unity.Injection
 
         #endregion
 
-        #region Overrides
 
-        public abstract IEnumerable<TMemberInfo> DeclaredMembers(Type type);
-
-        public override TMemberInfo? MemberInfo(Type type)
-        {
-            int          bestSoFar = -1;
-            TMemberInfo? candidate = null;
-            
-            foreach (TMemberInfo member in DeclaredMembers(type))
-            {
-                var compatibility = CompareTo(member);
-                
-                if (0 == compatibility) return member;
-
-                if (bestSoFar < compatibility)
-                { 
-                    candidate = member;
-                    bestSoFar = compatibility;
-                }
-            }
-
-            return candidate;
-        }
+        #region Selection
 
         public override int SelectFrom(TMemberInfo[] members)
         {
@@ -70,28 +39,6 @@ namespace Unity.Injection
             }
 
             return position;
-        }
-
-        public override SelectionInfo<TMemberInfo, object[]> SelectMember(TMemberInfo[] members)
-        {
-            int bestSoFar = -1;
-            TMemberInfo? candidate = null;
-
-            foreach (TMemberInfo member in members)
-            {
-                var compatibility = CompareTo(member);
-
-                if (0 == compatibility) return new SelectionInfo<TMemberInfo, object[]>(member, Data);
-
-                if (bestSoFar < compatibility)
-                {
-                    candidate = member;
-                    bestSoFar = compatibility;
-                }
-            }
-
-            throw new NotImplementedException();
-            //return new SelectionInfo<TMemberInfo, object[]>(candidate, Data);
         }
 
         #endregion

@@ -38,25 +38,25 @@ namespace Unity.BuiltIn
 
             ///////////////////////////////////////////////////////////////////
             // Build from Injected Constructor if present
-            if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
-            {
-                var selection = iCtor.SelectMember(ctors);
-                if (null == selection.MemberInfo)
-                {
-                    // Create BuildUp only pipeline
+            //if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
+            //{
+            //    var selection = iCtor.SelectMember(ctors);
+            //    if (null == selection.MemberInfo)
+            //    {
+            //        // Create BuildUp only pipeline
 
-                    var id = iCtor.ToString();
-                    var pipeline = builder.Build();
+            //        var id = iCtor.ToString();
+            //        var pipeline = builder.Build();
 
-                    return (ref PipelineContext c) =>
-                    {
-                        if (null != c.Target) return pipeline?.Invoke(ref c);
-                        throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
-                    };
-                }
+            //        return (ref PipelineContext c) =>
+            //        {
+            //            if (null != c.Target) return pipeline?.Invoke(ref c);
+            //            throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
+            //        };
+            //    }
 
-                return CreatePipeline(ref selection, ref builder);
-            }
+            //    return CreatePipeline(ref selection, ref builder);
+            //}
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select

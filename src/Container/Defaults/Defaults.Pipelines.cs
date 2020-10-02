@@ -6,6 +6,17 @@ namespace Unity.Container
 {
     public partial class Defaults
     {
+        #region Constants
+
+        public static ResolveDelegate<PipelineContext> DefaulRequiredResolver
+            = (ref PipelineContext context) => context.Resolve();
+
+        public static ResolveDelegate<PipelineContext> DefaulOptionalResolver
+            = (ref PipelineContext context) => context.Resolve();
+
+        #endregion
+
+
         #region Chains
 
         public StagedChain<BuildStage, PipelineProcessor> TypeChain { get; }

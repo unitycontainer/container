@@ -11,6 +11,12 @@ namespace Unity.Container
     {
         #region Resolution
 
+
+        public object? Resolve()
+        {
+            return Container.Resolve(ref Contract, ref this);
+        }
+
         public object? Resolve(Type type, string? name)
         {
             var contract = new Contract(type, name);

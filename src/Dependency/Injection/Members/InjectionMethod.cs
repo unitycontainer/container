@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Unity.Injection
 {
@@ -23,16 +20,6 @@ namespace Unity.Injection
             : base(name, arguments)
         {
         }
-
-        #endregion
-
-
-        #region Overrides
-
-        public override IEnumerable<MethodInfo> DeclaredMembers(Type type) => 
-            type.GetMethods(BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance)
-                .Where(SupportedMembersFilter)
-                .Where(member => member.Name == Name);
 
         #endregion
     }
