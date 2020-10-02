@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
 using Unity.Container;
-using Unity.Exceptions;
-using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn

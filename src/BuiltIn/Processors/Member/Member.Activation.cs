@@ -1,35 +1,72 @@
 ﻿using System;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
-        public virtual object? Activate(ref DependencyContext<TDependency> dependency, object? data)
+        public override void PreBuild(ref PipelineContext context)
         {
-            ResolverOverride? @override;
+            Debug.Assert(null != context.Target);
 
-            @override = dependency.GetOverride();
+            // Type to build
+            Type type = context.Type;
+            var members = GetMembers(type);
 
-            return (null != @override)
-                ? dependency.GetValue(@override.Value)
-                : dependency.GetValue(data);
+            ///////////////////////////////////////////////////////////////////
+            // No members
+            if (0 == members.Length) return;
+
+            Span<bool> set = stackalloc bool[members.Length];
+            var dependency = new MemberDependency(ref context);
+
+            ///////////////////////////////////////////////////////////////////
+            // Initialize injected members
+            for (var injected = GetInjected(context.Registration); null != injected; injected = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injected.Next))
+            {
+                int index;
+
+                using var injection = context.Start(injected);
+
+                if (-1 == (index = injected.SelectFrom(members)))
+                {
+                    injection.Error($"Injected member '{injected}' doesn't match any {typeof(TDependency).Name} on type {type}");
+                    return;
+                }
+
+                if (set[index]) continue;
+                else set[index] = true;
+
+                dependency.Info   = Unsafe.As<TDependency>(members[index]);
+                dependency.Import = GetImportAttribute(Unsafe.As<TMemberInfo>(dependency.Info));
+
+                Activate(ref dependency, injected.Data);
+            }
+
+            ///////////////////////////////////////////////////////////////////
+            // Initialize annotated members
+            for (var index = 0; index < members.Length; index++)
+            {
+                dependency.Info   = Unsafe.As<TDependency>(members[index]);
+                dependency.Import = GetImportAttribute(Unsafe.As<TMemberInfo>(dependency.Info));
+                
+                if (null == dependency.Import) continue;
+
+                if (set[index]) continue;
+                else set[index] = true;
+
+
+                //using var action = context.Start(member);
+
+                Activate(ref dependency);
+            }
         }
 
-        public virtual object? Activate(ref DependencyContext<TDependency> dependency)
-        {
-            // Required or optional
+        public abstract object? Activate(ref MemberDependency dependency, object? data);
 
-            return dependency.Parent.Container.Resolve(ref dependency.Contract, ref dependency.Parent);
-        }
-
-        protected abstract void Activate(ref PipelineContext context, TData data);
-
-        protected virtual void Activate(ref PipelineContext context, ImportAttribute import) => throw new NotImplementedException();
+        public abstract object? Activate(ref MemberDependency dependency);
     }
 }

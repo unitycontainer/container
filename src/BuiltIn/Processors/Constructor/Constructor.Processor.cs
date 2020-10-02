@@ -58,7 +58,6 @@ namespace Unity.BuiltIn
         #endregion
 
 
-
         #region Public Properties
 
         public CtorSelectorDelegate SelectMethod { get; set; }

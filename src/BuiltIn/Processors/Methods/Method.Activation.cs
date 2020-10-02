@@ -6,7 +6,7 @@ namespace Unity.BuiltIn
 {
     public partial class MethodProcessor : ParameterProcessor<MethodInfo>
     {
-        protected override void Activate(ref PipelineContext context, object?[] data)
+        protected void Activate(ref PipelineContext context, object?[] data)
         {
             MethodInfo info = Unsafe.As<MethodInfo>(context.Action!);
 
@@ -18,7 +18,7 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new DependencyContext<ParameterInfo>(ref context);
+            var parameter = new MemberDependency(ref context);
 
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -43,7 +43,7 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new DependencyContext<ParameterInfo>(ref context);
+            var parameter = new MemberDependency(ref context);
 
             for (var i = 0; i < parameters.Length; i++)
             {

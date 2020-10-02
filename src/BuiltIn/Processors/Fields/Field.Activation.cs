@@ -1,46 +1,42 @@
-﻿using System.ComponentModel.Composition;
-using System.Reflection;
-using Unity.Container;
-
-namespace Unity.BuiltIn
+﻿namespace Unity.BuiltIn
 {
     public partial class FieldProcessor
     {
-        protected override void Activate(ref PipelineContext context, object data)
+        public override object? Activate(ref MemberDependency dependency, object? data)
         {
-            var info = (FieldInfo)context.Action!;
-            var import = (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
+            dependency.Contract = (null == dependency.Import)
+                ? new Contract(dependency.Info.FieldType)
+                : new Contract(dependency.Import.ContractType ?? dependency.Info.FieldType,
+                               dependency.Import.ContractName);
 
-            var dependency = new DependencyContext<FieldInfo>(ref context)
-            {
-                Info = info,
-                Import = import,
-                Contract = (null == import)
-                ? new Contract(info.FieldType)
-                : new Contract(import.ContractType ?? info.FieldType,
-                               import.ContractName)
-            };
+            var @override = dependency.GetOverride();
 
-            var value = Activate(ref dependency, data);
-            if (!context.IsFaulted) info.SetValue(context.Target, value);
+            var value = (null != @override)
+                ? dependency.GetValue(@override.Value)
+                : dependency.GetValue(data);
+
+            if (!dependency.Parent.IsFaulted) dependency.Info.SetValue(dependency.Parent.Target, value);
+
+            return value;
         }
 
-        protected override void Activate(ref PipelineContext context, ImportAttribute import)
+        public override object? Activate(ref MemberDependency dependency)
         {
-            var info = (FieldInfo)context.Action!;
+            dependency.Contract = (null == dependency.Import)
+                ? new Contract(dependency.Info.FieldType)
+                : new Contract(dependency.Import.ContractType ?? dependency.Info.FieldType,
+                               dependency.Import.ContractName);
 
-            var dependency = new DependencyContext<FieldInfo>(ref context)
-            {
-                Info = info,
-                Import = import,
-                Contract = (null == import)
-                ? new Contract(info.FieldType)
-                : new Contract(import.ContractType ?? info.FieldType,
-                               import.ContractName)
-            };
+            var value = dependency.Parent
+                                  .Container
+                                  .Resolve(ref dependency.Contract, ref dependency.Parent);
 
-            var value = Activate(ref dependency);
-            if (!context.IsFaulted) info.SetValue(context.Target, value);
+            if (!dependency.Parent.IsFaulted)
+            { 
+                dependency.Info.SetValue(dependency.Parent.Target, value);
+            }
+
+            return value;
         }
     }
 }
