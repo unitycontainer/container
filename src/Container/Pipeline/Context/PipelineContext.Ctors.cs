@@ -7,11 +7,12 @@ namespace Unity.Container
     {
         #region New Request
 
-        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
+        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref PipelineRequest request)
         {
             unsafe
             {
                 _parent = IntPtr.Zero;
+                _error = new IntPtr(Unsafe.AsPointer(ref request.Error));
                 _request = new IntPtr(Unsafe.AsPointer(ref request));
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
@@ -34,6 +35,7 @@ namespace Unity.Container
             unsafe
             {
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error  = parent._error;
                 _request = parent._request;
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
@@ -52,6 +54,7 @@ namespace Unity.Container
             unsafe
             {
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error  = parent._error;
                 _request = parent._request;
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }

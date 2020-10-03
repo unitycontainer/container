@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
@@ -10,8 +9,8 @@ namespace Unity.BuiltIn
     {
         public override object? Activate(ref MemberDependency dependency, object? data)
         {
-            ParameterInfo parameter = Unsafe.As<ParameterInfo>(dependency.Info);
             ResolverOverride? @override;
+            ParameterInfo parameter = dependency.Info;
 
             dependency.Import = (ImportAttribute?)parameter.GetCustomAttribute(typeof(ImportAttribute), true);
 
@@ -26,8 +25,8 @@ namespace Unity.BuiltIn
 
                 @override = dependency.GetOverride();
 
-                return (null != @override) 
-                    ? dependency.GetValue(@override.Value)
+                return (null != @override)
+                    ? base.Activate(ref dependency, @override.Value)
                     : dependency.Parent.Container.Resolve(ref dependency.Contract, ref dependency.Parent);
             }
 
@@ -36,27 +35,30 @@ namespace Unity.BuiltIn
                 : new Contract(dependency.Import.ContractType ?? parameter.ParameterType,
                                dependency.Import.ContractName);
 
+            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false || parameter.HasDefaultValue;
+
             @override = dependency.GetOverride();
 
             return (null != @override)
-                ? dependency.GetValue(@override.Value)
-                : dependency.GetValue(data);
+                ? base.Activate(ref dependency, @override.Value)
+                : base.Activate(ref dependency, data);
         }
 
         public override object? Activate(ref MemberDependency dependency)
         {
-            var parameter = Unsafe.As<ParameterInfo>(dependency.Info);
+            ParameterInfo parameter = dependency.Info;
 
             dependency.Import = (ImportAttribute?)parameter.GetCustomAttribute(typeof(ImportAttribute), true);
             dependency.Contract = (null == dependency.Import)
                 ? new Contract(parameter.ParameterType)
                 : new Contract(dependency.Import.ContractType ?? parameter.ParameterType,
                                dependency.Import.ContractName);
+            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false || parameter.HasDefaultValue;
 
             var @override = dependency.GetOverride();
 
             return (null != @override)
-                ? dependency.GetValue(@override.Value)
+                ? base.Activate(ref dependency, @override.Value)
                 : dependency.Parent.Container.Resolve(ref dependency.Contract, ref dependency.Parent);
         }
     }

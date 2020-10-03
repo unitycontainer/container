@@ -77,7 +77,7 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             if (0 == parameters.Length)
             {
-                context.Target = info.Invoke(context.Target, EmptyParametersArray);
+                info.Invoke(context.Target, EmptyParametersArray);
                 return;
             }
 
@@ -92,7 +92,7 @@ namespace Unity.BuiltIn
                 if (context.IsFaulted) return;
             }
 
-            context.Target = info.Invoke(context.Target, arguments);
+            info.Invoke(context.Target, arguments);
         }
 
         private void Activate(ref PipelineContext context)
@@ -102,7 +102,7 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             if (0 == parameters.Length)
             {
-                context.Target = info.Invoke(context.Target, EmptyParametersArray);
+                info.Invoke(context.Target, EmptyParametersArray);
                 return;
             }
 
@@ -117,7 +117,7 @@ namespace Unity.BuiltIn
                 if (context.IsFaulted) return;
             }
 
-            context.Target = info.Invoke(context.Target, arguments);
+            info.Invoke(context.Target, arguments);
         }
         
         #endregion

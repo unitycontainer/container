@@ -36,17 +36,11 @@ namespace Unity.BuiltIn
 
             // Initialize Factory Chain
             ((StagedChain<BuildStage, PipelineProcessor>)context.FactoryPipelineChain)
-                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    factory),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    factory));
 
             // Initialize Instance Chain
             ((StagedChain<BuildStage, PipelineProcessor>)context.InstancePipelineChain)
-                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    instance),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Fields,     field),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Properties, property),
-                     new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Methods,    method));
+                .Add(new KeyValuePair<BuildStage, PipelineProcessor>(BuildStage.Factory,    instance));
 
             // Initialize Unregistered Chain
             ((StagedChain<BuildStage, PipelineProcessor>)context.UnregisteredPipelineChain)

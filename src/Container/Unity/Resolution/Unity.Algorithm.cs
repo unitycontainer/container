@@ -74,7 +74,7 @@ namespace Unity
                         return new ValueTask<object?>(value);
 
                     // No value, do everything else asynchronously
-                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new RequestInfoAsync(in contract, manager, overrides),
+                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new PipelineRequestAsync(in contract, manager, overrides),
                         System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
                 }
             }
@@ -82,7 +82,7 @@ namespace Unity
 
             // No registration found, do everything else asynchronously
             return new ValueTask<object?>(
-                Task.Factory.StartNew(ResolveAsync, new RequestInfoAsync(in contract, overrides),
+                Task.Factory.StartNew(ResolveAsync, new PipelineRequestAsync(in contract, overrides),
                     System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
         }
 
@@ -146,7 +146,7 @@ namespace Unity
         /// <returns>Resolved object or <see cref="Task.FromException(System.Exception)"/> if failed</returns>
         private Task<object?> ResolveContractAsync(object? state)
         {
-            RequestInfoAsync context = (RequestInfoAsync)state!;
+            PipelineRequestAsync context = (PipelineRequestAsync)state!;
 
             return Task.FromResult<object?>(context.Manager);
         }
@@ -154,11 +154,11 @@ namespace Unity
         /// <summary>
         /// Builds and resolves unregistered <see cref="Type"/>
         /// </summary>
-        /// <param name="state"><see cref="RequestInfoAsync"/> objects holding resolution request data</param>
+        /// <param name="state"><see cref="PipelineRequestAsync"/> objects holding resolution request data</param>
         /// <returns>Resolved object or <see cref="Task.FromException(System.Exception)"/> if failed</returns>
         private Task<object?> ResolveAsync(object? state)
         {
-            RequestInfoAsync context = (RequestInfoAsync)state!;
+            PipelineRequestAsync context = (PipelineRequestAsync)state!;
 
             return Task.FromResult<object?>(context.Contract.Type);
         }

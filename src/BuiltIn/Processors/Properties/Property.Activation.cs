@@ -9,12 +9,13 @@
                 : new Contract(dependency.Import.ContractType ?? dependency.Info.PropertyType,
                                dependency.Import.ContractName);
 
+            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
 
             var @override = dependency.GetOverride();
 
             var value = (null != @override)
-                ? dependency.GetValue(@override.Value)
-                : dependency.GetValue(data);
+                ? base.Activate(ref dependency, @override.Value)
+                : base.Activate(ref dependency, data);
 
             if (!dependency.Parent.IsFaulted) dependency.Info.SetValue(dependency.Parent.Target, value);
 
@@ -27,6 +28,8 @@
                 ? new Contract(dependency.Info.PropertyType)
                 : new Contract(dependency.Import.ContractType ?? dependency.Info.PropertyType,
                                dependency.Import.ContractName);
+
+            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
 
             var value = dependency.Parent
                                   .Container

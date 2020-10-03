@@ -6,22 +6,22 @@ namespace Unity.Container
     /// <summary>
     /// Internal state passed to <see cref="ResolveAsync"/>
     /// </summary>
-    internal class RequestInfoAsync
+    internal class PipelineRequestAsync
     {
-        public readonly RequestInfo Info;
+        //public readonly PipelineRequest Info;
         public readonly Contract Contract;
         public readonly RegistrationManager? Manager;
 
-        public RequestInfoAsync(in Contract contract, ResolverOverride[] overrides)
+        public PipelineRequestAsync(in Contract contract, ResolverOverride[] overrides)
         {
-            Info = new RequestInfo(overrides);
+            //Info = new PipelineRequest(overrides);
             Contract = contract;
             Manager = null;
         }
 
-        public RequestInfoAsync(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
+        public PipelineRequestAsync(in Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            Info = new RequestInfo(overrides);
+            //Info = new PipelineRequest(overrides);
             Contract = contract;
             Manager = manager;
         }

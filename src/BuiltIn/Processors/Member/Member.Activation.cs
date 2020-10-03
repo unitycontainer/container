@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -58,14 +59,37 @@ namespace Unity.BuiltIn
                 if (set[index]) continue;
                 else set[index] = true;
 
-
-                //using var action = context.Start(member);
-
                 Activate(ref dependency);
             }
         }
 
-        public abstract object? Activate(ref MemberDependency dependency, object? data);
+        public virtual object? Activate(ref MemberDependency dependency, object? data)
+        {
+            PipelineContext local;
+
+            switch (data)
+            {
+                case ResolveDelegate<PipelineContext> resolver:
+                    local = new PipelineContext(ref dependency.Parent, ref dependency.Contract, data);
+                    return local.GetValue(dependency.Info, resolver(ref local));
+
+                case IResolve iResolve:
+                    local = new PipelineContext(ref dependency.Parent, ref dependency.Contract, data);
+                    return local.GetValue(dependency.Info, iResolve.Resolve(ref local));
+
+                case IResolverFactory<TDependency> infoFactory:
+                    local = new PipelineContext(ref dependency.Parent, ref dependency.Contract, data);
+                    return local.GetValue(dependency.Info, infoFactory.GetResolver<PipelineContext>(dependency.Info)
+                                                                      .Invoke(ref local));
+                case IResolverFactory<Type> typeFactory:
+                    local = new PipelineContext(ref dependency.Parent, ref dependency.Contract, data);
+                    return local.GetValue(dependency.Info, typeFactory.GetResolver<PipelineContext>(dependency.Contract.Type)
+                                                                      .Invoke(ref local));
+                default:
+                    return data;
+            }
+        }
+
 
         public abstract object? Activate(ref MemberDependency dependency);
     }

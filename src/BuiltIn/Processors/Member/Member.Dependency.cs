@@ -14,6 +14,7 @@ namespace Unity.BuiltIn
         {
             private readonly IntPtr _parent;
 
+            public bool AllowDefault;
             public TDependency Info;
             public Contract Contract;
             public ImportAttribute? Import;
@@ -28,6 +29,7 @@ namespace Unity.BuiltIn
                 Info = default!;
                 Import = default;
                 Contract = default;
+                AllowDefault = default;
             }
 
             public readonly ref PipelineContext Parent
@@ -40,9 +42,6 @@ namespace Unity.BuiltIn
                     }
                 }
             }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public object? GetValue(object? data) => Parent.GetValue(ref Contract, Info, data);
 
             /// <summary>
             /// Returns override matching this dependency 

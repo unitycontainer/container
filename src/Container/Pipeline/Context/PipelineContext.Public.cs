@@ -34,7 +34,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).IsFaulted;
+                    return Unsafe.AsRef<PipelineRequest>(_request.ToPointer()).IsFaulted;
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).Overrides;
+                    return Unsafe.AsRef<PipelineRequest>(_request.ToPointer()).Overrides;
                 }
             }
         }
@@ -85,10 +85,21 @@ namespace Unity.Container
         {
             unsafe
             {
-                ref var info = ref Unsafe.AsRef<RequestInfo>(_request.ToPointer());
+                ref var info = ref Unsafe.AsRef<PipelineError>(_error.ToPointer());
 
-                info.Error = error;
                 info.IsFaulted = true;
+                info.Error = error;
+            }
+        }
+
+        public void Exception(Exception exception)
+        {
+            unsafe
+            {
+                ref var info = ref Unsafe.AsRef<PipelineError>(_error.ToPointer());
+
+                info.IsFaulted = true;
+                info.Exception = exception;
             }
         }
 

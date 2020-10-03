@@ -13,12 +13,13 @@ namespace Unity.Container
     {
         #region Fields
 
+        private readonly IntPtr _error;
         private readonly IntPtr _parent;
         private readonly IntPtr _request;
         private readonly IntPtr _contract;
 
-        public readonly UnityContainer Container;
-        public readonly RegistrationManager? Registration;
+        public UnityContainer       Container;
+        public RegistrationManager? Registration;
 
         #endregion
 

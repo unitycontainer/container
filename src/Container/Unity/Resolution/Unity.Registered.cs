@@ -7,7 +7,7 @@ namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Constructable
+        #region Constructible
 
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
         {
@@ -45,7 +45,7 @@ namespace Unity
                     // Report telemetry
                     action.Exception(ex);
 
-                    // Rethrow
+                    // Re-throw
                     throw; // TODO: replay exception
                 }
             }
@@ -60,7 +60,7 @@ namespace Unity
 
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var request = new RequestInfo(overrides);
+            var request = new PipelineRequest(overrides);
             var context = new PipelineContext(this, ref contract, manager, ref request);
 
             // Check if pipeline has been created already
@@ -95,7 +95,7 @@ namespace Unity
                     // Report telemetry
                     action.Exception(ex);
 
-                    // Rethrow
+                    // Re throw
                     throw; // TODO: replay exception
                 }
             }
@@ -115,7 +115,7 @@ namespace Unity
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var info = new RequestInfo(overrides);
+            var info = new PipelineRequest(overrides);
             var context = new PipelineContext(this, ref contract, manager, ref info);
             var factory = (RegistrationManager)manager.Data!;
 
