@@ -12,6 +12,7 @@ namespace Unity
         #region Public API
 
         /// <inheritdoc />
+        // TODO: [SkipLocalsInit]
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             var contract = new Contract(type, name);

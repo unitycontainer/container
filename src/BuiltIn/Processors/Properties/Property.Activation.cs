@@ -1,8 +1,11 @@
-﻿namespace Unity.BuiltIn
+﻿using System.Reflection;
+using Unity.Container;
+
+namespace Unity.BuiltIn
 {
     public partial class PropertyProcessor
     {
-        public override object? Activate(ref MemberDependency dependency, object? data)
+        public override object? Activate(ref DependencyInfo<PropertyInfo> dependency, object? data)
         {
             dependency.Contract = (null == dependency.Import)
                 ? new Contract(dependency.Info.PropertyType)
@@ -22,7 +25,7 @@
             return value;
         }
 
-        public override object? Activate(ref MemberDependency dependency)
+        public override object? Activate(ref DependencyInfo<PropertyInfo> dependency)
         {
             dependency.Contract = (null == dependency.Import)
                 ? new Contract(dependency.Info.PropertyType)

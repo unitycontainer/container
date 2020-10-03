@@ -22,7 +22,7 @@ namespace Unity.BuiltIn
             if (0 == members.Length) return;
 
             Span<bool> set = stackalloc bool[members.Length];
-            var dependency = new MemberDependency(ref context);
+            var dependency = new DependencyInfo<TDependency>(ref context);
 
             ///////////////////////////////////////////////////////////////////
             // Initialize injected members
@@ -63,7 +63,7 @@ namespace Unity.BuiltIn
             }
         }
 
-        public virtual object? Activate(ref MemberDependency dependency, object? data)
+        public virtual object? Activate(ref DependencyInfo<TDependency> dependency, object? data)
         {
             PipelineContext local;
 
@@ -91,6 +91,6 @@ namespace Unity.BuiltIn
         }
 
 
-        public abstract object? Activate(ref MemberDependency dependency);
+        public abstract object? Activate(ref DependencyInfo<TDependency> dependency);
     }
 }

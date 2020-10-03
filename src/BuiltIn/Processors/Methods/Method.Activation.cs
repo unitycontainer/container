@@ -82,7 +82,7 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new MemberDependency(ref context);
+            var parameter = new DependencyInfo<ParameterInfo>(ref context);
 
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -107,7 +107,7 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new MemberDependency(ref context);
+            var parameter = new DependencyInfo<ParameterInfo>(ref context);
 
             for (var i = 0; i < parameters.Length; i++)
             {

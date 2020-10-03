@@ -23,13 +23,13 @@ namespace Unity.BuiltIn
                 RegistrationCategory.Type => context.Registration switch
                 {
                     // Every single time
-                    LifetimeManager { Style: ResolutionStyle.EveryTime } => _policies!.TypePipeline/* _policies!.OptimizedFactory(ref context)*/,
+                    LifetimeManager { Style: ResolutionStyle.EveryTime } => _policies!.BalancedFactory(ref context) /*_policies!.TypePipeline _policies!.OptimizedFactory(ref context)*/,
 
                     // Once in a while
                     LifetimeManager { Style: ResolutionStyle.OnceInWhile } => _policies!.BalancedFactory(ref context),
 
                     // Once in a lifetime
-                    LifetimeManager { Style: ResolutionStyle.OnceInLifetime } => _policies!.TypePipeline,
+                    LifetimeManager { Style: ResolutionStyle.OnceInLifetime } => _policies!.BalancedFactory(ref context) /*_policies!.TypePipeline*/,
                     _ => throw new NotImplementedException(),
                 },
                 

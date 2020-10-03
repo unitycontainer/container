@@ -14,6 +14,7 @@ namespace Unity.BuiltIn
 
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
+            // TODO: ???
             // Do nothing if seed method exists
             if (null != builder.Target) return builder.Build();
 
@@ -30,33 +31,33 @@ namespace Unity.BuiltIn
                 var pipeline = builder.Build();
                 return (ref PipelineContext c) =>
                 {
-                    if (null != c.Target) return pipeline?.Invoke(ref c);
+                    if (c.Target is null) return pipeline?.Invoke(ref c);
                     throw new InvalidRegistrationException($"No accessible constructors on type {c.Type}");
                 };
             }
 
 
-            ///////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////
             // Build from Injected Constructor if present
             //if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
-            //{
-            //    var selection = iCtor.SelectMember(ctors);
-            //    if (null == selection.MemberInfo)
             //    {
-            //        // Create BuildUp only pipeline
-
-            //        var id = iCtor.ToString();
-            //        var pipeline = builder.Build();
-
-            //        return (ref PipelineContext c) =>
+            //        var selection = iCtor.SelectMember(ctors);
+            //        if (null == selection.MemberInfo)
             //        {
-            //            if (null != c.Target) return pipeline?.Invoke(ref c);
-            //            throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
-            //        };
-            //    }
+            //            // Create BuildUp only pipeline
 
-            //    return CreatePipeline(ref selection, ref builder);
-            //}
+            //            var id = iCtor.ToString();
+            //            var pipeline = builder.Build();
+
+            //            return (ref PipelineContext c) =>
+            //            {
+            //                if (null != c.Target) return pipeline?.Invoke(ref c);
+            //                throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
+            //            };
+            //        }
+
+            //        return CreatePipeline(ref selection, ref builder);
+            //    }
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select

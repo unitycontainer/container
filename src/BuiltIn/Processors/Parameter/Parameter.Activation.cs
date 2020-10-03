@@ -1,13 +1,14 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Reflection;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        public override object? Activate(ref MemberDependency dependency, object? data)
+        public override object? Activate(ref DependencyInfo<ParameterInfo> dependency, object? data)
         {
             ResolverOverride? @override;
             ParameterInfo parameter = dependency.Info;
@@ -44,7 +45,7 @@ namespace Unity.BuiltIn
                 : base.Activate(ref dependency, data);
         }
 
-        public override object? Activate(ref MemberDependency dependency)
+        public override object? Activate(ref DependencyInfo<ParameterInfo> dependency)
         {
             ParameterInfo parameter = dependency.Info;
 
