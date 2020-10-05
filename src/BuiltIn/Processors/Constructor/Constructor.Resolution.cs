@@ -3,7 +3,6 @@ using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
 using Unity.Injection;
-using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
