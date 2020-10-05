@@ -16,7 +16,6 @@ namespace Unity.BuiltIn
             // Do nothing if building up
             if (null != context.Target) return;
 
-            // Type to build
             Type type = context.Type;
             var ctors = type.GetConstructors(BindingFlags);
 
@@ -134,18 +133,17 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new DependencyInfo<ParameterInfo>(ref context);
-
             for (var i = 0; i < parameters.Length; i++)
             {
-                parameter.Info = parameters[i];
-                arguments[i] = Activate(ref parameter, data[i]);
+                var parameter = GetDependencyInfo(parameters[i], data[i]);
+                arguments[i] = Activate(ref parameter);
 
                 if (context.IsFaulted) return;
             }
 
             context.Target = info.Invoke(arguments);
         }
+
 
         private void Activate(ref PipelineContext context)
         {
@@ -159,11 +157,9 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new DependencyInfo<ParameterInfo>(ref context);
-
             for (var i = 0; i < parameters.Length; i++)
             {
-                parameter.Info = parameters[i];
+                var parameter = GetDependencyInfo(parameters[i]);
                 arguments[i] = Activate(ref parameter);
                 
                 if (context.IsFaulted) return;

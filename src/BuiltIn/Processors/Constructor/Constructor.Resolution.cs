@@ -1,7 +1,7 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
 using Unity.Container;
-using Unity.Exceptions;
 using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
@@ -14,74 +14,62 @@ namespace Unity.BuiltIn
 
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
-            // TODO: ???
             // Do nothing if seed method exists
-            if (null != builder.Target) return builder.Build();
+            // TODO: if (null != builder.Target) return builder.Build();
 
-            // Type to build
             Type type = builder.Context.Type;
             var ctors = type.GetConstructors(BindingFlags);
+            var downstream = builder.Build();
 
             ///////////////////////////////////////////////////////////////////
             // Check if any constructors are available
             if (0 == ctors.Length)
             {
-                // Create pipeline
-
-                var pipeline = builder.Build();
-                return (ref PipelineContext c) =>
-                {
-                    if (c.Target is null) return pipeline?.Invoke(ref c);
-                    throw new InvalidRegistrationException($"No accessible constructors on type {c.Type}");
-                };
+                // Pipeline for BuildUp only, it throws if no object provided
+                return (ref PipelineContext c) => (c.Target is null)
+                    ? c.Error($"No accessible constructors on type {type}")
+                    : downstream?.Invoke(ref c);
             }
-
 
             /////////////////////////////////////////////////////////////////
             // Build from Injected Constructor if present
-            //if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
-            //    {
-            //        var selection = iCtor.SelectMember(ctors);
-            //        if (null == selection.MemberInfo)
-            //        {
-            //            // Create BuildUp only pipeline
+            if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
+            {
+                int position;
 
-            //            var id = iCtor.ToString();
-            //            var pipeline = builder.Build();
+                if (-1 == (position = iCtor.SelectFrom(ctors)))
+                {
+                    // Pipeline for BuildUp only, it throws if no object provided
+                    return (ref PipelineContext c) => (c.Target is null)
+                        ? c.Error($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}")
+                        : downstream?.Invoke(ref c);
+                }
 
-            //            return (ref PipelineContext c) =>
-            //            {
-            //                if (null != c.Target) return pipeline?.Invoke(ref c);
-            //                throw new InvalidRegistrationException($"Injected constructor '{id}' doesn't match any accessible constructors on type {c.Type}");
-            //            };
-            //        }
-
-            //        return CreatePipeline(ref selection, ref builder);
-            //    }
+                return CreatePipeline(ctors[position], iCtor.Data, downstream);
+            }
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select
-            if (1 == ctors.Length) return CreatePipeline(ctors[0], ref builder);
+            if (1 == ctors.Length) return CreatePipeline(ctors[0], downstream);
 
 
             ///////////////////////////////////////////////////////////////////
             // Check for annotated constructor
             foreach (var ctor in ctors)
             {
-                //var selection = FromAnnotation(ctor);
-                
-                //if (null == selection.MemberInfo) continue;
+                if (!ctor.IsDefined(typeof(ImportingConstructorAttribute))) continue;
 
-                //return CreatePipeline(ref selection, ref builder);
+                return CreatePipeline(ctor, downstream);
             }
 
-            
+
             //ConstructorInfo? info;
 
             //var selection = Select(ref builder);
 
             throw new NotImplementedException();
 
+            #region
             //switch (selection)
             //{
             //    case ConstructorInfo memberInfo:
@@ -116,6 +104,7 @@ namespace Unity.BuiltIn
             //}
 
             //return GetResolverDelegate(info, resolvers, pipeline, builder.LifetimeManager is PerResolveLifetimeManager);
+            #endregion
         }
 
         #endregion
@@ -123,207 +112,92 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ref SelectionInfo<ConstructorInfo, object[]> selection,
-                                                                          ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        protected ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
         {
-            throw new NotImplementedException();
+            var parameters = info.GetParameters();
+
+            if (0 == parameters.Length) return NoParametersPipeline(info, pipeline);
+
+            var dependencies = new DependencyInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < dependencies.Length; i++)
+                dependencies[i] = GetDependencyInfo(parameters[i]);
+
+            return CreatePipeline(info, CreateArgumentPileline(dependencies), pipeline);
         }
 
-        protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        protected ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, object[] data, ResolveDelegate<PipelineContext>? pipeline)
         {
-            ResolveDelegate<PipelineContext>? pipeline = builder.Build();
+            var parameters = info.GetParameters();
 
-            return builder.Context.Registration switch
+            if (0 == parameters.Length) return NoParametersPipeline(info, pipeline);
+
+            var dependencies = new DependencyInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < dependencies.Length; i++)
             {
-                // Default constructor with no pipeline and Per Resolve lifetime
-                PerResolveLifetimeManager _ when null == pipeline =>
-                    (ref PipelineContext context) =>
+                ref var dependency = ref dependencies[i];
+                var parameter = parameters[i];
+
+                dependency = GetDependencyInfo(parameter, data[i]);
+            }
+
+            return CreatePipeline(info, CreateArgumentPileline(dependencies), pipeline);
+        }
+
+        protected ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext> dependencies, ResolveDelegate<PipelineContext>? pipeline)
+        {
+            if (null == pipeline)
+            {
+                return (ref PipelineContext c) =>
+                {
+                    if (null == c.Target)
                     {
-                        if (null == context.Target)
-                        {
-                            context.Target = info.Invoke(EmptyParametersArray);
-                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
-                        }
-
-                        return context.Target;
+                        using var action = c.Start(info);
+                        c.Target = info.Invoke((object?[])dependencies(ref c)!);
                     }
-                ,
+                    return c.Target;
+                };
+            }
 
-                // Default constructor with pipeline and Per Resolve lifetime
-                PerResolveLifetimeManager _ when null != pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target)
-                        {
-                            context.Target = info.Invoke(EmptyParametersArray);
-                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
-                        }
-
-                        // Invoke other initializers
-                        return pipeline.Invoke(ref context);
-                    }
-                ,
-
-                // Default constructor with no pipeline
-                _ when null == pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
-                        return context.Target;
-                    }
-                ,
-
-                // Default constructor with pipeline
-                _ when null != pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
-
-                        // Invoke other initializers
-                        return pipeline.Invoke(ref context);
-                    }
-                ,
-
-                // Unknown case
-                _ => throw new NotImplementedException()
+            return (ref PipelineContext c) =>
+            {
+                if (null == c.Target)
+                { 
+                    using var action = c.Start(info);
+                    c.Target = info.Invoke((object?[])dependencies(ref c)!);
+                }
+                return pipeline(ref c);
             };
         }
 
-        protected virtual ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>[]? resolvers,
-                                                                               ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
+        protected ResolveDelegate<PipelineContext> NoParametersPipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
         {
-            ResolveDelegate<PipelineContext>? pipeline = builder.Build();
-
-            return builder.Context.Registration switch
+            if (null == pipeline)
             {
-                // Default constructor with no pipeline and Per Resolve lifetime
-                PerResolveLifetimeManager _ when null == resolvers && null == pipeline =>
-                    (ref PipelineContext context) =>
+                return (ref PipelineContext c) =>
+                {
+                    if (null == c.Target)
                     {
-                        if (null == context.Target)
-                        {
-                            context.Target = info.Invoke(EmptyParametersArray);
-                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
-                        }
-
-                        return context.Target;
+                        using var action = c.Start(info);
+                        c.Target = info.Invoke(EmptyParametersArray);
                     }
-                ,
+                    return c.Target;
+                };
+            }
 
-                // Default constructor with pipeline and Per Resolve lifetime
-                PerResolveLifetimeManager _ when null == resolvers && null != pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target)
-                        {
-                            context.Target = info.Invoke(EmptyParametersArray);
-                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
-                        }
-
-                        // Invoke other initializers
-                        return pipeline.Invoke(ref context);
-                    }
-                ,
-
-                // Constructor with no pipeline and Per Resolve lifetime
-                PerResolveLifetimeManager _ when null != resolvers && null == pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target)
-                        {
-                            var dependencies = new object?[resolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = resolvers[i](ref context);
-
-                            context.Target = info.Invoke(dependencies);
-                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
-                        }
-
-                        return context.Target;
-                    }
-                ,
-
-                // Constructor with pipeline and Per Resolve lifetime
-                PerResolveLifetimeManager _ when null != resolvers && null != pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target)
-                        {
-                            var dependencies = new object?[resolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = resolvers[i](ref context);
-
-                            context.Target = info.Invoke(dependencies);
-                            // TODO: context.Set(typeof(LifetimeManager), new RuntimePerResolveLifetimeManager(context.Existing));
-                        }
-
-                        // Invoke other initializers
-                        return pipeline.Invoke(ref context);
-                    }
-                ,
-
-
-                // Default constructor with no pipeline
-                _ when null == resolvers && null == pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
-                        return context.Target;
-                    }
-                ,
-
-                // Default constructor with pipeline
-                _ when null == resolvers && null != pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target) context.Target = info.Invoke(EmptyParametersArray);
-
-                        // Invoke other initializers
-                        return pipeline.Invoke(ref context);
-                    }
-                ,
-
-                // Constructor with no pipeline
-                _ when null != resolvers && null == pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target)
-                        {
-                            var dependencies = new object?[resolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = resolvers[i](ref context);
-
-                            context.Target = info.Invoke(dependencies);
-                        }
-
-                        return context.Target;
-                    }
-                ,
-
-                // Constructor with pipeline
-                _ when null != resolvers && null != pipeline =>
-                    (ref PipelineContext context) =>
-                    {
-                        if (null == context.Target)
-                        {
-                            var dependencies = new object?[resolvers.Length];
-                            for (var i = 0; i < dependencies.Length; i++)
-                                dependencies[i] = resolvers[i](ref context);
-
-                            context.Target = info.Invoke(dependencies);
-                        }
-
-                        // Invoke other initializers
-                        return pipeline.Invoke(ref context);
-                    }
-                ,
-
-
-                // Unknown case
-                _ => throw new NotImplementedException()
+            return (ref PipelineContext c) =>
+            {
+                if (null == c.Target)
+                {
+                    using var action = c.Start(info);
+                    c.Target = info.Invoke(EmptyParametersArray);
+                }
+                return pipeline(ref c);
             };
         }
 
         #endregion
     }
+
 }

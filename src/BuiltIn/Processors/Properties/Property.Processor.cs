@@ -35,6 +35,10 @@ namespace Unity.BuiltIn
         protected override ImportAttribute? GetImportAttribute(PropertyInfo info)
             => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void SetValue(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
+
         #endregion
     }
 }

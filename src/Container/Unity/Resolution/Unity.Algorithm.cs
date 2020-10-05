@@ -75,7 +75,7 @@ namespace Unity
                         return new ValueTask<object?>(value);
 
                     // No value, do everything else asynchronously
-                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new PipelineRequestAsync(in contract, manager, overrides),
+                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new RequestInfoAsync(in contract, manager, overrides),
                         System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
                 }
             }
@@ -83,7 +83,7 @@ namespace Unity
 
             // No registration found, do everything else asynchronously
             return new ValueTask<object?>(
-                Task.Factory.StartNew(ResolveAsync, new PipelineRequestAsync(in contract, overrides),
+                Task.Factory.StartNew(ResolveAsync, new RequestInfoAsync(in contract, overrides),
                     System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
         }
 
@@ -92,46 +92,47 @@ namespace Unity
 
         #region Dependency
 
-        internal object? Resolve(ref Contract contract, ref PipelineContext parent)
+        internal object? Resolve(ref PipelineContext context)
         {
-            var container = this;
+            context.Container = this;
             bool? isGeneric = null;
             Contract generic = default;
 
             do
             {
                 // Look for registration
-                var manager = container._scope.Get(in contract);
-                if (null != manager)
+                context.Registration = context.Container._scope.Get(in context.Contract);
+                if (null != context.Registration)
                 {
                     //Registration found, check value
-                    var value = Unsafe.As<LifetimeManager>(manager).GetValue(_scope.Disposables);
+                    var value = Unsafe.As<LifetimeManager>(context.Registration).GetValue(_scope.Disposables);
                     if (!ReferenceEquals(RegistrationManager.NoValue, value)) return value;
 
                     // Resolve from registration
-                    return container.ResolveRegistration(ref contract, manager, ref parent);
+                    return context.Container.ResolveRegistration(ref context);
                 }
 
                 // Skip to parent if non generic
-                if (!(isGeneric ??= contract.Type.IsGenericType)) continue;
+                if (!(isGeneric ??= context.Contract.Type.IsGenericType)) continue;
 
                 // Fill the Generic Type Definition
-                if (0 == generic.HashCode) generic = contract.With(contract.Type.GetGenericTypeDefinition());
+                if (0 == generic.HashCode) generic = context.Contract.With(context.Contract.Type.GetGenericTypeDefinition());
 
                 // Check if generic factory is registered
-                if (null != (manager = container._scope.Get(in contract, in generic)))
+                if (null != (context.Registration = context.Container._scope.Get(in context.Contract, in generic)))
                 {
                     // Build from generic factory
-                    return container.GenericRegistration(ref contract, manager, ref parent);
+                    return context.Container.GenericRegistration(ref context);
                 }
             }
-            while (null != (container = container.Parent));
+            while (null != (context.Container = context.Container.Parent!));
 
             // No registration found, resolve unregistered
-            return (bool)isGeneric ? ResolveUnregisteredGeneric(ref contract, ref generic, ref parent)
-                : contract.Type.IsArray
-                    ? ResolveArray(ref contract, ref parent)
-                    : ResolveUnregistered(ref contract, ref parent);
+            context.Container = this;
+            return (bool)isGeneric ? ResolveUnregisteredGeneric(ref context.Contract, ref generic, ref context)
+                : context.Contract.Type.IsArray
+                    ? ResolveArray(ref context.Contract, ref context)
+                    : ResolveUnregistered(ref context.Contract, ref context);
         }
 
         #endregion
@@ -147,7 +148,7 @@ namespace Unity
         /// <returns>Resolved object or <see cref="Task.FromException(System.Exception)"/> if failed</returns>
         private Task<object?> ResolveContractAsync(object? state)
         {
-            PipelineRequestAsync context = (PipelineRequestAsync)state!;
+            RequestInfoAsync context = (RequestInfoAsync)state!;
 
             return Task.FromResult<object?>(context.Manager);
         }
@@ -155,11 +156,11 @@ namespace Unity
         /// <summary>
         /// Builds and resolves unregistered <see cref="Type"/>
         /// </summary>
-        /// <param name="state"><see cref="PipelineRequestAsync"/> objects holding resolution request data</param>
+        /// <param name="state"><see cref="RequestInfoAsync"/> objects holding resolution request data</param>
         /// <returns>Resolved object or <see cref="Task.FromException(System.Exception)"/> if failed</returns>
         private Task<object?> ResolveAsync(object? state)
         {
-            PipelineRequestAsync context = (PipelineRequestAsync)state!;
+            RequestInfoAsync context = (RequestInfoAsync)state!;
 
             return Task.FromResult<object?>(context.Contract.Type);
         }

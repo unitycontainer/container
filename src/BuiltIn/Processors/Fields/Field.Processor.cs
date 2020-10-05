@@ -29,6 +29,10 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override InjectionMember<FieldInfo, object>? GetInjected(RegistrationManager? registration) => registration?.Fields;
 
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void SetValue(FieldInfo info, object target, object? value) => info.SetValue(target, value);
+
         #endregion
     }
 }

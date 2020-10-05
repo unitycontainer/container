@@ -15,13 +15,6 @@ namespace Unity.Injection
                                      IResolverFactory<Type>,
                                      IResolverFactory<ParameterInfo>
     {
-        #region Constants
-        
-        internal static readonly ResolvedParameter Singleton = new ResolvedParameter();
-        
-        #endregion
-
-
         #region Fields
 
         private readonly string? _name;

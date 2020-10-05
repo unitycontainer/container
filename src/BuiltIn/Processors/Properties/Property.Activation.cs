@@ -7,43 +7,41 @@ namespace Unity.BuiltIn
     {
         public override object? Activate(ref DependencyInfo<PropertyInfo> dependency, object? data)
         {
-            dependency.Contract = (null == dependency.Import)
-                ? new Contract(dependency.Info.PropertyType)
-                : new Contract(dependency.Import.ContractType ?? dependency.Info.PropertyType,
-                               dependency.Import.ContractName);
+            throw new System.NotImplementedException();
+            //dependency.Contract = (null == dependency.Import)
+            //    ? new Contract(dependency.Info.PropertyType)
+            //    : new Contract(dependency.Import.ContractType ?? dependency.Info.PropertyType,
+            //                   dependency.Import.ContractName);
 
-            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
+            //var @override = dependency.GetOverride();
 
-            var @override = dependency.GetOverride();
+            //var value = (null != @override)
+            //    ? base.Activate(ref dependency, @override.Value)
+            //    : base.Activate(ref dependency, data);
 
-            var value = (null != @override)
-                ? base.Activate(ref dependency, @override.Value)
-                : base.Activate(ref dependency, data);
+            //if (!dependency.Parent.IsFaulted) dependency.Info.SetValue(dependency.Parent.Target, value);
 
-            if (!dependency.Parent.IsFaulted) dependency.Info.SetValue(dependency.Parent.Target, value);
-
-            return value;
+            //return value;
         }
 
         public override object? Activate(ref DependencyInfo<PropertyInfo> dependency)
         {
-            dependency.Contract = (null == dependency.Import)
-                ? new Contract(dependency.Info.PropertyType)
-                : new Contract(dependency.Import.ContractType ?? dependency.Info.PropertyType,
-                               dependency.Import.ContractName);
+            throw new System.NotImplementedException();
+            //dependency.Contract = (null == dependency.Import)
+            //    ? new Contract(dependency.Info.PropertyType)
+            //    : new Contract(dependency.Import.ContractType ?? dependency.Info.PropertyType,
+            //                   dependency.Import.ContractName);
 
-            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
+            //var value = dependency.Parent
+            //                      .Container
+            //                      .Resolve(ref dependency.Contract, ref dependency.Parent);
 
-            var value = dependency.Parent
-                                  .Container
-                                  .Resolve(ref dependency.Contract, ref dependency.Parent);
+            //if (!dependency.Parent.IsFaulted)
+            //{ 
+            //    dependency.Info.SetValue(dependency.Parent.Target, value);
+            //}
 
-            if (!dependency.Parent.IsFaulted)
-            { 
-                dependency.Info.SetValue(dependency.Parent.Target, value);
-            }
-
-            return value;
+            //return value;
         }
     }
 }

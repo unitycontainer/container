@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -7,43 +8,45 @@ namespace Unity.BuiltIn
     {
         public override object? Activate(ref DependencyInfo<FieldInfo> dependency, object? data)
         {
-            dependency.Contract = (null == dependency.Import)
-                ? new Contract(dependency.Info.FieldType)
-                : new Contract(dependency.Import.ContractType ?? dependency.Info.FieldType,
-                               dependency.Import.ContractName);
+            throw new NotImplementedException();
+            //dependency.Contract = (null == dependency.Import)
+            //    ? new Contract(dependency.Info.FieldType)
+            //    : new Contract(dependency.Import.ContractType ?? dependency.Info.FieldType,
+            //                   dependency.Import.ContractName);
 
-            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
+            //dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
 
-            var @override = dependency.GetOverride();
+            //var @override = dependency.GetOverride();
 
-            var value = (null != @override)
-                ? base.Activate(ref dependency, @override.Value)
-                : base.Activate(ref dependency, data);
+            //var value = (null != @override)
+            //    ? base.Activate(ref dependency, @override.Value)
+            //    : base.Activate(ref dependency, data);
 
-            if (!dependency.Parent.IsFaulted) dependency.Info.SetValue(dependency.Parent.Target, value);
+            //if (!dependency.Parent.IsFaulted) dependency.Info.SetValue(dependency.Parent.Target, value);
 
-            return value;
+            //return value;
         }
 
         public override object? Activate(ref DependencyInfo<FieldInfo> dependency)
         {
-            dependency.Contract = (null == dependency.Import)
-                ? new Contract(dependency.Info.FieldType)
-                : new Contract(dependency.Import.ContractType ?? dependency.Info.FieldType,
-                               dependency.Import.ContractName);
+            throw new NotImplementedException();
+            //dependency.Contract = (null == dependency.Import)
+            //    ? new Contract(dependency.Info.FieldType)
+            //    : new Contract(dependency.Import.ContractType ?? dependency.Info.FieldType,
+            //                   dependency.Import.ContractName);
 
-            dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
+            //dependency.AllowDefault = dependency.Import?.AllowDefault ?? false;
 
-            var value = dependency.Parent
-                                  .Container
-                                  .Resolve(ref dependency.Contract, ref dependency.Parent);
+            //var value = dependency.Parent
+            //                      .Container
+            //                      .Resolve(ref dependency.Contract, ref dependency.Parent);
 
-            if (!dependency.Parent.IsFaulted)
-            { 
-                dependency.Info.SetValue(dependency.Parent.Target, value);
-            }
+            //if (!dependency.Parent.IsFaulted)
+            //{ 
+            //    dependency.Info.SetValue(dependency.Parent.Target, value);
+            //}
 
-            return value;
+            //return value;
         }
     }
 }

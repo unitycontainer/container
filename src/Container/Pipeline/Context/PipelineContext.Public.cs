@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Unity.Injection;
 using Unity.Lifetime;
 using Unity.Resolution;
 
@@ -11,16 +10,29 @@ namespace Unity.Container
     {
         #region Resolution
 
-
         public object? Resolve()
         {
-            return Container.Resolve(ref Contract, ref this);
+            // TODO: ResolverOverride? @override;
+
+            return Container.Resolve(ref this);
+        }
+
+        public object? Resolve<T>(ref DependencyInfo<T> dependency)
+        {
+            return dependency.Injected.DataType switch
+            {
+                InjectionType.Resolver => ((ResolveDelegate<PipelineContext>)dependency.Injected.Data!)(ref this),
+                InjectionType.Value    => dependency.Injected.Data,
+                _                      => Container.Resolve(ref this)
+            };
         }
 
         public object? Resolve(Type type, string? name)
         {
             var contract = new Contract(type, name);
-            return Container.Resolve(ref contract, ref this);
+            var context = CreateContext(ref contract);
+            
+            return Container.Resolve(ref context);
         }
 
         #endregion
@@ -34,7 +46,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<PipelineRequest>(_request.ToPointer()).IsFaulted;
+                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).IsFaulted;
                 }
             }
         }
@@ -67,7 +79,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<PipelineRequest>(_request.ToPointer()).Overrides;
+                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).Overrides;
                 }
             }
         }
@@ -81,22 +93,24 @@ namespace Unity.Container
 
         #region Public Methods
 
-        public void Error(string error)
+        public object Error(string error)
         {
             unsafe
             {
-                ref var info = ref Unsafe.AsRef<PipelineError>(_error.ToPointer());
+                ref var info = ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
 
                 info.IsFaulted = true;
                 info.Error = error;
             }
+
+            return error;
         }
 
         public void Exception(Exception exception)
         {
             unsafe
             {
-                ref var info = ref Unsafe.AsRef<PipelineError>(_error.ToPointer());
+                ref var info = ref Unsafe.AsRef<ErrorInfo>(_error.ToPointer());
 
                 info.IsFaulted = true;
                 info.Exception = exception;
@@ -106,19 +120,28 @@ namespace Unity.Container
         #endregion
 
 
-        #region Injection
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public InjectionMember? GetInjected<TMemberInfo>() => Registration?.GetInjected<TMemberInfo>();
-
-
-        #endregion
-
-
         #region Telemetry
 
         public PipelineAction<TAction> Start<TAction>(TAction action) where TAction : class 
             => new PipelineAction<TAction>(ref this, action);
+
+        #endregion
+
+
+        #region Child Context
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PipelineContext CreateContext(UnityContainer container, ref Contract contract, RegistrationManager manager)
+            => new PipelineContext(container, ref contract, manager, ref this);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)
+            => new PipelineContext(ref contract, ref error, ref this);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PipelineContext CreateContext(ref Contract contract)
+            => new PipelineContext(ref contract, ref this);
 
         #endregion
     }

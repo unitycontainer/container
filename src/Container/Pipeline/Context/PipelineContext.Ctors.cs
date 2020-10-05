@@ -7,7 +7,7 @@ namespace Unity.Container
     {
         #region New Request
 
-        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref PipelineRequest request)
+        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref RequestInfo request)
         {
             unsafe
             {
@@ -17,7 +17,6 @@ namespace Unity.Container
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Type = manager.Type ?? contract.Type;
             Target = default;
             Action = default;
 
@@ -30,18 +29,16 @@ namespace Unity.Container
 
         #region Recursive Request
 
-        public PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        private PipelineContext(UnityContainer container, ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
         {
             unsafe
             {
-                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
                 _error  = parent._error;
                 _request = parent._request;
+                _parent = new IntPtr(Unsafe.AsPointer(ref parent));
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-
-            Type = manager.Type ?? contract.Type;
             Target = default;
             Action = default;
 
@@ -49,19 +46,35 @@ namespace Unity.Container
             Container = container;
         }
 
-        public PipelineContext(ref PipelineContext parent, ref Contract contract, object? action)
+        private PipelineContext(ref Contract contract, ref ErrorInfo error, ref PipelineContext parent)
+        {
+            unsafe
+            {
+                _request  = parent._request;
+                _parent   = new IntPtr(Unsafe.AsPointer(ref parent));
+                _error    = new IntPtr(Unsafe.AsPointer(ref error)); 
+                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            Target = default;
+            Action = default;
+
+            Registration = parent.Registration;
+            Container = parent.Container;
+        }
+
+        private PipelineContext(ref Contract contract, ref PipelineContext parent)
         {
             unsafe
             {
                 _parent = new IntPtr(Unsafe.AsPointer(ref parent));
-                _error  = parent._error;
+                _error = parent._error;
                 _request = parent._request;
                 _contract = new IntPtr(Unsafe.AsPointer(ref contract));
             }
 
-            Type = contract.Type;
             Target = default;
-            Action = action;
+            Action = default;
 
             Registration = parent.Registration;
             Container = parent.Container;

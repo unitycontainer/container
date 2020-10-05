@@ -2,11 +2,11 @@
 
 namespace Unity.Container
 {
-    public partial struct PipelineRequest
+    public partial struct RequestInfo
     {
         #region Fields
 
-        public PipelineError Error;
+        public ErrorInfo Error;
         public ResolverOverride[] Overrides;
 
         #endregion
@@ -14,7 +14,7 @@ namespace Unity.Container
 
         #region Constructors
 
-        public PipelineRequest(ResolverOverride[] overrides)
+        public RequestInfo(ResolverOverride[] overrides)
         {
             Error     = default;
             Overrides = overrides;

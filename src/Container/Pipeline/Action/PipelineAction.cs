@@ -78,7 +78,7 @@ namespace Unity.Container
         public void Exception(Exception ex)
         {
             // Report exception
-            throw new NotImplementedException();
+            Context.Exception(ex);
         }
 
         public bool Success(object? data)

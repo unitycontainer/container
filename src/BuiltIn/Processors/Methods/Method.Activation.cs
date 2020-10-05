@@ -27,7 +27,7 @@ namespace Unity.BuiltIn
 
             ///////////////////////////////////////////////////////////////////
             // Initialize injected members
-            for (var injected = GetInjected(context.Registration); null != injected; injected = Unsafe.As<InjectionMember<MethodInfo, object[]>>(injected.Next))
+            for (var injected = GetInjected(context.Registration); null != injected; injected = (InjectionMethod?)injected.Next)
             {
                 int position;
 
@@ -51,13 +51,14 @@ namespace Unity.BuiltIn
             // Initialize annotated members
             for (var index = 0; index < members.Length; index++)
             {
+                if (set[index]) continue;
+
                 var member = members[index];
                 var import = member.GetCustomAttribute(typeof(InjectionMethodAttribute));
 
                 if (null == import) continue;
 
-                if (set[index]) continue;
-                else set[index] = true;
+                set[index] = true;
 
                 using var action = context.Start(member);
 
@@ -82,12 +83,10 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new DependencyInfo<ParameterInfo>(ref context);
-
             for (var i = 0; i < parameters.Length; i++)
             {
-                parameter.Info = parameters[i];
-                arguments[i] = Activate(ref parameter, data[i]);
+                var parameter = GetDependencyInfo(parameters[i], data[i]);
+                arguments[i]  = Activate(ref parameter, data[i]);
 
                 if (context.IsFaulted) return;
             }
@@ -107,12 +106,10 @@ namespace Unity.BuiltIn
             }
 
             var arguments = new object?[parameters.Length];
-            var parameter = new DependencyInfo<ParameterInfo>(ref context);
-
             for (var i = 0; i < parameters.Length; i++)
             {
-                parameter.Info = parameters[i];
-                arguments[i] = Activate(ref parameter);
+                var parameter = GetDependencyInfo(parameters[i]);
+                arguments[i]  = Activate(ref parameter);
 
                 if (context.IsFaulted) return;
             }

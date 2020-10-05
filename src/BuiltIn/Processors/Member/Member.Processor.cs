@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -71,6 +72,26 @@ namespace Unity.BuiltIn
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual InjectionMember<TMemberInfo, TData>? GetInjected(RegistrationManager? registration) => null;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
+
+
         #endregion
+
+
+        protected abstract DependencyInfo<TDependency> GetDependencyInfo(TDependency member);
+
+        protected abstract DependencyInfo<TDependency> GetDependencyInfo(TDependency member, object? data);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetDefaultValue(Type t)
+        {
+            if (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
+                return Activator.CreateInstance(t);
+            else
+                return null;
+        }
+
     }
 }

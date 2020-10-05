@@ -6,5 +6,11 @@ namespace Unity.Container
     {
         public TInfo Info;
         public DependencyInfo<ParameterInfo>[]? Parameters;
+
+        public InvocationInfo(TInfo info, DependencyInfo<ParameterInfo>[]? parameters = null)
+        {
+            Info = info;
+            Parameters = parameters;
+        }
     }
 }

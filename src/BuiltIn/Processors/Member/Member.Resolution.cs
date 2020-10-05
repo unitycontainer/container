@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Container;
+using Unity.Injection;
 using Unity.Resolution;
 
 namespace Unity.BuiltIn
@@ -10,67 +12,94 @@ namespace Unity.BuiltIn
 
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
-            if (null != builder.Target) return builder.Build();
+            Type type = builder.Context.Type;
+            var members = GetMembers(type);
+            var downstream = builder.Build();
 
-            var pipeline = builder.Build();
+            ///////////////////////////////////////////////////////////////////
+            // Check if any methods are available
+            if (0 == members.Length) return downstream;
 
-            return pipeline;
+            int count = 0;
+            Span<bool> set = stackalloc bool[members.Length];
+            var dependencies = new DependencyInfo<TDependency>[members.Length];
 
-            //var members = (IReadOnlyCollection<object>)Select(ref builder);
 
-            //Debug.Assert(null != members);
+            ///////////////////////////////////////////////////////////////////
+            // Initialize injected members
+            for (var injected = GetInjected(builder.Context.Registration); null != injected; injected = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injected.Next))
+            {
+                int index;
 
-            //var i = 0;
-            //var resolvers = new ResolveDelegate<PipelineContext>[members.Count];
+                if (-1 == (index = injected.SelectFrom(members)))
+                {
+                    // TODO: Proper handling?
+                    builder.Context.Error($"Injected member '{injected}' doesn't match any {typeof(TDependency).Name} on type {type}");
+                    return downstream;
+                }
 
-            //foreach (var member in members)
-            //{
-            //    switch (member)
-            //    {
-            //        // MemberInfo
-            //        case TMemberInfo info:
-            //            resolvers[i++] = GetResolverDelegate(info);
-            //            break;
+                if (set[index]) continue;
+                
+                set[index] = true;
+                dependencies[count++] = GetDependencyInfo(Unsafe.As<TDependency>(members[index]), injected.Data);
+            }
 
-            //        // Injection Member
-            //        case InjectionMember<TMemberInfo, TData> injectionMember:
-            //            resolvers[i++] = GetResolverDelegate(injectionMember.MemberInfo(builder.Type), injectionMember.Data);
-            //            break;
+            ///////////////////////////////////////////////////////////////////
+            // Initialize annotated members
+            for (var index = 0; index < members.Length; index++)
+            {
+                if (set[index]) continue;
 
-            //        case Exception exception:
-            //            Debug.Assert(exception is InvalidRegistrationException, "Must be InvalidRegistrationException");
-            //            resolvers[i++] = (ref PipelineContext c) => throw exception;
-            //            break;
+                var info = Unsafe.As<TDependency>(members[index]);
+                var import = GetImportAttribute(Unsafe.As<TMemberInfo>(info));
 
-            //        // Unknown
-            //        default:
-            //            throw new InvalidRegistrationException($"Unknown MemberInfo<{typeof(TMemberInfo)}> type");
-            //    }
-            //}
+                if (null == import) continue;
+                
+                set[index] = true;
+                dependencies[count++] = GetDependencyInfo(Unsafe.As<TDependency>(members[index]));
+            }
 
-            //return 0 == resolvers.Length
-            //    ? pipeline
-            //    : (ref PipelineContext context) =>
-            //    {
-            //        // Initialize Fields
-            //        foreach (var resolver in resolvers) resolver(ref context);
 
-            //        // Process rest of the initialization
-            //        return null == pipeline ? context.Existing : pipeline.Invoke(ref context);
-            //    };
+            ///////////////////////////////////////////////////////////////////
+            // Validate and create pipeline
+            if (0 == count) return downstream;
+            if (dependencies.Length > count) Array.Resize(ref dependencies, count);
+
+            return (ref PipelineContext context) =>
+            {
+                ResolverOverride? @override;
+                PipelineContext local;
+                ErrorInfo error;
+
+                for (var index = 0; index < dependencies.Length; index++)
+                {
+                    ref var member = ref dependencies[index];
+
+                    if (member.AllowDefault)
+                    {
+                        error = new ErrorInfo();
+                        local = context.CreateContext(ref member.Contract, ref error);
+                    }
+                    else
+                    {
+                        local = context.CreateContext(ref member.Contract);
+                    }
+
+                    using var action = local.Start(member.Info);
+
+                    var value = null != (@override = local.GetOverride(ref member))
+                        ? local.GetValue(member.Info, @override.Value)
+                        : local.Resolve(ref member);
+
+                    if (!local.IsFaulted) SetValue(member.Info, context.Target!, value);
+                }
+
+                return downstream?.Invoke(ref context);
+            };
         }
 
-        #endregion
-
-
-        #region Implementation
-
-        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(TMemberInfo info)
-            => throw new NotImplementedException();
-
-        protected virtual ResolveDelegate<PipelineContext> GetResolverDelegate(TMemberInfo info, object? data) 
-            => throw new NotImplementedException();
 
         #endregion
+
     }
 }

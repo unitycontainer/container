@@ -2,7 +2,7 @@
 
 namespace Unity.Container
 {
-    public struct PipelineError
+    public struct ErrorInfo
     {
         public bool IsFaulted;
         public object? Error;

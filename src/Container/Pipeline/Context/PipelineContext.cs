@@ -26,7 +26,7 @@ namespace Unity.Container
 
         #region Public Properties
 
-        public Type Type { get; private set; }
+        public Type Type { get => Registration?.Type ?? Contract.Type; }
 
         public string? Name
         {

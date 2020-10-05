@@ -9,10 +9,8 @@ namespace Unity
     {
         #region Constructible
 
-        private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        private object? ResolveRegistration(ref PipelineContext context)
         {
-            var context = new PipelineContext(this, ref contract, manager, ref parent);
-
             // Check if pipeline has been created already
             if (null == context.Registration!.Pipeline)
             {
@@ -60,7 +58,7 @@ namespace Unity
 
         private object? ResolveRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var request = new PipelineRequest(overrides);
+            var request = new RequestInfo(overrides);
             var context = new PipelineContext(this, ref contract, manager, ref request);
 
             // Check if pipeline has been created already
@@ -115,7 +113,7 @@ namespace Unity
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var info = new PipelineRequest(overrides);
+            var info = new RequestInfo(overrides);
             var context = new PipelineContext(this, ref contract, manager, ref info);
             var factory = (RegistrationManager)manager.Data!;
 
@@ -130,8 +128,7 @@ namespace Unity
             return _policies.ResolveMapped(ref context);
         }
 
-
-        private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ref PipelineContext parent)
+        private object? GenericRegistration(ref PipelineContext context)
         {
             throw new NotImplementedException();
 
