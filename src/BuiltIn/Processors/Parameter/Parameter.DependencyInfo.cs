@@ -7,9 +7,11 @@ namespace Unity.BuiltIn
 {
     public abstract partial class ParameterProcessor<TMemberInfo>
     {
-        protected override DependencyInfo<ParameterInfo> GetDependencyInfo(ParameterInfo member)
+        #region To Dependency
+
+        protected override DependencyInfo<ParameterInfo> ToDependencyInfo(ParameterInfo member, ImportAttribute? attribute = null)
         {
-            var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
+            var import = attribute ?? (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
             return (null == import)
                 ? new DependencyInfo<ParameterInfo>(member, member.ParameterType, member.HasDefaultValue)
                 : new DependencyInfo<ParameterInfo>(member, import.ContractType ?? member.ParameterType, 
@@ -17,7 +19,7 @@ namespace Unity.BuiltIn
                                                             import.AllowDefault || member.HasDefaultValue);
         }
 
-        protected override DependencyInfo<ParameterInfo> GetDependencyInfo(ParameterInfo member, object? data)
+        protected override DependencyInfo<ParameterInfo> ToDependencyInfo(ParameterInfo member, object? data)
         {
             var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
 
@@ -38,5 +40,38 @@ namespace Unity.BuiltIn
                                                             import, data,
                                                             import.AllowDefault || member.HasDefaultValue);
         }
+
+        #endregion
+
+
+        #region To Dependency Array
+
+        protected DependencyInfo<ParameterInfo>[]? ToDependencyArray(ParameterInfo[] parameters, object[] data)
+        {
+            if (0 == parameters.Length) return null;
+
+            var dependencies = new DependencyInfo<ParameterInfo>[parameters.Length];
+            for (var i = 0; i < dependencies.Length; i++)
+            {
+                dependencies[i] = ToDependencyInfo(parameters[i], data[i]);
+            }
+
+            return dependencies;
+        }
+
+        protected DependencyInfo<ParameterInfo>[]? ToDependencyArray(ParameterInfo[] parameters)
+        {
+            if (0 == parameters.Length) return null;
+
+            var dependencies = new DependencyInfo<ParameterInfo>[parameters.Length];
+            for (var i = 0; i < dependencies.Length; i++)
+            {
+                dependencies[i] = ToDependencyInfo(parameters[i]);
+            }
+
+            return dependencies;
+        }
+        
+        #endregion
     }
 }

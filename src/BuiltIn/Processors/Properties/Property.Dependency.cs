@@ -6,9 +6,9 @@ namespace Unity.BuiltIn
 {
     public partial class PropertyProcessor
     {
-        protected override DependencyInfo<PropertyInfo> GetDependencyInfo(PropertyInfo member)
+        protected override DependencyInfo<PropertyInfo> ToDependencyInfo(PropertyInfo member, ImportAttribute? attribute = null)
         {
-            var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
+            var import = attribute ?? (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
             return (null == import)
                 ? new DependencyInfo<PropertyInfo>(member, member.PropertyType)
                 : new DependencyInfo<PropertyInfo>(member, import.ContractType ?? member.PropertyType,
@@ -16,7 +16,7 @@ namespace Unity.BuiltIn
                                                            import.AllowDefault);
         }
 
-        protected override DependencyInfo<PropertyInfo> GetDependencyInfo(PropertyInfo member, object? data)
+        protected override DependencyInfo<PropertyInfo> ToDependencyInfo(PropertyInfo member, object? data)
         {
             var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
             return (null == import)

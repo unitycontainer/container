@@ -1,10 +1,5 @@
-﻿using System;
-using System.ComponentModel.Composition;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using Unity.Container;
-using Unity.Injection;
-using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -37,61 +32,10 @@ namespace Unity.BuiltIn
 
         public MemberProcessor(Defaults defaults)
         {
-            BindingFlags = defaults
-                .GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, 
-                    (object flags) => BindingFlags = (BindingFlags)flags);
+            BindingFlags = defaults.GetOrAdd(typeof(TMemberInfo), DefaultBindingFlags, 
+                (object flags) => BindingFlags = (BindingFlags)flags);
         }
 
         #endregion
-
-
-        #region Implementation
-
-        /// <summary>
-        /// This method returns an array of <see cref="MemberInfo"/> objects implemented
-        /// by the <see cref="Type"/>
-        /// </summary>
-        /// <remarks>
-        /// Each processor overrides this method and returns appropriate members. 
-        /// Constructor processor returns an array of <see cref="ConstructorInfo"/> objects,
-        /// Property processor returns objects of type <see cref="PropertyInfo"/>, and etc.
-        /// </remarks>
-        /// <param name="type"><see cref="Type"/> implementing members</param>
-        /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract TMemberInfo[] GetMembers(Type type);
-
-        /// <summary>
-        /// Returns attribute the info is annotated with
-        /// </summary>
-        /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
-        /// <returns>Attribute or null if nothing found</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual ImportAttribute? GetImportAttribute(TMemberInfo info) => null;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual InjectionMember<TMemberInfo, TData>? GetInjected(RegistrationManager? registration) => null;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
-
-
-        #endregion
-
-
-        protected abstract DependencyInfo<TDependency> GetDependencyInfo(TDependency member);
-
-        protected abstract DependencyInfo<TDependency> GetDependencyInfo(TDependency member, object? data);
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetDefaultValue(Type t)
-        {
-            if (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
-                return Activator.CreateInstance(t);
-            else
-                return null;
-        }
-
     }
 }

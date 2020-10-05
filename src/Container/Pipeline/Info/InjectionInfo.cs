@@ -1,4 +1,6 @@
-﻿namespace Unity.Container
+﻿using System.Diagnostics;
+
+namespace Unity.Container
 {
     public enum InjectionType
     {
@@ -7,6 +9,7 @@
         Resolver,
     }
 
+    [DebuggerDisplay("Injected: {DataType},  Data: {Data}")]
     public struct InjectionInfo
     {
         public object?       Data;

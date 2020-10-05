@@ -17,12 +17,12 @@ namespace Unity.BuiltIn
             // TODO: if (null != builder.Target) return builder.Build();
 
             Type type = builder.Context.Type;
-            var ctors = type.GetConstructors(BindingFlags);
+            var members = type.GetConstructors(BindingFlags);
             var downstream = builder.Build();
 
             ///////////////////////////////////////////////////////////////////
             // Check if any constructors are available
-            if (0 == ctors.Length)
+            if (0 == members.Length)
             {
                 // Pipeline for BuildUp only, it throws if no object provided
                 return (ref PipelineContext c) => (c.Target is null)
@@ -31,34 +31,48 @@ namespace Unity.BuiltIn
             }
 
             /////////////////////////////////////////////////////////////////
-            // Build from Injected Constructor if present
-            if (builder.Context.Registration?.Constructor is InjectionConstructor iCtor)
+            // Build from Injected Constructor, if present
+            if (builder.Context.Registration?.Constructor is InjectionConstructor injected)
             {
-                int position;
+                int index;
 
-                if (-1 == (position = iCtor.SelectFrom(ctors)))
+                if (-1 == (index = injected.SelectFrom(members)))
                 {
                     // Pipeline for BuildUp only, it throws if no object provided
                     return (ref PipelineContext c) => (c.Target is null)
-                        ? c.Error($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}")
+                        ? c.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}")
                         : downstream?.Invoke(ref c);
                 }
 
-                return CreatePipeline(ctors[position], iCtor.Data, downstream);
+                var info = members[index];
+                var args = null != injected.Data
+                    ? ToDependencyArray(info.GetParameters(), injected.Data)
+                    : ToDependencyArray(info.GetParameters());
+
+                return CreatePipeline(info, args, downstream);
             }
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select
-            if (1 == ctors.Length) return CreatePipeline(ctors[0], downstream);
+            if (1 == members.Length)
+            {
+
+                var info = members[0];
+                var args = ToDependencyArray(info.GetParameters());
+
+                return CreatePipeline(info, args, downstream);
+            }
 
 
             ///////////////////////////////////////////////////////////////////
             // Check for annotated constructor
-            foreach (var ctor in ctors)
+            foreach (var info in members)
             {
-                if (!ctor.IsDefined(typeof(ImportingConstructorAttribute))) continue;
+                if (!info.IsDefined(typeof(ImportingConstructorAttribute))) continue;
 
-                return CreatePipeline(ctor, downstream);
+                var args = ToDependencyArray(info.GetParameters());
+
+                return CreatePipeline(info, args, downstream);
             }
 
 
@@ -111,88 +125,71 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        protected ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
+        private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, DependencyInfo<ParameterInfo>[]? parameters, ResolveDelegate<PipelineContext>? pipeline)
         {
-            var parameters = info.GetParameters();
+            if (null == parameters) return ParameterlessPipeline(info, pipeline);
 
-            if (0 == parameters.Length) return NoParametersPipeline(info, pipeline);
-
-            var dependencies = new DependencyInfo<ParameterInfo>[parameters.Length];
-
-            for (var i = 0; i < dependencies.Length; i++)
-                dependencies[i] = GetDependencyInfo(parameters[i]);
-
-            return CreatePipeline(info, CreateArgumentPileline(dependencies), pipeline);
-        }
-
-        protected ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, object[] data, ResolveDelegate<PipelineContext>? pipeline)
-        {
-            var parameters = info.GetParameters();
-
-            if (0 == parameters.Length) return NoParametersPipeline(info, pipeline);
-
-            var dependencies = new DependencyInfo<ParameterInfo>[parameters.Length];
-
-            for (var i = 0; i < dependencies.Length; i++)
+            if (null == pipeline)
             {
-                ref var dependency = ref dependencies[i];
-                var parameter = parameters[i];
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Target)
+                    {
+                        using var action = context.Start(info);
+                        var argumetns = GetDependencies(ref context, parameters);
 
-                dependency = GetDependencyInfo(parameter, data[i]);
+                        if (context.IsFaulted) return context.Target;
+
+                        context.Target = info.Invoke(argumetns);
+                    }
+
+                    return context.Target;
+                };
             }
+            else
+            {
+                return (ref PipelineContext context) =>
+                {
+                    if (null == context.Target)
+                    {
+                        using var action = context.Start(info);
+                        var argumetns = GetDependencies(ref context, parameters);
 
-            return CreatePipeline(info, CreateArgumentPileline(dependencies), pipeline);
+                        if (context.IsFaulted) return context.Target;
+
+                        context.Target = info.Invoke(argumetns);
+                    }
+
+                    return pipeline.Invoke(ref context);
+                };
+            }
         }
 
-        protected ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext> dependencies, ResolveDelegate<PipelineContext>? pipeline)
+        protected ResolveDelegate<PipelineContext> ParameterlessPipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
         {
             if (null == pipeline)
             {
-                return (ref PipelineContext c) =>
+                return (ref PipelineContext context) =>
                 {
-                    if (null == c.Target)
+                    if (null == context.Target)
                     {
-                        using var action = c.Start(info);
-                        c.Target = info.Invoke((object?[])dependencies(ref c)!);
+                        using var action = context.Start(info);
+                        context.Target = info.Invoke(EmptyParametersArray);
                     }
-                    return c.Target;
+
+                    return context.Target;
                 };
             }
 
-            return (ref PipelineContext c) =>
+            return (ref PipelineContext context) =>
             {
-                if (null == c.Target)
-                { 
-                    using var action = c.Start(info);
-                    c.Target = info.Invoke((object?[])dependencies(ref c)!);
-                }
-                return pipeline(ref c);
-            };
-        }
-
-        protected ResolveDelegate<PipelineContext> NoParametersPipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
-        {
-            if (null == pipeline)
-            {
-                return (ref PipelineContext c) =>
+                if (null == context.Target)
                 {
-                    if (null == c.Target)
-                    {
-                        using var action = c.Start(info);
-                        c.Target = info.Invoke(EmptyParametersArray);
-                    }
-                    return c.Target;
-                };
-            }
-
-            return (ref PipelineContext c) =>
-            {
-                if (null == c.Target)
-                {
-                    using var action = c.Start(info);
-                    c.Target = info.Invoke(EmptyParametersArray);
+                    using var action = context.Start(info);
+                    context.Target = info.Invoke(EmptyParametersArray);
                 }
-                return pipeline(ref c);
+
+                return pipeline(ref context);
             };
         }
 

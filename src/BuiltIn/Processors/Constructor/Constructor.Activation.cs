@@ -17,51 +17,53 @@ namespace Unity.BuiltIn
             if (null != context.Target) return;
 
             Type type = context.Type;
-            var ctors = type.GetConstructors(BindingFlags);
+            var members = type.GetConstructors(BindingFlags);
 
             ///////////////////////////////////////////////////////////////////
             // Error if no constructors
-            if (0 == ctors.Length)
+            if (0 == members.Length)
             {
                 context.Error($"No accessible constructors on type {type}");
                 return;
             }
 
             ///////////////////////////////////////////////////////////////////
-            // Inject Constructor if available
-            if (context.Registration?.Constructor is InjectionConstructor iCtor)
+            // Inject the constructor, if available
+            if (context.Registration?.Constructor is InjectionConstructor injected)
             {
-                int position;
+                int index;
 
-                using var injected = context.Start(iCtor);
-                if (-1 == (position = iCtor.SelectFrom(ctors)))
+                using var action = context.Start(injected);
+                if (-1 == (index = injected.SelectFrom(members)))
                 {
-                    injected.Error($"Injected constructor '{iCtor}' doesn't match any accessible constructors on type {type}");
+                    action.Error($"Injected constructor '{injected}' doesn't match any accessible constructors on type {type}");
                     return;
                 }
 
-                using var action = context.Start(ctors[position]);
-                if (null != iCtor.Data && 0 != iCtor.Data.Length)
-                    Activate(ref context, iCtor.Data);
-                else
+                using var subaction = context.Start(members[index]);
+
+                if (null == injected.Data) 
                     Activate(ref context);
+                else                       
+                    Activate(ref context, injected.Data);
 
                 return;
             }
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select
-            if (1 == ctors.Length)
+            if (1 == members.Length)
             {
-
-                using var action = context.Start(ctors[0]);
+                using var action = context.Start(members[0]);
+                
                 Activate(ref context);
+
                 return;
             }
 
             ///////////////////////////////////////////////////////////////////
             // Check for annotated constructor
-            foreach (var ctor in ctors)
+            foreach (var ctor in members)
             {
                 if (!ctor.IsDefined(typeof(ImportingConstructorAttribute), true)) continue;
 
@@ -118,28 +120,20 @@ namespace Unity.BuiltIn
 
         #endregion
 
-        
+
         #region Implementation
+
 
         private void Activate(ref PipelineContext context, object?[] data)
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
-
             var parameters = info.GetParameters();
-            if (0 == parameters.Length)
-            {
-                context.Target = info.Invoke(EmptyParametersArray);
-                return;
-            }
 
-            var arguments = new object?[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = GetDependencyInfo(parameters[i], data[i]);
-                arguments[i] = Activate(ref parameter);
+            object?[] arguments = (0 == parameters.Length)
+                ? EmptyParametersArray
+                : GetDependencies(ref context, parameters, data);
 
-                if (context.IsFaulted) return;
-            }
+            if (context.IsFaulted) return;
 
             context.Target = info.Invoke(arguments);
         }
@@ -148,22 +142,13 @@ namespace Unity.BuiltIn
         private void Activate(ref PipelineContext context)
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
-
             var parameters = info.GetParameters();
-            if (0 == parameters.Length)
-            {
-                context.Target = info.Invoke(EmptyParametersArray);
-                return;
-            }
 
-            var arguments = new object?[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = GetDependencyInfo(parameters[i]);
-                arguments[i] = Activate(ref parameter);
-                
-                if (context.IsFaulted) return;
-            }
+            object?[] arguments = (0 == parameters.Length)
+                ? EmptyParametersArray
+                : GetDependencies(ref context, parameters);
+
+            if (context.IsFaulted) return;
 
             context.Target = info.Invoke(arguments);
         }

@@ -8,24 +8,19 @@ namespace Unity.BuiltIn
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
-        #region PipelineBuilder
-
         public override ResolveDelegate<PipelineContext>? Build(ref PipelineBuilder<ResolveDelegate<PipelineContext>?> builder)
         {
             Type type = builder.Context.Type;
             var members = GetMembers(type);
             var downstream = builder.Build();
 
-            ///////////////////////////////////////////////////////////////////
             // Check if any methods are available
             if (0 == members.Length) return downstream;
 
             int count = 0;
             Span<bool> set = stackalloc bool[members.Length];
-            var dependencies = new DependencyInfo<TDependency>[members.Length];
+            DependencyInfo<TDependency>[]? dependencies = null;
 
-
-            ///////////////////////////////////////////////////////////////////
             // Initialize injected members
             for (var injected = GetInjected(builder.Context.Registration); null != injected; injected = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injected.Next))
             {
@@ -39,12 +34,11 @@ namespace Unity.BuiltIn
                 }
 
                 if (set[index]) continue;
+                else set[index] = true;
                 
-                set[index] = true;
-                dependencies[count++] = GetDependencyInfo(Unsafe.As<TDependency>(members[index]), injected.Data);
+                (dependencies ??= new DependencyInfo<TDependency>[members.Length])[count++] = ToDependencyInfo(Unsafe.As<TDependency>(members[index]), injected.Data);
             }
 
-            ///////////////////////////////////////////////////////////////////
             // Initialize annotated members
             for (var index = 0; index < members.Length; index++)
             {
@@ -54,52 +48,29 @@ namespace Unity.BuiltIn
                 var import = GetImportAttribute(Unsafe.As<TMemberInfo>(info));
 
                 if (null == import) continue;
+                else set[index] = true;
                 
-                set[index] = true;
-                dependencies[count++] = GetDependencyInfo(Unsafe.As<TDependency>(members[index]));
+                (dependencies ??= new DependencyInfo<TDependency>[members.Length])[count++] = ToDependencyInfo(Unsafe.As<TDependency>(members[index]), import);
             }
 
-
-            ///////////////////////////////////////////////////////////////////
-            // Validate and create pipeline
-            if (0 == count) return downstream;
+            // Validate and trim dependency array
+            if (null == dependencies || 0 == count) return downstream;
             if (dependencies.Length > count) Array.Resize(ref dependencies, count);
 
+            // Create pipeline
             return (ref PipelineContext context) =>
             {
-                ResolverOverride? @override;
-                PipelineContext local;
-                ErrorInfo error;
+                // Nothing to do if null
+                if (null == context.Target) return context.Target;
 
                 for (var index = 0; index < dependencies.Length; index++)
                 {
-                    ref var member = ref dependencies[index];
-
-                    if (member.AllowDefault)
-                    {
-                        error = new ErrorInfo();
-                        local = context.CreateContext(ref member.Contract, ref error);
-                    }
-                    else
-                    {
-                        local = context.CreateContext(ref member.Contract);
-                    }
-
-                    using var action = local.Start(member.Info);
-
-                    var value = null != (@override = local.GetOverride(ref member))
-                        ? local.GetValue(member.Info, @override.Value)
-                        : local.Resolve(ref member);
-
-                    if (!local.IsFaulted) SetValue(member.Info, context.Target!, value);
+                    ref var dependency = ref dependencies[index];
+                    SetValue(ref context, ref dependency);
                 }
 
                 return downstream?.Invoke(ref context);
             };
         }
-
-
-        #endregion
-
     }
 }

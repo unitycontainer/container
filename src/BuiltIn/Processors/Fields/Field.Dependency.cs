@@ -6,9 +6,9 @@ namespace Unity.BuiltIn
 {
     public partial class FieldProcessor
     {
-        protected override DependencyInfo<FieldInfo> GetDependencyInfo(FieldInfo member)
+        protected override DependencyInfo<FieldInfo> ToDependencyInfo(FieldInfo member, ImportAttribute? attribute = null)
         {
-            var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
+            var import = attribute ?? (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
             return (null == import)
                 ? new DependencyInfo<FieldInfo>(member, member.FieldType)
                 : new DependencyInfo<FieldInfo>(member, import.ContractType ?? member.FieldType,
@@ -16,7 +16,7 @@ namespace Unity.BuiltIn
                                                         import.AllowDefault);
         }
 
-        protected override DependencyInfo<FieldInfo> GetDependencyInfo(FieldInfo member, object? data)
+        protected override DependencyInfo<FieldInfo> ToDependencyInfo(FieldInfo member, object? data)
         {
             var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
             return (null == import)

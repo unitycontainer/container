@@ -57,8 +57,7 @@ namespace Unity.BuiltIn
                 var import = member.GetCustomAttribute(typeof(InjectionMethodAttribute));
 
                 if (null == import) continue;
-
-                set[index] = true;
+                else set[index] = true;
 
                 using var action = context.Start(member);
 
@@ -74,22 +73,13 @@ namespace Unity.BuiltIn
         private void Activate(ref PipelineContext context, object?[] data)
         {
             MethodInfo info = Unsafe.As<MethodInfo>(context.Action!);
-
             var parameters = info.GetParameters();
-            if (0 == parameters.Length)
-            {
-                info.Invoke(context.Target, EmptyParametersArray);
-                return;
-            }
 
-            var arguments = new object?[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = GetDependencyInfo(parameters[i], data[i]);
-                arguments[i]  = Activate(ref parameter, data[i]);
+            object?[] arguments = (0 == parameters.Length)
+                ? EmptyParametersArray
+                : GetDependencies(ref context, parameters, data);
 
-                if (context.IsFaulted) return;
-            }
+            if (context.IsFaulted) return;
 
             info.Invoke(context.Target, arguments);
         }
@@ -97,26 +87,17 @@ namespace Unity.BuiltIn
         private void Activate(ref PipelineContext context)
         {
             MethodInfo info = Unsafe.As<MethodInfo>(context.Action!);
-
             var parameters = info.GetParameters();
-            if (0 == parameters.Length)
-            {
-                info.Invoke(context.Target, EmptyParametersArray);
-                return;
-            }
 
-            var arguments = new object?[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameter = GetDependencyInfo(parameters[i]);
-                arguments[i]  = Activate(ref parameter);
+            object?[] arguments = (0 == parameters.Length)
+                ? EmptyParametersArray
+                : GetDependencies(ref context, parameters);
 
-                if (context.IsFaulted) return;
-            }
+            if (context.IsFaulted) return;
 
             info.Invoke(context.Target, arguments);
         }
-        
+
         #endregion
     }
 }
