@@ -113,36 +113,27 @@ namespace Unity
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
-            //var info = new RequestInfo(overrides);
-            //var context = new PipelineContext(this, ref contract, manager, ref info);
-            //var factory = (RegistrationManager)manager.Data!;
+            var info = new RequestInfo(overrides);
+            var context = new PipelineContext(this, ref contract, manager, ref info);
 
-            //// Calculate new Type
-            //manager.Category = RegistrationCategory.Type;
-            //manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
-
-            //// If any injection members are present, build is required
-            //if (manager.RequireBuild) return _policies.ResolveContract(ref context);
-
-            //// No injectors, redirect
-            //return _policies.ResolveMapped(ref context);
+            return GenericRegistration(ref context);
         }
 
         private object? GenericRegistration(ref PipelineContext context)
         {
-            throw new NotImplementedException();
+            // Factory manager is in Data
+            var manager = context.Registration!;
+            var factory = (RegistrationManager)manager.Data!;
 
-            //var info = new RequestInfo(overrides);
-            //var context = new PipelineContext(this, ref contract, manager, ref info);
-            //var factory = (RegistrationManager)manager.Data!;
+            // Calculate new Type
+            manager.Category = RegistrationCategory.Type;
+            manager.Data = factory.Type?.MakeGenericType(context.Contract.Type.GenericTypeArguments);
 
-            //// Calculate new Type
-            //manager.Category = RegistrationCategory.Type;
-            //manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
+            return ResolveRegistration(ref context);
 
+            // TODO: 
             //// If any injection members are present, build is required
-            //if (manager.RequireBuild) return _policies.ResolveContract(ref context);
+            //if (manager.RequireBuild) return ResolveRegistration(ref context);
 
             //// No injectors, redirect
             //return _policies.ResolveMapped(ref context);
