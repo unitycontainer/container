@@ -5,10 +5,9 @@ using System.Reflection;
 
 namespace Unity
 {
-    public static class InternalExtensions
+    internal static class InternalExtensions
     {
         private static readonly TypeInfo DelegateType = typeof(Delegate).GetTypeInfo();
-
 
         public static bool CanResolve(this UnityContainer container,  Type type, string? name)
         {

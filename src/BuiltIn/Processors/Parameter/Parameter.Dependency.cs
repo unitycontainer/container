@@ -9,14 +9,21 @@ namespace Unity.BuiltIn
     {
         #region To Dependency
 
-        protected override DependencyInfo<ParameterInfo> ToDependencyInfo(ParameterInfo member, ImportAttribute? attribute = null)
+        protected override DependencyInfo<ParameterInfo> ToDependencyInfo(ParameterInfo member)
         {
-            var import = attribute ?? (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
+            var import = (ImportAttribute?)member.GetCustomAttribute(typeof(ImportAttribute), true);
             return (null == import)
                 ? new DependencyInfo<ParameterInfo>(member, member.ParameterType, member.HasDefaultValue)
                 : new DependencyInfo<ParameterInfo>(member, import.ContractType ?? member.ParameterType, 
                                                             import, 
                                                             import.AllowDefault || member.HasDefaultValue);
+        }
+
+        protected override DependencyInfo<ParameterInfo> ToDependencyInfo(ParameterInfo member, ImportAttribute import)
+        {
+            return new DependencyInfo<ParameterInfo>(member, import.ContractType ?? member.ParameterType,
+                                                             import,
+                                                             import.AllowDefault || member.HasDefaultValue);
         }
 
         protected override DependencyInfo<ParameterInfo> ToDependencyInfo(ParameterInfo member, object? data)

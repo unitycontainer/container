@@ -21,7 +21,7 @@ namespace Unity.Container
         {
             return dependency.Injected.DataType switch
             {
-                InjectionType.Resolver => ((ResolveDelegate<PipelineContext>)dependency.Injected.Data!)(ref this),
+                InjectionType.Resolver => GetValue(dependency.Info, ((ResolveDelegate<PipelineContext>)dependency.Injected.Data!)(ref this)),
                 InjectionType.Value    => dependency.Injected.Data,
                 _                      => Container.Resolve(ref this)
             };
@@ -46,7 +46,7 @@ namespace Unity.Container
             {
                 unsafe
                 {
-                    return Unsafe.AsRef<RequestInfo>(_request.ToPointer()).IsFaulted;
+                    return Unsafe.AsRef<ErrorInfo>(_error.ToPointer()).IsFaulted;
                 }
             }
         }

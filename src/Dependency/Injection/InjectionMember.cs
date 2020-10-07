@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Unity.Resolution;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -25,7 +25,15 @@ namespace Unity.Injection
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
+
         #region Constructors
+
+        protected InjectionMember(string name)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Data = Unsafe.As<TData>(this);
+        }
+
 
         protected InjectionMember(string name, TData data)
         {
@@ -51,12 +59,6 @@ namespace Unity.Injection
         /// <summary>
         /// Data associated with injection member.
         /// </summary>
-        /// <remarks>
-        /// The data provided for injection could be either:
-        /// 1. A value. Any value will do except <see cref="RegistrationManager.NoValue"/> instance
-        /// 2. A <see cref="ResolveDelegate{IRedolveContext}"/> that resolves the value
-        /// 3. A <see cref="ResolverFactory{IResolveContext}"/> factory that creates the resolver
-        /// </remarks>
         public virtual TData Data { get; }
 
         public virtual int SelectFrom(TMemberInfo[] members)

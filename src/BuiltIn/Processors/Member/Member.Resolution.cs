@@ -45,7 +45,7 @@ namespace Unity.BuiltIn
                 if (set[index]) continue;
 
                 var info = Unsafe.As<TDependency>(members[index]);
-                var import = GetImportAttribute(Unsafe.As<TMemberInfo>(info));
+                var import = GetImportAttribute(info);
 
                 if (null == import) continue;
                 else set[index] = true;

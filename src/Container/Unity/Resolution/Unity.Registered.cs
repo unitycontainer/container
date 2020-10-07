@@ -113,19 +113,20 @@ namespace Unity
 
         private object? GenericRegistration(ref Contract contract, RegistrationManager manager, ResolverOverride[] overrides)
         {
-            var info = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, manager, ref info);
-            var factory = (RegistrationManager)manager.Data!;
+            throw new NotImplementedException();
+            //var info = new RequestInfo(overrides);
+            //var context = new PipelineContext(this, ref contract, manager, ref info);
+            //var factory = (RegistrationManager)manager.Data!;
 
-            // Calculate new Type
-            manager.Category = RegistrationCategory.Type;
-            manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
+            //// Calculate new Type
+            //manager.Category = RegistrationCategory.Type;
+            //manager.Data = factory.Type?.MakeGenericType(contract.Type.GenericTypeArguments);
 
-            // If any injection members are present, build is required
-            if (manager.RequireBuild) return _policies.ResolveContract(ref context);
+            //// If any injection members are present, build is required
+            //if (manager.RequireBuild) return _policies.ResolveContract(ref context);
 
-            // No injectors, redirect
-            return _policies.ResolveMapped(ref context);
+            //// No injectors, redirect
+            //return _policies.ResolveMapped(ref context);
         }
 
         private object? GenericRegistration(ref PipelineContext context)

@@ -81,10 +81,10 @@ namespace Unity
         #region Field
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static InjectionMember Field(string name) => new InjectionField(name);
+        public static InjectionMember Field(string field) => new InjectionField(field);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static InjectionMember OptionalField(string name) => new InjectionField(name, true);
+        public static InjectionMember OptionalField(string field) => new OptionalField(field);
 
         #endregion
 
@@ -92,10 +92,10 @@ namespace Unity
         #region Property
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static InjectionMember Property(string name) => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)));
+        public static InjectionMember Property(string property) => new InjectionProperty(property);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static InjectionMember OptionalProperty(string name) => new InjectionProperty(name ?? throw new ArgumentNullException(nameof(name)), true);
+        public static InjectionMember OptionalProperty(string property) => new OptionalProperty(property);
 
         #endregion
     }

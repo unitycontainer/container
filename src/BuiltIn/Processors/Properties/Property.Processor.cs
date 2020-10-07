@@ -37,6 +37,10 @@ namespace Unity.BuiltIn
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override Type MemberType(PropertyInfo member) => member.PropertyType;
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SetValue(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
 
         #endregion

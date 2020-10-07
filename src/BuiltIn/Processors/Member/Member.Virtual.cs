@@ -29,16 +29,15 @@ namespace Unity.BuiltIn
         /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
         /// <returns>Attribute or null if nothing found</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual ImportAttribute? GetImportAttribute(TMemberInfo info) => null;
+        protected virtual ImportAttribute? GetImportAttribute(TDependency info) => null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual InjectionMember<TMemberInfo, TData>? GetInjected(RegistrationManager? registration) => null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual Type MemberType(TDependency member) => member.GetType();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
-
-        protected abstract DependencyInfo<TDependency> ToDependencyInfo(TDependency member, ImportAttribute? attribute = null);
-
-        protected abstract DependencyInfo<TDependency> ToDependencyInfo(TDependency member, object? data);
     }
 }

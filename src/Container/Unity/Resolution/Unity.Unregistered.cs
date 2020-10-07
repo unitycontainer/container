@@ -13,7 +13,7 @@ namespace Unity
 
         private static object? ResolveUnregistered(ref Contract contract, ref PipelineContext parent)
         {
-            return null;
+            return parent.Error("NotImplementedException");
             //throw new NotImplementedException();
             //// Check if resolver already exist
             //var resolver = _policies[contract.Type];

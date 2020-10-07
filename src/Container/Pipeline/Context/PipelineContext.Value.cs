@@ -13,11 +13,11 @@ namespace Unity.Container
         /// <returns><see cref="ResolverOverride"/> object or null</returns>
         public ResolverOverride? GetOverride<T>(ref DependencyInfo<T> dependency)
         {
-            var overrides = Overrides;
-            if (null == overrides) return null;
+            if (0 == Overrides.Length) return null;
 
             ResolverOverride? candidateOverride = null;
             MatchRank candidateRank = MatchRank.NoMatch;
+            var overrides = Overrides;
 
             for (var index = overrides.Length - 1; index >= 0; --index)
             {

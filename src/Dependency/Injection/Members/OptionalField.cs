@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Unity.Injection
 {
-    public class InjectionField : InjectionMemberInfo<FieldInfo>
+    public class OptionalField : InjectionMemberInfo<FieldInfo>
     {
         #region Constructors
 
@@ -11,23 +11,21 @@ namespace Unity.Injection
         /// Configures the container to inject a specified field with a resolved value.
         /// </summary>
         /// <param name="field">Name of field to inject.</param>
-        public InjectionField(string field)
+        public OptionalField(string field)
             : base(field)
         {
         }
 
-        [Obsolete("Use OptionalField(...)", true)]
-        public InjectionField(string field, bool optional)
-            : base(field) => throw new NotSupportedException();
-
-        public InjectionField(string field, Type type)
+        public OptionalField(string field, Type type)
             : base(field, type)
         {
+
         }
 
-        public InjectionField(string field, Type type, string? name)
+        public OptionalField(string field, Type type, string? name)
             : base(field, type, name)
         {
+
         }
 
         /// <summary>
@@ -35,9 +33,19 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="field">Name of the field to inject.</param>
         /// <param name="value">Value to be injected into the field</param>
-        public InjectionField(string field, object value)
+        public OptionalField(string field, object value)
             : base(field, value)
         {
+        }
+
+        #endregion
+
+
+        #region Implementation
+
+        public override object? Resolve<TContext>(ref TContext context)
+        {
+            return base.Resolve(ref context);
         }
 
         #endregion
