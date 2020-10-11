@@ -14,10 +14,10 @@ namespace Unity.Injection
         /// Creates a new <see cref="InjectionMethod"/> instance which will configure
         /// the container to call the given method with the given parameters.
         /// </summary>
-        /// <param name="name">Name of the method to call.</param>
+        /// <param name="methodName">Name of the method to call.</param>
         /// <param name="arguments">Parameter values for the method.</param>
-        public InjectionMethod(string name, params object[] arguments)
-            : base(name, arguments)
+        public InjectionMethod(string methodName, params object[] arguments)
+            : base(methodName, arguments)
         {
         }
 

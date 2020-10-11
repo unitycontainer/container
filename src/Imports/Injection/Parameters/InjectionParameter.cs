@@ -5,9 +5,7 @@ using Unity.Resolution;
 namespace Unity.Injection
 {
     /// <summary>
-    /// A class that holds on to the given value and provides
-    /// the required <see cref="IResolve"/>
-    /// when the container is configured.
+    /// This class is used to pass values to injected parameters.
     /// </summary>
     [DebuggerDisplay("InjectionParameter: Type={ParameterType.Name ?? \"Any\"} Value={_value ?? \"null\"}")]
     public class InjectionParameter : ParameterBase, IResolve
@@ -22,11 +20,13 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Create an instance of <see cref="InjectionParameter"/> that stores
-        /// the given value, using the runtime type of that value as the
-        /// type of the parameter.
+        /// Configures the container to inject parameter with specified value
         /// </summary>
-        /// <param name="value">Value to be injected for this parameter.</param>
+        /// <remarks>
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
+        /// the attribute is ignored.
+        /// </remarks>
+        /// <param name="value">Value to be injected</param>
         /// <exception cref="ArgumentNullException">Throws and exception when value in null</exception>
         public InjectionParameter(object? value)
             : base((value ?? throw new ArgumentNullException($"The {nameof(value)} is 'null'. Unable to infer type of injected parameter\n" +
@@ -36,13 +36,17 @@ namespace Unity.Injection
         }
 
         /// <summary>
-        /// Create an instance of <see cref="InjectionParameter"/> that stores
-        /// the given value, associated with the given type.
+        /// Configures the container to inject parameter with specified value 
+        /// as specified import <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Type of the parameter.</param>
-        /// <param name="value">InjectionParameterValue of the parameter</param>
-        public InjectionParameter(Type type, object? value)
-            : base(type)
+        /// <remarks>
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
+        /// the attribute is ignored.
+        /// </remarks>
+        /// <param name="importType"><see cref="Type"/> of the injected import</param>
+        /// <param name="value">Value to be injected</param>
+        public InjectionParameter(Type importType, object? value)
+            : base(importType)
         {
             _value = value;
         }
@@ -71,20 +75,21 @@ namespace Unity.Injection
         #endregion
     }
 
+
+    #region Generic
+
     /// <summary>
-    /// A generic version of <see cref="InjectionParameter"/> that makes it a
-    /// little easier to specify the type of the parameter.
+    /// A generic version of <see cref="InjectionParameter"/>
     /// </summary>
-    /// <typeparam name="TParameter">Type of parameter.</typeparam>
-    public class InjectionParameter<TParameter> : InjectionParameter
+    /// <typeparam name="T"><see cref="Type"/> of the injected import</typeparam>
+    public class InjectionParameter<T> : InjectionParameter
     {
-        /// <summary>
-        /// Create a new <see cref="InjectionParameter{TParameter}"/>.
-        /// </summary>
-        /// <param name="value">Value for the parameter to be injected.</param>
-        public InjectionParameter(TParameter value)
-            : base(typeof(TParameter), value)
+        /// <inheritdoc/>
+        public InjectionParameter(T value)
+            : base(typeof(T), value)
         {
         }
     }
+
+    #endregion
 }

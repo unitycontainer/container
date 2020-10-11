@@ -14,20 +14,20 @@ namespace Unity.Injection
         /// <summary>
         /// Configures the container to inject a specified property with a resolved value.
         /// </summary>
-        /// <param name="property">Name of property to inject.</param>
-        public OptionalProperty(string property)
-            : base(property)
+        /// <param name="propertyName">Name of property to inject.</param>
+        public OptionalProperty(string propertyName)
+            : base(propertyName)
         {
         }
 
-        public OptionalProperty(string property, Type type)
-            : base(property, type)
+        public OptionalProperty(string propertyName, Type contractType)
+            : base(propertyName, contractType)
         {
 
         }
 
-        public OptionalProperty(string property, Type type, string? name)
-            : base(property, type, name)
+        public OptionalProperty(string propertyName, Type contractType, string? contractName)
+            : base(propertyName, contractType, contractName)
         {
 
         }
@@ -35,10 +35,10 @@ namespace Unity.Injection
         /// <summary>
         /// Configures the container to inject the given property with the provided value
         /// </summary>
-        /// <param name="property">Name of property to inject.</param>
+        /// <param name="propertyName">Name of property to inject.</param>
         /// <param name="value">Value to be injected into the property.</param>
-        public OptionalProperty(string property, object value)
-            : base(property, value)
+        public OptionalProperty(string propertyName, object value)
+            : base(propertyName, value)
         {
         }
             

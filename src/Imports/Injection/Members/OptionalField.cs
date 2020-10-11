@@ -10,20 +10,20 @@ namespace Unity.Injection
         /// <summary>
         /// Configures the container to inject a specified field with a resolved value.
         /// </summary>
-        /// <param name="field">Name of field to inject.</param>
-        public OptionalField(string field)
-            : base(field)
+        /// <param name="fieldName">Name of field to inject.</param>
+        public OptionalField(string fieldName)
+            : base(fieldName)
         {
         }
 
-        public OptionalField(string field, Type type)
-            : base(field, type)
+        public OptionalField(string fieldName, Type contractType)
+            : base(fieldName, contractType)
         {
 
         }
 
-        public OptionalField(string field, Type type, string? name)
-            : base(field, type, name)
+        public OptionalField(string fieldName, Type contractType, string? contractName)
+            : base(fieldName, contractType, contractName)
         {
 
         }
@@ -31,10 +31,10 @@ namespace Unity.Injection
         /// <summary>
         /// Configures the container to inject the given field with provided value.
         /// </summary>
-        /// <param name="field">Name of the field to inject.</param>
+        /// <param name="fieldName">Name of the field to inject.</param>
         /// <param name="value">Value to be injected into the field</param>
-        public OptionalField(string field, object value)
-            : base(field, value)
+        public OptionalField(string fieldName, object value)
+            : base(fieldName, value)
         {
         }
 

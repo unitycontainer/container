@@ -7,10 +7,14 @@ using Unity.Resolution;
 namespace Unity.Injection
 {
     /// <summary>
-    /// A <see cref="ParameterValue"/> that can be passed to
-    /// <see cref="IUnityContainer.RegisterType"/> to configure a
-    /// parameter or property as an optional dependency.
+    /// Instances of this class instruct the container to optionally inject 
+    /// corresponding parameters with values imported from this container
     /// </summary>
+    /// <remarks>
+    /// When the container fails to inject specified parameters with required
+    /// import, the error is not generated. The parameter either injected with
+    /// default value, or 'default(T)'
+    /// </remarks>
     [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
     public class OptionalParameter : ParameterBase,
                                      IResolverFactory<Type>,
@@ -33,44 +37,65 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Construct a new <see cref="OptionalParameter"/> instance that
-        /// specifies to optionally resolve whatever <see cref="Type"/> specified
-        /// at this position
+        /// Configures the container to inject parameter with optional value resolved 
+        /// from the container
         /// </summary>
+        /// <remarks>
+        /// The parameter is injected with value imported from the container. 
+        /// The <see cref="Type"/> of imported contract is the <see cref="Type"/>
+        /// of the parameter and no name.
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
+        /// the attribute is ignored.
+        /// </remarks>
         public OptionalParameter()
         {
         }
 
         /// <summary>
-        /// Construct a new <see cref="OptionalParameter"/> object that
-        /// specifies the given <paramref name="type"/>.
+        /// Configures the container to optionally inject parameter with specified 
+        /// <see cref="Type"/>
         /// </summary>
-        /// <param name="type">Type of the dependency.</param>
-        public OptionalParameter(Type type)
-            : base(type)
+        /// <remarks>
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
+        /// the attribute is ignored.
+        /// </remarks>
+        /// <param name="contractType">Type of this parameter.</param>
+        public OptionalParameter(Type contractType)
+            : base(contractType)
         {
         }
 
         /// <summary>
-        /// Construct a new <see cref="OptionalParameter"/> object that
-        /// specifies the given <paramref name="name"/>.
+        /// Configures the container to optionally inject parameter with <see cref="Contract"/> with 
+        /// <see cref="Type"/> being the <see cref="Type"/> of the parameter and specified
+        /// name.
         /// </summary>
-        /// <param name="name">Name for the dependency.</param>
-        public OptionalParameter(string name)
+        /// <remarks>
+        /// The parameter is injected with value imported from the container. The <see cref="Type"/> of 
+        /// imported contract is the <see cref="Type"/> of the parameter and name of the 
+        /// <see cref="Contract"/> is provided in <paramref name="contractName"/>
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
+        /// the attribute is ignored.
+        /// </remarks>
+        /// <param name="contractName">Name of the <see cref="Contract"/></param>
+        public OptionalParameter(string contractName)
         {
-            _name = name;
+            _name = contractName;
         }
 
         /// <summary>
-        /// Construct a new <see cref="OptionalParameter"/> object that
-        /// specifies the given <paramref name="type"/> and <paramref name="name"/>.
+        /// Configures the container to optionally inject parameter with specified <see cref="Contract"/>
         /// </summary>
-        /// <param name="type">Type of the dependency.</param>
-        /// <param name="name">Name for the dependency.</param>
-        public OptionalParameter(Type type, string name)
-            : base(type)
+        /// <remarks>
+        /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
+        /// the attribute is ignored.
+        /// </remarks>
+        /// <param name="contractType">Type of the <see cref="Contract"/></param>
+        /// <param name="contractName">Name of the <see cref="Contract"/></param>
+        public OptionalParameter(Type contractType, string contractName)
+            : base(contractType)
         {
-            _name = name;
+            _name = contractName;
         }
 
         #endregion
@@ -139,27 +164,25 @@ namespace Unity.Injection
         #endregion
     }
 
+
+    #region Generic
+
     /// <summary>
-    /// A generic version of <see cref="OptionalParameter"></see> that lets you
-    /// specify the type of the dependency using generics syntax.
+    /// A generic version of <see cref="OptionalParameter"/>
     /// </summary>
-    /// <typeparam name="T">Type of the dependency.</typeparam>
+    /// <typeparam name="T">The <see cref="Type"/> of injected <see cref="Contract"/></typeparam>
     public class OptionalParameter<T> : OptionalParameter
     {
-        /// <summary>
-        /// Construct a new <see cref="OptionalParameter{T}"/>.
-        /// </summary>
+        /// <inheritdoc/>
         public OptionalParameter() : base(typeof(T))
         {
         }
 
-        /// <summary>
-        /// Construct a new <see cref="OptionalParameter{T}"/> with the given
-        /// <paramref name="name"/>.
-        /// </summary>
-        /// <param name="name">Name of the dependency.</param>
+        /// <inheritdoc/>
         public OptionalParameter(string name) : base(typeof(T), name)
         {
         }
     }
+
+    #endregion
 }

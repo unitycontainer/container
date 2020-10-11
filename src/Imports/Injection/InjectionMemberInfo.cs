@@ -5,7 +5,9 @@ using Unity.Resolution;
 
 namespace Unity.Injection
 {
-    public abstract class InjectionMemberInfo<TMemberInfo> : InjectionMember<TMemberInfo, object>, IResolve
+    public abstract class InjectionMemberInfo<TMemberInfo> : InjectionMember<TMemberInfo, object>, 
+                                                        
+                                                             IResolve
                                          where TMemberInfo : MemberInfo
     {
         #region Constants
