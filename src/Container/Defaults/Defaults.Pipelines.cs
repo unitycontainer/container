@@ -24,7 +24,6 @@ namespace Unity.Container
         public PipelineFactory BuildPipeline 
             => (PipelineFactory)Data[BUILD_PIPELINE].Value!;
 
-
         #endregion
 
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using Unity.Resolution;
 
 namespace Unity.Container
 {
@@ -10,7 +9,7 @@ namespace Unity.Container
         public bool AllowDefault;
         public Contract Contract;
         public ImportAttribute? Import;
-        public InjectionInfo Injected;
+        public InjectedData Injected;
 
         public DependencyInfo(TInfo info, Type type, bool allowDefault = false)
         {
@@ -36,14 +35,7 @@ namespace Unity.Container
             Import = default;
             AllowDefault = allowDefault;
             Contract = new Contract(type);
-            Injected = data switch
-            {
-                IResolve iResolve                         => new InjectionInfo((ResolveDelegate<PipelineContext>)iResolve.Resolve,      InjectionType.Resolver),
-                ResolveDelegate<PipelineContext> resolver => new InjectionInfo(data,                                                    InjectionType.Resolver),
-                IResolverFactory<TInfo> infoFactory       => new InjectionInfo(infoFactory.GetResolver<PipelineContext>(Info),          InjectionType.Resolver),
-                IResolverFactory<Type> typeFactory        => new InjectionInfo(typeFactory.GetResolver<PipelineContext>(Contract.Type), InjectionType.Resolver),
-                _                                         => new InjectionInfo(data,                                                    InjectionType.Value   ),
-            };
+            Injected = Defaults.TranslateData(info, data);
         }
 
         public DependencyInfo(TInfo info, Type type, ImportAttribute? import, object? data, bool allowDefault = false)
@@ -52,14 +44,7 @@ namespace Unity.Container
             Import = import;
             AllowDefault = allowDefault;
             Contract = new Contract(type, import?.ContractName);
-            Injected = data switch
-            {
-                IResolve iResolve                         => new InjectionInfo((ResolveDelegate<PipelineContext>)iResolve.Resolve,      InjectionType.Resolver),
-                ResolveDelegate<PipelineContext> resolver => new InjectionInfo(data,                                                    InjectionType.Resolver),
-                IResolverFactory<TInfo> infoFactory       => new InjectionInfo(infoFactory.GetResolver<PipelineContext>(Info),          InjectionType.Resolver),
-                IResolverFactory<Type> typeFactory        => new InjectionInfo(typeFactory.GetResolver<PipelineContext>(Contract.Type), InjectionType.Resolver),
-                _                                         => new InjectionInfo(data,                                                    InjectionType.Value   ),
-            };
+            Injected = Defaults.TranslateData(info, data);
         }
     }
 }

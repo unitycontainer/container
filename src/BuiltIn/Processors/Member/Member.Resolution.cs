@@ -67,6 +67,8 @@ namespace Unity.BuiltIn
                 {
                     ref var dependency = ref dependencies[index];
                     SetValue(ref context, ref dependency);
+
+                    //Build(ref context);
                 }
 
                 return downstream?.Invoke(ref context);
