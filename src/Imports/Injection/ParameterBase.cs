@@ -5,7 +5,6 @@ namespace Unity.Injection
 {
     /// <summary>
     /// A base class for implementing <see cref="ParameterValue"/> classes
-    /// that deal in explicit types.
     /// </summary>
     public abstract class ParameterBase : ParameterValue
     {
@@ -19,13 +18,13 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Create a new <see cref="ParameterBase"/> that exposes
-        /// information about the given <paramref name="type"/>.
+        /// Creates a new <see cref="ParameterBase"/> that holds information
+        /// about type of import the parameter is injected with
         /// </summary>
-        /// <param name="type">Type of the parameter.</param>
-        protected ParameterBase(Type? type = null)
+        /// <param name="importedType"><see cref="Type"/> to inject</param>
+        protected ParameterBase(Type? importedType = null)
         {
-            _type = type;
+            _type = importedType;
         }
 
 

@@ -56,9 +56,9 @@ namespace Unity.Injection
         }
 
         /// <summary>
-        /// Configures the container to inject parameter with <see cref="Contract"/> with 
-        /// <see cref="Type"/> being the <see cref="Type"/> of the parameter and specified
-        /// name.
+        /// Configures the container to inject parameter with imported <see cref="Contract"/> 
+        /// with the <see cref="Type"/> being the <see cref="Type"/> of the parameter and the
+        /// specified name.
         /// </summary>
         /// <remarks>
         /// The parameter is injected with value imported from the container. The <see cref="Type"/> of 

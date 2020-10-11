@@ -14,7 +14,7 @@ namespace Unity.Injection
         #region Fields
 
         private readonly bool    _isArray;
-        private readonly string? _name;
+        private readonly string? _contractName;
         private readonly string  _genericParameterName;
 
         #endregion
@@ -36,8 +36,8 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        /// <param name="resolutionName">Registration name to use when looking up in the container.</param>
-        protected GenericParameterBase(string genericParameterName, string? resolutionName)
+        /// <param name="contractName">Name of the contract</param>
+        protected GenericParameterBase(string genericParameterName, string? contractName)
         {
             if (null == genericParameterName) throw new ArgumentNullException(nameof(genericParameterName));
 
@@ -52,7 +52,7 @@ namespace Unity.Injection
                 _genericParameterName = genericParameterName;
                 _isArray = false;
             }
-            _name = resolutionName;
+            _contractName = contractName;
         }
 
 
@@ -104,10 +104,10 @@ namespace Unity.Injection
         #region IResolverFactory
 
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext => GetResolver<TContext>(type, _name);
+            where TContext : IResolveContext => GetResolver<TContext>(type, _contractName);
 
         public virtual ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
-            where TContext : IResolveContext => GetResolver<TContext>(info.ParameterType, _name);
+            where TContext : IResolveContext => GetResolver<TContext>(info.ParameterType, _contractName);
 
         #endregion
 

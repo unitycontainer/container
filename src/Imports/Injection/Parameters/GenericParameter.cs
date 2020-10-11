@@ -25,9 +25,9 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        /// <param name="name">Registration name to use when looking up in the container.</param>
-        public GenericParameter(string genericParameterName, string name)
-            : base(genericParameterName, name)
+        /// <param name="contractName">Registration name to use when looking up in the container.</param>
+        public GenericParameter(string genericParameterName, string contractName)
+            : base(genericParameterName, contractName)
         { }
 
         #endregion
