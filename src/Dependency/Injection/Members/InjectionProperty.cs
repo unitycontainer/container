@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -17,20 +18,21 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="propertyName">Name of property to inject.</param>
         public InjectionProperty(string propertyName)
-            : base(propertyName)
+            : base(propertyName, false)
         {}
 
-        [Obsolete("Use OptionalProperty(...)", true)]
         public InjectionProperty(string property, bool optional)
-            : base(property) => throw new NotSupportedException();
+            : base(property, optional)
+        { 
+        }
 
         public InjectionProperty(string propertyName, Type contractType)
-            : base(propertyName, contractType)
+            : base(propertyName, contractType, false)
         {
         }
 
         public InjectionProperty(string propertyName, Type contractType, string? contractName)
-            : base(propertyName, contractType, contractName)
+            : base(propertyName, contractType, contractName, false)
         {
         }
 
@@ -43,6 +45,15 @@ namespace Unity.Injection
             : base(propertyName, value)
         {
         }
+
+        #endregion
+
+
+        #region Implementation
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        protected override Type MemberType(PropertyInfo info) => info.PropertyType;
 
         #endregion
     }

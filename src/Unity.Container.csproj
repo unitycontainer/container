@@ -73,10 +73,6 @@
 		<PackageReference Include="System.ComponentModel.Composition" Version="4.7.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Imports\Annotation\Extensions\" />
-	</ItemGroup>
-
 
 	<!-- Configuration Settings -->
 

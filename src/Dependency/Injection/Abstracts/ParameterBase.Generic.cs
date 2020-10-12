@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -113,6 +114,11 @@ namespace Unity.Injection
 
 
         #region Implementation
+
+        public override ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
             where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);

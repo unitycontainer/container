@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -19,13 +20,14 @@ namespace Unity.Injection
         /// </remarks>
         /// <param name="fieldName">Name of the field to inject.</param>
         public InjectionField(string fieldName)
-            : base(fieldName)
+            : base(fieldName, false)
         {
         }
 
-        [Obsolete("Use OptionalField(...)", true)]
+        // TODO: doc
         public InjectionField(string fieldName, bool optional)
-            : base(fieldName) => throw new NotSupportedException();
+            : base(fieldName, optional)
+        { }
 
         /// <summary>
         /// Configures the container to inject specified field with provided <see cref="Type"/>
@@ -39,7 +41,7 @@ namespace Unity.Injection
         /// <param name="fieldName">Name of the field to inject.</param>
         /// <param name="contractType"><see cref="Type"/> of imported <see cref="Contract"/></param>
         public InjectionField(string fieldName, Type contractType)
-            : base(fieldName, contractType)
+            : base(fieldName, contractType, false)
         {
         }
 
@@ -56,7 +58,7 @@ namespace Unity.Injection
         /// <param name="contractType"><see cref="Type"/> of imported <see cref="Contract"/></param>
         /// <param name="contractName">Name of imported <see cref="Contract"/></param>
         public InjectionField(string fieldName, Type contractType, string? contractName)
-            : base(fieldName, contractType, contractName)
+            : base(fieldName, contractType, contractName, false)
         {
         }
 
@@ -73,6 +75,15 @@ namespace Unity.Injection
             : base(fieldName, value)
         {
         }
+
+        #endregion
+
+
+        #region Implementation
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        protected override Type MemberType(FieldInfo info) => info.FieldType;
 
         #endregion
     }

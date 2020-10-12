@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -8,9 +9,12 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IMatch<ParameterInfo>, 
+    public abstract class ParameterValue : IImportInfoProvider<ParameterInfo>, 
+                                           IMatch<ParameterInfo>, 
                                            IMatch<Type>
     {
+        public abstract ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member);
+
         /// <summary>
         /// Checks if this parameter is compatible with the <see cref="ParameterInfo"/>
         /// </summary>

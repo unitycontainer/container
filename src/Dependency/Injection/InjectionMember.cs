@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -28,13 +27,6 @@ namespace Unity.Injection
 
         #region Constructors
 
-        protected InjectionMember(string name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Data = Unsafe.As<TData>(this);
-        }
-
-
         protected InjectionMember(string name, TData data)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -59,7 +51,7 @@ namespace Unity.Injection
         /// <summary>
         /// Data associated with injection member.
         /// </summary>
-        public virtual TData Data { get; }
+        public virtual TData? Data { get; }
 
         public virtual int SelectFrom(TMemberInfo[] members)
         {

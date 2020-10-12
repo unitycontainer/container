@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -10,7 +11,7 @@ namespace Unity.Injection
     {
         #region Fields
 
-        private readonly Type? _type;
+        public readonly Type? ParameterType;
 
         #endregion
 
@@ -24,39 +25,27 @@ namespace Unity.Injection
         /// <param name="importedType"><see cref="Type"/> to inject</param>
         protected ParameterBase(Type? importedType = null)
         {
-            _type = importedType;
+            ParameterType = importedType;
         }
 
-
-        #endregion
-
-
-        #region Public Properties
-
-        /// <summary>
-        /// The type of parameter this object represents.
-        /// </summary>
-        public virtual Type? ParameterType => _type;
-
-        #endregion
-
-
-        #region Overrides
-
-        public override MatchRank Match(Type type)
-        {
-            return null == _type 
-                ? MatchRank.ExactMatch
-                : _type.MatchTo(type);
-        }
-
-        public override MatchRank Match(ParameterInfo parameter) => 
-            Match(parameter.ParameterType);
 
         #endregion
 
 
         #region Implementation
+
+        public override MatchRank Match(Type type)
+        {
+            return null == ParameterType 
+                ? MatchRank.ExactMatch
+                : ParameterType.MatchTo(type);
+        }
+
+        public override MatchRank Match(ParameterInfo parameter) => 
+            Match(parameter.ParameterType);
+
+        public override ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member)
+            => new ImportInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue);
 
         protected bool IsInvalidParameterType
         {

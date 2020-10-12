@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -12,18 +13,18 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="fieldName">Name of field to inject.</param>
         public OptionalField(string fieldName)
-            : base(fieldName)
+            : base(fieldName, true)
         {
         }
 
         public OptionalField(string fieldName, Type contractType)
-            : base(fieldName, contractType)
+            : base(fieldName, contractType, true)
         {
 
         }
 
         public OptionalField(string fieldName, Type contractType, string? contractName)
-            : base(fieldName, contractType, contractName)
+            : base(fieldName, contractType, contractName, true)
         {
 
         }
@@ -43,10 +44,9 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override object? Resolve<TContext>(ref TContext context)
-        {
-            return base.Resolve(ref context);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        protected override Type MemberType(FieldInfo info) => info.FieldType;
 
         #endregion
     }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -66,6 +68,14 @@ namespace Unity.Injection
 
 
         #region Overrides
+
+        public override ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member)
+        {
+            if (_value is IImportInfoProvider<ParameterInfo> provider)
+                return provider.GetImportInfo(member);
+
+            return new ImportInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue, _value);
+        }
 
         public override string ToString()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -16,18 +17,18 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="propertyName">Name of property to inject.</param>
         public OptionalProperty(string propertyName)
-            : base(propertyName)
+            : base(propertyName, true)
         {
         }
 
         public OptionalProperty(string propertyName, Type contractType)
-            : base(propertyName, contractType)
+            : base(propertyName, contractType, true)
         {
 
         }
 
         public OptionalProperty(string propertyName, Type contractType, string? contractName)
-            : base(propertyName, contractType, contractName)
+            : base(propertyName, contractType, contractName, true)
         {
 
         }
@@ -41,18 +42,15 @@ namespace Unity.Injection
             : base(propertyName, value)
         {
         }
-            
-        // TODO: Add generic cases
 
         #endregion
 
 
         #region Implementation
 
-        public override object? Resolve<TContext>(ref TContext context)
-        {
-            return base.Resolve(ref context);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        protected override Type MemberType(PropertyInfo info) => info.PropertyType;
 
         #endregion
     }

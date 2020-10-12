@@ -1,15 +1,20 @@
-﻿namespace Unity
+﻿
+namespace Unity.Container
 {
     public enum ImportType
     {
-        Contract = 0,
+        None = 0,
         
         MemberFactory,
         
         TypeFactory,
+
+        Provider,
         
         Pipeline,
         
-        Value
+        Value,
+
+        Unknown
     }
 }
