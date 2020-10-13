@@ -53,7 +53,7 @@ namespace Unity.BuiltIn
 
                 var info = members[index];
                 var args = ToDependencyArray(info.GetParameters());
-                (invocations ??= new InvokeInfo<MethodInfo>[members.Length - index])[count++] = new InvocationInfo<MethodInfo>(info, args);
+                // TODO: (invocations ??= new InvokeInfo<MethodInfo>[members.Length - index])[count++] = new InvocationInfo<MethodInfo>(info, args);
             }
 
             // Validate and trim array
@@ -63,16 +63,17 @@ namespace Unity.BuiltIn
             // Create pipeline
             return (ref PipelineContext context) =>
             {
-                for (var index = 0; index < invocations.Length; index++)
-                {
-                    ref var method = ref invocations[index];
+                // TODO: 
+                //for (var index = 0; index < invocations.Length; index++)
+                //{
+                //    ref var method = ref invocations[index];
 
-                    object?[] arguments = (null == method.Parameters)
-                        ? arguments = EmptyParametersArray
-                        : GetDependencies(ref context, method.Parameters);
+                //    object?[] arguments = (null == method.Parameters)
+                //        ? arguments = EmptyParametersArray
+                //        : GetDependencies(ref context, method.Parameters);
 
-                    method.Info.Invoke(context.Target, arguments);
-                }
+                //    method.Info.Invoke(context.Target, arguments);
+                //}
 
                 return downstream?.Invoke(ref context);
             };

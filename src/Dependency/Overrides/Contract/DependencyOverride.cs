@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Unity.Container;
 
 namespace Unity.Resolution
 {
@@ -8,7 +9,10 @@ namespace Unity.Resolution
     /// the value injected whenever there is a dependency of the
     /// given type, regardless of where it appears in the object graph.
     /// </summary>
-    public class DependencyOverride : ResolverOverride
+    public class DependencyOverride : ResolverOverride,
+                                      IMatchImport<FieldInfo>,
+                                      IMatchImport<PropertyInfo>,
+                                      IMatchImport<ParameterInfo> 
     {
         #region Fields
 
@@ -79,53 +83,53 @@ namespace Unity.Resolution
 
         #region  Match
 
-        public override MatchRank Match(FieldInfo other, in Contract contract)
+        public MatchRank Match(in ImportInfo<FieldInfo> other)
         {
-            if ((null != Target && other.DeclaringType != Target) || (contract.Name != Name))
+            if ((null != Target && other.MemberInfo.DeclaringType != Target) || (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (null == Type) return MatchRank.Compatible;
 
             // Matches exactly
-            if (contract.Type == Type) return MatchRank.ExactMatch;
+            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }
 
-        public override MatchRank Match(PropertyInfo other, in Contract contract)
+        public MatchRank Match(in ImportInfo<PropertyInfo> other)
         {
-            if ((null != Target && other.DeclaringType != Target) || (contract.Name != Name))
+            if ((null != Target && other.MemberInfo.DeclaringType != Target) || (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (null == Type) return MatchRank.Compatible;
 
             // Matches exactly
-            if (contract.Type == Type) return MatchRank.ExactMatch;
+            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }
 
-        public override MatchRank Match(ParameterInfo other, in Contract contract)
+        public MatchRank Match(in ImportInfo<ParameterInfo> other)
         {
-            if ((null != Target && other.Member.DeclaringType != Target) || (contract.Name != Name))
+            if ((null != Target && other.MemberInfo.Member.DeclaringType != Target) || (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
             if (null == Type) return MatchRank.Compatible;
 
             // Matches exactly
-            if (contract.Type == Type) return MatchRank.ExactMatch;
+            if (other.Contract.Type == Type) return MatchRank.ExactMatch;
 
             // Can be assigned to
-            if (contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
+            if (other.Contract.Type.IsAssignableFrom(Type)) return MatchRank.HigherProspect;
 
             return MatchRank.NoMatch;
         }

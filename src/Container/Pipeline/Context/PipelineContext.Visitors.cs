@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using Unity.Resolution;
 
 namespace Unity.Container
@@ -11,23 +10,40 @@ namespace Unity.Container
             if (0 == Overrides.Length) return null;
 
             ResolverOverride? candidateOverride = null;
-            MatchRank candidateRank = MatchRank.NoMatch;
+            MatchRank rank, candidateRank = MatchRank.NoMatch;
             var overrides = Overrides;
 
             for (var index = overrides.Length - 1; index >= 0; --index)
             {
                 var @override = overrides[index];
-                
-                // TODO: Separate member and contract
-                var rank = Unsafe.As<IMatchContract<T>>(@override)
-                                 .Match(import.MemberInfo, in import.Contract);
 
-                if (MatchRank.ExactMatch == rank) return @override;
-
-                if (rank > candidateRank)
+                // Match member first
+                if (@override is IMatch<T> candidate)
                 {
-                    candidateRank = rank;
-                    candidateOverride = @override;
+                    rank = candidate.Match(import.MemberInfo);
+
+                    if (MatchRank.ExactMatch == rank) return @override;
+
+                    if (rank > candidateRank)
+                    {
+                        candidateRank = rank;
+                        candidateOverride = @override;
+                    }
+                    
+                    continue;
+                }
+
+                if (@override is IMatchImport<T> dependency)
+                {
+                    rank = dependency.Match(in import);
+
+                    if (MatchRank.ExactMatch == rank) return @override;
+
+                    if (rank > candidateRank)
+                    {
+                        candidateRank = rank;
+                        candidateOverride = @override;
+                    }
                 }
             }
 
@@ -48,28 +64,28 @@ namespace Unity.Container
         {
             if (0 == Overrides.Length) return null;
 
-            ResolverOverride? candidateOverride = null;
-            MatchRank candidateRank = MatchRank.NoMatch;
-            var overrides = Overrides;
+            //ResolverOverride? candidateOverride = null;
+            //MatchRank candidateRank = MatchRank.NoMatch;
+            //var overrides = Overrides;
 
-            for (var index = overrides.Length - 1; index >= 0; --index)
-            {
-                var @override = overrides[index];
+            //for (var index = overrides.Length - 1; index >= 0; --index)
+            //{
+            //    var @override = overrides[index];
 
-                var rank = Unsafe.As<IMatchContract<T>>(@override)
-                                 .Match(dependency.Info, in dependency.Contract);
+            //    var rank = Unsafe.As<IMatchImport<T>>(@override)
+            //                     .Match(dependency.Info, in dependency.Contract);
 
-                if (MatchRank.ExactMatch == rank) return @override;
+            //    if (MatchRank.ExactMatch == rank) return @override;
 
-                if (rank > candidateRank)
-                {
-                    candidateRank = rank;
-                    candidateOverride = @override;
-                }
-            }
+            //    if (rank > candidateRank)
+            //    {
+            //        candidateRank = rank;
+            //        candidateOverride = @override;
+            //    }
+            //}
 
-            if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)
-                return candidateOverride;
+            //if (null != candidateOverride && candidateRank >= candidateOverride.RequireRank)
+            //    return candidateOverride;
 
             return null;
         }

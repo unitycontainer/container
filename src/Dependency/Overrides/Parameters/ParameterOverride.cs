@@ -7,7 +7,8 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> class that lets you
     /// override a named parameter passed to a constructor.
     /// </summary>
-    public class ParameterOverride : ResolverOverride
+    public class ParameterOverride : ResolverOverride, 
+                                     IMatch<ParameterInfo>
     {
         #region Fields
 
@@ -65,7 +66,7 @@ namespace Unity.Resolution
 
         #region Match
 
-        public override MatchRank Match(ParameterInfo other, in Contract _)
+        public MatchRank Match(ParameterInfo other)
         {
             return (null == Target || other.Member.DeclaringType == Target) &&
                    (null == Type   || other.ParameterType == Type) &&

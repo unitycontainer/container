@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Unity.Resolution
 {
@@ -7,9 +6,7 @@ namespace Unity.Resolution
     /// Base class for all override objects passed in the
     /// <see cref="IUnityContainer.Resolve"/> method.
     /// </summary>
-    public abstract class ResolverOverride : IMatchContract<FieldInfo>,
-                                             IMatchContract<PropertyInfo>,
-                                             IMatchContract<ParameterInfo> 
+    public abstract class ResolverOverride
     {
         #region Fields
 
@@ -50,17 +47,6 @@ namespace Unity.Resolution
             Value = value;
             RequireRank = rank;
         }
-
-        #endregion
-
-
-        #region Match Contract
-
-        public virtual MatchRank Match(FieldInfo other, in Contract contract) => MatchRank.NoMatch;
-
-        public virtual MatchRank Match(PropertyInfo other, in Contract contract) => MatchRank.NoMatch;
-
-        public virtual MatchRank Match(ParameterInfo other, in Contract contract) => MatchRank.NoMatch;
 
         #endregion
 

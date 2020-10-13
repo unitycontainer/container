@@ -7,7 +7,8 @@ namespace Unity.Resolution
     /// A <see cref="ResolverOverride"/> that lets you override
     /// the value for a specified property.
     /// </summary>
-    public class PropertyOverride : ResolverOverride
+    public class PropertyOverride : ResolverOverride, 
+                                    IMatch<PropertyInfo>
     {
         #region Constructors
 
@@ -27,7 +28,7 @@ namespace Unity.Resolution
 
         #region Match
 
-        public override MatchRank Match(PropertyInfo other, in Contract _)
+        public MatchRank Match(PropertyInfo other)
         {
             return other.Name == Name && (null == Target || other.DeclaringType == Target)
                 ? MatchRank.ExactMatch
