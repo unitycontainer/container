@@ -115,7 +115,7 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member)
+        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
         {
             throw new NotImplementedException();
         }

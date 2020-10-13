@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Unity.Container
 {
-    public interface IImportInfoProvider
+    public interface IInjectionInfoProvider
     {
     }
 
-    public interface IImportInfoProvider<TInfo> : IImportInfoProvider
+    public interface IInjectionInfoProvider<TInfo> : IInjectionInfoProvider
     {
-        ImportInfo<TInfo> GetImportInfo(TInfo member);
+        InjectionInfo<TInfo> GetInfo(TInfo member);
     }
 }

@@ -3,7 +3,6 @@ using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
@@ -22,25 +21,26 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override PropertyInfo[] GetMembers(Type type) => type.GetProperties(BindingFlags);
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override InjectionMember<PropertyInfo, object>? GetInjected(RegistrationManager? registration) => registration?.Properties;
+        /// <inheritdoc/>
+        protected override TMember? GetInjected<TMember>(RegistrationManager? registration) 
+            where TMember : class => Unsafe.As<TMember>(registration?.Properties);
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override ImportAttribute? GetImportAttribute(PropertyInfo info)
             => (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute), true);
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override Type MemberType(PropertyInfo member) => member.PropertyType;
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override void SetValue(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
 
         #endregion

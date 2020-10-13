@@ -44,8 +44,8 @@ namespace Unity.Injection
         public override MatchRank Match(ParameterInfo parameter) => 
             Match(parameter.ParameterType);
 
-        public override ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member)
-            => new ImportInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue);
+        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+            => new InjectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue);
 
         protected bool IsInvalidParameterType
         {

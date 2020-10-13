@@ -9,11 +9,11 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IImportInfoProvider<ParameterInfo>, 
+    public abstract class ParameterValue : IInjectionInfoProvider<ParameterInfo>, 
                                            IMatch<ParameterInfo>, 
                                            IMatch<Type>
     {
-        public abstract ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member);
+        public abstract InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member);
 
         /// <summary>
         /// Checks if this parameter is compatible with the <see cref="ParameterInfo"/>

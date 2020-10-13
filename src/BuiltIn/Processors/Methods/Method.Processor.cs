@@ -20,13 +20,14 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override MethodInfo[] GetMembers(Type type) => type.GetMethods(BindingFlags);
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override InjectionMember<MethodInfo, object[]>? GetInjected(RegistrationManager? registration) => registration?.Methods;
+        /// <inheritdoc/>
+        protected override TMember? GetInjected<TMember>(RegistrationManager? registration)
+            where TMember : class => Unsafe.As<TMember>(registration?.Methods);
 
         #endregion
     }

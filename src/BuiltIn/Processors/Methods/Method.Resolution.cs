@@ -19,7 +19,7 @@ namespace Unity.BuiltIn
 
             int count = 0;
             Span<bool> set = stackalloc bool[members.Length];
-            InvocationInfo<MethodInfo>[]? methods = null;
+            InvokeInfo<MethodInfo>[]? invocations = null;
 
             // Add injected methods
             for (var injected = builder.Context.Registration?.Methods; null != injected; injected = (InjectionMethod?)injected.Next)
@@ -37,8 +37,7 @@ namespace Unity.BuiltIn
                 else set[index] = true;
 
                 var info = members[index];
-                var args = ToDependencyArray(info.GetParameters(), injected.Data);
-                (methods ??= new InvocationInfo<MethodInfo>[members.Length])[count++] = new InvocationInfo<MethodInfo>(info, args);
+                (invocations ??= new InvokeInfo<MethodInfo>[members.Length])[count++] = injected.GetInvocationInfo(info);
             }
 
             // Add annotated methods
@@ -54,50 +53,29 @@ namespace Unity.BuiltIn
 
                 var info = members[index];
                 var args = ToDependencyArray(info.GetParameters());
-                (methods ??= new InvocationInfo<MethodInfo>[members.Length])[count++] = new InvocationInfo<MethodInfo>(info, args);
+                (invocations ??= new InvokeInfo<MethodInfo>[members.Length - index])[count++] = new InvocationInfo<MethodInfo>(info, args);
             }
 
             // Validate and trim array
-            if (0 == count || null == methods) return downstream;
-            if (methods.Length > count) Array.Resize(ref methods, count);
+            if (0 == count || null == invocations) return downstream;
+            if (invocations.Length > count) Array.Resize(ref invocations, count);
 
             // Create pipeline
-            if (null == downstream)
+            return (ref PipelineContext context) =>
             {
-                return (ref PipelineContext context) =>
+                for (var index = 0; index < invocations.Length; index++)
                 {
-                    for (var index = 0; index < methods.Length; index++)
-                    {
-                        ref var method = ref methods[index];
+                    ref var method = ref invocations[index];
 
-                        object?[] arguments = (null == method.Parameters)
-                            ? arguments = EmptyParametersArray
-                            : GetDependencies(ref context, method.Parameters);
+                    object?[] arguments = (null == method.Parameters)
+                        ? arguments = EmptyParametersArray
+                        : GetDependencies(ref context, method.Parameters);
 
-                        method.Info.Invoke(context.Target, arguments);
-                    }
+                    method.Info.Invoke(context.Target, arguments);
+                }
 
-                    return context.Target;
-                };
-            }
-            else
-            {
-                return (ref PipelineContext context) =>
-                {
-                    for (var index = 0; index < methods.Length; index++)
-                    {
-                        ref var method = ref methods[index];
-
-                        object?[] arguments = (null == method.Parameters)
-                            ? arguments = EmptyParametersArray
-                            : GetDependencies(ref context, method.Parameters);
-
-                        method.Info.Invoke(context.Target, arguments);
-                    }
-
-                    return downstream.Invoke(ref context);
-                };
-            }
+                return downstream?.Invoke(ref context);
+            };
         }
     }
 }

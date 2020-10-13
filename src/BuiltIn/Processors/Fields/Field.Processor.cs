@@ -21,20 +21,21 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override FieldInfo[] GetMembers(Type type) => type.GetFields(BindingFlags);
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override InjectionMember<FieldInfo, object>? GetInjected(RegistrationManager? registration) => registration?.Fields;
+        /// <inheritdoc/>
+        protected override TMember? GetInjected<TMember>(RegistrationManager? registration)
+            where TMember : class => Unsafe.As<TMember>(registration?.Fields);
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override Type MemberType(FieldInfo member) => member.FieldType;
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override void SetValue(FieldInfo info, object target, object? value) => info.SetValue(target, value);
 
 

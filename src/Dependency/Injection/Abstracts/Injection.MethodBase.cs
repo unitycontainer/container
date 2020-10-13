@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -20,7 +20,7 @@ namespace Unity.Injection
 
         #region Selection
 
-        public override int SelectFrom(TMemberInfo[] members)
+        public virtual int SelectFrom(TMemberInfo[] members)
         {
             int position = -1;
             int bestSoFar = -1;
@@ -65,6 +65,27 @@ namespace Unity.Injection
             }
 
             return (int)MatchRank.ExactMatch * parameters.Length == rank ? 0 : rank;
+        }
+
+        #endregion
+
+
+        #region Info
+
+        public InvokeInfo<TMemberInfo> GetInvocationInfo(TMemberInfo member)
+        {
+            var parameters = member.GetParameters();
+
+            if (0 == parameters.Length) return new InvokeInfo<TMemberInfo>(member);
+
+            var imports = new InjectionInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                imports[i] = parameters[i].AsInjectionInfo(Data![i]);
+            }
+
+            return new InvokeInfo<TMemberInfo>(member, imports);
         }
 
         #endregion

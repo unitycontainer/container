@@ -5,12 +5,6 @@ namespace Unity.Container
     {
         None = 0,
         
-        MemberFactory,
-        
-        TypeFactory,
-
-        Provider,
-        
         Pipeline,
         
         Value,

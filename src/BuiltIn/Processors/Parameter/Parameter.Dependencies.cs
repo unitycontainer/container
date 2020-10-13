@@ -20,10 +20,8 @@ namespace Unity.BuiltIn
             return arguments;
         }
 
-        protected object?[] GetDependencies(ref PipelineContext context, ParameterInfo[] parameters, object?[] data)
+        protected object?[] Build(ref PipelineContext context, ParameterInfo[] parameters, object?[] data)
         {
-            if (0 == parameters.Length) return EmptyParametersArray;
-
             object?[] arguments = new object?[parameters.Length];
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
@@ -71,7 +69,7 @@ namespace Unity.BuiltIn
                 local = context.CreateContext(ref parameter.Contract, ref error);
 
                 argument = null != (@override = local.GetOverride(ref parameter))
-                    ? local.GetValue(parameter.Info, @override.Value)
+                    ? local.GetValueRecursively(parameter.Info, @override.Value)
                     : local.Resolve(ref parameter);
 
                 if (local.IsFaulted)
@@ -87,7 +85,7 @@ namespace Unity.BuiltIn
                 local = context.CreateContext(ref parameter.Contract);
 
                 argument = null != (@override = local.GetOverride(ref parameter))
-                    ? local.GetValue(parameter.Info, @override.Value)
+                    ? local.GetValueRecursively(parameter.Info, @override.Value)
                     : local.Resolve(ref parameter);
             }
 

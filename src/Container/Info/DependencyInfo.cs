@@ -9,7 +9,7 @@ namespace Unity.Container
         public bool AllowDefault;
         public Contract Contract;
         public ImportAttribute? Import;
-        public InjectedData Injected;
+        public ImportData Injected;
 
         public DependencyInfo(TInfo info, Type type, bool allowDefault = false)
         {
@@ -35,7 +35,7 @@ namespace Unity.Container
             Import = default;
             AllowDefault = allowDefault;
             Contract = new Contract(type);
-            Injected = Defaults.TranslateData(info, data);
+            Injected = info.AsImportData(data);
         }
 
         public DependencyInfo(TInfo info, Type type, ImportAttribute? import, object? data, bool allowDefault = false)
@@ -44,7 +44,7 @@ namespace Unity.Container
             Import = import;
             AllowDefault = allowDefault;
             Contract = new Contract(type, import?.ContractName);
-            Injected = Defaults.TranslateData(info, data);
+            Injected = info.AsImportData(data);
         }
     }
 }

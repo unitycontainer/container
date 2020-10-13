@@ -2,8 +2,6 @@
 using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Unity.Container;
-using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
@@ -32,7 +30,7 @@ namespace Unity.BuiltIn
         protected virtual ImportAttribute? GetImportAttribute(TDependency info) => null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual InjectionMember<TMemberInfo, TData>? GetInjected(RegistrationManager? registration) => null;
+        protected virtual TMember? GetInjected<TMember>(RegistrationManager? registration) where TMember : class => null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual Type MemberType(TDependency member) => member.GetType();

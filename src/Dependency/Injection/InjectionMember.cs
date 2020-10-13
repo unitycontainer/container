@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
@@ -20,7 +21,7 @@ namespace Unity.Injection
         public InjectionMember? Next { get; internal set; }
     }
 
-    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember
+    public abstract class InjectionMember<TMemberInfo, TData> : InjectionMember, IMatch<TMemberInfo>
                                             where TMemberInfo : MemberInfo
                                             where TData       : class
     {
@@ -53,22 +54,16 @@ namespace Unity.Injection
         /// </summary>
         public virtual TData? Data { get; }
 
-        public virtual int SelectFrom(TMemberInfo[] members)
-        {
-            for (var index = 0; index < members.Length; index++)
-            {
-                if (members[index].Name == Name) return index;
-            }
-
-            return -1;
-        }
-
-        #endregion
-
-
-        #region Overrides
-
+        /// <summary>
+        /// Injecting any members requires pipeline build
+        /// </summary>
         public override bool BuildRequired => true;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        public virtual MatchRank Match(TMemberInfo other)
+            => other.Name == Name ? MatchRank.ExactMatch : MatchRank.NoMatch;
+
 
         #endregion
     }

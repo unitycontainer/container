@@ -69,12 +69,12 @@ namespace Unity.Injection
 
         #region Overrides
 
-        public override ImportInfo<ParameterInfo> GetImportInfo(ParameterInfo member)
+        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
         {
-            if (_value is IImportInfoProvider<ParameterInfo> provider)
-                return provider.GetImportInfo(member);
+            if (_value is IInjectionInfoProvider<ParameterInfo> provider)
+                return provider.GetInfo(member);
 
-            return new ImportInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue, _value);
+            return new InjectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue, _value);
         }
 
         public override string ToString()

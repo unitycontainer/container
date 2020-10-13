@@ -10,19 +10,15 @@ namespace Unity.Container
     {
         #region Resolution
 
-        public object? Resolve()
-        {
-            // TODO: ResolverOverride? @override;
-
-            return Container.Resolve(ref this);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object? Resolve() => Container.Resolve(ref this);
 
         public object? Resolve<T>(ref DependencyInfo<T> dependency)
         {
             return dependency.Injected.DataType switch
             {
-                InjectionType.Resolver => GetValue(dependency.Info, ((ResolveDelegate<PipelineContext>)dependency.Injected.Data!)(ref this)),
-                InjectionType.Value    => dependency.Injected.Data,
+                ImportType.Pipeline => GetValueRecursively(dependency.Info, ((ResolveDelegate<PipelineContext>)dependency.Injected.Value!)(ref this)),
+                ImportType.Value    => dependency.Injected.Value,
                 _                      => Container.Resolve(ref this)
             };
         }
@@ -137,7 +133,6 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(ref Contract contract, ref ErrorInfo error)
             => new PipelineContext(ref contract, ref error, ref this);
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public PipelineContext CreateContext(ref Contract contract)

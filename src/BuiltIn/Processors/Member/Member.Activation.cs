@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Injection;
+using Unity.Resolution;
 
 namespace Unity.BuiltIn
 {
@@ -9,54 +10,49 @@ namespace Unity.BuiltIn
     {
         public override void PreBuild(ref PipelineContext context)
         {
-            // Nothing to do if null
-            if (null == context.Target) return;
+            Debug.Assert(null != context.Target, "Target should never be null");
 
-            // Type to build
-            Type type = context.Type;
-            var members = GetMembers(type);
+            ResolverOverride? @override;
+            var injected   = GetInjected<InjectionMemberInfo<TMemberInfo>>(context.Registration);
+            var injections = injected;
 
-            // No members
-            if (0 == members.Length) return;
-
-            Span<bool> set = stackalloc bool[members.Length];
-            DependencyInfo<TDependency> dependency;
-
-            // Initialize injected members
-            for (var injected = GetInjected(context.Registration); null != injected && !context.IsFaulted; 
-                     injected = Unsafe.As<InjectionMember<TMemberInfo, TData>>(injected.Next))
+            foreach(var member in GetMembers(context.Type))
             {
-                int index;
-                using var action = context.Start(injected);
+                if (context.IsFaulted) return;
 
-                if (-1 == (index = injected.SelectFrom(members)))
+                // Injection first
+                while(null != injected)
                 {
-                    // TODO: Proper handling?
-                    context.Error($"Injected member '{injected}' doesn't match any {typeof(TDependency).Name} on type {type}");
-                    return;
+                    if (MatchRank.ExactMatch == injected.Match(member))
+                    {
+                        var info = injected.GetInfo(member);
+                        
+                        // Check for override
+                        if (null != (@override = context.GetOverride(in info.Import)))
+                            Build(ref context, in info.Import, member.AsImportData(@override.Value));
+                        else
+                            Build(ref context, in info.Import, in info.Data);
+
+                        goto InitializeNext;
+                    }
+                    
+                    injected = Unsafe.As<InjectionMemberInfo<TMemberInfo>>(injected.Next);
                 }
+                
+                // Annotation second
+                var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
+                if (null == attribute) continue;
+                var annotation = new InjectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)), 
+                                                                        attribute.ContractName, 
+                                                                        attribute.AllowDefault);
+                // Check for override
+                if (null != (@override = context.GetOverride(in annotation.Import)))
+                    Build(ref context, in annotation.Import, member.AsImportData(@override.Value));
+                else
+                    Build(ref context, in annotation.Import, in annotation.Data);
 
-                if (set[index]) continue;
-                else set[index] = true;
-
-                var info = Unsafe.As<TDependency>(members[index]);
-                dependency = ToDependencyInfo(info, injected.Data); 
-                SetValue(ref context, ref dependency);
-            }
-
-            // Initialize annotated members
-            for (var index = 0; index < members.Length && !context.IsFaulted; index++)
-            {
-                if (set[index]) continue;
-
-                var info = Unsafe.As<TDependency>(members[index]);
-                var import = GetImportAttribute(info);
-
-                if (null == import) continue;
-                else set[index] = true;
-
-                dependency = ToDependencyInfo(info, import);
-                SetValue(ref context, ref dependency);
+                // Rewind for the next member
+                InitializeNext: injected = injections;
             }
         }
     }
