@@ -16,7 +16,10 @@ namespace Unity
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object.
         /// </summary>
         public OptionalDependencyAttribute()
-            : base() { }
+            : base() 
+        {
+            AllowDefault = true;
+        }
 
         /// <summary>
         /// Construct a new <see cref="OptionalDependencyAttribute"/> object that

@@ -11,7 +11,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : Build(ref context, parameters, data);
+                : Build(ref context, parameters, data!);
 
             if (context.IsFaulted) return;
 
@@ -24,7 +24,7 @@ namespace Unity.BuiltIn
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : GetDependencies(ref context, parameters);
+                : Build(ref context, parameters);
 
             if (context.IsFaulted) return;
 

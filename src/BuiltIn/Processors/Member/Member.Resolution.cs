@@ -68,7 +68,7 @@ namespace Unity.BuiltIn
 
                     // Check for override
                     if (null != (@override = context.GetOverride(in info.Import)))
-                        Build(ref context, in info.Import, info.Import.MemberInfo.AsImportData(@override.Value));
+                        Build(ref context, in info.Import, info.Import.Info.AsImportData(@override.Value));
                     else
                         Build(ref context, in info.Import, in info.Data);
                 }

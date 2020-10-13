@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Resolution;
 
@@ -11,7 +10,7 @@ namespace Unity.BuiltIn
         {
             if (ImportType.Value == data.DataType)
             {
-                SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, data.Value);
+                SetValue(Unsafe.As<TDependency>(import.Info), context.Target!, data.Value);
                 return;
             }
 
@@ -25,15 +24,16 @@ namespace Unity.BuiltIn
             {
                 ImportType.None => local.Resolve(),
 
-                ImportType.Pipeline => local.GetValueRecursively(import.MemberInfo,
+                ImportType.Pipeline => local.GetValueRecursively(import.Info,
                     ((ResolveDelegate<PipelineContext>)data.Value!).Invoke(ref local)),
 
-                _ => throw new InvalidOperationException(),
+                // TODO: Requires proper handling
+                _ => local.Error("Invalid Import Type"),
             };
 
             if (local.IsFaulted) return;
 
-            SetValue(Unsafe.As<TDependency>(import.MemberInfo), context.Target!, local.Target);
+            SetValue(Unsafe.As<TDependency>(import.Info), context.Target!, local.Target);
         }
     }
 }
