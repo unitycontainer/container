@@ -39,6 +39,7 @@ namespace Unity.Injection
         /// the attribute is ignored.
         /// </remarks>
         public ResolvedParameter()
+            : base(null, false)
         {
         }
 
@@ -51,7 +52,7 @@ namespace Unity.Injection
         /// </remarks>
         /// <param name="contractType">Type of this parameter.</param>
         public ResolvedParameter(Type contractType)
-            : base(contractType)
+            : base(contractType, false)
         {
         }
 
@@ -68,8 +69,8 @@ namespace Unity.Injection
         /// the attribute is ignored.
         /// </remarks>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
-        public ResolvedParameter(string contractName) 
-            => _name = contractName;
+        public ResolvedParameter(string contractName)
+            : base(null, false) => _name = contractName;
 
         /// <summary>
         /// Configures the container to inject parameter with specified <see cref="Contract"/>
@@ -81,7 +82,7 @@ namespace Unity.Injection
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public ResolvedParameter(Type contractType, string? contractName)
-            : base(contractType) => _name = contractName;
+            : base(contractType, false) => _name = contractName;
 
         #endregion
 

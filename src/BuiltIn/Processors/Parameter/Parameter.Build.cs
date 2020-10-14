@@ -37,13 +37,12 @@ namespace Unity.BuiltIn
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
-                var parameter = parameters[index];
-                var info = parameter.AsImportInfo();
+                var parameter = parameters[index].AsInjectionInfo();
 
                 // Check for override
-                arguments[index] = (null != (@override = context.GetOverride(in info)))
-                    ? Build(ref context, in info, parameter.AsImportData(@override.Value))
-                    : Build(ref context, in info);
+                arguments[index] = (null != (@override = context.GetOverride(in parameter.Import)))
+                    ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                    : Build(ref context, in parameter.Import);
             }
 
             return arguments;
@@ -110,21 +109,6 @@ namespace Unity.BuiltIn
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
                 arguments[index] = GetDependency(ref context, ref parameters[index]);
-
-            return arguments;
-        }
-
-        protected object?[] GetDependencies(ref PipelineContext context, ParameterInfo[] parameters)
-        {
-            if (0 == parameters.Length) return EmptyParametersArray;
-
-            object?[] arguments = new object?[parameters.Length];
-
-            for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
-            {
-                var parameter = ToDependencyInfo(parameters[index]);
-                arguments[index] = GetDependency(ref context, ref parameter);
-            }
 
             return arguments;
         }

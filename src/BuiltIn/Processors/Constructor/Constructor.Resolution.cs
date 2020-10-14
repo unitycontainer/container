@@ -44,23 +44,14 @@ namespace Unity.BuiltIn
                         : downstream?.Invoke(ref c);
                 }
 
-                var info = members[index];
-                var args = null != injected.Data
-                    ? ToDependencyArray(info.GetParameters(), injected.Data)
-                    : ToDependencyArray(info.GetParameters());
-
-                return CreatePipeline(info, args, downstream);
+                return CreatePipeline(members[index], injected.Data, downstream);
             }
 
             ///////////////////////////////////////////////////////////////////
             // Only one constructor, nothing to select
             if (1 == members.Length)
             {
-
-                var info = members[0];
-                var args = ToDependencyArray(info.GetParameters());
-
-                return CreatePipeline(info, args, downstream);
+                return CreatePipeline(members[0], downstream);
             }
 
 
@@ -70,9 +61,7 @@ namespace Unity.BuiltIn
             {
                 if (!info.IsDefined(typeof(ImportingConstructorAttribute))) continue;
 
-                var args = ToDependencyArray(info.GetParameters());
-
-                return CreatePipeline(info, args, downstream);
+                return CreatePipeline(info, downstream);
             }
 
 
@@ -125,44 +114,77 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-        private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, DependencyInfo<ParameterInfo>[]? parameters, ResolveDelegate<PipelineContext>? pipeline)
+        private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, object?[]? data, ResolveDelegate<PipelineContext>? pipeline)
         {
+            var parameters = info.GetParameters();
             if (null == parameters) return ParameterlessPipeline(info, pipeline);
 
-            if (null == pipeline)
+            var imports = new InjectionInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+                imports[i] = parameters[i].AsInjectionInfo(data![i]);
+
+            return (ref PipelineContext context) =>
             {
-                return (ref PipelineContext context) =>
+                if (null == context.Target)
                 {
-                    if (null == context.Target)
+                    ResolverOverride? @override;
+                    object?[] arguments = new object?[imports.Length];
+
+                    for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
                     {
-                        using var action = context.Start(info);
-                        var argumetns = GetDependencies(ref context, parameters);
+                        ref var parameter = ref imports[i];
 
-                        if (context.IsFaulted) return context.Target;
+                        // Check for override
+                        arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                            ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                            : Build(ref context, in parameter.Import, in parameter.Data);
+                    }
+                    
+                    if (!context.IsFaulted) context.Target = info.Invoke(arguments);
+                }
 
-                        context.Target = info.Invoke(argumetns);
+                return null == pipeline
+                    ? context.Target
+                    : pipeline?.Invoke(ref context);
+            };
+        }
+
+
+        private ResolveDelegate<PipelineContext> CreatePipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)
+        {
+            var parameters = info.GetParameters();
+            if (null == parameters) return ParameterlessPipeline(info, pipeline);
+
+            var imports = new InjectionInfo<ParameterInfo>[parameters.Length];
+
+            for (var i = 0; i < parameters.Length; i++)
+                imports[i] = parameters[i].AsInjectionInfo();
+
+            return (ref PipelineContext context) =>
+            {
+                if (null == context.Target)
+                {
+                    ResolverOverride? @override;
+                    object?[] arguments = new object?[imports.Length];
+
+                    for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
+                    {
+                        ref var parameter = ref imports[i];
+
+                        // Check for override
+                        arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                            ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                            : Build(ref context, in parameter.Import, in parameter.Data);
                     }
 
-                    return context.Target;
-                };
-            }
-            else
-            {
-                return (ref PipelineContext context) =>
-                {
-                    if (null == context.Target)
-                    {
-                        using var action = context.Start(info);
-                        var argumetns = GetDependencies(ref context, parameters);
+                    if (!context.IsFaulted) context.Target = info.Invoke(arguments);
+                }
 
-                        if (context.IsFaulted) return context.Target;
-
-                        context.Target = info.Invoke(argumetns);
-                    }
-
-                    return pipeline.Invoke(ref context);
-                };
-            }
+                return null == pipeline
+                    ? context.Target
+                    : pipeline?.Invoke(ref context);
+            };
         }
 
         protected ResolveDelegate<PipelineContext> ParameterlessPipeline(ConstructorInfo info, ResolveDelegate<PipelineContext>? pipeline)

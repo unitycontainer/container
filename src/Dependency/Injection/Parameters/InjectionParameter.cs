@@ -32,7 +32,7 @@ namespace Unity.Injection
         /// <exception cref="ArgumentNullException">Throws and exception when value in null</exception>
         public InjectionParameter(object? value)
             : base((value ?? throw new ArgumentNullException($"The {nameof(value)} is 'null'. Unable to infer type of injected parameter\n" +
-                $"If you need to pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType())
+                $"If you need to pass 'null' as a value, use InjectionParameter(Type, object) constructor")).GetType(), false)
         {
             _value = value;
         }
@@ -48,7 +48,7 @@ namespace Unity.Injection
         /// <param name="importType"><see cref="Type"/> of the injected import</param>
         /// <param name="value">Value to be injected</param>
         public InjectionParameter(Type importType, object? value)
-            : base(importType)
+            : base(importType, false)
         {
             _value = value;
         }

@@ -5,7 +5,7 @@ using Unity.Resolution;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("Import: {DataType},  Data: {Data}")]
+    [DebuggerDisplay("Import: {DataType},  Data: {Value}")]
     public struct ImportData
 
     {

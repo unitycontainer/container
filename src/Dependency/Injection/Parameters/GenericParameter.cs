@@ -17,7 +17,7 @@ namespace Unity.Injection
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         public GenericParameter(string genericParameterName)
-            : base(genericParameterName)
+            : base(genericParameterName, null, false)
         { }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Unity.Injection
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         /// <param name="contractName">Registration name to use when looking up in the container.</param>
         public GenericParameter(string genericParameterName, string contractName)
-            : base(genericParameterName, contractName)
+            : base(genericParameterName, contractName, false)
         { }
 
         #endregion

@@ -43,9 +43,9 @@ namespace Unity.BuiltIn
                 using var subaction = context.Start(members[index]);
 
                 if (null == injected.Data) 
-                    Activate(ref context);
+                    Build(ref context);
                 else                       
-                    Activate(ref context, injected.Data);
+                    Build(ref context, injected.Data);
 
                 return;
             }
@@ -56,7 +56,7 @@ namespace Unity.BuiltIn
             {
                 using var action = context.Start(members[0]);
                 
-                Activate(ref context);
+                Build(ref context);
 
                 return;
             }
@@ -69,7 +69,7 @@ namespace Unity.BuiltIn
 
                 using var action = context.Start(ctor);
 
-                Activate(ref context);
+                Build(ref context);
 
                 return;
             }
@@ -123,8 +123,7 @@ namespace Unity.BuiltIn
 
         #region Implementation
 
-
-        private void Activate(ref PipelineContext context, object?[] data)
+        private void Build(ref PipelineContext context, object?[] data)
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
             var parameters = info.GetParameters();
@@ -139,14 +138,14 @@ namespace Unity.BuiltIn
         }
 
 
-        private void Activate(ref PipelineContext context)
+        private void Build(ref PipelineContext context)
         {
             ConstructorInfo info = Unsafe.As<ConstructorInfo>(context.Action!);
             var parameters = info.GetParameters();
 
             object?[] arguments = (0 == parameters.Length)
                 ? EmptyParametersArray
-                : Build(ref context, parameters);
+                : base.Build(ref context, parameters);
 
             if (context.IsFaulted) return;
 

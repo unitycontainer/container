@@ -15,6 +15,7 @@ namespace Unity.Injection
         #region Fields
 
         private readonly bool    _isArray;
+        private readonly bool    _optional;
         private readonly string? _contractName;
         private readonly string  _genericParameterName;
 
@@ -28,17 +29,8 @@ namespace Unity.Injection
         /// that the given named generic parameter should be resolved.
         /// </summary>
         /// <param name="genericParameterName">The generic parameter name to resolve.</param>
-        protected GenericParameterBase(string genericParameterName)
-            : this(genericParameterName, null)
-        { }
-
-        /// <summary>
-        /// Create a new <see cref="GenericParameter"/> instance that specifies
-        /// that the given named generic parameter should be resolved.
-        /// </summary>
-        /// <param name="genericParameterName">The generic parameter name to resolve.</param>
         /// <param name="contractName">Name of the contract</param>
-        protected GenericParameterBase(string genericParameterName, string? contractName)
+        protected GenericParameterBase(string genericParameterName, string? contractName, bool optional)
         {
             if (null == genericParameterName) throw new ArgumentNullException(nameof(genericParameterName));
 
@@ -54,6 +46,7 @@ namespace Unity.Injection
                 _isArray = false;
             }
             _contractName = contractName;
+            _optional = optional;
         }
 
 
@@ -115,10 +108,8 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
-        {
-            throw new NotImplementedException();
-        }
+        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member) 
+            => new InjectionInfo<ParameterInfo>(member, member.ParameterType, _contractName, _optional || member.HasDefaultValue);
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
             where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);

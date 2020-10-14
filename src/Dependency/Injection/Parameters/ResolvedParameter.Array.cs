@@ -55,7 +55,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         protected ResolvedArrayParameter(Type contractType, Type elementType, params object[] elementValues)
-            : base(contractType)
+            : base(contractType, false)
         {
             _elementType = elementType;
             _values = elementValues;

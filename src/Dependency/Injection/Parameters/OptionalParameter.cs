@@ -48,6 +48,7 @@ namespace Unity.Injection
         /// the attribute is ignored.
         /// </remarks>
         public OptionalParameter()
+            : base(null, true)
         {
         }
 
@@ -61,7 +62,7 @@ namespace Unity.Injection
         /// </remarks>
         /// <param name="contractType">Type of this parameter.</param>
         public OptionalParameter(Type contractType)
-            : base(contractType)
+            : base(contractType, true)
         {
         }
 
@@ -79,6 +80,7 @@ namespace Unity.Injection
         /// </remarks>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public OptionalParameter(string contractName)
+            : base(null, true)
         {
             _name = contractName;
         }
@@ -93,7 +95,7 @@ namespace Unity.Injection
         /// <param name="contractType">Type of the <see cref="Contract"/></param>
         /// <param name="contractName">Name of the <see cref="Contract"/></param>
         public OptionalParameter(Type contractType, string contractName)
-            : base(contractType)
+            : base(contractType, true)
         {
             _name = contractName;
         }

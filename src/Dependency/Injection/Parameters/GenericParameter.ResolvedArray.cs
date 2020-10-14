@@ -37,7 +37,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public GenericResolvedArrayParameter(string genericParameterName, params object[] elementValues)
-            : base(genericParameterName)
+            : base(genericParameterName, null, false)
         {
             _values = elementValues;
         }

@@ -11,6 +11,7 @@ namespace Unity.Injection
     {
         #region Fields
 
+        private readonly bool _optional;
         public readonly Type? ParameterType;
 
         #endregion
@@ -23,9 +24,10 @@ namespace Unity.Injection
         /// about type of import the parameter is injected with
         /// </summary>
         /// <param name="importedType"><see cref="Type"/> to inject</param>
-        protected ParameterBase(Type? importedType = null)
+        protected ParameterBase(Type? importedType, bool optional)
         {
             ParameterType = importedType;
+            _optional = optional;
         }
 
 
@@ -45,7 +47,7 @@ namespace Unity.Injection
             Match(parameter.ParameterType);
 
         public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
-            => new InjectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue);
+            => new InjectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _optional || member.HasDefaultValue);
 
         protected bool IsInvalidParameterType
         {

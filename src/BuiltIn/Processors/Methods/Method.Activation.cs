@@ -64,5 +64,30 @@ namespace Unity.BuiltIn
         }
 
         #endregion
+        private void Build(ref PipelineContext context, MethodInfo info, object?[]? data)
+        {
+            var parameters = info.GetParameters();
+
+            object?[] arguments = (0 == parameters.Length)
+                ? EmptyParametersArray
+                : Build(ref context, parameters, data!);
+
+            if (context.IsFaulted) return;
+
+            info.Invoke(context.Target, arguments);
+        }
+
+        private void Build(ref PipelineContext context, MethodInfo info)
+        {
+            var parameters = info.GetParameters();
+
+            object?[] arguments = (0 == parameters.Length)
+                ? EmptyParametersArray
+                : Build(ref context, parameters);
+
+            if (context.IsFaulted) return;
+
+            info.Invoke(context.Target, arguments);
+        }
     }
 }

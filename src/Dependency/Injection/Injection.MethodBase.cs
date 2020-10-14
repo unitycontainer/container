@@ -68,26 +68,5 @@ namespace Unity.Injection
         }
 
         #endregion
-
-
-        #region Info
-
-        public InvokeInfo<TMemberInfo> GetInvocationInfo(TMemberInfo member)
-        {
-            var parameters = member.GetParameters();
-
-            if (0 == parameters.Length) return new InvokeInfo<TMemberInfo>(member);
-
-            var imports = new InjectionInfo<ParameterInfo>[parameters.Length];
-
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                imports[i] = parameters[i].AsInjectionInfo(Data![i]);
-            }
-
-            return new InvokeInfo<TMemberInfo>(member, imports);
-        }
-
-        #endregion
     }
 }

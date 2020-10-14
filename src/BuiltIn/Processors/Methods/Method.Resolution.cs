@@ -19,7 +19,7 @@ namespace Unity.BuiltIn
 
             int count = 0;
             Span<bool> set = stackalloc bool[members.Length];
-            InvokeInfo<MethodInfo>[]? invocations = null;
+            InvokeInfo[]? invocations = null;
 
             // Add injected methods
             for (var injected = builder.Context.Registration?.Methods; null != injected; injected = (InjectionMethod?)injected.Next)
@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
                 else set[index] = true;
 
                 var info = members[index];
-                (invocations ??= new InvokeInfo<MethodInfo>[members.Length])[count++] = injected.GetInvocationInfo(info);
+                (invocations ??= new InvokeInfo[members.Length])[count++] = info.AsInvokeInfo(injected.Data);
             }
 
             // Add annotated methods
@@ -52,8 +52,7 @@ namespace Unity.BuiltIn
                 else set[index] = true;
 
                 var info = members[index];
-                var args = ToDependencyArray(info.GetParameters());
-                // TODO: (invocations ??= new InvokeInfo<MethodInfo>[members.Length - index])[count++] = new InvocationInfo<MethodInfo>(info, args);
+                (invocations ??= new InvokeInfo[members.Length - index])[count++] = info.AsInvokeInfo();
             }
 
             // Validate and trim array
@@ -63,17 +62,32 @@ namespace Unity.BuiltIn
             // Create pipeline
             return (ref PipelineContext context) =>
             {
-                // TODO: 
-                //for (var index = 0; index < invocations.Length; index++)
-                //{
-                //    ref var method = ref invocations[index];
+                for (var index = 0; index < invocations.Length && !context.IsFaulted; index++)
+                {
+                    ref var method = ref invocations[index];
+                    object?[] arguments;
 
-                //    object?[] arguments = (null == method.Parameters)
-                //        ? arguments = EmptyParametersArray
-                //        : GetDependencies(ref context, method.Parameters);
+                    if (null != method.Parameters)
+                    {
+                        ResolverOverride? @override;
+                        arguments = new object?[method.Parameters.Length];
 
-                //    method.Info.Invoke(context.Target, arguments);
-                //}
+                        for (var i = 0; i < arguments.Length && !context.IsFaulted; i++)
+                        {
+                            ref var parameter = ref method.Parameters[i];
+
+                            // Check for override
+                            arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
+                                ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                                : Build(ref context, in parameter.Import, in parameter.Data);
+                        }
+                    }
+                    else
+                        arguments = EmptyParametersArray;
+
+                    if (!context.IsFaulted)
+                        method.Info.Invoke(context.Target, arguments);
+                }
 
                 return downstream?.Invoke(ref context);
             };
