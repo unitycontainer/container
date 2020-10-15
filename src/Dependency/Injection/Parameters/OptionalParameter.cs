@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Exceptions;
-using Unity.Resolution;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -16,17 +15,8 @@ namespace Unity.Injection
     /// default value, or 'default(T)'
     /// </remarks>
     [DebuggerDisplay("OptionalParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
-    public class OptionalParameter : ParameterBase,
-                                     IResolverFactory<Type>,
-                                     IResolverFactory<ParameterInfo>
+    public class OptionalParameter : ParameterBase
     {
-        #region Constants
-
-        internal static readonly OptionalParameter Singleton = new OptionalParameter();
-
-        #endregion
-
-
         #region Fields
 
         private readonly string? _name;
@@ -103,60 +93,19 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IResolverFactory
+        #region Implementation
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            return (ref TContext c) =>
-            {
-                try { return c.Resolve(ParameterType ?? type, _name); }
-                catch (Exception ex) 
-                when (!(ex is CircularDependencyException))
-                {
-                    return null;
-                }
-            };
-        }
+        public override ReflectionInfo<Type> GetInfo(Type type)
+            => new ReflectionInfo<Type>(type, ParameterType ?? type, _name, AllowDefault);
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
-            where TContext : IResolveContext
-        {
-            var value = info.HasDefaultValue 
-                ? info.DefaultValue 
-                : info.ParameterType.IsValueType
-                    ? Activator.CreateInstance(info.ParameterType)
-                    : null;
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+            => new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _name, AllowDefault || member.HasDefaultValue);
 
-            if (IsInvalidParameterType)
-            {
-                var type = info.ParameterType;
-                return (ref TContext c) =>
-                {
-                    try { return c.Resolve(type, _name); }
-                    catch (Exception ex) 
-                    when (!(ex is CircularDependencyException))
-                    {
-                        return value;
-                    }
-                };
-            }
+        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+            => new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, _name, AllowDefault);
 
-            return (ref TContext c) =>
-            {
-                try { return c.Resolve(ParameterType!, _name); }
-                catch (Exception ex) 
-                when (!(ex is CircularDependencyException))
-                {
-                    return value;
-                }
-            };
-        }
-
-        #endregion
-
-
-        #region Overrides
+        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+            => new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, _name, AllowDefault);
 
         public override string ToString()
         {

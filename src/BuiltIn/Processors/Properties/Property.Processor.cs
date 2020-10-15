@@ -41,6 +41,11 @@ namespace Unity.BuiltIn
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
+        protected override ImportData AsImportData(PropertyInfo info, object? data) 
+            => info.AsImportData(data);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
         protected override void SetValue(PropertyInfo info, object target, object? value) => info.SetValue(target, value);
 
         #endregion

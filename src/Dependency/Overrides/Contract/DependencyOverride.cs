@@ -85,7 +85,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<FieldInfo> other)
         {
-            if ((null != Target && other.Info.DeclaringType != Target) || (other.Contract.Name != Name))
+            if ((null != Target && other.Element.DeclaringType != Target) || (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
@@ -102,7 +102,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<PropertyInfo> other)
         {
-            if ((null != Target && other.Info.DeclaringType != Target) || (other.Contract.Name != Name))
+            if ((null != Target && other.Element.DeclaringType != Target) || (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
@@ -119,7 +119,7 @@ namespace Unity.Resolution
 
         public MatchRank Match(in ImportInfo<ParameterInfo> other)
         {
-            if ((null != Target && other.Info.Member.DeclaringType != Target) || (other.Contract.Name != Name))
+            if ((null != Target && other.Element.Member.DeclaringType != Target) || (other.Contract.Name != Name))
                 return MatchRank.NoMatch;
 
             // If Type is 'null', all types are compatible
@@ -136,6 +136,8 @@ namespace Unity.Resolution
 
         #endregion
     }
+
+    #region Generic
 
     /// <summary>
     /// A convenience version of <see cref="DependencyOverride"/> that lets you
@@ -195,4 +197,6 @@ namespace Unity.Resolution
         {
         }
     }
+
+    #endregion
 }

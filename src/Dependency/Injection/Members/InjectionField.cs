@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Unity.Injection
 {
-    public class InjectionField : InjectionMemberInfo<FieldInfo>
+    public sealed class InjectionField : InjectionMemberInfo<FieldInfo>
     {
         #region Constructors
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Unity.Resolution;
+using Unity.Container;
 
 namespace Unity.Injection
 {
@@ -14,9 +14,7 @@ namespace Unity.Injection
     /// import, the entire resolution request fails and error is generated
     /// </remarks>
     [DebuggerDisplay("ResolvedParameter: Type={ParameterType?.Name ?? \"Any\"} Name={_name ?? \"null\"}")]
-    public class ResolvedParameter : ParameterBase, 
-                                     IResolverFactory<Type>,
-                                     IResolverFactory<ParameterInfo>
+    public class ResolvedParameter : ParameterBase
     {
         #region Fields
 
@@ -28,13 +26,12 @@ namespace Unity.Injection
         #region Constructors
 
         /// <summary>
-        /// Configures the container to inject parameter with value resolved 
-        /// from the container
+        /// Configures the container to inject parameter with value resolved from the container
         /// </summary>
         /// <remarks>
         /// The parameter is injected with value imported from the container. 
-        /// The <see cref="Type"/> of imported contract is the <see cref="Type"/>
-        /// of the parameter and no name.
+        /// The <see cref="Type"/> of imported contract is the <see cref="Type"/> of the parameter 
+        /// and no name.
         /// If the parameter is annotated with <see cref="DependencyResolutionAttribute"/>, 
         /// the attribute is ignored.
         /// </remarks>
@@ -87,35 +84,19 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IResolverFactory
+        #region Implementation
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            if (IsInvalidParameterType)
-            {
-                return (ref TContext c) => c.Resolve(type, _name);
-            }
+        public override ReflectionInfo<Type> GetInfo(Type type)
+            => new ReflectionInfo<Type>(type, ParameterType ?? type, _name, AllowDefault);
 
-            return (ref TContext c) => c.Resolve(ParameterType!, _name);
-        }
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+            => new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _name, AllowDefault || member.HasDefaultValue);
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info) 
-            where TContext : IResolveContext
-        {
-            if (IsInvalidParameterType)
-            {
-                var type = info.ParameterType;
-                return (ref TContext c) => c.Resolve(type, _name);
-            }
+        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+            => new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, _name, AllowDefault);
 
-            return (ref TContext c) => c.Resolve(ParameterType!, _name);
-        }
-
-        #endregion
-
-
-        #region Overrides
+        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+            => new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, _name, AllowDefault);
 
         public override string ToString()
         {

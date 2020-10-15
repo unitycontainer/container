@@ -119,7 +119,7 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             if (null == parameters) return ParameterlessPipeline(info, pipeline);
 
-            var imports = new InjectionInfo<ParameterInfo>[parameters.Length];
+            var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
             for (var i = 0; i < parameters.Length; i++)
                 imports[i] = parameters[i].AsInjectionInfo(data![i]);
@@ -137,7 +137,7 @@ namespace Unity.BuiltIn
 
                         // Check for override
                         arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                            ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                            ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
                             : Build(ref context, in parameter.Import, in parameter.Data);
                     }
                     
@@ -156,7 +156,7 @@ namespace Unity.BuiltIn
             var parameters = info.GetParameters();
             if (null == parameters) return ParameterlessPipeline(info, pipeline);
 
-            var imports = new InjectionInfo<ParameterInfo>[parameters.Length];
+            var imports = new ReflectionInfo<ParameterInfo>[parameters.Length];
 
             for (var i = 0; i < parameters.Length; i++)
                 imports[i] = parameters[i].AsInjectionInfo();
@@ -174,7 +174,7 @@ namespace Unity.BuiltIn
 
                         // Check for override
                         arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                            ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                            ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
                             : Build(ref context, in parameter.Import, in parameter.Data);
                     }
 

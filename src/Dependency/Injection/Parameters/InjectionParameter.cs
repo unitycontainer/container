@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity.Injection
 {
@@ -10,7 +9,7 @@ namespace Unity.Injection
     /// This class is used to pass values to injected parameters.
     /// </summary>
     [DebuggerDisplay("InjectionParameter: Type={ParameterType.Name ?? \"Any\"} Value={_value ?? \"null\"}")]
-    public class InjectionParameter : ParameterBase, IResolve
+    public class InjectionParameter : ParameterBase
     {
         #region Fields
 
@@ -56,26 +55,45 @@ namespace Unity.Injection
         #endregion
 
 
-        #region IResolve
+        #region Reflection
 
-        public object? Resolve<TContext>(ref TContext context) 
-            where TContext : IResolveContext
+        public override ReflectionInfo<Type> GetInfo(Type type)
         {
-            return _value;
+            if (_value is IReflectionProvider<Type> provider)
+                return provider.GetInfo(type);
+
+            return new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault);
+        }
+
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+        {
+            if (_value is IReflectionProvider<ParameterInfo> provider)
+                return provider.GetInfo(member);
+
+            return new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, 
+                AllowDefault || member.HasDefaultValue, _value);
+        }
+
+        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+        {
+            if (_value is IReflectionProvider<FieldInfo> provider)
+                return provider.GetInfo(member);
+
+            return new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _value);
+        }
+
+        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+        {
+            if (_value is IReflectionProvider<PropertyInfo> provider)
+                return provider.GetInfo(member);
+
+            return new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _value);
         }
 
         #endregion
 
 
-        #region Overrides
-
-        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
-        {
-            if (_value is IInjectionInfoProvider<ParameterInfo> provider)
-                return provider.GetInfo(member);
-
-            return new InjectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, member.HasDefaultValue, _value);
-        }
+        #region Implementation
 
         public override string ToString()
         {

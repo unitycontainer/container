@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
-using Unity.Injection;
 
 namespace Unity.BuiltIn
 {
@@ -36,8 +35,12 @@ namespace Unity.BuiltIn
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <inheritdoc/>
-        protected override void SetValue(FieldInfo info, object target, object? value) => info.SetValue(target, value);
+        protected override ImportData AsImportData(FieldInfo info, object? data) 
+            => info.AsImportData(data);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <inheritdoc/>
+        protected override void SetValue(FieldInfo info, object target, object? value) => info.SetValue(target, value);
 
         #endregion
     }

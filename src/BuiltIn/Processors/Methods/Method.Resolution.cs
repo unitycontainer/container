@@ -78,7 +78,7 @@ namespace Unity.BuiltIn
 
                             // Check for override
                             arguments[i] = (null != (@override = context.GetOverride(in parameter.Import)))
-                                ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
+                                ? Build(ref context, in parameter.Import, parameter.Import.Element.AsImportData(@override.Value))
                                 : Build(ref context, in parameter.Import, in parameter.Data);
                         }
                     }

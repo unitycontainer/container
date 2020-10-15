@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Composition;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Unity.Container;
 using Unity.Resolution;
@@ -9,6 +8,7 @@ namespace Unity.BuiltIn
 {
     public abstract partial class MemberProcessor<TMemberInfo, TDependency, TData>
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <summary>
         /// This method returns an array of <see cref="MemberInfo"/> objects implemented
         /// by the <see cref="Type"/>
@@ -20,31 +20,38 @@ namespace Unity.BuiltIn
         /// </remarks>
         /// <param name="type"><see cref="Type"/> implementing members</param>
         /// <returns>A <see cref="Span{MemberInfo}"/> of appropriate <see cref="MemberInfo"/> objects</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract TMemberInfo[] GetMembers(Type type);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <summary>
         /// Returns attribute the info is annotated with
         /// </summary>
         /// <param name="info"><see cref="ParameterInfo"/>, <see cref="FieldInfo"/>, or <see cref="PropertyInfo"/> member</param>
         /// <returns>Attribute or null if nothing found</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual ImportAttribute? GetImportAttribute(TDependency info) => null;
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual TMember? GetInjected<TMember>(RegistrationManager? registration) where TMember : class => null;
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual Type MemberType(TDependency member) => member.GetType();
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual ImportData AsImportData(TDependency info, object? data) => default;
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SetValue(TDependency info, object target, object? value) => throw new NotImplementedException();
+
 
         public void Build(ref PipelineContext context, in ImportInfo<TMemberInfo> import, in ImportData data)
         {
             if (ImportType.Value == data.DataType)
             {
-                SetValue(Unsafe.As<TDependency>(import.Info), context.Target!, data.Value);
+                SetValue(Unsafe.As<TDependency>(import.Element), context.Target!, data.Value);
                 return;
             }
 
@@ -58,7 +65,7 @@ namespace Unity.BuiltIn
             {
                 ImportType.None => local.Resolve(),
 
-                ImportType.Pipeline => local.GetValueRecursively(import.Info,
+                ImportType.Pipeline => local.GetValueRecursively(import.Element,
                     ((ResolveDelegate<PipelineContext>)data.Value!).Invoke(ref local)),
 
                 // TODO: Requires proper handling
@@ -67,7 +74,7 @@ namespace Unity.BuiltIn
 
             if (local.IsFaulted) return;
 
-            SetValue(Unsafe.As<TDependency>(import.Info), context.Target!, local.Target);
+            SetValue(Unsafe.As<TDependency>(import.Element), context.Target!, local.Target);
         }
 
     }

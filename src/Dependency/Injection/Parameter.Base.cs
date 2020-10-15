@@ -7,12 +7,15 @@ namespace Unity.Injection
     /// <summary>
     /// A base class for implementing <see cref="ParameterValue"/> classes
     /// </summary>
-    public abstract class ParameterBase : ParameterValue
+    public abstract class ParameterBase : ParameterValue,
+                                          IReflectionProvider<Type>,
+                                          IReflectionProvider<FieldInfo>,
+                                          IReflectionProvider<PropertyInfo>
     {
         #region Fields
 
-        private readonly bool _optional;
-        public readonly Type? ParameterType;
+        protected readonly bool  AllowDefault;
+        protected readonly Type? ParameterType;
 
         #endregion
 
@@ -26,10 +29,21 @@ namespace Unity.Injection
         /// <param name="importedType"><see cref="Type"/> to inject</param>
         protected ParameterBase(Type? importedType, bool optional)
         {
+            AllowDefault  = optional;
             ParameterType = importedType;
-            _optional = optional;
         }
 
+
+        #endregion
+
+
+        #region Reflection
+
+        public abstract ReflectionInfo<Type> GetInfo(Type type);
+
+        public abstract ReflectionInfo<FieldInfo> GetInfo(FieldInfo member);
+
+        public abstract ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member);
 
         #endregion
 
@@ -38,6 +52,7 @@ namespace Unity.Injection
 
         public override MatchRank Match(Type type)
         {
+            // TODO: Cases in between
             return null == ParameterType 
                 ? MatchRank.ExactMatch
                 : ParameterType.MatchTo(type);
@@ -45,21 +60,6 @@ namespace Unity.Injection
 
         public override MatchRank Match(ParameterInfo parameter) => 
             Match(parameter.ParameterType);
-
-        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
-            => new InjectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType, _optional || member.HasDefaultValue);
-
-        protected bool IsInvalidParameterType
-        {
-            get
-            {
-                return null == ParameterType ||
-                    ParameterType.IsGenericType && ParameterType.ContainsGenericParameters ||
-                    ParameterType.IsArray       && ParameterType.GetElementType()!.IsGenericParameter ||
-                    ParameterType.IsGenericParameter;
-            }
-        }
-
 
         #endregion
     }

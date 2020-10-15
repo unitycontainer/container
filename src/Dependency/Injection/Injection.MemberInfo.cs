@@ -7,7 +7,7 @@ using Unity.Resolution;
 namespace Unity.Injection
 {
     public abstract class InjectionMemberInfo<TMemberInfo> : InjectionMember<TMemberInfo, object>,
-                                                             IInjectionInfoProvider<TMemberInfo>
+                                                             IReflectionProvider<TMemberInfo>
                                          where TMemberInfo : MemberInfo
     {
         #region Fields
@@ -56,9 +56,9 @@ namespace Unity.Injection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract Type MemberType(TMemberInfo info);
 
-        public InjectionInfo<TMemberInfo> GetInfo(TMemberInfo member)
+        public ReflectionInfo<TMemberInfo> GetInfo(TMemberInfo member)
         {
-            if (Data is IInjectionInfoProvider<TMemberInfo> provider)
+            if (Data is IReflectionProvider<TMemberInfo> provider)
                 return provider.GetInfo(member);
 
             var type = MemberType(member);
@@ -66,20 +66,20 @@ namespace Unity.Injection
             return _type switch
             {
                 null when Data is Type target && typeof(Type) != type
-                        => new InjectionInfo<TMemberInfo>(member, target, _optional),
+                        => new ReflectionInfo<TMemberInfo>(member, target, _optional),
 
                 null when !ReferenceEquals(RegistrationManager.NoValue, Data)
                         => Data switch
                         {
-                            RegistrationManager.InvalidValue _        => new InjectionInfo<TMemberInfo>(member, type, _optional),
-                            IResolve iResolve                         => new InjectionInfo<TMemberInfo>(member, type, _optional, (ResolveDelegate<PipelineContext>)iResolve.Resolve, ImportType.Pipeline),
-                            ResolveDelegate<PipelineContext> resolver => new InjectionInfo<TMemberInfo>(member, type, _optional, Data,                                               ImportType.Pipeline),
-                            IResolverFactory<TMemberInfo> infoFactory => new InjectionInfo<TMemberInfo>(member, type, _optional, infoFactory.GetResolver<PipelineContext>(member),   ImportType.Pipeline),
-                            IResolverFactory<Type> typeFactory        => new InjectionInfo<TMemberInfo>(member, type, _optional, typeFactory.GetResolver<PipelineContext>(type),     ImportType.Pipeline),
-                            _                                         => new InjectionInfo<TMemberInfo>(member, type, _optional, Data,                                               ImportType.Value),
+                            RegistrationManager.InvalidValue _        => new ReflectionInfo<TMemberInfo>(member, type, _optional),
+                            IResolve iResolve                         => new ReflectionInfo<TMemberInfo>(member, type, _optional, (ResolveDelegate<PipelineContext>)iResolve.Resolve, ImportType.Pipeline),
+                            ResolveDelegate<PipelineContext> resolver => new ReflectionInfo<TMemberInfo>(member, type, _optional, Data,                                               ImportType.Pipeline),
+                            IResolverFactory<TMemberInfo> infoFactory => new ReflectionInfo<TMemberInfo>(member, type, _optional, infoFactory.GetResolver<PipelineContext>(member),   ImportType.Pipeline),
+                            IResolverFactory<Type> typeFactory        => new ReflectionInfo<TMemberInfo>(member, type, _optional, typeFactory.GetResolver<PipelineContext>(type),     ImportType.Pipeline),
+                            _                                         => new ReflectionInfo<TMemberInfo>(member, type, _optional, Data,                                               ImportType.Value),
                         },
 
-                _ => new InjectionInfo<TMemberInfo>(member, _type ?? type, _name, _optional),
+                _ => new ReflectionInfo<TMemberInfo>(member, _type ?? type, _name, _optional),
             };
         }
 

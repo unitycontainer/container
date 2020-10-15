@@ -9,12 +9,10 @@ namespace Unity.Injection
     /// constructor or method injection, or for getting the value to
     /// be injected into a property.
     /// </summary>
-    public abstract class ParameterValue : IInjectionInfoProvider<ParameterInfo>, 
+    public abstract class ParameterValue : IMatch<Type>,
                                            IMatch<ParameterInfo>, 
-                                           IMatch<Type>
+                                           IReflectionProvider<ParameterInfo>
     {
-        public abstract InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member);
-
         /// <summary>
         /// Checks if this parameter is compatible with the <see cref="ParameterInfo"/>
         /// </summary>
@@ -29,5 +27,11 @@ namespace Unity.Injection
         /// <returns>True if <see cref="Type"/> is equal</returns>
         public abstract MatchRank Match(Type type);
 
+
+        #region Reflection
+
+        public abstract ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member);
+
+        #endregion
     }
 }

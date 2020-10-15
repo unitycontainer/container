@@ -1,51 +1,34 @@
 ﻿using System;
-using System.ComponentModel.Composition;
-using System.Reflection;
 
 namespace Unity.Container
 {
-    public readonly struct ImportInfo<TInfo>
+    public readonly struct ImportInfo<TElement>
     {
         #region Fields
 
-        public readonly TInfo      Info;
-        public readonly Contract   Contract;
-        public readonly bool       AllowDefault;
+        public readonly TElement Element;
+        public readonly Contract Contract;
+        public readonly bool     AllowDefault;
 
         #endregion
 
 
         #region Constructors
 
-        public ImportInfo(TInfo info, Type contractType, string? contractName, bool allowDefault)
+        public ImportInfo(TElement element, Type contractType, string? contractName, bool allowDefault = false)
         {
-            Info = info;
+            Element = element;
             Contract = new Contract(contractType, contractName);
             AllowDefault = allowDefault;
         }
 
-        public ImportInfo(TInfo info, Type contractType, bool allowDefault)
+        public ImportInfo(TElement element, Type contractType, bool allowDefault = false)
         {
-            Info = info;
+            Element = element;
             Contract = new Contract(contractType);
             AllowDefault = allowDefault;
         }
 
         #endregion
-    }
-
-
-    public static class ImportInfoExtensions
-    {
-        public static ImportInfo<ParameterInfo> AsImportInfo(this ParameterInfo info)
-        {
-            ImportAttribute? attribute;
-
-            return null == (attribute = (ImportAttribute?)info.GetCustomAttribute(typeof(ImportAttribute)))
-                ? new ImportInfo<ParameterInfo>(info, info.ParameterType, null, info.HasDefaultValue)
-                : new ImportInfo<ParameterInfo>(info, attribute.ContractType ?? info.ParameterType, 
-                                                      attribute.ContractName,
-                                                      attribute.AllowDefault || info.HasDefaultValue);
-        }
     }
 }

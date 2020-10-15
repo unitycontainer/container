@@ -22,9 +22,18 @@ namespace Unity.BuiltIn
                 var info = parameter.AsInjectionInfo(data[index]);
 
                 // Check for override
-                arguments[index] = (null != (@override = context.GetOverride(in info.Import)))
-                    ? Build(ref context, in info.Import, parameter.AsImportData(@override.Value))
-                    : Build(ref context, in info.Import, in info.Data);
+                if (null != (@override = context.GetOverride(in info.Import)))
+                {
+                    if (@override.Value is IReflectionProvider<ParameterInfo> provider)
+                    {
+                        var providerInfo = provider.GetInfo(parameter);
+                        arguments[index] = Build(ref context, in providerInfo.Import, in providerInfo.Data);
+                    }
+                    else
+                        arguments[index] = Build(ref context, in info.Import, parameter.AsImportData(@override.Value));
+                }
+                else
+                    arguments[index] = Build(ref context, in info.Import, in info.Data);
             }
 
             return arguments;
@@ -37,12 +46,22 @@ namespace Unity.BuiltIn
 
             for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
             {
-                var parameter = parameters[index].AsInjectionInfo();
+                var parameter = parameters[index];
+                var info = parameter.AsInjectionInfo();
 
                 // Check for override
-                arguments[index] = (null != (@override = context.GetOverride(in parameter.Import)))
-                    ? Build(ref context, in parameter.Import, parameter.AsImportData(@override.Value))
-                    : Build(ref context, in parameter.Import);
+                if (null != (@override = context.GetOverride(in info.Import)))
+                {
+                    if (@override.Value is IReflectionProvider<ParameterInfo> provider)
+                    {
+                        var providerInfo = provider.GetInfo(parameter);
+                        arguments[index] = Build(ref context, in providerInfo.Import, in providerInfo.Data);
+                    }
+                    else
+                        arguments[index] = Build(ref context, in info.Import, info.Import.Element.AsImportData(@override.Value));
+                }
+                else
+                    arguments[index] = Build(ref context, in info.Import);
             }
 
             return arguments;
@@ -62,7 +81,7 @@ namespace Unity.BuiltIn
             {
                 ImportType.None => local.Resolve(),
 
-                ImportType.Pipeline => local.GetValueRecursively(import.Info,
+                ImportType.Pipeline => local.GetValueRecursively(import.Element,
                     ((ResolveDelegate<PipelineContext>)data.Value!).Invoke(ref local)),
 
                     // TODO: Requires proper handling
@@ -71,9 +90,9 @@ namespace Unity.BuiltIn
 
             if (local.IsFaulted && import.AllowDefault)
             {
-                local.Target = import.Info.HasDefaultValue
-                    ? import.Info.DefaultValue
-                    : GetDefaultValue(import.Info.ParameterType);
+                local.Target = import.Element.HasDefaultValue
+                    ? import.Element.DefaultValue
+                    : GetDefaultValue(import.Element.ParameterType);
             }
 
             return local.Target;
@@ -91,80 +110,21 @@ namespace Unity.BuiltIn
 
             if (local.IsFaulted && import.AllowDefault)
             {
-                local.Target = import.Info.HasDefaultValue
-                    ? import.Info.DefaultValue
-                    : GetDefaultValue(import.Info.ParameterType);
+                local.Target = import.Element.HasDefaultValue
+                    ? import.Element.DefaultValue
+                    : GetDefaultValue(import.Element.ParameterType);
             }
 
             return local.Target;
         }
 
 
-
-        #region Dependencies
-
-        protected object?[] GetDependencies(ref PipelineContext context, DependencyInfo<ParameterInfo>[] parameters)
-        {
-            object?[] arguments = new object?[parameters.Length];
-
-            for (var index = 0; index < arguments.Length && !context.IsFaulted; index++)
-                arguments[index] = GetDependency(ref context, ref parameters[index]);
-
-            return arguments;
-        }
-
-        #endregion
-
-
         #region Implementation
-
-        protected object? GetDependency(ref PipelineContext context, ref DependencyInfo<ParameterInfo> parameter)
-        {
-            object? argument;
-            PipelineContext local;
-            ResolverOverride? @override;
-            
-            using var action = context.Start(parameter.Info);
-
-            if (parameter.AllowDefault)
-            {
-                ErrorInfo error = default;
-
-                // Local context
-                local = context.CreateContext(ref parameter.Contract, ref error);
-
-                argument = null != (@override = local.GetOverride(ref parameter))
-                    ? local.GetValueRecursively(parameter.Info, @override.Value)
-                    : local.Resolve(ref parameter);
-
-                if (local.IsFaulted)
-                {
-                    argument = parameter.Info.HasDefaultValue
-                        ? parameter.Info.DefaultValue
-                        : GetDefaultValue(parameter.Info.ParameterType);
-                }
-            }
-            else
-            {
-                // Local context
-                local = context.CreateContext(ref parameter.Contract);
-
-                argument = null != (@override = local.GetOverride(ref parameter))
-                    ? local.GetValueRecursively(parameter.Info, @override.Value)
-                    : local.Resolve(ref parameter);
-            }
-
-            return argument;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetDefaultValue(Type t)
-        {
-            if (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
-                return Activator.CreateInstance(t);
-            else
-                return null;
-        }
+            => (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
+                ? Activator.CreateInstance(t) : null;
 
         #endregion
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
+using Unity.Container;
 using Unity.Resolution;
 
 namespace Unity.Injection
@@ -12,21 +12,16 @@ namespace Unity.Injection
     /// type registered in a container.
     /// </summary>
     [DebuggerDisplay("ResolvedArrayParameter: Type={ParameterType.Name}")]
-    public class ResolvedArrayParameter : ParameterBase,
-                                          IResolverFactory<Type>,
-                                          IResolverFactory<ParameterInfo>
+    public class ResolvedArrayParameter : ParameterBase
     {
         #region Fields
 
-        private readonly object[] _values;
-        private readonly Type _elementType;
+        private readonly static TypeInfo TypeInfo = typeof(ResolvedArrayParameter).GetTypeInfo();
+        private static MethodInfo? TranslateMethod;
+        private static MethodInfo? ResolveMethod;
 
-        private static readonly MethodInfo ResolverMethod =
-            typeof(GenericResolvedArrayParameter).GetTypeInfo()
-                                                 .GetDeclaredMethod(nameof(GenericResolvedArrayParameter.DoResolve))!;
-
-        private delegate object Resolver<TContext>(ref TContext context, object[] values)
-            where TContext : IResolveContext;
+        private readonly object? _values;
+        private readonly ResolveDelegate<PipelineContext>? _resolver;
 
         #endregion
 
@@ -41,7 +36,7 @@ namespace Unity.Injection
         /// <param name="elementValues">The values for the elements, that will
         /// be converted to <see cref="ParameterValue"/> objects.</param>
         public ResolvedArrayParameter(Type elementType, params object[] elementValues)
-            : this((elementType ?? throw new ArgumentNullException(nameof(elementType))).MakeArrayType(), 
+            : this((elementType ?? throw new ArgumentNullException(nameof(elementType))).MakeArrayType(),
                     elementType, elementValues)
         {
         }
@@ -57,90 +52,111 @@ namespace Unity.Injection
         protected ResolvedArrayParameter(Type contractType, Type elementType, params object[] elementValues)
             : base(contractType, false)
         {
-            _elementType = elementType;
-            _values = elementValues;
-
             // Exit if no data
-            if (null == elementValues || 0 == elementValues.Length) 
+            if (null == elementValues || 0 == elementValues.Length)
+            {
+                _values = Array.CreateInstance(contractType, 0);
                 return;
-
-            // Verify array elements
-            foreach (var pv in elementValues)
-            {
-                if ((pv is IMatch<Type> other && MatchRank.NoMatch != other.Match(elementType)) ||
-                    (pv is Type type && type == _elementType) || _elementType.IsAssignableFrom(pv?.GetType()!))
-                    continue;
-
-                throw new InvalidOperationException(
-                    $"The type {pv?.GetType()} cannot be assigned to variables of type {elementType}.");
             }
+
+            var complex = false;
+
+            var data = new ReflectionInfo<Type>[elementValues.Length];
+            for (var i = 0; i < data.Length; i++)
+            {
+                ref var entry = ref data[i];
+
+                entry = elementType.AsInjectionInfo(elementValues[i]);
+
+                if (ImportType.Value != entry.Data.DataType) complex = true;
+            }
+
+            if (!complex)
+            {
+                // For 'all values' simply translate into array
+                var translator = TranslateMethod ??= 
+                                 TypeInfo.GetDeclaredMethod(nameof(DoTranslate))!
+                                         .MakeGenericMethod(elementType);
+                _values = translator.Invoke(null, new object[] { data });
+                return;
+            }
+
+            // For complex elements create resolver
+            _resolver = (ResolveDelegate<PipelineContext>)
+                (ResolveMethod ??= TypeInfo
+                    .GetDeclaredMethod(nameof(DoResolve))!)
+                        .MakeGenericMethod(typeof(PipelineContext), elementType)
+                        .CreateDelegate(typeof(ResolveDelegate<PipelineContext>), data);
         }
 
         #endregion
 
 
-        #region IResolverFactory
+        #region Reflection
 
-        public ResolveDelegate<TContext> GetResolver<TContext>(Type type)
-            where TContext : IResolveContext
-        {
-            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), _elementType)
-                                                                   .CreateDelegate(typeof(Resolver<TContext>));
-            var values = _values.Select(value =>
-            {
-                switch (value)
-                {
-                    case IResolverFactory<Type> factory:
-                        return factory.GetResolver<TContext>(_elementType);
+        public override ReflectionInfo<Type> GetInfo(Type type)
+            => null == _resolver
+                ? new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault, _values,   ImportType.Value)
+                : new ReflectionInfo<Type>(type, ParameterType ?? type, AllowDefault, _resolver, ImportType.Pipeline);
 
-                    case Type _ when typeof(Type) != _elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(_elementType, null));
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member)
+            => null == _resolver
+                ? new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType,
+                                                            AllowDefault || member.HasDefaultValue, _values,   ImportType.Value)
+                : new ReflectionInfo<ParameterInfo>(member, ParameterType ?? member.ParameterType,
+                                                            AllowDefault || member.HasDefaultValue, _resolver, ImportType.Pipeline);
+        public override ReflectionInfo<FieldInfo> GetInfo(FieldInfo member)
+            => null == _resolver
+                ? new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _values,   ImportType.Value)
+                : new ReflectionInfo<FieldInfo>(member, ParameterType ?? member.FieldType, AllowDefault, _resolver, ImportType.Pipeline);
 
-                    default:
-                        return value;
-                }
-
-            }).ToArray();
-
-            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
-        }
-
-        public ResolveDelegate<TContext> GetResolver<TContext>(ParameterInfo info)
-            where TContext : IResolveContext
-        {
-            var resolverMethod = (Resolver<TContext>)ResolverMethod.MakeGenericMethod(typeof(TContext), _elementType)
-                                                                   .CreateDelegate(typeof(Resolver<TContext>));
-            var values = _values.Select(value =>
-            {
-                switch (value)
-                {
-                    case IResolverFactory<Type> factory:
-                        return factory.GetResolver<TContext>(_elementType);
-
-                    case Type _ when typeof(Type) != _elementType:
-                        return (ResolveDelegate<TContext>)((ref TContext context) => context.Resolve(_elementType, null));
-
-                    default:
-                        return value;
-                }
-
-            }).ToArray();
-
-            return (ref TContext context) => resolverMethod.Invoke(ref context, values);
-        }
+        public override ReflectionInfo<PropertyInfo> GetInfo(PropertyInfo member)
+            => null == _resolver
+                ? new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _values,   ImportType.Value)
+                : new ReflectionInfo<PropertyInfo>(member, ParameterType ?? member.PropertyType, AllowDefault, _resolver, ImportType.Pipeline);
 
         #endregion
 
 
-        #region Overrides
+        #region Implementation
 
-        public override string ToString()
+        private static object DoTranslate<TElement>(ReflectionInfo<Type>[] data) where TElement : class
         {
-            return $"ResolvedArrayParameter: Type={ParameterType!.Name}";
+            var result = new TElement[data.Length];
+
+            for (var i = 0; i < data.Length; i++)
+                result[i] = (TElement)data[i].Data.Value!;
+
+            return result;
         }
+
+        private static object DoResolve<TContext, TElement>(ReflectionInfo<Type>[] data, ref TContext context)
+            where TContext : IResolveContext
+            where TElement : class
+        {
+            var result = new TElement[data.Length];
+
+            for (var i = 0; i < data.Length; i++)
+            {
+                ref var entry = ref data[i];
+                result[i] = entry.Data.DataType switch
+                {
+                    ImportType.Value    => (TElement)entry.Data.Value!,
+                    ImportType.Pipeline => (TElement)((ResolveDelegate<TContext>)entry.Data.Value!)(ref context)!,
+                    _                   => (TElement)context.Resolve(entry.Import.Contract.Type, entry.Import.Contract.Name)!,
+                };
+            }
+
+            return result;
+        }
+
+        public override string ToString() => $"ResolvedArrayParameter: Type={ParameterType!.Name}";
 
         #endregion
     }
+
+
+    #region Generic
 
     /// <summary>
     /// A generic version of <see cref="ResolvedArrayParameter"/> for convenience
@@ -160,4 +176,6 @@ namespace Unity.Injection
         {
         }
     }
+
+    #endregion
 }

@@ -13,16 +13,6 @@ namespace Unity.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? Resolve() => Container.Resolve(ref this);
 
-        public object? Resolve<T>(ref DependencyInfo<T> dependency)
-        {
-            return dependency.Injected.DataType switch
-            {
-                ImportType.Pipeline => GetValueRecursively(dependency.Info, ((ResolveDelegate<PipelineContext>)dependency.Injected.Value!)(ref this)),
-                ImportType.Value    => dependency.Injected.Value,
-                _                      => Container.Resolve(ref this)
-            };
-        }
-
         public object? Resolve(Type type, string? name)
         {
             var contract = new Contract(type, name);

@@ -108,8 +108,8 @@ namespace Unity.Injection
 
         #region Implementation
 
-        public override InjectionInfo<ParameterInfo> GetInfo(ParameterInfo member) 
-            => new InjectionInfo<ParameterInfo>(member, member.ParameterType, _contractName, _optional || member.HasDefaultValue);
+        public override ReflectionInfo<ParameterInfo> GetInfo(ParameterInfo member) 
+            => new ReflectionInfo<ParameterInfo>(member, member.ParameterType, _contractName, _optional || member.HasDefaultValue);
 
         protected virtual ResolveDelegate<TContext> GetResolver<TContext>(Type type, string? name)
             where TContext : IResolveContext => (ref TContext context) => context.Resolve(type, name);

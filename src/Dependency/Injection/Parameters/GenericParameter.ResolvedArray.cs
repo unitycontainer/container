@@ -18,7 +18,7 @@ namespace Unity.Injection
 
         private readonly object[] _values;
 
-        private static readonly MethodInfo ResolverMethod =
+        internal static readonly MethodInfo ResolverMethod =
             typeof(GenericResolvedArrayParameter).GetTypeInfo().GetDeclaredMethod(nameof(DoResolve))!;
 
         private delegate object Resolver<TContext>(ref TContext context, object[] values) 

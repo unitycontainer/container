@@ -19,7 +19,7 @@ namespace Unity.BuiltIn
             if (0 == members.Length) return downstream;
 
             int count = 0;
-            InjectionInfo<TMemberInfo>[]? imports = null;
+            ReflectionInfo<TMemberInfo>[]? imports = null;
             var injected = GetInjected<InjectionMemberInfo<TMemberInfo>>(builder.Context.Registration);
             var injections = injected;
 
@@ -32,7 +32,7 @@ namespace Unity.BuiltIn
                 {
                     if (MatchRank.ExactMatch == injected.Match(member))
                     {
-                        (imports ??= new InjectionInfo<TMemberInfo>[members.Length - index])[count++] = injected.GetInfo(member);
+                        (imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] = injected.GetInfo(member);
 
                         goto InitializeNext;
                     }
@@ -44,8 +44,8 @@ namespace Unity.BuiltIn
                 var attribute = GetImportAttribute(Unsafe.As<TDependency>(member));
                 if (null == attribute) continue;
 
-                (imports ??= new InjectionInfo<TMemberInfo>[members.Length - index])[count++] 
-                    = new InjectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)),
+                (imports ??= new ReflectionInfo<TMemberInfo>[members.Length - index])[count++] 
+                    = new ReflectionInfo<TMemberInfo>(member, attribute.ContractType ?? MemberType(Unsafe.As<TDependency>(member)),
                                                              attribute.ContractName,
                                                              attribute.AllowDefault);
                 // Rewind for the next member
@@ -68,7 +68,7 @@ namespace Unity.BuiltIn
 
                     // Check for override
                     if (null != (@override = context.GetOverride(in info.Import)))
-                        Build(ref context, in info.Import, info.Import.Info.AsImportData(@override.Value));
+                        Build(ref context, in info.Import, AsImportData(Unsafe.As<TDependency>(info.Import.Element), @override.Value));
                     else
                         Build(ref context, in info.Import, in info.Data);
                 }
