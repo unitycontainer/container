@@ -15,7 +15,11 @@ namespace Container.Scope
         protected string Name = "name";
         protected static Type[] TestTypes;
         protected static string[] TestNames;
-        protected static LifetimeManager Manager = new ContainerControlledLifetimeManager();
+        protected static LifetimeManager Manager = new ContainerControlledLifetimeManager
+        {
+            Data = new object(),
+            Category = RegistrationCategory.Instance
+        };
         protected static RegistrationDescriptor[] Registrations;
 
         protected Unity.Container.Scope Scope;

@@ -30,7 +30,7 @@ namespace Container.Scope
             // Arrange
             ReadOnlySpan<RegistrationDescriptor> array = new[] 
             { 
-                new RegistrationDescriptor(Manager) 
+                new RegistrationDescriptor(new ContainerControlledLifetimeManager()) 
             };
 
             // Act
@@ -98,6 +98,7 @@ namespace Container.Scope
             Assert.AreEqual(6348, Scope.ToArray().Length);
         }
 
+
         [TestMethod]
         public void AddEdgeCasesTest()
         {
@@ -114,6 +115,32 @@ namespace Container.Scope
 
             // Validate
             Assert.AreEqual(5, Scope.Version);
+            Assert.AreEqual(5, Scope.Count);
+            Assert.AreEqual(5, Scope.ToArray().Length);
+        }
+
+        [TestMethod]
+        public void AddNamedTest()
+        {
+            var manager = new ContainerControlledLifetimeManager
+            {
+                Data = new object(),
+                Category = RegistrationCategory.Instance
+            };
+
+            // Arrange
+            ReadOnlySpan<RegistrationDescriptor> span = new[]
+            {
+                new RegistrationDescriptor( "1",  manager ),
+                new RegistrationDescriptor( "2",  manager ),
+                new RegistrationDescriptor( null, manager )
+            };
+
+            // Act
+            Scope.Add(span);
+
+            // Validate
+            Assert.AreEqual(3, Scope.Version);
             Assert.AreEqual(3, Scope.Count);
             Assert.AreEqual(3, Scope.ToArray().Length);
         }

@@ -6,43 +6,31 @@ using Unity.Resolution;
 
 namespace Unity
 {
+#if DEBUG
+    [DebuggerDisplay("Hash = {_contract.HashCode}, Name = { Name }", Name = "{ (RegisteredType?.Name ?? string.Empty),nq }")]
+#else
+    [DebuggerDisplay("Name = { Name }", Name = "{ (RegisteredType?.Name ?? string.Empty),nq }")]
+#endif
     /// <summary>
     /// Information about the type registered in a container.
     /// </summary>
-    [DebuggerDisplay("Name = { Name }", Name = "{ (RegisteredType?.Name ?? string.Empty),nq }")]
     [StructLayout(LayoutKind.Sequential)]
-    public readonly struct ContainerRegistration 
+    public readonly struct ContainerRegistration : IContainerRegistration
     {
         #region Fields
+        
+        // Do not change the sequential order
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal readonly Contract _contract;
+        private readonly Contract _contract;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal readonly RegistrationManager _manager;
+        private readonly RegistrationManager _manager;
 
         #endregion
 
 
         #region Constructors
-
-        internal ContainerRegistration(Type type)
-        {
-            _contract = new Contract(type);
-            _manager = new TransientLifetimeManager();
-        }
-
-        internal ContainerRegistration(Type type, RegistrationManager manager)
-        {
-            _contract = new Contract(type);
-            _manager  = manager;
-        }
-
-        internal ContainerRegistration(Type type, string? name, RegistrationManager manager)
-        {
-            _contract = new Contract(type, name);
-            _manager  = manager;
-        }
 
         internal ContainerRegistration(int hash, Type type, string? name, RegistrationManager manager)
         {
@@ -53,6 +41,12 @@ namespace Unity
         internal ContainerRegistration(in Contract contract, RegistrationManager manager)
         {
             _contract = contract;
+            _manager = manager;
+        }
+
+        internal ContainerRegistration(int hash, Type type, RegistrationManager manager)
+        {
+            _contract = new Contract(hash, type);
             _manager = manager;
         }
 
@@ -82,10 +76,10 @@ namespace Unity
             }
         }
 
-        public object? Instance 
+        public object? Instance
             => _manager.Instance;
 
-        public ResolveDelegate<IResolveContext>? Factory 
+        public ResolveDelegate<IResolveContext>? Factory
             => _manager.Factory;
 
         #endregion

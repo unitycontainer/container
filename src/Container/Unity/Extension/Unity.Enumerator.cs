@@ -62,7 +62,7 @@ namespace Unity
 
                     var entry = memory.Span[i];
 
-                    if (RegistrationCategory.Internal == entry.Registration._manager.Category)
+                    if (null == entry.Internal.Manager || RegistrationCategory.Internal >= entry.Internal.Manager.Category)
                         continue;
 
                     yield return entry.Registration;
@@ -133,19 +133,19 @@ namespace Unity
 
                         var info = memory.Span[i];
 
-                        if (RegistrationCategory.Internal == info.Registration._manager.Category)
-                            continue;
+                        if (null == info.Internal.Manager || RegistrationCategory.Internal >= info.Internal.Manager.Category)
+                                continue;
 
                         // Check if already served
-                        var targetBucket = (uint)info.Registration._contract.HashCode % _length;
+                        var targetBucket = (uint)info.Internal.Contract.HashCode % _length;
                         var position = meta[targetBucket].Position;
 
                         while (position > 0)
                         {
                             var entry = _scopes[data[position].Next].Memory.Span[data[position].Position];
 
-                            if (info.Registration._contract.Type == entry.Registration._contract.Type &&
-                                ReferenceEquals(info.Registration._contract.Name, entry.Registration._contract.Name)) 
+                            if (info.Internal.Contract.Type == entry.Internal.Contract.Type &&
+                                ReferenceEquals(info.Internal.Contract.Name, entry.Internal.Contract.Name)) 
                                 break; // Skip, already enumerated
 
                             position = meta[position].Next;

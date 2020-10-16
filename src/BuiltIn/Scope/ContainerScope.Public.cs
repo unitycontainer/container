@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Unity.Container;
 
 namespace Unity.BuiltIn
@@ -18,9 +17,9 @@ namespace Unity.BuiltIn
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position].Registration;
-                if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
-                    candidate._contract.Name == contract.Name)
+                ref var candidate = ref Data[position].Internal;
+                if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                    candidate.Contract.Name == contract.Name)
                     return true;
 
                 position = meta[position].Next;
@@ -49,15 +48,15 @@ namespace Unity.BuiltIn
                         var required = START_INDEX + Index + descriptor.RegisterAs.Length;
                         if (required >= Data.Length) Expand(required);
 
-                        AddAnonymous(in descriptor);
+                        AddDefault(in descriptor);
                     }
                     else
                     {
                         // Expand registry if required
-                        var required = START_INDEX + Index + descriptor.RegisterAs.Length * 2;
+                        var required = 2 + Index + descriptor.RegisterAs.Length * 2;
                         if (required >= Data.Length) Expand(required);
 
-                        AddWithName(in descriptor);
+                        AddContract(in descriptor);
                     }
                 }
             }
@@ -70,7 +69,7 @@ namespace Unity.BuiltIn
             foreach (var type in registerAs)
             {
                 Debug.Assert(null != type);
-                Set(new Contract(type), manager);
+                AddDefault(type!, manager);
                 Revision--;
             }
         }
@@ -92,10 +91,10 @@ namespace Unity.BuiltIn
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position].Registration;
-                if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
-                    candidate._contract.Name == contract.Name)
-                    return candidate._manager;
+                ref var candidate = ref Data[position].Internal;
+                if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                    candidate.Contract.Name == contract.Name)
+                    return candidate.Manager;
 
                 position = meta[position].Next;
             }
@@ -113,9 +112,9 @@ namespace Unity.BuiltIn
 
             while (position > 0)
             {
-                ref var factory = ref Data[position].Registration;
-                if (ReferenceEquals(factory._contract.Type, generic.Type) &&
-                    factory._contract.Name == generic.Name)
+                ref var factory = ref Data[position];
+                if (ReferenceEquals(factory.Internal.Contract.Type, generic.Type) &&
+                    factory.Internal.Contract.Name == generic.Name)
                 {
                     // Found generic factory
 
@@ -128,34 +127,29 @@ namespace Unity.BuiltIn
 
                         while (position > 0)
                         {
-                            ref var candidate = ref Data[position].Registration;
-                            if (ReferenceEquals(candidate._contract.Type, contract.Type) &&
-                                candidate._contract.Name == contract.Name)
+                            ref var candidate = ref Data[position].Internal;
+                            if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                                candidate.Contract.Name == contract.Name)
                             {
                                 // Found existing
-                                return candidate._manager;
+                                return candidate.Manager;
                             }
 
                             position = Meta[position].Next;
                         }
 
-                        // Nothing is found, add new
-
-                        Index += 1;
-
-                        // Expand if required
-
-                        if (Data.Length <= Index)
+                        // Nothing is found, add new and expand if required
+                        if (Data.Length <= ++Index)
                         {
-                            Expand();
+                            Expand(Index);
                             target = (uint)contract.HashCode % Meta.Length;
                         }
 
                         // Clone manager
-                        var manager = factory.LifetimeManager.Clone();
+                        var manager = factory.Registration.LifetimeManager.Clone();
 
                         ref var bucket = ref Meta[target];
-                        Data[Index] = new Entry(contract.HashCode, contract.Type, factory.Name, manager);
+                        Data[Index] = new Entry(contract.HashCode, contract.Type, factory.Registration.Name, manager);
                         Meta[Index].Next = bucket.Position;
                         bucket.Position = Index;
 

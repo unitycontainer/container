@@ -20,11 +20,6 @@ namespace Unity
         Uninitialized = 0,
 
         /// <summary>
-        /// This is implicit/internal registration
-        /// </summary>
-        Internal,
-
-        /// <summary>
         /// This registration is a clone
         /// </summary>
         /// <remarks>
@@ -33,6 +28,11 @@ namespace Unity
         /// manager
         /// </remarks>
         Clone,
+
+        /// <summary>
+        /// This is implicit/internal registration
+        /// </summary>
+        Internal,
 
         /// <summary>
         /// This is RegisterType registration
