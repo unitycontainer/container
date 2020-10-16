@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Unity;
 using Unity.BuiltIn;
-using Unity.Container;
 using Unity.Lifetime;
+using static Unity.Container.Scope;
 
 namespace Container.Scope
 {
@@ -48,15 +48,14 @@ namespace Container.Scope
         }
 
         [TestInitialize]
-        public virtual void InitializeTest() => Scope = new ContainerScope(3);
+        public virtual void InitializeTest() => Scope = new ContainerScope(1);
 
         [TestMethod]
         public void Baseline()
         {
             Assert.IsNotNull(Scope);
-            Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.Contracts);
+            Assert.AreEqual(0, Scope.Count);
             Assert.AreEqual(0, Scope.ToArray().Length);
             Assert.IsTrue(ReferenceEquals(null, null));
 
@@ -67,7 +66,7 @@ namespace Container.Scope
 
     public static class ScopeTestExtensions
     {
-        public static ContainerRegistration[] ToArray(this Unity.Container.Scope sequence) 
+        public static Entry[] ToArray(this Unity.Container.Scope sequence) 
             => sequence.Memory.Span.ToArray();
     }
 }

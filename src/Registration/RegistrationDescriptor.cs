@@ -38,6 +38,7 @@ namespace Unity
         {
             Name       = name;
             Manager    = (LifetimeManager)manager;
+            // TODO: registerAs validation optimization
             RegisterAs = 0 < registerAs.Length ? registerAs : new[] { type };
 
             // Setup manager

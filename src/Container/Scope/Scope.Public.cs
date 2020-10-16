@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("{GetType().Name,nq}: Contracts = { Contracts }, Names = { Names }, Version = { Version }")]
+    [DebuggerDisplay("{GetType().Name,nq}: Contracts = { Count }, Version = { Version }")]
     public abstract partial class Scope
     {
         #region Properties
@@ -16,29 +16,24 @@ namespace Unity.Container
         /// Scope version is increased every time registrations changes
         /// </remarks>
         public int Version => null == Next 
-            ? _version : Next.Version + _version;
+            ? Revision : Next.Version + Revision;
 
         /// <summary>
-        /// Count of registered <see cref="Contract"/> names
+        /// Count of registered contracts
         /// </summary>
-        public virtual int Names => NamesCount;
+        public int Count => Index;
 
         /// <summary>
-        /// Count of registered <see cref="Contract"/> types
-        /// </summary>
-        public int Contracts => ContractsCount;
-
-        /// <summary>
-        /// Return <see cref="ReadOnlyMemory{ContainerRegistration}"/> encapsulating
+        /// Return <see cref="ReadOnlyMemory{RegistrationInfo}"/> encapsulating
         /// all registered contracts.
         /// </summary>
-        public ReadOnlyMemory<ContainerRegistration> Memory 
-            => new ReadOnlyMemory<ContainerRegistration>(ContractsData, 1, ContractsCount);
+        public ReadOnlyMemory<Entry> Memory 
+            => new ReadOnlyMemory<Entry>(Data, 1, Index);
 
         /// <summary>
         /// Storage capacity of the scope
         /// </summary>
-        public int Capacity => ContractsData.Length;
+        public int Capacity => Data.Length;
 
         /// <summary>
         /// Pointer to the next scope
@@ -63,29 +58,35 @@ namespace Unity.Container
         #region Add
 
         /// <summary>
-        /// Add internal <see cref="Contract"/> entries
-        /// </summary>
-        /// <remarks>
-        /// This method does not check if sufficient space is available. It assumes enough slots 
-        /// are preallocated.
-        /// </remarks>
-        /// <param name="manager"><see cref="RegistrationManager"/> containing the registration</param>
-        /// <param name="registerAs">Collection of <see cref="Type"/> aliases</param>
-        internal abstract void Add(RegistrationManager manager, params Type[] registerAs);
-
-        /// <summary>
-        /// Add <see cref="Contract"/> entries for registrations
+        /// Set <see cref="Contract"/> entries for registrations
         /// </summary>
         /// <param name="data"><see cref="ReadOnlySpan{RegistrationDescriptor}"/> of
         /// <see cref="RegistrationDescriptor"/> structures</param>
         public abstract void Add(in ReadOnlySpan<RegistrationDescriptor> span);
 
         /// <summary>
-        /// Add <see cref="Contract"/> entries for registrations
+        /// Set <see cref="Contract"/> entries for registrations
         /// </summary>
         /// <param name="state">Array of
         /// <see cref="RegistrationDescriptor"/> structures</param>
         public abstract void AddAsync(object? state);
+
+        #endregion
+
+
+        #region Internal set
+
+        /// <summary>
+        /// Set internal <see cref="Contract"/> entries
+        /// </summary>
+        /// <remarks>
+        /// This method does not check if sufficient space is available, it assumes enough slots 
+        /// are preallocated. This method does not increase <see cref="Version"/> assuming all 
+        /// added contracts are built in.
+        /// </remarks>
+        /// <param name="manager"><see cref="RegistrationManager"/> containing the registration</param>
+        /// <param name="registerAs">Collection of <see cref="Type"/> aliases</param>
+        internal abstract void SetInternal(RegistrationManager manager, params Type[] registerAs);
 
         #endregion
 

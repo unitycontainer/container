@@ -9,96 +9,8 @@ namespace Container.Scope
 {
     public partial class ScopeTests
     {
-        #region Add(LifetimeManager, Type[])
-
         [TestMethod]
-        public void AddJustManagerTest()
-        {
-            // Act
-            Scope.Add(Manager);
-
-            // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.Contracts);
-            Assert.AreEqual(0, Scope.ToArray().Length);
-        }
-
-        [TestMethod]
-        public void AddManagerTest()
-        {
-            // Act
-            Scope.Add(Manager, Manager.GetType());
-
-            // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(1, Scope.Contracts);
-            Assert.AreEqual(1, Scope.ToArray().Length);
-        }
-
-        [TestMethod]
-        public void AddAliasedManagerTest()
-        {
-            // Act
-            Scope.Add(Manager, Manager.GetType(), typeof(LifetimeManager));
-
-            // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(2, Scope.Contracts);
-            Assert.AreEqual(2, Scope.ToArray().Length);
-        }
-
-        [TestMethod]
-        public void AddManagerIgnoresNullTest()
-        {
-            // Act
-            Scope.Add(Manager, Manager.GetType(), null, null);
-
-            // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(1, Scope.Contracts);
-            Assert.AreEqual(1, Scope.ToArray().Length);
-        }
-
-        [TestMethod]
-        public void AddManagerAsSameTypeTest()
-        {
-            // Act
-            Scope.Add(Manager, Manager.GetType());
-            Scope.Add(Manager, Manager.GetType());
-
-            // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(1, Scope.Contracts);
-            Assert.AreEqual(1, Scope.ToArray().Length);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(SetSize))]
-        public void AddManagerExpandsTest(int size)
-        {
-            ReadOnlySpan<RegistrationDescriptor> span = Registrations;
-
-            // Act
-            Scope.Add(span.Slice(0, size));
-
-            // Validate
-            Assert.AreNotEqual(0, Scope.ToArray().Length);
-        }
-
-        public static IEnumerable<object[]> SetSize => Enumerable.Range(1, 20).Select(n => new object[] { n });
-
-        #endregion
-
-
-        #region Add(ReadOnlySpan)
-
-        [TestMethod]
-        public void AddUninitializedSpanTest()
+        public void AddEmptySpanTest()
         {
             ReadOnlySpan<RegistrationDescriptor> span = new ReadOnlySpan<RegistrationDescriptor>();
 
@@ -106,27 +18,70 @@ namespace Container.Scope
             Scope.Add(in span);
 
             // Validate
-            Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.Contracts);
+            Assert.AreEqual(0, Scope.Count);
             Assert.AreEqual(0, Scope.ToArray().Length);
         }
 
         [TestMethod]
-        public void AddArrayWithJustManagerTest()
+        [ExpectedException(typeof(ArgumentException))]
+        public void AddUninitializedManagerTest()
         {
             // Arrange
-            ReadOnlySpan<RegistrationDescriptor> array = new[] { new RegistrationDescriptor(Manager) };
+            ReadOnlySpan<RegistrationDescriptor> array = new[] 
+            { 
+                new RegistrationDescriptor(Manager) 
+            };
+
+            // Act
+            Scope.Add(array);
+        }
+
+        [TestMethod]
+        public void AddTypeManagerTest()
+        {
+            // Arrange
+            ReadOnlySpan<RegistrationDescriptor> array = new[]
+            {
+                new RegistrationDescriptor(new ContainerControlledLifetimeManager
+                { 
+                    Data = typeof(ScopeTests),
+                    Category = RegistrationCategory.Type
+                })
+            };
 
             // Act
             Scope.Add(array);
 
             // Validate
-            Assert.AreEqual(0, Scope.Names);
-            Assert.AreEqual(0, Scope.Version);
-            Assert.AreEqual(0, Scope.Contracts);
-            Assert.AreEqual(0, Scope.ToArray().Length);
+            Assert.AreEqual(1, Scope.Version);
+            Assert.AreEqual(1, Scope.Count);
+            Assert.AreEqual(1, Scope.ToArray().Length);
         }
+
+        [DataTestMethod]
+        [DynamicData(nameof(AddSize))]
+        public void AddUntillExpandsTest(int size)
+        {
+            // Arrange
+            var manager = new ContainerControlledLifetimeManager
+            {
+                Data = typeof(ScopeTests),
+                Category = RegistrationCategory.Type
+            };
+
+            RegistrationDescriptor[] array = new RegistrationDescriptor[size];
+
+            for (int i = 0; i < size; i++)
+                array[i] = new RegistrationDescriptor(manager);
+
+            // Act
+            Scope.Add(array);
+
+            // Validate
+            Assert.AreNotEqual(0, Scope.ToArray().Length);
+        }
+
 
         [TestMethod]
         public void AddAllTest()
@@ -138,10 +93,9 @@ namespace Container.Scope
             Scope.Add(span);
 
             // Validate
-            Assert.AreEqual(100, Scope.Names);
             Assert.AreEqual(5995, Scope.Version);
-            Assert.AreEqual(5995, Scope.Contracts);
-            Assert.AreEqual(5995, Scope.ToArray().Length);
+            Assert.AreEqual(6348, Scope.Count);
+            Assert.AreEqual(6348, Scope.ToArray().Length);
         }
 
         [TestMethod]
@@ -159,9 +113,8 @@ namespace Container.Scope
             Scope.Add(span);
 
             // Validate
-            Assert.AreEqual(0, Scope.Names);
             Assert.AreEqual(5, Scope.Version);
-            Assert.AreEqual(3, Scope.Contracts);
+            Assert.AreEqual(3, Scope.Count);
             Assert.AreEqual(3, Scope.ToArray().Length);
         }
 
@@ -179,12 +132,24 @@ namespace Container.Scope
             Scope.Add(span);
 
             // Validate
-            Assert.AreEqual(1, Scope.Names);
             Assert.AreEqual(5, Scope.Version);
-            Assert.AreEqual(3, Scope.Contracts);
-            Assert.AreEqual(3, Scope.ToArray().Length);
+            Assert.AreEqual(6, Scope.Count);
+            Assert.AreEqual(6, Scope.ToArray().Length);
         }
 
-        #endregion
+        [DataTestMethod]
+        [DynamicData(nameof(AddSize))]
+        public void AddManagerExpandsTest(int size)
+        {
+            ReadOnlySpan<RegistrationDescriptor> span = Registrations;
+
+            // Act
+            Scope.Add(span.Slice(0, size));
+
+            // Validate
+            Assert.AreNotEqual(0, Scope.ToArray().Length);
+        }
+
+        public static IEnumerable<object[]> AddSize => Enumerable.Range(1, 20).Select(n => new object[] { n });
     }
 }

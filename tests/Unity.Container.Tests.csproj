@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework Condition=" '$(TargetFramework)' == '' ">net48</TargetFramework>
-	  <!--<TargetFramework Condition=" '$(TargetFramework)' == '' ">net5.0</TargetFramework>-->
+	  <TargetFramework Condition=" '$(TargetFramework)' == '' ">net5.0</TargetFramework>
 	  <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\src\package.snk</AssemblyOriginatorKeyFile>

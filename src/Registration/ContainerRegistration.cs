@@ -26,6 +26,12 @@ namespace Unity
 
         #region Constructors
 
+        internal ContainerRegistration(Type type)
+        {
+            _contract = new Contract(type);
+            _manager = new TransientLifetimeManager();
+        }
+
         internal ContainerRegistration(Type type, RegistrationManager manager)
         {
             _contract = new Contract(type);

@@ -60,12 +60,12 @@ namespace Unity
                     if (_version != _scope.Version)
                         throw new InvalidOperationException(INVALID_ENUMERATOR);
 
-                    var registration = memory.Span[i];
+                    var entry = memory.Span[i];
 
-                    if (RegistrationCategory.Internal == registration._manager.Category)
+                    if (RegistrationCategory.Internal == entry.Registration._manager.Category)
                         continue;
 
-                    yield return registration;
+                    yield return entry.Registration;
                 }
             }
 
@@ -104,7 +104,7 @@ namespace Unity
                 _scopes = scopes;
                 _version = scopes[0].Version;
                 _length = Prime.GetPrime(
-                    scopes.Select(s => s.Contracts)
+                    scopes.Select(s => s.Count)
                           .Sum());
             }
 
@@ -131,21 +131,21 @@ namespace Unity
                         if (_version != root.Version)
                             throw new InvalidOperationException(INVALID_ENUMERATOR);
 
-                        var registration = memory.Span[i];
+                        var info = memory.Span[i];
 
-                        if (RegistrationCategory.Internal == registration._manager.Category)
+                        if (RegistrationCategory.Internal == info.Registration._manager.Category)
                             continue;
 
                         // Check if already served
-                        var targetBucket = (uint)registration._contract.HashCode % _length;
+                        var targetBucket = (uint)info.Registration._contract.HashCode % _length;
                         var position = meta[targetBucket].Position;
 
                         while (position > 0)
                         {
                             var entry = _scopes[data[position].Next].Memory.Span[data[position].Position];
 
-                            if (registration._contract.Type == entry._contract.Type &&
-                                ReferenceEquals(registration._contract.Name, entry._contract.Name)) 
+                            if (info.Registration._contract.Type == entry.Registration._contract.Type &&
+                                ReferenceEquals(info.Registration._contract.Name, entry.Registration._contract.Name)) 
                                 break; // Skip, already enumerated
 
                             position = meta[position].Next;
@@ -161,7 +161,7 @@ namespace Unity
                             meta[count].Next = meta[targetBucket].Position;
                             meta[targetBucket].Position = count++;
 
-                            yield return registration;
+                            yield return info.Registration;
                         }
                     }
                 }

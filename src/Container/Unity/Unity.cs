@@ -56,10 +56,10 @@ namespace Unity
 
             // Registration Scope
             _scope = new ContainerScope(capacity);
-            _scope.Add(new ContainerLifetimeManager(this), typeof(IUnityContainer), 
+            _scope.SetInternal(new ContainerLifetimeManager(this), typeof(IUnityContainer), 
                                                            typeof(IUnityContainerAsync), 
                                                            typeof(IServiceProvider));
-            BUILT_IN_CONTRACT_COUNT = _scope.Contracts;
+            BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
             // Setup Built-In Components
             BuiltInComponents.Setup(_context);
@@ -81,11 +81,11 @@ namespace Unity
             
             // Registration Scope
             _scope = parent._scope.CreateChildScope(capacity);
-            _scope.Add(new ContainerLifetimeManager(this),
+            _scope.SetInternal(new ContainerLifetimeManager(this),
                 typeof(IUnityContainer), 
                 typeof(IUnityContainerAsync), 
                 typeof(IServiceProvider));
-            BUILT_IN_CONTRACT_COUNT = _scope.Contracts;
+            BUILT_IN_CONTRACT_COUNT = _scope.Count;
         }
 
         #endregion

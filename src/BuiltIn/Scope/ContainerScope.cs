@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Container;
+﻿using Unity.Container;
 using Unity.Storage;
 
 namespace Unity.BuiltIn
@@ -8,7 +7,7 @@ namespace Unity.BuiltIn
     {
         #region Fields
 
-        protected Metadata[] ContractsMeta;
+        protected Metadata[] Meta;
 
         #endregion
 
@@ -19,24 +18,21 @@ namespace Unity.BuiltIn
         internal ContainerScope(int capacity)
             : base(capacity)
         {
-            // Registrations
-            ContractsMeta = new Metadata[Prime.Numbers[ContractsPrime]];
+            Meta = new Metadata[Storage.Prime.Numbers[Prime]];
         }
 
         // Child constructor
         protected ContainerScope(Scope scope, int capacity)
             : base(scope, capacity)
         {
-            // Registrations
-            ContractsMeta = new Metadata[Prime.Numbers[ContractsPrime]];
+            Meta = new Metadata[Storage.Prime.Numbers[Prime]];
         }
 
         // Copy constructor
         protected ContainerScope(ContainerScope scope)
             : base(scope, scope.Sync)
         {
-            // Registrations
-            ContractsMeta = scope.ContractsMeta;
+            Meta = scope.Meta;
         }
 
         #endregion

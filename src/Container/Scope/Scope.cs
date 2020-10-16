@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -23,19 +22,11 @@ namespace Unity.Container
         // Entire scope lock
         protected readonly object Sync;
 
-        // Names
-        protected int NamesPrime;
-        protected int NamesCount;
-        [CLSCompliant(false)] protected Metadata[] NamesMeta;
-        [CLSCompliant(false)] protected NameInfo[] NamesData;
-
         // Contracts
-        protected int ContractsPrime;
-        protected int ContractsCount;
-        protected ContainerRegistration[] ContractsData;
-
-        // Scope info
-        [CLSCompliant(false)] protected int _version;
+        protected int Prime;
+        protected int Index;
+        protected int Revision;
+        protected Entry[] Data;
 
         #endregion
 
@@ -50,14 +41,9 @@ namespace Unity.Container
             // Scope lock
             Sync = new object();
 
-            // Names
-            NamesPrime = 2;
-            NamesData = new NameInfo[Prime.Numbers[NamesPrime++]];
-            NamesMeta = new Metadata[Prime.Numbers[NamesPrime]];
-
             // Contracts
-            ContractsPrime = Prime.IndexOf(capacity);
-            ContractsData = new ContainerRegistration[Prime.Numbers[ContractsPrime++]];
+            Prime = Storage.Prime.IndexOf(capacity);
+            Data = new Entry[Storage.Prime.Numbers[Prime++]];
 
             // Segment
             Disposables = new List<IDisposable>();
@@ -74,13 +60,9 @@ namespace Unity.Container
             // Scope lock
             Sync = new object();
 
-            // Names
-            NamesData = new NameInfo[Prime.Numbers[NamesPrime++]];
-            NamesMeta = new Metadata[Prime.Numbers[NamesPrime]];
-
             // Contracts
-            ContractsPrime = Prime.IndexOf(capacity);
-            ContractsData = new ContainerRegistration[Prime.Numbers[ContractsPrime++]];
+            Prime = Storage.Prime.IndexOf(capacity);
+            Data = new Entry[Storage.Prime.Numbers[Prime++]];
 
             // Segment
             Disposables = new List<IDisposable>();
@@ -97,19 +79,13 @@ namespace Unity.Container
             // Scope lock
             Sync = sync;
 
-            // Names
-            NamesPrime = scope.NamesPrime;
-            NamesCount = scope.NamesCount;
-            NamesMeta  = scope.NamesMeta;
-            NamesData  = scope.NamesData;
-
             // Contracts
-            ContractsPrime = scope.ContractsPrime;
-            ContractsCount = scope.ContractsCount;
-            ContractsData = scope.ContractsData;
+            Prime = scope.Prime;
+            Index = scope.Index;
+            Data = scope.Data;
 
             // Info
-            _version = scope._version;
+            Revision = scope.Revision;
 
             // Segment
             Disposables = scope.Disposables;

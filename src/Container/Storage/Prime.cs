@@ -30,7 +30,7 @@ namespace Unity.Storage
         {
             for(var index = 0; index < Numbers.Length; index++)
             {
-                if (Numbers[index] >= number) 
+                if (Numbers[index] > number) 
                     return index;
             }
 

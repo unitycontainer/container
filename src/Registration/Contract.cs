@@ -14,6 +14,8 @@ namespace Unity
     {
         #region Public Members
 
+        // Do not change sequence
+
         /// <summary>
         /// Hash code of the contract
         /// </summary>
