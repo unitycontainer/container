@@ -19,10 +19,13 @@ namespace Unity
         #region Registration
 
         /// <inheritdoc />
-        public IUnityContainer RegisterType(Type? contractType, Type implementationType, string? contractName, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        public IUnityContainer RegisterType(Type? contractType, Type implementationType, string? contractName, 
+            ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
+            var type = implementationType ?? contractType ?? throw new ArgumentNullException(nameof(implementationType));
+
             // Validate and initialize registration manager
-            var manager = lifetimeManager as LifetimeManager ?? 
+            var manager = (lifetimeManager ?? DefaultTypeLifetimeManager(type)) as LifetimeManager ?? 
                 throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
 
             if (RegistrationCategory.Uninitialized != manager.Category)
@@ -32,7 +35,7 @@ namespace Unity
                 manager.Add(injectionMembers);
 
             manager.Category = RegistrationCategory.Type;
-            manager.Data = implementationType ?? contractType ?? throw new ArgumentNullException(nameof(implementationType));
+            manager.Data = type;
 
             // Register the manager
             if (null == contractName)
@@ -53,10 +56,14 @@ namespace Unity
             return this;
         }
 
-        public IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        public IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, 
+            IInstanceLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
+            var type = contractType ?? instance?.GetType() ?? 
+                throw new ArgumentNullException("Contract Type must be provided when instance is 'null'", nameof(contractType));
+
             // Validate and initialize registration manager
-            var manager = lifetimeManager as LifetimeManager ??
+            var manager = (lifetimeManager ?? DefaultInstanceLifetimeManager(type)) as LifetimeManager ??
                 throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
 
             if (RegistrationCategory.Uninitialized != manager.Category)
@@ -64,9 +71,6 @@ namespace Unity
 
             if (null != injectionMembers && 0 != injectionMembers.Length)
                 manager.Add(injectionMembers);
-
-            var type = contractType ?? instance?.GetType() ?? 
-                throw new ArgumentNullException("Contract Type must be provided when instance is 'null'", nameof(contractType));
 
             manager.Category = RegistrationCategory.Instance;
             manager.Data = instance;
@@ -94,10 +98,10 @@ namespace Unity
 
         /// <inheritdoc />
         public IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object> factory,
-            IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+            IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers)
         {
             // Validate and initialize registration manager
-            var manager = lifetimeManager as LifetimeManager ??
+            var manager = (lifetimeManager ?? DefaultFactoryLifetimeManager(contractType)) as LifetimeManager ??
                 throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
 
             if (RegistrationCategory.Uninitialized != manager.Category)

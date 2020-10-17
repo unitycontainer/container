@@ -321,30 +321,6 @@ namespace Unity
             => (container ?? throw new ArgumentNullException(nameof(container))).Register(
                 new RegistrationDescriptor(to, name, (ITypeLifetimeManager)LifetimeManager._typeManager.Clone(injectionMembers), from));
 
-        /// <summary>
-        /// Register a type mapping with the container, where the created instances will use
-        /// the given <see cref="LifetimeManager"/>.
-        /// </summary>
-        /// <param name="container">Container to configure.</param>
-        /// <param name="from"><see cref="Type"/> that will be requested.</param>
-        /// <param name="to"><see cref="Type"/> that will actually be returned.</param>
-        /// <param name="name">Name to use for registration, null if a default registration.</param>
-        /// <param name="lifetimeManager">The <see cref="LifetimeManager"/> that controls the lifetime
-        /// of the returned instance.</param>
-        /// <param name="injectionMembers">Injection configuration objects.</param>
-        /// <returns>The <see cref="IUnityContainer"/> object that this method was called on.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IUnityContainer RegisterType(this IUnityContainer container, Type from, Type to, string name, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
-        {
-            if (lifetimeManager is LifetimeManager manager)
-                manager.Add(injectionMembers);
-            else
-                throw new ArgumentNullException(nameof(lifetimeManager));
-
-            return (container ?? throw new ArgumentNullException(nameof(container))).Register(
-                new RegistrationDescriptor(to, name, lifetimeManager, from));
-        }
-
 
         #endregion
 

@@ -51,14 +51,14 @@ namespace Unity
 
         #region Registrations
 
-        IUnityContainer RegisterType(Type? contractType, Type implementationType, string? contractName, ITypeLifetimeManager 
-            lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterType(Type? contractType, Type implementationType, string? contractName, 
+            ITypeLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
-        IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, IInstanceLifetimeManager 
-            lifetimeManager, params InjectionMember[] injectionMembers);
+        IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, 
+            IInstanceLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
         IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object> factory, 
-            IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
+            IFactoryLifetimeManager? lifetimeManager, params InjectionMember[] injectionMembers);
 
         IUnityContainer Register(params RegistrationDescriptor[] descriptors);
 
