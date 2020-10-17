@@ -26,9 +26,9 @@ namespace Unity.Container
 
             #region Constructors
 
-            public Entry(int hash, Type type, string? name, RegistrationManager manager)
+            public Entry(int hash, Type type, string? name, RegistrationManager manager, long next = 0)
             {
-                Next = 0;
+                Next = next;
                 Internal = default;
                 Registration = new ContainerRegistration(hash, type, name, manager);
             }
@@ -43,9 +43,9 @@ namespace Unity.Container
             public Entry(int hash, Type type)
             {
                 Next = 0;
-                Internal = default;
                 Registration = default;
 
+                Internal.Manager = default;
                 Internal.Contract = new Contract(hash, type);
             }
 

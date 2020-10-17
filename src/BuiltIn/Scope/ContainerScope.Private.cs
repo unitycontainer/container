@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.Storage;
 
@@ -35,6 +34,7 @@ namespace Unity.BuiltIn
                 // Anonymous contracts
                 foreach (var type in descriptor.RegisterAs)
                 {
+                    // TODO: Proper error handling
                     if (null == type) continue;
 
                     AddDefault(type, descriptor.Manager);
@@ -44,10 +44,10 @@ namespace Unity.BuiltIn
 
         private void AddDefault(Type type, RegistrationManager manager)
         {
-            long pointer = 0;
             var hash = type.GetHashCode();
             ref var bucket = ref Meta[((uint)hash) % Meta.Length];
             var position = bucket.Position;
+            long pointer = 0;
 
             while (position > 0)
             {
@@ -87,7 +87,9 @@ namespace Unity.BuiltIn
 
         private void AddContract(in RegistrationDescriptor descriptor)
         {
-            var hash = descriptor.Name!.GetHashCode();
+            var name = descriptor.Name!;
+            var hash = name.GetHashCode();
+            
             ContractUnion union = new ContractUnion(descriptor.Name!);
 
             if (0 == descriptor.RegisterAs.Length)
@@ -118,10 +120,11 @@ namespace Unity.BuiltIn
                     union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), hash);
                     
                     // TODO: Add dealing with replacement
-                    AddContract(in union.Contract, descriptor.Manager);
+                    AddContract(type, hash, name, descriptor.Manager);
                 }
             }
         }
+
 
         private RegistrationManager? AddContract(in Contract contract, RegistrationManager manager)
         {
@@ -135,7 +138,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
                     candidate.Contract.Name == contract.Name)
                 {
-                    var replacement   = candidate.Manager;
+                    var replacement = candidate.Manager;
                     candidate.Manager = manager;
                     Revision += 1;
 
@@ -150,6 +153,41 @@ namespace Unity.BuiltIn
             // Add new registration
             Index++;
             Data[Index] = new Entry(in contract, manager, @default.Next);
+            Meta[Index].Next = bucket.Position;
+            bucket.Position = Index;
+            @default.Next = Index;
+            Revision += 1;
+            return null;
+        }
+
+
+        private RegistrationManager? AddContract(Type type, int nameHash, string name, RegistrationManager manager)
+        {
+            var hash = Contract.GetHashCode(type.GetHashCode(), nameHash);
+            ref var bucket = ref Meta[((uint)hash) % Meta.Length];
+            var position = bucket.Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position].Internal;
+                if (ReferenceEquals(candidate.Contract.Type, type) &&
+                    candidate.Contract.Name == name)
+                {
+                    var replacement   = candidate.Manager;
+                    candidate.Manager = manager;
+                    Revision += 1;
+
+                    return replacement;
+                }
+
+                position = Meta[position].Next;
+            }
+
+            ref var @default = ref Data[GetDefault(type)];
+
+            // Add new registration
+            Index++;
+            Data[Index] = new Entry(hash, type, name, manager, @default.Next);
             Meta[Index].Next = bucket.Position;
             bucket.Position = Index;
             @default.Next = Index;
@@ -208,12 +246,6 @@ namespace Unity.BuiltIn
 
 
         #region Nested Types
-
-        private class PlaceholderManager : RegistrationManager
-        {
-            public override object? TryGetValue(ICollection<IDisposable> lifetime)
-                => NoValue;
-        }
 
         [StructLayout(LayoutKind.Explicit)]
         private struct ContractUnion
