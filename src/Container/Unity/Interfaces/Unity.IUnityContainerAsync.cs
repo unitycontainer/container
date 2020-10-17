@@ -19,26 +19,28 @@ namespace Unity
         /// <inheritdoc />
         public async ValueTask RegisterAsync(params RegistrationDescriptor[] descriptors)
         {
-            ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>(descriptors);
+            throw new NotImplementedException();
+            //ReadOnlyMemory<RegistrationDescriptor> memory = new ReadOnlyMemory<RegistrationDescriptor>(descriptors);
 
-            // Register with the scope
-            await Task.Factory.StartNew(_scope.AddAsync, memory,
-                System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            //// Register with the scope
+            //await Task.Factory.StartNew(_scope.AddAsync, memory,
+            //    System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
 
-            // Report registration
-            _registering?.Invoke(this, memory.Span);
+            //// Report registration
+            //_registering?.Invoke(this, memory.Span);
         }
 
         /// <inheritdoc />
         public async ValueTask RegisterAsync(ReadOnlyMemory<RegistrationDescriptor> memory, TaskScheduler? scheduler = null)
         {
-            // Register with the scope
-            await Task.Factory.StartNew(_scope.AddAsync, memory,
-                System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach,
-                scheduler ?? TaskScheduler.Default);
+            throw new NotImplementedException();
+            //// Register with the scope
+            //await Task.Factory.StartNew(_scope.AddAsync, memory,
+            //    System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach,
+            //    scheduler ?? TaskScheduler.Default);
 
-            // Report registration
-            _registering?.Invoke(this, memory.Span);
+            //// Report registration
+            //_registering?.Invoke(this, memory.Span);
         }
 
         #endregion

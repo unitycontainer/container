@@ -27,7 +27,7 @@ namespace Unity.BuiltIn
 
                 if (null == type) return;
 
-                AddDefault(type, descriptor.Manager);
+                Add(type, descriptor.Manager);
             }
             else
             {
@@ -37,47 +37,9 @@ namespace Unity.BuiltIn
                     // TODO: Proper error handling
                     if (null == type) continue;
 
-                    AddDefault(type, descriptor.Manager);
+                    Add(type, descriptor.Manager);
                 }
             }
-        }
-
-        private void AddDefault(Type type, RegistrationManager manager)
-        {
-            var hash = type.GetHashCode();
-            ref var bucket = ref Meta[((uint)hash) % Meta.Length];
-            var position = bucket.Position;
-            long pointer = 0;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position];
-                if (ReferenceEquals(candidate.Internal.Contract.Type, type) &&
-                    candidate.Internal.Contract.Name == null)
-                {
-                    if (null == candidate.Internal.Manager)
-                    {
-                        candidate.Internal.Manager = manager;
-                        Revision += 1;
-                        return;
-                    }
-
-                    // move pointer no next into default
-                    pointer = candidate.Next;
-                    candidate.Next = 0;
-
-                    goto RegisterNew;
-                }
-
-                position = Meta[position].Next;
-            }
-
-            // Add new registration
-            RegisterNew: Index++;
-            Data[Index] = new Entry(hash, type, manager, pointer);
-            Meta[Index].Next = bucket.Position;
-            bucket.Position = Index;
-            Revision += 1;
         }
 
         #endregion
@@ -88,7 +50,7 @@ namespace Unity.BuiltIn
         private void AddContract(in RegistrationDescriptor descriptor)
         {
             var name = descriptor.Name!;
-            var hash = name.GetHashCode();
+            var nameHash = name.GetHashCode();
             
             ContractUnion union = new ContractUnion(descriptor.Name!);
 
@@ -105,9 +67,9 @@ namespace Unity.BuiltIn
                 if (null == type) return;
 
                 union.AsStruct.Type = type;
-                union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), hash);
+                union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), nameHash);
 
-                AddContract(in union.Contract, descriptor.Manager);
+                Add(in union.Contract, descriptor.Manager);
             }
             else
             {
@@ -117,51 +79,15 @@ namespace Unity.BuiltIn
                     if (null == type) continue;
 
                     union.AsStruct.Type = type;
-                    union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), hash);
+                    union.AsStruct.HashCode = Contract.GetHashCode(type.GetHashCode(), nameHash);
                     
                     // TODO: Add dealing with replacement
-                    AddContract(type, hash, name, descriptor.Manager);
+                    Add(type, name, nameHash, descriptor.Manager);
                 }
             }
         }
 
-
-        private RegistrationManager? AddContract(in Contract contract, RegistrationManager manager)
-        {
-            var hash = (uint)contract.HashCode;
-            ref var bucket = ref Meta[hash % Meta.Length];
-            var position = bucket.Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal;
-                if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
-                    candidate.Contract.Name == contract.Name)
-                {
-                    var replacement = candidate.Manager;
-                    candidate.Manager = manager;
-                    Revision += 1;
-
-                    return replacement;
-                }
-
-                position = Meta[position].Next;
-            }
-
-            ref var @default = ref Data[GetDefault(contract.Type)];
-
-            // Add new registration
-            Index++;
-            Data[Index] = new Entry(in contract, manager, @default.Next);
-            Meta[Index].Next = bucket.Position;
-            bucket.Position = Index;
-            @default.Next = Index;
-            Revision += 1;
-            return null;
-        }
-
-
-        private RegistrationManager? AddContract(Type type, int nameHash, string name, RegistrationManager manager)
+        private RegistrationManager? Add(Type type, string name, int nameHash, RegistrationManager manager)
         {
             var hash = Contract.GetHashCode(type.GetHashCode(), nameHash);
             ref var bucket = ref Meta[((uint)hash) % Meta.Length];

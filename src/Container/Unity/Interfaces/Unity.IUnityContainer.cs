@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -17,12 +19,127 @@ namespace Unity
         #region Registration
 
         /// <inheritdoc />
+        public IUnityContainer RegisterType(Type? contractType, Type implementationType, string? contractName, ITypeLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        {
+            // Validate and initialize registration manager
+            var manager = lifetimeManager as LifetimeManager ?? 
+                throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
+
+            if (RegistrationCategory.Uninitialized != manager.Category)
+                manager = manager.Clone();
+
+            if (null != injectionMembers && 0 != injectionMembers.Length)
+                manager.Add(injectionMembers);
+
+            manager.Category = RegistrationCategory.Type;
+            manager.Data = implementationType ?? contractType ?? throw new ArgumentNullException(nameof(implementationType));
+
+            // Register the manager
+            if (null == contractName)
+                lock (_scope.SyncRoot)
+                {
+                    _scope.Add(contractType ?? implementationType!, manager);
+                }
+            else
+            {
+                RegistrationManager? registration;
+                lock (_scope.SyncRoot)
+                {
+                    registration = _scope.Add(contractType ?? implementationType!, contractName, manager);
+                }
+                if (null != registration) DisposeManager(registration);
+            }
+
+            return this;
+        }
+
+        public IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, IInstanceLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        {
+            // Validate and initialize registration manager
+            var manager = lifetimeManager as LifetimeManager ??
+                throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
+
+            if (RegistrationCategory.Uninitialized != manager.Category)
+                manager = manager.Clone();
+
+            if (null != injectionMembers && 0 != injectionMembers.Length)
+                manager.Add(injectionMembers);
+
+            var type = contractType ?? instance?.GetType() ?? 
+                throw new ArgumentNullException("Contract Type must be provided when instance is 'null'", nameof(contractType));
+
+            manager.Category = RegistrationCategory.Instance;
+            manager.Data = instance;
+
+            // Register the manager
+            if (null == contractName)
+            {
+                lock (_scope.SyncRoot)
+                { 
+                    _scope.Add(type, manager);
+                }
+            }
+            else
+            {
+                RegistrationManager? registration;
+                lock (_scope.SyncRoot)
+                {
+                    registration = _scope.Add(type, contractName, manager);
+                }
+                if (null != registration) DisposeManager(registration);
+            }
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object> factory,
+            IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers)
+        {
+            // Validate and initialize registration manager
+            var manager = lifetimeManager as LifetimeManager ??
+                throw new ArgumentException("Invalid Lifetime Manager", nameof(lifetimeManager));
+
+            if (RegistrationCategory.Uninitialized != manager.Category)
+                manager = manager.Clone();
+
+            if (null != injectionMembers && 0 != injectionMembers.Length)
+                manager.Add(injectionMembers);
+
+            manager.Category = RegistrationCategory.Instance;
+            manager.Data = factory;
+
+            // Register the manager
+            if (null == contractName)
+            {
+                lock (_scope.SyncRoot)
+                {
+                    _scope.Add(contractType, manager);
+                }
+            }
+            else
+            {
+                RegistrationManager? registration;
+                lock (_scope.SyncRoot)
+                {
+                    registration = _scope.Add(contractType, contractName, manager);
+                }
+                if (null != registration) DisposeManager(registration);
+            }
+
+            return this;
+        }
+
+        /// <inheritdoc />
         public IUnityContainer Register(params RegistrationDescriptor[] descriptors)
         {
             ReadOnlySpan<RegistrationDescriptor> span = descriptors;
 
             // Register with the scope
-            _scope.Add(in span);
+            lock (_scope.SyncRoot)
+            {
+                _scope.Add(in span);
+            }
 
             // Report registration
             _registering?.Invoke(this, in span);
@@ -34,7 +151,10 @@ namespace Unity
         public IUnityContainer Register(in ReadOnlySpan<RegistrationDescriptor> span)
         {
             // Register with the scope
-            _scope.Add(in span);
+            lock (_scope.SyncRoot)
+            {
+                _scope.Add(in span);
+            }
 
             // Report registration
             _registering?.Invoke(this, in span);

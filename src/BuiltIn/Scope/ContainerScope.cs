@@ -30,7 +30,7 @@ namespace Unity.BuiltIn
 
         // Copy constructor
         protected ContainerScope(ContainerScope scope)
-            : base(scope, scope.Sync)
+            : base(scope, scope.SyncRoot)
         {
             Meta = scope.Meta;
         }

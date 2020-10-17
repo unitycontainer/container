@@ -1,11 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using Unity.Container;
 using Unity.Injection;
 using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity.Benchmarks
 {

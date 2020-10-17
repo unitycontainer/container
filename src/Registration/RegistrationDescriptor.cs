@@ -11,6 +11,33 @@ namespace Unity
     [DebuggerDisplay("Category = { Category }, { Manager?.Data }", Name = "{ Name,nq }")]
     public readonly struct RegistrationDescriptor
     {
+        #region Fields
+
+        private static Type[] _nothing = new Type[0];
+
+        /// <summary>
+        /// Set of <see cref="Type"/> aliases this registration is registered under
+        /// </summary>
+        /// <remarks> 
+        /// This used to be known as TypeFrom parameter. 
+        /// The list of implemented interfaces or base classes the registered entity
+        /// implements and could be assigned to.
+        /// </remarks>
+        public readonly Type[] RegisterAs;
+
+        /// <summary>
+        /// Name of contract
+        /// </summary>
+        public readonly string? Name;
+
+        /// <summary>
+        /// Lifetime Manager
+        /// </summary>
+        public readonly RegistrationManager Manager;
+
+        #endregion
+
+
         #region Constructors
 
         internal RegistrationDescriptor(LifetimeManager manager, params Type[] registerAs)
@@ -38,8 +65,18 @@ namespace Unity
         {
             Name       = name;
             Manager    = (LifetimeManager)manager;
-            // TODO: registerAs validation optimization
-            RegisterAs = 0 < registerAs.Length ? registerAs : new[] { type };
+            RegisterAs = registerAs;
+
+            // Setup manager
+            Manager.Data = type;
+            Manager.Category = RegistrationCategory.Type;
+        }
+
+        public RegistrationDescriptor(Type type, string? name, ITypeLifetimeManager manager)
+        {
+            Name = name;
+            Manager = (LifetimeManager)manager;
+            RegisterAs = _nothing;
 
             // Setup manager
             Manager.Data = type;
@@ -60,6 +97,18 @@ namespace Unity
             RegisterAs = 0 < registerAs.Length 
                 ? registerAs 
                 : new[] { instance?.GetType() ?? throw new ArgumentException("registerAs must be provided when registering 'null'", nameof(registerAs)) };
+
+            // Setup manager
+            Manager.Data = instance;
+            Manager.Category = RegistrationCategory.Instance;
+        }
+
+
+        public RegistrationDescriptor(object? instance, string? name, IInstanceLifetimeManager manager)
+        {
+            Name = name;
+            Manager = (LifetimeManager)manager;
+            RegisterAs = _nothing;
 
             // Setup manager
             Manager.Data = instance;
@@ -91,26 +140,6 @@ namespace Unity
 
 
         #region Public Members
-
-        /// <summary>
-        /// Set of <see cref="Type"/> aliases this registration is registered under
-        /// </summary>
-        /// <remarks> 
-        /// This used to be known as TypeFrom parameter. 
-        /// The list of implemented interfaces or base classes the registered entity
-        /// implements and could be assigned to.
-        /// </remarks>
-        public readonly Type[] RegisterAs;
-        
-        /// <summary>
-        /// Name of contract
-        /// </summary>
-        public readonly string? Name;
-        
-        /// <summary>
-        /// Lifetime Manager
-        /// </summary>
-        public readonly RegistrationManager Manager;
 
         /// <summary>
         /// <see cref="RegistrationCategory"/> of registration. 

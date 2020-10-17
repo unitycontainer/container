@@ -20,7 +20,7 @@ namespace Unity.Container
         #region Fields
 
         // Entire scope lock
-        protected readonly object Sync;
+        public readonly object SyncRoot;
 
         // Contracts
         protected int Prime;
@@ -39,7 +39,7 @@ namespace Unity.Container
         protected internal Scope(int capacity)
         {
             // Scope lock
-            Sync = new object();
+            SyncRoot = new object();
 
             // Contracts
             Prime = Storage.Prime.IndexOf(capacity);
@@ -58,7 +58,7 @@ namespace Unity.Container
         protected Scope(Scope parent, int capacity)
         {
             // Scope lock
-            Sync = new object();
+            SyncRoot = new object();
 
             // Contracts
             Prime = Storage.Prime.IndexOf(capacity);
@@ -77,7 +77,7 @@ namespace Unity.Container
         protected internal Scope(Scope scope, object sync)
         {
             // Scope lock
-            Sync = sync;
+            SyncRoot = sync;
 
             // Contracts
             Prime = scope.Prime;

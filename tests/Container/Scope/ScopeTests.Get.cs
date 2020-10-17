@@ -22,7 +22,7 @@ namespace Container.Scope
         public void GetTest()
         {
             // Arrange
-            Scope.SetInternal(Manager, typeof(List<>));
+            Scope.Add(typeof(List<>), Manager);
 
             // Act
             var manager = Scope.Get(new Contract(typeof(List<>)));
@@ -35,7 +35,7 @@ namespace Container.Scope
         public void GetFactoryTest()
         {
             // Arrange
-            Scope.SetInternal(Manager, typeof(List<>));
+            Scope.Add(typeof(List<>), Manager);
 
             // Act
             var manager1 = Scope.Get(new Contract(typeof(List<int>)), new Contract(typeof(List<>)));
@@ -57,9 +57,9 @@ namespace Container.Scope
             object manager2 = null;
             object manager3 = null;
             object manager4 = null;
-            
+
             // Arrange
-            Scope.SetInternal(Manager, typeof(List<>));
+            Scope.Add(typeof(List<>), Manager);
             var sync = new ManualResetEvent(false);
 
 
@@ -182,7 +182,7 @@ namespace Container.Scope
             object manager4 = null;
 
             // Arrange
-            Scope.SetInternal(Manager, typeof(List<>));
+            Scope.Add(typeof(List<>), Manager);
             var sync = new ManualResetEvent(false);
 
 

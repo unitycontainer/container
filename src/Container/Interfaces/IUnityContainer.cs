@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Injection;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
@@ -14,6 +15,8 @@ namespace Unity
     [CLSCompliant(true)]
     public interface IUnityContainer : IDisposable
     {
+        #region Properties
+
         /// <summary>
         /// Name of this container
         /// </summary>
@@ -29,6 +32,33 @@ namespace Unity
         /// <value>The parent container, or null if this container doesn't have one.</value>
         IUnityContainer? Parent { get; }
 
+        /// <summary>
+        /// Lists all registrations available at this container.
+        /// </summary>
+        /// <remarks>
+        /// This collection contains all registrations from this container as well
+        /// as from all predecessor containers if this is a child container. Registrations
+        /// from child containers override registrations with same type and name from
+        /// parent containers.
+        /// The sort order of returned registrations is not guaranteed in any way.
+        /// </remarks>
+        /// <seealso cref="ContainerRegistration"/>
+        /// <value>Registered with the container types</value>
+        IEnumerable<ContainerRegistration> Registrations { get; }
+
+        #endregion
+
+
+        #region Registrations
+
+        IUnityContainer RegisterType(Type? contractType, Type implementationType, string? contractName, ITypeLifetimeManager 
+            lifetimeManager, params InjectionMember[] injectionMembers);
+
+        IUnityContainer RegisterInstance(Type? contractType, string? contractName, object? instance, IInstanceLifetimeManager 
+            lifetimeManager, params InjectionMember[] injectionMembers);
+
+        IUnityContainer RegisterFactory(Type contractType, string? contractName, Func<IUnityContainer, Type, string?, ResolverOverride[], object> factory, 
+            IFactoryLifetimeManager lifetimeManager, params InjectionMember[] injectionMembers);
 
         IUnityContainer Register(params RegistrationDescriptor[] descriptors);
 
@@ -57,21 +87,10 @@ namespace Unity
         /// <returns><c>True</c> if <see cref="Type"/> is registered or <c>False</c> if no registration found</returns>
         bool IsRegistered(Type type, string? name);
 
+        #endregion
 
-        /// <summary>
-        /// Lists all registrations available at this container.
-        /// </summary>
-        /// <remarks>
-        /// This collection contains all registrations from this container as well
-        /// as from all predecessor containers if this is a child container. Registrations
-        /// from child containers override registrations with same type and name from
-        /// parent containers.
-        /// The sort order of returned registrations is not guaranteed in any way.
-        /// </remarks>
-        /// <seealso cref="ContainerRegistration"/>
-        /// <value>Registered with the container types</value>
-        IEnumerable<ContainerRegistration> Registrations { get; }
 
+        #region Resolution
 
         /// <summary>
         /// Resolve an instance of the requested type from the container.
@@ -130,6 +149,11 @@ namespace Unity
         /// cause this to return a different object (but still type compatible with <paramref name="type"/>).</returns>
         object BuildUp(Type type, object existing, string? name, params ResolverOverride[] overrides);
 
+        #endregion
+
+
+        #region Hierarchy
+
         /// <summary>
         /// Create a child container.
         /// </summary>
@@ -140,5 +164,7 @@ namespace Unity
         /// parent's configuration but can be configured with different settings or lifetime.</remarks>
         /// <returns>The new child container.</returns>
         IUnityContainer CreateChildContainer(string? name, int capacity);
+
+        #endregion
     }
 }

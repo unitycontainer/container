@@ -1,7 +1,6 @@
 ﻿using System;
 using Unity.BuiltIn;
 using Unity.Container;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -55,10 +54,11 @@ namespace Unity
             _context  = new PrivateExtensionContext(this);
 
             // Registration Scope
+            var manager = new ContainerLifetimeManager(this);
             _scope = new ContainerScope(capacity);
-            _scope.SetInternal(new ContainerLifetimeManager(this), typeof(IUnityContainer), 
-                                                           typeof(IUnityContainerAsync), 
-                                                           typeof(IServiceProvider));
+            _scope.Add(typeof(IUnityContainer),      manager);
+            _scope.Add(typeof(IUnityContainerAsync), manager);
+            _scope.Add(typeof(IServiceProvider),     manager);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
             // Setup Built-In Components
@@ -78,13 +78,13 @@ namespace Unity
 
             _level    = parent._level + 1;
             _policies = parent.Root._policies;
-            
+
             // Registration Scope
+            var manager = new ContainerLifetimeManager(this);
             _scope = parent._scope.CreateChildScope(capacity);
-            _scope.SetInternal(new ContainerLifetimeManager(this),
-                typeof(IUnityContainer), 
-                typeof(IUnityContainerAsync), 
-                typeof(IServiceProvider));
+            _scope.Add(typeof(IUnityContainer),      manager);
+            _scope.Add(typeof(IUnityContainerAsync), manager);
+            _scope.Add(typeof(IServiceProvider),     manager);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
         }
 
