@@ -1,35 +1,11 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Container;
 
 namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
-        #region Contains
-
-        /// <inheritdoc />
-        public override bool Contains(in Contract contract)
-        {
-            var meta = Meta;
-            var bucket = (uint)contract.HashCode % meta.Length;
-            var position = meta[bucket].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal;
-                if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
-                    candidate.Contract.Name == contract.Name)
-                    return true;
-
-                position = meta[position].Next;
-            }
-
-            return Next?.Contains(in contract) ?? false;
-        }
-
-        #endregion
-
-
         #region Add
 
         /// <inheritdoc />
@@ -74,8 +50,7 @@ namespace Unity.BuiltIn
         /// <inheritdoc />
         public override RegistrationManager? Add(in Contract contract, RegistrationManager manager)
         {
-            var hash = (uint)contract.HashCode;
-            ref var bucket = ref Meta[hash % Meta.Length];
+            ref var bucket = ref Meta[((uint)contract.HashCode) % Meta.Length];
             var position = bucket.Position;
 
             while (position > 0)
@@ -176,7 +151,7 @@ namespace Unity.BuiltIn
         public override RegistrationManager? Get(in Contract contract)
         {
             var meta = Meta;
-            var target = (uint)contract.HashCode % meta.Length;
+            var target = ((uint)contract.HashCode) % meta.Length;
             var position = meta[target].Position;
 
             while (position > 0)
@@ -251,6 +226,62 @@ namespace Unity.BuiltIn
             }
 
             return null;
+        }
+
+        #endregion
+
+
+        #region Contains
+
+        public override bool Contains(Type type)
+        {
+            var hash = (uint)type.GetHashCode();
+            var scope = this;
+
+            do
+            {
+                var meta = scope.Meta;
+                var target = hash % meta.Length;
+                var position = meta[target].Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref scope.Data[position].Internal;
+                    if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, type) &&
+                        null == candidate.Contract.Name)
+                        return true;
+
+                    position = meta[position].Next;
+                }
+            }
+            while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
+
+            return false;
+        }
+
+        /// <inheritdoc />
+        public override bool Contains(in Contract contract)
+        {
+            var scope = this;
+            do
+            { 
+                var meta = scope.Meta;
+                var bucket = ((uint)contract.HashCode) % meta.Length;
+                var position = meta[bucket].Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref scope.Data[position].Internal;
+                    if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                        candidate.Contract.Name == contract.Name)
+                        return true;
+
+                    position = meta[position].Next;
+                }
+            }
+            while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
+
+            return false;
         }
 
         #endregion

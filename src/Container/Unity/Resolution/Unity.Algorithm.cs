@@ -51,7 +51,7 @@ namespace Unity
 
             // No registration found, resolve unregistered
             return (bool)isGeneric ? ResolveUnregisteredGeneric(ref contract, ref generic, overrides)
-                  : type.IsArray ? ResolveArray(ref contract, overrides)
+                  : type.IsArray   ? ResolveArray(ref contract, overrides)
                                    : ResolveUnregistered(ref contract, overrides);
         }
 

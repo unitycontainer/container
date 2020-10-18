@@ -1,11 +1,25 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using Unity.Container;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
+        #region Fields
+
+        private static readonly MethodInfo ArrayMethod =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(GetArray))!;
+
+        private static readonly MethodInfo GenericArrayMethod =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(GetGenericArray))!;
+
+        #endregion
+
+
         #region Array
 
         private static object? ResolveArray(ref Contract contract, ref PipelineContext context)
@@ -33,20 +47,48 @@ namespace Unity
         /// <returns>Requested array</returns>
         private object? ResolveArray(ref Contract contract, ResolverOverride[] overrides)
         {
-            throw new NotImplementedException();
-            //var context = new PipelineContext(this, in contract, overrides);
-            //var resolver = _policies[contract.Type];
+            if (contract.Type.GetArrayRank() != 1)
+            {
+                //var message = $"Invalid array {contract.Type}. Only arrays of rank 1 are supported";
+                //return (ref PipelineContext context) => throw new InvalidRegistrationException(message);
 
-            //// Nothing found, requires build
-            //if (null == resolver)
-            //{
-            //    resolver = (ref PipelineContext c) => c.Existing;
-            //    _policies[contract.Type] = resolver;
-            //}
+                //var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
+                //return builder.Pipeline((ref PipelineContext context) => resolve(ref context));
+            }
+            else
+            {
+            }
 
-            //return resolver(ref context);
+            var typeArgument = contract.Type.GetElementType();
+            Debug.Assert(null != typeArgument);
+
+            var type = ArrayTargetType(typeArgument!);
+
+            ResolveDelegate<PipelineContext> pipeline;
+
+            pipeline = (null != type && typeArgument != type)
+                ? (ResolveDelegate<PipelineContext>)GenericArrayMethod.MakeGenericMethod(typeArgument)
+                                                                      .CreateDelegate(typeof(ResolveDelegate<PipelineContext>), type)
+                : (ResolveDelegate<PipelineContext>)ArrayMethod.MakeGenericMethod(typeArgument)
+                                                               .CreateDelegate(typeof(ResolveDelegate<PipelineContext>));
+
+            var request = new RequestInfo(overrides);
+            var context = new PipelineContext(this, ref contract, new TransientLifetimeManager(), ref request);
+
+            return pipeline(ref context);
         }
 
         #endregion
+
+        private static object? GetArray<TElement>(ref PipelineContext context)
+        {
+            return new TElement[0];
+        }
+
+        private static object? GetGenericArray<TElement>(Type type, ref PipelineContext context)
+        {
+            return new TElement[0];
+        }
+
     }
 }

@@ -12,6 +12,39 @@ namespace Unity
         
         }
 
+        internal Type ArrayTargetType(Type argType)
+        {
+            Type? next;
+            Type? type = argType;
+
+            do
+            {
+                if (type.IsGenericType)
+                {
+                    if (_scope.Contains(type)) return type!;
+
+                    var definition = type.GetGenericTypeDefinition();
+                    if (_scope.Contains(definition)) return definition;
+
+                    next = type.GenericTypeArguments[0]!;
+                    if (_scope.Contains(next)) return next;
+                }
+                else if (type.IsArray)
+                {
+                    next = type.GetElementType()!;
+                    if (_scope.Contains(next)) return next;
+                }
+                else
+                {
+                    return type!;
+                }
+            }
+            while (null != (type = next));
+
+            return argType;
+        }
+
+
         #region Default Lifetime Manager
 
         private ITypeLifetimeManager DefaultTypeLifetimeManager(Type type)

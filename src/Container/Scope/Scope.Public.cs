@@ -94,6 +94,8 @@ namespace Unity.Container
 
         #region Contains
 
+        public abstract bool Contains(Type type);
+
         /// <summary>
         /// Determines whether the <see cref="Scope"/> contains a specific <see cref="Contract"/>
         /// </summary>
