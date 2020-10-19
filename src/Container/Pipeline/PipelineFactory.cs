@@ -2,6 +2,6 @@
 
 namespace Unity.Container
 {
-    public delegate ResolveDelegate<PipelineContext> PipelineFactory(ref PipelineContext context);
+    public delegate ResolveDelegate<PipelineContext> PipelineFactory<T>(ref T data);
 }
 

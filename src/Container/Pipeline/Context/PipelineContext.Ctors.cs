@@ -24,6 +24,23 @@ namespace Unity.Container
             Container = container;
         }
 
+        public PipelineContext(UnityContainer container, ref Contract contract, ref RequestInfo request)
+        {
+            unsafe
+            {
+                _parent = IntPtr.Zero;
+                _error = new IntPtr(Unsafe.AsPointer(ref request.Error));
+                _request = new IntPtr(Unsafe.AsPointer(ref request));
+                _contract = new IntPtr(Unsafe.AsPointer(ref contract));
+            }
+
+            Target = default;
+            Action = default;
+
+            Registration = default;
+            Container = container;
+        }
+
         #endregion
 
 

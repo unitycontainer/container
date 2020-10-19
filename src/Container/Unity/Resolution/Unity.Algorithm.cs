@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unity.Container;
 using Unity.Lifetime;
+using Unity.Policy;
 using Unity.Resolution;
 
 namespace Unity
 {
     public partial class UnityContainer
     {
-        #region Public API
+        #region Resolve
 
         /// <inheritdoc />
         // TODO: [SkipLocalsInit]
@@ -55,43 +57,6 @@ namespace Unity
                                    : ResolveUnregistered(ref contract, overrides);
         }
 
-        /// <inheritdoc />
-        public ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
-        {
-            var contract = new Contract(type, name);
-            var container = this;
-
-            do
-            {
-                RegistrationManager? manager;
-
-                // Optimistic lookup
-                if (null != (manager = container!._scope.Get(in contract)))
-                {
-                    object? value;
-
-                    // Registration found, check for value
-                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
-                        return new ValueTask<object?>(value);
-
-                    // No value, do everything else asynchronously
-                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new RequestInfoAsync(in contract, manager, overrides),
-                        System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
-                }
-            }
-            while (null != (container = container.Parent));
-
-            // No registration found, do everything else asynchronously
-            return new ValueTask<object?>(
-                Task.Factory.StartNew(ResolveAsync, new RequestInfoAsync(in contract, overrides),
-                    System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
-        }
-
-        #endregion
-
-
-        #region Dependency
-
         internal object? Resolve(ref PipelineContext context)
         {
             context.Container = this;
@@ -134,11 +99,112 @@ namespace Unity
                     ? ResolveArray(ref context.Contract, ref context)
                     : ResolveUnregistered(ref context.Contract, ref context);
         }
+        
+        #endregion
+
+
+        #region Array
+
+        private object? ResolveArray(ref Contract contract, ResolverOverride[] overrides)
+        {
+            var request = new RequestInfo(overrides);
+            var context = new PipelineContext(this, ref contract, ref request);
+
+            context.Target = ResolveArray(ref contract, ref context);
+
+            if (context.IsFaulted) throw new ResolutionFailedException(contract.Type, contract.Name, "");
+
+            return context.Target;
+        }
+
+        private object? ResolveArray(ref Contract contract, ref PipelineContext context)
+        {
+            //return resolver(ref context);
+            if (contract.Type.GetArrayRank() != 1)
+            {
+                return context.Error($"Invalid array {contract.Type}. Only arrays of rank 1 are supported");
+            }
+
+            ResolveDelegate<PipelineContext>? pipeline;
+
+            if (null == (pipeline = _policies.Get<ResolveDelegate<PipelineContext>>(contract.Type)))
+            { 
+                var element = contract.Type.GetElementType();
+
+                Debug.Assert(null != element);
+                var target = ArrayTargetType(element!);
+
+                pipeline = (null == target || ReferenceEquals(element, target))
+                    ? ArrayMethod.MakeGenericMethod(element).CreatePipeline()
+                    : !target.IsGenericType
+                        ? ArrayWithTargetedTypes.MakeGenericMethod(element, target).CreatePipeline()
+                        : ArrayWithGenericTarget.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
+                                                .CreatePipeline();
+                
+                pipeline = _policies.AddOrGet(context.Type, pipeline);
+            }
+
+             return pipeline(ref context);
+        }
 
         #endregion
 
 
-        #region Async
+        #region Enumerable
+
+        private ResolveDelegate<PipelineContext> ResolveEnumerable(ref Type type)
+        {
+            var element = type.GenericTypeArguments[0];
+
+            Debug.Assert(null != element);
+            var target = ArrayTargetType(element!);
+
+            var pipeline = (null == target || ReferenceEquals(element, target))
+                ? EnumeratorMethod.MakeGenericMethod(element).CreatePipeline()
+                : !target.IsGenericType
+                    ? EnumeratorWithTargetedTypes.MakeGenericMethod(element, target).CreatePipeline()
+                    : EnumeratorWithGenericTarget.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
+                                                 .CreatePipeline();
+
+            return _policies.AddOrGet(type, pipeline);
+        }
+
+        #endregion
+
+
+        #region ResolveAsync
+
+        /// <inheritdoc />
+        public ValueTask<object?> ResolveAsync(Type type, string? name, params ResolverOverride[] overrides)
+        {
+            var contract = new Contract(type, name);
+            var container = this;
+
+            do
+            {
+                RegistrationManager? manager;
+
+                // Optimistic lookup
+                if (null != (manager = container!._scope.Get(in contract)))
+                {
+                    object? value;
+
+                    // Registration found, check for value
+                    if (RegistrationManager.NoValue != (value = manager.TryGetValue(_scope.Disposables)))
+                        return new ValueTask<object?>(value);
+
+                    // No value, do everything else asynchronously
+                    return new ValueTask<object?>(Task.Factory.StartNew(container.ResolveContractAsync, new RequestInfoAsync(in contract, manager, overrides),
+                        System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
+                }
+            }
+            while (null != (container = container.Parent));
+
+            // No registration found, do everything else asynchronously
+            return new ValueTask<object?>(
+                Task.Factory.StartNew(ResolveAsync, new RequestInfoAsync(in contract, overrides),
+                    System.Threading.CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default));
+        }
 
         /// <summary>
         /// Builds and resolves registered contract

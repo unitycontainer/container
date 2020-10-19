@@ -14,7 +14,7 @@ namespace Unity.BuiltIn
             var hash = type.GetHashCode();
             ref var bucket = ref Meta[((uint)hash) % Meta.Length];
             var position = bucket.Position;
-            long pointer = 0;
+            int pointer = 0;
 
             while (position > 0)
             {

@@ -13,7 +13,7 @@ namespace Unity.BuiltIn
         public static void Setup(ExtensionContext context)
         {
             _policies = (Defaults)context.Policies;
-            _policies.Set(typeof(PipelineFactory), (PipelineFactory)Factory);
+            _policies.Set(typeof(PipelineFactory<PipelineContext>), (PipelineFactory<PipelineContext>)Factory);
         }
 
         public static ResolveDelegate<PipelineContext> Factory(ref PipelineContext context)

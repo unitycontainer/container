@@ -61,6 +61,14 @@ namespace Unity.BuiltIn
             UnregisteredPipelineFactory.Setup(context);
 
             #endregion
+
+
+            #region Factories
+
+            LazyFactory.Setup(context);
+            FuncFactory.Setup(context);
+
+            #endregion
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Unity.Disgnostics
 
                     if (disabled) IsEnabled = true;
                     
-                    WriteCritical = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _critical);
+                    WriteCritical = WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _critical);
                 }
 
                 _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteCritical)));
@@ -51,7 +51,7 @@ namespace Unity.Disgnostics
 
                     WriteCritical = null == _critical 
                                   ? null 
-                                  : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _critical);
+                                  : WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _critical);
                 }
                 
                 _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WriteCritical)));
@@ -82,7 +82,7 @@ namespace Unity.Disgnostics
                     if (!observed) CriticalEvent += OnCriticalEvent;
 
                     // Update writer
-                    WriteError = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _error);
+                    WriteError = WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _error);
                 }
 
                 // Notify if changed
@@ -104,7 +104,7 @@ namespace Unity.Disgnostics
                     // Update writer
                     WriteError = null == error
                                  ? null
-                                 : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _error);
+                                 : WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _error);
 
                     // Save unsubscribed
                     _error = error;
@@ -138,7 +138,7 @@ namespace Unity.Disgnostics
                     if (!observed) ErrorEvent += OnErrorEvent;
 
                     // Update writer
-                    WriteWarning = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _warning);
+                    WriteWarning = WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _warning);
                 }
 
                 // Notify if changed
@@ -160,7 +160,7 @@ namespace Unity.Disgnostics
                     // Update writer
                     WriteWarning = null == warning
                                  ? null
-                                 : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _warning);
+                                 : WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _warning);
 
                     // Save unsubscribed
                     _warning = warning;
@@ -194,7 +194,7 @@ namespace Unity.Disgnostics
                     if (!observed) ErrorEvent += OnErrorEvent;
 
                     // Update writer
-                    WriteVerbose = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _info);
+                    WriteVerbose = WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _info);
                 }
 
                 // Notify if changed
@@ -216,7 +216,7 @@ namespace Unity.Disgnostics
                     // Update writer
                     WriteVerbose = null == info
                                  ? null
-                                 : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _info);
+                                 : WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _info);
 
                     // Save unsubscribed
                     _info = info;
@@ -250,7 +250,7 @@ namespace Unity.Disgnostics
                     if (!observed) InfoEvent += OnInfoEvent;
 
                     // Update writer
-                    WriteVerbose = (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _verbose);
+                    WriteVerbose = WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _verbose);
                 }
 
                 // Notify if changed
@@ -272,7 +272,7 @@ namespace Unity.Disgnostics
                     // Update writer
                     WriteVerbose = null == verbose
                                  ? null
-                                 : (WriteEventDelegate)WriteHandlerInfo.CreateDelegate(typeof(WriteEventDelegate), _verbose);
+                                 : WriteHandlerInfo.CreateDelegate<WriteEventDelegate>(typeof(WriteEventDelegate), _verbose);
                     
                     // Save unsubscribed
                     _verbose = verbose;

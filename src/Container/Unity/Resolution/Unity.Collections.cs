@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Container;
-using Unity.Lifetime;
-using Unity.Resolution;
 
 namespace Unity
 {
@@ -12,83 +10,111 @@ namespace Unity
         #region Fields
 
         private static readonly MethodInfo ArrayMethod =
-            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(GetArray))!;
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(MakeArray))!;
 
-        private static readonly MethodInfo GenericArrayMethod =
-            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(GetGenericArray))!;
+        private static readonly MethodInfo ArrayWithTargetedTypes =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(MakeTargetedArray))!;
+
+        private static readonly MethodInfo ArrayWithGenericTarget =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(MakeGenericArray))!;
+
+
+        private static readonly MethodInfo EnumeratorMethod =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(MakeEnumerator))!;
+
+        private static readonly MethodInfo EnumeratorWithTargetedTypes =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(MakeEnumeratorTarget))!;
+
+        private static readonly MethodInfo EnumeratorWithGenericTarget =
+            typeof(UnityContainer).GetTypeInfo().GetDeclaredMethod(nameof(MakeEnumeratorGeneric))!;
 
         #endregion
 
 
         #region Array
 
-        private static object? ResolveArray(ref Contract contract, ref PipelineContext context)
-        {
-            throw new NotImplementedException();
-            //var context = new ResolveContext(this, in contract, overrides);
-            //var resolver = _policies[contract.Type];
+        private static TElement[] MakeArray<TElement>(ref PipelineContext context) 
+            => GetEnumerator<TElement>(context.Container, context.Contract.Name, false).ToArray();
 
-            //// Nothing found, requires build
-            //if (null == resolver)
-            //{
-            //    resolver = (ref ResolveContext c) => c.Existing;
-            //    _policies[contract.Type] = resolver;
-            //}
+        private static TElement[] MakeTargetedArray<TElement, TTarget>(ref PipelineContext context)
+            => GetEnumerator<TElement, TTarget>(context.Container, context.Contract.Name, false).ToArray();
 
-            //return resolver(ref context);
-        }
-
-        /// <summary>
-        /// Resolve array
-        /// </summary>
-        /// <param name="contract"><see cref="Contract"/> the array factory will be stored at</param>
-        /// <param name="overrides">Overrides to use during resolution</param>
-        /// <exception cref="ResolutionFailedException">if anything goes wrong</exception>
-        /// <returns>Requested array</returns>
-        private object? ResolveArray(ref Contract contract, ResolverOverride[] overrides)
-        {
-            if (contract.Type.GetArrayRank() != 1)
-            {
-                //var message = $"Invalid array {contract.Type}. Only arrays of rank 1 are supported";
-                //return (ref PipelineContext context) => throw new InvalidRegistrationException(message);
-
-                //var resolve = ArrayResolver.Factory(builder.Type, builder.ContainerContext.Container);
-                //return builder.Pipeline((ref PipelineContext context) => resolve(ref context));
-            }
-            else
-            {
-            }
-
-            var typeArgument = contract.Type.GetElementType();
-            Debug.Assert(null != typeArgument);
-
-            var type = ArrayTargetType(typeArgument!);
-
-            ResolveDelegate<PipelineContext> pipeline;
-
-            pipeline = (null != type && typeArgument != type)
-                ? (ResolveDelegate<PipelineContext>)GenericArrayMethod.MakeGenericMethod(typeArgument)
-                                                                      .CreateDelegate(typeof(ResolveDelegate<PipelineContext>), type)
-                : (ResolveDelegate<PipelineContext>)ArrayMethod.MakeGenericMethod(typeArgument)
-                                                               .CreateDelegate(typeof(ResolveDelegate<PipelineContext>));
-
-            var request = new RequestInfo(overrides);
-            var context = new PipelineContext(this, ref contract, new TransientLifetimeManager(), ref request);
-
-            return pipeline(ref context);
-        }
+        private static TElement[] MakeGenericArray<TElement, TTarget, TGeneric>(ref PipelineContext context)
+            => GetEnumerator<TElement, TTarget, TGeneric>(context.Container, context.Contract.Name, false).ToArray();
 
         #endregion
 
-        private static object? GetArray<TElement>(ref PipelineContext context)
+
+        #region Enumerable
+
+        private static IEnumerable<TElement> MakeEnumerator<TElement>(ref PipelineContext context)
+            => GetEnumerator<TElement>(context.Container, context.Contract.Name, true);
+
+        private static IEnumerable<TElement> MakeEnumeratorTarget<TElement, TTarget>(ref PipelineContext context)
+            => GetEnumerator<TElement, TTarget>(context.Container, context.Contract.Name, true);
+
+        private static IEnumerable<TElement> MakeEnumeratorGeneric<TElement, TTarget, TGeneric>(ref PipelineContext context)
+            => GetEnumerator<TElement, TTarget, TGeneric>(context.Container, context.Contract.Name, true);
+
+        #endregion
+
+
+        #region Implementation
+
+        private static IEnumerable<TElement> GetEnumerator<TElement>(UnityContainer container, string? name, bool allowDefault)
         {
-            return new TElement[0];
+            UnityContainer? scope = container;
+
+            do
+            {
+                var enumerator = container._scope.GetEnumerator(typeof(TElement));
+                while (enumerator.MoveNext(true))
+                {
+                    var type = enumerator.Current.Contract.Type;
+                    var nname = enumerator.Current.Contract.Name;
+                }
+                
+                if (!enumerator.HasNamed) continue;
+
+                enumerator.Reset();
+                while (enumerator.MoveNext())
+                {
+                    var type = enumerator.Current.Contract.Type;
+                    var nname = enumerator.Current.Contract.Name;
+                }
+            }
+            while (null != (scope = scope.Parent));
+
+            yield break;
         }
 
-        private static object? GetGenericArray<TElement>(Type type, ref PipelineContext context)
+        private static IEnumerable<TElement> GetEnumerator<TElement, TTarget>(UnityContainer container, string? name, bool allowDefault)
         {
-            return new TElement[0];
+            UnityContainer? scope = container;
+
+            do
+            {
+
+            }
+            while (null != (scope = scope.Parent));
+
+            yield break;
         }
 
+
+        private static IEnumerable<TElement> GetEnumerator<TElement, TTarget, TGeneric>(UnityContainer container, string? name, bool allowDefault)
+        {
+            UnityContainer? scope = container;
+
+            do
+            {
+
+            }
+            while (null != (scope = scope.Parent));
+
+            yield break;
+        }
+
+        #endregion
     }
 }

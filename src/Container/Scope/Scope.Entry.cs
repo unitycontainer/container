@@ -13,12 +13,12 @@ namespace Unity.Container
             #region Fields
 
             [FieldOffset(0)]
-            public long Next;
+            public int Next;
 
-            [FieldOffset(8)]
+            [FieldOffset(4)]
             public ContainerRegistration Registration;
 
-            [FieldOffset(8)]
+            [FieldOffset(4)]
             internal InternalRegistration Internal;
 
             #endregion
@@ -26,14 +26,14 @@ namespace Unity.Container
 
             #region Constructors
 
-            public Entry(int hash, Type type, string? name, RegistrationManager manager, long next = 0)
+            public Entry(int hash, Type type, string? name, RegistrationManager manager, int next = 0)
             {
                 Next = next;
                 Internal = default;
                 Registration = new ContainerRegistration(hash, type, name, manager);
             }
 
-            public Entry(int hash, Type type, RegistrationManager manager, long next = 0)
+            public Entry(int hash, Type type, RegistrationManager manager, int next = 0)
             {
                 Next = next;
                 Internal = default;
@@ -49,7 +49,7 @@ namespace Unity.Container
                 Internal.Contract = new Contract(hash, type);
             }
 
-            public Entry(in Contract contract, RegistrationManager manager, long next)
+            public Entry(in Contract contract, RegistrationManager manager, int next)
             {
                 Next = next;
                 Internal = default;

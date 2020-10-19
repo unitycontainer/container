@@ -10,7 +10,7 @@ namespace Unity.Container
             where T : class => (T?)defaults.Get(target, typeof(T));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Set<T>(this Defaults defaults, Type? target, object value)
-            => defaults.Set(target, typeof(T), value);
+        public static void Set<T>(this Defaults defaults, Type? target, T value) 
+            where T : class => defaults.Set(target, typeof(T), value);
     }
 }

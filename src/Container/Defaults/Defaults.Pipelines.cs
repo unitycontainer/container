@@ -21,8 +21,8 @@ namespace Unity.Container
 
         #region Pipeline Builder
         
-        public PipelineFactory BuildPipeline 
-            => (PipelineFactory)Data[BUILD_PIPELINE].Value!;
+        public PipelineFactory<PipelineContext> BuildPipeline 
+            => (PipelineFactory<PipelineContext>)Data[BUILD_PIPELINE].Value!;
 
         #endregion
 

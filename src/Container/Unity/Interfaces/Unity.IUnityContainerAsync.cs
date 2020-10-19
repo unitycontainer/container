@@ -17,6 +17,7 @@ namespace Unity
         #region Registration
 
         /// <inheritdoc />
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async ValueTask RegisterAsync(params RegistrationDescriptor[] descriptors)
         {
             throw new NotImplementedException();
@@ -42,6 +43,7 @@ namespace Unity
             //// Report registration
             //_registering?.Invoke(this, memory.Span);
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.BuiltIn;
 using Unity.Container;
 
@@ -61,6 +62,9 @@ namespace Unity
             _scope.Add(typeof(IServiceProvider),     manager);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
+            // Generic Factories
+            _policies.Set<PipelineFactory<Type>>(typeof(IEnumerable<>), ResolveEnumerable);
+            
             // Setup Built-In Components
             BuiltInComponents.Setup(_context);
         }

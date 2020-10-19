@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Unity.Container;
+using Unity.Resolution;
 
 namespace Unity
 {
@@ -57,5 +60,22 @@ namespace Unity
             // Check if Type is registered
             return container.IsRegistered(type, name);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T CreateDelegate<T>(this MethodInfo method, Type type) where T : Delegate
+            => (T)method.CreateDelegate(type);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T CreateDelegate<T>(this MethodInfo method, Type type, object? target) where T : Delegate
+            => (T)method.CreateDelegate(type, target);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ResolveDelegate<PipelineContext> CreatePipeline(this MethodInfo method)
+            => (ResolveDelegate<PipelineContext>)method.CreateDelegate(typeof(ResolveDelegate<PipelineContext>));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ResolveDelegate<PipelineContext> CreatePipeline(this MethodInfo method, object? target)
+            => (ResolveDelegate<PipelineContext>)method.CreateDelegate(typeof(ResolveDelegate<PipelineContext>), target);
+
     }
 }

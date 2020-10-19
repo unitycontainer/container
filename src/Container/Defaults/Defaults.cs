@@ -52,7 +52,7 @@ namespace Unity.Container
             Meta = new Metadata[Storage.Prime.Numbers[++Prime]];
 
             // Factories
-            BUILD_PIPELINE    = Allocate(typeof(PipelineFactory));
+            BUILD_PIPELINE    = Allocate(typeof(PipelineFactory<PipelineContext>));
 
             FACTORY_SINGLETON    = Allocate(typeof(SingletonPipelineFactory));
             FACTORY_OPTIMIZED    = Allocate(typeof(OptimizedPipelineFactory));

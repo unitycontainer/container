@@ -82,11 +82,10 @@ namespace Unity.Injection
             }
 
             // For complex elements create resolver
-            _resolver = (ResolveDelegate<PipelineContext>)
-                (ResolveMethod ??= TypeInfo
-                    .GetDeclaredMethod(nameof(DoResolve))!)
-                        .MakeGenericMethod(typeof(PipelineContext), elementType)
-                        .CreateDelegate(typeof(ResolveDelegate<PipelineContext>), data);
+            _resolver = (ResolveMethod ??= TypeInfo
+                .GetDeclaredMethod(nameof(DoResolve))!)
+                    .MakeGenericMethod(typeof(PipelineContext), elementType)
+                    .CreatePipeline(data);
         }
 
         #endregion
