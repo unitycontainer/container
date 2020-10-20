@@ -6,7 +6,7 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        [DebuggerDisplay("Type = { Registration._contract.Type?.Name }, Name = { Registration._contract.Name }")]
+        [DebuggerDisplay("Type = { Registration._contract.Type?.FullName }, Name = { Registration._contract.Name }, Manager = {Internal.Manager}")]
         [StructLayout(LayoutKind.Explicit)]
         public struct Entry
         {
@@ -15,10 +15,10 @@ namespace Unity.Container
             [FieldOffset(0)]
             public int Next;
 
-            [FieldOffset(4)]
+            [FieldOffset(8)]
             public ContainerRegistration Registration;
 
-            [FieldOffset(4)]
+            [FieldOffset(8)]
             internal InternalRegistration Internal;
 
             #endregion

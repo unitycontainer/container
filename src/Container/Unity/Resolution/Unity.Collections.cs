@@ -68,14 +68,12 @@ namespace Unity
             do
             {
                 var enumerator = container._scope.GetEnumerator(typeof(TElement));
-                while (enumerator.MoveNext(true))
-                {
-                    var type = enumerator.Current.Contract.Type;
-                    var nname = enumerator.Current.Contract.Name;
-                }
+                //while (enumerator.MoveNext(true))
+                //{
+                //    var type = enumerator.Current.Contract.Type;
+                //    var nname = enumerator.Current.Contract.Name;
+                //}
                 
-                if (!enumerator.HasNamed) continue;
-
                 enumerator.Reset();
                 while (enumerator.MoveNext())
                 {

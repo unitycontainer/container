@@ -22,6 +22,9 @@ namespace Unity.Container
         // Entire scope lock
         public readonly object SyncRoot;
 
+        // Segment
+        protected readonly int Level;
+
         // Contracts
         protected int Prime;
         protected int Index;
@@ -47,8 +50,8 @@ namespace Unity.Container
 
             // Segment
             Disposables = new List<IDisposable>();
-            Next = null;
-
+            Next  = null;
+            Level = 1;
         }
 
         /// <summary>
@@ -66,7 +69,8 @@ namespace Unity.Container
 
             // Segment
             Disposables = new List<IDisposable>();
-            Next = parent;
+            Next  = parent;
+            Level = parent.Level + 1;
         }
 
         /// <summary>
@@ -89,7 +93,8 @@ namespace Unity.Container
 
             // Segment
             Disposables = scope.Disposables;
-            Next = scope.Next;
+            Next  = scope.Next;
+            Level = scope.Level;
         }
 
         #endregion

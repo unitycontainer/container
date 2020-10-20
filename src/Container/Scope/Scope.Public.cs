@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Unity.Container
 {
-    [DebuggerDisplay("{GetType().Name,nq}: Contracts = { Count }, Version = { Version }")]
+    [DebuggerDisplay("{GetType().Name,nq}: Level = {Level}, Contracts = { Count }, Version = { Version }")]
     public abstract partial class Scope : ICollection
     {
         #region Properties

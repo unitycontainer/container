@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+using Unity.Container;
 
 namespace Unity.BuiltIn
 {
@@ -7,51 +9,131 @@ namespace Unity.BuiltIn
 
         internal override Enumerator GetEnumerator(Type type)
         {
-            var meta = Meta;
-            var hash = (uint)type.GetHashCode();
-            var target = hash % meta.Length;
-            var position = meta[target].Position;
+            var hash = type.GetHashCode();
+            var scope = this;
 
-            while (position > 0)
+            do
             {
-                ref var candidate = ref Data[position].Internal;
-                if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, type) &&
-                    candidate.Contract.Name == null)
-                {
-                    return new Enumerator(this, position);
-                }
+                var meta = scope.Meta;
+                var target = ((uint)hash) % meta.Length;
+                var position = meta[target].Position;
 
-                position = meta[position].Next;
+                while (position > 0)
+                {
+                    ref var candidate = ref scope.Data[position];
+
+                    if (ReferenceEquals(candidate.Internal.Contract.Type, type) &&
+                        candidate.Internal.Contract.Name == null)
+                    {
+                        return new Enumerator(scope, position, type, hash);
+                    }
+
+                    position = meta[position].Next;
+                }
             }
+            while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
 
             return new Enumerator(this);
         }
 
-        protected override int MoveNext(int start, int current, bool @default)
+        internal override (Scope, int) NextAnonymous(ref Enumerator enumerator)
         {
-            if ( 0 == current) return 0;
-            if (-1 == current) return @default ? start : Data[start].Next;
-            if (!@default)     return Data[current].Next;
-
-            var meta = Meta;
-            var position = meta[current].Next;
-            ref var entry = ref Data[current].Internal;
-
-            while (position > 0)
+            var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
+            var meta = scope.Meta;
+            var position = (0 == enumerator.Positon)
+                    ? enumerator.Initial
+                    : meta[enumerator.Positon].Next;
+            do
             {
-                ref var candidate = ref Data[position].Internal;
-
-                if (null != candidate.Manager && 
-                    candidate.Contract.HashCode == entry.Contract.HashCode && 
-                    ReferenceEquals(candidate.Contract.Type, entry.Contract.Type))
+                while (position > 0)
                 {
-                    return position;
+                    ref var candidate = ref scope.Data[position].Internal;
+
+                    if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, enumerator.Type) &&
+                        candidate.Contract.Name == null)
+                    {
+                        return (scope, position);
+                    }
+
+                    position = meta[position].Next;
                 }
 
-                position = meta[position].Next;
-            }
+                if (1 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
+                    return (scope!, 0);
 
-            return 0;
+                meta = scope.Meta;
+                position = meta[((uint)enumerator.Hash) % meta.Length].Position;
+            }
+            while (true);
+        }
+
+        internal override (Scope, int) NextNamed(ref Enumerator enumerator)
+        {
+            var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
+            var position = 0 == enumerator.Positon
+                ? scope.Data[enumerator.Initial].Next
+                : scope.Data[enumerator.Positon].Next;
+            do
+            {
+                if (position > 0) return (scope, position);
+
+                if (1 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
+                    return (scope!, 0);
+
+                var meta = scope.Meta;
+                position = meta[((uint)enumerator.Hash) % meta.Length].Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref scope.Data[position].Internal;
+
+                    if (ReferenceEquals(candidate.Contract.Type, enumerator.Type) &&
+                        candidate.Contract.Name == null)
+                    {
+                        goto SetNamedPosition;
+                    }
+
+                    position = meta[position].Next;
+                }
+
+                SetNamedPosition: position = scope.Data[position].Next;
+            }
+            while (true);
+        }
+
+        // TODO: implement
+        internal override (Scope, int) NextDefault(ref Enumerator enumerator)
+        {
+            var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
+            var position = 0 == enumerator.Positon
+                ? scope.Data[enumerator.Initial].Next
+                : scope.Data[enumerator.Positon].Next;
+            do
+            {
+                if (position > 0) return (scope, position);
+
+                if (1 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
+                    return (scope!, 0);
+
+                var meta = scope.Meta;
+                position = meta[((uint)enumerator.Hash) % meta.Length].Position;
+
+                while (position > 0)
+                {
+                    ref var candidate = ref scope.Data[position].Internal;
+
+                    if (ReferenceEquals(candidate.Contract.Type, enumerator.Type) &&
+                        candidate.Contract.Name == null)
+                    {
+                        goto SetNamedPosition;
+                    }
+
+                    position = meta[position].Next;
+                }
+
+                SetNamedPosition: position = scope.Data[position].Next;
+            }
+            while (true);
         }
     }
 }

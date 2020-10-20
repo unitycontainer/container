@@ -17,7 +17,7 @@ namespace Container.Scope
         protected static string[] TestNames;
         protected static LifetimeManager Manager = new ContainerControlledLifetimeManager
         {
-            Data = new object(),
+            Data = "Zero",
             Category = RegistrationCategory.Instance
         };
         protected static RegistrationDescriptor[] Registrations;
