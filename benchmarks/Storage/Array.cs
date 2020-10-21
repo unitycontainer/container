@@ -26,7 +26,7 @@ namespace Unity.Benchmarks.Storage
                                .ToArray();
         }
 
-        [IterationSetup]
+        //[IterationSetup]
         public void IterationSetup()
         {
             DataCopy = new object[5];
@@ -93,6 +93,18 @@ namespace Unity.Benchmarks.Storage
             Array.Copy(Data, (Type[])DataCopy[4], Data.Length);
 
             return null;
+        }
+
+        [Benchmark]
+        public virtual object Array_new()
+        {
+            return new object[10];
+        }
+
+        [Benchmark]
+        public virtual object Array_Create()
+        {
+            return Array.CreateInstance(typeof(object), 10);
         }
     }
 }

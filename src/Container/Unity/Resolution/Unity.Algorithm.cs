@@ -14,18 +14,21 @@ namespace Unity
         #region Resolve
 
         /// <inheritdoc />
-        // TODO: [SkipLocalsInit]
+//#if NET5_0
+//        [SkipLocalsInit]
+//#endif
         public object? Resolve(Type type, string? name, params ResolverOverride[] overrides)
         {
             var contract = new Contract(type, name);
             var container = this;
             bool? isGeneric = null;
             Contract generic = default;
+            RegistrationCategory cutoff = RegistrationCategory.Uninitialized;
 
             do
             {
                 // Look for registration
-                var manager = container._scope.Get(in contract);
+                var manager = container._scope.Get(in contract, cutoff);
                 if (null != manager)
                 {
                     //Registration found, check value
@@ -35,6 +38,8 @@ namespace Unity
                     // Resolve from registration
                     return container.ResolveRegistration(ref contract, manager, overrides);
                 }
+
+                cutoff = RegistrationCategory.Internal;
 
                 // Skip to parent if non generic
                 if (!(isGeneric ??= type.IsGenericType)) continue;
@@ -126,21 +131,18 @@ namespace Unity
             }
 
             ResolveDelegate<PipelineContext>? pipeline;
-
             if (null == (pipeline = _policies.Get<ResolveDelegate<PipelineContext>>(contract.Type)))
             { 
                 var element = contract.Type.GetElementType();
-
                 Debug.Assert(null != element);
-                var target = ArrayTargetType(element!);
 
-                pipeline = (null == target || ReferenceEquals(element, target))
-                    ? ArrayMethod.MakeGenericMethod(element).CreatePipeline()
-                    : !target.IsGenericType
-                        ? ArrayWithTargetedTypes.MakeGenericMethod(element, target).CreatePipeline()
-                        : ArrayWithGenericTarget.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
-                                                .CreatePipeline();
-                
+                var target = ArrayTargetType(element!) ?? element;
+                pipeline = !target.IsGenericType
+                        ? ArrayMethod.MakeGenericMethod(element, target)
+                                     .CreatePipeline()
+                        : ArrayGeneric.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
+                                      .CreatePipeline();
+               
                 pipeline = _policies.AddOrGet(context.Type, pipeline);
             }
 
@@ -155,16 +157,14 @@ namespace Unity
         private ResolveDelegate<PipelineContext> ResolveEnumerable(ref Type type)
         {
             var element = type.GenericTypeArguments[0];
-
             Debug.Assert(null != element);
-            var target = ArrayTargetType(element!);
 
-            var pipeline = (null == target || ReferenceEquals(element, target))
-                ? EnumeratorMethod.MakeGenericMethod(element).CreatePipeline()
-                : !target.IsGenericType
-                    ? EnumeratorWithTargetedTypes.MakeGenericMethod(element, target).CreatePipeline()
-                    : EnumeratorWithGenericTarget.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
-                                                 .CreatePipeline();
+            var target = ArrayTargetType(element!) ?? element;
+            var pipeline = !target.IsGenericType
+                    ? EnumeratorMethod.MakeGenericMethod(element, target)
+                                      .CreatePipeline()
+                    : EnumeratorGeneric.MakeGenericMethod(element, target, target.GetGenericTypeDefinition())
+                                       .CreatePipeline();
 
             return _policies.AddOrGet(type, pipeline);
         }

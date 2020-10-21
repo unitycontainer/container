@@ -11,7 +11,7 @@ namespace Container.Scope
         public void Enumerator_Empty()
         {
             // Act
-            var enumerator = Scope.GetEnumerator(typeof(List<>));
+            var enumerator = Scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsFalse(enumerator.MoveNext());
@@ -25,7 +25,7 @@ namespace Container.Scope
                              .CreateChildScope(5);
 
             // Act
-            var enumerator = scope.GetEnumerator(typeof(List<>));
+            var enumerator = scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsFalse(enumerator.MoveNext());
@@ -38,7 +38,7 @@ namespace Container.Scope
             Scope.Add(typeof(List<>), Manager);
 
             // Act
-            var enumerator = Scope.GetEnumerator(typeof(List<>));
+            var enumerator = Scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -53,7 +53,7 @@ namespace Container.Scope
             Scope.Add(typeof(List<>), Name, Manager);
 
             // Act
-            var enumerator = Scope.GetEnumerator(typeof(List<>));
+            var enumerator = Scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -74,7 +74,7 @@ namespace Container.Scope
             Scope.Add(typeof(List<>), other);
 
             // Act
-            var enumerator = Scope.GetEnumerator(typeof(List<>));
+            var enumerator = Scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -104,7 +104,7 @@ namespace Container.Scope
             var scope = Scope.CreateChildScope(3);
 
             // Act
-            var enumerator = scope.GetEnumerator(typeof(List<>));
+            var enumerator = scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -135,7 +135,7 @@ namespace Container.Scope
             scope.Add(typeof(List<>), Manager);
 
             // Act
-            var enumerator = scope.GetEnumerator(typeof(List<>));
+            var enumerator = scope.GetIterator(typeof(List<>));
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());

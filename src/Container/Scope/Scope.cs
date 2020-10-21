@@ -23,7 +23,7 @@ namespace Unity.Container
         public readonly object SyncRoot;
 
         // Segment
-        protected readonly int Level;
+        public readonly int Level;
 
         // Contracts
         protected int Prime;

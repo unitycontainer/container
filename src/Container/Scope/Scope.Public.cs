@@ -80,6 +80,8 @@ namespace Unity.Container
         /// <returns>Returns <see cref="RegistrationManager"/> or null if nothing found</returns>
         public abstract RegistrationManager? Get(in Contract contract);
 
+        public abstract RegistrationManager? Get(in Contract contract, RegistrationCategory cutoff);
+
         /// <summary>
         /// Search for <see cref="Contract"/> holding generic type definition and create constructible
         /// registration if found.
@@ -88,6 +90,8 @@ namespace Unity.Container
         /// <param name="factory"><see cref="Contract"/> of the generic factory</param>
         /// <returns>New <see cref="RegistrationManager"/> created from factory manager if found or null</returns>
         public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
+
+        public abstract RegistrationManager GetOrCreate(in Contract contract);
 
         #endregion
 
@@ -115,15 +119,11 @@ namespace Unity.Container
         /// <returns>New child scope</returns>
         public abstract Scope CreateChildScope(int capacity);
 
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
+        public void CopyTo(Array array, int index) 
+            => throw new NotSupportedException();
 
-        public IEnumerator GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerator GetEnumerator() 
+            => throw new NotSupportedException();
 
         #endregion
 

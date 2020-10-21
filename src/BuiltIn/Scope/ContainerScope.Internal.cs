@@ -6,8 +6,26 @@ namespace Unity.BuiltIn
 {
     public partial class ContainerScope
     {
+        internal override int IndexOf(Type type, int hash)
+        {
+            var meta = Meta;
+            var target = ((uint)hash) % meta.Length;
+            var position = meta[target].Position;
 
-        internal override Enumerator GetEnumerator(Type type)
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position].Internal;
+
+                if (ReferenceEquals(candidate.Contract.Type, type) && null == candidate.Contract.Name)
+                    return position;
+
+                position = meta[position].Next;
+            }
+
+            return 0;
+        }
+
+        internal override Iterator GetIterator(Type type, bool @default = true)
         {
             var hash = type.GetHashCode();
             var scope = this;
@@ -25,7 +43,7 @@ namespace Unity.BuiltIn
                     if (ReferenceEquals(candidate.Internal.Contract.Type, type) &&
                         candidate.Internal.Contract.Name == null)
                     {
-                        return new Enumerator(scope, position, type, hash);
+                        return new Iterator(scope, position, type, hash, @default);
                     }
 
                     position = meta[position].Next;
@@ -33,10 +51,10 @@ namespace Unity.BuiltIn
             }
             while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
 
-            return new Enumerator(this);
+            return new Iterator(this);
         }
 
-        internal override (Scope, int) NextAnonymous(ref Enumerator enumerator)
+        internal override (Scope, int) NextAnonymous(ref Iterator enumerator)
         {
             var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
             var meta = scope.Meta;
@@ -67,7 +85,7 @@ namespace Unity.BuiltIn
             while (true);
         }
 
-        internal override (Scope, int) NextNamed(ref Enumerator enumerator)
+        internal override (Scope, int) NextNamed(ref Iterator enumerator)
         {
             var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
             var position = 0 == enumerator.Positon
@@ -102,7 +120,7 @@ namespace Unity.BuiltIn
         }
 
         // TODO: implement
-        internal override (Scope, int) NextDefault(ref Enumerator enumerator)
+        internal override (Scope, int) NextDefault(ref Iterator enumerator)
         {
             var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
             var position = 0 == enumerator.Positon

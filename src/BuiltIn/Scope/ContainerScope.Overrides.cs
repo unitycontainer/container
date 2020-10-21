@@ -167,11 +167,31 @@ namespace Unity.BuiltIn
             return null;
         }
 
+        public override RegistrationManager? Get(in Contract contract, RegistrationCategory cutoff)
+        {
+            var meta = Meta;
+            var target = ((uint)contract.HashCode) % meta.Length;
+            var position = meta[target].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position].Internal;
+
+                if (null != candidate.Manager && cutoff < candidate.Manager.Category && 
+                    ReferenceEquals(candidate.Contract.Type, contract.Type) && candidate.Contract.Name == contract.Name)
+                    return candidate.Manager;
+
+                position = meta[position].Next;
+            }
+
+            return null;
+        }
+
         /// <inheritdoc />
         public override RegistrationManager? Get(in Contract contract, in Contract generic)
         {
             var meta  = Meta;
-            var position = meta[(uint)generic.HashCode % meta.Length].Position;
+            var position = meta[((uint)generic.HashCode) % meta.Length].Position;
 
             // Search for generic factory
 
@@ -207,7 +227,7 @@ namespace Unity.BuiltIn
                         if (Data.Length <= ++Index)
                         {
                             Expand(Index);
-                            target = (uint)contract.HashCode % Meta.Length;
+                            target = ((uint)contract.HashCode) % Meta.Length;
                         }
 
                         // Clone manager
@@ -226,6 +246,74 @@ namespace Unity.BuiltIn
             }
 
             return null;
+        }
+
+        public override RegistrationManager GetOrCreate(in Contract contract)
+        {
+            var meta = Meta;
+            var position = meta[((uint)contract.HashCode) % meta.Length].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position].Internal;
+
+                if (ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                    candidate.Contract.Name == contract.Name)
+                {
+                    if (null == candidate.Manager)
+                        candidate.Manager = new ScopeRegistration();
+
+                    return candidate.Manager;
+                }
+
+                position = meta[position].Next;
+            }
+
+            var version = Revision;
+
+            lock (SyncRoot)
+            {
+                var target = ((uint)contract.HashCode) % Meta.Length;
+
+                // Check if contract is created already
+                if (version != Revision)
+                { 
+                    position = Meta[target].Position;
+
+                    while (position > 0)
+                    {
+                        ref var candidate = ref Data[position].Internal;
+                        if (null != candidate.Manager && ReferenceEquals(candidate.Contract.Type, contract.Type) &&
+                            candidate.Contract.Name == contract.Name)
+                        {
+                            // Found existing
+                            if (null == candidate.Manager)
+                                candidate.Manager = new ScopeRegistration();
+
+                            return candidate.Manager;
+                        }
+
+                        position = Meta[position].Next;
+                    }
+                }
+
+                // Nothing is found, add new and expand if required
+                if (Data.Length <= ++Index)
+                {
+                    Expand(Index);
+                    target = ((uint)contract.HashCode) % Meta.Length;
+                }
+
+                // Clone manager
+                var manager = new ScopeRegistration();
+
+                ref var bucket = ref Meta[target];
+                Data[Index] = new Entry(in contract, manager, 0);
+                Meta[Index].Next = bucket.Position;
+                bucket.Position = Index;
+
+                return manager;
+            }
         }
 
         #endregion

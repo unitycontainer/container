@@ -30,6 +30,11 @@ namespace Unity
         Clone,
 
         /// <summary>
+        /// Collection of cached metadata
+        /// </summary>
+        Cache,
+
+        /// <summary>
         /// This is implicit/internal registration
         /// </summary>
         Internal,

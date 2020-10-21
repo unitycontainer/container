@@ -1,54 +1,59 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        internal abstract Enumerator GetEnumerator(Type type);
+        internal abstract int IndexOf(Type type, int hash);
 
-        internal abstract (Scope, int) NextAnonymous(ref Enumerator enumerator);
 
-        internal abstract (Scope, int) NextNamed(ref Enumerator enumerator);
 
-        internal abstract (Scope, int) NextDefault(ref Enumerator enumerator);
+        internal abstract Iterator GetIterator(Type type, bool @default = true);
+
+        internal abstract (Scope, int) NextAnonymous(ref Iterator enumerator);
+
+        internal abstract (Scope, int) NextNamed(ref Iterator enumerator);
+
+        internal abstract (Scope, int) NextDefault(ref Iterator enumerator);
 
 
         #region Enumerator 
 
-        internal struct Enumerator 
+        internal struct Iterator 
         {
             #region Fields
 
-            private bool           _default;
+            private bool _default;
             private readonly Scope _scope;
 
-            public readonly Type Type;
-            public readonly int  Hash;
-
-            public Scope Scope;
-            public int Positon;
             public readonly int Initial;
+            public int Positon;
+            public Scope Scope;
+
+            public readonly int  Hash;
+            public readonly Type Type;
 
             #endregion
 
 
             #region Constructors
 
-            public Enumerator(Scope scope, int position, Type type, int hash)
+            public Iterator(Scope scope, int position, Type type, int hash, bool @default)
             {
                 Hash = hash;
                 Type = type;
                 Positon  = 0;
                 Scope = _scope = scope;
 
-                _default = true;
-                Initial = position;
+                _default = @default;
+                Initial  = position;
             }
 
-            public Enumerator(Scope scope)
+            public Iterator(Scope scope)
             {
                 Hash = 0;
-                Type = typeof(Enumerator);
+                Type = typeof(Iterator);
                 Positon = 0;
                 Scope = _scope = scope;
 
@@ -92,6 +97,8 @@ namespace Unity.Container
 
             public bool NextAnonymous()
             {
+                if (0 == Initial) return false;
+
                 (Scope, Positon) = Scope.NextAnonymous(ref this);
 
                 return 0 != Positon || null == Scope;
@@ -99,6 +106,8 @@ namespace Unity.Container
 
             public bool NextNamed()
             {
+                if (0 == Initial) return false;
+
                 (Scope, Positon) = Scope.NextNamed(ref this);
 
                 return 0 != Positon || null == Scope;
@@ -106,6 +115,8 @@ namespace Unity.Container
 
             public bool NextDefault()
             {
+                if (0 == Initial) return false;
+
                 (Scope, Positon) = Scope.NextNamed(ref this);
 
                 return 0 != Positon || null == Scope;
@@ -115,5 +126,14 @@ namespace Unity.Container
         }
 
         #endregion
+
+
+        protected class ScopeRegistration : RegistrationManager
+        {
+            public ScopeRegistration() => Category = RegistrationCategory.Internal;
+
+            public override object? TryGetValue(ICollection<IDisposable> lifetime) 
+                => NoValue;
+        }
     }
 }

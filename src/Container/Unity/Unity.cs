@@ -17,28 +17,7 @@ namespace Unity
 
         #endregion
 
-
         #region Constructors
-
-        /// <summary>
-        /// Creates container with name 'root' and allocates 37 slots for contracts
-        /// </summary>
-        public UnityContainer() : this(Defaults.DEFAULT_ROOT_NAME, Defaults.DEFAULT_ROOT_CAPACITY)
-        { }
-
-        /// <summary>
-        /// Creates container and allocates 37 slots for contracts
-        /// </summary>
-        /// <param name="name">Name of the container</param>
-        public UnityContainer(string name) : this(name, Defaults.DEFAULT_ROOT_CAPACITY)
-        { }
-
-        /// <summary>
-        /// Creates container with name 'root'
-        /// </summary>
-        /// <param name="capacity">Preallocated capacity</param>
-        public UnityContainer(int capacity) : this(Defaults.DEFAULT_ROOT_NAME, capacity)
-        { }
 
         /// <summary>
         /// Create <see cref="UnityContainer"/> container
@@ -55,8 +34,9 @@ namespace Unity
             _context  = new PrivateExtensionContext(this);
 
             // Registration Scope
-            var manager = new ContainerLifetimeManager(this);
             _scope = new ContainerScope(capacity);
+
+            var manager = new ContainerLifetimeManager(this);
             _scope.Add(typeof(IUnityContainer),      manager);
             _scope.Add(typeof(IUnityContainerAsync), manager);
             _scope.Add(typeof(IServiceProvider),     manager);
@@ -84,8 +64,9 @@ namespace Unity
             _policies = parent.Root._policies;
 
             // Registration Scope
-            var manager = new ContainerLifetimeManager(this);
             _scope = parent._scope.CreateChildScope(capacity);
+
+            var manager = new ContainerLifetimeManager(this);
             _scope.Add(typeof(IUnityContainer),      manager);
             _scope.Add(typeof(IUnityContainerAsync), manager);
             _scope.Add(typeof(IServiceProvider),     manager);
