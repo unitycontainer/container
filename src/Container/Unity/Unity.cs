@@ -9,10 +9,10 @@ namespace Unity
     {
         #region Fields
 
-        private readonly int _level;
         private readonly int BUILT_IN_CONTRACT_COUNT;
+        private readonly UnityContainer[] _ancestry;
 
-        internal Scope   _scope;
+        internal Scope _scope;
         internal readonly Defaults _policies;
 
         #endregion
@@ -29,9 +29,9 @@ namespace Unity
             Root = this;
             Name = name;
 
-            _level    = 1;
             _policies = new Defaults();
             _context  = new PrivateExtensionContext(this);
+            _ancestry = new[] { this };
 
             // Registration Scope
             _scope = new ContainerScope(capacity);
@@ -60,8 +60,10 @@ namespace Unity
             Root   = parent.Root;
             Parent = parent;
 
-            _level    = parent._level + 1;
             _policies = parent.Root._policies;
+            _ancestry = new UnityContainer[parent._ancestry.Length + 1];
+            _ancestry[parent._ancestry.Length] = this;
+            Array.Copy(parent._ancestry, _ancestry, parent._ancestry.Length);
 
             // Registration Scope
             _scope = parent._scope.CreateChildScope(capacity);

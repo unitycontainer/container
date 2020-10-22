@@ -37,8 +37,8 @@ namespace Unity
             var iterator = container._scope.GetIterator(typeof(TTarget), includeDefault);
             while (iterator.MoveNext())
             {
-                var type  = iterator.Current.Contract.Type;
-                var nname = iterator.Current.Contract.Name;
+                var type  = iterator.Internal.Contract.Type;
+                var nname = iterator.Internal.Contract.Name;
 
 
             }
@@ -51,8 +51,8 @@ namespace Unity
             var iterator = container._scope.GetIterator(typeof(TTarget), includeDefault);
             while (iterator.MoveNext())
             {
-                var type = iterator.Current.Contract.Type;
-                var nname = iterator.Current.Contract.Name;
+                var type = iterator.Internal.Contract.Type;
+                var nname = iterator.Internal.Contract.Name;
 
 
             }
@@ -60,8 +60,8 @@ namespace Unity
             iterator = container._scope.GetIterator(typeof(TGeneric), includeDefault);
             while (iterator.MoveNext())
             {
-                var type = iterator.Current.Contract.Type;
-                var nname = iterator.Current.Contract.Name;
+                var type = iterator.Internal.Contract.Type;
+                var nname = iterator.Internal.Contract.Name;
 
 
             }

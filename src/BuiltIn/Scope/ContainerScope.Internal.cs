@@ -76,7 +76,7 @@ namespace Unity.BuiltIn
                     position = meta[position].Next;
                 }
 
-                if (1 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
+                if (0 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
                     return (scope!, 0);
 
                 meta = scope.Meta;
@@ -95,42 +95,7 @@ namespace Unity.BuiltIn
             {
                 if (position > 0) return (scope, position);
 
-                if (1 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
-                    return (scope!, 0);
-
-                var meta = scope.Meta;
-                position = meta[((uint)enumerator.Hash) % meta.Length].Position;
-
-                while (position > 0)
-                {
-                    ref var candidate = ref scope.Data[position].Internal;
-
-                    if (ReferenceEquals(candidate.Contract.Type, enumerator.Type) &&
-                        candidate.Contract.Name == null)
-                    {
-                        goto SetNamedPosition;
-                    }
-
-                    position = meta[position].Next;
-                }
-
-                SetNamedPosition: position = scope.Data[position].Next;
-            }
-            while (true);
-        }
-
-        // TODO: implement
-        internal override (Scope, int) NextDefault(ref Iterator enumerator)
-        {
-            var scope = Unsafe.As<ContainerScope>(enumerator.Scope);
-            var position = 0 == enumerator.Positon
-                ? scope.Data[enumerator.Initial].Next
-                : scope.Data[enumerator.Positon].Next;
-            do
-            {
-                if (position > 0) return (scope, position);
-
-                if (1 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
+                if (0 >= scope.Level || null == (scope = Unsafe.As<ContainerScope>(scope.Next)))
                     return (scope!, 0);
 
                 var meta = scope.Meta;

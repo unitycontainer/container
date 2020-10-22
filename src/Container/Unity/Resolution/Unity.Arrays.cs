@@ -30,7 +30,7 @@ namespace Unity
 
             if (null == context.Registration)
             {
-                context.Registration = container._scope.GetOrCreate(in context.Contract);
+                context.Registration = container._scope.GetCache(in context.Contract);
             }
 
             if (null == context.Registration.Pipeline)
@@ -38,6 +38,8 @@ namespace Unity
                 // Lock the Manager to prevent creating pipeline multiple times2
                 lock (context.Registration)
                 {
+                    // TODO: threading
+
                     // Make sure it is still null and not created while waited for the lock
                     if (null == context.Registration.Pipeline)
                     {
@@ -49,6 +51,8 @@ namespace Unity
 
             return context.Registration.Pipeline(ref context);
 
+            ///////////////////////////////////////////////////////////////////
+            // Method
             object? Resolver(ref PipelineContext context)
             {
                 Debug.Assert(null != context.Registration);
@@ -59,9 +63,13 @@ namespace Unity
                     {
                         if (null == context.Registration.Data || context.Container._scope.Version != version)
                         {
-                            version = context.Container._scope.Version;
                             // Rebuild metadata
+                            var recorder = new Recorder(context.Container._ancestry, 11);
+                            var enumerator = context.Container._scope.GetIterator(typeof(TTarget));
+                            //while (enumerator.MoveNext()) recorder.Add(enumerator.Scope, enumerator.Positon, ref enumerator.Internal);
+
                             context.Registration.Data = new object();
+                            version = context.Container._scope.Version;
                         }
                     }
                 }

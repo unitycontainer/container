@@ -39,7 +39,7 @@ namespace Unity
                     return container.ResolveRegistration(ref contract, manager, overrides);
                 }
 
-                cutoff = RegistrationCategory.Internal;
+                cutoff = RegistrationCategory.Cache;
 
                 // Skip to parent if non generic
                 if (!(isGeneric ??= type.IsGenericType)) continue;

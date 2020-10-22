@@ -20,6 +20,11 @@ namespace Unity
         Uninitialized = 0,
 
         /// <summary>
+        /// Collection of cached metadata
+        /// </summary>
+        Cache,
+
+        /// <summary>
         /// This registration is a clone
         /// </summary>
         /// <remarks>
@@ -28,11 +33,6 @@ namespace Unity
         /// manager
         /// </remarks>
         Clone,
-
-        /// <summary>
-        /// Collection of cached metadata
-        /// </summary>
-        Cache,
 
         /// <summary>
         /// This is implicit/internal registration

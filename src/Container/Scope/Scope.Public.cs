@@ -73,6 +73,8 @@ namespace Unity.Container
 
         #region Get
 
+        public ref Entry this[int index] => ref Data[index];
+
         /// <summary>
         /// Get registration data for the contract
         /// </summary>
@@ -91,7 +93,7 @@ namespace Unity.Container
         /// <returns>New <see cref="RegistrationManager"/> created from factory manager if found or null</returns>
         public abstract RegistrationManager? Get(in Contract contract, in Contract factory);
 
-        public abstract RegistrationManager GetOrCreate(in Contract contract);
+        public abstract RegistrationManager GetCache(in Contract contract);
 
         #endregion
 
@@ -122,7 +124,7 @@ namespace Unity.Container
         public void CopyTo(Array array, int index) 
             => throw new NotSupportedException();
 
-        public IEnumerator GetEnumerator() 
+        IEnumerator IEnumerable.GetEnumerator() 
             => throw new NotSupportedException();
 
         #endregion

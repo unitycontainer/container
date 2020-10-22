@@ -42,7 +42,7 @@ namespace Container.Scope
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, Manager);
+            Assert.AreSame(enumerator.Internal.Manager, Manager);
             Assert.IsFalse(enumerator.MoveNext());
         }
 
@@ -57,7 +57,7 @@ namespace Container.Scope
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, Manager);
+            Assert.AreSame(enumerator.Internal.Manager, Manager);
             Assert.IsFalse(enumerator.MoveNext());
         }
 
@@ -78,9 +78,9 @@ namespace Container.Scope
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, other);
+            Assert.AreSame(enumerator.Internal.Manager, other);
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, Manager);
+            Assert.AreSame(enumerator.Internal.Manager, Manager);
             Assert.IsFalse(enumerator.MoveNext());
         }
 
@@ -108,9 +108,9 @@ namespace Container.Scope
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, two);
+            Assert.AreSame(enumerator.Internal.Manager, two);
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, one);
+            Assert.AreSame(enumerator.Internal.Manager, one);
             Assert.IsFalse(enumerator.MoveNext());
         }
 
@@ -139,11 +139,11 @@ namespace Container.Scope
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, Manager);
+            Assert.AreSame(enumerator.Internal.Manager, Manager);
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, two);
+            Assert.AreSame(enumerator.Internal.Manager, two);
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Current.Manager, one);
+            Assert.AreSame(enumerator.Internal.Manager, one);
             Assert.IsFalse(enumerator.MoveNext());
         }
 

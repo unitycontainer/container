@@ -10,5 +10,11 @@ namespace Unity.Storage
     {
         public int Next;
         public int Position;
+
+        public Metadata(int next, int position)
+        {
+            Next = next;
+            Position = position;
+        }
     }
 }

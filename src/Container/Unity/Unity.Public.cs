@@ -53,18 +53,43 @@ namespace Unity
         {
             get
             {
-                var scope = _scope;
-                var levels = new List<Scope>(_level) { _scope };
+                // Yield built in types
+                var builtIn = _scope.GetRegistrations(BUILT_IN_CONTRACT_COUNT);
+                while (builtIn.MoveNext()) yield return builtIn.Registration;
 
-                while (null != (scope = scope.Next))
+                var enumerator = _scope.GetEnumerator(BUILT_IN_CONTRACT_COUNT);
+                while (enumerator.MoveNext())
                 {
-                    if (scope.Count > BUILT_IN_CONTRACT_COUNT)
-                        levels.Add(scope);
+                    yield return enumerator.Registration;
                 }
+                //var container = this;
 
-                return 1 == levels.Count
-                    ? (IEnumerable<ContainerRegistration>)new SingleScopeEnumerator(this)
-                    : new MultiScopeEnumerator(levels);
+                //// Yield built in types
+                //var builtIn = container._scope.GetRegistrations(BUILT_IN_CONTRACT_COUNT);
+                //while (builtIn.MoveNext()) yield return builtIn.Registration;
+
+                //var set = new Recorder(_ancestry, 17 * _ancestry.Length);
+
+                //do
+                //{
+                //    // enumerate types
+                //    var typeEnumerator = container._scope.GetTypes(BUILT_IN_CONTRACT_COUNT);
+                //    while (typeEnumerator.MoveNext())
+                //    {
+                //        if (!set.Add(in typeEnumerator.Contract)) continue;
+
+                //        // enumerate registrations
+                //        while (typeEnumerator.Registrations.MoveNext())
+                //        {
+                //            if (set.Add(typeEnumerator.Registrations.Scope.Level, typeEnumerator.Registrations.Positon, 
+                //                     in typeEnumerator.Registrations.Internal.Contract))
+                //            { 
+                //                yield return typeEnumerator.Registrations.Registration;
+                //            }
+                //        }
+                //    }
+                //}
+                //while (null != (container = container.Parent));
             }
         }
 

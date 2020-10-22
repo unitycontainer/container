@@ -248,7 +248,7 @@ namespace Unity.BuiltIn
             return null;
         }
 
-        public override RegistrationManager GetOrCreate(in Contract contract)
+        public override RegistrationManager GetCache(in Contract contract)
         {
             var meta = Meta;
             var position = meta[((uint)contract.HashCode) % meta.Length].Position;
@@ -261,7 +261,7 @@ namespace Unity.BuiltIn
                     candidate.Contract.Name == contract.Name)
                 {
                     if (null == candidate.Manager)
-                        candidate.Manager = new ScopeRegistration();
+                        candidate.Manager = new InternalRegistrationManager();
 
                     return candidate.Manager;
                 }
@@ -288,7 +288,7 @@ namespace Unity.BuiltIn
                         {
                             // Found existing
                             if (null == candidate.Manager)
-                                candidate.Manager = new ScopeRegistration();
+                                candidate.Manager = new InternalRegistrationManager();
 
                             return candidate.Manager;
                         }
@@ -305,7 +305,7 @@ namespace Unity.BuiltIn
                 }
 
                 // Clone manager
-                var manager = new ScopeRegistration();
+                var manager = new InternalRegistrationManager();
 
                 ref var bucket = ref Meta[target];
                 Data[Index] = new Entry(in contract, manager, 0);
