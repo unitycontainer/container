@@ -55,7 +55,7 @@ namespace Unity.Container
 
         #region Add
 
-        public abstract void Add(Type type, RegistrationManager manager);
+        public abstract void Add(Type type, RegistrationManager manager, bool reserved = false);
 
         public abstract RegistrationManager? Add(Type type, string name, RegistrationManager manager);
 

@@ -37,9 +37,9 @@ namespace Unity
             _scope = new ContainerScope(capacity);
 
             var manager = new ContainerLifetimeManager(this);
-            _scope.Add(typeof(IUnityContainer),      manager);
-            _scope.Add(typeof(IUnityContainerAsync), manager);
-            _scope.Add(typeof(IServiceProvider),     manager);
+            _scope.Add(typeof(IUnityContainer),      manager, true);
+            _scope.Add(typeof(IUnityContainerAsync), manager, true);
+            _scope.Add(typeof(IServiceProvider),     manager, true);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
 
             // Generic Factories
@@ -69,9 +69,9 @@ namespace Unity
             _scope = parent._scope.CreateChildScope(capacity);
 
             var manager = new ContainerLifetimeManager(this);
-            _scope.Add(typeof(IUnityContainer),      manager);
-            _scope.Add(typeof(IUnityContainerAsync), manager);
-            _scope.Add(typeof(IServiceProvider),     manager);
+            _scope.Add(typeof(IUnityContainer),      manager, true);
+            _scope.Add(typeof(IUnityContainerAsync), manager, true);
+            _scope.Add(typeof(IServiceProvider),     manager, true);
             BUILT_IN_CONTRACT_COUNT = _scope.Count;
         }
 

@@ -57,7 +57,7 @@ namespace Unity
                 var builtIn = _scope.GetRegistrations(BUILT_IN_CONTRACT_COUNT);
                 while (builtIn.MoveNext()) yield return builtIn.Registration;
 
-                var enumerator = _scope.GetEnumerator(BUILT_IN_CONTRACT_COUNT);
+                var enumerator = _scope.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     yield return enumerator.Registration;

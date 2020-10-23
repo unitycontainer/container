@@ -9,12 +9,12 @@ namespace Unity.BuiltIn
         #region Add
 
         /// <inheritdoc />
-        public override void Add(Type type, RegistrationManager manager)
+        public override void Add(Type type, RegistrationManager manager, bool reserved = false)
         {
             var hash = type.GetHashCode();
             ref var bucket = ref Meta[((uint)hash) % Meta.Length];
             var position = bucket.Position;
-            int pointer = 0;
+            int pointer = reserved ? -1 : 0;
 
             while (position > 0)
             {

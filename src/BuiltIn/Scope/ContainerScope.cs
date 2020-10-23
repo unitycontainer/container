@@ -15,7 +15,7 @@ namespace Unity.BuiltIn
         #region Constructors
 
         // Root constructor
-        internal ContainerScope(int capacity)
+        internal ContainerScope(int capacity = 0)
             : base(capacity)
         {
             Meta = new Metadata[Storage.Prime.Numbers[Prime]];

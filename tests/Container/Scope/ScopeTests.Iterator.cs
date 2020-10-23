@@ -8,7 +8,7 @@ namespace Container.Scope
     public partial class ScopeTests
     {
         [TestMethod]
-        public void Enumerator_Empty()
+        public void Iterator_Empty()
         {
             // Act
             var enumerator = Scope.GetIterator(typeof(List<>));
@@ -18,7 +18,7 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void Enumerator_EmptyMultilevel()
+        public void Iterator_EmptyMultilevel()
         {
             var scope = Scope.CreateChildScope(1)
                              .CreateChildScope(3)
@@ -32,7 +32,7 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void Enumerator_One_Anonymous()
+        public void Iterator_One_Anonymous()
         {
             // Arrange
             Scope.Add(typeof(List<>), Manager);
@@ -47,7 +47,7 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void Enumerator_One_Named()
+        public void Iterator_One_Named()
         {
             // Arrange
             Scope.Add(typeof(List<>), Name, Manager);
@@ -62,7 +62,7 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void Enumerator_TwoTest()
+        public void Iterator_TwoTest()
         {
             // Arrange
             var other = new ContainerControlledLifetimeManager
@@ -85,7 +85,7 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void Enumerator_TwoEmptyTest()
+        public void Iterator_TwoEmptyTest()
         {
             // Arrange
             var one = new ContainerControlledLifetimeManager
@@ -115,7 +115,7 @@ namespace Container.Scope
         }
 
         [TestMethod]
-        public void Enumerator_ThreeTest()
+        public void Iterator_ThreeTest()
         {
             // Arrange
             var one = new ContainerControlledLifetimeManager
