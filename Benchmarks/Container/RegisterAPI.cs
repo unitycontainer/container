@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
+using Unity.Resolution;
 #if NET462
 using Microsoft.Practices.Unity;
 #else
@@ -15,9 +16,9 @@ namespace Unity.Benchmarks
         protected static LifetimeManager Manager1;
         protected static LifetimeManager Manager2;
         protected static LifetimeManager Manager3;
+        protected static IUnityContainer Container;
         protected static Func<IUnityContainer, Type, string, object> Factory = (c, t, n) => c;
         protected const string Name = "name";
-        protected IUnityContainer Container;
         protected object Instance1 = new object();
         protected object Instance2 = new object();
         protected object Instance3 = "object";
@@ -26,7 +27,7 @@ namespace Unity.Benchmarks
 #endif
 
 
-        [IterationSetup]
+        //[IterationSetup]
         public virtual void IterationSetup()
         { 
             Container = new UnityContainer();
