@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity;
 using Unity.Lifetime;
 
-namespace Container.Scope
+namespace Container.Scopes
 {
     public partial class EnumeratorTests
     {
@@ -61,7 +61,6 @@ namespace Container.Scope
             Assert.IsTrue(enumerator.MoveNext());
             Assert.IsFalse(enumerator.MoveNext());
         }
-
 
         [TestMethod]
         public void Enumerator_EmptyMultilevel()
@@ -216,6 +215,5 @@ namespace Container.Scope
             Assert.IsTrue(enumerator.MoveNext());
             Assert.IsFalse(enumerator.MoveNext());
         }
-
     }
 }

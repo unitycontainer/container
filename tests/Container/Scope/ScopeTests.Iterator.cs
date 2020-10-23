@@ -1,9 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using Unity;
+using Unity.Container;
 using Unity.Lifetime;
+using static Unity.Container.Scope;
 
-namespace Container.Scope
+namespace Container.Scopes
 {
     public partial class ScopeTests
     {
@@ -11,24 +14,29 @@ namespace Container.Scope
         public void Iterator_Empty()
         {
             // Act
-            var enumerator = Scope.GetIterator(typeof(List<>));
+            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            var references = Scope.GetReferences(typeof(List<>), in buffer);
+            var iterator = new Iterator(Scope, typeof(List<>));
 
             // Validate
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
         [TestMethod]
         public void Iterator_EmptyMultilevel()
         {
+            // Arrange
             var scope = Scope.CreateChildScope(1)
                              .CreateChildScope(3)
                              .CreateChildScope(5);
+            Span<Location> buffer = stackalloc Location[scope.Level + 1];
+            var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var enumerator = scope.GetIterator(typeof(List<>));
+            var iterator = new Iterator(Scope, typeof(List<>));
 
             // Validate
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
         [TestMethod]
@@ -36,14 +44,16 @@ namespace Container.Scope
         {
             // Arrange
             Scope.Add(typeof(List<>), Manager);
+            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var enumerator = Scope.GetIterator(typeof(List<>));
+            var iterator = new Iterator(Scope, typeof(List<>));
 
             // Validate
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, Manager);
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, Manager);
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
         [TestMethod]
@@ -51,14 +61,18 @@ namespace Container.Scope
         {
             // Arrange
             Scope.Add(typeof(List<>), Name, Manager);
+            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var enumerator = Scope.GetIterator(typeof(List<>));
+            var iterator = new Iterator(Scope, typeof(List<>));
 
             // Validate
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, Manager);
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.IsNull(iterator.Internal.Manager);
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, Manager);
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
         [TestMethod]
@@ -73,15 +87,18 @@ namespace Container.Scope
             Scope.Add(typeof(List<>), Manager);
             Scope.Add(typeof(List<>), other);
 
+            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            var references = Scope.GetReferences(typeof(List<>), in buffer);
+
             // Act
-            var enumerator = Scope.GetIterator(typeof(List<>));
+            var iterator = new Iterator(Scope, typeof(List<>));
 
             // Validate
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, other);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, Manager);
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, other);
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, Manager);
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
         [TestMethod]
@@ -102,16 +119,19 @@ namespace Container.Scope
             Scope.Add(typeof(List<>), one);
             Scope.Add(typeof(List<>), two);
             var scope = Scope.CreateChildScope(3);
+            
+            Span<Location> buffer = stackalloc Location[scope.Level + 1];
+            var references = scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
-            var enumerator = scope.GetIterator(typeof(List<>));
+            var iterator = new Iterator(scope, typeof(List<>));
 
             // Validate
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, two);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, one);
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, two);
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, one);
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
         [TestMethod]
@@ -134,17 +154,20 @@ namespace Container.Scope
             var scope = Scope.CreateChildScope(3);
             scope.Add(typeof(List<>), Manager);
 
+            Span<Location> buffer = stackalloc Location[scope.Level + 1];
+            var references = scope.GetReferences(typeof(List<>), in buffer);
+
             // Act
-            var enumerator = scope.GetIterator(typeof(List<>));
+            var iterator = new Iterator(scope, typeof(List<>));
 
             // Validate
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, Manager);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, two);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreSame(enumerator.Internal.Manager, one);
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, Manager);
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, two);
+            Assert.IsTrue(iterator.MoveNext(in references));
+            Assert.AreSame(iterator.Internal.Manager, one);
+            Assert.IsFalse(iterator.MoveNext(in references));
         }
 
     }

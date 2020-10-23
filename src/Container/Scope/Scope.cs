@@ -24,13 +24,13 @@ namespace Unity.Container
 
         // Segment
         public readonly int Level;
-        private readonly Scope[] _ancestry;
 
         // Contracts
         protected int Prime;
         protected int Index;
         protected int Revision;
         protected Entry[] Data;
+        protected readonly Scope[] Ancestry;
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace Unity.Container
             Disposables = new List<IDisposable>();
             Next  = null;
             Level = 0;
-            _ancestry = new[] { this };
+            Ancestry = new[] { this };
         }
 
         /// <summary>
@@ -73,9 +73,9 @@ namespace Unity.Container
             Disposables = new List<IDisposable>();
             Next  = parent;
             Level = parent.Level + 1;
-            _ancestry = new Scope[parent._ancestry.Length + 1];
-            _ancestry[parent._ancestry.Length] = this;
-            Array.Copy(parent._ancestry, _ancestry, parent._ancestry.Length);
+            Ancestry = new Scope[parent.Ancestry.Length + 1];
+            Ancestry[parent.Ancestry.Length] = this;
+            Array.Copy(parent.Ancestry, Ancestry, parent.Ancestry.Length);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace Unity.Container
             Disposables = scope.Disposables;
             Next  = scope.Next;
             Level = scope.Level;
-            _ancestry = scope._ancestry;
-            _ancestry[scope._ancestry.Length - 1] = this;
+            Ancestry = scope.Ancestry;
+            Ancestry[scope.Ancestry.Length - 1] = this;
         }
 
         #endregion

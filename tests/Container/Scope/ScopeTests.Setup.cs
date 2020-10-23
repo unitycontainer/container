@@ -7,7 +7,7 @@ using Unity.BuiltIn;
 using Unity.Lifetime;
 using static Unity.Container.Scope;
 
-namespace Container.Scope
+namespace Container.Scopes
 {
     [TestClass]
     public partial class ScopeTests

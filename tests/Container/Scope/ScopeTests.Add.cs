@@ -5,7 +5,7 @@ using System.Linq;
 using Unity;
 using Unity.Lifetime;
 
-namespace Container.Scope
+namespace Container.Scopes
 {
     public partial class ScopeTests
     {

@@ -3,7 +3,7 @@ using Unity;
 using Unity.BuiltIn;
 using Unity.Lifetime;
 
-namespace Container.Scope
+namespace Container.Scopes
 {
     [TestClass]
     public partial class EnumeratorTests

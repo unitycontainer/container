@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using Unity;
 
-namespace Container.Scope
+namespace Container.Scopes
 {
     public partial class ScopeTests
     {

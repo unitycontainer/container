@@ -6,12 +6,14 @@ namespace Unity
 {
     public partial class UnityContainer// : IEnumerable<ContainerRegistration>
     {
-        //public Enumerator GetEnumerator() 
-        //    => new Enumerator(this);
+        public Enumerator GetEnumerator()
+            => new Enumerator(this);
 
         //IEnumerator<ContainerRegistration> IEnumerable<ContainerRegistration>.GetEnumerator()
         //    => new Enumerator(this);
 
+        //IEnumerator IEnumerable.GetEnumerator()
+        //    => new Enumerator(this);
 
         public struct Enumerator : IEnumerator<ContainerRegistration>
         {

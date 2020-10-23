@@ -110,6 +110,7 @@ namespace Container.Extending
             Assert.AreSame(container, local.Container);
         }
 
+        [Ignore]
         [TestMethod]
         public void ForEachTest()
         {

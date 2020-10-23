@@ -13,9 +13,28 @@ namespace Unity.BuiltIn
 
             while (position > 0)
             {
-                ref var candidate = ref Data[position].Internal;
+                ref var candidate = ref Data[position].Internal.Contract;
 
-                if (ReferenceEquals(candidate.Contract.Type, type) && null == candidate.Contract.Name)
+                if (ReferenceEquals(candidate.Type, type) && null == candidate.Name)
+                    return position;
+
+                position = meta[position].Next;
+            }
+
+            return 0;
+        }
+
+        internal override int IndexOf(in Contract contract)
+        {
+            var meta = Meta;
+            var target = ((uint)contract.HashCode) % meta.Length;
+            var position = meta[target].Position;
+
+            while (position > 0)
+            {
+                ref var candidate = ref Data[position].Internal.Contract;
+
+                if (ReferenceEquals(candidate.Type, contract.Type) && contract.Name == candidate.Name)
                     return position;
 
                 position = meta[position].Next;
@@ -26,33 +45,14 @@ namespace Unity.BuiltIn
 
         internal override int MoveNext(ref Iterator iterator)
         {
-            var meta = Unsafe.As<ContainerScope>(iterator.Scope).Meta;
+            var scope = Unsafe.As<ContainerScope>(iterator.Scope);
+            var meta  = scope.Meta;
             var position = meta[iterator.Position].Next;
 
             while (position > 0)
             {
-                ref var candidate = ref Unsafe.As<ContainerScope>(iterator.Scope)
-                                              .Data[position].Internal.Contract;
+                ref var candidate = ref scope[position].Internal.Contract;
                 if (ReferenceEquals(candidate.Type, iterator.Type) && candidate.Name == null)
-                    return position;
-
-                position = meta[position].Next;
-            }
-
-            return 0;
-        }
-
-        internal override int Get(Type type, int hash)
-        {
-            var meta = Meta;
-            var target = ((uint)hash) % meta.Length;
-            var position = meta[target].Position;
-
-            while (position > 0)
-            {
-                ref var candidate = ref Data[position].Internal;
-                
-                if (ReferenceEquals(candidate.Contract.Type, type) && null == candidate.Contract.Name)
                     return position;
 
                 position = meta[position].Next;

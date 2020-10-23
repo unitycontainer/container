@@ -1,11 +1,10 @@
 ﻿using System;
-using Unity.Storage;
 
 namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        public Enumerator GetEnumerator(RegistrationCategory cutoff = RegistrationCategory.Internal) => new Enumerator(this, cutoff);
+        public Enumerator GetEnumerator() => new Enumerator(this, RegistrationCategory.Internal);
 
 
         public struct Enumerator
@@ -16,7 +15,8 @@ namespace Unity.Container
             private Scope _scope;
             private ScopeSet _set;
             private Iterator _iterator;
-            private readonly Memory<Metadata> _buffer;
+            private ReadOnlyMemory<Location> _selection;
+            private readonly Memory<Location> _buffer;
             private readonly RegistrationCategory _cutoff;
 
             #endregion
@@ -30,8 +30,9 @@ namespace Unity.Container
                 _scope = scope;
                 _cutoff = cutoff;
                 _iterator = default;
-                _set = new ScopeSet(scope._ancestry);
-                _buffer = new Metadata[scope._ancestry.Length];
+                _selection = default;
+                _set = new ScopeSet(scope.Ancestry);
+                _buffer = new Location[scope.Ancestry.Length];
             }
 
             #endregion
@@ -46,7 +47,15 @@ namespace Unity.Container
             {
                 do
                 {
-                    if (_iterator.MoveNext(ref _set)) return true;
+                    while (_iterator.MoveNext(_selection.Span))
+                    {
+                        if (!_set.Add(in _iterator)) continue;
+
+                        if (_cutoff != RegistrationCategory.Uninitialized &&
+                           (null == _iterator.Internal.Manager || _cutoff > _iterator.Internal.Manager.Category)) continue;
+
+                        return true;
+                    }
 
                     while (_scope.Count >= ++_index)
                     {
@@ -56,9 +65,18 @@ namespace Unity.Container
                         if (null != candidate.Contract.Name || _set.Contains(in candidate.Contract)) 
                             continue;
 
-                        _iterator = _scope.GetIterator(in candidate.Contract, in _buffer, _cutoff);
+                        _selection = _scope.GetReferences(in candidate.Contract, in _buffer);
+                        _iterator = new Iterator(_scope, candidate.Contract.Type);
 
-                        if (_iterator.MoveNext(ref _set)) return true;
+                        while (_iterator.MoveNext(_selection.Span))
+                        {
+                            if (!_set.Add(in _iterator)) continue;
+
+                            if (_cutoff != RegistrationCategory.Uninitialized &&
+                               (null == _iterator.Internal.Manager || _cutoff > _iterator.Internal.Manager.Category)) continue;
+
+                            return true;
+                        }
                     }
 
                     _index    = 0;

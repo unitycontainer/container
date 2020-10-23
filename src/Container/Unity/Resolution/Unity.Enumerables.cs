@@ -34,38 +34,11 @@ namespace Unity
 
         private static IEnumerable<TElement> GetEnumerator<TElement, TTarget>(UnityContainer container, string? name, bool includeDefault)
         {
-            var iterator = container._scope.GetIterator(typeof(TTarget), includeDefault);
-            while (iterator.MoveNext())
-            {
-                var type  = iterator.Internal.Contract.Type;
-                var nname = iterator.Internal.Contract.Name;
-
-
-            }
-
             yield break;
         }
 
         private static IEnumerable<TElement> GetEnumerator<TElement, TTarget, TGeneric>(UnityContainer container, string? name, bool includeDefault)
         {
-            var iterator = container._scope.GetIterator(typeof(TTarget), includeDefault);
-            while (iterator.MoveNext())
-            {
-                var type = iterator.Internal.Contract.Type;
-                var nname = iterator.Internal.Contract.Name;
-
-
-            }
-
-            iterator = container._scope.GetIterator(typeof(TGeneric), includeDefault);
-            while (iterator.MoveNext())
-            {
-                var type = iterator.Internal.Contract.Type;
-                var nname = iterator.Internal.Contract.Name;
-
-
-            }
-
             yield break;
         }
 

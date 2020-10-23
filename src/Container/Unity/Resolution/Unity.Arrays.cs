@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
 
@@ -63,9 +64,17 @@ namespace Unity
                     {
                         if (null == context.Registration.Data || context.Container._scope.Version != version)
                         {
+                            unsafe
+                            { 
+                                var buffer = stackalloc Scope.Location[context.Container._scope.Level + 1];
+
+
+
+                            }
+
                             // Rebuild metadata
                             var recorder = new Recorder(context.Container._ancestry, 11);
-                            var enumerator = context.Container._scope.GetIterator(typeof(TTarget));
+                            //var enumerator = context.Container._scope.GetIterator(typeof(TTarget));
                             //while (enumerator.MoveNext()) recorder.Add(enumerator.Scope, enumerator.Positon, ref enumerator.Internal);
 
                             context.Registration.Data = new object();

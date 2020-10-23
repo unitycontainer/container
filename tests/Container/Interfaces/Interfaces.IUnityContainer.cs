@@ -4,7 +4,6 @@ using System.Buffers;
 using System.Linq;
 using Unity;
 using Unity.Extension;
-using Unity.Lifetime;
 
 namespace Container.Interfaces
 {

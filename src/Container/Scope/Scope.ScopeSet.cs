@@ -11,7 +11,7 @@ namespace Unity.Container
 
             private int _count;
             private Metadata[] _meta;
-            private Metadata[] _data;
+            private Location[] _data;
             private readonly Scope[] _ancestry;
 
             #endregion
@@ -26,7 +26,7 @@ namespace Unity.Container
 
                 // TODO: var prime = Storage.Prime.IndexOf(7 * ancestry.Length);
                 var prime = 0;
-                _data = new Metadata[Storage.Prime.Numbers[prime++]];
+                _data = new Location[Storage.Prime.Numbers[prime++]];
                 _meta = new Metadata[Storage.Prime.Numbers[prime]];
             }
 
@@ -41,7 +41,7 @@ namespace Unity.Container
 
                 while (position > 0)
                 {
-                    var scope = _ancestry[_data[position].Next];
+                    var scope = _ancestry[_data[position].Level];
                     ref var entry = ref scope[_data[position].Position].Internal.Contract;
 
                     if (ReferenceEquals(contract.Type, entry.Type) && contract.Name == entry.Name)
@@ -53,10 +53,10 @@ namespace Unity.Container
                 return false;
             }
 
-            internal bool Add(int level, int index)
+            internal bool Add(in Iterator iterator)
             {
-                ref var contract = ref _ancestry[level][index].Internal.Contract;
-                    var target = ((uint)contract.HashCode) % _meta.Length;
+                ref var contract = ref iterator.Internal.Contract;
+                var target = ((uint)contract.HashCode) % _meta.Length;
 
                 if (null != contract.Name)
                 {
@@ -65,7 +65,7 @@ namespace Unity.Container
                     while (position > 0)
                     {
                         ref var metadata = ref _data[position];
-                        ref var candidate = ref _ancestry[metadata.Next][metadata.Position].Internal.Contract;
+                        ref var candidate = ref _ancestry[metadata.Level][metadata.Position].Internal.Contract;
 
                         if (ReferenceEquals(candidate.Type, contract.Type) && candidate.Name == contract.Name)
                             return false;
@@ -82,7 +82,7 @@ namespace Unity.Container
 
                 // Add new registration
                 ref var bucket = ref _meta[target];
-                _data[_count] = new Metadata(level, index);
+                _data[_count] = iterator.Location;
                 _meta[_count].Next = bucket.Position;
                 bucket.Position = _count;
 
@@ -101,7 +101,7 @@ namespace Unity.Container
                 for (var position = 1; position < _count; position++)
                 {
                     ref var record = ref _data[position];
-                    var scope = _ancestry[record.Next];
+                    var scope = _ancestry[record.Level];
                     ref var contract = ref scope[record.Position].Internal.Contract;
 
                     var bucket = ((uint)contract.HashCode) % _meta.Length;
