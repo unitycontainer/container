@@ -16,7 +16,7 @@ namespace Unity.Storage
 
         public RegistrationSet(int capacity)
         {
-            _prime = Prime.IndexOf(capacity);
+            _prime = Prime.NextUp(capacity);
             _data = new Metadata[Prime.Numbers[_prime++]];
             _meta = new Metadata[Prime.Numbers[_prime]];
             _index = 0;
@@ -43,7 +43,7 @@ namespace Unity.Storage
 
             ref var bucket = ref _meta[target];
             _data[_index] = new Metadata();
-            _meta[_index].Next = bucket.Position;
+            _meta[_index].Reference = bucket.Position;
             bucket.Position = _index;
 
             return true;

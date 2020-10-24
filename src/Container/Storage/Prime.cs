@@ -26,11 +26,28 @@ namespace Unity.Storage
         /// </summary>
         /// <param name="number">Number to compare to</param>
         /// <returns>Index of prime number</returns>
-        public static int IndexOf(int number)
+        public static int NextUp(int number)
         {
             for(var index = 0; index < Numbers.Length; index++)
             {
                 if (Numbers[index] > number) 
+                    return index;
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }
+
+
+        /// <summary>
+        /// Finds index of prime number or index of next bigger prime
+        /// </summary>
+        /// <param name="number">Number to compare to</param>
+        /// <returns>Index of prime number</returns>
+        public static int IndexOf(int number)
+        {
+            for (var index = 0; index < Numbers.Length; index++)
+            {
+                if (Numbers[index] >= number)
                     return index;
             }
 

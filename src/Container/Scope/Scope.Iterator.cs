@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -17,7 +18,7 @@ namespace Unity.Container
 
             private int _index;
             private bool _anonymous;
-            private Location _location;
+            private Metadata _location;
             private readonly Scope[] _ancestry;
 
             #endregion
@@ -41,11 +42,11 @@ namespace Unity.Container
 
             #region Data
 
-            public int Level => _location.Level;
+            public int Level => _location.Reference;
 
             public int Position => _location.Position;
 
-            public Location Location => _location;
+            public Metadata Location => _location;
 
             public readonly ref InternalRegistration Internal 
                 => ref Scope.Data[_location.Position].Internal;
@@ -61,7 +62,7 @@ namespace Unity.Container
 
             #region MoveNext
 
-            public bool MoveNext(in ReadOnlySpan<Location> span)
+            public bool MoveNext(in ReadOnlySpan<Metadata> span)
             {
                 if (0 == span.Length || null == _ancestry) return false;
 
@@ -70,7 +71,7 @@ namespace Unity.Container
                     if (0 == _location.Position)
                     {
                         _location = span[_index];
-                        Scope = _ancestry[_location.Level];
+                        Scope = _ancestry[_location.Reference];
                         return true;
                     }
 
@@ -86,7 +87,7 @@ namespace Unity.Container
                     _anonymous = false;
                     _location = span[_index];
 
-                    Scope = _ancestry[_location.Level];
+                    Scope = _ancestry[_location.Reference];
                     _location.Position = Scope.Data[_location.Position].Next;
                 }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -15,8 +16,8 @@ namespace Unity.Container
             private Scope _scope;
             private ScopeSet _set;
             private Iterator _iterator;
-            private ReadOnlyMemory<Location> _selection;
-            private readonly Memory<Location> _buffer;
+            private ReadOnlyMemory<Metadata> _selection;
+            private readonly Memory<Metadata> _buffer;
             private readonly RegistrationCategory _cutoff;
 
             #endregion
@@ -32,7 +33,7 @@ namespace Unity.Container
                 _iterator = default;
                 _selection = default;
                 _set = new ScopeSet(scope.Ancestry);
-                _buffer = new Location[scope.Ancestry.Length];
+                _buffer = new Metadata[scope.Ancestry.Length];
             }
 
             #endregion

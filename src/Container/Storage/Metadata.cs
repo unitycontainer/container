@@ -5,15 +5,15 @@ namespace Unity.Storage
     /// <summary>
     /// Internal metadata structure for hash sets and lists
     /// </summary>
-    [DebuggerDisplay("Position = {Position}, Next = {Next}")]
+    [DebuggerDisplay("Position = {Position}, Reference = {Reference}")]
     public struct Metadata
     {
-        public int Next;
+        public int Reference;
         public int Position;
 
-        public Metadata(int next, int position)
+        public Metadata(int reference, int position)
         {
-            Next = next;
+            Reference = reference;
             Position = position;
         }
     }

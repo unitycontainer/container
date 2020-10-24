@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity;
 using Unity.Container;
 using Unity.Lifetime;
+using Unity.Storage;
 using static Unity.Container.Scope;
 
 namespace Container.Scopes
@@ -14,7 +15,7 @@ namespace Container.Scopes
         public void Iterator_Empty()
         {
             // Act
-            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[Scope.Level + 1];
             var references = Scope.GetReferences(typeof(List<>), in buffer);
             var iterator = new Iterator(Scope, typeof(List<>));
 
@@ -29,7 +30,7 @@ namespace Container.Scopes
             var scope = Scope.CreateChildScope(1)
                              .CreateChildScope(3)
                              .CreateChildScope(5);
-            Span<Location> buffer = stackalloc Location[scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[scope.Level + 1];
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
@@ -44,7 +45,7 @@ namespace Container.Scopes
         {
             // Arrange
             Scope.Add(typeof(List<>), Manager);
-            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[Scope.Level + 1];
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
@@ -61,7 +62,7 @@ namespace Container.Scopes
         {
             // Arrange
             Scope.Add(typeof(List<>), Name, Manager);
-            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[Scope.Level + 1];
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
@@ -87,7 +88,7 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), Manager);
             Scope.Add(typeof(List<>), other);
 
-            Span<Location> buffer = stackalloc Location[Scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[Scope.Level + 1];
             var references = Scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
@@ -120,7 +121,7 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), two);
             var scope = Scope.CreateChildScope(3);
             
-            Span<Location> buffer = stackalloc Location[scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[scope.Level + 1];
             var references = scope.GetReferences(typeof(List<>), in buffer);
 
             // Act
@@ -154,7 +155,7 @@ namespace Container.Scopes
             var scope = Scope.CreateChildScope(3);
             scope.Add(typeof(List<>), Manager);
 
-            Span<Location> buffer = stackalloc Location[scope.Level + 1];
+            Span<Metadata> buffer = stackalloc Metadata[scope.Level + 1];
             var references = scope.GetReferences(typeof(List<>), in buffer);
 
             // Act

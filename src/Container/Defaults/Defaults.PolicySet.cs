@@ -23,7 +23,7 @@ namespace Unity.Container
                     return candidate.Value;
                 }
 
-                position = Meta[position].Next;
+                position = Meta[position].Reference;
             }
 
             return null;
@@ -50,7 +50,7 @@ namespace Unity.Container
                         return;
                     }
 
-                    position = Meta[position].Next;
+                    position = Meta[position].Reference;
                 }
 
                 if (++Count >= Data.Length)
@@ -61,7 +61,7 @@ namespace Unity.Container
 
                 // Add new
                 Data[Count] = new Policy(hash, type, value);
-                Meta[Count].Next = bucket.Position;
+                Meta[Count].Reference = bucket.Position;
                 bucket.Position = Count;
             }
         }
@@ -87,7 +87,7 @@ namespace Unity.Container
                         return;
                     }
 
-                    position = Meta[position].Next;
+                    position = Meta[position].Reference;
                 }
 
                 if (++Count >= Data.Length)
@@ -100,7 +100,7 @@ namespace Unity.Container
                 ref var entry = ref Data[Count];
                 entry = new Policy(hash, type, value);
                 entry.PolicyChanged += subscriber;
-                Meta[Count].Next = bucket.Position;
+                Meta[Count].Reference = bucket.Position;
                 bucket.Position = Count;
             }
         }
@@ -130,7 +130,7 @@ namespace Unity.Container
                         return (T)candidate.Value;
                     }
 
-                    position = Meta[position].Next;
+                    position = Meta[position].Reference;
                 }
 
                 if (++Count >= Data.Length)
@@ -144,7 +144,7 @@ namespace Unity.Container
                 entry = new Policy(hash, typeof(T), value);
                 entry.PolicyChanged += subscriber;
 
-                Meta[Count].Next = bucket.Position;
+                Meta[Count].Reference = bucket.Position;
                 bucket.Position = Count;
 
                 return value;
@@ -171,7 +171,7 @@ namespace Unity.Container
                     if (null == candidate.Target && ReferenceEquals(candidate.Type, type))
                         throw new InvalidOperationException($"{type.Name} already allocated");
 
-                    position = Meta[position].Next;
+                    position = Meta[position].Reference;
                 }
 
                 if (++Count >= Data.Length)
@@ -182,7 +182,7 @@ namespace Unity.Container
 
                 // Add new
                 Data[Count] = new Policy(hash, type, null);
-                Meta[Count].Next = bucket.Position;
+                Meta[Count].Reference = bucket.Position;
                 bucket.Position = Count;
                 return Count;
             }

@@ -67,19 +67,6 @@ namespace Unity.Container
             public RegistrationManager? Manager;
         }
 
-        [DebuggerDisplay("Level = {Level} Position = {Position}")]
-        public struct Location
-        {
-            public int Level;
-            public int Position;
-
-            public Location(int level, int position)
-            {
-                Level = level;
-                Position = position;
-            }
-        }
-
         protected class InternalRegistrationManager : RegistrationManager
         {
             public override object? TryGetValue(ICollection<IDisposable> lifetime)

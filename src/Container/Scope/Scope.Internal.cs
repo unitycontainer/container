@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -10,7 +11,7 @@ namespace Unity.Container
 
         internal abstract int IndexOf(Type type, int hash);
 
-        internal ReadOnlySpan<Location> GetReferences(Type type, in Span<Location> buffer)
+        internal ReadOnlySpan<Metadata> GetReferences(Type type, in Span<Metadata> buffer)
         {
             Debug.Assert(Level < buffer.Length);
 
@@ -23,7 +24,7 @@ namespace Unity.Container
                 var position = scope.IndexOf(type, hash);
                 if (0 < position)
                 {
-                    buffer[count++] = new Location(scope.Level, position);
+                    buffer[count++] = new Metadata(scope.Level, position);
                     if (0 > scope.Data[position].Next) goto done;
                 }
             }
@@ -32,7 +33,7 @@ namespace Unity.Container
             done: return buffer.Slice(0, count);
         }
 
-        internal ReadOnlyMemory<Location> GetReferences(in Contract contract, in Memory<Location> buffer)
+        internal ReadOnlyMemory<Metadata> GetReferences(in Contract contract, in Memory<Metadata> buffer)
         {
             Debug.Assert(Level < buffer.Length);
 
@@ -44,7 +45,7 @@ namespace Unity.Container
                 var position = scope.IndexOf(in contract);
                 if (0 < position)
                 {
-                    buffer.Span[count++] = new Location(scope.Level, position);
+                    buffer.Span[count++] = new Metadata(scope.Level, position);
                     if (0 > scope.Data[position].Next) goto done;
                 }
             }

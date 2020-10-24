@@ -36,13 +36,13 @@ namespace Unity.BuiltIn
                     goto RegisterNew;
                 }
 
-                position = Meta[position].Next;
+                position = Meta[position].Reference;
             }
 
             // Add new registration
             RegisterNew: Index++;
             Data[Index] = new Entry(hash, type, manager, pointer);
-            Meta[Index].Next = bucket.Position;
+            Meta[Index].Reference = bucket.Position;
             bucket.Position = Index;
             Revision += 1;
         }
@@ -66,7 +66,7 @@ namespace Unity.BuiltIn
                     return replacement;
                 }
 
-                position = Meta[position].Next;
+                position = Meta[position].Reference;
             }
 
             ref var @default = ref Data[GetDefault(contract.Type)];
@@ -74,7 +74,7 @@ namespace Unity.BuiltIn
             // Add new registration
             Index++;
             Data[Index] = new Entry(in contract, manager, @default.Next);
-            Meta[Index].Next = bucket.Position;
+            Meta[Index].Reference = bucket.Position;
             bucket.Position = Index;
             @default.Next = Index;
             Revision += 1;
@@ -101,7 +101,7 @@ namespace Unity.BuiltIn
                     return replacement;
                 }
 
-                position = Meta[position].Next;
+                position = Meta[position].Reference;
             }
 
             ref var @default = ref Data[GetDefault(type)];
@@ -109,7 +109,7 @@ namespace Unity.BuiltIn
             // Add new registration
             Index++;
             Data[Index] = new Entry(hash, type, name, manager, @default.Next);
-            Meta[Index].Next = bucket.Position;
+            Meta[Index].Reference = bucket.Position;
             bucket.Position = Index;
             @default.Next = Index;
             Revision += 1;
@@ -161,7 +161,7 @@ namespace Unity.BuiltIn
                     candidate.Contract.Name == contract.Name)
                     return candidate.Manager;
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             return null;
@@ -181,7 +181,7 @@ namespace Unity.BuiltIn
                     ReferenceEquals(candidate.Contract.Type, contract.Type) && candidate.Contract.Name == contract.Name)
                     return candidate.Manager;
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             return null;
@@ -220,7 +220,7 @@ namespace Unity.BuiltIn
                                 return candidate.Manager;
                             }
 
-                            position = Meta[position].Next;
+                            position = Meta[position].Reference;
                         }
 
                         // Nothing is found, add new and expand if required
@@ -235,14 +235,14 @@ namespace Unity.BuiltIn
 
                         ref var bucket = ref Meta[target];
                         Data[Index] = new Entry(contract.HashCode, contract.Type, factory.Registration.Name, manager);
-                        Meta[Index].Next = bucket.Position;
+                        Meta[Index].Reference = bucket.Position;
                         bucket.Position = Index;
 
                         return manager;
                     }
                 }
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             return null;
@@ -266,7 +266,7 @@ namespace Unity.BuiltIn
                     return candidate.Manager;
                 }
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             var version = Revision;
@@ -293,7 +293,7 @@ namespace Unity.BuiltIn
                             return candidate.Manager;
                         }
 
-                        position = Meta[position].Next;
+                        position = Meta[position].Reference;
                     }
                 }
 
@@ -309,7 +309,7 @@ namespace Unity.BuiltIn
 
                 ref var bucket = ref Meta[target];
                 Data[Index] = new Entry(in contract, manager, 0);
-                Meta[Index].Next = bucket.Position;
+                Meta[Index].Reference = bucket.Position;
                 bucket.Position = Index;
 
                 return manager;
@@ -339,7 +339,7 @@ namespace Unity.BuiltIn
                         null == candidate.Contract.Name)
                         return true;
 
-                    position = meta[position].Next;
+                    position = meta[position].Reference;
                 }
             }
             while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));
@@ -364,7 +364,7 @@ namespace Unity.BuiltIn
                         candidate.Contract.Name == contract.Name)
                         return true;
 
-                    position = meta[position].Next;
+                    position = meta[position].Reference;
                 }
             }
             while (null != (scope = Unsafe.As<ContainerScope>(scope.Next)));

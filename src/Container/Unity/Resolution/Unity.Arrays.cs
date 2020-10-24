@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using Unity.Container;
+using Unity.Storage;
 
 namespace Unity
 {
@@ -66,7 +67,7 @@ namespace Unity
                         {
                             unsafe
                             { 
-                                var buffer = stackalloc Scope.Location[context.Container._scope.Level + 1];
+                                var buffer = stackalloc Metadata[context.Container._scope.Level + 1];
 
 
 

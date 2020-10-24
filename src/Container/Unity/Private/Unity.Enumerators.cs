@@ -142,23 +142,23 @@ namespace Unity
 
                         while (position > 0)
                         {
-                            var entry = _scopes[data[position].Next].Memory.Span[data[position].Position];
+                            var entry = _scopes[data[position].Reference].Memory.Span[data[position].Position];
 
                             if (info.Internal.Contract.Type == entry.Internal.Contract.Type &&
                                 ReferenceEquals(info.Internal.Contract.Name, entry.Internal.Contract.Name)) 
                                 break; // Skip, already enumerated
 
-                            position = meta[position].Next;
+                            position = meta[position].Reference;
                         }
 
                         // Add new registration
                         if (0 == position)
                         {
-                            data[count].Next = level;
+                            data[count].Reference = level;
                             data[count].Position = i;
                             data[0].Position = count;
 
-                            meta[count].Next = meta[targetBucket].Position;
+                            meta[count].Reference = meta[targetBucket].Position;
                             meta[targetBucket].Position = count++;
 
                             yield return info.Registration;

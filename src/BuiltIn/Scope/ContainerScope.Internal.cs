@@ -18,7 +18,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Type, type) && null == candidate.Name)
                     return position;
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             return 0;
@@ -37,7 +37,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Type, contract.Type) && contract.Name == candidate.Name)
                     return position;
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             return 0;
@@ -47,7 +47,7 @@ namespace Unity.BuiltIn
         {
             var scope = Unsafe.As<ContainerScope>(iterator.Scope);
             var meta  = scope.Meta;
-            var position = meta[iterator.Position].Next;
+            var position = meta[iterator.Position].Reference;
 
             while (position > 0)
             {
@@ -55,7 +55,7 @@ namespace Unity.BuiltIn
                 if (ReferenceEquals(candidate.Type, iterator.Type) && candidate.Name == null)
                     return position;
 
-                position = meta[position].Next;
+                position = meta[position].Reference;
             }
 
             return 0;

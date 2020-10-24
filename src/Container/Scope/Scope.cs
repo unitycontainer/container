@@ -46,7 +46,7 @@ namespace Unity.Container
             SyncRoot = new object();
 
             // Contracts
-            Prime = Storage.Prime.IndexOf(capacity);
+            Prime = Storage.Prime.NextUp(capacity);
             Data = new Entry[Storage.Prime.Numbers[Prime++]];
 
             // Segment
@@ -66,7 +66,7 @@ namespace Unity.Container
             SyncRoot = new object();
 
             // Contracts
-            Prime = Storage.Prime.IndexOf(capacity);
+            Prime = Storage.Prime.NextUp(capacity);
             Data = new Entry[Storage.Prime.Numbers[Prime++]];
 
             // Segment
