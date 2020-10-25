@@ -42,7 +42,7 @@ namespace Unity.Container
 
             #region Data
 
-            public int Level => _location.Reference;
+            public int Level => _location.Location;
 
             public int Position => _location.Position;
 
@@ -71,12 +71,12 @@ namespace Unity.Container
                     if (0 == _location.Position)
                     {
                         _location = span[_index];
-                        Scope = _ancestry[_location.Reference];
+                        Scope = _ancestry[_location.Location];
                         return true;
                     }
 
                     if (0 < (_location.Position = _anonymous ? Scope.MoveNext(ref this)
-                                                           : Scope.Data[_location.Position].Next))
+                                                             : Entry.Next))
                         return true;
                 }
                 while (span.Length > ++_index);
@@ -87,8 +87,8 @@ namespace Unity.Container
                     _anonymous = false;
                     _location = span[_index];
 
-                    Scope = _ancestry[_location.Reference];
-                    _location.Position = Scope.Data[_location.Position].Next;
+                    Scope = _ancestry[_location.Location];
+                    _location.Position = Entry.Next;
                 }
 
                 return 0 < _location.Position;

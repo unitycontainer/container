@@ -37,16 +37,16 @@ namespace Unity
                 while (position > 0)
                 {
                     ref var entry = ref _data[position];
-                    if (contract.HashCode == entry.Reference && 0 == entry.Position)
+                    if (contract.HashCode == entry.Location && 0 == entry.Position)
                         return false;
 
-                    position = _meta[position].Reference;
+                    position = _meta[position].Location;
                 }
 
                 if (_data.Length <= ++_index) Expand();
 
                 _data[_index] = new Metadata(contract.HashCode, 0);
-                _meta[_index].Reference = bucket.Position;
+                _meta[_index].Location = bucket.Position;
                 bucket.Position = _index;
 
                 return true;
@@ -66,19 +66,19 @@ namespace Unity
 
                 while (position > 0)
                 {
-                    var scope = _ancestry[_data[position].Reference]._scope;
+                    var scope = _ancestry[_data[position].Location]._scope;
                     ref var entry = ref scope[_data[position].Position].Internal.Contract;
 
                     if (ReferenceEquals(contract.Type, entry.Type) && contract.Name == entry.Name)
                         return false;
 
-                    position = _meta[position].Reference;
+                    position = _meta[position].Location;
                 }
 
                 if (_data.Length <= ++_index) Expand();
 
                 _data[_index] = new Metadata(level, index);
-                _meta[_index].Reference = bucket.Position;
+                _meta[_index].Location = bucket.Position;
                 bucket.Position = _index;
 
                 return true;
@@ -94,12 +94,12 @@ namespace Unity
                 for (var position = 1; position <= _index; position++)
                 {
                     ref var record = ref _data[position];
-                    var scope = _ancestry[record.Reference]._scope;
+                    var scope = _ancestry[record.Location]._scope;
                     ref var contract = ref scope[record.Position].Internal.Contract;
                     if (null == contract.Name) continue;
 
                     var bucket = ((uint)contract.HashCode) % _meta.Length;
-                    _meta[position].Reference = _meta[bucket].Position;
+                    _meta[position].Location = _meta[bucket].Position;
                     _meta[bucket].Position = position;
                 }
             }

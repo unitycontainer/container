@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Storage;
+﻿using Unity.Storage;
 
 namespace Unity.Container
 {
@@ -9,7 +8,6 @@ namespace Unity.Container
         {
             #region Fields
 
-            private int _count;
             private Metadata[] _meta;
             private Metadata[] _data;
             private readonly Scope[] _ancestry;
@@ -21,7 +19,6 @@ namespace Unity.Container
 
             public ScopeSet(Scope[] ancestry)
             {
-                _count = 0;
                 _ancestry = ancestry;
 
                 // TODO: var prime = Storage.Prime.IndexOf(7 * ancestry.Length);
@@ -42,14 +39,14 @@ namespace Unity.Container
                 while (position > 0)
                 {
                     ref var local = ref _data[position];
-                        var scope = _ancestry[local.Reference];
-                    ref var entry = ref scope.Data[local.Position].Internal.Contract;
-
+                    ref var entry = ref _ancestry[local.Location]
+                                            .Data[local.Position]
+                                            .Internal.Contract;
                     if (ReferenceEquals(contract.Type, entry.Type) && 
                                         contract.Name == entry.Name)
                         return true;
 
-                    position = _meta[position].Reference;
+                    position = _meta[position].Location;
                 }
 
                 return false;
@@ -67,17 +64,19 @@ namespace Unity.Container
                     while (position > 0)
                     {
                         ref var local = ref _data[position];
-                        ref var entry = ref _ancestry[local.Reference][local.Position].Internal.Contract;
-
+                        ref var entry = ref _ancestry[local.Location]
+                                                     [local.Position].Internal
+                                                                     .Contract;
                         if (ReferenceEquals(entry.Type, contract.Type) && 
                                             entry.Name == contract.Name)
                             return false;
 
-                        position = _meta[position].Reference;
+                        position = _meta[position].Location;
                     }
                 }
 
-                if (_data.Length <= ++_count)
+                var count = _data.Increment();
+                if (_data.Length <= count)
                 {
                     Expand();
                     target = ((uint)contract.HashCode) % _meta.Length;
@@ -85,9 +84,9 @@ namespace Unity.Container
 
                 // Add new registration
                 ref var bucket = ref _meta[target];
-                _data[_count] = iterator.Location;
-                _meta[_count].Reference = bucket.Position;
-                bucket.Position = _count;
+                _data[count] = iterator.Location;
+                _meta[count].Location = bucket.Position;
+                bucket.Position = count;
 
                 return true;
             }
@@ -100,19 +99,20 @@ namespace Unity.Container
             {
                 var prime = Storage.Prime.IndexOf(_meta.Length);
                 var meta  = new Metadata[Storage.Prime.Numbers[++prime]];
+                var count = _data.Count();
 
-                for (var position = 1; position < _count; position++)
+                for (var position = 1; position < count; position++)
                 {
                     ref var record = ref _data[position];
-                        var scope  = _ancestry[record.Reference];
+                        var scope  = _ancestry[record.Location];
                     ref var contract = ref scope[record.Position].Internal.Contract;
 
                     var bucket = ((uint)contract.HashCode) % meta.Length;
-                    meta[position].Reference = meta[bucket].Position;
+                    meta[position].Location = meta[bucket].Position;
                     meta[bucket].Position = position;
                 }
 
-                Array.Copy(_data, _meta, _data.Length);
+                _data.CopyTo(_meta, 0);
                 _data = _meta; 
                 _meta = meta;
             }

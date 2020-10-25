@@ -38,7 +38,7 @@ namespace Unity.Container
                         return (ResolveDelegate<PipelineContext>?)candidate.Value;
                     }
 
-                    position = Meta[position].Reference;
+                    position = Meta[position].Location;
                 }
 
                 return null;
@@ -64,7 +64,7 @@ namespace Unity.Container
                             return;
                         }
 
-                        position = Meta[position].Reference;
+                        position = Meta[position].Location;
                     }
 
                     if (++Count >= Data.Length)
@@ -75,7 +75,7 @@ namespace Unity.Container
 
                     // Add new registration
                     Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), value);
-                    Meta[Count].Reference = bucket.Position;
+                    Meta[Count].Location = bucket.Position;
                     bucket.Position = Count;
                 }
             }
@@ -107,7 +107,7 @@ namespace Unity.Container
                         return (ResolveDelegate<PipelineContext>)candidate.Value;
                     }
 
-                    position = Meta[position].Reference;
+                    position = Meta[position].Location;
                 }
 
                 if (++Count >= Data.Length)
@@ -118,7 +118,7 @@ namespace Unity.Container
 
                 // Add new registration
                 Data[Count] = new Policy(hash, target, typeof(ResolveDelegate<PipelineContext>), policy);
-                Meta[Count].Reference = bucket.Position;
+                Meta[Count].Location = bucket.Position;
                 bucket.Position = Count;
 
                 return policy;
@@ -133,7 +133,7 @@ namespace Unity.Container
             for (var current = 1; current < Count; current++)
             {
                 var bucket = Data[current].Hash % Meta.Length;
-                Meta[current].Reference = Meta[bucket].Position;
+                Meta[current].Location = Meta[bucket].Position;
                 Meta[bucket].Position = current;
             }
         }

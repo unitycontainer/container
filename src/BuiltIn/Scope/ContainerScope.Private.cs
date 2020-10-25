@@ -106,7 +106,7 @@ namespace Unity.BuiltIn
                     return replacement;
                 }
 
-                position = Meta[position].Reference;
+                position = Meta[position].Location;
             }
 
             ref var @default = ref Data[GetDefault(type)];
@@ -114,7 +114,7 @@ namespace Unity.BuiltIn
             // Add new registration
             Index++;
             Data[Index] = new Entry(hash, type, name, manager, @default.Next);
-            Meta[Index].Reference = bucket.Position;
+            Meta[Index].Location = bucket.Position;
             bucket.Position = Index;
             @default.Next = Index;
             Revision += 1;
@@ -136,13 +136,13 @@ namespace Unity.BuiltIn
                     return position;
                 }
 
-                position = Meta[position].Reference;
+                position = Meta[position].Location;
             }
 
             // Add new registration
             Index++;
             Data[Index] = new Entry(hash, type);
-            Meta[Index].Reference = bucket.Position;
+            Meta[Index].Location = bucket.Position;
             bucket.Position = Index;
             return Index;
         }
@@ -161,7 +161,7 @@ namespace Unity.BuiltIn
             for (var current = START_INDEX; current <= Index; current++)
             {
                 var bucket = ((uint)Data[current].Internal.Contract.HashCode) % meta.Length;
-                meta[current].Reference = meta[bucket].Position;
+                meta[current].Location = meta[bucket].Position;
                 meta[bucket].Position = current;
             }
 

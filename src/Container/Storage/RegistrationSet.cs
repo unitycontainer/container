@@ -43,7 +43,7 @@ namespace Unity.Storage
 
             ref var bucket = ref _meta[target];
             _data[_index] = new Metadata();
-            _meta[_index].Reference = bucket.Position;
+            _meta[_index].Location = bucket.Position;
             bucket.Position = _index;
 
             return true;
