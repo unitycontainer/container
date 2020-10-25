@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Unity.Storage;
 
 namespace Unity.Container
@@ -11,10 +10,39 @@ namespace Unity.Container
 
         internal abstract int IndexOf(Type type, int hash);
 
+        internal int GetNextType(int current)
+        {
+            while (++current <= Index)
+            {
+                if (null == Data[current].Internal.Contract.Name)
+                    return current;
+            }
+            
+            return 0;
+        }
+
+        internal int GetReferences(int index, Metadata[] buffer)
+        {
+            ref var contract = ref Data[index].Internal.Contract;
+            var count = 0;
+            var scope = this;
+
+            do
+            {
+                var position = scope.IndexOf(contract.Type, contract.HashCode);
+                if (0 < position)
+                {
+                    buffer[count++] = new Metadata(scope.Level, position);
+                    if (0 > scope.Data[position].Next) return count;
+                }
+            }
+            while (null != (scope = scope.Next));
+
+            return count;
+        }
+
         internal ReadOnlySpan<Metadata> GetReferences(Type type, in Span<Metadata> buffer)
         {
-            Debug.Assert(Level < buffer.Length);
-
             var hash = type.GetHashCode();
             var count = 0;
             var scope = this;
@@ -35,8 +63,6 @@ namespace Unity.Container
 
         internal ReadOnlyMemory<Metadata> GetReferences(in Contract contract, in Memory<Metadata> buffer)
         {
-            Debug.Assert(Level < buffer.Length);
-
             var count = 0;
             var scope = this;
 

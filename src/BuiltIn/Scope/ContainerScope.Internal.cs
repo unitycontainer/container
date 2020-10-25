@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Unity.Container;
 
 namespace Unity.BuiltIn
 {
@@ -43,16 +44,15 @@ namespace Unity.BuiltIn
             return 0;
         }
 
-        internal override int MoveNext(ref Iterator iterator)
+        internal override int MoveNext(Scope scope, int index, Type type)
         {
-            var scope = Unsafe.As<ContainerScope>(iterator.Scope);
-            var meta  = scope.Meta;
-            var position = meta[iterator.Position].Location;
+            var meta = Unsafe.As<ContainerScope>(scope).Meta;
+            var position = meta[index].Location;
 
             while (position > 0)
             {
                 ref var candidate = ref scope[position].Internal.Contract;
-                if (ReferenceEquals(candidate.Type, iterator.Type) && candidate.Name == null)
+                if (ReferenceEquals(candidate.Type, type) && candidate.Name == null)
                     return position;
 
                 position = meta[position].Location;
@@ -60,5 +60,6 @@ namespace Unity.BuiltIn
 
             return 0;
         }
+
     }
 }

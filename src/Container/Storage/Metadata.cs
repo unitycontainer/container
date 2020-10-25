@@ -22,21 +22,19 @@ namespace Unity.Storage
     public static class MetadataExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Count(this Metadata[] data)
-        {
-#if DEBUG
-            Debug.Assert(0 < data.Length);
-#endif
-            return data[0].Position;
-        }
+        public static int Count(this Metadata[] data) 
+            => data[0].Position;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Increment(this Metadata[] data)
-        {
-#if DEBUG
-            Debug.Assert(0 < data.Length);
-#endif
-            return ++data[0].Position;
-        }
+        public static int Increment(this Metadata[] data) 
+            => ++data[0].Position;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Version(this Metadata[] data)
+            => data[0].Location;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Version(this Metadata[] data, int version)
+            => data[0].Location = version;
     }
 }

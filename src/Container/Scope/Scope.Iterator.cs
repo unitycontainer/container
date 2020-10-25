@@ -5,7 +5,7 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-        internal abstract int MoveNext(ref Iterator enumerator);
+        internal abstract int MoveNext(Scope scope, int index, Type type);
 
         #region Iterator 
 
@@ -64,7 +64,7 @@ namespace Unity.Container
 
             public bool MoveNext(in ReadOnlySpan<Metadata> span)
             {
-                if (0 == span.Length || null == _ancestry) return false;
+                if (null == _ancestry) return false;
 
                 do
                 {
@@ -75,7 +75,7 @@ namespace Unity.Container
                         return true;
                     }
 
-                    if (0 < (_location.Position = _anonymous ? Scope.MoveNext(ref this)
+                    if (0 < (_location.Position = _anonymous ? Scope.MoveNext(Scope, _location.Position, Type)
                                                              : Entry.Next))
                         return true;
                 }

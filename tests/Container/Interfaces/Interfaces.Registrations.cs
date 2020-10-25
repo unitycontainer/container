@@ -41,29 +41,13 @@ namespace Container.Interfaces
             Assert.AreEqual(3, registrations.Length);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Registrations_ThrowsOnChange()
-        {
-            var enumerator = Container.Registrations.GetEnumerator();
-            
-            Assert.IsTrue(enumerator.MoveNext());
-            Container.RegisterInstance(this);
-            enumerator.MoveNext();
-        }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Registrations_ThrowsOnParentChange()
+        public void Registrations_ToArray_Twice()
         {
-            var enumerator = ((IUnityContainer)Container)
-                .CreateChildContainer()
-                .Registrations
-                .GetEnumerator();
-
-            Assert.IsTrue(enumerator.MoveNext());
-            Container.RegisterInstance(this);
-            enumerator.MoveNext();
+            Assert.AreEqual(3, Container.Registrations.ToArray().Length);
+            Assert.AreEqual(3, Container.Registrations.ToArray().Length);
+            Assert.AreEqual(3, Container.Registrations.ToArray().Length);
         }
 
         [TestMethod]

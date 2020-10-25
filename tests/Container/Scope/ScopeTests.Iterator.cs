@@ -12,35 +12,6 @@ namespace Container.Scopes
     public partial class ScopeTests
     {
         [TestMethod]
-        public void Iterator_Empty()
-        {
-            // Act
-            Span<Metadata> buffer = stackalloc Metadata[Scope.Level + 1];
-            var references = Scope.GetReferences(typeof(List<>), in buffer);
-            var iterator = new Iterator(Scope, typeof(List<>));
-
-            // Validate
-            Assert.IsFalse(iterator.MoveNext(in references));
-        }
-
-        [TestMethod]
-        public void Iterator_EmptyMultilevel()
-        {
-            // Arrange
-            var scope = Scope.CreateChildScope(1)
-                             .CreateChildScope(3)
-                             .CreateChildScope(5);
-            Span<Metadata> buffer = stackalloc Metadata[scope.Level + 1];
-            var references = Scope.GetReferences(typeof(List<>), in buffer);
-
-            // Act
-            var iterator = new Iterator(Scope, typeof(List<>));
-
-            // Validate
-            Assert.IsFalse(iterator.MoveNext(in references));
-        }
-
-        [TestMethod]
         public void Iterator_One_Anonymous()
         {
             // Arrange

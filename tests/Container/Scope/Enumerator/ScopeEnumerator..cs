@@ -12,7 +12,7 @@ namespace Container.Scopes
         public void Enumerator_Empty()
         {
             // Act
-            var enumerator = Scope.GetEnumerator();
+            var enumerator = Scope.GetOldEnumerator();
 
             // Validate
             Assert.IsFalse(enumerator.MoveNext());
@@ -28,7 +28,7 @@ namespace Container.Scopes
             Scope.Add(typeof(IServiceProvider),     manager, true);
 
             // Act
-            var enumerator = Scope.GetEnumerator();
+            var enumerator = Scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -53,7 +53,7 @@ namespace Container.Scopes
             scope.Add(typeof(IServiceProvider),     manager, true);
 
             // Act
-            var enumerator = scope.GetEnumerator();
+            var enumerator = scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -70,7 +70,7 @@ namespace Container.Scopes
                              .CreateChildScope(5);
 
             // Act
-            var enumerator = scope.GetEnumerator();
+            var enumerator = scope.GetOldEnumerator();
 
             // Validate
             Assert.IsFalse(enumerator.MoveNext());
@@ -83,7 +83,7 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), Manager);
 
             // Act
-            var enumerator = Scope.GetEnumerator();
+            var enumerator = Scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -98,7 +98,7 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), Manager);
 
             // Act
-            var enumerator = Scope.GetEnumerator();
+            var enumerator = Scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -113,7 +113,7 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), Name, Manager);
 
             // Act
-            var enumerator = Scope.GetEnumerator();
+            var enumerator = Scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -129,7 +129,7 @@ namespace Container.Scopes
             scope.Add(typeof(List<>), "two", Manager);
 
             // Act
-            var enumerator = scope.GetEnumerator();
+            var enumerator = scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -150,7 +150,7 @@ namespace Container.Scopes
             Scope.Add(typeof(List<>), other);
 
             // Act
-            var enumerator = Scope.GetEnumerator();
+            var enumerator = Scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -178,7 +178,7 @@ namespace Container.Scopes
             var scope = Scope.CreateChildScope(3);
 
             // Act
-            var enumerator = scope.GetEnumerator();
+            var enumerator = scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());
@@ -207,7 +207,7 @@ namespace Container.Scopes
             scope.Add(typeof(List<>), Manager);
 
             // Act
-            var enumerator = scope.GetEnumerator();
+            var enumerator = scope.GetOldEnumerator();
 
             // Validate
             Assert.IsTrue(enumerator.MoveNext());

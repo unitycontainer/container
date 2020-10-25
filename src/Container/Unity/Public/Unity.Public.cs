@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Container;
+﻿using Unity.Container;
 
 namespace Unity
 {
@@ -38,28 +36,6 @@ namespace Unity
         /// <param name="capacity">Preallocated capacity</param>
         public UnityContainer(int capacity) : this(Defaults.DEFAULT_ROOT_NAME, capacity)
         { }
-
-        #endregion
-
-
-        #region Registrations
-
-        /// <inheritdoc />
-        public bool IsRegistered(Type type, string? name) 
-            => _scope.Contains(new Contract(type, name));
-
-        /// <inheritdoc />
-        public IEnumerable<ContainerRegistration> Registrations
-        {
-            get
-            {
-                var enumerator = _scope.GetEnumerator();
-                while (enumerator.MoveNext())
-                {
-                    yield return enumerator.Registration;
-                }
-            }
-        }
 
         #endregion
 
