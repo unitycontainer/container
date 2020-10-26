@@ -58,6 +58,19 @@ namespace Unity.Container
             }
 
             #endregion
+
+
+            #region Properties
+
+            public int HashCode => Internal.Contract.HashCode;
+
+            public Type Type => Internal.Contract.Type;
+
+            public string? Name => Internal.Contract.Name;
+
+            public RegistrationManager? Manager => Internal.Manager;
+
+            #endregion
         }
 
         [StructLayout(LayoutKind.Sequential)]

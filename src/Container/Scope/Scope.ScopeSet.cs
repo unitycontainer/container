@@ -104,8 +104,46 @@ namespace Unity.Container
                 return true;
             }
 
+            public bool Add(in Metadata address)
+            {
+                ref var contract = ref _ancestry[address.Location]
+                                                [address.Position].Internal.Contract;
+                var target = ((uint)contract.HashCode) % _meta.Length;
 
-            public bool Add(in Enumerator enumerator)
+                if (null != contract.Name)
+                {
+                    var position = _meta[target].Position;
+
+                    while (position > 0)
+                    {
+                        ref var record = ref _data[position];
+                        ref var entry = ref _ancestry[record.Location]
+                                                      [record.Position].Internal.Contract;
+
+                        if (ReferenceEquals(entry.Type, contract.Type) && entry.Name == contract.Name)
+                            return false;
+
+                        position = _meta[position].Location;
+                    }
+                }
+
+                var count = _data.Increment();
+                if (_data.Length <= count)
+                {
+                    Expand();
+                    target = ((uint)contract.HashCode) % _meta.Length;
+                }
+
+                // Add new registration
+                ref var bucket = ref _meta[target];
+                _data[count] = address;
+                _meta[count].Location = bucket.Position;
+                bucket.Position = count;
+
+                return true;
+            }
+
+            public bool Add(in NewEnumerator enumerator)
             {
                 ref var contract = ref enumerator.Internal.Contract;
                 var target = ((uint)contract.HashCode) % _meta.Length;
@@ -148,14 +186,13 @@ namespace Unity.Container
             private void Expand()
             {
                 var count = _data.Count();
-                var prime = Storage.Prime.IndexOf(_meta.Length);
-                var meta  = new Metadata[Storage.Prime.Numbers[++prime]];
+                var prime = Storage.Prime.NextUp(_meta.Length);
+                var meta  = new Metadata[Storage.Prime.Numbers[prime]];
 
                 for (var position = 1; position < count; position++)
                 {
                     ref var record = ref _data[position];
-                    ref var bucket = ref meta[((uint)_ancestry[record.Location][record.Position]
-                                            .Internal.Contract.HashCode) % meta.Length];
+                    ref var bucket = ref meta[((uint)_ancestry[record.Location][record.Position].HashCode) % meta.Length];
 
                     meta[position].Location = bucket.Position;
                     bucket.Position = position;

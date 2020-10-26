@@ -5,6 +5,8 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
+        internal abstract int MoveNext(int index, Type type);
+
         internal abstract int MoveNext(Scope scope, int index, Type type);
 
         #region Iterator 

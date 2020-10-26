@@ -5,10 +5,10 @@ namespace Unity.Container
 {
     public abstract partial class Scope
     {
-
         internal abstract int IndexOf(in Contract contract);
 
         internal abstract int IndexOf(Type type, int hash);
+
 
         internal int GetNextType(int current)
         {
@@ -17,8 +17,26 @@ namespace Unity.Container
                 if (null == Data[current].Internal.Contract.Name)
                     return current;
             }
-            
+
             return 0;
+        }
+
+        internal (Scope, Metadata) NextType(in Metadata address)
+        {
+            var index = address.Position;
+            var scope = 0 == index ? this : Ancestry[address.Location];
+
+            do 
+            { 
+                while (++index <= scope.Index)
+                {
+                    if (null == scope.Data[index].Internal.Contract.Name)
+                        return (scope, new Metadata(scope.Level, index));
+                }
+            } 
+            while (null != (scope = scope.Next));
+
+            return (this, default);
         }
 
         internal int GetReferences(int index, Metadata[] buffer)

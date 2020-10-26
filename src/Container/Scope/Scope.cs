@@ -30,7 +30,7 @@ namespace Unity.Container
         protected int Index;
         protected int Revision;
         protected Entry[] Data;
-        protected readonly Scope[] Ancestry;
+        internal readonly Scope[] Ancestry;
 
         #endregion
 

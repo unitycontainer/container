@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Storage;
+using static Unity.Container.Scope;
 
 namespace Unity
 {
@@ -29,11 +30,32 @@ namespace Unity
         {
             get
             {
+                var set = new ScopeSet(_scope);
+                var enumerator = new Enumerator(this);
+
+                while (enumerator.MoveNext())
+                {
+                    //if (set.Contains(in enumerator.Contract))
+                    //    continue;
+
+                    var manager = enumerator.Internal.Manager;
+                    if (null == manager || RegistrationCategory.Internal > manager.Category)
+                        continue;
+
+                    yield return enumerator.Registration;
+                }
+            }
+        }
+
+        public IEnumerable<ContainerRegistration> OtherRegistrations
+        {
+            get
+            {
                 if (null == _cache || _scope.Version != _cache.Version())
                 {
                     var scope = _scope;
-                    var set = new Container.Scope.ScopeSet(_scope);
-                    var buffer = new Metadata[_ancestry.Length];
+                    var set = new ScopeSet(_scope);
+                    var buffer = new Metadata[_depth];
 
                     do
                     {
@@ -43,7 +65,7 @@ namespace Unity
                             if (set.Contains(in scope[index].Internal.Contract))
                                 continue;
 
-                            var _iterator = new Container.Scope.Enumerator(scope, index, buffer);
+                            var _iterator = new NewEnumerator(scope, index, buffer);
 
                             while (_iterator.MoveNext())
                             {
@@ -67,13 +89,12 @@ namespace Unity
                     for (var index = 1; index <= count; index++)
                     {
                         var record = _cache[index];
-                        var scope = _ancestry[record.Location]._scope;
-                        var manager = scope[record.Position].Internal.Manager;
+                        var manager = _scope[in record].Internal.Manager;
 
                         if (null == manager || RegistrationCategory.Internal > manager.Category)
                             continue;
 
-                        yield return scope[record.Position].Registration;
+                        yield return _scope[in record].Registration;
                     }
                 }
             }

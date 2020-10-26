@@ -10,7 +10,7 @@ namespace Unity
         #region Fields
 
         private readonly int BUILT_IN_CONTRACT_COUNT;
-        private readonly UnityContainer[] _ancestry;
+        private readonly int _depth;
 
         internal Scope _scope;
         internal readonly Defaults _policies;
@@ -26,12 +26,12 @@ namespace Unity
         /// <param name="capacity">Preallocated capacity</param>
         public UnityContainer(string name, int capacity)
         {
+            _depth = 0;
             Root = this;
             Name = name;
 
             _policies = new Defaults();
             _context  = new PrivateExtensionContext(this);
-            _ancestry = new[] { this };
 
             // Registration Scope
             _scope = new ContainerScope(capacity);
@@ -56,14 +56,12 @@ namespace Unity
         /// <param name="name">Name of this container</param>
         protected UnityContainer(UnityContainer parent, string? name, int capacity)
         {
+            _depth = parent._depth + 1;
             Name   = name;
             Root   = parent.Root;
             Parent = parent;
 
             _policies = parent.Root._policies;
-            _ancestry = new UnityContainer[parent._ancestry.Length + 1];
-            _ancestry[parent._ancestry.Length] = this;
-            Array.Copy(parent._ancestry, _ancestry, parent._ancestry.Length);
 
             // Registration Scope
             _scope = parent._scope.CreateChildScope(capacity);

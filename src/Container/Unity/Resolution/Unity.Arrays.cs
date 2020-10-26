@@ -74,7 +74,7 @@ namespace Unity
                             }
 
                             // Rebuild metadata
-                            var recorder = new Recorder(context.Container._ancestry, 11);
+                            //var recorder = new Recorder(context.Container._ancestry, 11);
                             //var enumerator = context.Container._scope.GetIterator(typeof(TTarget));
                             //while (enumerator.MoveNext()) recorder.Add(enumerator.Scope, enumerator.Positon, ref enumerator.Internal);
 

@@ -36,5 +36,13 @@ namespace Unity.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Version(this Metadata[] data, int version)
             => data[0].Location = version;
+
+        public static void AddRecord(this Metadata[] data, int location, int position)
+        {
+                var index  = ++data[0].Position;
+            ref var record = ref data[index];
+            record.Location = location;
+            record.Position = position;
+        }
     }
 }

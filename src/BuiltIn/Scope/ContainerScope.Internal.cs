@@ -44,6 +44,23 @@ namespace Unity.BuiltIn
             return 0;
         }
 
+        internal override int MoveNext(int index, Type type)
+        {
+            var meta = Meta;
+            var position = meta[index].Location;
+
+            while (position > 0)
+            {
+                ref var candidate = ref this[position].Internal.Contract;
+                if (ReferenceEquals(candidate.Type, type) && candidate.Name == null)
+                    return position;
+
+                position = meta[position].Location;
+            }
+
+            return 0;
+        }
+
         internal override int MoveNext(Scope scope, int index, Type type)
         {
             var meta = Unsafe.As<ContainerScope>(scope).Meta;
